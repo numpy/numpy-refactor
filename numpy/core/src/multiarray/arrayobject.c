@@ -29,6 +29,7 @@ maintainer email:  oliphant.travis@ieee.org
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -57,7 +58,7 @@ NPY_NO_EXPORT intp
 PyArray_Size(PyObject *op)
 {
     if (PyArray_Check(op)) {
-        return PyArray_SIZE((PyArrayObject *)op);
+        NpyArray_Size((NpyArray*)op);
     }
     else {
         return 0;
