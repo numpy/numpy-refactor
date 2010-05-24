@@ -145,16 +145,7 @@ PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
 NPY_NO_EXPORT int
 PyArray_TypeNumFromName(char *str)
 {
-    int i;
-    PyArray_Descr *descr;
-
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
-        descr = userdescrs[i];
-        if (strcmp(descr->typeobj->tp_name, str) == 0) {
-            return descr->type_num;
-        }
-    }
-    return PyArray_NOTYPE;
+    return NpyArray_TypeNumFromName(str);
 }
 
 /*********************** end C-API functions **********************/

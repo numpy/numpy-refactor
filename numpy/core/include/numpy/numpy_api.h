@@ -43,6 +43,7 @@ int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
                               NpyArray_VectorUnaryFunc *castfunc);
 int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
                              NPY_SCALARKIND scalar);
+int NpyArray_TypeNumFromName(char *str);
 
 /*
  * Error handling.
