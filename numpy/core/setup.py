@@ -687,7 +687,8 @@ def configuration(parent_package='',top_path=None):
             subst_dict)
 
     config.add_library('numpy',
-                       sources=[join('src', 'libnumpy', 'npy_arrayobject.c')])
+                       sources=[join('src', 'libnumpy', 'npy_arrayobject.c'),
+                                join('src', 'libnumpy', 'npy_usertypes.c')])
    
     multiarray_deps = [
             join('src', 'multiarray', 'arrayobject.h'),

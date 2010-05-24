@@ -38,8 +38,6 @@ maintainer email:  oliphant.travis@ieee.org
 
 #include "usertypes.h"
 
-NPY_NO_EXPORT PyArray_Descr **userdescrs=NULL;
-
 static int *
 _append_new(int *types, int insert)
 {

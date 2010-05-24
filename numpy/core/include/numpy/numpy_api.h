@@ -4,6 +4,7 @@
 #include "numpy/arrayobject.h"
 
 typedef PyArrayObject NpyArray;
+typedef PyArray_Descr NpyArray_Descr;
 
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
@@ -25,5 +26,6 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp o
  * TMP
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
+#define npy_userdescrs userdescrs
 
 #endif
