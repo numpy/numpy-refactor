@@ -8,6 +8,7 @@ typedef PyArray_Descr NpyArray_Descr;
 
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
+typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
@@ -19,6 +20,7 @@ typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 #define NpyArray_NTYPES PyArray_NTYPES
 #define NpyArray_NSORTS PyArray_NSORTS
 #define NpyArray_USERDEF PyArray_USERDEF
+#define NpyTypeNum_ISUSERDEF(a) PyTypeNum_ISUSERDEF(a)
 
 
 
@@ -34,6 +36,8 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp o
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
+int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
+                              NpyArray_VectorUnaryFunc *castfunc);
 
 /*
  * Error handling.
@@ -41,6 +45,7 @@ int NpyArray_RegisterDataType(NpyArray_Descr *descr);
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
+#define NpyExc_TypeError PyExc_TypeError
 
 
 

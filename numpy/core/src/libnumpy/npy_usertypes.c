@@ -165,3 +165,51 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
     npy_userdescrs[NPY_NUMUSERTYPES++] = descr;
     return typenum;
 }
+
+/*
+  Register Casting Function
+  Replaces any function currently stored.
+*/
+int
+NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
+                          NpyArray_VectorUnaryFunc *castfunc)
+{
+    PyObject *cobj, *key;
+    int ret;
+
+    if (totype < NpyArray_NTYPES) {
+        descr->f->cast[totype] = castfunc;
+        return 0;
+    }
+    if (!NpyTypeNum_ISUSERDEF(totype)) {
+        NpyErr_SetString(NpyExc_TypeError, "invalid type number.");
+        return -1;
+    }
+    /* XXX: This uses a Python dict and needs to be changed. */
+    if (descr->f->castdict == NULL) {
+        descr->f->castdict = PyDict_New();
+        if (descr->f->castdict == NULL) {
+            return -1;
+        }
+    }
+    key = PyInt_FromLong(totype);
+    if (PyErr_Occurred()) {
+        return -1;
+    }
+#if defined(NPY_PY3K)
+    cobj = PyCapsule_New((void *)castfunc, NULL, NULL);
+    if (cobj == NULL) {
+        PyErr_Clear();
+    }
+#else
+    cobj = PyCObject_FromVoidPtr((void *)castfunc, NULL);
+#endif
+    if (cobj == NULL) {
+        Py_DECREF(key);
+        return -1;
+    }
+    ret = PyDict_SetItem(descr->f->castdict, key, cobj);
+    Py_DECREF(key);
+    Py_DECREF(cobj);
+    return ret;
+}
