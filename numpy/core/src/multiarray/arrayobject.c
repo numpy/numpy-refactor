@@ -404,15 +404,7 @@ array_str(PyArrayObject *self)
 NPY_NO_EXPORT int
 PyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len)
 {
-    PyArray_UCS4 c1, c2;
-    while(len-- > 0) {
-        c1 = *s1++;
-        c2 = *s2++;
-        if (c1 != c2) {
-            return (c1 < c2) ? -1 : 1;
-        }
-    }
-    return 0;
+    return NpyArray_CompareUCS4(s1, s2, len);
 }
 
 /*NUMPY_API
@@ -420,16 +412,7 @@ PyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len)
 NPY_NO_EXPORT int
 PyArray_CompareString(char *s1, char *s2, size_t len)
 {
-    const unsigned char *c1 = (unsigned char *)s1;
-    const unsigned char *c2 = (unsigned char *)s2;
-    size_t i;
-
-    for(i = 0; i < len; ++i) {
-        if (c1[i] != c2[i]) {
-            return (c1[i] > c2[i]) ? 1 : -1;
-        }
-    }
-    return 0;
+    return NpyArray_CompareString(s1, s2, len);
 }
 
 
@@ -1059,16 +1042,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
 NPY_NO_EXPORT int
 PyArray_ElementStrides(PyObject *arr)
 {
-    int itemsize = PyArray_ITEMSIZE(arr);
-    int i, N = PyArray_NDIM(arr);
-    intp *strides = PyArray_STRIDES(arr);
-
-    for (i = 0; i < N; i++) {
-        if ((strides[i] % itemsize) != 0) {
-            return 0;
-        }
-    }
-    return 1;
+    return NpyArray_ElementStrides(arr);
 }
 
 /*
@@ -1093,23 +1067,8 @@ NPY_NO_EXPORT Bool
 PyArray_CheckStrides(int elsize, int nd, intp numbytes, intp offset,
                      intp *dims, intp *newstrides)
 {
-    int i;
-    intp byte_begin;
-    intp begin;
-    intp end;
-
-    if (numbytes == 0) {
-        numbytes = PyArray_MultiplyList(dims, nd) * elsize;
-    }
-    begin = -offset;
-    end = numbytes - offset - elsize;
-    for (i = 0; i < nd; i++) {
-        byte_begin = newstrides[i]*(dims[i] - 1);
-        if ((byte_begin < begin) || (byte_begin > end)) {
-            return FALSE;
-        }
-    }
-    return TRUE;
+    return NpyArray_CheckStrides(elsize, nd, numbytes, offset,
+                                 dims, newstrides);
 }
 
 
