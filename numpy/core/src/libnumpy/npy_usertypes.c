@@ -108,3 +108,60 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 }
 
 
+/*
+  returns typenum to associate with this type >=PyArray_USERDEF.
+  needs the userdecrs table and PyArray_NUMUSER variables
+  defined in arraytypes.inc
+*/
+/*
+  Register Data type
+  Does not change the reference count of descr
+*/
+int
+NpyArray_RegisterDataType(NpyArray_Descr *descr)
+{
+    NpyArray_Descr *descr2;
+    int typenum;
+    int i;
+    NpyArray_ArrFuncs *f;
+
+    /* See if this type is already registered */
+    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+        descr2 = npy_userdescrs[i];
+        if (descr2 == descr) {
+            return descr->type_num;
+        }
+    }
+    typenum = PyArray_USERDEF + NPY_NUMUSERTYPES;
+    descr->type_num = typenum;
+    if (descr->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError, "cannot register a" \
+                         "flexible data-type");
+        return -1;
+    }
+    f = descr->f;
+    if (f->nonzero == NULL) {
+        f->nonzero = _default_nonzero;
+    }
+    if (f->copyswapn == NULL) {
+        f->copyswapn = _default_copyswapn;
+    }
+    if (f->copyswap == NULL || f->getitem == NULL ||
+        f->setitem == NULL) {
+        NpyErr_SetString(NpyExc_ValueError, "a required array function"   \
+                         " is missing.");
+        return -1;
+    }
+    if (descr->typeobj == NULL) {
+        NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
+        return -1;
+    }
+    npy_userdescrs = realloc(userdescrs,
+                             (NPY_NUMUSERTYPES+1)*sizeof(void *));
+    if (npy_userdescrs == NULL) {
+        NpyErr_SetString(NpyExc_MemoryError, "RegisterDataType");
+        return -1;
+    }
+    npy_userdescrs[NPY_NUMUSERTYPES++] = descr;
+    return typenum;
+}

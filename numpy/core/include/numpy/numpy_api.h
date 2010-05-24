@@ -18,6 +18,8 @@ typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 #define NpyArray_NOTYPE PyArray_NOTYPE
 #define NpyArray_NTYPES PyArray_NTYPES
 #define NpyArray_NSORTS PyArray_NSORTS
+#define NpyArray_USERDEF PyArray_USERDEF
+
 
 
 /*
@@ -31,6 +33,15 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp o
                                npy_intp *dims, npy_intp *newstrides);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
+int NpyArray_RegisterDataType(NpyArray_Descr *descr);
+
+/*
+ * Error handling.
+ */
+#define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
+#define NpyExc_ValueError PyExc_ValueError
+#define NpyExc_MemoryError PyExc_MemoryError
+
 
 
 /*
