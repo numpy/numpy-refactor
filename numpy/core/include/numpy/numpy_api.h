@@ -6,10 +6,18 @@
 typedef PyArrayObject NpyArray;
 typedef PyArray_Descr NpyArray_Descr;
 
+typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
+typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
+
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
 #define NpyArray_NDIM(a) PyArray_NDIM(a)
 #define NpyArray_STRIDES(a) PyArray_STRIDES(a)
+#define NpyArray_DESCR(a) PyArray_DESCR(a)
+
+#define NpyArray_NOTYPE PyArray_NOTYPE
+#define NpyArray_NTYPES PyArray_NTYPES
+#define NpyArray_NSORTS PyArray_NSORTS
 
 
 /*
@@ -21,6 +29,9 @@ int NpyArray_CompareString(char *s1, char *s2, size_t len);
 int NpyArray_ElementStrides(NpyArray *arr);
 npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
+
+void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
+
 
 /*
  * TMP

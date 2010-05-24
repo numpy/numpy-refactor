@@ -38,6 +38,8 @@ maintainer email:  oliphant.travis@ieee.org
 
 #include "usertypes.h"
 
+#include "numpy/numpy_api.h"
+
 static int *
 _append_new(int *types, int insert)
 {
@@ -90,31 +92,7 @@ _default_copyswapn(void *dst, npy_intp dstride, void *src,
 NPY_NO_EXPORT void
 PyArray_InitArrFuncs(PyArray_ArrFuncs *f)
 {
-    int i;
-
-    for(i = 0; i < PyArray_NTYPES; i++) {
-        f->cast[i] = NULL;
-    }
-    f->getitem = NULL;
-    f->setitem = NULL;
-    f->copyswapn = NULL;
-    f->copyswap = NULL;
-    f->compare = NULL;
-    f->argmax = NULL;
-    f->dotfunc = NULL;
-    f->scanfunc = NULL;
-    f->fromstr = NULL;
-    f->nonzero = NULL;
-    f->fill = NULL;
-    f->fillwithscalar = NULL;
-    for(i = 0; i < PyArray_NSORTS; i++) {
-        f->sort[i] = NULL;
-        f->argsort[i] = NULL;
-    }
-    f->castdict = NULL;
-    f->scalarkind = NULL;
-    f->cancastscalarkindto = NULL;
-    f->cancastto = NULL;
+    NpyArray_InitArrFuncs(f);
 }
 
 /*

@@ -1042,7 +1042,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
 NPY_NO_EXPORT int
 PyArray_ElementStrides(PyObject *arr)
 {
-    return NpyArray_ElementStrides(arr);
+    return NpyArray_ElementStrides((NpyArray*)arr);
 }
 
 /*
