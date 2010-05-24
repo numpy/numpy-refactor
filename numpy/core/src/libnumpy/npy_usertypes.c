@@ -82,7 +82,7 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 {
     int i;
 
-    for(i = 0; i < PyArray_NTYPES; i++) {
+    for(i = 0; i < NpyArray_NTYPES; i++) {
         f->cast[i] = NULL;
     }
     f->getitem = NULL;
@@ -97,7 +97,7 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
     f->nonzero = NULL;
     f->fill = NULL;
     f->fillwithscalar = NULL;
-    for(i = 0; i < PyArray_NSORTS; i++) {
+    for(i = 0; i < NpyArray_NSORTS; i++) {
         f->sort[i] = NULL;
         f->argsort[i] = NULL;
     }
@@ -109,8 +109,8 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 
 
 /*
-  returns typenum to associate with this type >=PyArray_USERDEF.
-  needs the userdecrs table and PyArray_NUMUSER variables
+  returns typenum to associate with this type >=NpyArray_USERDEF.
+  needs the userdecrs table and NpyArray_NUMUSER variables
   defined in arraytypes.inc
 */
 /*
@@ -132,7 +132,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
             return descr->type_num;
         }
     }
-    typenum = PyArray_USERDEF + NPY_NUMUSERTYPES;
+    typenum = NpyArray_USERDEF + NPY_NUMUSERTYPES;
     descr->type_num = typenum;
     if (descr->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "cannot register a" \
@@ -213,3 +213,47 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
     Py_DECREF(cobj);
     return ret;
 }
+
+/*
+ * Register a type number indicating that a descriptor can be cast
+ * to it safely
+ */
+int
+NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
+                        NPY_SCALARKIND scalar)
+{
+    if (scalar == NpyArray_NOSCALAR) {
+        /*
+         * register with cancastto
+         * These lists won't be freed once created
+         * -- they become part of the data-type
+         */
+        if (descr->f->cancastto == NULL) {
+            descr->f->cancastto = (int *)malloc(1*sizeof(int));
+            descr->f->cancastto[0] = NpyArray_NOTYPE;
+        }
+        descr->f->cancastto = _append_new(descr->f->cancastto,
+                                          totype);
+    }
+    else {
+        /* register with cancastscalarkindto */
+        if (descr->f->cancastscalarkindto == NULL) {
+            int i;
+            descr->f->cancastscalarkindto =
+                (int **)malloc(NpyArray_NSCALARKINDS* sizeof(int*));
+            for (i = 0; i < NpyArray_NSCALARKINDS; i++) {
+                descr->f->cancastscalarkindto[i] = NULL;
+            }
+        }
+        if (descr->f->cancastscalarkindto[scalar] == NULL) {
+            descr->f->cancastscalarkindto[scalar] =
+                (int *)malloc(1*sizeof(int));
+            descr->f->cancastscalarkindto[scalar][0] =
+                NpyArray_NOTYPE;
+        }
+        descr->f->cancastscalarkindto[scalar] =
+            _append_new(descr->f->cancastscalarkindto[scalar], totype);
+    }
+    return 0;
+}
+

@@ -129,38 +129,6 @@ NPY_NO_EXPORT int
 PyArray_RegisterCanCast(PyArray_Descr *descr, int totype,
                         NPY_SCALARKIND scalar)
 {
-    if (scalar == PyArray_NOSCALAR) {
-        /*
-         * register with cancastto
-         * These lists won't be freed once created
-         * -- they become part of the data-type
-         */
-        if (descr->f->cancastto == NULL) {
-            descr->f->cancastto = (int *)malloc(1*sizeof(int));
-            descr->f->cancastto[0] = PyArray_NOTYPE;
-        }
-        descr->f->cancastto = _append_new(descr->f->cancastto,
-                                          totype);
-    }
-    else {
-        /* register with cancastscalarkindto */
-        if (descr->f->cancastscalarkindto == NULL) {
-            int i;
-            descr->f->cancastscalarkindto =
-                (int **)malloc(PyArray_NSCALARKINDS* sizeof(int*));
-            for (i = 0; i < PyArray_NSCALARKINDS; i++) {
-                descr->f->cancastscalarkindto[i] = NULL;
-            }
-        }
-        if (descr->f->cancastscalarkindto[scalar] == NULL) {
-            descr->f->cancastscalarkindto[scalar] =
-                (int *)malloc(1*sizeof(int));
-            descr->f->cancastscalarkindto[scalar][0] =
-                PyArray_NOTYPE;
-        }
-        descr->f->cancastscalarkindto[scalar] =
-            _append_new(descr->f->cancastscalarkindto[scalar], totype);
-    }
-    return 0;
+    return NpyArray_RegisterCanCast(descr, totype, scalar);
 }
 

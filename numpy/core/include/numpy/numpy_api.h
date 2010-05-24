@@ -22,6 +22,9 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_USERDEF PyArray_USERDEF
 #define NpyTypeNum_ISUSERDEF(a) PyTypeNum_ISUSERDEF(a)
 
+#define NpyArray_NOSCALAR PyArray_NOSCALAR
+#define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
+
 
 
 /*
@@ -38,6 +41,8 @@ void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
 int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
                               NpyArray_VectorUnaryFunc *castfunc);
+int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
+                             NPY_SCALARKIND scalar);
 
 /*
  * Error handling.
