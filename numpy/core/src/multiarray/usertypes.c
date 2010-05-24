@@ -40,52 +40,6 @@ maintainer email:  oliphant.travis@ieee.org
 
 #include "numpy/numpy_api.h"
 
-static int *
-_append_new(int *types, int insert)
-{
-    int n = 0;
-    int *newtypes;
-
-    while (types[n] != PyArray_NOTYPE) {
-        n++;
-    }
-    newtypes = (int *)realloc(types, (n + 2)*sizeof(int));
-    newtypes[n] = insert;
-    newtypes[n + 1] = PyArray_NOTYPE;
-    return newtypes;
-}
-
-static Bool
-_default_nonzero(void *ip, void *arr)
-{
-    int elsize = PyArray_ITEMSIZE(arr);
-    char *ptr = ip;
-    while (elsize--) {
-        if (*ptr++ != 0) {
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-static void
-_default_copyswapn(void *dst, npy_intp dstride, void *src,
-                   npy_intp sstride, npy_intp n, int swap, void *arr)
-{
-    npy_intp i;
-    PyArray_CopySwapFunc *copyswap;
-    char *dstptr = dst;
-    char *srcptr = src;
-
-    copyswap = PyArray_DESCR(arr)->f->copyswap;
-
-    for (i = 0; i < n; i++) {
-        copyswap(dstptr, srcptr, swap, arr);
-        dstptr += dstride;
-        srcptr += sstride;
-    }
-}
-
 /*NUMPY_API
   Initialize arrfuncs to NULL
 */

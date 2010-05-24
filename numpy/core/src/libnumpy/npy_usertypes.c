@@ -156,7 +156,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
         NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
         return -1;
     }
-    npy_userdescrs = realloc(userdescrs,
+    npy_userdescrs = realloc(npy_userdescrs,
                              (NPY_NUMUSERTYPES+1)*sizeof(void *));
     if (npy_userdescrs == NULL) {
         NpyErr_SetString(NpyExc_MemoryError, "RegisterDataType");
