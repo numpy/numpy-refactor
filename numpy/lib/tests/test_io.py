@@ -225,6 +225,17 @@ class TestSaveTxt(TestCase):
         lines = c.readlines()
         assert_equal(lines, asbytes_nested(['01 : 2.0\n', '03 : 4.0\n']))
 
+    def test_file_roundtrip(self):
+        f, name = mkstemp()
+        os.close(f)
+        try:
+            a = np.array([(1, 2), (3, 4)])
+            np.savetxt(name, a)
+            b = np.loadtxt(name)
+            assert_array_equal(a, b)
+        finally:
+            os.unlink(name)
+
 
 class TestLoadTxt(TestCase):
     def test_record(self):
@@ -403,6 +414,16 @@ class TestLoadTxt(TestCase):
                            dtype=ndtype)
         assert_equal(test, control)
 
+    def test_universal_newline(self):
+        f, name = mkstemp()
+        os.write(f, asbytes('1 21\r3 42\r'))
+        os.close(f)
+
+        try:
+            data = np.loadtxt(name)
+            assert_array_equal(data, [[1, 21], [3, 42]])
+        finally:
+            os.unlink(name)
 
 
 class Testfromregex(TestCase):
@@ -1040,6 +1061,30 @@ M   33  21.99
         ctrl = np.array([('01/01/2003', 1.3, 'abcde')],
                         dtype=[('f0', '|S10'), ('f1', float), ('f2', '|S5')])
         assert_equal(mtest, ctrl)
+
+    def test_replace_space(self):
+        "Test the 'replace_space' option"
+        txt = "A.A, B (B), C:C\n1, 2, 3.14"
+        # Test default: replace ' ' by '_' and delete non-alphanum chars
+        test = np.genfromtxt(StringIO(txt),
+                             delimiter=",", names=True, dtype=None)
+        ctrl_dtype = [("AA", int), ("B_B", int), ("CC", float)]
+        ctrl = np.array((1, 2, 3.14), dtype=ctrl_dtype)
+        assert_equal(test, ctrl)
+        # Test: no replace, no delete
+        test = np.genfromtxt(StringIO(txt),
+                             delimiter=",", names=True, dtype=None,
+                             replace_space='', deletechars='')
+        ctrl_dtype = [("A.A", int), ("B (B)", int), ("C:C", float)]
+        ctrl = np.array((1, 2, 3.14), dtype=ctrl_dtype)
+        assert_equal(test, ctrl)
+        # Test: no delete (spaces are replaced by _)
+        test = np.genfromtxt(StringIO(txt),
+                             delimiter=",", names=True, dtype=None,
+                             deletechars='')
+        ctrl_dtype = [("A.A", int), ("B_(B)", int), ("C:C", float)]
+        ctrl = np.array((1, 2, 3.14), dtype=ctrl_dtype)
+        assert_equal(test, ctrl)
 
     def test_incomplete_names(self):
         "Test w/ incomplete names"

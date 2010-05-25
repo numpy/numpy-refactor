@@ -209,7 +209,7 @@ _convert_from_tuple(PyObject *obj)
             type->elsize = itemsize;
         }
     }
-    else if PyDict_Check(val) {
+    else if (PyDict_Check(val)) {
         /* Assume it's a metadata dictionary */
         if (PyDict_Merge(type->metadata, val, 0) == -1) {
             Py_DECREF(type);
@@ -646,14 +646,7 @@ _get_datetime_tuple_from_cobj(PyObject *cobj)
     PyArray_DatetimeMetaData *dt_data;
     PyObject *dt_tuple;
 
-#if defined(NPY_PY3K)
-    dt_data = PyCapsule_GetPointer(cobj, NULL);
-    if (dt_data == NULL) {
-        PyErr_Clear();
-    }
-#else
-    dt_data = PyCObject_AsVoidPtr(cobj);
-#endif
+    dt_data = NpyCapsule_AsVoidPtr(cobj);
     dt_tuple = PyTuple_New(4);
 
     PyTuple_SET_ITEM(dt_tuple, 0,
@@ -692,14 +685,7 @@ _convert_datetime_tuple_to_cobj(PyObject *tuple)
 /* FIXME
  * There is no error handling here.
  */
-#if defined(NPY_PY3K)
-    ret = PyCapsule_New((void *)dt_data, NULL, simple_capsule_dtor);
-    if (ret == NULL) {
-        PyErr_Clear();
-    }
-#else
-    ret = PyCObject_FromVoidPtr((void *)dt_data, simple_capsule_dtor);
-#endif
+    ret = NpyCapsule_FromVoidPtr((void *)dt_data, simple_capsule_dtor);
     return ret;
 }
 
@@ -1024,6 +1010,9 @@ _convert_from_dict(PyObject *obj, int align)
         }
         tup = PyTuple_New(len);
         descr = PyObject_GetItem(descrs, index);
+        if (!descr) {
+            goto fail;
+        }
         ret = PyArray_DescrConverter(descr, &newdescr);
         Py_DECREF(descr);
         if (ret == PY_FAIL) {
@@ -1039,6 +1028,9 @@ _convert_from_dict(PyObject *obj, int align)
         if (offsets) {
             long offset;
             off = PyObject_GetItem(offsets, index);
+            if (!off) {
+                goto fail;
+            }
             offset = PyInt_AsLong(off);
             PyTuple_SET_ITEM(tup, 1, off);
             if (offset < totalsize) {
@@ -1060,6 +1052,9 @@ _convert_from_dict(PyObject *obj, int align)
             PyTuple_SET_ITEM(tup, 2, item);
         }
         name = PyObject_GetItem(names, index);
+        if (!name) {
+            goto fail;
+        }
         Py_DECREF(index);
 #if defined(NPY_PY3K)
         if (!PyUString_Check(name)) {
@@ -1563,14 +1558,7 @@ _append_to_datetime_typestr(PyArray_Descr *self, PyObject *ret)
         return ret;
     }
     tmp = PyDict_GetItemString(self->metadata, NPY_METADATA_DTSTR);
-#if defined(NPY_PY3K)
-    dt_data = PyCapsule_GetPointer(tmp, NULL);
-    if (dt_data == NULL) {
-        PyErr_Clear();
-    }
-#else
-    dt_data = PyCObject_AsVoidPtr(tmp);
-#endif
+    dt_data = NpyCapsule_AsVoidPtr(tmp);
     num = dt_data->num;
     den = dt_data->den;
     events = dt_data->events;

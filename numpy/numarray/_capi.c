@@ -3404,12 +3404,16 @@ PyMODINIT_FUNC init_capi(void)
     /* Create a CObject containing the API pointer array's address */
 #if PY_VERSION_HEX >= 0x03010000
     m = PyModule_Create(&moduledef);
+#else
+    m = Py_InitModule("_capi", _libnumarrayMethods);
+#endif
+
+#if PY_VERSION_HEX >= 0x02070000
     c_api_object = PyCapsule_New((void *)libnumarray_API, NULL, NULL);
     if (c_api_object == NULL) {
         PyErr_Clear();
     }
 #else
-    m = Py_InitModule("_capi", _libnumarrayMethods);
     c_api_object = PyCObject_FromVoidPtr((void *)libnumarray_API, NULL);
 #endif
 

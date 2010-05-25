@@ -1,6 +1,6 @@
 __docformat__ = "restructuredtext en"
 __all__ = ['select', 'piecewise', 'trim_zeros',
-           'copy', 'iterable',
+           'copy', 'iterable', 'percentile',
            'diff', 'gradient', 'angle', 'unwrap', 'sort_complex', 'disp',
            'extract', 'place', 'nansum', 'nanmax', 'nanargmax',
            'nanargmin', 'nanmin', 'vectorize', 'asarray_chkfinite', 'average',
@@ -55,7 +55,7 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
     range : (float, float), optional
         The lower and upper range of the bins.  If not provided, range
         is simply ``(a.min(), a.max())``.  Values outside the range are
-        ignored. 
+        ignored.
     normed : bool, optional
         If False, the result will contain the number of samples
         in each bin.  If True, the result is the value of the
@@ -68,7 +68,7 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
         only contributes its associated weight towards the bin count
         (instead of 1).  If `normed` is True, the weights are normalized,
         so that the integral of the density over the range remains 1
- 
+
     Returns
     -------
     hist : array
@@ -76,7 +76,7 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
         description of the possible semantics.
     bin_edges : array of dtype float
         Return the bin edges ``(length(hist)+1)``.
-        
+
 
     See Also
     --------
@@ -112,20 +112,21 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
     1.0
 
     """
- 
+
     a = asarray(a)
     if weights is not None:
         weights = asarray(weights)
         if np.any(weights.shape != a.shape):
-            raise ValueError, 'weights should have the same shape as a.'
+            raise ValueError(
+                    'weights should have the same shape as a.')
         weights = weights.ravel()
     a =  a.ravel()
 
     if (range is not None):
         mn, mx = range
         if (mn > mx):
-            raise AttributeError, \
-                'max must be larger than min in range parameter.'
+            raise AttributeError(
+                'max must be larger than min in range parameter.')
 
     if not iterable(bins):
         if range is None:
@@ -138,7 +139,8 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
     else:
         bins = asarray(bins)
         if (np.diff(bins) < 0).any():
-            raise AttributeError, 'bins must increase monotonically.'
+            raise AttributeError(
+                    'bins must increase monotonically.')
 
     # Histogram is an integer or a float array depending on the weights.
     if weights is None:
@@ -244,8 +246,9 @@ def histogramdd(sample, bins=10, range=None, normed=False, weights=None):
     try:
         M = len(bins)
         if M != D:
-            raise AttributeError, 'The dimension of bins must be equal ' \
-                                  'to the dimension of the sample x.'
+            raise AttributeError(
+                    'The dimension of bins must be equal'\
+                    ' to the dimension of the sample x.')
     except TypeError:
         bins = D*[bins]
 
@@ -334,12 +337,13 @@ def histogramdd(sample, bins=10, range=None, normed=False, weights=None):
         s = hist.sum()
         for i in arange(D):
             shape = ones(D, int)
-            shape[i] = nbin[i]-2
+            shape[i] = nbin[i] - 2
             hist = hist / dedges[i].reshape(shape)
         hist /= s
 
-    if (hist.shape != nbin-2).any():
-        raise RuntimeError('Internal Shape Error')
+    if (hist.shape != nbin - 2).any():
+        raise RuntimeError(
+                "Internal Shape Error")
     return hist, edges
 
 
@@ -429,23 +433,30 @@ def average(a, axis=None, weights=None, returned=False):
         # Sanity checks
         if a.shape != wgt.shape :
             if axis is None :
-                raise TypeError, "Axis must be specified when shapes of a and weights differ."
+                raise TypeError(
+                        "Axis must be specified when shapes of a "\
+                        "and weights differ.")
             if wgt.ndim != 1 :
-                raise TypeError, "1D weights expected when shapes of a and weights differ."
+                raise TypeError(
+                        "1D weights expected when shapes of a and "\
+                        "weights differ.")
             if wgt.shape[0] != a.shape[axis] :
-                raise ValueError, "Length of weights not compatible with specified axis."
+                raise ValueError(
+                        "Length of weights not compatible with "\
+                        "specified axis.")
 
             # setup wgt to broadcast along axis
-            wgt = np.array(wgt, copy=0, ndmin=a.ndim).swapaxes(-1,axis)
+            wgt = np.array(wgt, copy=0, ndmin=a.ndim).swapaxes(-1, axis)
 
         scl = wgt.sum(axis=axis)
         if (scl == 0.0).any():
-            raise ZeroDivisionError, "Weights sum to zero, can't be normalized"
+            raise ZeroDivisionError(
+                    "Weights sum to zero, can't be normalized")
 
-        avg = np.multiply(a,wgt).sum(axis)/scl
+        avg = np.multiply(a, wgt).sum(axis)/scl
 
     if returned:
-        scl = np.multiply(avg,0) + scl
+        scl = np.multiply(avg, 0) + scl
         return avg, scl
     else:
         return avg
@@ -513,7 +524,8 @@ def asarray_chkfinite(a):
     a = asarray(a)
     if (a.dtype.char in typecodes['AllFloat']) \
            and (_nx.isnan(a).any() or _nx.isinf(a).any()):
-        raise ValueError, "array must not contain infs or NaNs"
+        raise ValueError(
+                "array must not contain infs or NaNs")
     return a
 
 def piecewise(x, condlist, funclist, *args, **kw):
@@ -612,8 +624,8 @@ def piecewise(x, condlist, funclist, *args, **kw):
         condlist.append(~totlist)
         n += 1
     if (n != n2):
-        raise ValueError, "function list and condition list " \
-                          "must be the same"
+        raise ValueError(
+                "function list and condition list must be the same")
     zerod = False
     # This is a hack to work around problems with NumPy's
     #  handling of 0-d arrays and boolean indexing with
@@ -683,7 +695,8 @@ def select(condlist, choicelist, default=0):
     n = len(condlist)
     n2 = len(choicelist)
     if n2 != n:
-        raise ValueError, "list of cases must be same length as list of conditions"
+        raise ValueError(
+                "list of cases must be same length as list of conditions")
     choicelist = [default] + choicelist
     S = 0
     pfac = 1
@@ -791,7 +804,8 @@ def gradient(f, *varargs):
     elif n == N:
         dx = list(varargs)
     else:
-        raise SyntaxError, "invalid number of arguments"
+        raise SyntaxError(
+                "invalid number of arguments")
 
     # use central differences on interior and first differences on endpoints
 
@@ -885,7 +899,8 @@ def diff(a, n=1, axis=-1):
     if n == 0:
         return a
     if n < 0:
-        raise ValueError, 'order must be non-negative but got ' + repr(n)
+        raise ValueError(
+                "order must be non-negative but got " + repr(n))
     a = asanyarray(a)
     nd = len(a.shape)
     slice1 = [slice(None)]*nd
@@ -969,6 +984,8 @@ def interp(x, xp, fp, left=None, right=None):
 
     """
     if isinstance(x, (float, int, number)):
+        return compiled_interp([x], xp, fp, left, right).item()
+    elif isinstance(x, np.ndarray) and x.ndim == 0:
         return compiled_interp([x], xp, fp, left, right).item()
     else:
         return compiled_interp(x, xp, fp, left, right)
@@ -1596,22 +1613,49 @@ def disp(mesg, device=None, linefeed=True):
 
 # return number of input arguments and
 #  number of default arguments
-import re
+
 def _get_nargs(obj):
+    import re
+
+    terr = re.compile(r'.*? takes (exactly|at least) (?P<exargs>(\d+)|(\w+))' +
+            r' argument(s|) \((?P<gargs>(\d+)|(\w+)) given\)')
+    def _convert_to_int(strval):
+        try:
+            result = int(strval)
+        except ValueError:
+            if strval=='zero':
+                result = 0
+            elif strval=='one':
+                result = 1
+            elif strval=='two':
+                result = 2
+            # How high to go? English only?
+            else:
+                raise
+        return result
+
     if not callable(obj):
-        raise TypeError, "Object is not callable."
+        raise TypeError(
+                "Object is not callable.")
     if sys.version_info[0] >= 3:
+        # inspect currently fails for binary extensions
+        # like math.cos. So fall back to other methods if
+        # it fails.
         import inspect
-        spec = inspect.getargspec(obj)
-        nargs = len(spec.args)
-        if spec.defaults:
-            ndefaults = len(spec.defaults)
-        else:
-            ndefaults = 0
-        if inspect.ismethod(obj):
-            nargs -= 1
-        return nargs, ndefaults
-    elif hasattr(obj,'func_code'):
+        try:
+            spec = inspect.getargspec(obj)
+            nargs = len(spec.args)
+            if spec.defaults:
+                ndefaults = len(spec.defaults)
+            else:
+                ndefaults = 0
+            if inspect.ismethod(obj):
+                nargs -= 1
+            return nargs, ndefaults
+        except:
+            pass
+
+    if hasattr(obj,'func_code'):
         fcode = obj.func_code
         nargs = fcode.co_argcount
         if obj.func_defaults is not None:
@@ -1621,19 +1665,21 @@ def _get_nargs(obj):
         if isinstance(obj, types.MethodType):
             nargs -= 1
         return nargs, ndefaults
-    terr = re.compile(r'.*? takes exactly (?P<exargs>\d+) argument(s|) \((?P<gargs>\d+) given\)')
+
     try:
         obj()
         return 0, 0
     except TypeError, msg:
         m = terr.match(str(msg))
         if m:
-            nargs = int(m.group('exargs'))
-            ndefaults = int(m.group('gargs'))
+            nargs = _convert_to_int(m.group('exargs'))
+            ndefaults = _convert_to_int(m.group('gargs'))
             if isinstance(obj, types.MethodType):
                 nargs -= 1
             return nargs, ndefaults
-    raise ValueError, 'failed to determine the number of arguments for %s' % (obj)
+
+    raise ValueError(
+            "failed to determine the number of arguments for %s" % (obj))
 
 
 class vectorize(object):
@@ -1717,11 +1763,13 @@ class vectorize(object):
             self.otypes = otypes
             for char in self.otypes:
                 if char not in typecodes['All']:
-                    raise ValueError, "invalid otype specified"
+                    raise ValueError(
+                            "invalid otype specified")
         elif iterable(otypes):
             self.otypes = ''.join([_nx.dtype(x).char for x in otypes])
         else:
-            raise ValueError, "output types must be a string of typecode characters or a list of data-types"
+            raise ValueError(
+                    "Invalid otype specification")
         self.lastcallargs = 0
 
     def __call__(self, *args):
@@ -1730,8 +1778,8 @@ class vectorize(object):
         nargs = len(args)
         if self.nin:
             if (nargs > self.nin) or (nargs < self.nin_wo_defaults):
-                raise ValueError, "mismatch between python function inputs"\
-                      " and received arguments"
+                raise ValueError(
+                        "Invalid number of arguments")
 
         # we need a new ufunc if this is being called with more arguments.
         if (self.lastcallargs != nargs):
@@ -1997,7 +2045,7 @@ def blackman(M):
     >>> plt.xlabel("Sample")
     <matplotlib.text.Text object at 0x...>
     >>> plt.show()
-    
+
     >>> plt.figure()
     <matplotlib.figure.Figure object at 0x...>
     >>> A = fft(window, 2048) / 25.5
@@ -2106,7 +2154,7 @@ def bartlett(M):
     >>> plt.xlabel("Sample")
     <matplotlib.text.Text object at 0x...>
     >>> plt.show()
-    
+
     >>> plt.figure()
     <matplotlib.figure.Figure object at 0x...>
     >>> A = fft(window, 2048) / 25.5
@@ -2756,7 +2804,7 @@ def median(a, axis=None, out=None, overwrite_input=False):
 
     See Also
     --------
-    mean
+    mean, percentile
 
     Notes
     -----
@@ -2814,6 +2862,140 @@ def median(a, axis=None, out=None, overwrite_input=False):
     # Use mean in odd and even case to coerce data type
     # and check, use out array.
     return mean(sorted[indexer], axis=axis, out=out)
+
+def percentile(a, q, axis=None, out=None, overwrite_input=False):
+    """
+    Compute the qth percentile of the data along the specified axis.
+
+    Returns the qth percentile of the array elements.
+
+    Parameters
+    ----------
+    a : array_like
+        Input array or object that can be converted to an array.
+    q : float in range of [0,100] (or sequence of floats)
+        percentile to compute which must be between 0 and 100 inclusive
+    axis : {None, int}, optional
+        Axis along which the percentiles are computed. The default (axis=None)
+        is to compute the median along a flattened version of the array.
+    out : ndarray, optional
+        Alternative output array in which to place the result. It must
+        have the same shape and buffer length as the expected output,
+        but the type (of the output) will be cast if necessary.
+    overwrite_input : {False, True}, optional
+       If True, then allow use of memory of input array (a) for
+       calculations. The input array will be modified by the call to
+       median. This will save memory when you do not need to preserve
+       the contents of the input array. Treat the input as undefined,
+       but it will probably be fully or partially sorted. Default is
+       False. Note that, if `overwrite_input` is True and the input
+       is not already an ndarray, an error will be raised.
+
+    Returns
+    -------
+    pcntile : ndarray
+        A new array holding the result (unless `out` is specified, in
+        which case that array is returned instead).  If the input contains
+        integers, or floats of smaller precision than 64, then the output
+        data-type is float64.  Otherwise, the output data-type is the same
+        as that of the input.
+
+    See Also
+    --------
+    mean, median
+
+    Notes
+    -----
+    Given a vector V of length N, the qth percentile of V is the qth ranked
+    value in a sorted copy of V.  A weighted average of the two nearest neighbors
+    is used if the normalized ranking does not match q exactly. 
+    The same as the median if q is 0.5; the same as the min if q is 0;
+    and the same as the max if q is 1
+
+    Examples
+    --------
+    >>> a = np.array([[10, 7, 4], [3, 2, 1]])
+    >>> a
+    array([[10,  7,  4],
+           [ 3,  2,  1]])
+    >>> np.percentile(a, 0.5)
+    3.5
+    >>> np.percentile(a, 0.5, axis=0)
+    array([ 6.5,  4.5,  2.5])
+    >>> np.percentile(a, 0.5, axis=1)
+    array([ 7.,  2.])
+    >>> m = np.percentile(a, 0.5, axis=0)
+    >>> out = np.zeros_like(m)
+    >>> np.percentile(a, 0.5, axis=0, out=m)
+    array([ 6.5,  4.5,  2.5])
+    >>> m
+    array([ 6.5,  4.5,  2.5])
+    >>> b = a.copy()
+    >>> np.percentile(b, 0.5, axis=1, overwrite_input=True)
+    array([ 7.,  2.])
+    >>> assert not np.all(a==b)
+    >>> b = a.copy()
+    >>> np.percentile(b, 0.5, axis=None, overwrite_input=True)
+    3.5
+    >>> assert not np.all(a==b)
+
+    """
+    a = np.asarray(a)
+
+    if q == 0:
+        return a.min(axis=axis, out=out)
+    elif q == 100:
+        return a.max(axis=axis, out=out)
+        
+    if overwrite_input:
+        if axis is None:
+            sorted = a.ravel()
+            sorted.sort()
+        else:
+            a.sort(axis=axis)
+            sorted = a
+    else:
+        sorted = sort(a, axis=axis)
+    if axis is None:
+        axis = 0
+
+    return _compute_qth_percentile(sorted, q, axis, out)
+
+# handle sequence of q's without calling sort multiple times
+def _compute_qth_percentile(sorted, q, axis, out):
+    if not isscalar(q):
+        p = [_compute_qth_percentile(sorted, qi, axis, None)
+             for qi in q]
+
+        if out is not None:
+            out.flat = p
+
+        return p
+
+    q = q / 100.0
+    if (q < 0) or (q > 1):
+        raise ValueError, "percentile must be either in the range [0,100]"
+
+    indexer = [slice(None)] * sorted.ndim
+    Nx = sorted.shape[axis]
+    index = q*(Nx-1)
+    i = int(index)
+    if i == index:
+        indexer[axis] = slice(i, i+1)
+        weights = array(1)
+        sumval = 1.0
+    else:
+        indexer[axis] = slice(i, i+2)
+        j = i + 1
+        weights = array([(j - index), (index - i)],float)
+        wshape = [1]*sorted.ndim
+        wshape[axis] = 2
+        weights.shape = wshape
+        sumval = weights.sum()
+
+    # Use add.reduce in both cases to coerce data type as well as
+    #   check and use out array.
+    return add.reduce(sorted[indexer]*weights, axis=axis, out=out)/sumval
 
 def trapz(y, x=None, dx=1.0, axis=-1):
     """
@@ -3052,7 +3234,8 @@ def delete(arr, obj, axis=None):
     if isinstance(obj, (int, long, integer)):
         if (obj < 0): obj += N
         if (obj < 0 or obj >=N):
-            raise ValueError, "invalid entry"
+            raise ValueError(
+                    "invalid entry")
         newshape[axis]-=1;
         new = empty(newshape, arr.dtype, arr.flags.fnc)
         slobj[axis] = slice(None, obj)
@@ -3197,8 +3380,9 @@ def insert(arr, obj, values, axis=None):
     if isinstance(obj, (int, long, integer)):
         if (obj < 0): obj += N
         if obj < 0 or obj > N:
-            raise ValueError, "index (%d) out of range (0<=index<=%d) "\
-                  "in dimension %d" % (obj, N, axis)
+            raise ValueError(
+                    "index (%d) out of range (0<=index<=%d) "\
+                    "in dimension %d" % (obj, N, axis))
         newshape[axis] += 1;
         new = empty(newshape, arr.dtype, arr.flags.fnc)
         slobj[axis] = slice(None, obj)

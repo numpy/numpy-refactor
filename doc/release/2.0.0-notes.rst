@@ -35,3 +35,66 @@ turned off in the standard way:
 
     >>> import warnings
     >>> warnings.simplefilter("ignore", np.ComplexWarning)
+
+Dot method for ndarrays
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Ndarrays now have the dot product also as a method, which allows writing
+chains of matrix products as
+
+    >>> a.dot(b).dot(c)
+
+instead of the longer alternative
+
+    >>> np.dot(a, np.dot(b, c))
+
+linalg.slogdet function
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The slogdet function returns the sign and logarithm of the determinant
+of a matrix. Because the determinant may involve the product of many
+small/large values, the result is often more accurate than that obtained
+by simple multiplication.
+
+new header
+~~~~~~~~~~
+
+The new header file ndarraytypes.h contains the symbols from
+ndarrayobject.h that do not depend on the PY_ARRAY_UNIQUE_SYMBOL and
+NO_IMPORT/_ARRAY macros. Broadly, these symbols are types, typedefs,
+and enumerations; the array function calls are left in
+ndarrayobject.h. This allows users to include array-related types and
+enumerations without needing to concern themselves with the macro
+expansions and their side- effects.
+
+Changes
+=======
+
+polynomial.polynomial
+---------------------
+
+* The polyint and polyder functions now check that the specified number integrations or
+  derivations is a non-negative integer. The number 0 is a valid value for both
+  functions.
+* A degree method has been added to the Polynomial class.
+* A reduce method has been added to the Polynomial class. It operates like
+  truncate except that the argument is the desired degree of the result,
+  not the number of coefficients.
+* The fit class function of the Polynomial class now uses None as the default
+  domain for the fit. The default Polynomial domain can be specified by using
+  [] as the domain value.
+
+polynomial.chebyshev
+--------------------
+
+* The chebint and chebder functions now check that the specified number integrations or
+  derivations is a non-negative integer. The number 0 is a valid value for both
+  functions.
+* A degree method has been added to the Chebyshev class.
+* A reduce method has been added to the Chebyshev class. It operates like
+  truncate except that the argument is the desired degree of the result,
+  not the number of coefficients.
+* The fit class function of the Chebyshev class now uses None as the default
+  domain for the fit. The default Chebyshev domain can be specified by using
+  [] as the domain value.
+

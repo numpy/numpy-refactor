@@ -46,24 +46,19 @@ _import_umath(void)
       return -1;
   }
   c_api = PyObject_GetAttrString(numpy, "_UFUNC_API");
+  Py_DECREF(numpy);
   if (c_api == NULL) {
       PyErr_SetString(PyExc_AttributeError, "_UFUNC_API not found");
-      Py_DECREF(numpy);
       return -1;
   }
-  Py_DECREF(numpy);
 
-#if PY_VERSION_HEX >= 0x03010000
+#if PY_VERSION_HEX >= 0x02070000
   if (!PyCapsule_CheckExact(c_api)) {
       PyErr_SetString(PyExc_RuntimeError, "_UFUNC_API is not PyCapsule object");
       Py_DECREF(c_api);
       return -1;
   }
   PyUFunc_API = (void **)PyCapsule_GetPointer(c_api, NULL);
-  Py_DECREF(c_api);
-  if (PyUFunc_API == NULL) {
-      return -1;
-  }
 #else
   if (!PyCObject_Check(c_api)) {
       PyErr_SetString(PyExc_RuntimeError, "_UFUNC_API is not PyCObject object");
@@ -71,13 +66,12 @@ _import_umath(void)
       return -1;
   }
   PyUFunc_API = (void **)PyCObject_AsVoidPtr(c_api);
+#endif
   Py_DECREF(c_api);
-  Py_DECREF(numpy);
   if (PyUFunc_API == NULL) {
       PyErr_SetString(PyExc_RuntimeError, "_UFUNC_API is NULL pointer");
       return -1;
   }
-#endif
   return 0;
 }
 

@@ -303,6 +303,43 @@ class $name(pu.PolyBase) :
     # Extra numeric functions.
     #
 
+    def degree(self) :
+        """The degree of the series.
+
+        Notes
+        -----
+        .. versionadded:: 2.0.0
+
+        """
+        return len(self) - 1
+
+    def reduce(self, deg) :
+        """Reduce the degree of the series.
+
+        Reduce the degree of the $name series to `deg` by discarding the
+        high order terms. If `deg` is greater than the current degree a
+        copy of the current series is returned. This can be useful in least
+        squares where the coefficients of the high degree terms may be very
+        small.
+
+        Parameters:
+        -----------
+        deg : non-negative int
+            The series is reduced to degree `deg` by discarding the high
+            order terms. The value of `deg` must be a non-negative integer.
+
+        Returns:
+        -------
+        new_instance : $name
+            New instance of $name with reduced degree.
+
+        Notes
+        -----
+        .. versionadded:: 2.0.0
+
+        """
+        return self.truncate(deg + 1)
+
     def convert(self, domain=None, kind=None) :
         """Convert to different class and/or domain.
 
@@ -388,18 +425,18 @@ class $name(pu.PolyBase) :
         return self.__class__(pu.trimcoef(self.coef, tol), self.domain)
 
     def truncate(self, size) :
-        """Truncate series by discarding trailing coefficients.
+        """Truncate series to length `size`.
 
-        Reduce the $name series to length `size` by removing trailing
-        coefficients. The value of `size` must be greater than zero.  This
-        is most likely to be useful in least squares fits when the high
-        order coefficients are very small.
+        Reduce the $name series to length `size` by discarding the high
+        degree terms. The value of `size` must be a positive integer. This
+        can be useful in least squares where the coefficients of the
+        high degree terms may be very small.
 
         Parameters:
         -----------
-        size : int
-            The series is reduced to length `size` by discarding trailing
-            coefficients. The value of `size` must be greater than zero.
+        size : positive int
+            The series is reduced to length `size` by discarding the high
+            degree terms. The value of `size` must be a positive integer.
 
         Returns:
         -------
@@ -407,12 +444,13 @@ class $name(pu.PolyBase) :
             New instance of $name with truncated coefficients.
 
         """
-        if size < 1 :
-            raise ValueError("size must be > 0")
-        if size >= len(self.coef) :
+        isize = int(size)
+        if isize != size or isize < 1 :
+            raise ValueError("size must be a positive integer")
+        if isize >= len(self.coef) :
             return self.__class__(self.coef, self.domain)
         else :
-            return self.__class__(self.coef[:size], self.domain)
+            return self.__class__(self.coef[:isize], self.domain)
 
     def copy(self) :
         """Return a copy.
@@ -436,7 +474,7 @@ class $name(pu.PolyBase) :
 
         Parameters:
         -----------
-        m : positive integer
+        m : non-negative int
             The number of integrations to perform.
         k : array_like
             Integration constants. The first constant is applied to the
@@ -449,8 +487,7 @@ class $name(pu.PolyBase) :
         Returns:
         --------
         integral : $name
-            The integral of the original series defined with the same
-            domain.
+            The integral of the series using the same domain.
 
         See Also
         --------
@@ -474,14 +511,13 @@ class $name(pu.PolyBase) :
 
         Parameters:
         -----------
-        m : positive integer
+        m : non-negative int
             The number of integrations to perform.
 
         Returns:
         --------
         derivative : $name
-            The derivative of the original series defined with the same
-            domain.
+            The derivative of the series using the same domain.
 
         See Also
         --------
@@ -510,7 +546,7 @@ class $name(pu.PolyBase) :
         return pu.mapdomain(roots, $domain, self.domain)
 
     @staticmethod
-    def fit(x, y, deg, domain=$domain, rcond=None, full=False) :
+    def fit(x, y, deg, domain=None, rcond=None, full=False) :
         """Least squares fit to data.
 
         Return a `$name` instance that is the least squares fit to the data
@@ -529,10 +565,12 @@ class $name(pu.PolyBase) :
             passing in a 2D-array that contains one dataset per column.
         deg : int
             Degree of the fitting polynomial
-        domain : {None, [beg, end]}, optional
+        domain : {None, [], [beg, end]}, optional
             Domain to use for the returned $name instance. If ``None``,
-            then a minimal domain that covers the points `x` is chosen. The
-            default value is ``$domain``.
+            then a minimal domain that covers the points `x` is chosen.
+            If ``[]`` the default domain ``$domain`` is used. The
+            default value is $domain in numpy 1.4.x and ``None`` in
+            numpy 2.0.0. The keyword value ``[]`` was added in numpy 2.0.0.
         rcond : float, optional
             Relative condition number of the fit. Singular values smaller
             than this relative to the largest singular value will be
@@ -564,6 +602,8 @@ class $name(pu.PolyBase) :
         """
         if domain is None :
             domain = pu.getdomain(x)
+        elif domain == [] :
+            domain = $domain
         xnew = pu.mapdomain(x, domain, $domain)
         res = ${nick}fit(xnew, y, deg, rcond=None, full=full)
         if full :

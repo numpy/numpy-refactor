@@ -620,7 +620,7 @@ def datetime_data(dtype):
                     ('events', ctypes.c_int)]
 
     import sys
-    if sys.version_info[:2] >= (3,1):
+    if sys.version_info[:2] >= (2,7):
         func = ctypes.pythonapi.PyCapsule_GetPointer
         func.argtypes = [ctypes.py_object, ctypes.c_char_p]
         func.restype = ctypes.c_void_p
@@ -638,7 +638,10 @@ def datetime_data(dtype):
     # FIXME: This needs to be kept consistent with enum in ndarrayobject.h
     from numpy.core.multiarray import DATETIMEUNITS
     obj = ctypes.py_object(DATETIMEUNITS)
-    result = func(obj)
+    if sys.version_info[:2] >= (2,7):
+        result = func(obj, ctypes.c_char_p(None))
+    else:
+        result = func(obj)
     _unitnum2name = ctypes.cast(ctypes.c_void_p(result), ctypes.POINTER(ctypes.c_char_p))
 
     return (_unitnum2name[base], struct.num, struct.den, struct.events)

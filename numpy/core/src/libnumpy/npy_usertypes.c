@@ -25,6 +25,7 @@ maintainer email:  oliphant.travis@ieee.org
 #include <Python.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "npy_3kcompat.h"
 
 NpyArray_Descr **npy_userdescrs=NULL;
 
@@ -196,14 +197,7 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
     if (PyErr_Occurred()) {
         return -1;
     }
-#if defined(NPY_PY3K)
-    cobj = PyCapsule_New((void *)castfunc, NULL, NULL);
-    if (cobj == NULL) {
-        PyErr_Clear();
-    }
-#else
-    cobj = PyCObject_FromVoidPtr((void *)castfunc, NULL);
-#endif
+    cobj = NpyCapsule_FromVoidPtr((void *)castfunc, NULL);
     if (cobj == NULL) {
         Py_DECREF(key);
         return -1;

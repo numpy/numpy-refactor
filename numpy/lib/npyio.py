@@ -27,7 +27,6 @@ if sys.version_info[0] >= 3:
 else:
     from cStringIO import StringIO as BytesIO
 
-_file = open
 _string_like = _is_string_like
 
 def seek_gzip_factory(f):
@@ -70,6 +69,8 @@ def seek_gzip_factory(f):
 
     return f
 
+
+
 class BagObj(object):
     """
     BagObj(obj)
@@ -100,6 +101,8 @@ class BagObj(object):
             return object.__getattribute__(self, '_obj')[key]
         except KeyError:
             raise AttributeError, key
+
+
 
 class NpzFile(object):
     """
@@ -285,7 +288,7 @@ def load(file, mmap_mode=None):
     import gzip
 
     if isinstance(file, basestring):
-        fid = _file(file, "rb")
+        fid = open(file, "rb")
     elif isinstance(file, gzip.GzipFile):
         fid = seek_gzip_factory(file)
     else:
@@ -584,7 +587,7 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
             import bz2
             fh = bz2.BZ2File(fname)
         else:
-            fh = file(fname)
+            fh = open(fname, 'U')
     elif hasattr(fname, 'readline'):
         fh = fname
     else:
@@ -608,7 +611,7 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
 
     def split_line(line):
         """Chop off comments, strip, and split at delimiter."""
-        line = line.split(comments)[0].strip()
+        line = asbytes(line).split(comments)[0].strip()
         if line:
             return line.split(delimiter)
         else:
@@ -792,9 +795,9 @@ def savetxt(fname, X, fmt='%.18e', delimiter=' ', newline='\n'):
             fh = gzip.open(fname, 'wb')
         else:
             if sys.version_info[0] >= 3:
-                fh = file(fname, 'wb')
+                fh = open(fname, 'wb')
             else:
-                fh = file(fname, 'w')
+                fh = open(fname, 'w')
     elif hasattr(fname, 'seek'):
         fh = fname
     else:
@@ -922,7 +925,8 @@ def fromregex(file, regexp, dtype):
 def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
                skiprows=0, skip_header=0, skip_footer=0, converters=None,
                missing='', missing_values=None, filling_values=None,
-               usecols=None, names=None, excludelist=None, deletechars=None,
+               usecols=None, names=None,
+               excludelist=None, deletechars=None, replace_space='_',
                autostrip=False, case_sensitive=True, defaultfmt="f%i",
                unpack=None, usemask=False, loose=True, invalid_raise=True):
     """
@@ -979,6 +983,9 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
         A format used to define default field names, such as "f%i" or "f_%02i".
     autostrip : bool, optional
         Whether to automatically strip white spaces from the variables.
+    replace_space : char, optional
+        Character(s) used in replacement of white spaces in the variables names.
+        By default, use a '_'.
     case_sensitive : {True, False, 'upper', 'lower'}, optional
         If True, field names are case sensitive.
         If False or 'upper', field names are converted to upper case.
@@ -1077,7 +1084,7 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
 
     # Initialize the filehandle, the LineSplitter and the NameValidator
     if isinstance(fname, basestring):
-        fhd = np.lib._datasource.open(fname)
+        fhd = np.lib._datasource.open(fname, 'U')
     elif not hasattr(fname, 'read'):
         raise TypeError("The input should be a string or a filehandle. "\
                         "(got %s instead)" % type(fname))
@@ -1087,7 +1094,8 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
                               autostrip=autostrip)._handyman
     validate_names = NameValidator(excludelist=excludelist,
                                    deletechars=deletechars,
-                                   case_sensitive=case_sensitive)
+                                   case_sensitive=case_sensitive,
+                                   replace_space=replace_space)
 
     # Get the first valid lines after the first skiprows ones ..
     if skiprows:

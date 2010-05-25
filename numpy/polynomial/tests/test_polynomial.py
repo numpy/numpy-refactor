@@ -121,6 +121,7 @@ class TestCalculus(TestCase) :
 
     def test_polyint(self) :
         # check exceptions
+        assert_raises(ValueError, poly.polyint, [0], .5)
         assert_raises(ValueError, poly.polyint, [0], -1)
         assert_raises(ValueError, poly.polyint, [0], 1, [0,0])
         assert_raises(ValueError, poly.polyint, [0], 1, lbnd=[0,0])
@@ -191,6 +192,7 @@ class TestCalculus(TestCase) :
 
     def test_polyder(self) :
         # check exceptions
+        assert_raises(ValueError, poly.polyder, [0], .5)
         assert_raises(ValueError, poly.polyder, [0], -1)
 
         # check that zeroth deriviative does nothing
@@ -241,6 +243,7 @@ class TestMisc(TestCase) :
         for i in range(4) :
             coef = [0]*i + [1]
             assert_almost_equal(v[...,i], poly.polyval(x, coef))
+
         # check for 2d x
         x = np.array([[1,2],[3,4],[5,6]])
         v = poly.polyvander(x, 3)
@@ -252,6 +255,7 @@ class TestMisc(TestCase) :
     def test_polyfit(self) :
         def f(x) :
             return x*(x - 1)*(x - 2)
+
         # Test exceptions
         assert_raises(ValueError, poly.polyfit, [1],    [1],     -1)
         assert_raises(TypeError,  poly.polyfit, [[1]],  [1],      0)
@@ -259,6 +263,7 @@ class TestMisc(TestCase) :
         assert_raises(TypeError,  poly.polyfit, [1],    [[[1]]],  0)
         assert_raises(TypeError,  poly.polyfit, [1, 2], [1],      0)
         assert_raises(TypeError,  poly.polyfit, [1],    [1, 2],   0)
+
         # Test fit
         x = np.linspace(0,2)
         y = f(x)
@@ -273,8 +278,10 @@ class TestMisc(TestCase) :
 
     def test_polytrim(self) :
         coef = [2, -1, 1, 0]
+
         # Test exceptions
         assert_raises(ValueError, poly.polytrim, coef, -1)
+
         # Test results
         assert_equal(poly.polytrim(coef), coef[:-1])
         assert_equal(poly.polytrim(coef, 1), coef[:-3])
@@ -363,6 +370,17 @@ class TestPolynomialClass(TestCase) :
         xx = 2*x - 1
         assert_almost_equal(self.p2(x), self.p1(xx))
 
+    def test_degree(self) :
+        assert_equal(self.p1.degree(), 2)
+
+    def test_reduce(self) :
+        assert_raises(ValueError, self.p1.reduce, .5)
+        assert_raises(ValueError, self.p1.reduce, -1)
+        assert_equal(len(self.p1.reduce(3)), 3)
+        assert_equal(len(self.p1.reduce(2)), 3)
+        assert_equal(len(self.p1.reduce(1)), 2)
+        assert_equal(len(self.p1.reduce(0)), 1)
+
     def test_convert(self) :
         x = np.linspace(-1,1)
         p = self.p1.convert(domain=[0,1])
@@ -380,6 +398,7 @@ class TestPolynomialClass(TestCase) :
         assert_equal(p.trim(1e-5).coef, coef[:1])
 
     def test_truncate(self) :
+        assert_raises(ValueError, self.p1.truncate, .5)
         assert_raises(ValueError, self.p1.truncate, 0)
         assert_equal(len(self.p1.truncate(4)), 3)
         assert_equal(len(self.p1.truncate(3)), 3)
@@ -423,11 +442,18 @@ class TestPolynomialClass(TestCase) :
             return x*(x - 1)*(x - 2)
         x = np.linspace(0,3)
         y = f(x)
+
+        # test default value of domain
         p = poly.Polynomial.fit(x, y, 3)
-        assert_almost_equal(p(x), y)
+        assert_almost_equal(p.domain, [0,3])
+
+        # test that fit works in given domains
         p = poly.Polynomial.fit(x, y, 3, None)
         assert_almost_equal(p(x), y)
         assert_almost_equal(p.domain, [0,3])
+        p = poly.Polynomial.fit(x, y, 3, [])
+        assert_almost_equal(p(x), y)
+        assert_almost_equal(p.domain, [-1, 1])
 
     def test_identity(self) :
         x = np.linspace(0,3)
