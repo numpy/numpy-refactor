@@ -5,7 +5,109 @@
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
-/*NUMPY_API
+/*
+ * return a new view of the array object with all of its unit-length
+ * dimensions squeezed out if needed, otherwise
+ * return the same array.
+ */
+NpyArray*
+NpyArray_Squeeze(NpyArray *self)
+{
+    int nd = self->nd;
+    int newnd = nd;
+    npy_intp dimensions[NPY_MAXDIMS];
+    npy_intp strides[NPY_MAXDIMS];
+    int i, j;
+    NpyArray *ret;
+
+    if (nd == 0) {
+        Npy_INCREF(self);
+        return self;
+    }
+    for (j = 0, i = 0; i < nd; i++) {
+        if (self->dimensions[i] == 1) {
+            newnd -= 1;
+        }
+        else {
+            dimensions[j] = self->dimensions[i];
+            strides[j++] = self->strides[i];
+        }
+    }
+
+    Npy_INCREF(self->descr);
+    ret = NpyArray_NewFromDescr(Py_TYPE(self),
+                                self->descr,
+                                newnd, dimensions,
+                                strides, self->data,
+                                self->flags,
+                                (NpyObject *)self);
+    if (ret == NULL) {
+        return NULL;
+    }
+    PyArray_FLAGS(ret) &= ~NPY_OWNDATA;
+    PyArray_BASE(ret) = (NpyObject*)self;
+    Npy_INCREF(self);
+    return ret;
+}
+
+/*
+ * SwapAxes
+ */
+NpyArray*
+NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
+{
+    NpyArray_Dims new_axes;
+    npy_intp dims[NPY_MAXDIMS];
+    int n, i, val;
+    NpyArray *ret;
+
+    if (a1 == a2) {
+        Npy_INCREF(ap);
+        return ap;
+    }
+
+    n = ap->nd;
+    if (n <= 1) {
+        Npy_INCREF(ap);
+        return ap;
+    }
+
+    if (a1 < 0) {
+        a1 += n;
+    }
+    if (a2 < 0) {
+        a2 += n;
+    }
+    if ((a1 < 0) || (a1 >= n)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "bad axis1 argument to swapaxes");
+        return NULL;
+    }
+    if ((a2 < 0) || (a2 >= n)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "bad axis2 argument to swapaxes");
+        return NULL;
+    }
+    new_axes.ptr = dims;
+    new_axes.len = n;
+
+    for (i = 0; i < n; i++) {
+        if (i == a1) {
+            val = a2;
+        }
+        else if (i == a2) {
+            val = a1;
+        }
+        else {
+            val = i;
+        }
+        new_axes.ptr[i] = val;
+    }
+    ret = NpyArray_Transpose(ap, &new_axes);
+    return ret;
+}
+
+/*
  * Return Transpose.
  */
 NpyArray*

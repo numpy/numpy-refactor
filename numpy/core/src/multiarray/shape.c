@@ -590,41 +590,7 @@ _fix_unknown_dimension(PyArray_Dims *newshape, intp s_original)
 NPY_NO_EXPORT PyObject *
 PyArray_Squeeze(PyArrayObject *self)
 {
-    int nd = self->nd;
-    int newnd = nd;
-    intp dimensions[MAX_DIMS];
-    intp strides[MAX_DIMS];
-    int i, j;
-    PyObject *ret;
-
-    if (nd == 0) {
-        Py_INCREF(self);
-        return (PyObject *)self;
-    }
-    for (j = 0, i = 0; i < nd; i++) {
-        if (self->dimensions[i] == 1) {
-            newnd -= 1;
-        }
-        else {
-            dimensions[j] = self->dimensions[i];
-            strides[j++] = self->strides[i];
-        }
-    }
-
-    Py_INCREF(self->descr);
-    ret = PyArray_NewFromDescr(Py_TYPE(self),
-                               self->descr,
-                               newnd, dimensions,
-                               strides, self->data,
-                               self->flags,
-                               (PyObject *)self);
-    if (ret == NULL) {
-        return NULL;
-    }
-    PyArray_FLAGS(ret) &= ~OWNDATA;
-    PyArray_BASE(ret) = (PyObject *)self;
-    Py_INCREF(self);
-    return (PyObject *)ret;
+    return (PyObject*) NpyArray_Squeeze(self);
 }
 
 /*NUMPY_API
@@ -633,55 +599,7 @@ PyArray_Squeeze(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 {
-    PyArray_Dims new_axes;
-    intp dims[MAX_DIMS];
-    int n, i, val;
-    PyObject *ret;
-
-    if (a1 == a2) {
-        Py_INCREF(ap);
-        return (PyObject *)ap;
-    }
-
-    n = ap->nd;
-    if (n <= 1) {
-        Py_INCREF(ap);
-        return (PyObject *)ap;
-    }
-
-    if (a1 < 0) {
-        a1 += n;
-    }
-    if (a2 < 0) {
-        a2 += n;
-    }
-    if ((a1 < 0) || (a1 >= n)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "bad axis1 argument to swapaxes");
-        return NULL;
-    }
-    if ((a2 < 0) || (a2 >= n)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "bad axis2 argument to swapaxes");
-        return NULL;
-    }
-    new_axes.ptr = dims;
-    new_axes.len = n;
-
-    for (i = 0; i < n; i++) {
-        if (i == a1) {
-            val = a2;
-        }
-        else if (i == a2) {
-            val = a1;
-        }
-        else {
-            val = i;
-        }
-        new_axes.ptr[i] = val;
-    }
-    ret = PyArray_Transpose(ap, &new_axes);
-    return ret;
+    return (PyObject*) NpyArray_SwapAxes(ap, a1, a2);
 }
 
 /*NUMPY_API
