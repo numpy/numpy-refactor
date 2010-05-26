@@ -690,75 +690,7 @@ PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 NPY_NO_EXPORT PyObject *
 PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 {
-    intp *axes, axis;
-    intp i, n;
-    intp permutation[MAX_DIMS], reverse_permutation[MAX_DIMS];
-    PyArrayObject *ret = NULL;
-
-    if (permute == NULL) {
-        n = ap->nd;
-        for (i = 0; i < n; i++) {
-            permutation[i] = n-1-i;
-        }
-    }
-    else {
-        n = permute->len;
-        axes = permute->ptr;
-        if (n != ap->nd) {
-            PyErr_SetString(PyExc_ValueError,
-                            "axes don't match array");
-            return NULL;
-        }
-        for (i = 0; i < n; i++) {
-            reverse_permutation[i] = -1;
-        }
-        for (i = 0; i < n; i++) {
-            axis = axes[i];
-            if (axis < 0) {
-                axis = ap->nd + axis;
-            }
-            if (axis < 0 || axis >= ap->nd) {
-                PyErr_SetString(PyExc_ValueError,
-                                "invalid axis for this array");
-                return NULL;
-            }
-            if (reverse_permutation[axis] != -1) {
-                PyErr_SetString(PyExc_ValueError,
-                                "repeated axis in transpose");
-                return NULL;
-            }
-            reverse_permutation[axis] = i;
-            permutation[i] = axis;
-        }
-        for (i = 0; i < n; i++) {
-        }
-    }
-
-    /*
-     * this allocates memory for dimensions and strides (but fills them
-     * incorrectly), sets up descr, and points data at ap->data.
-     */
-    Py_INCREF(ap->descr);
-    ret = (PyArrayObject *)\
-        PyArray_NewFromDescr(Py_TYPE(ap),
-                             ap->descr,
-                             n, ap->dimensions,
-                             NULL, ap->data, ap->flags,
-                             (PyObject *)ap);
-    if (ret == NULL) {
-        return NULL;
-    }
-    /* point at true owner of memory: */
-    ret->base = (PyObject *)ap;
-    Py_INCREF(ap);
-
-    /* fix the dimensions and strides of the return-array */
-    for (i = 0; i < n; i++) {
-        ret->dimensions[i] = ap->dimensions[permutation[i]];
-        ret->strides[i] = ap->strides[permutation[i]];
-    }
-    PyArray_UpdateFlags(ret, CONTIGUOUS | FORTRAN);
-    return (PyObject *)ret;
+    return (PyObject*) NpyArray_Transpose(ap, permute);
 }
 
 /*NUMPY_API

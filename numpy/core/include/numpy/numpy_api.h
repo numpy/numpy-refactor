@@ -43,6 +43,7 @@ int NpyArray_ElementStrides(NpyArray *arr);
 npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 
+NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
 NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 
