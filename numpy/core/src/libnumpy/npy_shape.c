@@ -5,6 +5,178 @@
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
+static int
+_check_ones(NpyArray *self, int newnd, npy_intp* newdims, npy_intp *strides);
+
+static int
+_fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original);
+
+static int
+_attempt_nocopy_reshape(NpyArray *self, int newnd, npy_intp* newdims,
+                        npy_intp *newstrides, int fortran);
+
+
+/*
+ * Returns a new array
+ * with the new shape from the data
+ * in the old array --- order-perspective depends on fortran argument.
+ * copy-only-if-necessary
+ */
+
+/*
+ * New shape for an array
+ */
+NpyArray*
+NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
+                  NPY_ORDER fortran)
+{
+    npy_intp i;
+    npy_intp *dimensions = newdims->ptr;
+    NpyArray *ret;
+    int n = newdims->len;
+    npy_bool same, incref = NPY_TRUE;
+    npy_intp *strides = NULL;
+    npy_intp newstrides[NPY_MAXDIMS];
+    int flags;
+
+    if (fortran == NPY_ANYORDER) {
+        fortran = PyArray_ISFORTRAN(self);
+    }
+    /*  Quick check to make sure anything actually needs to be done */
+    if (n == self->nd) {
+        same = NPY_TRUE;
+        i = 0;
+        while (same && i < n) {
+            if (NpyArray_DIM(self,i) != dimensions[i]) {
+                same=NPY_FALSE;
+            }
+            i++;
+        }
+        if (same) {
+            return NpyArray_View(self, NULL, NULL);
+        }
+    }
+
+    /*
+     * Returns a pointer to an appropriate strides array
+     * if all we are doing is inserting ones into the shape,
+     * or removing ones from the shape
+     * or doing a combination of the two
+     * In this case we don't need to do anything but update strides and
+     * dimensions.  So, we can handle non single-segment cases.
+     */
+    i = _check_ones(self, n, dimensions, newstrides);
+    if (i == 0) {
+        strides = newstrides;
+    }
+    flags = self->flags;
+
+    if (strides == NULL) {
+        /*
+         * we are really re-shaping not just adding ones to the shape somewhere
+         * fix any -1 dimensions and check new-dimensions against old size
+         */
+        if (_fix_unknown_dimension(newdims, PyArray_SIZE(self)) < 0) {
+            return NULL;
+        }
+        /*
+         * sometimes we have to create a new copy of the array
+         * in order to get the right orientation and
+         * because we can't just re-use the buffer with the
+         * data in the order it is in.
+         */
+        if (!(NpyArray_ISONESEGMENT(self)) ||
+            (((NpyArray_CHKFLAGS(self, NPY_CONTIGUOUS) &&
+               fortran == NPY_FORTRANORDER) ||
+              (NpyArray_CHKFLAGS(self, NPY_FORTRAN) &&
+                  fortran == NPY_CORDER)) && (self->nd > 1))) {
+            int success = 0;
+            success = _attempt_nocopy_reshape(self,n,dimensions,
+                                              newstrides,fortran);
+            if (success) {
+                /* no need to copy the array after all */
+                strides = newstrides;
+                flags = self->flags;
+            }
+            else {
+                NpyArray *new;
+                new = NpyArray_NewCopy(self, fortran);
+                if (new == NULL) {
+                    return NULL;
+                }
+                incref = NPY_FALSE;
+                self = new;
+                flags = self->flags;
+            }
+        }
+
+        /* We always have to interpret the contiguous buffer correctly */
+
+        /* Make sure the flags argument is set. */
+        if (n > 1) {
+            if (fortran == NPY_FORTRANORDER) {
+                flags &= ~NPY_CONTIGUOUS;
+                flags |= NPY_FORTRAN;
+            }
+            else {
+                flags &= ~NPY_FORTRAN;
+                flags |= NPY_CONTIGUOUS;
+            }
+        }
+    }
+    else if (n > 0) {
+        /*
+         * replace any 0-valued strides with
+         * appropriate value to preserve contiguousness
+         */
+        if (fortran == NPY_FORTRANORDER) {
+            if (strides[0] == 0) {
+                strides[0] = self->descr->elsize;
+            }
+            for (i = 1; i < n; i++) {
+                if (strides[i] == 0) {
+                    strides[i] = strides[i-1] * dimensions[i-1];
+                }
+            }
+        }
+        else {
+            if (strides[n-1] == 0) {
+                strides[n-1] = self->descr->elsize;
+            }
+            for (i = n - 2; i > -1; i--) {
+                if (strides[i] == 0) {
+                    strides[i] = strides[i+1] * dimensions[i+1];
+                }
+            }
+        }
+    }
+
+    Npy_INCREF(self->descr);
+    ret = NpyArray_NewFromDescr(Py_TYPE(self),
+                                self->descr,
+                                n, dimensions,
+                                strides,
+                                self->data,
+                                flags, (NpyObject*)self);
+
+    if (ret == NULL) {
+        goto fail;
+    }
+    if (incref) {
+        Npy_INCREF(self);
+    }
+    ret->base = (NpyObject *)self;
+    NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
+    return ret;
+
+ fail:
+    if (!incref) {
+        Npy_DECREF(self);
+    }
+    return NULL;
+}
+
+
 /*
  * return a new view of the array object with all of its unit-length
  * dimensions squeezed out if needed, otherwise
@@ -204,7 +376,7 @@ NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran)
         return NpyArray_Newshape(a, &newdim, PyArray_FORTRANORDER);
     }
     else {
-        return PyArray_Flatten(a, fortran);
+        return NpyArray_Flatten(a, fortran);
     }
 }
 
@@ -232,9 +404,220 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     if (ret == NULL) {
         return NULL;
     }
-    if (_flat_copyinto(ret, (NpyObject *)a, order) < 0) {
+    /* XXX: We will need to move _flat_copyinto. */
+    if (_flat_copyinto((NpyObject*)ret, (NpyObject *)a, order) < 0) {
         Npy_DECREF(ret);
         return NULL;
     }
     return ret;
 }
+
+
+/* inserts 0 for strides where dimension will be 1 */
+static int
+_check_ones(NpyArray *self, int newnd, npy_intp* newdims, npy_intp *strides)
+{
+    int nd;
+    npy_intp *dims;
+    npy_bool done=NPY_FALSE;
+    int j, k;
+
+    nd = self->nd;
+    dims = self->dimensions;
+
+    for (k = 0, j = 0; !done && (j < nd || k < newnd);) {
+        if ((j<nd) && (k<newnd) && (newdims[k] == dims[j])) {
+            strides[k] = self->strides[j];
+            j++;
+            k++;
+        }
+        else if ((k < newnd) && (newdims[k] == 1)) {
+            strides[k] = 0;
+            k++;
+        }
+        else if ((j<nd) && (dims[j] == 1)) {
+            j++;
+        }
+        else {
+            done = NPY_TRUE;
+        }
+    }
+    if (done) {
+        return -1;
+    }
+    return 0;
+}
+
+/*
+ * attempt to reshape an array without copying data
+ *
+ * This function should correctly handle all reshapes, including
+ * axes of length 1. Zero strides should work but are untested.
+ *
+ * If a copy is needed, returns 0
+ * If no copy is needed, returns 1 and fills newstrides
+ *     with appropriate strides
+ *
+ * The "fortran" argument describes how the array should be viewed
+ * during the reshape, not how it is stored in memory (that
+ * information is in self->strides).
+ *
+ * If some output dimensions have length 1, the strides assigned to
+ * them are arbitrary. In the current implementation, they are the
+ * stride of the next-fastest index.
+ */
+static int
+_attempt_nocopy_reshape(NpyArray *self, int newnd, npy_intp* newdims,
+                        npy_intp *newstrides, int fortran)
+{
+    int oldnd;
+    npy_intp olddims[NPY_MAXDIMS];
+    npy_intp oldstrides[NPY_MAXDIMS];
+    int oi, oj, ok, ni, nj, nk;
+    int np, op;
+
+    oldnd = 0;
+    for (oi = 0; oi < self->nd; oi++) {
+        if (self->dimensions[oi]!= 1) {
+            olddims[oldnd] = self->dimensions[oi];
+            oldstrides[oldnd] = self->strides[oi];
+            oldnd++;
+        }
+    }
+
+    /*
+      fprintf(stderr, "_attempt_nocopy_reshape( (");
+      for (oi=0; oi<oldnd; oi++)
+      fprintf(stderr, "(%d,%d), ", olddims[oi], oldstrides[oi]);
+      fprintf(stderr, ") -> (");
+      for (ni=0; ni<newnd; ni++)
+      fprintf(stderr, "(%d,*), ", newdims[ni]);
+      fprintf(stderr, "), fortran=%d)\n", fortran);
+    */
+
+
+    np = 1;
+    for (ni = 0; ni < newnd; ni++) {
+        np *= newdims[ni];
+    }
+    op = 1;
+    for (oi = 0; oi < oldnd; oi++) {
+        op *= olddims[oi];
+    }
+    if (np != op) {
+        /* different total sizes; no hope */
+        return 0;
+    }
+    /* the current code does not handle 0-sized arrays, so give up */
+    if (np == 0) {
+        return 0;
+    }
+
+    oi = 0;
+    oj = 1;
+    ni = 0;
+    nj = 1;
+    while(ni < newnd && oi < oldnd) {
+        np = newdims[ni];
+        op = olddims[oi];
+
+        while (np != op) {
+            if (np < op) {
+                np *= newdims[nj++];
+            } else {
+                op *= olddims[oj++];
+            }
+        }
+
+        for (ok = oi; ok < oj - 1; ok++) {
+            if (fortran) {
+                if (oldstrides[ok+1] != olddims[ok]*oldstrides[ok]) {
+                     /* not contiguous enough */
+                    return 0;
+                }
+            }
+            else {
+                /* C order */
+                if (oldstrides[ok] != olddims[ok+1]*oldstrides[ok+1]) {
+                    /* not contiguous enough */
+                    return 0;
+                }
+            }
+        }
+
+        if (fortran) {
+            newstrides[ni] = oldstrides[oi];
+            for (nk = ni + 1; nk < nj; nk++) {
+                newstrides[nk] = newstrides[nk - 1]*newdims[nk - 1];
+            }
+        }
+        else {
+            /* C order */
+            newstrides[nj - 1] = oldstrides[oj - 1];
+            for (nk = nj - 1; nk > ni; nk--) {
+                newstrides[nk - 1] = newstrides[nk]*newdims[nk];
+            }
+        }
+        ni = nj++;
+        oi = oj++;
+    }
+
+    /*
+      fprintf(stderr, "success: _attempt_nocopy_reshape (");
+      for (oi=0; oi<oldnd; oi++)
+      fprintf(stderr, "(%d,%d), ", olddims[oi], oldstrides[oi]);
+      fprintf(stderr, ") -> (");
+      for (ni=0; ni<newnd; ni++)
+      fprintf(stderr, "(%d,%d), ", newdims[ni], newstrides[ni]);
+      fprintf(stderr, ")\n");
+    */
+
+    return 1;
+}
+
+static int
+_fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original)
+{
+    npy_intp *dimensions;
+    npy_intp i_unknown, s_known;
+    int i, n;
+    static char msg[] = "total size of new array must be unchanged";
+
+    dimensions = newshape->ptr;
+    n = newshape->len;
+    s_known = 1;
+    i_unknown = -1;
+
+    for (i = 0; i < n; i++) {
+        if (dimensions[i] < 0) {
+            if (i_unknown == -1) {
+                i_unknown = i;
+            }
+            else {
+                NpyErr_SetString(NpyExc_ValueError,
+                                 "can only specify one" \
+                                 " unknown dimension");
+                return -1;
+            }
+        }
+        else {
+            s_known *= dimensions[i];
+        }
+    }
+
+    if (i_unknown >= 0) {
+        if ((s_known == 0) || (s_original % s_known != 0)) {
+            NpyErr_SetString(NpyExc_ValueError, msg);
+            return -1;
+        }
+        dimensions[i_unknown] = s_original/s_known;
+    }
+    else {
+        if (s_original != s_known) {
+            NpyErr_SetString(NpyExc_ValueError, msg);
+            return -1;
+        }
+    }
+    return 0;
+}
+
