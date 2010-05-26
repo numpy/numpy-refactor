@@ -8,6 +8,7 @@
 #include "numpy/arrayscalars.h"
 
 #include "numpy/npy_math.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -791,29 +792,5 @@ PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_Flatten(PyArrayObject *a, NPY_ORDER order)
 {
-    PyObject *ret;
-    intp size;
-
-    if (order == PyArray_ANYORDER) {
-        order = PyArray_ISFORTRAN(a);
-    }
-    size = PyArray_SIZE(a);
-    Py_INCREF(a->descr);
-    ret = PyArray_NewFromDescr(Py_TYPE(a),
-                               a->descr,
-                               1, &size,
-                               NULL,
-                               NULL,
-                               0, (PyObject *)a);
-
-    if (ret == NULL) {
-        return NULL;
-    }
-    if (_flat_copyinto(ret, (PyObject *)a, order) < 0) {
-        Py_DECREF(ret);
-        return NULL;
-    }
-    return ret;
+    return (PyObject*) NpyArray_Flatten(a, order);
 }
-
-

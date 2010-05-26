@@ -686,9 +686,11 @@ def configuration(parent_package='',top_path=None):
     config.add_npy_pkg_config("mlib.ini.in", "lib/npy-pkg-config",
             subst_dict)
 
-    config.add_library('numpy',
-                       sources=[join('src', 'libnumpy', 'npy_arrayobject.c'),
-                                join('src', 'libnumpy', 'npy_usertypes.c')])
+    libnumpy_source = [join('src', 'libnumpy', 'npy_arrayobject.c'),
+                       join('src', 'libnumpy', 'npy_shape.c'),
+                       join('src', 'libnumpy', 'npy_usertypes.c')]
+
+    config.add_library('numpy', sources=libnumpy_source)
    
     multiarray_deps = [
             join('src', 'multiarray', 'arrayobject.h'),
@@ -774,7 +776,7 @@ def configuration(parent_package='',top_path=None):
                                  generate_numpy_api,
                                  join(codegen_dir,'generate_numpy_api.py'),
                                  join('*.py')],
-                         depends = deps + multiarray_deps,
+                         depends = deps + multiarray_deps + libnumpy_source,
                          libraries=['npymath','numpy'])
 
     config.add_extension('umath',

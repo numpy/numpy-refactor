@@ -3,6 +3,7 @@
 
 #include "numpy/arrayobject.h"
 
+typedef PyObject NpyObject;
 typedef PyArrayObject NpyArray;
 typedef PyArray_Descr NpyArray_Descr;
 
@@ -15,6 +16,8 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_NDIM(a) PyArray_NDIM(a)
 #define NpyArray_STRIDES(a) PyArray_STRIDES(a)
 #define NpyArray_DESCR(a) PyArray_DESCR(a)
+
+#define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
 
 #define NpyArray_NOTYPE PyArray_NOTYPE
 #define NpyArray_NTYPES PyArray_NTYPES
@@ -37,6 +40,8 @@ int NpyArray_ElementStrides(NpyArray *arr);
 npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 
+NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
+
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
 int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
@@ -44,6 +49,13 @@ int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
 int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
                              NPY_SCALARKIND scalar);
 int NpyArray_TypeNumFromName(char *str);
+
+/*
+ * Reference counting.
+ */
+
+#define Npy_INCREF(a) Py_INCREF(a)
+#define Npy_DECREF(a) Py_DECREF(a)
 
 /*
  * Error handling.
@@ -60,5 +72,9 @@ int NpyArray_TypeNumFromName(char *str);
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
 #define npy_userdescrs userdescrs
+#define NpyArray_NewFromDescr(a, b, c, d, e, f, g, h) \
+    ((NpyArray*) PyArray_NewFromDescr(a, b, c, d, e, f, g, h))
+
+extern int _flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
 
 #endif
