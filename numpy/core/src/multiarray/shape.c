@@ -768,22 +768,7 @@ PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 NPY_NO_EXPORT PyObject *
 PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 {
-    PyArray_Dims newdim = {NULL,1};
-    intp val[1] = {-1};
-
-    if (fortran == PyArray_ANYORDER) {
-        fortran = PyArray_ISFORTRAN(a);
-    }
-    newdim.ptr = val;
-    if (!fortran && PyArray_ISCONTIGUOUS(a)) {
-        return PyArray_Newshape(a, &newdim, PyArray_CORDER);
-    }
-    else if (fortran && PyArray_ISFORTRAN(a)) {
-        return PyArray_Newshape(a, &newdim, PyArray_FORTRANORDER);
-    }
-    else {
-        return PyArray_Flatten(a, fortran);
-    }
+    return (PyObject*) NpyArray_Ravel(a, fortran);
 }
 
 /*NUMPY_API

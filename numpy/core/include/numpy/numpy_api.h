@@ -7,6 +7,8 @@ typedef PyObject NpyObject;
 typedef PyArrayObject NpyArray;
 typedef PyArray_Descr NpyArray_Descr;
 
+typedef PyArray_Dims NpyArray_Dims;
+
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
@@ -18,6 +20,7 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_DESCR(a) PyArray_DESCR(a)
 
 #define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
+#define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
 
 #define NpyArray_NOTYPE PyArray_NOTYPE
 #define NpyArray_NTYPES PyArray_NTYPES
@@ -40,6 +43,7 @@ int NpyArray_ElementStrides(NpyArray *arr);
 npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 
+NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
@@ -74,6 +78,8 @@ int NpyArray_TypeNumFromName(char *str);
 #define npy_userdescrs userdescrs
 #define NpyArray_NewFromDescr(a, b, c, d, e, f, g, h) \
     ((NpyArray*) PyArray_NewFromDescr(a, b, c, d, e, f, g, h))
+#define NpyArray_Newshape(a, dims, order) \
+    ((NpyArray*)PyArray_Newshape(a, dims, order))
 
 extern int _flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
 

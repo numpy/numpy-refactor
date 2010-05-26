@@ -21,6 +21,7 @@ maintainer email:  oliphant.travis@ieee.org
   (J. Todd Miller, Perry Greenfield, Rick White)
 */
 
+#define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "npy_config.h"
