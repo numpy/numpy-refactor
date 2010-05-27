@@ -26,6 +26,7 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
 #define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
 #define NpyArray_ISONESEGMENT(a) PyArray_ISONESEGMENT(a)
+#define NpyArray_ISWRITEABLE(a) PyArray_ISWRITEABLE(a)
 
 #define NpyArray_NOTYPE PyArray_NOTYPE
 #define NpyArray_NTYPES PyArray_NTYPES
@@ -71,11 +72,20 @@ int NpyArray_TypeNumFromName(char *str);
 
 #define Npy_INCREF(a) Py_INCREF(a)
 #define Npy_DECREF(a) Py_DECREF(a)
+#define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
+
+/*
+ * Memory
+ */
+#define NpyDataMem_RENEW(p, sz) PyDataMem_RENEW(p, sz)
+
+#define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
 
 /*
  * Error handling.
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
+#define NpyErr_NoMemory() PyErr_NoMemory()
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
 #define NpyExc_TypeError PyExc_TypeError
