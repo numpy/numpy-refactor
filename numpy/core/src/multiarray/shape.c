@@ -33,122 +33,38 @@ NPY_NO_EXPORT PyObject *
 PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
                NPY_ORDER fortran)
 {
-    intp oldsize, newsize;
-    int new_nd=newshape->len, k, n, elsize;
-    int refcnt;
-    intp* new_dimensions=newshape->ptr;
-    intp new_strides[MAX_DIMS];
-    size_t sd;
-    intp *dimptr;
-    char *new_data;
-    intp largest;
+    intp newsize, oldsize;
 
-    if (!PyArray_ISONESEGMENT(self)) {
-        PyErr_SetString(PyExc_ValueError,
-                "resize only works on single-segment arrays");
-        return NULL;
-    }
-
-    if (self->descr->elsize == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                "Bad data-type size.");
-        return NULL;
-    }
-    newsize = 1;
-    largest = MAX_INTP / self->descr->elsize;
-    for(k = 0; k < new_nd; k++) {
-        if (new_dimensions[k] == 0) {
-            break;
-        }
-        if (new_dimensions[k] < 0) {
-            PyErr_SetString(PyExc_ValueError,
-                    "negative dimensions not allowed");
-            return NULL;
-        }
-        newsize *= new_dimensions[k];
-        if (newsize <= 0 || newsize > largest) {
-            return PyErr_NoMemory();
-        }
-    }
-    oldsize = PyArray_SIZE(self);
-
-    if (oldsize != newsize) {
-        if (!(self->flags & OWNDATA)) {
-            PyErr_SetString(PyExc_ValueError,
-                    "cannot resize this array: it does not own its data");
-            return NULL;
-        }
-
-        if (refcheck) {
-            refcnt = REFCOUNT(self);
-        }
-        else {
-            refcnt = 1;
-        }
-        if ((refcnt > 2)
-                || (self->base != NULL)
-                || (self->weakreflist != NULL)) {
+    oldsize = NpyArray_SIZE(self);
+    newsize = NpyArray_MultiplyList(newshape->ptr, newshape->len);
+    if (newsize != oldsize) {
+        /* XXX: We will need a reference check here once we have separated the objects. . */
+        if (self->weakreflist != NULL) {
             PyErr_SetString(PyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
                     "by another array in this way.  Use the resize function");
             return NULL;
         }
-
-        if (newsize == 0) {
-            sd = self->descr->elsize;
-        }
-        else {
-            sd = newsize*self->descr->elsize;
-        }
-        /* Reallocate space if needed */
-        new_data = PyDataMem_RENEW(self->data, sd);
-        if (new_data == NULL) {
-            PyErr_SetString(PyExc_MemoryError,
-                    "cannot allocate memory for array");
-            return NULL;
-        }
-        self->data = new_data;
     }
-
-    if ((newsize > oldsize) && PyArray_ISWRITEABLE(self)) {
-        /* Fill new memory with zeros */
-        elsize = self->descr->elsize;
-        if (PyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
-            PyObject *zero = PyInt_FromLong(0);
-            char *optr;
-            optr = self->data + oldsize*elsize;
-            n = newsize - oldsize;
-            for (k = 0; k < n; k++) {
-                _putzero((char *)optr, zero, self->descr);
-                optr += elsize;
-            }
-            Py_DECREF(zero);
-        }
-        else{
-            memset(self->data+oldsize*elsize, 0, (newsize-oldsize)*elsize);
-        }
+    if (NpyArray_Resize(self, newshape, refcheck, fortran) != 0) {
+        return NULL;
     }
+    if (newsize > oldsize && 
+        PyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
+        /* Fill with zeros. */
+        int n, k;
+        char *optr;
+        int elsize = PyArray_ITEMSIZE(self);
+        PyObject *zero = PyInt_FromLong(0);
 
-    if (self->nd != new_nd) {
-        /* Different number of dimensions. */
-        self->nd = new_nd;
-        /* Need new dimensions and strides arrays */
-        dimptr = PyDimMem_RENEW(self->dimensions, 2*new_nd);
-        if (dimptr == NULL) {
-            PyErr_SetString(PyExc_MemoryError,
-                    "cannot allocate memory for array");
-            return NULL;
+        optr = self->data + oldsize*elsize;
+        n = newsize - oldsize;
+        for (k = 0; k < n; k++) {
+            _putzero((char *)optr, zero, self->descr);
+            optr += elsize;
         }
-        self->dimensions = dimptr;
-        self->strides = dimptr + new_nd;
+        Py_DECREF(zero);
     }
-
-    /* make new_strides variable */
-    sd = (size_t) self->descr->elsize;
-    sd = (size_t) _array_fill_strides(new_strides, new_dimensions, new_nd, sd,
-            self->flags, &(self->flags));
-    memmove(self->dimensions, new_dimensions, new_nd*sizeof(intp));
-    memmove(self->strides, new_strides, new_nd*sizeof(intp));
     Py_INCREF(Py_None);
     return Py_None;
 }

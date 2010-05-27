@@ -17,6 +17,122 @@ _attempt_nocopy_reshape(NpyArray *self, int newnd, npy_intp* newdims,
 
 
 /*
+ * Resize (reallocate data).  Only works if nothing else is referencing this
+ * array and it is contiguous.  If refcheck is 0, then the reference count is
+ * not checked and assumed to be 1.  You still must own this data and have no
+ * weak-references and no base object.
+ */
+int
+NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
+               NPY_ORDER fortran)
+{
+    npy_intp oldsize, newsize;
+    int new_nd=newshape->len, k, n, elsize;
+    int refcnt;
+    npy_intp* new_dimensions=newshape->ptr;
+    npy_intp new_strides[NPY_MAXDIMS];
+    size_t sd;
+    npy_intp *dimptr;
+    char *new_data;
+    npy_intp largest;
+
+    if (!NpyArray_ISONESEGMENT(self)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "resize only works on single-segment arrays");
+        return -1;
+    }
+
+    if (self->descr->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Bad data-type size.");
+        return -1;
+    }
+    newsize = 1;
+    largest = NPY_MAX_INTP / self->descr->elsize;
+    for(k = 0; k < new_nd; k++) {
+        if (new_dimensions[k] == 0) {
+            break;
+        }
+        if (new_dimensions[k] < 0) {
+            NpyErr_SetString(NpyExc_ValueError,
+                    "negative dimensions not allowed");
+            return -1;
+        }
+        newsize *= new_dimensions[k];
+        if (newsize <= 0 || newsize > largest) {
+            NpyErr_NoMemory();
+            return -1;
+        }
+    }
+    oldsize = NpyArray_SIZE(self);
+
+    if (oldsize != newsize) {
+        if (!(self->flags & NPY_OWNDATA)) {
+            NpyErr_SetString(NpyExc_ValueError,
+                    "cannot resize this array: it does not own its data");
+            return -1;
+        }
+
+        if (refcheck) {
+            refcnt = NpyArray_REFCOUNT(self);
+        }
+        else {
+            refcnt = 1;
+        }
+        if ((refcnt > 2)
+            || (self->base != NULL)) {
+            NpyErr_SetString(NpyExc_ValueError,
+                    "cannot resize an array references or is referenced\n"\
+                    "by another array in this way.  Use the resize function");
+            return -1;
+        }
+
+        if (newsize == 0) {
+            sd = self->descr->elsize;
+        }
+        else {
+            sd = newsize*self->descr->elsize;
+        }
+        /* Reallocate space if needed */
+        new_data = NpyDataMem_RENEW(self->data, sd);
+        if (new_data == NULL) {
+            NpyErr_SetString(NpyExc_MemoryError,
+                    "cannot allocate memory for array");
+            return -1;
+        }
+        self->data = new_data;
+    }
+
+    if ((newsize > oldsize) && NpyArray_ISWRITEABLE(self)) {
+        /* Fill new memory with zeros */
+        elsize = self->descr->elsize;
+        memset(self->data+oldsize*elsize, 0, (newsize-oldsize)*elsize);
+    }
+
+    if (self->nd != new_nd) {
+        /* Different number of dimensions. */
+        self->nd = new_nd;
+        /* Need new dimensions and strides arrays */
+        dimptr = NpyDimMem_RENEW(self->dimensions, 2*new_nd);
+        if (dimptr == NULL) {
+            NpyErr_SetString(NpyExc_MemoryError,
+                    "cannot allocate memory for array");
+            return -1;
+        }
+        self->dimensions = dimptr;
+        self->strides = dimptr + new_nd;
+    }
+
+    /* make new_strides variable */
+    sd = (size_t) self->descr->elsize;
+    sd = (size_t) _array_fill_strides(new_strides, new_dimensions, new_nd, sd,
+            self->flags, &(self->flags));
+    memmove(self->dimensions, new_dimensions, new_nd*sizeof(npy_intp));
+    memmove(self->strides, new_strides, new_nd*sizeof(npy_intp));
+    return 0;
+}
+
+/*
  * Returns a new array
  * with the new shape from the data
  * in the old array --- order-perspective depends on fortran argument.
