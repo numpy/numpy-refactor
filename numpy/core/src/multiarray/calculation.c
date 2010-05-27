@@ -5,6 +5,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -42,114 +43,7 @@ power_of_ten(int n)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 {
-    PyArrayObject *ap = NULL, *rp = NULL;
-    PyArray_ArgFunc* arg_func;
-    char *ip;
-    intp *rptr;
-    intp i, n, m;
-    int elsize;
-    int copyret = 0;
-    NPY_BEGIN_THREADS_DEF;
-
-    if ((ap=(PyAO *)_check_axis(op, &axis, 0)) == NULL) {
-        return NULL;
-    }
-    /*
-     * We need to permute the array so that axis is placed at the end.
-     * And all other dimensions are shifted left.
-     */
-    if (axis != ap->nd-1) {
-        PyArray_Dims newaxes;
-        intp dims[MAX_DIMS];
-        int i;
-
-        newaxes.ptr = dims;
-        newaxes.len = ap->nd;
-        for (i = 0; i < axis; i++) dims[i] = i;
-        for (i = axis; i < ap->nd - 1; i++) dims[i] = i + 1;
-        dims[ap->nd - 1] = axis;
-        op = (PyAO *)PyArray_Transpose(ap, &newaxes);
-        Py_DECREF(ap);
-        if (op == NULL) {
-            return NULL;
-        }
-    }
-    else {
-        op = ap;
-    }
-
-    /* Will get native-byte order contiguous copy. */
-    ap = (PyArrayObject *)
-        PyArray_ContiguousFromAny((PyObject *)op,
-                                  op->descr->type_num, 1, 0);
-    Py_DECREF(op);
-    if (ap == NULL) {
-        return NULL;
-    }
-    arg_func = ap->descr->f->argmax;
-    if (arg_func == NULL) {
-        PyErr_SetString(PyExc_TypeError, "data type not ordered");
-        goto fail;
-    }
-    elsize = ap->descr->elsize;
-    m = ap->dimensions[ap->nd-1];
-    if (m == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "attempt to get argmax/argmin "\
-                        "of an empty sequence");
-        goto fail;
-    }
-
-    if (!out) {
-        rp = (PyArrayObject *)PyArray_New(Py_TYPE(ap), ap->nd-1,
-                                          ap->dimensions, PyArray_INTP,
-                                          NULL, NULL, 0, 0,
-                                          (PyObject *)ap);
-        if (rp == NULL) {
-            goto fail;
-        }
-    }
-    else {
-        if (PyArray_SIZE(out) !=
-                PyArray_MultiplyList(ap->dimensions, ap->nd - 1)) {
-            PyErr_SetString(PyExc_TypeError,
-                            "invalid shape for output array.");
-        }
-        rp = (PyArrayObject *)\
-            PyArray_FromArray(out,
-                              PyArray_DescrFromType(PyArray_INTP),
-                              NPY_CARRAY | NPY_UPDATEIFCOPY);
-        if (rp == NULL) {
-            goto fail;
-        }
-        if (rp != out) {
-            copyret = 1;
-        }
-    }
-
-    NPY_BEGIN_THREADS_DESCR(ap->descr);
-    n = PyArray_SIZE(ap)/m;
-    rptr = (intp *)rp->data;
-    for (ip = ap->data, i = 0; i < n; i++, ip += elsize*m) {
-        arg_func(ip, m, rptr, ap);
-        rptr += 1;
-    }
-    NPY_END_THREADS_DESCR(ap->descr);
-
-    Py_DECREF(ap);
-    if (copyret) {
-        PyArrayObject *obj;
-        obj = (PyArrayObject *)rp->base;
-        Py_INCREF(obj);
-        Py_DECREF(rp);
-        rp = obj;
-    }
-    return (PyObject *)rp;
-
- fail:
-    Py_DECREF(ap);
-    Py_XDECREF(rp);
-    return NULL;
+    return (PyObject *)NpyArray_ArgMax( (NpyArray *)op, axis, (NpyArray *)out );
 }
 
 /*NUMPY_API

@@ -11,8 +11,10 @@ typedef PyArray_Dims NpyArray_Dims;
 
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
+typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 
+#define Npy_TYPE(a) Py_TYPE(a)
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
 #define NpyArray_NDIM(a) PyArray_NDIM(a)
@@ -26,22 +28,65 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
 #define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
 #define NpyArray_ISONESEGMENT(a) PyArray_ISONESEGMENT(a)
+#define NpyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
+#define NpyArray_ISUNSIGNED(obj) PyArray_ISUNSIGNED(obj)
 
+#define NpyArray_TYPE(obj) PyArray_TYPE(obj)
 #define NpyArray_NOTYPE PyArray_NOTYPE
 #define NpyArray_NTYPES PyArray_NTYPES
 #define NpyArray_NSORTS PyArray_NSORTS
 #define NpyArray_USERDEF PyArray_USERDEF
 #define NpyTypeNum_ISUSERDEF(a) PyTypeNum_ISUSERDEF(a)
+#define NpyArray_BOOL PyArray_BOOL
 
 #define NpyArray_NOSCALAR PyArray_NOSCALAR
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
 
 
+/*
+ * These need to be fixed to create 0-d arrays. 
+ */
+
+#define NpyInt_FromLong(v) PyInt_FromLong(v)
+#define NpyNumber_Subtract(a, b) PyNumber_Subtract(a, b)
+
+
+
+/* 
+ * Functions we need to convert.
+ */
+
+#define NpyArray_FromAny(op, newType, min_depth, max_depth, flags, context) \
+        PyArray_FromAny(op, newType, min_depth, max_depth, flags, context)
+
+#define NpyArray_DescrFromType(type) \
+        PyArray_DescrFromType(type)
+
+#define NpyArray_FromArray(arr, newtype, flags) \
+        (NpyArray *)PyArray_FromArray(arr, newtype, flags)
+
+
+/* ctors.c */
+#define NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj) \
+        (NpyArray *)PyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj)
+
+#define NpyArray_CheckFromAny(op, descr, min_depth, max_depth, requires, context) \
+        PyArray_CheckFromAny(op, descr, min_depth, max_depth, requires, context)
+
+#define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
+
+
+/* Already exists as a macro */
+#define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)             \
+        NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
+        max_depth, NPY_DEFAULT, NULL)
 
 /*
  * API functions.
  */
 npy_intp NpyArray_Size(NpyArray *op);
+NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
+NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);
 int NpyArray_ElementStrides(NpyArray *arr);
@@ -71,6 +116,7 @@ int NpyArray_TypeNumFromName(char *str);
 
 #define Npy_INCREF(a) Py_INCREF(a)
 #define Npy_DECREF(a) Py_DECREF(a)
+#define Npy_XDECREF(a) Py_XDECREF(a)
 
 /*
  * Error handling.
@@ -79,6 +125,7 @@ int NpyArray_TypeNumFromName(char *str);
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
 #define NpyExc_TypeError PyExc_TypeError
+#define NpyErr_Format PyErr_Format
 
 
 

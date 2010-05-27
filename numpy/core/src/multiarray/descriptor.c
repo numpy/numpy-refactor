@@ -593,7 +593,7 @@ _convert_divisor_to_multiple(PyArray_DatetimeMetaData *meta)
     int i, num, ind;
     int *totry;
     NPY_DATETIMEUNIT *baseunit;
-    int q, r;
+    int q=0, r;
 
     ind = ((int)meta->base - (int)NPY_FR_Y)*2;
     totry = _multiples_table[ind];

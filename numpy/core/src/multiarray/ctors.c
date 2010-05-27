@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "numpy/npy_math.h"
 
@@ -2603,56 +2604,10 @@ PyArray_CopyInto(PyArrayObject *dest, PyArrayObject *src)
 NPY_NO_EXPORT PyObject *
 PyArray_CheckAxis(PyArrayObject *arr, int *axis, int flags)
 {
-    PyObject *temp1, *temp2;
-    int n = arr->nd;
-
-    if (*axis == MAX_DIMS || n == 0) {
-        if (n != 1) {
-            temp1 = PyArray_Ravel(arr,0);
-            if (temp1 == NULL) {
-                *axis = 0;
-                return NULL;
-            }
-            if (*axis == MAX_DIMS) {
-                *axis = PyArray_NDIM(temp1)-1;
-            }
-        }
-        else {
-            temp1 = (PyObject *)arr;
-            Py_INCREF(temp1);
-            *axis = 0;
-        }
-        if (!flags && *axis == 0) {
-            return temp1;
-        }
-    }
-    else {
-        temp1 = (PyObject *)arr;
-        Py_INCREF(temp1);
-    }
-    if (flags) {
-        temp2 = PyArray_CheckFromAny((PyObject *)temp1, NULL,
-                                     0, 0, flags, NULL);
-        Py_DECREF(temp1);
-        if (temp2 == NULL) {
-            return NULL;
-        }
-    }
-    else {
-        temp2 = (PyObject *)temp1;
-    }
-    n = PyArray_NDIM(temp2);
-    if (*axis < 0) {
-        *axis += n;
-    }
-    if ((*axis < 0) || (*axis >= n)) {
-        PyErr_Format(PyExc_ValueError,
-                     "axis(=%d) out of bounds", *axis);
-        Py_DECREF(temp2);
-        return NULL;
-    }
-    return temp2;
+    return NpyArray_CheckAxis(arr, axis, flags);
 }
+
+
 
 /*NUMPY_API
  * Zeros

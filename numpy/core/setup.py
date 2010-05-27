@@ -687,6 +687,8 @@ def configuration(parent_package='',top_path=None):
             subst_dict)
 
     libnumpy_source = [join('src', 'libnumpy', 'npy_arrayobject.c'),
+                       join('src', 'libnumpy', 'npy_calculation.c'),
+                       join('src', 'libnumpy', 'npy_ctors.c'),
                        join('src', 'libnumpy', 'npy_shape.c'),
                        join('src', 'libnumpy', 'npy_usertypes.c')]
 
