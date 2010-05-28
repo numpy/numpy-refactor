@@ -1,8 +1,6 @@
 #ifndef _NPY_PRIVATE_USERTYPES_H_
 #define _NPY_PRIVATE_USERTYPES_H_
 
-extern PyArray_Descr **userdescrs;
-
 NPY_NO_EXPORT void
 PyArray_InitArrFuncs(PyArray_ArrFuncs *f);
 

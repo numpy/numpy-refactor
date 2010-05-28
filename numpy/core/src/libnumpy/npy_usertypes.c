@@ -76,7 +76,7 @@ _default_copyswapn(void *dst, npy_intp dstride, void *src,
     }
 }
 
-/*NUMPY_API
+/*
   Initialize arrfuncs to NULL
 */
 void
@@ -252,8 +252,6 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
     return 0;
 }
 
-/*NUMPY_API
- */
 int
 NpyArray_TypeNumFromName(char *str)
 {
@@ -270,3 +268,24 @@ NpyArray_TypeNumFromName(char *str)
     return NpyArray_NOTYPE;
 }
 
+int
+NpyArray_TypeNumFromTypeObj(void* typeobj)
+{
+    int i;
+    NpyArray_Descr *descr;
+
+    /* XXX: This looks at the python type and needs to change. */
+    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+        descr = npy_userdescrs[i];
+        if (descr->typeobj == typeobj) {
+            return descr->type_num;
+        }
+    }
+    return NpyArray_NOTYPE;
+}
+
+NpyArray_Descr*
+NpyArray_UserDescrFromTypeNum(int typenum)
+{
+    return npy_userdescrs[typenum - NpyArray_USERDEF];
+}

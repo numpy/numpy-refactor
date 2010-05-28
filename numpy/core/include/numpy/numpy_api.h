@@ -109,6 +109,8 @@ int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
 int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
                              NPY_SCALARKIND scalar);
 int NpyArray_TypeNumFromName(char *str);
+int NpyArray_TypeNumFromTypeObj(void* typeobj);
+NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
 /*
  * Reference counting.
@@ -142,7 +144,6 @@ int NpyArray_TypeNumFromName(char *str);
  * TMP
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
-#define npy_userdescrs userdescrs
 #define NpyArray_NewFromDescr(a, b, c, d, e, f, g, h) \
     ((NpyArray*) PyArray_NewFromDescr(a, b, c, d, e, f, g, h))
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))

@@ -8,6 +8,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_3kcompat.h"
 
@@ -3602,7 +3603,7 @@ PyArray_DescrFromType(int type)
         return ret;
     }
     else if (PyTypeNum_ISUSERDEF(type)) {
-        ret = userdescrs[type - PyArray_USERDEF];
+        ret = NpyArray_UserDescrFromTypeNum(type);
     }
     else {
         int num = PyArray_NTYPES;
