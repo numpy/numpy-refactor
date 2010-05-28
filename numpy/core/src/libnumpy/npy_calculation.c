@@ -141,21 +141,23 @@ NpyArray *NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
 {
     PyObject *obj, *new, *ret;
     
+    // TODO: Code still uses PyInt_FromLong and PyNumber_Subtract.  Either need to move
+    // this function to the interface layer or find a solution for these.
     if (NpyArray_ISFLEXIBLE(ap)) {
         NpyErr_SetString(NpyExc_TypeError,
                          "argmax is unsupported for this type");
         return NULL;
     }
     else if (NpyArray_ISUNSIGNED(ap)) {
-        obj = NpyInt_FromLong((long) -1);
+        obj = PyInt_FromLong((long) -1);
     }
     else if (NpyArray_TYPE(ap) == NpyArray_BOOL) {
-        obj = NpyInt_FromLong((long) 1);
+        obj = PyInt_FromLong((long) 1);
     }
     else {
-        obj = NpyInt_FromLong((long) 0);
+        obj = PyInt_FromLong((long) 0);
     }
-    new = NpyArray_EnsureAnyArray(NpyNumber_Subtract(obj, ap));
+    new = NpyArray_EnsureAnyArray(PyNumber_Subtract(obj, ap));
     Npy_DECREF(obj);
     if (new == NULL) {
         return NULL;
@@ -164,5 +166,4 @@ NpyArray *NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
     Npy_DECREF(new);
     return ret;
 }
-
 

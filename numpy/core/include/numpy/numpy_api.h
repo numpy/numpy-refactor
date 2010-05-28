@@ -44,14 +44,6 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
 
 
-/*
- * These need to be fixed to create 0-d arrays. 
- */
-
-#define NpyInt_FromLong(v) PyInt_FromLong(v)
-#define NpyNumber_Subtract(a, b) PyNumber_Subtract(a, b)
-
-
 
 /* 
  * Functions we need to convert.
@@ -77,10 +69,17 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
 
 
+/* number.c */
+#define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
+        PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
+
+
 /* Already exists as a macro */
 #define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)             \
         NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
         max_depth, NPY_DEFAULT, NULL)
+
+
 
 /*
  * API functions.
