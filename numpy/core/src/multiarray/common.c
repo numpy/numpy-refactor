@@ -4,6 +4,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 #include "npy_3kcompat.h"
@@ -122,17 +123,8 @@ _use_default_type(PyObject *op)
     int typenum, l;
     PyObject *type;
 
-    typenum = -1;
-    l = 0;
-    type = (PyObject *)Py_TYPE(op);
-    while (l < PyArray_NUMUSERTYPES) {
-        if (type == (PyObject *)(userdescrs[l]->typeobj)) {
-            typenum = l + PyArray_USERDEF;
-            break;
-        }
-        l++;
-    }
-    if (typenum == -1) {
+    typenum = NpyArray_TypeNumFromTypeObj(Py_TYPE(op));
+    if (typenum == NpyArray_NOTYPE) {
         typenum = PyArray_OBJECT;
     }
     return PyArray_DescrFromType(typenum);

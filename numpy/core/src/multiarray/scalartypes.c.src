@@ -10,6 +10,7 @@
 #include "numpy/arrayobject.h"
 #include "numpy/npy_math.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_3kcompat.h"
 
@@ -3404,7 +3405,7 @@ static PyTypeObject *typeobjects[] = {
 NPY_NO_EXPORT int
 _typenum_fromtypeobj(PyObject *type, int user)
 {
-    int typenum, i;
+    int typenum, utypenum, i;
 
     typenum = PyArray_NOTYPE;
     i = 0;
@@ -3420,13 +3421,10 @@ _typenum_fromtypeobj(PyObject *type, int user)
         return typenum;
     }
     /* Search any registered types */
-    i = 0;
-    while (i < PyArray_NUMUSERTYPES) {
-        if (type == (PyObject *)(userdescrs[i]->typeobj)) {
-            typenum = i + PyArray_USERDEF;
-            break;
-        }
-        i++;
+    utypenum = NpyArray_TypeNumFromTypeObj(type);
+    if (utypenum != NpyArray_NOTYPE) {
+        typenum = utypenum;
     }
+
     return typenum;
 }
