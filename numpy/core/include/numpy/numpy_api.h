@@ -13,6 +13,7 @@ typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
+typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 
 #define Npy_TYPE(a) Py_TYPE(a)
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
@@ -42,6 +43,8 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 
 #define NpyArray_NOSCALAR PyArray_NOSCALAR
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
+
+#define NpyArray_INTP PyArray_INTP
 
 
 
@@ -75,10 +78,14 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 
 
 /* Already exists as a macro */
-#define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)             \
-        NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
+#define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)      \
+        NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,   \
         max_depth, NPY_DEFAULT, NULL)
 
+#define NpyArray_ContiguousFromArray(op, type, min_depth, max_depth)    \
+        NpyArray_FromArray(op, NpyArray_DescrFromType(type), min_depth, \
+        max_depth, NPY_DEFAULT, NULL                                    \
+)
 
 
 /*
@@ -102,6 +109,11 @@ NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
 NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 
+
+NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
+                            NpyArray *ret, NPY_CLIPMODE clipmode);
+
+
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
 int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
@@ -120,6 +132,8 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 #define Npy_DECREF(a) Py_DECREF(a)
 #define Npy_XDECREF(a) Py_XDECREF(a)
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
+#define NpyArray_INCREF(a) PyArray_INCREF(a)
+#define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
 
 /*
  * Memory
@@ -136,6 +150,7 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
 #define NpyExc_TypeError PyExc_TypeError
+#define NpyExc_IndexError PyExc_IndexError
 #define NpyErr_Format PyErr_Format
 
 
@@ -144,6 +159,7 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
  * TMP
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
+#define NpyArray_CompareLists(a, b, n) PyArray_CompareLists(a, b, n)
 #define NpyArray_NewFromDescr(a, b, c, d, e, f, g, h) \
     ((NpyArray*) PyArray_NewFromDescr(a, b, c, d, e, f, g, h))
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
