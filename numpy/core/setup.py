@@ -691,6 +691,7 @@ def configuration(parent_package='',top_path=None):
                        join('src', 'libnumpy', 'npy_common.c'),
                        join('src', 'libnumpy', 'npy_conversion_utils.c'),
                        join('src', 'libnumpy', 'npy_convert.c'),
+                       join('src', 'libnumpy', 'npy_convert_datatype.c'),
                        join('src', 'libnumpy', 'npy_ctors.c'),
                        join('src', 'libnumpy', 'npy_datetime.c'),
                        join('src', 'libnumpy', 'npy_flagsobject.c'),
