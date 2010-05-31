@@ -9,19 +9,6 @@
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
-//#include "structmember.h"
-
-//#define _MULTIARRAYMODULE
-//#define NPY_NO_PREFIX
-//#include "numpy/arrayobject.h"
-
-
-//#include "npy_3kcompat.h"
-
-//#include "common.h"
-//#include "number.h"
-
-//#include "calculation.h"
 
 
 NpyArray *
