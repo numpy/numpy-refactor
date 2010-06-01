@@ -46,9 +46,10 @@ typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 
 #define NpyArray_INTP PyArray_INTP
 
+#define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
 
-/* 
+/*
  * Functions we need to convert.
  */
 
@@ -79,13 +80,13 @@ typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 
 /* Already exists as a macro */
 #define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)      \
-        NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,   \
-        max_depth, NPY_DEFAULT, NULL)
+    ((NpyArray*)NpyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth, \
+                                 max_depth, NPY_DEFAULT, NULL))
 
-#define NpyArray_ContiguousFromArray(op, type, min_depth, max_depth)    \
-        NpyArray_FromArray(op, NpyArray_DescrFromType(type), min_depth, \
-        max_depth, NPY_DEFAULT, NULL                                    \
-)
+#define NpyArray_ContiguousFromArray(op, type)                          \
+    ((NpyArray*) NpyArray_FromArray(op, NpyArray_DescrFromType(type),   \
+                                    NPY_DEFAULT))
+
 
 
 /*
@@ -113,6 +114,8 @@ NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
                             NpyArray *ret, NPY_CLIPMODE clipmode);
 
+int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
+                   NPY_CLIPMODE clipmode);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
@@ -134,6 +137,8 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
 #define NpyArray_INCREF(a) PyArray_INCREF(a)
 #define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
+#define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
+#define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 
 /*
  * Memory

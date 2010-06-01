@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "numpy/npy_math.h"
 
@@ -31,10 +32,10 @@ PyArray_TakeFrom(PyArrayObject *self0, PyObject *indices0, int axis,
 
     /* Get indices array. */
     if (PyArray_Check(indices0)) {
-        indices = indices0;
+        indices = (PyArrayObject*) indices0;
         Py_INCREF(indices);
     } else {
-        indices = PyArray_ContiguousFromAny(indices0, PyArray_INTP, 1, 0);
+        indices = (PyArrayObject*) PyArray_ContiguousFromAny(indices0, PyArray_INTP, 1, 0);
         if (indices == NULL) {
             return NULL;
         }
@@ -51,175 +52,45 @@ NPY_NO_EXPORT PyObject *
 PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
               NPY_CLIPMODE clipmode)
 {
-    PyArrayObject  *indices, *values;
-    intp i, chunk, ni, max_item, nv, tmp;
-    char *src, *dest;
-    int copied = 0;
+    NpyArray* indices = NULL;
+    NpyArray* values = NULL;
 
-    indices = NULL;
-    values = NULL;
     if (!PyArray_Check(self)) {
         PyErr_SetString(PyExc_TypeError,
                         "put: first argument must be an array");
         return NULL;
     }
-    if (!PyArray_ISCONTIGUOUS(self)) {
-        PyArrayObject *obj;
-        int flags = NPY_CARRAY | NPY_UPDATEIFCOPY;
-
-        if (clipmode == NPY_RAISE) {
-            flags |= NPY_ENSURECOPY;
+    if (PyArray_Check(indices0)) {
+        indices = (PyArrayObject *) indices0;
+        Py_INCREF(indices);
+    } else {
+        indices = (PyArrayObject*) 
+            PyArray_ContiguousFromAny(indices0, PyArray_INTP, 1, 0);
+        if (indices == NULL) {
+            return NULL;
         }
+    }
+    if (PyArray_Check(values0)) {
+        values = (PyArrayObject *) values0;
+        Py_INCREF(values);
+    } else {
         Py_INCREF(self->descr);
-        obj = (PyArrayObject *)PyArray_FromArray(self,
-                                                 self->descr, flags);
-        if (obj != self) {
-            copied = 1;
-        }
-        self = obj;
-    }
-    max_item = PyArray_SIZE(self);
-    dest = self->data;
-    chunk = self->descr->elsize;
-    indices = (PyArrayObject *)PyArray_ContiguousFromAny(indices0,
-                                                         PyArray_INTP, 0, 0);
-    if (indices == NULL) {
-        goto fail;
-    }
-    ni = PyArray_SIZE(indices);
-    Py_INCREF(self->descr);
-    values = (PyArrayObject *)PyArray_FromAny(values0, self->descr, 0, 0,
-                                              DEFAULT | FORCECAST, NULL);
-    if (values == NULL) {
-        goto fail;
-    }
-    nv = PyArray_SIZE(values);
-    if (nv <= 0) {
-        goto finish;
-    }
-    if (PyDataType_REFCHK(self->descr)) {
-        switch(clipmode) {
-        case NPY_RAISE:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk*(i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    tmp = tmp + max_item;
-                }
-                if ((tmp < 0) || (tmp >= max_item)) {
-                    PyErr_SetString(PyExc_IndexError,
-                            "index out of " \
-                            "range for array");
-                    goto fail;
-                }
-                PyArray_Item_INCREF(src, self->descr);
-                PyArray_Item_XDECREF(dest+tmp*chunk, self->descr);
-                memmove(dest + tmp*chunk, src, chunk);
-            }
-            break;
-        case NPY_WRAP:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk * (i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    while (tmp < 0) {
-                        tmp += max_item;
-                    }
-                }
-                else if (tmp >= max_item) {
-                    while (tmp >= max_item) {
-                        tmp -= max_item;
-                    }
-                }
-                PyArray_Item_INCREF(src, self->descr);
-                PyArray_Item_XDECREF(dest+tmp*chunk, self->descr);
-                memmove(dest + tmp * chunk, src, chunk);
-            }
-            break;
-        case NPY_CLIP:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk * (i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    tmp = 0;
-                }
-                else if (tmp >= max_item) {
-                    tmp = max_item - 1;
-                }
-                PyArray_Item_INCREF(src, self->descr);
-                PyArray_Item_XDECREF(dest+tmp*chunk, self->descr);
-                memmove(dest + tmp * chunk, src, chunk);
-            }
-            break;
+        values = (PyArrayObject*) 
+            PyArray_FromAny(values0, self->descr, 0, 0, NPY_CARRAY, NULL);
+        if (values == NULL) {
+            goto fail;
         }
     }
-    else {
-        switch(clipmode) {
-        case NPY_RAISE:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk * (i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    tmp = tmp + max_item;
-                }
-                if ((tmp < 0) || (tmp >= max_item)) {
-                    PyErr_SetString(PyExc_IndexError,
-                            "index out of " \
-                            "range for array");
-                    goto fail;
-                }
-                memmove(dest + tmp * chunk, src, chunk);
-            }
-            break;
-        case NPY_WRAP:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk * (i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    while (tmp < 0) {
-                        tmp += max_item;
-                    }
-                }
-                else if (tmp >= max_item) {
-                    while (tmp >= max_item) {
-                        tmp -= max_item;
-                    }
-                }
-                memmove(dest + tmp * chunk, src, chunk);
-            }
-            break;
-        case NPY_CLIP:
-            for (i = 0; i < ni; i++) {
-                src = values->data + chunk * (i % nv);
-                tmp = ((intp *)(indices->data))[i];
-                if (tmp < 0) {
-                    tmp = 0;
-                }
-                else if (tmp >= max_item) {
-                    tmp = max_item - 1;
-                }
-                memmove(dest + tmp * chunk, src, chunk);
-            }
-            break;
-        }
-    }
-
- finish:
-    Py_XDECREF(values);
+    NpyArray_PutTo(self, values, indices, clipmode);
     Py_XDECREF(indices);
-    if (copied) {
-        Py_DECREF(self);
-    }
+    Py_XDECREF(values);
     Py_INCREF(Py_None);
     return Py_None;
-
- fail:
+  fail:
     Py_XDECREF(indices);
     Py_XDECREF(values);
-    if (copied) {
-        PyArray_XDECREF_ERR(self);
-    }
-    return NULL;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 /*NUMPY_API
