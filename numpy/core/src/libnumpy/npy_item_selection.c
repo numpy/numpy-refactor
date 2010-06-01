@@ -218,7 +218,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
     }
     ni = NpyArray_SIZE(indices);
     Npy_INCREF(self->descr);
-    values = NpyArray_FromArray((PyObject*)values0, self->descr, NPY_DEFAULT | NPY_FORCECAST);
+    values = NpyArray_FromArray(values0, self->descr, NPY_DEFAULT | NPY_FORCECAST);
     if (values == NULL) {
         goto fail;
     }
@@ -343,6 +343,102 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
 
  fail:
     Npy_XDECREF(indices);
+    Npy_XDECREF(values);
+    if (copied) {
+        NpyArray_XDECREF_ERR(self);
+    }
+    return -1;
+}
+
+/*
+ * Put values into an array according to a mask.
+ */
+int
+NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
+{
+    NpyArray_FastPutmaskFunc *func;
+    NpyArray  *mask, *values;
+    npy_intp i, chunk, ni, max_item, nv, tmp;
+    char *src, *dest;
+    int copied = 0;
+
+    mask = NULL;
+    values = NULL;
+
+    if (!NpyArray_ISCONTIGUOUS(self)) {
+        NpyArray *obj;
+        int flags = NPY_CARRAY | NPY_UPDATEIFCOPY;
+
+        Npy_INCREF(self->descr);
+        obj = NpyArray_FromArray(self, self->descr, flags);
+        if (obj != self) {
+            copied = 1;
+        }
+        self = obj;
+    }
+
+    max_item = NpyArray_SIZE(self);
+    dest = self->data;
+    chunk = self->descr->elsize;
+    mask = NpyArray_FromArray(mask0, NpyArray_DescrFromType(NpyArray_BOOL),
+                              NPY_CARRAY | NPY_FORCECAST);
+    if (mask == NULL) {
+        goto fail;
+    }
+    ni = NpyArray_SIZE(mask);
+    if (ni != max_item) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "putmask: mask and data must be "\
+                        "the same size");
+        goto fail;
+    }
+    Npy_INCREF(self->descr);
+    values = NpyArray_FromArray(values0, self->descr, NPY_CARRAY);
+    if (values == NULL) {
+        goto fail;
+    }
+    nv = NpyArray_SIZE(values); /* zero if null array */
+    if (nv <= 0) {
+        Npy_XDECREF(values);
+        Npy_XDECREF(mask);
+        return 0;
+    }
+    if (NpyDataType_REFCHK(self->descr)) {
+        for (i = 0; i < ni; i++) {
+            tmp = ((npy_bool *)(mask->data))[i];
+            if (tmp) {
+                src = values->data + chunk * (i % nv);
+                NpyArray_Item_INCREF(src, self->descr);
+                NpyArray_Item_XDECREF(dest+i*chunk, self->descr);
+                memmove(dest + i * chunk, src, chunk);
+            }
+        }
+    }
+    else {
+        func = self->descr->f->fastputmask;
+        if (func == NULL) {
+            for (i = 0; i < ni; i++) {
+                tmp = ((npy_bool *)(mask->data))[i];
+                if (tmp) {
+                    src = values->data + chunk*(i % nv);
+                    memmove(dest + i*chunk, src, chunk);
+                }
+            }
+        }
+        else {
+            func(dest, mask->data, ni, values->data, nv);
+        }
+    }
+
+    Npy_XDECREF(values);
+    Npy_XDECREF(mask);
+    if (copied) {
+        Npy_DECREF(self);
+    }
+    return 0;
+
+ fail:
+    Npy_XDECREF(mask);
     Npy_XDECREF(values);
     if (copied) {
         NpyArray_XDECREF_ERR(self);

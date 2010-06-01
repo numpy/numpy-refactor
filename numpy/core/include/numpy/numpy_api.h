@@ -14,6 +14,7 @@ typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
+typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 
 #define Npy_TYPE(a) Py_TYPE(a)
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
@@ -45,8 +46,11 @@ typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
 
 #define NpyArray_INTP PyArray_INTP
+#define NpyArray_BOOL PyArray_BOOL
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
+
+#define NpyArray_FROM_OTF(m, type, flags) ((NpyArray*)PyArray_FROM_OTF(m, type, flags))
 
 
 /*
@@ -60,7 +64,7 @@ typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
         PyArray_DescrFromType(type)
 
 #define NpyArray_FromArray(arr, newtype, flags) \
-        (NpyArray *)PyArray_FromArray(arr, newtype, flags)
+    ((NpyArray *)PyArray_FromArray(arr, newtype, flags))
 
 
 /* ctors.c */
@@ -116,6 +120,7 @@ NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
 
 int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
                    NPY_CLIPMODE clipmode);
+int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);

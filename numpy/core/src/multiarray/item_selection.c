@@ -99,102 +99,51 @@ PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
 NPY_NO_EXPORT PyObject *
 PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
 {
-    PyArray_FastPutmaskFunc *func;
-    PyArrayObject  *mask, *values;
-    intp i, chunk, ni, max_item, nv, tmp;
-    char *src, *dest;
-    int copied = 0;
+    PyArrayObject* values = NULL;
+    PyArrayObject* mask = NULL;
 
-    mask = NULL;
-    values = NULL;
     if (!PyArray_Check(self)) {
         PyErr_SetString(PyExc_TypeError,
                         "putmask: first argument must "\
                         "be an array");
         return NULL;
     }
-    if (!PyArray_ISCONTIGUOUS(self)) {
-        PyArrayObject *obj;
-        int flags = NPY_CARRAY | NPY_UPDATEIFCOPY;
 
+    if (PyArray_Check(values0)) {
+        values = (PyArrayObject*) values0;
+        Py_INCREF(values);
+    } else {
         Py_INCREF(self->descr);
-        obj = (PyArrayObject *)PyArray_FromArray(self,
-                                                 self->descr, flags);
-        if (obj != self) {
-            copied = 1;
+        values = (PyArrayObject*) 
+            PyArray_FromAny(values0, self->descr, 0, 0, NPY_CARRAY, NULL);
+        if (values == NULL) {
+            return NULL;
         }
-        self = obj;
     }
 
-    max_item = PyArray_SIZE(self);
-    dest = self->data;
-    chunk = self->descr->elsize;
-    mask = (PyArrayObject *)\
-        PyArray_FROM_OTF(mask0, PyArray_BOOL, CARRAY | FORCECAST);
-    if (mask == NULL) {
-        goto fail;
-    }
-    ni = PyArray_SIZE(mask);
-    if (ni != max_item) {
-        PyErr_SetString(PyExc_ValueError,
-                        "putmask: mask and data must be "\
-                        "the same size");
-        goto fail;
-    }
-    Py_INCREF(self->descr);
-    values = (PyArrayObject *)\
-        PyArray_FromAny(values0, self->descr, 0, 0, NPY_CARRAY, NULL);
-    if (values == NULL) {
-        goto fail;
-    }
-    nv = PyArray_SIZE(values); /* zero if null array */
-    if (nv <= 0) {
-        Py_XDECREF(values);
-        Py_XDECREF(mask);
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    if (PyDataType_REFCHK(self->descr)) {
-        for (i = 0; i < ni; i++) {
-            tmp = ((Bool *)(mask->data))[i];
-            if (tmp) {
-                src = values->data + chunk * (i % nv);
-                PyArray_Item_INCREF(src, self->descr);
-                PyArray_Item_XDECREF(dest+i*chunk, self->descr);
-                memmove(dest + i * chunk, src, chunk);
-            }
+    if (PyArray_Check(mask0)) {
+        mask = (PyArrayObject*) mask0;
+        Py_INCREF(mask);
+    } else {
+        mask = (PyArrayObject*) PyArray_FROM_OTF(mask0, PyArray_BOOL,
+                                                 NPY_CARRAY | NPY_FORCECAST);
+        if (mask == NULL) {
+            goto fail;
         }
     }
-    else {
-        func = self->descr->f->fastputmask;
-        if (func == NULL) {
-            for (i = 0; i < ni; i++) {
-                tmp = ((Bool *)(mask->data))[i];
-                if (tmp) {
-                    src = values->data + chunk*(i % nv);
-                    memmove(dest + i*chunk, src, chunk);
-                }
-            }
-        }
-        else {
-            func(dest, mask->data, ni, values->data, nv);
-        }
+
+    if (NpyArray_PutMask(self, values, mask) == -1) {
+        goto fail;
     }
 
     Py_XDECREF(values);
     Py_XDECREF(mask);
-    if (copied) {
-        Py_DECREF(self);
-    }
     Py_INCREF(Py_None);
     return Py_None;
 
- fail:
-    Py_XDECREF(mask);
+  fail:
     Py_XDECREF(values);
-    if (copied) {
-        PyArray_XDECREF_ERR(self);
-    }
+    Py_XDECREF(mask);
     return NULL;
 }
 
