@@ -153,103 +153,22 @@ PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
 NPY_NO_EXPORT PyObject *
 PyArray_Repeat(PyArrayObject *aop, PyObject *op, int axis)
 {
-    intp *counts;
-    intp n, n_outer, i, j, k, chunk, total;
-    intp tmp;
-    int nd;
-    PyArrayObject *repeats = NULL;
-    PyObject *ap = NULL;
-    PyArrayObject *ret = NULL;
-    char *new_data, *old_data;
+    PyArrayObject* repeats = NULL;
+    PyObject* result = NULL;
 
-    repeats = (PyAO *)PyArray_ContiguousFromAny(op, PyArray_INTP, 0, 1);
-    if (repeats == NULL) {
-        return NULL;
-    }
-    nd = repeats->nd;
-    counts = (intp *)repeats->data;
-
-    if ((ap=_check_axis(aop, &axis, CARRAY))==NULL) {
-        Py_DECREF(repeats);
-        return NULL;
-    }
-
-    aop = (PyAO *)ap;
-    if (nd == 1) {
-        n = repeats->dimensions[0];
-    }
-    else {
-        /* nd == 0 */
-        n = aop->dimensions[axis];
-    }
-    if (aop->dimensions[axis] != n) {
-        PyErr_SetString(PyExc_ValueError,
-                        "a.shape[axis] != len(repeats)");
-        goto fail;
-    }
-
-    if (nd == 0) {
-        total = counts[0]*n;
-    }
-    else {
-
-        total = 0;
-        for (j = 0; j < n; j++) {
-            if (counts[j] < 0) {
-                PyErr_SetString(PyExc_ValueError, "count < 0");
-                goto fail;
-            }
-            total += counts[j];
+    if (PyArray_Check(op)) {
+        repeats = op;
+        Py_INCREF(repeats);
+    } else {
+        repeats = PyArray_ContiguousFromAny(op, PyArray_INTP, 0, 1);
+        if (repeats == NULL) {
+            goto finish;
         }
     }
-
-
-    /* Construct new array */
-    aop->dimensions[axis] = total;
-    Py_INCREF(aop->descr);
-    ret = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(aop),
-                                                aop->descr,
-                                                aop->nd,
-                                                aop->dimensions,
-                                                NULL, NULL, 0,
-                                                (PyObject *)aop);
-    aop->dimensions[axis] = n;
-    if (ret == NULL) {
-        goto fail;
-    }
-    new_data = ret->data;
-    old_data = aop->data;
-
-    chunk = aop->descr->elsize;
-    for(i = axis + 1; i < aop->nd; i++) {
-        chunk *= aop->dimensions[i];
-    }
-
-    n_outer = 1;
-    for (i = 0; i < axis; i++) {
-        n_outer *= aop->dimensions[i];
-    }
-    for (i = 0; i < n_outer; i++) {
-        for (j = 0; j < n; j++) {
-            tmp = nd ? counts[j] : counts[0];
-            for (k = 0; k < tmp; k++) {
-                memcpy(new_data, old_data, chunk);
-                new_data += chunk;
-            }
-            old_data += chunk;
-        }
-    }
-
-    Py_DECREF(repeats);
-    PyArray_INCREF(ret);
-    Py_XDECREF(aop);
-    return (PyObject *)ret;
-
- fail:
-    Py_DECREF(repeats);
-    Py_XDECREF(aop);
-    Py_XDECREF(ret);
-    return NULL;
+    result = (PyObject*) NpyArray_Repeat(aop, repeats, axis);
+  finish:
+    Py_XDECREF(repeats);
+    return result;
 }
 
 /*NUMPY_API

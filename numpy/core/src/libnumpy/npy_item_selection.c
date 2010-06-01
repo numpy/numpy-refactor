@@ -445,3 +445,110 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
     }
     return -1;
 }
+
+/*
+ * Repeat the array.
+ */
+NpyArray *
+NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
+{
+    npy_intp *counts;
+    npy_intp n, n_outer, i, j, k, chunk, total;
+    npy_intp tmp;
+    int nd;
+    NpyArray *repeats = NULL;
+    NpyArray *ret = NULL;
+    char *new_data, *old_data;
+
+    repeats = NpyArray_ContiguousFromArray(op, PyArray_INTP);
+    if (repeats == NULL) {
+        return NULL;
+    }
+    nd = repeats->nd;
+    counts = (npy_intp *)repeats->data;
+
+    aop = NpyArray_CheckAxis(aop, &axis, NPY_CARRAY);
+    if (aop == NULL) {
+        Py_DECREF(repeats);
+        return NULL;
+    }
+
+    if (nd == 1) {
+        n = repeats->dimensions[0];
+    }
+    else {
+        /* nd == 0 */
+        n = aop->dimensions[axis];
+    }
+    if (aop->dimensions[axis] != n) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "a.shape[axis] != len(repeats)");
+        goto fail;
+    }
+
+    if (nd == 0) {
+        total = counts[0]*n;
+    }
+    else {
+
+        total = 0;
+        for (j = 0; j < n; j++) {
+            if (counts[j] < 0) {
+                NpyErr_SetString(NpyExc_ValueError, "count < 0");
+                goto fail;
+            }
+            total += counts[j];
+        }
+    }
+
+
+    /* Construct new array */
+    aop->dimensions[axis] = total;
+    Npy_INCREF(aop->descr);
+    ret = NpyArray_NewFromDescr(Npy_TYPE(aop),
+                                aop->descr,
+                                aop->nd,
+                                aop->dimensions,
+                                NULL, NULL, 0,
+                                (NpyObject *)aop);
+    aop->dimensions[axis] = n;
+    if (ret == NULL) {
+        goto fail;
+    }
+    new_data = ret->data;
+    old_data = aop->data;
+
+    chunk = aop->descr->elsize;
+    for(i = axis + 1; i < aop->nd; i++) {
+        chunk *= aop->dimensions[i];
+    }
+
+    /* XXX: It looks like this doesn't handle object
+       arrays. */
+    n_outer = 1;
+    for (i = 0; i < axis; i++) {
+        n_outer *= aop->dimensions[i];
+    }
+    for (i = 0; i < n_outer; i++) {
+        for (j = 0; j < n; j++) {
+            tmp = nd ? counts[j] : counts[0];
+            for (k = 0; k < tmp; k++) {
+                memcpy(new_data, old_data, chunk);
+                new_data += chunk;
+            }
+            old_data += chunk;
+        }
+    }
+
+    Npy_DECREF(repeats);
+    NpyArray_INCREF(ret);
+    Npy_XDECREF(aop);
+    return ret;
+
+ fail:
+    Npy_DECREF(repeats);
+    Npy_XDECREF(aop);
+    Npy_XDECREF(ret);
+    return NULL;
+}
+

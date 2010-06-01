@@ -121,6 +121,7 @@ NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
 int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
                    NPY_CLIPMODE clipmode);
 int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
+NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
