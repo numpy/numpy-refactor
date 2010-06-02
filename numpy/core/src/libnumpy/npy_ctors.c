@@ -1418,3 +1418,58 @@ NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
     return ret;
 }
 
+
+
+NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num)
+{
+    int itemsize;
+    NpyArray *ret;
+    
+    if (dtype == NULL) {
+        dtype=NpyArray_DescrFromType(PyArray_DEFAULT);
+    }
+    if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot create an object array from"    \
+                         " a string");
+        Npy_DECREF(dtype);
+        return NULL;
+    }
+    itemsize = dtype->elsize;
+    if (itemsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
+        Npy_DECREF(dtype);
+        return NULL;
+    }
+    
+    if (num < 0 ) {
+        if (slen % itemsize != 0) {
+            NpyErr_SetString(NpyExc_ValueError,
+                             "string size must be a "\
+                             "multiple of element size");
+            Npy_DECREF(dtype);
+            return NULL;
+        }
+        num = slen/itemsize;
+    }
+    else {
+        if (slen < num*itemsize) {
+            NpyErr_SetString(NpyExc_ValueError,
+                             "string is smaller than " \
+                             "requested size");
+            Npy_DECREF(dtype);
+            return NULL;
+        }
+    }
+    
+    
+    ret = NpyArray_NewFromDescr(&NpyArray_Type, dtype,
+                                1, &num, NULL, NULL,
+                                0, NULL);
+    if (ret == NULL) {
+        return NULL;
+    }
+    memcpy(ret->data, data, num*dtype->elsize);
+    return ret;
+}
+

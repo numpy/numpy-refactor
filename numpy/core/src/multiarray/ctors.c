@@ -2262,35 +2262,8 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
 
     binary = ((sep == NULL) || (strlen(sep) == 0));
     if (binary) {
-        if (num < 0 ) {
-            if (slen % itemsize != 0) {
-                PyErr_SetString(PyExc_ValueError,
-                                "string size must be a "\
-                                "multiple of element size");
-                Py_DECREF(dtype);
-                return NULL;
-            }
-            num = slen/itemsize;
-        }
-        else {
-            if (slen < num*itemsize) {
-                PyErr_SetString(PyExc_ValueError,
-                                "string is smaller than " \
-                                "requested size");
-                Py_DECREF(dtype);
-                return NULL;
-            }
-        }
-        ret = (PyArrayObject *)
-            PyArray_NewFromDescr(&PyArray_Type, dtype,
-                                 1, &num, NULL, NULL,
-                                 0, NULL);
-        if (ret == NULL) {
-            return NULL;
-        }
-        memcpy(ret->data, data, num*dtype->elsize);
-    }
-    else {
+        ret = NpyArray_FromBinaryString(data, slen, dtype, num);
+    } else {
         /* read from character-based string */
         size_t nread = 0;
         char *end;

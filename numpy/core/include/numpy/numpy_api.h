@@ -118,7 +118,6 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
 #define NpyArray_Check(op) PyArray_Check(op)
-#define NpyDataMem_NEW(size) PyDataMem_NEW(size)
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
@@ -187,6 +186,7 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
                                npy_intp *dims, npy_intp *newstrides);
 NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
 NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num);
+NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num);
 NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
@@ -288,7 +288,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
 #define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
-extern int _flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
+extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
                                          npy_intp instrides, npy_intp N, int elsize);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
