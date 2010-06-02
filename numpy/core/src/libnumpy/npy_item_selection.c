@@ -46,7 +46,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     }
     Npy_INCREF(self->descr);
     if (!ret) {
-        ret = NpyArray_NewFromDescr(Py_TYPE(self),
+        ret = NpyArray_NewFromDescr(Npy_TYPE(self),
                                     self->descr,
                                     nd, shape,
                                     NULL, NULL, 0,
@@ -460,7 +460,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
     NpyArray *ret = NULL;
     char *new_data, *old_data;
 
-    repeats = NpyArray_ContiguousFromArray(op, PyArray_INTP);
+    repeats = NpyArray_ContiguousFromArray(op, NpyArray_INTP);
     if (repeats == NULL) {
         return NULL;
     }
@@ -469,7 +469,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
 
     aop = NpyArray_CheckAxis(aop, &axis, NPY_CARRAY);
     if (aop == NULL) {
-        Py_DECREF(repeats);
+        Npy_DECREF(repeats);
         return NULL;
     }
 
@@ -523,8 +523,6 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
         chunk *= aop->dimensions[i];
     }
 
-    /* XXX: It looks like this doesn't handle object
-       arrays. */
     n_outer = 1;
     for (i = 0; i < axis; i++) {
         n_outer *= aop->dimensions[i];
@@ -549,6 +547,132 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
     Npy_DECREF(repeats);
     Npy_XDECREF(aop);
     Npy_XDECREF(ret);
+    return NULL;
+}
+
+/*
+ */
+NpyArray *
+NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
+               NPY_CLIPMODE clipmode)
+{
+    int elsize;
+    npy_intp i;
+    char *ret_data;
+    NpyArray *ap;
+    NpyArrayMultiIterObject *multi = NULL;
+    npy_intp mi;
+    int copyret = 0;
+    ap = NULL;
+
+    ap = NpyArray_FromArray(ip, NpyArray_DescrFromType(NPY_INTP), 0);
+    if (ap == NULL) {
+        goto fail;
+    }
+    /* Broadcast all arrays to each other, index array at the end. */ 
+    /* XXX: This needs to be changed when we convert MultiIters.
+       We can't replace witha  macro due to variable args. */
+    multi = (NpyArrayMultiIterObject *)
+        PyArray_MultiIterFromObjects((PyObject **)mps, n, 1, ap);
+    if (multi == NULL) {
+        goto fail;
+    }
+    /* Set-up return array */
+    if (!ret) {
+        Npy_INCREF(mps[0]->descr);
+        ret = NpyArray_NewFromDescr(Npy_TYPE(ap),
+                                    mps[0]->descr,
+                                    multi->nd,
+                                    multi->dimensions,
+                                    NULL, NULL, 0,
+                                    (NpyObject *)ap);
+    }
+    else {
+        NpyArray *obj;
+        int flags = NPY_CARRAY | NPY_UPDATEIFCOPY | NPY_FORCECAST;
+
+        if ((NpyArray_NDIM(ret) != multi->nd)
+                || !NpyArray_CompareLists(
+                    NpyArray_DIMS(ret), multi->dimensions, multi->nd)) {
+            NpyErr_SetString(NpyExc_TypeError,
+                            "invalid shape for output array.");
+            ret = NULL;
+            goto fail;
+        }
+        if (clipmode == NPY_RAISE) {
+            /*
+             * we need to make sure and get a copy
+             * so the input array is not changed
+             * before the error is called
+             */
+            flags |= NPY_ENSURECOPY;
+        }
+        Npy_INCREF(mps[0]->descr);
+        obj = NpyArray_FromArray(ret, mps[0]->descr, flags);
+        if (obj != ret) {
+            copyret = 1;
+        }
+        ret = obj;
+    }
+
+    if (ret == NULL) {
+        goto fail;
+    }
+    elsize = ret->descr->elsize;
+    ret_data = ret->data;
+
+    while (NpyArray_MultiIter_NOTDONE(multi)) {
+        mi = *((npy_intp *)NpyArray_MultiIter_DATA(multi, n));
+        if (mi < 0 || mi >= n) {
+            switch(clipmode) {
+            case NPY_RAISE:
+                NpyErr_SetString(NpyExc_ValueError,
+                        "invalid entry in choice "\
+                        "array");
+                goto fail;
+            case NPY_WRAP:
+                if (mi < 0) {
+                    while (mi < 0) {
+                        mi += n;
+                    }
+                }
+                else {
+                    while (mi >= n) {
+                        mi -= n;
+                    }
+                }
+                break;
+            case NPY_CLIP:
+                if (mi < 0) {
+                    mi = 0;
+                }
+                else if (mi >= n) {
+                    mi = n - 1;
+                }
+                break;
+            }
+        }
+        memmove(ret_data, NpyArray_MultiIter_DATA(multi, mi), elsize);
+        ret_data += elsize;
+        NpyArray_MultiIter_NEXT(multi);
+    }
+
+    NpyArray_INCREF(ret);
+    Npy_DECREF(multi);
+    Npy_DECREF(ap);
+    if (copyret) {
+        PyObject *obj;
+        obj = ret->base;
+        Npy_INCREF(obj);
+        Npy_DECREF(ret);
+        ret = obj;
+    }
+    return ret;
+
+ fail:
+    Npy_XDECREF(multi);
+    Npy_XDECREF(ap);
+    NpyArray_XDECREF_ERR(ret);
     return NULL;
 }
 

@@ -8,6 +8,7 @@ typedef PyArrayObject NpyArray;
 typedef struct PyArrayIterObject_tag NpyArrayIter;
 typedef PyArrayMultiIterObject NpyArrayMultiIter;
 typedef PyArray_Descr NpyArray_Descr;
+typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
 
 typedef PyArray_Dims NpyArray_Dims;
 
@@ -29,6 +30,7 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
 #define NpyArray_NDIM(a) PyArray_NDIM(a)
 #define NpyArray_DIM(a, i) PyArray_DIM(a, i)
+#define NpyArray_DIMS(a) PyArray_DIMS(a)
 #define NpyArray_STRIDES(a) PyArray_STRIDES(a)
 #define NpyArray_STRIDE(obj, n) PyArray_STRIDE(obj,n)
 #define NpyArray_DESCR(a) PyArray_DESCR(a)
@@ -116,8 +118,9 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
-#define NpyArray_FROM_OTF(m, type, flags) ((NpyArray*)PyArray_FROM_OTF(m, type, flags))
-
+#define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
+#define NpyArray_MultiIter_DATA(i, n) PyArray_MultiIter_DATA(i, n)
+#define NpyArray_MultiIter_NEXT(i) PyArray_MultiIter_NEXT(i)
 
 /*
  * Functions we need to convert.
@@ -202,6 +205,8 @@ int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
                    NPY_CLIPMODE clipmode);
 int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
 NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
+NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
+                           NPY_CLIPMODE clipmode);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
@@ -243,6 +248,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
  * Memory
  */
 #define NpyDataMem_RENEW(p, sz) PyDataMem_RENEW(p, sz)
+#define NpyDataMem_FREE(p) PyDataMem_FREE(p)
 
 #define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
 
