@@ -557,7 +557,6 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                NPY_CLIPMODE clipmode)
 {
     int elsize;
-    npy_intp i;
     char *ret_data;
     NpyArray *ap;
     NpyArrayMultiIterObject *multi = NULL;
@@ -661,8 +660,8 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     Npy_DECREF(multi);
     Npy_DECREF(ap);
     if (copyret) {
-        PyObject *obj;
-        obj = ret->base;
+        NpyArray *obj;
+        obj = (NpyArray*)ret->base;
         Npy_INCREF(obj);
         Npy_DECREF(ret);
         ret = obj;
@@ -674,5 +673,410 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     Npy_XDECREF(ap);
     NpyArray_XDECREF_ERR(ret);
     return NULL;
+}
+
+
+/*
+ * These algorithms use special sorting.  They are not called unless the
+ * underlying sort function for the type is available.  Note that axis is
+ * already valid. The sort functions require 1-d contiguous and well-behaved
+ * data.  Therefore, a copy will be made of the data if needed before handing
+ * it to the sorting routine.  An iterator is constructed and adjusted to walk
+ * over all but the desired sorting axis.
+ */
+static int
+_new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
+{
+    NpyArrayIterObject *it;
+    int needcopy = 0, swap;
+    npy_intp N, size;
+    int elsize;
+    npy_intp astride;
+    NpyArray_SortFunc *sort;
+    NPY_BEGIN_THREADS_DEF;
+
+    it = NpyArray_IterAllButAxis(op, &axis);
+    swap = !NpyArray_ISNOTSWAPPED(op);
+    if (it == NULL) {
+        return -1;
+    }
+
+    NPY_BEGIN_THREADS_DESCR(op->descr);
+    sort = op->descr->f->sort[which];
+    size = it->size;
+    N = op->dimensions[axis];
+    elsize = op->descr->elsize;
+    astride = op->strides[axis];
+
+    needcopy = !(op->flags & NPY_ALIGNED) || (astride != (npy_intp) elsize) || swap;
+    if (needcopy) {
+        char *buffer = NpyDataMem_NEW(N*elsize);
+
+        while (size--) {
+            _unaligned_strided_byte_copy(buffer, (npy_intp) elsize, it->dataptr,
+                                         astride, N, elsize);
+            if (swap) {
+                _strided_byte_swap(buffer, (npy_intp) elsize, N, elsize);
+            }
+            if (sort(buffer, N, op) < 0) {
+                NpyDataMem_FREE(buffer);
+                goto fail;
+            }
+            if (swap) {
+                _strided_byte_swap(buffer, (npy_intp) elsize, N, elsize);
+            }
+            _unaligned_strided_byte_copy(it->dataptr, astride, buffer,
+                                         (npy_intp) elsize, N, elsize);
+            NpyArray_ITER_NEXT(it);
+        }
+        NpyDataMem_FREE(buffer);
+    }
+    else {
+        while (size--) {
+            if (sort(it->dataptr, N, op) < 0) {
+                goto fail;
+            }
+            NpyArray_ITER_NEXT(it);
+        }
+    }
+    NPY_END_THREADS_DESCR(op->descr);
+    Npy_DECREF(it);
+    return 0;
+
+ fail:
+    NPY_END_THREADS;
+    Npy_DECREF(it);
+    return 0;
+}
+
+static NpyArray*
+_new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
+{
+
+    NpyArrayIterObject *it = NULL;
+    NpyArrayIterObject *rit = NULL;
+    NpyArray *ret;
+    int needcopy = 0, i;
+    npy_intp N, size;
+    int elsize, swap;
+    npy_intp astride, rstride, *iptr;
+    NpyArray_ArgSortFunc *argsort;
+    NPY_BEGIN_THREADS_DEF;
+
+    ret = NpyArray_New(Npy_TYPE(op), op->nd,
+                          op->dimensions, NpyArray_INTP,
+                          NULL, NULL, 0, 0, (NpyObject *)op);
+    if (ret == NULL) {
+        return NULL;
+    }
+    it = NpyArray_IterAllButAxis(op, &axis);
+    rit = NpyArray_IterAllButAxis(ret, &axis);
+    if (rit == NULL || it == NULL) {
+        goto fail;
+    }
+    swap = !NpyArray_ISNOTSWAPPED(op);
+
+    NPY_BEGIN_THREADS_DESCR(op->descr);
+    argsort = op->descr->f->argsort[which];
+    size = it->size;
+    N = op->dimensions[axis];
+    elsize = op->descr->elsize;
+    astride = op->strides[axis];
+    rstride = NpyArray_STRIDE(ret,axis);
+
+    needcopy = swap || !(op->flags & NPY_ALIGNED) ||
+        (astride != (npy_intp) elsize) || (rstride != sizeof(npy_intp));
+    if (needcopy) {
+        char *valbuffer, *indbuffer;
+
+        valbuffer = NpyDataMem_NEW(N*elsize);
+        indbuffer = NpyDataMem_NEW(N*sizeof(npy_intp));
+        while (size--) {
+            _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize, it->dataptr,
+                                         astride, N, elsize);
+            if (swap) {
+                _strided_byte_swap(valbuffer, (npy_intp) elsize, N, elsize);
+            }
+            iptr = (npy_intp *)indbuffer;
+            for (i = 0; i < N; i++) {
+                *iptr++ = i;
+            }
+            if (argsort(valbuffer, (npy_intp *)indbuffer, N, op) < 0) {
+                NpyDataMem_FREE(valbuffer);
+                NpyDataMem_FREE(indbuffer);
+                goto fail;
+            }
+            _unaligned_strided_byte_copy(rit->dataptr, rstride, indbuffer,
+                                         sizeof(npy_intp), N, sizeof(npy_intp));
+            NpyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(rit);
+        }
+        NpyDataMem_FREE(valbuffer);
+        NpyDataMem_FREE(indbuffer);
+    }
+    else {
+        while (size--) {
+            iptr = (npy_intp *)rit->dataptr;
+            for (i = 0; i < N; i++) {
+                *iptr++ = i;
+            }
+            if (argsort(it->dataptr, (npy_intp *)rit->dataptr, N, op) < 0) {
+                goto fail;
+            }
+            NpyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(rit);
+        }
+    }
+
+    NPY_END_THREADS_DESCR(op->descr);
+
+    Npy_DECREF(it);
+    Npy_DECREF(rit);
+    return ret;
+
+ fail:
+    NPY_END_THREADS;
+    Npy_DECREF(ret);
+    Npy_XDECREF(it);
+    Npy_XDECREF(rit);
+    return NULL;
+}
+
+
+/* Be sure to save this global_compare when necessary */
+/* XXX: This may be an issue in an MT case. */
+static NpyArray* global_obj;
+
+static int
+qsortCompare (const void *a, const void *b)
+{
+    return global_obj->descr->f->compare(a,b,global_obj);
+}
+
+/*
+ * Consumes reference to ap (op gets it) op contains a version of
+ * the array with axes swapped if local variable axis is not the
+ * last dimension.  Origin must be defined locally.
+ */
+#define SWAPAXES(op, ap) {                                      \
+        orign = (ap)->nd-1;                                     \
+        if (axis != orign) {                                    \
+            (op) = NpyArray_SwapAxes((ap), axis, orign);        \
+            Npy_DECREF((ap));                                   \
+            if ((op) == NULL) return NULL;                      \
+        }                                                       \
+        else (op) = (ap);                                       \
+    }
+
+/*
+ * Consumes reference to ap (op gets it) origin must be previously
+ * defined locally.  SWAPAXES must have been called previously.
+ * op contains the swapped version of the array.
+ */
+#define SWAPBACK(op, ap) {                                      \
+        if (axis != orign) {                                    \
+            (op) = NpyArray_SwapAxes((ap), axis, orign);        \
+            Npy_DECREF((ap));                                   \
+            if ((op) == NULL) return NULL;                      \
+        }                                                       \
+        else (op) = (ap);                                       \
+    }
+
+/* These swap axes in-place if necessary */
+#define SWAPINTP(a,b) {npy_intp c; c=(a); (a) = (b); (b) = c;}
+#define SWAPAXES2(ap) {                                                 \
+        orign = (ap)->nd-1;                                             \
+        if (axis != orign) {                                            \
+            SWAPINTP(ap->dimensions[axis], ap->dimensions[orign]);      \
+            SWAPINTP(ap->strides[axis], ap->strides[orign]);            \
+            NpyArray_UpdateFlags(ap, NPY_CONTIGUOUS | NPY_FORTRAN);     \
+        }                                                               \
+    }
+
+#define SWAPBACK2(ap) {                                                 \
+        if (axis != orign) {                                            \
+            SWAPINTP(ap->dimensions[axis], ap->dimensions[orign]);      \
+            SWAPINTP(ap->strides[axis], ap->strides[orign]);            \
+            NpyArray_UpdateFlags(ap, NPY_CONTIGUOUS | NPY_FORTRAN);     \
+        }                                                               \
+    }
+
+/*
+ * Sort an array in-place
+ */
+int
+NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
+{
+    NpyArray *ap = NULL, *store_arr = NULL;
+    char *ip;
+    int i, n, m, elsize, orign;
+
+    n = op->nd;
+    if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
+        return 0;
+    }
+    if (axis < 0) {
+        axis += n;
+    }
+    if ((axis < 0) || (axis >= n)) {
+        NpyErr_Format(NpyExc_ValueError, "axis(=%d) out of bounds", axis);
+        return -1;
+    }
+    if (!NpyArray_ISWRITEABLE(op)) {
+        NpyErr_SetString(NpyExc_RuntimeError,
+                        "attempted sort on unwriteable array.");
+        return -1;
+    }
+
+    /* Determine if we should use type-specific algorithm or not */
+    if (op->descr->f->sort[which] != NULL) {
+        return _new_sort(op, axis, which);
+    }
+    if ((which != NPY_QUICKSORT)
+        || op->descr->f->compare == NULL) {
+        NpyErr_SetString(NpyExc_TypeError,
+                        "desired sort not supported for this type");
+        return -1;
+    }
+
+    SWAPAXES2(op);
+
+    ap = NpyArray_FromArray(op, NULL, NPY_DEFAULT | NPY_UPDATEIFCOPY);
+    if (ap == NULL) {
+        goto fail;
+    }
+    elsize = ap->descr->elsize;
+    m = ap->dimensions[ap->nd-1];
+    if (m == 0) {
+        goto finish;
+    }
+    n = NpyArray_SIZE(ap)/m;
+
+    /* Store global -- allows re-entry -- restore before leaving*/
+    store_arr = global_obj;
+    global_obj = ap;
+    for (ip = ap->data, i = 0; i < n; i++, ip += elsize*m) {
+        qsort(ip, m, elsize, qsortCompare);
+    }
+    global_obj = store_arr;
+
+    if (NpyErr_Occurred()) {
+        goto fail;
+    }
+
+ finish:
+    Npy_DECREF(ap);  /* Should update op if needed */
+    SWAPBACK2(op);
+    return 0;
+
+ fail:
+    Npy_XDECREF(ap);
+    SWAPBACK2(op);
+    return -1;
+}
+
+
+/* XXX: This could be a problem for MT. */
+static char *global_data;
+
+static int
+argsort_static_compare(const void *ip1, const void *ip2)
+{
+    int isize = global_obj->descr->elsize;
+    const npy_intp *ipa = ip1;
+    const npy_intp *ipb = ip2;
+    return global_obj->descr->f->compare(global_data + (isize * *ipa),
+                                         global_data + (isize * *ipb),
+                                         global_obj);
+}
+
+/*
+ * ArgSort an array
+ */
+NpyArray *
+NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
+{
+    NpyArray *ap = NULL, *ret = NULL, *store, *op2;
+    npy_intp *ip;
+    npy_intp i, j, n, m, orign;
+    int argsort_elsize;
+    char *store_ptr;
+
+    n = op->nd;
+    if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
+        ret = NpyArray_New(Npy_TYPE(op), op->nd,
+                           op->dimensions,
+                           NpyArray_INTP,
+                           NULL, NULL, 0, 0,
+                           (NpyObject *)op);
+        if (ret == NULL) {
+            return NULL;
+        }
+        *((npy_intp *)ret->data) = 0;
+        return ret;
+    }
+
+    /* Creates new reference op2 */
+    if ((op2=NpyArray_CheckAxis(op, &axis, 0)) == NULL) {
+        return NULL;
+    }
+    /* Determine if we should use new algorithm or not */
+    if (op2->descr->f->argsort[which] != NULL) {
+        ret = _new_argsort(op2, axis, which);
+        Npy_DECREF(op2);
+        return ret;
+    }
+
+    if ((which != NPY_QUICKSORT) || op2->descr->f->compare == NULL) {
+        NpyErr_SetString(NpyExc_TypeError,
+                        "requested sort not available for type");
+        Npy_DECREF(op2);
+        op = NULL;
+        goto fail;
+    }
+
+    /* ap will contain the reference to op2 */
+    SWAPAXES(ap, op2);
+    op = NpyArray_ContiguousFromArray(ap, NPY_NOTYPE);
+    Npy_DECREF(ap);
+    if (op == NULL) {
+        return NULL;
+    }
+    ret = NpyArray_New(Npy_TYPE(op), op->nd,
+                       op->dimensions, NpyArray_INTP,
+                       NULL, NULL, 0, 0, (NpyObject *)op);
+    if (ret == NULL) {
+        goto fail;
+    }
+    ip = (npy_intp *)ret->data;
+    argsort_elsize = op->descr->elsize;
+    m = op->dimensions[op->nd-1];
+    if (m == 0) {
+        goto finish;
+    }
+    n = NpyArray_SIZE(op)/m;
+    store_ptr = global_data;
+    global_data = op->data;
+    store = global_obj;
+    global_obj = op;
+    for (i = 0; i < n; i++, ip += m, global_data += m*argsort_elsize) {
+        for (j = 0; j < m; j++) {
+            ip[j] = j;
+        }
+        qsort((char *)ip, m, sizeof(npy_intp), argsort_static_compare);
+    }
+    global_data = store_ptr;
+    global_obj = store;
+
+ finish:
+    Npy_DECREF(op);
+    SWAPBACK(op, ret);
+    return op;
+
+ fail:
+    Npy_XDECREF(op);
+    Npy_XDECREF(ret);
+    return NULL;
+
 }
 
