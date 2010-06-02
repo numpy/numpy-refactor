@@ -198,81 +198,6 @@ fromfile_skip_separator(FILE **fp, const char *sep, void *NPY_UNUSED(stream_data
     return result;
 }
 
-/*
- * Change a sub-array field to the base descriptor
- *
- * and update the dimensions and strides
- * appropriately.  Dimensions and strides are added
- * to the end unless we have a FORTRAN array
- * and then they are added to the beginning
- *
- * Strides are only added if given (because data is given).
- */
-static int
-_update_descr_and_dimensions(PyArray_Descr **des, intp *newdims,
-                             intp *newstrides, int oldnd, int isfortran)
-{
-    PyArray_Descr *old;
-    int newnd;
-    int numnew;
-    intp *mydim;
-    int i;
-    int tuple;
-
-    old = *des;
-    *des = old->subarray->base;
-
-
-    mydim = newdims + oldnd;
-    tuple = PyTuple_Check(old->subarray->shape);
-    if (tuple) {
-        numnew = PyTuple_GET_SIZE(old->subarray->shape);
-    }
-    else {
-        numnew = 1;
-    }
-
-
-    newnd = oldnd + numnew;
-    if (newnd > MAX_DIMS) {
-        goto finish;
-    }
-    if (isfortran) {
-        memmove(newdims+numnew, newdims, oldnd*sizeof(intp));
-        mydim = newdims;
-    }
-    if (tuple) {
-        for (i = 0; i < numnew; i++) {
-            mydim[i] = (intp) PyInt_AsLong(
-                    PyTuple_GET_ITEM(old->subarray->shape, i));
-        }
-    }
-    else {
-        mydim[0] = (intp) PyInt_AsLong(old->subarray->shape);
-    }
-
-    if (newstrides) {
-        intp tempsize;
-        intp *mystrides;
-
-        mystrides = newstrides + oldnd;
-        if (isfortran) {
-            memmove(newstrides+numnew, newstrides, oldnd*sizeof(intp));
-            mystrides = newstrides;
-        }
-        /* Make new strides -- alwasy C-contiguous */
-        tempsize = (*des)->elsize;
-        for (i = numnew - 1; i >= 0; i--) {
-            mystrides[i] = tempsize;
-            tempsize *= mydim[i] ? mydim[i] : 1;
-        }
-    }
-
- finish:
-    Py_INCREF(*des);
-    Py_DECREF(old);
-    return newnd;
-}
 
 /*
  * If s is not a list, return 0
@@ -343,170 +268,8 @@ object_depth_and_dimension(PyObject *s, int max, intp *dims)
     return nd + 1;
 }
 
-static void
-_strided_byte_copy(char *dst, intp outstrides, char *src, intp instrides,
-                   intp N, int elsize)
-{
-    intp i, j;
-    char *tout = dst;
-    char *tin = src;
-
-#define _FAST_MOVE(_type_)                              \
-    for(i=0; i<N; i++) {                               \
-        ((_type_ *)tout)[0] = ((_type_ *)tin)[0];       \
-        tin += instrides;                               \
-        tout += outstrides;                             \
-    }                                                   \
-    return
-
-    switch(elsize) {
-    case 8:
-        _FAST_MOVE(Int64);
-    case 4:
-        _FAST_MOVE(Int32);
-    case 1:
-        _FAST_MOVE(Int8);
-    case 2:
-        _FAST_MOVE(Int16);
-    case 16:
-        for (i = 0; i < N; i++) {
-            ((Int64 *)tout)[0] = ((Int64 *)tin)[0];
-            ((Int64 *)tout)[1] = ((Int64 *)tin)[1];
-            tin += instrides;
-            tout += outstrides;
-        }
-        return;
-    default:
-        for(i = 0; i < N; i++) {
-            for(j=0; j<elsize; j++) {
-                *tout++ = *tin++;
-            }
-            tin = tin + instrides - elsize;
-            tout = tout + outstrides - elsize;
-        }
-    }
-#undef _FAST_MOVE
-
-}
-
-static void
-_unaligned_strided_byte_move(char *dst, intp outstrides, char *src,
-                             intp instrides, intp N, int elsize)
-{
-    intp i;
-    char *tout = dst;
-    char *tin = src;
 
 
-#define _MOVE_N_SIZE(size)                      \
-    for(i=0; i<N; i++) {                       \
-        memmove(tout, tin, size);               \
-        tin += instrides;                       \
-        tout += outstrides;                     \
-    }                                           \
-    return
-
-    switch(elsize) {
-    case 8:
-        _MOVE_N_SIZE(8);
-    case 4:
-        _MOVE_N_SIZE(4);
-    case 1:
-        _MOVE_N_SIZE(1);
-    case 2:
-        _MOVE_N_SIZE(2);
-    case 16:
-        _MOVE_N_SIZE(16);
-    default:
-        _MOVE_N_SIZE(elsize);
-    }
-#undef _MOVE_N_SIZE
-
-}
-
-NPY_NO_EXPORT void
-_unaligned_strided_byte_copy(char *dst, intp outstrides, char *src,
-                             intp instrides, intp N, int elsize)
-{
-    intp i;
-    char *tout = dst;
-    char *tin = src;
-
-#define _COPY_N_SIZE(size)                      \
-    for(i=0; i<N; i++) {                       \
-        memcpy(tout, tin, size);                \
-        tin += instrides;                       \
-        tout += outstrides;                     \
-    }                                           \
-    return
-
-    switch(elsize) {
-    case 8:
-        _COPY_N_SIZE(8);
-    case 4:
-        _COPY_N_SIZE(4);
-    case 1:
-        _COPY_N_SIZE(1);
-    case 2:
-        _COPY_N_SIZE(2);
-    case 16:
-        _COPY_N_SIZE(16);
-    default:
-        _COPY_N_SIZE(elsize);
-    }
-#undef _COPY_N_SIZE
-
-}
-
-NPY_NO_EXPORT void
-_strided_byte_swap(void *p, intp stride, intp n, int size)
-{
-    char *a, *b, c = 0;
-    int j, m;
-
-    switch(size) {
-    case 1: /* no byteswap necessary */
-        break;
-    case 4:
-        for (a = (char*)p; n > 0; n--, a += stride - 1) {
-            b = a + 3;
-            c = *a; *a++ = *b; *b-- = c;
-            c = *a; *a = *b; *b   = c;
-        }
-        break;
-    case 8:
-        for (a = (char*)p; n > 0; n--, a += stride - 3) {
-            b = a + 7;
-            c = *a; *a++ = *b; *b-- = c;
-            c = *a; *a++ = *b; *b-- = c;
-            c = *a; *a++ = *b; *b-- = c;
-            c = *a; *a = *b; *b   = c;
-        }
-        break;
-    case 2:
-        for (a = (char*)p; n > 0; n--, a += stride) {
-            b = a + 1;
-            c = *a; *a = *b; *b = c;
-        }
-        break;
-    default:
-        m = size/2;
-        for (a = (char *)p; n > 0; n--, a += stride - m) {
-            b = a + (size - 1);
-            for (j = 0; j < m; j++) {
-                c=*a; *a++ = *b; *b-- = c;
-            }
-        }
-        break;
-    }
-}
-
-NPY_NO_EXPORT void
-byte_swap_vector(void *p, intp n, int size)
-{
-    _strided_byte_swap(p, (intp) size, n, size);
-    return;
-}
 
 /* If numitems > 1, then dst must be contiguous */
 NPY_NO_EXPORT void
@@ -534,383 +297,9 @@ copy_and_swap(void *dst, void *src, int itemsize, intp numitems,
     }
 }
 
-static int
-_copy_from0d(PyArrayObject *dest, PyArrayObject *src, int usecopy, int swap)
-{
-    char *aligned = NULL;
-    char *sptr;
-    intp numcopies, nbytes;
-    void (*myfunc)(char *, intp, char *, intp, intp, int);
-    int retval = -1;
-    NPY_BEGIN_THREADS_DEF;
-
-    numcopies = PyArray_SIZE(dest);
-    if (numcopies < 1) {
-        return 0;
-    }
-    nbytes = PyArray_ITEMSIZE(src);
-
-    if (!PyArray_ISALIGNED(src)) {
-        aligned = malloc((size_t)nbytes);
-        if (aligned == NULL) {
-            PyErr_NoMemory();
-            return -1;
-        }
-        memcpy(aligned, src->data, (size_t) nbytes);
-        usecopy = 1;
-        sptr = aligned;
-    }
-    else {
-        sptr = src->data;
-    }
-    if (PyArray_SAFEALIGNEDCOPY(dest)) {
-        myfunc = _strided_byte_copy;
-    }
-    else if (usecopy) {
-        myfunc = _unaligned_strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_move;
-    }
-
-    if ((dest->nd < 2) || PyArray_ISONESEGMENT(dest)) {
-        char *dptr;
-        intp dstride;
-
-        dptr = dest->data;
-        if (dest->nd == 1) {
-            dstride = dest->strides[0];
-        }
-        else {
-            dstride = nbytes;
-        }
-
-        /* Refcount note: src and dest may have different sizes */
-        PyArray_INCREF(src);
-        PyArray_XDECREF(dest);
-        NPY_BEGIN_THREADS;
-        myfunc(dptr, dstride, sptr, 0, numcopies, (int) nbytes);
-        if (swap) {
-            _strided_byte_swap(dptr, dstride, numcopies, (int) nbytes);
-        }
-        NPY_END_THREADS;
-        PyArray_INCREF(dest);
-        PyArray_XDECREF(src);
-    }
-    else {
-        PyArrayIterObject *dit;
-        int axis = -1;
-
-        dit = (PyArrayIterObject *)
-            PyArray_IterAllButAxis((PyObject *)dest, &axis);
-        if (dit == NULL) {
-            goto finish;
-        }
-        /* Refcount note: src and dest may have different sizes */
-        PyArray_INCREF(src);
-        PyArray_XDECREF(dest);
-        NPY_BEGIN_THREADS;
-        while(dit->index < dit->size) {
-            myfunc(dit->dataptr, PyArray_STRIDE(dest, axis), sptr, 0,
-                    PyArray_DIM(dest, axis), nbytes);
-            if (swap) {
-                _strided_byte_swap(dit->dataptr, PyArray_STRIDE(dest, axis),
-                        PyArray_DIM(dest, axis), nbytes);
-            }
-            PyArray_ITER_NEXT(dit);
-        }
-        NPY_END_THREADS;
-        PyArray_INCREF(dest);
-        PyArray_XDECREF(src);
-        Py_DECREF(dit);
-    }
-    retval = 0;
-
-finish:
-    if (aligned != NULL) {
-        free(aligned);
-    }
-    return retval;
-}
-
-/*
- * Special-case of PyArray_CopyInto when dst is 1-d
- * and contiguous (and aligned).
- * PyArray_CopyInto requires broadcastable arrays while
- * this one is a flattening operation...
- */
-NPY_NO_EXPORT int
-_flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order)
-{
-    PyArrayIterObject *it;
-    PyObject *orig_src;
-    void (*myfunc)(char *, intp, char *, intp, intp, int);
-    char *dptr;
-    int axis;
-    int elsize;
-    intp nbytes;
-    NPY_BEGIN_THREADS_DEF;
 
 
-    orig_src = src;
-    if (PyArray_NDIM(src) == 0) {
-        /* Refcount note: src and dst have the same size */
-        PyArray_INCREF((PyArrayObject *)src);
-        PyArray_XDECREF((PyArrayObject *)dst);
-        NPY_BEGIN_THREADS;
-        memcpy(PyArray_BYTES(dst), PyArray_BYTES(src),
-                PyArray_ITEMSIZE(src));
-        NPY_END_THREADS;
-        return 0;
-    }
 
-    axis = PyArray_NDIM(src)-1;
-
-    if (order == PyArray_FORTRANORDER) {
-        if (PyArray_NDIM(src) <= 2) {
-            axis = 0;
-        }
-        /* fall back to a more general method */
-        else {
-            src = PyArray_Transpose((PyArrayObject *)orig_src, NULL);
-        }
-    }
-
-    it = (PyArrayIterObject *)PyArray_IterAllButAxis(src, &axis);
-    if (it == NULL) {
-        if (src != orig_src) {
-            Py_DECREF(src);
-        }
-        return -1;
-    }
-
-    if (PyArray_SAFEALIGNEDCOPY(src)) {
-        myfunc = _strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_copy;
-    }
-
-    dptr = PyArray_BYTES(dst);
-    elsize = PyArray_ITEMSIZE(dst);
-    nbytes = elsize * PyArray_DIM(src, axis);
-
-    /* Refcount note: src and dst have the same size */
-    PyArray_INCREF((PyArrayObject *)src);
-    PyArray_XDECREF((PyArrayObject *)dst);
-    NPY_BEGIN_THREADS;
-    while(it->index < it->size) {
-        myfunc(dptr, elsize, it->dataptr, PyArray_STRIDE(src,axis),
-                PyArray_DIM(src,axis), elsize);
-        dptr += nbytes;
-        PyArray_ITER_NEXT(it);
-    }
-    NPY_END_THREADS;
-
-    if (src != orig_src) {
-        Py_DECREF(src);
-    }
-    Py_DECREF(it);
-    return 0;
-}
-
-
-static int
-_copy_from_same_shape(PyArrayObject *dest, PyArrayObject *src,
-                      void (*myfunc)(char *, intp, char *, intp, intp, int),
-                      int swap)
-{
-    int maxaxis = -1, elsize;
-    intp maxdim;
-    PyArrayIterObject *dit, *sit;
-    NPY_BEGIN_THREADS_DEF;
-
-    dit = (PyArrayIterObject *)
-        PyArray_IterAllButAxis((PyObject *)dest, &maxaxis);
-    sit = (PyArrayIterObject *)
-        PyArray_IterAllButAxis((PyObject *)src, &maxaxis);
-
-    maxdim = dest->dimensions[maxaxis];
-
-    if ((dit == NULL) || (sit == NULL)) {
-        Py_XDECREF(dit);
-        Py_XDECREF(sit);
-        return -1;
-    }
-    elsize = PyArray_ITEMSIZE(dest);
-
-    /* Refcount note: src and dst have the same size */
-    PyArray_INCREF(src);
-    PyArray_XDECREF(dest);
-
-    NPY_BEGIN_THREADS;
-    while(dit->index < dit->size) {
-        /* strided copy of elsize bytes */
-        myfunc(dit->dataptr, dest->strides[maxaxis],
-                sit->dataptr, src->strides[maxaxis],
-                maxdim, elsize);
-        if (swap) {
-            _strided_byte_swap(dit->dataptr,
-                    dest->strides[maxaxis],
-                    dest->dimensions[maxaxis],
-                    elsize);
-        }
-        PyArray_ITER_NEXT(dit);
-        PyArray_ITER_NEXT(sit);
-    }
-    NPY_END_THREADS;
-
-    Py_DECREF(sit);
-    Py_DECREF(dit);
-    return 0;
-}
-
-static int
-_broadcast_copy(PyArrayObject *dest, PyArrayObject *src,
-                void (*myfunc)(char *, intp, char *, intp, intp, int),
-                int swap)
-{
-    int elsize;
-    PyArrayMultiIterObject *multi;
-    int maxaxis; intp maxdim;
-    NPY_BEGIN_THREADS_DEF;
-
-    elsize = PyArray_ITEMSIZE(dest);
-    multi = (PyArrayMultiIterObject *)PyArray_MultiIterNew(2, dest, src);
-    if (multi == NULL) {
-        return -1;
-    }
-
-    if (multi->size != PyArray_SIZE(dest)) {
-        PyErr_SetString(PyExc_ValueError,
-                "array dimensions are not "\
-                "compatible for copy");
-        Py_DECREF(multi);
-        return -1;
-    }
-
-    maxaxis = PyArray_RemoveSmallest(multi);
-    if (maxaxis < 0) {
-        /*
-         * copy 1 0-d array to another
-         * Refcount note: src and dst have the same size
-         */
-        PyArray_INCREF(src);
-        PyArray_XDECREF(dest);
-        memcpy(dest->data, src->data, elsize);
-        if (swap) {
-            byte_swap_vector(dest->data, 1, elsize);
-        }
-        return 0;
-    }
-    maxdim = multi->dimensions[maxaxis];
-
-    /*
-     * Increment the source and decrement the destination
-     * reference counts
-     *
-     * Refcount note: src and dest may have different sizes
-     */
-    PyArray_INCREF(src);
-    PyArray_XDECREF(dest);
-
-    NPY_BEGIN_THREADS;
-    while(multi->index < multi->size) {
-        myfunc(multi->iters[0]->dataptr,
-                multi->iters[0]->strides[maxaxis],
-                multi->iters[1]->dataptr,
-                multi->iters[1]->strides[maxaxis],
-                maxdim, elsize);
-        if (swap) {
-            _strided_byte_swap(multi->iters[0]->dataptr,
-                    multi->iters[0]->strides[maxaxis],
-                    maxdim, elsize);
-        }
-        PyArray_MultiIter_NEXT(multi);
-    }
-    NPY_END_THREADS;
-
-    PyArray_INCREF(dest);
-    PyArray_XDECREF(src);
-
-    Py_DECREF(multi);
-    return 0;
-}
-
-/* If destination is not the right type, then src
-   will be cast to destination -- this requires
-   src and dest to have the same shape
-*/
-
-/* Requires arrays to have broadcastable shapes
-
-   The arrays are assumed to have the same number of elements
-   They can be different sizes and have different types however.
-*/
-
-static int
-_array_copy_into(PyArrayObject *dest, PyArrayObject *src, int usecopy)
-{
-    int swap;
-    void (*myfunc)(char *, intp, char *, intp, intp, int);
-    int simple;
-    int same;
-    NPY_BEGIN_THREADS_DEF;
-
-
-    if (!PyArray_EquivArrTypes(dest, src)) {
-        return PyArray_CastTo(dest, src);
-    }
-    if (!PyArray_ISWRITEABLE(dest)) {
-        PyErr_SetString(PyExc_RuntimeError,
-                "cannot write to array");
-        return -1;
-    }
-    same = PyArray_SAMESHAPE(dest, src);
-    simple = same && ((PyArray_ISCARRAY_RO(src) && PyArray_ISCARRAY(dest)) ||
-            (PyArray_ISFARRAY_RO(src) && PyArray_ISFARRAY(dest)));
-
-    if (simple) {
-        /* Refcount note: src and dest have the same size */
-        PyArray_INCREF(src);
-        PyArray_XDECREF(dest);
-        NPY_BEGIN_THREADS;
-        if (usecopy) {
-            memcpy(dest->data, src->data, PyArray_NBYTES(dest));
-        }
-        else {
-            memmove(dest->data, src->data, PyArray_NBYTES(dest));
-        }
-        NPY_END_THREADS;
-        return 0;
-    }
-
-    swap = PyArray_ISNOTSWAPPED(dest) != PyArray_ISNOTSWAPPED(src);
-
-    if (src->nd == 0) {
-        return _copy_from0d(dest, src, usecopy, swap);
-    }
-
-    if (PyArray_SAFEALIGNEDCOPY(dest) && PyArray_SAFEALIGNEDCOPY(src)) {
-        myfunc = _strided_byte_copy;
-    }
-    else if (usecopy) {
-        myfunc = _unaligned_strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_move;
-    }
-    /*
-     * Could combine these because _broadcasted_copy would work as well.
-     * But, same-shape copying is so common we want to speed it up.
-     */
-    if (same) {
-        return _copy_from_same_shape(dest, src, myfunc, swap);
-    }
-    else {
-        return _broadcast_copy(dest, src, myfunc, swap);
-    }
-}
 
 /*NUMPY_API
  * Move the memory of one array into another.
@@ -918,7 +307,7 @@ _array_copy_into(PyArrayObject *dest, PyArrayObject *src, int usecopy)
 NPY_NO_EXPORT int
 PyArray_MoveInto(PyArrayObject *dest, PyArrayObject *src)
 {
-    return _array_copy_into(dest, src, 0);
+    return NpyArray_MoveInto(dest, src);    // TODO: Argument conversion
 }
 
 
@@ -1381,225 +770,8 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
                      intp *dims, intp *strides, void *data,
                      int flags, PyObject *obj)
 {
-    PyArrayObject *self;
-    int i;
-    size_t sd;
-    intp largest;
-    intp size;
-
-    if (descr->subarray) {
-        PyObject *ret;
-        intp newdims[2*MAX_DIMS];
-        intp *newstrides = NULL;
-        int isfortran = 0;
-        isfortran = (data && (flags & FORTRAN) && !(flags & CONTIGUOUS)) ||
-            (!data && flags);
-        memcpy(newdims, dims, nd*sizeof(intp));
-        if (strides) {
-            newstrides = newdims + MAX_DIMS;
-            memcpy(newstrides, strides, nd*sizeof(intp));
-        }
-        nd =_update_descr_and_dimensions(&descr, newdims,
-                                         newstrides, nd, isfortran);
-        ret = PyArray_NewFromDescr(subtype, descr, nd, newdims,
-                                   newstrides,
-                                   data, flags, obj);
-        return ret;
-    }
-    if (nd < 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "number of dimensions must be >=0");
-        Py_DECREF(descr);
-        return NULL;
-    }
-    if (nd > MAX_DIMS) {
-        PyErr_Format(PyExc_ValueError,
-                     "maximum number of dimensions is %d", MAX_DIMS);
-        Py_DECREF(descr);
-        return NULL;
-    }
-
-    /* Check dimensions */
-    size = 1;
-    sd = (size_t) descr->elsize;
-    if (sd == 0) {
-        if (!PyDataType_ISSTRING(descr)) {
-            PyErr_SetString(PyExc_ValueError, "Empty data-type");
-            Py_DECREF(descr);
-            return NULL;
-        }
-        PyArray_DESCR_REPLACE(descr);
-        if (descr->type_num == NPY_STRING) {
-            descr->elsize = 1;
-        }
-        else {
-            descr->elsize = sizeof(PyArray_UCS4);
-        }
-        sd = descr->elsize;
-    }
-
-    largest = NPY_MAX_INTP / sd;
-    for (i = 0; i < nd; i++) {
-        intp dim = dims[i];
-
-        if (dim == 0) {
-            /*
-             * Compare to PyArray_OverflowMultiplyList that
-             * returns 0 in this case.
-             */
-            continue;
-        }
-        if (dim < 0) {
-            PyErr_SetString(PyExc_ValueError,
-                            "negative dimensions "  \
-                            "are not allowed");
-            Py_DECREF(descr);
-            return NULL;
-        }
-        if (dim > largest) {
-            PyErr_SetString(PyExc_ValueError,
-                            "array is too big.");
-            Py_DECREF(descr);
-            return NULL;
-        }
-        size *= dim;
-        largest /= dim;
-    }
-
-    self = (PyArrayObject *) subtype->tp_alloc(subtype, 0);
-    if (self == NULL) {
-        Py_DECREF(descr);
-        return NULL;
-    }
-    self->nd = nd;
-    self->dimensions = NULL;
-    self->data = NULL;
-    if (data == NULL) {
-        self->flags = DEFAULT;
-        if (flags) {
-            self->flags |= FORTRAN;
-            if (nd > 1) {
-                self->flags &= ~CONTIGUOUS;
-            }
-            flags = FORTRAN;
-        }
-    }
-    else {
-        self->flags = (flags & ~UPDATEIFCOPY);
-    }
-    self->descr = descr;
-    self->base = (PyObject *)NULL;
-    self->weakreflist = (PyObject *)NULL;
-
-    if (nd > 0) {
-        self->dimensions = PyDimMem_NEW(2*nd);
-        if (self->dimensions == NULL) {
-            PyErr_NoMemory();
-            goto fail;
-        }
-        self->strides = self->dimensions + nd;
-        memcpy(self->dimensions, dims, sizeof(intp)*nd);
-        if (strides == NULL) { /* fill it in */
-            sd = _array_fill_strides(self->strides, dims, nd, sd,
-                                     flags, &(self->flags));
-        }
-        else {
-            /*
-             * we allow strides even when we create
-             * the memory, but be careful with this...
-             */
-            memcpy(self->strides, strides, sizeof(intp)*nd);
-            sd *= size;
-        }
-    }
-    else {
-        self->dimensions = self->strides = NULL;
-    }
-
-    if (data == NULL) {
-        /*
-         * Allocate something even for zero-space arrays
-         * e.g. shape=(0,) -- otherwise buffer exposure
-         * (a.data) doesn't work as it should.
-         */
-
-        if (sd == 0) {
-            sd = descr->elsize;
-        }
-        if ((data = PyDataMem_NEW(sd)) == NULL) {
-            PyErr_NoMemory();
-            goto fail;
-        }
-        self->flags |= OWNDATA;
-
-        /*
-         * It is bad to have unitialized OBJECT pointers
-         * which could also be sub-fields of a VOID array
-         */
-        if (PyDataType_FLAGCHK(descr, NPY_NEEDS_INIT)) {
-            memset(data, 0, sd);
-        }
-    }
-    else {
-        /*
-         * If data is passed in, this object won't own it by default.
-         * Caller must arrange for this to be reset if truly desired
-         */
-        self->flags &= ~OWNDATA;
-    }
-    self->data = data;
-
-    /*
-     * call the __array_finalize__
-     * method if a subtype.
-     * If obj is NULL, then call method with Py_None
-     */
-    if ((subtype != &PyArray_Type)) {
-        PyObject *res, *func, *args;
-
-        func = PyObject_GetAttrString((PyObject *)self, "__array_finalize__");
-        if (func && func != Py_None) {
-            if (strides != NULL) {
-                /*
-                 * did not allocate own data or funny strides
-                 * update flags before finalize function
-                 */
-                PyArray_UpdateFlags(self, UPDATE_ALL);
-            }
-            if (NpyCapsule_Check(func)) {
-                /* A C-function is stored here */
-                PyArray_FinalizeFunc *cfunc;
-                cfunc = NpyCapsule_AsVoidPtr(func);
-                Py_DECREF(func);
-                if (cfunc(self, obj) < 0) {
-                    goto fail;
-                }
-            }
-            else {
-                args = PyTuple_New(1);
-                if (obj == NULL) {
-                    obj=Py_None;
-                }
-                Py_INCREF(obj);
-                PyTuple_SET_ITEM(args, 0, obj);
-                res = PyObject_Call(func, args, NULL);
-                Py_DECREF(args);
-                Py_DECREF(func);
-                if (res == NULL) {
-                    goto fail;
-                }
-                else {
-                    Py_DECREF(res);
-                }
-            }
-        }
-        else Py_XDECREF(func);
-    }
-    return (PyObject *)self;
-
- fail:
-    Py_DECREF(self);
-    return NULL;
+    // TODO: Returns NpyArray, needs to be wrapped into PyObject.
+    return NpyArray_NewFromDescr(subtype, descr, nd, dims, strides, data, flags, obj);
 }
 
 /*NUMPY_API
@@ -1610,26 +782,8 @@ PyArray_New(PyTypeObject *subtype, int nd, intp *dims, int type_num,
             intp *strides, void *data, int itemsize, int flags,
             PyObject *obj)
 {
-    PyArray_Descr *descr;
-    PyObject *new;
-
-    descr = PyArray_DescrFromType(type_num);
-    if (descr == NULL) {
-        return NULL;
-    }
-    if (descr->elsize == 0) {
-        if (itemsize < 1) {
-            PyErr_SetString(PyExc_ValueError,
-                            "data type must provide an itemsize");
-            Py_DECREF(descr);
-            return NULL;
-        }
-        PyArray_DESCR_REPLACE(descr);
-        descr->elsize = itemsize;
-    }
-    new = PyArray_NewFromDescr(subtype, descr, nd, dims, strides,
-                               data, flags, obj);
-    return new;
+    /* TODO: Need to convert subtype going in, wrap returned NpyArray into PyObject on return */
+    return NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj);
 }
 
 
@@ -1952,149 +1106,11 @@ PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
 NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags)
 {
-
-    PyArrayObject *ret = NULL;
-    int itemsize;
-    int copy = 0;
-    int arrflags;
-    PyArray_Descr *oldtype;
-    char *msg = "cannot copy back to a read-only array";
-    PyTypeObject *subtype;
-
-    oldtype = PyArray_DESCR(arr);
-    subtype = Py_TYPE(arr);
-    if (newtype == NULL) {
-        newtype = oldtype; Py_INCREF(oldtype);
-    }
-    itemsize = newtype->elsize;
-    if (itemsize == 0) {
-        PyArray_DESCR_REPLACE(newtype);
-        if (newtype == NULL) {
-            return NULL;
-        }
-        newtype->elsize = oldtype->elsize;
-        itemsize = newtype->elsize;
-    }
-
-    /*
-     * Can't cast unless ndim-0 array, FORCECAST is specified
-     * or the cast is safe.
-     */
-    if (!(flags & FORCECAST) && !PyArray_NDIM(arr) == 0 &&
-        !PyArray_CanCastTo(oldtype, newtype)) {
-        Py_DECREF(newtype);
-        PyErr_SetString(PyExc_TypeError,
-                        "array cannot be safely cast "  \
-                        "to required type");
-        return NULL;
-    }
-
-    /* Don't copy if sizes are compatible */
-    if ((flags & ENSURECOPY) || PyArray_EquivTypes(oldtype, newtype)) {
-        arrflags = arr->flags;
-        copy = (flags & ENSURECOPY) ||
-            ((flags & CONTIGUOUS) && (!(arrflags & CONTIGUOUS)))
-            || ((flags & ALIGNED) && (!(arrflags & ALIGNED)))
-            || (arr->nd > 1 &&
-                ((flags & FORTRAN) && (!(arrflags & FORTRAN))))
-            || ((flags & WRITEABLE) && (!(arrflags & WRITEABLE)));
-
-        if (copy) {
-            if ((flags & UPDATEIFCOPY) &&
-                (!PyArray_ISWRITEABLE(arr))) {
-                Py_DECREF(newtype);
-                PyErr_SetString(PyExc_ValueError, msg);
-                return NULL;
-            }
-            if ((flags & ENSUREARRAY)) {
-                subtype = &PyArray_Type;
-            }
-            ret = (PyArrayObject *)
-                PyArray_NewFromDescr(subtype, newtype,
-                                     arr->nd,
-                                     arr->dimensions,
-                                     NULL, NULL,
-                                     flags & FORTRAN,
-                                     (PyObject *)arr);
-            if (ret == NULL) {
-                return NULL;
-            }
-            if (PyArray_CopyInto(ret, arr) == -1) {
-                Py_DECREF(ret);
-                return NULL;
-            }
-            if (flags & UPDATEIFCOPY)  {
-                ret->flags |= UPDATEIFCOPY;
-                ret->base = (PyObject *)arr;
-                PyArray_FLAGS(ret->base) &= ~WRITEABLE;
-                Py_INCREF(arr);
-            }
-        }
-        /*
-         * If no copy then just increase the reference
-         * count and return the input
-         */
-        else {
-            Py_DECREF(newtype);
-            if ((flags & ENSUREARRAY) &&
-                !PyArray_CheckExact(arr)) {
-                Py_INCREF(arr->descr);
-                ret = (PyArrayObject *)
-                    PyArray_NewFromDescr(&PyArray_Type,
-                                         arr->descr,
-                                         arr->nd,
-                                         arr->dimensions,
-                                         arr->strides,
-                                         arr->data,
-                                         arr->flags,NULL);
-                if (ret == NULL) {
-                    return NULL;
-                }
-                ret->base = (PyObject *)arr;
-            }
-            else {
-                ret = arr;
-            }
-            Py_INCREF(arr);
-        }
-    }
-
-    /*
-     * The desired output type is different than the input
-     * array type and copy was not specified
-     */
-    else {
-        if ((flags & UPDATEIFCOPY) &&
-            (!PyArray_ISWRITEABLE(arr))) {
-            Py_DECREF(newtype);
-            PyErr_SetString(PyExc_ValueError, msg);
-            return NULL;
-        }
-        if ((flags & ENSUREARRAY)) {
-            subtype = &PyArray_Type;
-        }
-        ret = (PyArrayObject *)
-            PyArray_NewFromDescr(subtype, newtype,
-                                 arr->nd, arr->dimensions,
-                                 NULL, NULL,
-                                 flags & FORTRAN,
-                                 (PyObject *)arr);
-        if (ret == NULL) {
-            return NULL;
-        }
-        if (PyArray_CastTo(ret, arr) < 0) {
-            Py_DECREF(ret);
-            return NULL;
-        }
-        if (flags & UPDATEIFCOPY)  {
-            ret->flags |= UPDATEIFCOPY;
-            ret->base = (PyObject *)arr;
-            PyArray_FLAGS(ret->base) &= ~WRITEABLE;
-            Py_INCREF(arr);
-        }
-    }
-    return (PyObject *)ret;
+    /* TODO: Wrap returned NpyArray in PyObject, fix conversion of arr to NpyArray. */
+    return NpyArray_FromArray(arr, newtype, flags);
 }
+
+
 
 /*NUMPY_API */
 NPY_NO_EXPORT PyObject *
@@ -2418,6 +1434,7 @@ PyArray_FromDimsAndDataAndDescr(int nd, int *d,
                                 PyArray_Descr *descr,
                                 char *data)
 {
+    /* TODO: Not converted as comment says it's 'old'. */
     PyObject *ret;
     int i;
     intp newd[MAX_DIMS];
@@ -2479,6 +1496,7 @@ PyArray_EnsureArray(PyObject *op)
 {
     PyObject *new;
 
+    /* TODO: Can be pushed into core once PyArray_FromAny has been pushed down. */
     if ((op == NULL) || (PyArray_CheckExact(op))) {
         new = op;
         Py_XINCREF(new);
@@ -2500,6 +1518,7 @@ PyArray_EnsureArray(PyObject *op)
 NPY_NO_EXPORT PyObject *
 PyArray_EnsureAnyArray(PyObject *op)
 {
+    /* TODO: Can be pushed to core once PyArray_FromAny, and thus PyArray_EnsureArray, are in the core. */
     if (op && PyArray_Check(op)) {
         return op;
     }
@@ -2514,75 +1533,8 @@ PyArray_EnsureAnyArray(PyObject *op)
 NPY_NO_EXPORT int
 PyArray_CopyAnyInto(PyArrayObject *dest, PyArrayObject *src)
 {
-    int elsize, simple;
-    PyArrayIterObject *idest, *isrc;
-    void (*myfunc)(char *, intp, char *, intp, intp, int);
-    NPY_BEGIN_THREADS_DEF;
-
-    if (!PyArray_EquivArrTypes(dest, src)) {
-        return PyArray_CastAnyTo(dest, src);
-    }
-    if (!PyArray_ISWRITEABLE(dest)) {
-        PyErr_SetString(PyExc_RuntimeError,
-                "cannot write to array");
-        return -1;
-    }
-    if (PyArray_SIZE(dest) != PyArray_SIZE(src)) {
-        PyErr_SetString(PyExc_ValueError,
-                "arrays must have the same number of elements"
-                " for copy");
-        return -1;
-    }
-
-    simple = ((PyArray_ISCARRAY_RO(src) && PyArray_ISCARRAY(dest)) ||
-            (PyArray_ISFARRAY_RO(src) && PyArray_ISFARRAY(dest)));
-    if (simple) {
-        /* Refcount note: src and dest have the same size */
-        PyArray_INCREF(src);
-        PyArray_XDECREF(dest);
-        NPY_BEGIN_THREADS;
-        memcpy(dest->data, src->data, PyArray_NBYTES(dest));
-        NPY_END_THREADS;
-        return 0;
-    }
-
-    if (PyArray_SAMESHAPE(dest, src)) {
-        int swap;
-
-        if (PyArray_SAFEALIGNEDCOPY(dest) && PyArray_SAFEALIGNEDCOPY(src)) {
-            myfunc = _strided_byte_copy;
-        }
-        else {
-            myfunc = _unaligned_strided_byte_copy;
-        }
-        swap = PyArray_ISNOTSWAPPED(dest) != PyArray_ISNOTSWAPPED(src);
-        return _copy_from_same_shape(dest, src, myfunc, swap);
-    }
-
-    /* Otherwise we have to do an iterator-based copy */
-    idest = (PyArrayIterObject *)PyArray_IterNew((PyObject *)dest);
-    if (idest == NULL) {
-        return -1;
-    }
-    isrc = (PyArrayIterObject *)PyArray_IterNew((PyObject *)src);
-    if (isrc == NULL) {
-        Py_DECREF(idest);
-        return -1;
-    }
-    elsize = dest->descr->elsize;
-    /* Refcount note: src and dest have the same size */
-    PyArray_INCREF(src);
-    PyArray_XDECREF(dest);
-    NPY_BEGIN_THREADS;
-    while(idest->index < idest->size) {
-        memcpy(idest->dataptr, isrc->dataptr, elsize);
-        PyArray_ITER_NEXT(idest);
-        PyArray_ITER_NEXT(isrc);
-    }
-    NPY_END_THREADS;
-    Py_DECREF(idest);
-    Py_DECREF(isrc);
-    return 0;
+    /* TODO: Fix conversion of dest, src to NpyArrays. */
+    return NpyArray_CopyAnyInto(dest, src);
 }
 
 /*NUMPY_API
@@ -2591,7 +1543,8 @@ PyArray_CopyAnyInto(PyArrayObject *dest, PyArrayObject *src)
 NPY_NO_EXPORT int
 PyArray_CopyInto(PyArrayObject *dest, PyArrayObject *src)
 {
-    return _array_copy_into(dest, src, 1);
+    /* TODO: Fix conversion of dest, src to NpyArray types. */
+    return NpyArray_CopyInto(dest, src);
 }
 
 
@@ -2620,6 +1573,7 @@ PyArray_Zeros(int nd, intp *dims, PyArray_Descr *type, int fortran)
 {
     PyArrayObject *ret;
 
+    /* TODO: Function probably needs to be split, but _zerofill needs a "0" int object to use for object arrays. */
     if (!type) {
         type = PyArray_DescrFromType(PyArray_DEFAULT);
     }
@@ -2649,6 +1603,7 @@ PyArray_Empty(int nd, intp *dims, PyArray_Descr *type, int fortran)
 {
     PyArrayObject *ret;
 
+    /* TODO: Probably needs to be split, uses Py_None as the default value. */
     if (!type) type = PyArray_DescrFromType(PyArray_DEFAULT);
     ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
                                                 type, nd, dims,
@@ -3471,55 +2426,4 @@ PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
     return (PyObject *)ret;
 }
 
-/*
- * This is the main array creation routine.
- *
- * Flags argument has multiple related meanings
- * depending on data and strides:
- *
- * If data is given, then flags is flags associated with data.
- * If strides is not given, then a contiguous strides array will be created
- * and the CONTIGUOUS bit will be set.  If the flags argument
- * has the FORTRAN bit set, then a FORTRAN-style strides array will be
- * created (and of course the FORTRAN flag bit will be set).
- *
- * If data is not given but created here, then flags will be DEFAULT
- * and a non-zero flags argument can be used to indicate a FORTRAN style
- * array is desired.
- */
-
-NPY_NO_EXPORT size_t
-_array_fill_strides(intp *strides, intp *dims, int nd, size_t itemsize,
-                    int inflag, int *objflags)
-{
-    int i;
-    /* Only make Fortran strides if not contiguous as well */
-    if ((inflag & FORTRAN) && !(inflag & CONTIGUOUS)) {
-        for (i = 0; i < nd; i++) {
-            strides[i] = itemsize;
-            itemsize *= dims[i] ? dims[i] : 1;
-        }
-        *objflags |= FORTRAN;
-        if (nd > 1) {
-            *objflags &= ~CONTIGUOUS;
-        }
-        else {
-            *objflags |= CONTIGUOUS;
-        }
-    }
-    else {
-        for (i = nd - 1; i >= 0; i--) {
-            strides[i] = itemsize;
-            itemsize *= dims[i] ? dims[i] : 1;
-        }
-        *objflags |= CONTIGUOUS;
-        if (nd > 1) {
-            *objflags &= ~FORTRAN;
-        }
-        else {
-            *objflags |= FORTRAN;
-        }
-    }
-    return itemsize;
-}
 

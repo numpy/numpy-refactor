@@ -253,10 +253,11 @@ NpyCapsule_AsVoidPtr(PyObject *obj)
     return ret;
 }
 
+
 static NPY_INLINE int
 NpyCapsule_Check(PyObject *ptr)
 {
-    return PyCapsule_CheckExact(ptr);
+    return PyCapsule_CheckExact(ptr);    
 }
 
 static void

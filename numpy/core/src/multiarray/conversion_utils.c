@@ -628,131 +628,21 @@ PyArray_IntpFromSequence(PyObject *seq, intp *vals, int maxvals)
 NPY_NO_EXPORT int
 PyArray_TypestrConvert(int itemsize, int gentype)
 {
-    int newtype = gentype;
-
-    if (gentype == PyArray_GENBOOLLTR) {
-        if (itemsize == 1) {
-            newtype = PyArray_BOOL;
-        }
-        else {
-            newtype = PyArray_NOTYPE;
-        }
-    }
-    else if (gentype == PyArray_SIGNEDLTR) {
-        switch(itemsize) {
-        case 1:
-            newtype = PyArray_INT8;
-            break;
-        case 2:
-            newtype = PyArray_INT16;
-            break;
-        case 4:
-            newtype = PyArray_INT32;
-            break;
-        case 8:
-            newtype = PyArray_INT64;
-            break;
-#ifdef PyArray_INT128
-        case 16:
-            newtype = PyArray_INT128;
-            break;
-#endif
-        default:
-            newtype = PyArray_NOTYPE;
-        }
-    }
-    else if (gentype == PyArray_UNSIGNEDLTR) {
-        switch(itemsize) {
-        case 1:
-            newtype = PyArray_UINT8;
-            break;
-        case 2:
-            newtype = PyArray_UINT16;
-            break;
-        case 4:
-            newtype = PyArray_UINT32;
-            break;
-        case 8:
-            newtype = PyArray_UINT64;
-            break;
-#ifdef PyArray_INT128
-        case 16:
-            newtype = PyArray_UINT128;
-            break;
-#endif
-        default:
-            newtype = PyArray_NOTYPE;
-            break;
-        }
-    }
-    else if (gentype == PyArray_FLOATINGLTR) {
-        switch(itemsize) {
-        case 4:
-            newtype = PyArray_FLOAT32;
-            break;
-        case 8:
-            newtype = PyArray_FLOAT64;
-            break;
-#ifdef PyArray_FLOAT80
-        case 10:
-            newtype = PyArray_FLOAT80;
-            break;
-#endif
-#ifdef PyArray_FLOAT96
-        case 12:
-            newtype = PyArray_FLOAT96;
-            break;
-#endif
-#ifdef PyArray_FLOAT128
-        case 16:
-            newtype = PyArray_FLOAT128;
-            break;
-#endif
-        default:
-            newtype = PyArray_NOTYPE;
-        }
-    }
-    else if (gentype == PyArray_COMPLEXLTR) {
-        switch(itemsize) {
-        case 8:
-            newtype = PyArray_COMPLEX64;
-            break;
-        case 16:
-            newtype = PyArray_COMPLEX128;
-            break;
-#ifdef PyArray_FLOAT80
-        case 20:
-            newtype = PyArray_COMPLEX160;
-            break;
-#endif
-#ifdef PyArray_FLOAT96
-        case 24:
-            newtype = PyArray_COMPLEX192;
-            break;
-#endif
-#ifdef PyArray_FLOAT128
-        case 32:
-            newtype = PyArray_COMPLEX256;
-            break;
-#endif
-        default:
-            newtype = PyArray_NOTYPE;
-        }
-    }
-    return newtype;
+    return NpyArray_TypestrConvert(itemsize, gentype);
 }
+
 
 /* Lifted from numarray */
 /* TODO: not documented */
 /*NUMPY_API
-  PyArray_IntTupleFromIntp
-*/
+ PyArray_IntTupleFromIntp
+ */
 NPY_NO_EXPORT PyObject *
 PyArray_IntTupleFromIntp(int len, intp *vals)
 {
     int i;
     PyObject *intTuple = PyTuple_New(len);
-
+    
     if (!intTuple) {
         goto fail;
     }
@@ -769,8 +659,8 @@ PyArray_IntTupleFromIntp(int len, intp *vals)
         }
         PyTuple_SET_ITEM(intTuple, i, o);
     }
-
- fail:
+    
+fail:
     return intTuple;
 }
 

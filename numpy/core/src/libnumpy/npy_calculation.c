@@ -52,6 +52,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     }
     
     /* Will get native-byte order contiguous copy. */
+    /* TODO: ContiguousFromAny calls PyArray_FromAny which is currently an interface function. Ugh. */
     ap = NpyArray_ContiguousFromAny(op, op->descr->type_num, 1, 0);
     Npy_DECREF(op);
     if (ap == NULL) {
