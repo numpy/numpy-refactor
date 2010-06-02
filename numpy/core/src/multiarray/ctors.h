@@ -45,10 +45,6 @@ PyArray_CopyAnyInto(PyArrayObject *dest, PyArrayObject *src);
 NPY_NO_EXPORT PyObject *
 PyArray_CheckAxis(PyArrayObject *arr, int *axis, int flags);
 
-/* FIXME: remove those from here */
-NPY_NO_EXPORT int
-_flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
-
 NPY_NO_EXPORT size_t
 _array_fill_strides(intp *strides, intp *dims, int nd, size_t itemsize,
                     int inflag, int *objflags);
