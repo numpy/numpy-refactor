@@ -1331,3 +1331,90 @@ int NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
     return _array_copy_into(dest, src, 1);
 }
 
+
+static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nread)
+{
+    NpyArray *r;
+    npy_intp start, numbytes;
+    
+    if (num < 0) {
+        int fail = 0;
+        
+        start = (npy_intp )ftell(fp);
+        if (start < 0) {
+            fail = 1;
+        }
+        if (fseek(fp, 0, SEEK_END) < 0) {
+            fail = 1;
+        }
+        numbytes = (npy_intp) ftell(fp);
+        if (numbytes < 0) {
+            fail = 1;
+        }
+        numbytes -= start;
+        if (fseek(fp, start, SEEK_SET) < 0) {
+            fail = 1;
+        }
+        if (fail) {
+            NpyErr_SetString(NpyExc_IOError,
+                             "could not seek in file");
+            Npy_DECREF(dtype);
+            return NULL;
+        }
+        num = numbytes / dtype->elsize;
+    }
+    r = (NpyArray *)NpyArray_NewFromDescr(&PyArray_Type,
+                                              dtype,
+                                              1, &num,
+                                              NULL, NULL,
+                                              0, NULL);
+    if (r == NULL) {
+        return NULL;
+    }
+    NPY_BEGIN_ALLOW_THREADS;
+    *nread = fread(r->data, dtype->elsize, num, fp);
+    NPY_END_ALLOW_THREADS;
+    return r;
+}
+
+
+
+
+NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
+{
+    NpyArray *ret;
+    size_t nread = 0;
+    
+    if (NpyDataType_REFCHK(dtype)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot read into object array");
+        Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "The elements are 0-sized.");
+        Npy_DECREF(dtype);
+        return NULL;
+    }
+
+    ret = array_fromfile_binary(fp, dtype, num, &nread);
+    if (ret == NULL) {
+        Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (((npy_intp) nread) < num) {
+        /* Realloc memory for smaller number of elements */
+        const size_t nsize = NPY_MAX(nread,1)*ret->descr->elsize;
+        char *tmp;
+        
+        if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
+            Npy_DECREF(ret);
+            return NpyErr_NoMemory();
+        }
+        ret->data = tmp;
+        NpyArray_DIM(ret,0) = nread;
+    }
+    return ret;
+}
+

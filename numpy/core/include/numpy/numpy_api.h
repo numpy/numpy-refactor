@@ -119,8 +119,6 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
 #define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
-#define NpyArray_MultiIter_DATA(i, n) PyArray_MultiIter_DATA(i, n)
-#define NpyArray_MultiIter_NEXT(i) PyArray_MultiIter_NEXT(i)
 
 /*
  * Functions we need to convert.
@@ -184,6 +182,7 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
                                npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
+NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num);
 NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
@@ -259,6 +258,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyErr_NoMemory() PyErr_NoMemory()
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
+#define NpyExc_IOError PyExc_IOError
 #define NpyExc_TypeError PyExc_TypeError
 #define NpyExc_IndexError PyExc_IndexError
 #define NpyErr_Format PyErr_Format

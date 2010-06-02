@@ -1918,51 +1918,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
     return NULL;
 }
 
-static PyArrayObject *
-array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, intp num, size_t *nread)
-{
-    PyArrayObject *r;
-    intp start, numbytes;
 
-    if (num < 0) {
-        int fail = 0;
-
-        start = (intp )ftell(fp);
-        if (start < 0) {
-            fail = 1;
-        }
-        if (fseek(fp, 0, SEEK_END) < 0) {
-            fail = 1;
-        }
-        numbytes = (intp) ftell(fp);
-        if (numbytes < 0) {
-            fail = 1;
-        }
-        numbytes -= start;
-        if (fseek(fp, start, SEEK_SET) < 0) {
-            fail = 1;
-        }
-        if (fail) {
-            PyErr_SetString(PyExc_IOError,
-                            "could not seek in file");
-            Py_DECREF(dtype);
-            return NULL;
-        }
-        num = numbytes / dtype->elsize;
-    }
-    r = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
-                                              dtype,
-                                              1, &num,
-                                              NULL, NULL,
-                                              0, NULL);
-    if (r == NULL) {
-        return NULL;
-    }
-    NPY_BEGIN_ALLOW_THREADS;
-    *nread = fread(r->data, dtype->elsize, num, fp);
-    NPY_END_ALLOW_THREADS;
-    return r;
-}
 
 /*
  * Create an array by reading from the given stream, using the passed
@@ -2041,6 +1997,67 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
 }
 #undef FROM_BUFFER_SIZE
 
+
+
+
+NPY_NO_EXPORT PyObject *
+PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
+{
+    PyArrayObject *ret;
+    size_t nread = 0;
+    
+    /* TODO: Review whether we want the boilerplate code in this function here or in 
+     PyArray_FromFile.  It is also duplicated in NpyArray_FromFile... */
+    if (PyDataType_REFCHK(dtype)) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Cannot read into object array");
+        Py_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->elsize == 0) {
+        PyErr_SetString(PyExc_ValueError,
+                        "The elements are 0-sized.");
+        Py_DECREF(dtype);
+        return NULL;
+    }
+    if ((sep == NULL) || (strlen(sep) == 0)) {
+        PyErr_SetString(PyExc_ValueError,
+                        "A separator must be specified when reading a text file.");
+        Py_DECREF(dtype);
+        return NULL;
+    }
+    
+    if (dtype->f->scanfunc == NULL) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Unable to read character files of that array type");
+        Py_DECREF(dtype);
+        return NULL;
+    }
+    ret = array_from_text(dtype, num, sep, &nread, fp,
+                          (next_element) fromfile_next_element,
+                          (skip_separator) fromfile_skip_separator, NULL);
+    if (ret == NULL) {
+        Py_DECREF(dtype);
+        return NULL;
+    }
+    if (((intp) nread) < num) {
+        /* Realloc memory for smaller number of elements */
+        const size_t nsize = NPY_MAX(nread,1)*ret->descr->elsize;
+        char *tmp;
+        
+        if((tmp = PyDataMem_RENEW(ret->data, nsize)) == NULL) {
+            Py_DECREF(ret);
+            return PyErr_NoMemory();
+        }
+        ret->data = tmp;
+        PyArray_DIM(ret,0) = nread;
+    }
+    return (PyObject *)ret;
+}
+
+
+
+
 /*NUMPY_API
  *
  * Given a ``FILE *`` pointer ``fp``, and a ``PyArray_Descr``, return an
@@ -2063,53 +2080,29 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
 NPY_NO_EXPORT PyObject *
 PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 {
-    PyArrayObject *ret;
-    size_t nread = 0;
+    PyArrayObject *ret = NULL;
 
     if (PyDataType_REFCHK(dtype)) {
         PyErr_SetString(PyExc_ValueError,
-                "Cannot read into object array");
+                        "Cannot read into object array");
         Py_DECREF(dtype);
         return NULL;
     }
     if (dtype->elsize == 0) {
         PyErr_SetString(PyExc_ValueError,
-                "The elements are 0-sized.");
+                        "The elements are 0-sized.");
         Py_DECREF(dtype);
         return NULL;
     }
-    if ((sep == NULL) || (strlen(sep) == 0)) {
-        ret = array_fromfile_binary(fp, dtype, num, &nread);
-    }
-    else {
-        if (dtype->f->scanfunc == NULL) {
-            PyErr_SetString(PyExc_ValueError,
-                    "Unable to read character files of that array type");
-            Py_DECREF(dtype);
-            return NULL;
-        }
-        ret = array_from_text(dtype, num, sep, &nread, fp,
-                (next_element) fromfile_next_element,
-                (skip_separator) fromfile_skip_separator, NULL);
-    }
-    if (ret == NULL) {
-        Py_DECREF(dtype);
-        return NULL;
-    }
-    if (((intp) nread) < num) {
-        /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1)*ret->descr->elsize;
-        char *tmp;
-
-        if((tmp = PyDataMem_RENEW(ret->data, nsize)) == NULL) {
-            Py_DECREF(ret);
-            return PyErr_NoMemory();
-        }
-        ret->data = tmp;
-        PyArray_DIM(ret,0) = nread;
-    }
-    return (PyObject *)ret;
+    
+    if (NULL == sep || 0 == strlen(sep))
+        ret = NpyArray_FromBinaryFile(fp, dtype, num);
+    else ret = PyArray_FromTextFile(fp, dtype, num, sep);
+    
+    return ret;
 }
+
+
 
 /*NUMPY_API*/
 NPY_NO_EXPORT PyObject *
