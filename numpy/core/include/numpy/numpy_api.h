@@ -9,6 +9,7 @@ typedef struct PyArrayIterObject_tag NpyArrayIter;
 typedef PyArrayMultiIterObject NpyArrayMultiIter;
 typedef PyArray_Descr NpyArray_Descr;
 typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
+typedef PyArrayIterObject NpyArrayIterObject;
 
 typedef PyArray_Dims NpyArray_Dims;
 
@@ -18,6 +19,9 @@ typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
+typedef PyArray_SortFunc NpyArray_SortFunc;
+typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
+typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 
 #define NpyTypeObject PyTypeObject
@@ -38,7 +42,6 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 #define NpyArray_BASE(a) PyArray_BASE(a)
 #define NpyArray_BYTES(obj) PyArray_BYTES(obj) 
 #define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
-#define NpyDimMem_NEW(size) PyDimMem_NEW(size)
 #define NpyArray_CHKFLAGS(a, flags) PyArray_CHKFLAGS(a, flags)
 #define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
 #define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
@@ -108,6 +111,7 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 #define NpyArray_MultiIter_GOTO(multi, dest) PyArray_MultiIter_GOTO(multi, dest) 
 #define NpyArray_MultiIter_GOTO1D(multi, ind) PyArray_MultiIter_GOTO1D(multi, ind)
 #define NpyArray_MultiIter_DATA(multi, i) PyArray_MultiIter_DATA(multi, i)    
+#define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
 #define NpyArray_NEXTi(multi, i) PyArray_MultiIter_NEXTi(multi, i)   
 #define NpyArray_NOTDONE(multi) PyArray_MultiIter_NOTDONE(multi)
 
@@ -118,7 +122,6 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
-#define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
 
 /*
  * Functions we need to convert.
@@ -141,7 +144,8 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 #define NpyArray_DescrNew(base) PyArray_DescrNew(base)
 
 /* iterators.c */
-#define NpyArray_IterAllButAxis(a1, a2) PyArray_IterAllButAxis(a1, a2)
+#define NpyArray_IterAllButAxis(a, paxis) \
+    ((NpyArrayIterObject*) PyArray_IterAllButAxis((PyObject*)a, paxis))
 #define NpyArray_MultiIterNew PyArray_MultiIterNew
 #define NpyArray_RemoveSmallest(multi) PyArray_RemoveSmallest(multi)
 #define NpyArray_IterNew(obj) PyArray_IterNew(obj)
@@ -206,6 +210,10 @@ int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
 NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
 NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                            NPY_CLIPMODE clipmode);
+int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
+NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
+NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
+NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
@@ -246,9 +254,11 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 /*
  * Memory
  */
+#define NpyDataMem_NEW(sz) PyDataMem_NEW(sz)
 #define NpyDataMem_RENEW(p, sz) PyDataMem_RENEW(p, sz)
 #define NpyDataMem_FREE(p) PyDataMem_FREE(p)
 
+#define NpyDimMem_NEW(size) PyDimMem_NEW(size)
 #define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
 
 /*
@@ -256,11 +266,13 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
 #define NpyErr_NoMemory() PyErr_NoMemory()
+#define NpyErr_Occurred() PyErr_Occurred()
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
 #define NpyExc_IOError PyExc_IOError
 #define NpyExc_TypeError PyExc_TypeError
 #define NpyExc_IndexError PyExc_IndexError
+#define NpyExc_RuntimeError PyExc_RuntimeError
 #define NpyErr_Format PyErr_Format
 #define NpyExc_RuntimeError PyExc_RuntimeError
 
@@ -274,8 +286,14 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
+#define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
-extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
+extern int _flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
+extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
+                                         npy_intp instrides, npy_intp N, int elsize);
+extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
+
+extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
 
 #endif
 
