@@ -236,19 +236,9 @@ NPY_NO_EXPORT PyObject *
 PyArray_LexSort(PyObject *sort_keys, int axis)
 {
     PyArrayObject **mps;
-    PyArrayIterObject **its;
     PyArrayObject *ret = NULL;
-    PyArrayIterObject *rit = NULL;
     int n;
-    int nd;
-    int needcopy = 0, i,j;
-    intp N, size;
-    int elsize;
-    int maxelsize;
-    intp astride, rstride, *iptr;
-    int object = 0;
-    PyArray_ArgSortFunc *argsort;
-    NPY_BEGIN_THREADS_DEF;
+    int i;
 
     if (!PySequence_Check(sort_keys)
            || ((n = PySequence_Size(sort_keys)) <= 0)) {
@@ -256,18 +246,12 @@ PyArray_LexSort(PyObject *sort_keys, int axis)
                 "need sequence of keys with len > 0 in lexsort");
         return NULL;
     }
-    mps = (PyArrayObject **) _pya_malloc(n*sizeof(PyArrayObject));
+    mps = (PyArrayObject **) _pya_malloc(n*sizeof(PyArrayObject*));
     if (mps == NULL) {
-        return PyErr_NoMemory();
-    }
-    its = (PyArrayIterObject **) _pya_malloc(n*sizeof(PyArrayIterObject));
-    if (its == NULL) {
-        _pya_free(mps);
         return PyErr_NoMemory();
     }
     for (i = 0; i < n; i++) {
         mps[i] = NULL;
-        its[i] = NULL;
     }
     for (i = 0; i < n; i++) {
         PyObject *obj;
@@ -277,168 +261,25 @@ PyArray_LexSort(PyObject *sort_keys, int axis)
         if (mps[i] == NULL) {
             goto fail;
         }
-        if (i > 0) {
-            if ((mps[i]->nd != mps[0]->nd)
-                || (!PyArray_CompareLists(mps[i]->dimensions,
-                                       mps[0]->dimensions,
-                                       mps[0]->nd))) {
-                PyErr_SetString(PyExc_ValueError,
-                                "all keys need to be the same shape");
-                goto fail;
-            }
-        }
-        if (!mps[i]->descr->f->argsort[PyArray_MERGESORT]) {
-            PyErr_Format(PyExc_TypeError,
-                         "merge sort not available for item %d", i);
-            goto fail;
-        }
-        if (!object
-            && PyDataType_FLAGCHK(mps[i]->descr, NPY_NEEDS_PYAPI)) {
-            object = 1;
-        }
-        its[i] = (PyArrayIterObject *)PyArray_IterAllButAxis(
-                (PyObject *)mps[i], &axis);
-        if (its[i] == NULL) {
-            goto fail;
-        }
     }
 
-    /* Now we can check the axis */
-    nd = mps[0]->nd;
-    if ((nd == 0) || (PyArray_SIZE(mps[0]) == 1)) {
-        /* single element case */
-        ret = (PyArrayObject *)PyArray_New(&PyArray_Type, mps[0]->nd,
-                                           mps[0]->dimensions,
-                                           PyArray_INTP,
-                                           NULL, NULL, 0, 0, NULL);
-
-        if (ret == NULL) {
-            goto fail;
-        }
-        *((intp *)(ret->data)) = 0;
-        goto finish;
-    }
-    if (axis < 0) {
-        axis += nd;
-    }
-    if ((axis < 0) || (axis >= nd)) {
-        PyErr_Format(PyExc_ValueError,
-                "axis(=%d) out of bounds", axis);
-        goto fail;
-    }
-
-    /* Now do the sorting */
-    ret = (PyArrayObject *)PyArray_New(&PyArray_Type, mps[0]->nd,
-                                       mps[0]->dimensions, PyArray_INTP,
-                                       NULL, NULL, 0, 0, NULL);
+    ret = NpyArray_LexSort(mps, n, axis);
     if (ret == NULL) {
         goto fail;
     }
-    rit = (PyArrayIterObject *)
-            PyArray_IterAllButAxis((PyObject *)ret, &axis);
-    if (rit == NULL) {
-        goto fail;
-    }
-    if (!object) {
-        NPY_BEGIN_THREADS;
-    }
-    size = rit->size;
-    N = mps[0]->dimensions[axis];
-    rstride = PyArray_STRIDE(ret, axis);
-    maxelsize = mps[0]->descr->elsize;
-    needcopy = (rstride != sizeof(intp));
-    for (j = 0; j < n; j++) {
-        needcopy = needcopy
-            || PyArray_ISBYTESWAPPED(mps[j])
-            || !(mps[j]->flags & ALIGNED)
-            || (mps[j]->strides[axis] != (intp)mps[j]->descr->elsize);
-        if (mps[j]->descr->elsize > maxelsize) {
-            maxelsize = mps[j]->descr->elsize;
-        }
-    }
 
-    if (needcopy) {
-        char *valbuffer, *indbuffer;
-        int *swaps;
-
-        valbuffer = PyDataMem_NEW(N*maxelsize);
-        indbuffer = PyDataMem_NEW(N*sizeof(intp));
-        swaps = malloc(n*sizeof(int));
-        for (j = 0; j < n; j++) {
-            swaps[j] = PyArray_ISBYTESWAPPED(mps[j]);
-        }
-        while (size--) {
-            iptr = (intp *)indbuffer;
-            for (i = 0; i < N; i++) {
-                *iptr++ = i;
-            }
-            for (j = 0; j < n; j++) {
-                elsize = mps[j]->descr->elsize;
-                astride = mps[j]->strides[axis];
-                argsort = mps[j]->descr->f->argsort[PyArray_MERGESORT];
-                _unaligned_strided_byte_copy(valbuffer, (intp) elsize,
-                                             its[j]->dataptr, astride, N, elsize);
-                if (swaps[j]) {
-                    _strided_byte_swap(valbuffer, (intp) elsize, N, elsize);
-                }
-                if (argsort(valbuffer, (intp *)indbuffer, N, mps[j]) < 0) {
-                    PyDataMem_FREE(valbuffer);
-                    PyDataMem_FREE(indbuffer);
-                    free(swaps);
-                    goto fail;
-                }
-                PyArray_ITER_NEXT(its[j]);
-            }
-            _unaligned_strided_byte_copy(rit->dataptr, rstride, indbuffer,
-                                         sizeof(intp), N, sizeof(intp));
-            PyArray_ITER_NEXT(rit);
-        }
-        PyDataMem_FREE(valbuffer);
-        PyDataMem_FREE(indbuffer);
-        free(swaps);
-    }
-    else {
-        while (size--) {
-            iptr = (intp *)rit->dataptr;
-            for (i = 0; i < N; i++) {
-                *iptr++ = i;
-            }
-            for (j = 0; j < n; j++) {
-                argsort = mps[j]->descr->f->argsort[PyArray_MERGESORT];
-                if (argsort(its[j]->dataptr, (intp *)rit->dataptr,
-                            N, mps[j]) < 0) {
-                    goto fail;
-                }
-                PyArray_ITER_NEXT(its[j]);
-            }
-            PyArray_ITER_NEXT(rit);
-        }
-    }
-
-    if (!object) {
-        NPY_END_THREADS;
-    }
-
- finish:
     for (i = 0; i < n; i++) {
         Py_XDECREF(mps[i]);
-        Py_XDECREF(its[i]);
     }
-    Py_XDECREF(rit);
     _pya_free(mps);
-    _pya_free(its);
     return (PyObject *)ret;
 
  fail:
-    NPY_END_THREADS;
-    Py_XDECREF(rit);
     Py_XDECREF(ret);
     for (i = 0; i < n; i++) {
         Py_XDECREF(mps[i]);
-        Py_XDECREF(its[i]);
     }
     _pya_free(mps);
-    _pya_free(its);
     return NULL;
 }
 

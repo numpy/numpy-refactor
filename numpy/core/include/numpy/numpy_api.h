@@ -32,6 +32,7 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 #define NpyArray_FLAGS(a) PyArray_FLAGS(a)
 #define NpyArray_BASE(a) PyArray_BASE(a)
 
+
 #define NpyArray_CHKFLAGS(a, flags) PyArray_CHKFLAGS(a, flags)
 #define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
 #define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
@@ -40,6 +41,7 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 #define NpyArray_ISUNSIGNED(obj) PyArray_ISUNSIGNED(obj)
 #define NpyArray_ISWRITEABLE(a) PyArray_ISWRITEABLE(a)
 #define NpyArray_ISNOTSWAPPED(a) PyArray_ISNOTSWAPPED(a)
+#define NpyArray_ISBYTESWAPPED(a) PyArray_ISBYTESWAPPED(a)
 
 #define NpyArray_TYPE(obj) PyArray_TYPE(obj)
 #define NpyArray_NOTYPE PyArray_NOTYPE
@@ -56,6 +58,7 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 #define NpyArray_BOOL PyArray_BOOL
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
+#define NpyDataType_FLAGCHK(a, f) PyDataType_FLAGCHK(a, f)
 
 #define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
 #define NpyArray_MultiIter_DATA(i, n) PyArray_MultiIter_DATA(i, n)
@@ -135,6 +138,7 @@ NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                            NPY_CLIPMODE clipmode);
 int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
 NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
+NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
