@@ -21,6 +21,7 @@ typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
 typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 typedef PyArray_SortFunc NpyArray_SortFunc;
 typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
+typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 
 #define NpyTypeObject PyTypeObject
@@ -119,7 +120,6 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 #define NpyDataMem_NEW(size) PyDataMem_NEW(size)
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
-#define NpyDataType_FLAGCHK(a, f) PyDataType_FLAGCHK(a, f)
 
 #define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
 #define NpyArray_MultiIter_DATA(i, n) PyArray_MultiIter_DATA(i, n)
@@ -147,7 +147,8 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 #define NpyArray_DescrNew(base) PyArray_DescrNew(base)
 
 /* iterators.c */
-#define NpyArray_IterAllButAxis(a1, a2) PyArray_IterAllButAxis(a1, a2)
+#define NpyArray_IterAllButAxis(a, paxis) \
+    ((NpyArrayIterObject*) PyArray_IterAllButAxis((PyObject*)a, paxis))
 #define NpyArray_MultiIterNew PyArray_MultiIterNew
 #define NpyArray_RemoveSmallest(multi) PyArray_RemoveSmallest(multi)
 #define NpyArray_IterNew(obj) PyArray_IterNew(obj)
@@ -214,6 +215,7 @@ NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
 int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
 NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
 NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
+NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
@@ -285,13 +287,14 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
-#define NpyArray_IterAllButAxis(a, paxis) \
-    ((NpyArrayIterObject*) PyArray_IterAllButAxis((PyObject*)a, paxis))
+#define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
 extern int _flat_copyinto(PyObject *dst, PyObject *src, NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
                                          npy_intp instrides, npy_intp N, int elsize);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
+
+extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
 
 #endif
 

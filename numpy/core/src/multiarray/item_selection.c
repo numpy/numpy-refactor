@@ -283,153 +283,34 @@ PyArray_LexSort(PyObject *sort_keys, int axis)
     return NULL;
 }
 
-
-/** @brief Use bisection of sorted array to find first entries >= keys.
- *
- * For each key use bisection to find the first index i s.t. key <= arr[i].
- * When there is no such index i, set i = len(arr). Return the results in ret.
- * All arrays are assumed contiguous on entry and both arr and key must be of
- * the same comparable type.
- *
- * @param arr contiguous sorted array to be searched.
- * @param key contiguous array of keys.
- * @param ret contiguous array of intp for returned indices.
- * @return void
- */
-static void
-local_search_left(PyArrayObject *arr, PyArrayObject *key, PyArrayObject *ret)
-{
-    PyArray_CompareFunc *compare = key->descr->f->compare;
-    intp nelts = arr->dimensions[arr->nd - 1];
-    intp nkeys = PyArray_SIZE(key);
-    char *parr = arr->data;
-    char *pkey = key->data;
-    intp *pret = (intp *)ret->data;
-    int elsize = arr->descr->elsize;
-    intp i;
-
-    for (i = 0; i < nkeys; ++i) {
-        intp imin = 0;
-        intp imax = nelts;
-        while (imin < imax) {
-            intp imid = imin + ((imax - imin) >> 1);
-            if (compare(parr + elsize*imid, pkey, key) < 0) {
-                imin = imid + 1;
-            }
-            else {
-                imax = imid;
-            }
-        }
-        *pret = imin;
-        pret += 1;
-        pkey += elsize;
-    }
-}
-
-
-/** @brief Use bisection of sorted array to find first entries > keys.
- *
- * For each key use bisection to find the first index i s.t. key < arr[i].
- * When there is no such index i, set i = len(arr). Return the results in ret.
- * All arrays are assumed contiguous on entry and both arr and key must be of
- * the same comparable type.
- *
- * @param arr contiguous sorted array to be searched.
- * @param key contiguous array of keys.
- * @param ret contiguous array of intp for returned indices.
- * @return void
- */
-static void
-local_search_right(PyArrayObject *arr, PyArrayObject *key, PyArrayObject *ret)
-{
-    PyArray_CompareFunc *compare = key->descr->f->compare;
-    intp nelts = arr->dimensions[arr->nd - 1];
-    intp nkeys = PyArray_SIZE(key);
-    char *parr = arr->data;
-    char *pkey = key->data;
-    intp *pret = (intp *)ret->data;
-    int elsize = arr->descr->elsize;
-    intp i;
-
-    for(i = 0; i < nkeys; ++i) {
-        intp imin = 0;
-        intp imax = nelts;
-        while (imin < imax) {
-            intp imid = imin + ((imax - imin) >> 1);
-            if (compare(parr + elsize*imid, pkey, key) <= 0) {
-                imin = imid + 1;
-            }
-            else {
-                imax = imid;
-            }
-        }
-        *pret = imin;
-        pret += 1;
-        pkey += elsize;
-    }
-}
-
 /*NUMPY_API
  * Numeric.searchsorted(a,v)
  */
 NPY_NO_EXPORT PyObject *
 PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
 {
-    PyArrayObject *ap1 = NULL;
-    PyArrayObject *ap2 = NULL;
-    PyArrayObject *ret = NULL;
-    PyArray_Descr *dtype;
-    NPY_BEGIN_THREADS_DEF;
+    PyArrayObject* ap2 = NULL;
+    PyArrayObject* ret = NULL;
 
-    dtype = PyArray_DescrFromObject((PyObject *)op2, op1->descr);
-    /* need ap1 as contiguous array and of right type */
-    Py_INCREF(dtype);
-    ap1 = (PyArrayObject *)PyArray_FromAny((PyObject *)op1, dtype,
-                                           1, 1, NPY_DEFAULT, NULL);
-    if (ap1 == NULL) {
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    if (PyArray_Check(op2)) {
+        ap2 = (PyArrayObject*)op2;
+        Py_INCREF(ap2);
+    } else {
+        PyArray_Descr* dtype;
 
-    /* need ap2 as contiguous array and of right type */
-    ap2 = (PyArrayObject *)PyArray_FromAny(op2, dtype,
-                                          0, 0, NPY_DEFAULT, NULL);
-    if (ap2 == NULL) {
-        goto fail;
+        dtype = PyArray_DescrFromObject((PyObject *)op2, op1->descr);
+        /* need ap2 as contiguous array and of right type */
+        ap2 = (PyArrayObject*)PyArray_FromAny(op2, dtype,
+                                              0, 0, NPY_DEFAULT, NULL);
+        if (ap2 == NULL) {
+            Py_DECREF(dtype);
+            goto finish;
+        }
     }
-    /* ret is a contiguous array of intp type to hold returned indices */
-    ret = (PyArrayObject *)PyArray_New(Py_TYPE(ap2), ap2->nd,
-                                       ap2->dimensions, PyArray_INTP,
-                                       NULL, NULL, 0, 0, (PyObject *)ap2);
-    if (ret == NULL) {
-        goto fail;
-    }
-    /* check that comparison function exists */
-    if (ap2->descr->f->compare == NULL) {
-        PyErr_SetString(PyExc_TypeError,
-                        "compare not supported for type");
-        goto fail;
-    }
-
-    if (side == NPY_SEARCHLEFT) {
-        NPY_BEGIN_THREADS_DESCR(ap2->descr);
-        local_search_left(ap1, ap2, ret);
-        NPY_END_THREADS_DESCR(ap2->descr);
-    }
-    else if (side == NPY_SEARCHRIGHT) {
-        NPY_BEGIN_THREADS_DESCR(ap2->descr);
-        local_search_right(ap1, ap2, ret);
-        NPY_END_THREADS_DESCR(ap2->descr);
-    }
-    Py_DECREF(ap1);
-    Py_DECREF(ap2);
-    return (PyObject *)ret;
-
- fail:
-    Py_XDECREF(ap1);
+    ret = NpyArray_SearchSorted(op1, ap2, side);
+  finish:
     Py_XDECREF(ap2);
-    Py_XDECREF(ret);
-    return NULL;
+    return (PyObject *) ret;
 }
 
 /*NUMPY_API
