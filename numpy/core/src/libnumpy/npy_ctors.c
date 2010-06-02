@@ -735,6 +735,40 @@ int NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
 }
 
 
+/*NUMPY_API
+ * steals a reference to descr -- accepts NULL
+ */
+NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
+{
+    NpyArray *obj;
+
+    if (requires & NPY_NOTSWAPPED) {
+        if (!descr && NpyArray_Check(arr) &&
+            !NpyArray_ISNBO(NpyArray_DESCR(arr)->byteorder)) {
+            descr = NpyArray_DescrNew(NpyArray_DESCR(arr));
+        }
+        else if (descr && !NpyArray_ISNBO(descr->byteorder)) {
+            NpyArray_DESCR_REPLACE(descr);
+        }
+        if (descr) {
+            descr->byteorder = NPY_NATIVE;
+        }
+    }
+    
+    obj = NpyArray_FromArray(arr, descr, requires);
+    if (obj == NULL) {
+        return NULL;
+    }
+    if ((requires & NPY_ELEMENTSTRIDES) &&
+        !NpyArray_ElementStrides(obj)) {
+        PyObject *new;
+        new = NpyArray_NewCopy(obj, PyArray_ANYORDER);
+        Py_DECREF(obj);
+        obj = new;
+    }
+    return obj;
+}
+
 
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 {
@@ -766,8 +800,7 @@ NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
         Npy_INCREF(temp1);
     }
     if (flags) {
-        temp2 = NpyArray_CheckFromAny(temp1, NULL,
-                                     0, 0, flags, NULL);
+        temp2 = NpyArray_CheckFromArray(temp1, NULL, flags);
         Npy_DECREF(temp1);
         if (temp2 == NULL) {
             return NULL;

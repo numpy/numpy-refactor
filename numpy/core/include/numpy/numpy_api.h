@@ -15,6 +15,8 @@ typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
+typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
+typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 
 
 #define NpyTypeObject PyTypeObject
@@ -79,6 +81,7 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 #define NpyArray_INT16 PyArray_INT16
 #define NpyArray_INT32 PyArray_INT32
 #define NpyArray_INT64 PyArray_INT64
+#define NpyArray_INTP PyArray_INTP
 #define NpyArray_UNSIGNEDLTR PyArray_UNSIGNEDLTR
 #define NpyArray_UINT8 PyArray_UINT8
 #define NpyArray_UINT16 PyArray_UINT16
@@ -108,9 +111,15 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
+#define NpyArray_Check(op) PyArray_Check(op)
 #define NpyDataMem_NEW(size) PyDataMem_NEW(size)
 
-/* 
+#define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
+
+#define NpyArray_FROM_OTF(m, type, flags) ((NpyArray*)PyArray_FROM_OTF(m, type, flags))
+
+
+/*
  * Functions we need to convert.
  */
 
@@ -126,6 +135,9 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
 /* ctors.c */
 #define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
 
+
+/* descriptor.c */
+#define NpyArray_DescrNew(base) PyArray_DescrNew(base)
 
 /* iterators.c */
 #define NpyArray_IterAllButAxis(a1, a2) PyArray_IterAllButAxis(a1, a2)
@@ -148,6 +160,10 @@ typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
         PyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
         max_depth, NPY_DEFAULT, NULL)
 
+#define NpyArray_ContiguousFromArray(op, type)                          \
+    ((NpyArray*) NpyArray_FromArray(op, NpyArray_DescrFromType(type),   \
+                                    NPY_DEFAULT))
+
 #define NpyArray_EquivArrTypes(a1, a2)                                         \
         NpyArray_EquivTypes(NpyArray_DESCR(a1), NpyArray_DESCR(a2))
 
@@ -165,6 +181,7 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
                                npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
+NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 
@@ -176,6 +193,15 @@ NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
 int NpyArray_TypestrConvert(int itemsize, int gentype);
 NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
+
+
+NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
+                            NpyArray *ret, NPY_CLIPMODE clipmode);
+
+int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
+                   NPY_CLIPMODE clipmode);
+int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
+NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
@@ -209,6 +235,9 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyArray_DECREF(a) PyArray_DECREF(a)
 #define NpyArray_XDECREF(a) PyArray_XDECREF(a)
 
+#define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
+#define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
+#define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 
 /*
  * Memory
@@ -225,6 +254,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyExc_ValueError PyExc_ValueError
 #define NpyExc_MemoryError PyExc_MemoryError
 #define NpyExc_TypeError PyExc_TypeError
+#define NpyExc_IndexError PyExc_IndexError
 #define NpyErr_Format PyErr_Format
 #define NpyExc_RuntimeError PyExc_RuntimeError
 
@@ -234,6 +264,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
  * TMP
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
+#define NpyArray_CompareLists(a, b, n) PyArray_CompareLists(a, b, n)
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
