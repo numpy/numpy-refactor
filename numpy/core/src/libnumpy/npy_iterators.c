@@ -10,6 +10,155 @@
 #define MAX(a,b) ((a > b) ? (a) : (b))
 #endif
 
+/* get the dataptr from its current coordinates for simple iterator */
+static char*
+get_ptr_simple(NpyArrayIter* iter, npy_intp *coordinates)
+{
+    npy_intp i;
+    char *ret;
+
+    ret = iter->ao->data;
+
+    for(i = 0; i < iter->ao->nd; ++i) {
+            ret += coordinates[i] * iter->strides[i];
+    }
+
+    return ret;
+}
+
+
+/*
+ * This is common initialization code between NpyArrayIter and
+ * PyArrayNeighborhoodIterObject
+ *
+ * Increase ao refcount
+ */
+static int
+array_iter_base_init(NpyArrayIter *it, NpyArray *ao)
+{
+    int nd, i;
+
+    nd = ao->nd;
+    NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
+    if (NpyArray_ISCONTIGUOUS(ao)) {
+        it->contiguous = 1;
+    }
+    else {
+        it->contiguous = 0;
+    }
+    Npy_INCREF(ao);
+    it->ao = ao;
+    it->size = NpyArray_SIZE(ao);
+    it->nd_m1 = nd - 1;
+    it->factors[nd-1] = 1;
+    for (i = 0; i < nd; i++) {
+        it->dims_m1[i] = ao->dimensions[i] - 1;
+        it->strides[i] = ao->strides[i];
+        it->backstrides[i] = it->strides[i] * it->dims_m1[i];
+        if (i > 0) {
+            it->factors[nd-i-1] = it->factors[nd-i] * ao->dimensions[nd-i];
+        }
+        it->bounds[i][0] = 0;
+        it->bounds[i][1] = ao->dimensions[i] - 1;
+        it->limits[i][0] = 0;
+        it->limits[i][1] = ao->dimensions[i] - 1;
+        it->limits_sizes[i] = it->limits[i][1] - it->limits[i][0] + 1;
+    }
+
+    it->translate = &get_ptr_simple;
+    NpyArray_ITER_RESET(it);
+
+    return 0;
+}
+
+
+/*
+ * Get Iterator.
+ */
+NpyArrayIter *
+NpyArray_IterNew(NpyArray *ao)
+{
+    NpyArrayIter *it;
+
+    it = (NpyArrayIter *)NpyArray_malloc(sizeof(NpyArrayIter));
+    NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    if (it == NULL) {
+        return NULL;
+    }
+
+    array_iter_base_init(it, ao);
+    return it;
+}
+
+/*
+ * Get Iterator broadcast to a particular shape
+ */
+NpyArrayIter *
+NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
+{
+    NpyArrayIter *it;
+    int i, diff, j, compat, k;
+
+    if (ao->nd > nd) {
+        goto err;
+    }
+    compat = 1;
+    diff = j = nd - ao->nd;
+    for (i = 0; i < ao->nd; i++, j++) {
+        if (ao->dimensions[i] == 1) {
+            continue;
+        }
+        if (ao->dimensions[i] != dims[j]) {
+            compat = 0;
+            break;
+        }
+    }
+    if (!compat) {
+        goto err;
+    }
+    it = (NpyArrayIter *) PyArray_malloc(sizeof(NpyArrayIter));
+    NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+
+    if (it == NULL) {
+        return NULL;
+    }
+    NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
+    if (NpyArray_ISCONTIGUOUS(ao)) {
+        it->contiguous = 1;
+    }
+    else {
+        it->contiguous = 0;
+    }
+    Npy_INCREF(ao);
+    it->ao = ao;
+    it->size = NpyArray_MultiplyList(dims, nd);
+    it->nd_m1 = nd - 1;
+    it->factors[nd-1] = 1;
+    for (i = 0; i < nd; i++) {
+        it->dims_m1[i] = dims[i] - 1;
+        k = i - diff;
+        if ((k < 0) || ao->dimensions[k] != dims[i]) {
+            it->contiguous = 0;
+            it->strides[i] = 0;
+        }
+        else {
+            it->strides[i] = ao->strides[k];
+        }
+        it->backstrides[i] = it->strides[i] * it->dims_m1[i];
+        if (i > 0) {
+            it->factors[nd-i-1] = it->factors[nd-i] * dims[nd-i];
+        }
+    }
+    NpyArray_ITER_RESET(it);
+    return it;
+
+ err:
+    NpyErr_SetString(NpyExc_ValueError, "array is not broadcastable to "\
+                    "correct shape");
+    return NULL;
+}
+
+
 /*
  * Get Iterator that iterates over all but one axis (don't use this with
  * PyArray_ITER_GOTO1D).  The axis will be over-written if negative
@@ -191,4 +340,80 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit)
         NpyArray_ITER_RESET(it);
     }
     return 0;
+}
+
+/*
+ * Get MultiIterator from array of Python objects and any additional
+ *
+ * NpyArray **mps -- array of NpyArrays
+ * int n - number of NpyArrays in the array
+ * int nadd - number of additional arrays to include in the iterator.
+ *
+ * Returns a multi-iterator object.
+ */
+NpyArrayMultiIterObject *
+NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
+{
+    NpyArrayMultiIterObject* result;
+
+    va_list va;
+    va_start(va, nadd);
+    result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
+    va_end(va);
+
+    return result;
+}
+
+NpyArrayMultiIterObject *
+NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
+{
+    PyArrayMultiIterObject *multi;
+    NpyArray *current;
+    PyObject *arr;
+
+    int i, ntot, err=0;
+
+    ntot = n + nadd;
+    if (ntot < 2 || ntot > NPY_MAXARGS) {
+        NpyErr_Format(NpyExc_ValueError,
+                     "Need between 2 and (%d) "                 \
+                     "array objects (inclusive).", NPY_MAXARGS);
+        return NULL;
+    }
+    multi = NpyArray_malloc(sizeof(PyArrayMultiIterObject));
+    if (multi == NULL) {
+        NpyErr_NoMemory();
+        return NULL;
+    }
+    NpyObject_Init((NpyObject *)multi, &NpyArrayMultiIter_Type);
+
+    for (i = 0; i < ntot; i++) {
+        multi->iters[i] = NULL;
+    }
+    multi->numiter = ntot;
+    multi->index = 0;
+
+    for (i = 0; i < ntot; i++) {
+        if (i < n) {
+            current = mps[i];
+        }
+        else {
+            current = va_arg(va, NpyArray *);
+            if (!PyArray_Check(current)) {
+                err = 1;
+                break;
+            }
+        }
+        multi->iters[i] = NpyArray_IterNew(current);
+    }
+
+    if (!err && NpyArray_Broadcast(multi) < 0) {
+        err = 1;
+    }
+    if (err) {
+        Npy_DECREF(multi);
+        return NULL;
+    }
+    NpyArray_MultiIter_RESET(multi);
+    return multi;
 }

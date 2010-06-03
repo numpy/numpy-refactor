@@ -26,6 +26,8 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
+#define NpyArrayIter_Type PyArrayIter_Type
+#define NpyArrayMultiIter_Type PyArrayMultiIter_Type
 
 #define NpyArray_UCS4 npy_ucs4
 
@@ -143,11 +145,16 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_DescrNew(base) PyArray_DescrNew(base)
 
 /* iterators.c */
-#define NpyArray_IterNew(obj) ((NpyArrayIter* )PyArray_IterNew((PyObject*)obj))
+NpyArrayIter * NpyArray_IterNew(NpyArray *ao);
+NpyArrayIter * NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd);
 #define NpyArray_MultiIterNew PyArray_MultiIterNew
 NpyArrayIter * NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis);
 int NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
 int NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
+NpyArrayMultiIterObject * NpyArray_MultiIterFromArrays(NpyArray **mps, int n,
+                                                        int nadd, ...);
+NpyArrayMultiIterObject * NpyArray_vMultiIterFromArrays(NpyArray **mps, int n,
+                                                        int nadd, va_list va);
 
 
 /* multiarraymodule.c */
@@ -252,6 +259,11 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 
 /*
+ * Object model. 
+ */
+#define NpyObject_Init(object, type) PyObject_Init(object, type)
+
+/*
  * Memory
  */
 #define NpyDataMem_NEW(sz) PyDataMem_NEW(sz)
@@ -260,6 +272,8 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 
 #define NpyDimMem_NEW(size) PyDimMem_NEW(size)
 #define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
+
+#define NpyArray_malloc(size) PyArray_malloc(size)
 
 /*
  * Error handling.
