@@ -106,6 +106,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_FORTRANORDER NPY_FORTRANORDER
 
 #define NpyArray_ITER_NEXT(it) PyArray_ITER_NEXT(it)
+#define NpyArray_ITER_RESET(it) PyArray_ITER_RESET(it)
 #define NpyArray_MultiIter_RESET(multi) PyArray_MultiIter_RESET(multi)
 #define NpyArray_MultiIter_NEXT(multi) PyArray_MultiIter_NEXT(multi)
 #define NpyArray_MultiIter_GOTO(multi, dest) PyArray_MultiIter_GOTO(multi, dest) 
@@ -122,9 +123,6 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
 #define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
-#define NpyArray_MultiIter_DATA(i, n) PyArray_MultiIter_DATA(i, n)
-#define NpyArray_MultiIter_NEXT(i) PyArray_MultiIter_NEXT(i)
-#define NpyArray_ITER_NEXT(i) PyArray_ITER_NEXT(i)
 
 /*
  * Functions we need to convert.
@@ -147,11 +145,11 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_DescrNew(base) PyArray_DescrNew(base)
 
 /* iterators.c */
-#define NpyArray_IterAllButAxis(a, paxis) \
-    ((NpyArrayIterObject*) PyArray_IterAllButAxis((PyObject*)a, paxis))
+#define NpyArray_IterNew(obj) ((NpyArrayIter* )PyArray_IterNew((PyObject*)obj))
 #define NpyArray_MultiIterNew PyArray_MultiIterNew
-#define NpyArray_RemoveSmallest(multi) PyArray_RemoveSmallest(multi)
-#define NpyArray_IterNew(obj) PyArray_IterNew(obj)
+NpyArrayIter * NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis);
+int NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
+int NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 
 /* multiarraymodule.c */
@@ -284,6 +282,7 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
  */
 #define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
 #define NpyArray_CompareLists(a, b, n) PyArray_CompareLists(a, b, n)
+#define NpyArray_OverflowMultiplyList(a, b) PyArray_OverflowMultiplyList(a, b)
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
