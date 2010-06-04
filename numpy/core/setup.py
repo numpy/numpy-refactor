@@ -686,18 +686,21 @@ def configuration(parent_package='',top_path=None):
     config.add_npy_pkg_config("mlib.ini.in", "lib/npy-pkg-config",
             subst_dict)
 
-    libnumpy_source = [join('src', 'libnumpy', 'npy_arrayobject.c'),
-                       join('src', 'libnumpy', 'npy_calculation.c'),
-                       join('src', 'libnumpy', 'npy_common.c'),
-                       join('src', 'libnumpy', 'npy_conversion_utils.c'),
-                       join('src', 'libnumpy', 'npy_convert.c'),
-                       join('src', 'libnumpy', 'npy_convert_datatype.c'),
-                       join('src', 'libnumpy', 'npy_ctors.c'),
-                       join('src', 'libnumpy', 'npy_datetime.c'),
-                       join('src', 'libnumpy', 'npy_flagsobject.c'),
-                       join('src', 'libnumpy', 'npy_shape.c'),
-                       join('src', 'libnumpy', 'npy_item_selection.c'),
-                       join('src', 'libnumpy', 'npy_usertypes.c')]
+    libnumpy_source = [
+        join('src', 'libnumpy', 'npy_arrayobject.c'),
+        join('src', 'libnumpy', 'npy_calculation.c'),
+        join('src', 'libnumpy', 'npy_common.c'),
+        join('src', 'libnumpy', 'npy_conversion_utils.c'),
+        join('src', 'libnumpy', 'npy_convert.c'),
+        join('src', 'libnumpy', 'npy_convert_datatype.c'),
+        join('src', 'libnumpy', 'npy_ctors.c'),
+        join('src', 'libnumpy', 'npy_datetime.c'),
+        join('src', 'libnumpy', 'npy_flagsobject.c'),
+        join('src', 'libnumpy', 'npy_item_selection.c'),
+        join('src', 'libnumpy', 'npy_iterators.c'),
+        join('src', 'libnumpy', 'npy_shape.c'),
+        join('src', 'libnumpy', 'npy_usertypes.c'),
+        ]
 
     config.add_library('numpy', sources=libnumpy_source)
    
