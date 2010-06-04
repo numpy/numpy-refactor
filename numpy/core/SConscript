@@ -432,8 +432,9 @@ libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
                 pjoin('src', 'libnumpy', 'npy_ctors.c'),
                 pjoin('src', 'libnumpy', 'npy_datetime.c'),
                 pjoin('src', 'libnumpy', 'npy_flagsobject.c'),
-                pjoin('src', 'libnumpy', 'npy_shape.c'),
                 pjoin('src', 'libnumpy', 'npy_item_selection.c'),
+                pjoin('src', 'libnumpy', 'npy_iterators.c'),
+                pjoin('src', 'libnumpy', 'npy_shape.c'),
                 pjoin('src', 'libnumpy', 'npy_usertypes.c')]
 
 

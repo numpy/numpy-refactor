@@ -282,8 +282,15 @@ int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck, NPY_ORDER fortran);
 
+npy_datetime NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d);
+npy_datetime NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d);
+void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr, npy_datetimestruct *result);
+void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr, npy_timedeltastruct *result);
+
+
 /* TODO: Check this, defined in npy_ctors.c. */
 int NpyCapsule_Check(PyObject *ptr);
+
 
 /*
  * Reference counting.
