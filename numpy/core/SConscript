@@ -403,7 +403,7 @@ env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy'])
 npymath_src = [env.GenerateFromTemplate(pjoin('src', 'npymath', 'npy_math.c.src')),
                env.GenerateFromTemplate(pjoin('src', 'npymath', 'npy_math_complex.c.src')),
                env.GenerateFromTemplate(pjoin('src', 'npymath', 'ieee754.c.src'))]
-env.DistutilsInstalledStaticExtLibrary("npymath", npymath_src, install_dir='lib')
+npymath = env.DistutilsInstalledStaticExtLibrary("npymath", npymath_src, install_dir='lib')
 env.Prepend(LIBS=["npymath"])
 env.Prepend(LIBPATH=["."])
 
@@ -418,6 +418,26 @@ mlib_ini = env.SubstInFile(pjoin('lib', 'npy-pkg-config', 'mlib.ini'),
     'mlib.ini.in', SUBST_DICT=subst_dict)
 env.Install('$distutils_installdir/lib/npy-pkg-config', mlib_ini)
 env.Install('$distutils_installdir/lib/npy-pkg-config', npymath_ini)
+
+
+#-----------------
+# Build libnumpy core
+#-----------------
+libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
+                pjoin('src', 'libnumpy', 'npy_calculation.c'),
+                pjoin('src', 'libnumpy', 'npy_common.c'),
+                pjoin('src', 'libnumpy', 'npy_conversion_utils.c'),
+                pjoin('src', 'libnumpy', 'npy_convert.c'),
+                pjoin('src', 'libnumpy', 'npy_convert_datatype.c'),
+                pjoin('src', 'libnumpy', 'npy_ctors.c'),
+                pjoin('src', 'libnumpy', 'npy_datetime.c'),
+                pjoin('src', 'libnumpy', 'npy_flagsobject.c'),
+                pjoin('src', 'libnumpy', 'npy_shape.c'),
+                pjoin('src', 'libnumpy', 'npy_item_selection.c'),
+                pjoin('src', 'libnumpy', 'npy_usertypes.c')]
+
+
+libnumpy = env.StaticExtLibrary('libnumpy', source = libnumpy_src)
 
 #-----------------
 # Build multiarray
@@ -455,8 +475,11 @@ if ENABLE_SEPARATE_COMPILATION:
         multiarray_src.extend([pjoin("src", "multiarray", "ucsnarrow.c")])
 else:
     multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule_onefile.c')]
-multiarray = env.DistutilsPythonExtension('multiarray', source = multiarray_src)
+multiarray = env.DistutilsPythonExtension('multiarray', LIBS=['libnumpy', 'npymath'], source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
+
+
+
 
 #------------------
 # Build sort module

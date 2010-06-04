@@ -8,3 +8,711 @@
 #include <Python.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+
+
+/*
+ * Reference counts:
+ * copyswapn is used which increases and decreases reference counts for OBJECT arrays.
+ * All that needs to happen is for any reference counts in the buffers to be
+ * decreased when completely finished with the buffers.
+ *
+ * buffers[0] is the destination
+ * buffers[1] is the source
+ */
+
+static void
+_strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
+                       NpyArray_CopySwapNFunc *dcopyfunc,
+                       char *sptr, npy_intp sstride, int selsize, int sswap,
+                       NpyArray_CopySwapNFunc *scopyfunc,
+                       npy_intp N, char **buffers, int bufsize,
+                       NpyArray_VectorUnaryFunc *castfunc,
+                       NpyArray *dest, NpyArray *src)
+{
+    int i;
+    if (N <= bufsize) {
+        /*
+         * 1. copy input to buffer and swap
+         * 2. cast input to output
+         * 3. swap output if necessary and copy from output buffer
+         */
+        scopyfunc(buffers[1], selsize, sptr, sstride, N, sswap, src);
+        castfunc(buffers[1], buffers[0], N, src, dest);
+        dcopyfunc(dptr, dstride, buffers[0], delsize, N, dswap, dest);
+        return;
+    }
+    
+    /* otherwise we need to divide up into bufsize pieces */
+    i = 0;
+    while (N > 0) {
+        int newN = NPY_MIN(N, bufsize);
+        
+        _strided_buffered_cast(dptr+i*dstride, dstride, delsize,
+                               dswap, dcopyfunc,
+                               sptr+i*sstride, sstride, selsize,
+                               sswap, scopyfunc,
+                               newN, buffers, bufsize, castfunc, dest, src);
+        i += newN;
+        N -= bufsize;
+    }
+    return;
+}
+
+
+
+static int _broadcast_cast(NpyArray *out, NpyArray *in,
+                           PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
+{
+    int delsize, selsize, maxaxis, i, N;
+    NpyArrayMultiIter *multi;
+    npy_intp maxdim, ostrides, istrides;
+    char *buffers[2];
+    NpyArray_CopySwapNFunc *ocopyfunc, *icopyfunc;
+    char *obptr;
+    NPY_BEGIN_THREADS_DEF;
+    
+    delsize = NpyArray_ITEMSIZE(out);
+    selsize = NpyArray_ITEMSIZE(in);
+    multi = NpyArray_MultiIterNew(2, out, in);
+    if (multi == NULL) {
+        return -1;
+    }
+    
+    if (multi->size != NpyArray_SIZE(out)) {
+        NpyErr_SetString(PyExc_ValueError,
+                         "array dimensions are not "\
+                         "compatible for copy");
+        Npy_DECREF(multi);
+        return -1;
+    }
+    
+    icopyfunc = in->descr->f->copyswapn;
+    ocopyfunc = out->descr->f->copyswapn;
+    maxaxis = NpyArray_RemoveSmallest(multi);
+    if (maxaxis < 0) {
+        /* cast 1 0-d array to another */
+        N = 1;
+        maxdim = 1;
+        ostrides = delsize;
+        istrides = selsize;
+    }
+    else {
+        maxdim = multi->dimensions[maxaxis];
+        N = (int) (NPY_MIN(maxdim, PyArray_BUFSIZE));
+        ostrides = multi->iters[0]->strides[maxaxis];
+        istrides = multi->iters[1]->strides[maxaxis];
+        
+    }
+    buffers[0] = malloc(N*delsize);
+    if (buffers[0] == NULL) {
+        NpyErr_NoMemory();
+        return -1;
+    }
+    buffers[1] = malloc(N*selsize);
+    if (buffers[1] == NULL) {
+        free(buffers[0]);
+        NpyErr_NoMemory();
+        return -1;
+    }
+    if (NpyDataType_FLAGCHK(out->descr, NPY_NEEDS_INIT)) {
+        memset(buffers[0], 0, N*delsize);
+    }
+    if (NpyDataType_FLAGCHK(in->descr, NPY_NEEDS_INIT)) {
+        memset(buffers[1], 0, N*selsize);
+    }
+    
+#if NPY_ALLOW_THREADS
+    if (NpyArray_ISNUMBER(in) && NpyArray_ISNUMBER(out)) {
+        NPY_BEGIN_THREADS;
+    }
+#endif
+    
+    while (multi->index < multi->size) {
+        _strided_buffered_cast(multi->iters[0]->dataptr,
+                               ostrides,
+                               delsize, oswap, ocopyfunc,
+                               multi->iters[1]->dataptr,
+                               istrides,
+                               selsize, iswap, icopyfunc,
+                               maxdim, buffers, N,
+                               castfunc, out, in);
+        NpyArray_MultiIter_NEXT(multi);
+    }
+#if NPY_ALLOW_THREADS
+    if (NpyArray_ISNUMBER(in) && NpyArray_ISNUMBER(out)) {
+        NPY_END_THREADS;
+    }
+#endif
+    Npy_DECREF(multi);
+    if (NpyDataType_REFCHK(in->descr)) {
+        obptr = buffers[1];
+        for (i = 0; i < N; i++, obptr+=selsize) {
+            NpyArray_Item_XDECREF(obptr, out->descr);
+        }
+    }
+    if (NpyDataType_REFCHK(out->descr)) {
+        obptr = buffers[0];
+        for (i = 0; i < N; i++, obptr+=delsize) {
+            NpyArray_Item_XDECREF(obptr, out->descr);
+        }
+    }
+    free(buffers[0]);
+    free(buffers[1]);
+    if (NpyErr_Occurred()) {
+        return -1;
+    }
+    
+    return 0;
+}
+
+
+
+
+
+/*NUMPY_API
+ * Get a cast function to cast from the input descriptor to the
+ * output type_number (must be a registered data-type).
+ * Returns NULL if un-successful.
+ */
+NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
+{
+    NpyArray_VectorUnaryFunc *castfunc = NULL;
+    
+    if (type_num < NpyArray_NTYPES) {
+        castfunc = descr->f->cast[type_num];
+    }
+    if (castfunc == NULL) {
+        /* TODO: Refactor once PyArray_ArrFunc class is refactored to get rid of PyDict. */
+        PyObject *obj = descr->f->castdict;
+        if (obj && PyDict_Check(obj)) {
+            PyObject *key;
+            PyObject *cobj;
+            
+            key = PyInt_FromLong(type_num);
+            cobj = PyDict_GetItem(obj, key);
+            Py_DECREF(key);
+            if (NpyCapsule_Check(cobj)) {
+                castfunc = PyCObject_AsVoidPtr(cobj);
+            }
+        }
+    }
+    if (NpyTypeNum_ISCOMPLEX(descr->type_num) &&
+        !NpyTypeNum_ISCOMPLEX(type_num) &&
+        NpyTypeNum_ISNUMBER(type_num) &&
+        !NpyTypeNum_ISBOOL(type_num)) {
+        
+        /* TODO: Need solution for using ComplexWarning class as object to NpyErr_WarnEx. Callback or just classify as RuntimeErr? */
+        PyObject *cls = NULL, *obj = NULL;
+        obj = PyImport_ImportModule("numpy.core");
+        if (obj) {
+            cls = PyObject_GetAttrString(obj, "ComplexWarning");
+            Py_DECREF(obj);
+        }
+        NpyErr_WarnEx(cls, 
+                      "Casting complex values to real discards the imaginary "
+                      "part", 0);
+        Npy_XDECREF(cls);
+    }
+    
+    if (NULL == castfunc) {
+        NpyErr_SetString(NpyExc_ValueError, "No cast function available.");
+        return NULL;
+    }
+    return castfunc;
+}
+
+
+
+
+/*
+ * Must be broadcastable.
+ * This code is very similar to PyArray_CopyInto/PyArray_MoveInto
+ * except casting is done --- PyArray_BUFSIZE is used
+ * as the size of the casting buffer.
+ */
+
+/*NUMPY_API
+ * Cast to an already created array.
+ */
+int NpyArray_CastTo(NpyArray *out, NpyArray *mp)
+{
+    int simple;
+    int same;
+    NpyArray_VectorUnaryFunc *castfunc = NULL;
+    npy_intp mpsize = NpyArray_SIZE(mp);
+    int iswap, oswap;
+    NPY_BEGIN_THREADS_DEF;
+    
+    if (mpsize == 0) {
+        return 0;
+    }
+    if (!NpyArray_ISWRITEABLE(out)) {
+        NpyErr_SetString(NpyExc_ValueError, "output array is not writeable");
+        return -1;
+    }
+    
+    castfunc = NpyArray_GetCastFunc(mp->descr, out->descr->type_num);
+    if (castfunc == NULL) {
+        return -1;
+    }
+    
+    same = NpyArray_SAMESHAPE(out, mp);
+    simple = same && ((NpyArray_ISCARRAY_RO(mp) && NpyArray_ISCARRAY(out)) ||
+                      (NpyArray_ISFARRAY_RO(mp) && NpyArray_ISFARRAY(out)));
+    if (simple) {
+#if NPY_ALLOW_THREADS
+        if (NpyArray_ISNUMBER(mp) && NpyArray_ISNUMBER(out)) {
+            NPY_BEGIN_THREADS;
+        }
+#endif
+        castfunc(mp->data, out->data, mpsize, mp, out);
+        
+#if NPY_ALLOW_THREADS
+        if (NpyArray_ISNUMBER(mp) && NpyArray_ISNUMBER(out)) {
+            NPY_END_THREADS;
+        }
+#endif
+        if (NpyErr_Occurred()) {
+            return -1;
+        }
+        return 0;
+    }
+    
+    /*
+     * If the input or output is OBJECT, STRING, UNICODE, or VOID
+     *  then getitem and setitem are used for the cast
+     *  and byteswapping is handled by those methods
+     */
+    if (NpyArray_ISFLEXIBLE(mp) || NpyArray_ISOBJECT(mp) || NpyArray_ISOBJECT(out) ||
+        NpyArray_ISFLEXIBLE(out)) {
+        iswap = oswap = 0;
+    }
+    else {
+        iswap = NpyArray_ISBYTESWAPPED(mp);
+        oswap = NpyArray_ISBYTESWAPPED(out);
+    }
+    
+    return _broadcast_cast(out, mp, castfunc, iswap, oswap);
+}
+
+
+
+
+/*NUMPY_API
+ * For backward compatibility
+ *
+ * Cast an array using typecode structure.
+ * steals reference to at --- cannot be NULL
+ */
+NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
+{
+    NpyArray *out;
+    int ret;
+    NpyArray_Descr *mpd;
+    
+    mpd = mp->descr;
+    
+    if (((mpd == at) ||
+         ((mpd->type_num == at->type_num) &&
+          NpyArray_EquivByteorders(mpd->byteorder, at->byteorder) &&
+          ((mpd->elsize == at->elsize) || (at->elsize==0)))) &&
+        NpyArray_ISBEHAVED_RO(mp)) {
+        Npy_DECREF(at);
+        Npy_INCREF(mp);
+        return mp;
+    }
+    
+    if (at->elsize == 0) {
+        NpyArray_DESCR_REPLACE(at);
+        if (at == NULL) {
+            return NULL;
+        }
+        if (mpd->type_num == NpyArray_STRING &&
+            at->type_num == NpyArray_UNICODE) {
+            at->elsize = mpd->elsize << 2;
+        }
+        if (mpd->type_num == NpyArray_UNICODE &&
+            at->type_num == NpyArray_STRING) {
+            at->elsize = mpd->elsize >> 2;
+        }
+        if (at->type_num == NpyArray_VOID) {
+            at->elsize = mpd->elsize;
+        }
+    }
+    
+    out = NpyArray_NewFromDescr(Py_TYPE(mp), at,
+                                mp->nd,
+                                mp->dimensions,
+                                NULL, NULL,
+                                fortran,
+                                (PyObject *)mp);
+    
+    if (out == NULL) {
+        return NULL;
+    }
+    ret = NpyArray_CastTo(out, mp);
+    if (ret != -1) {
+        return out;
+    }
+    
+    Npy_DECREF(out);
+    return NULL;
+}
+
+
+
+
+
+
+static int _bufferedcast(NpyArray *out, NpyArray *in,
+                         NpyArray_VectorUnaryFunc *castfunc)
+{
+    char *inbuffer, *bptr, *optr;
+    char *outbuffer=NULL;
+    NpyArrayIter *it_in = NULL, *it_out = NULL;
+    npy_intp i, index;
+    npy_intp ncopies = NpyArray_SIZE(out) / NpyArray_SIZE(in);
+    int elsize=in->descr->elsize;
+    int nels = NpyArray_BUFSIZE;
+    int el;
+    int inswap, outswap = 0;
+    int obuf=!NpyArray_ISCARRAY(out);
+    int oelsize = out->descr->elsize;
+    NpyArray_CopySwapFunc *in_csn;
+    NpyArray_CopySwapFunc *out_csn;
+    int retval = -1;
+    
+    in_csn = in->descr->f->copyswap;
+    out_csn = out->descr->f->copyswap;
+    
+    /*
+     * If the input or output is STRING, UNICODE, or VOID
+     * then getitem and setitem are used for the cast
+     *  and byteswapping is handled by those methods
+     */
+    
+    inswap = !(NpyArray_ISFLEXIBLE(in) || NpyArray_ISNOTSWAPPED(in));
+    
+    inbuffer = NpyDataMem_NEW(NpyArray_BUFSIZE*elsize);
+    if (inbuffer == NULL) {
+        return -1;
+    }
+    if (NpyArray_ISOBJECT(in)) {
+        memset(inbuffer, 0, NpyArray_BUFSIZE*elsize);
+    }
+    it_in = NpyArray_IterNew(in);
+    if (it_in == NULL) {
+        goto exit;
+    }
+    if (obuf) {
+        outswap = !(NpyArray_ISFLEXIBLE(out) ||
+                    NpyArray_ISNOTSWAPPED(out));
+        outbuffer = NpyDataMem_NEW(NpyArray_BUFSIZE*oelsize);
+        if (outbuffer == NULL) {
+            goto exit;
+        }
+        if (NpyArray_ISOBJECT(out)) {
+            memset(outbuffer, 0, NpyArray_BUFSIZE*oelsize);
+        }
+        it_out = NpyArray_IterNew(out);
+        if (it_out == NULL) {
+            goto exit;
+        }
+        nels = NPY_MIN(nels, NpyArray_BUFSIZE);
+    }
+    
+    optr = (obuf) ? outbuffer: out->data;
+    bptr = inbuffer;
+    el = 0;
+    while (ncopies--) {
+        index = it_in->size;
+        NpyArray_ITER_RESET(it_in);
+        while (index--) {
+            in_csn(bptr, it_in->dataptr, inswap, in);
+            bptr += elsize;
+            NpyArray_ITER_NEXT(it_in);
+            el += 1;
+            if ((el == nels) || (index == 0)) {
+                /* buffer filled, do cast */
+                castfunc(inbuffer, optr, el, in, out);
+                if (obuf) {
+                    /* Copy from outbuffer to array */
+                    for (i = 0; i < el; i++) {
+                        out_csn(it_out->dataptr,
+                                optr, outswap,
+                                out);
+                        optr += oelsize;
+                        NpyArray_ITER_NEXT(it_out);
+                    }
+                    optr = outbuffer;
+                }
+                else {
+                    optr += out->descr->elsize * nels;
+                }
+                el = 0;
+                bptr = inbuffer;
+            }
+        }
+    }
+    retval = 0;
+    
+exit:
+    Npy_XDECREF(it_in);
+    NpyDataMem_FREE(inbuffer);
+    NpyDataMem_FREE(outbuffer);
+    if (obuf) {
+        Npy_XDECREF(it_out);
+    }
+    return retval;
+}
+
+/*NUMPY_API
+ * Cast to an already created array.  Arrays don't have to be "broadcastable"
+ * Only requirement is they have the same number of elements.
+ */
+int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
+{
+    int simple;
+    NpyArray_VectorUnaryFunc *castfunc = NULL;
+    npy_intp mpsize = NpyArray_SIZE(mp);
+    
+    if (mpsize == 0) {
+        return 0;
+    }
+    if (!NpyArray_ISWRITEABLE(out)) {
+        NpyErr_SetString(NpyExc_ValueError, "output array is not writeable");
+        return -1;
+    }
+    
+    if (!(mpsize == NpyArray_SIZE(out))) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "arrays must have the same number of"
+                         " elements for the cast.");
+        return -1;
+    }
+    
+    castfunc = NpyArray_GetCastFunc(mp->descr, out->descr->type_num);
+    if (castfunc == NULL) {
+        return -1;
+    }
+    simple = ((NpyArray_ISCARRAY_RO(mp) && NpyArray_ISCARRAY(out)) ||
+              (NpyArray_ISFARRAY_RO(mp) && NpyArray_ISFARRAY(out)));
+    if (simple) {
+        castfunc(mp->data, out->data, mpsize, mp, out);
+        return 0;
+    }
+    if (NpyArray_SAMESHAPE(out, mp)) {
+        int iswap, oswap;
+        iswap = NpyArray_ISBYTESWAPPED(mp) && !NpyArray_ISFLEXIBLE(mp);
+        oswap = NpyArray_ISBYTESWAPPED(out) && !NpyArray_ISFLEXIBLE(out);
+        return _broadcast_cast(out, mp, castfunc, iswap, oswap);
+    }
+    return _bufferedcast(out, mp, castfunc);
+}
+
+/*NUMPY_API
+ *Check the type coercion rules.
+ */
+int NpyArray_CanCastSafely(int fromtype, int totype)
+{
+    NpyArray_Descr *from, *to;
+    int felsize, telsize;
+    
+    if (fromtype == totype) {
+        return 1;
+    }
+    if (fromtype == NPY_BOOL) {
+        return 1;
+    }
+    if (totype == NPY_BOOL) {
+        return 0;
+    }
+    if (fromtype == NPY_DATETIME || fromtype == NPY_TIMEDELTA ||
+        totype == NPY_DATETIME || totype == NPY_TIMEDELTA) {
+        return 0;
+    }
+    if (totype == NPY_OBJECT || totype == NPY_VOID) {
+        return 1;
+    }
+    if (fromtype == NPY_OBJECT || fromtype == NPY_VOID) {
+        return 0;
+    }
+    from = NpyArray_DescrFromType(fromtype);
+    /*
+     * cancastto is a PyArray_NOTYPE terminated C-int-array of types that
+     * the data-type can be cast to safely.
+     */
+    if (from->f->cancastto) {
+        int *curtype;
+        curtype = from->f->cancastto;
+        while (*curtype != NPY_NOTYPE) {
+            if (*curtype++ == totype) {
+                return 1;
+            }
+        }
+    }
+    if (NpyTypeNum_ISUSERDEF(totype)) {
+        return 0;
+    }
+    to = NpyArray_DescrFromType(totype);
+    telsize = to->elsize;
+    felsize = from->elsize;
+    Npy_DECREF(from);
+    Npy_DECREF(to);
+    
+    switch(fromtype) {
+        case NpyArray_BYTE:
+        case NpyArray_SHORT:
+        case NpyArray_INT:
+        case NpyArray_LONG:
+        case NpyArray_LONGLONG:
+            if (NpyTypeNum_ISINTEGER(totype)) {
+                if (NpyTypeNum_ISUNSIGNED(totype)) {
+                    return 0;
+                }
+                else {
+                    return telsize >= felsize;
+                }
+            }
+            else if (NpyTypeNum_ISFLOAT(totype)) {
+                if (felsize < 8) {
+                    return telsize > felsize;
+                }
+                else {
+                    return telsize >= felsize;
+                }
+            }
+            else if (NpyTypeNum_ISCOMPLEX(totype)) {
+                if (felsize < 8) {
+                    return (telsize >> 1) > felsize;
+                }
+                else {
+                    return (telsize >> 1) >= felsize;
+                }
+            }
+            else {
+                return totype > fromtype;
+            }
+        case NpyArray_UBYTE:
+        case NpyArray_USHORT:
+        case NpyArray_UINT:
+        case NpyArray_ULONG:
+        case NpyArray_ULONGLONG:
+            if (NpyTypeNum_ISINTEGER(totype)) {
+                if (NpyTypeNum_ISSIGNED(totype)) {
+                    return telsize > felsize;
+                }
+                else {
+                    return telsize >= felsize;
+                }
+            }
+            else if (NpyTypeNum_ISFLOAT(totype)) {
+                if (felsize < 8) {
+                    return telsize > felsize;
+                }
+                else {
+                    return telsize >= felsize;
+                }
+            }
+            else if (NpyTypeNum_ISCOMPLEX(totype)) {
+                if (felsize < 8) {
+                    return (telsize >> 1) > felsize;
+                }
+                else {
+                    return (telsize >> 1) >= felsize;
+                }
+            }
+            else {
+                return totype > fromtype;
+            }
+        case NpyArray_FLOAT:
+        case NpyArray_DOUBLE:
+        case NpyArray_LONGDOUBLE:
+            if (NpyTypeNum_ISCOMPLEX(totype)) {
+                return (telsize >> 1) >= felsize;
+            }
+            else {
+                return totype > fromtype;
+            }
+        case NpyArray_CFLOAT:
+        case NpyArray_CDOUBLE:
+        case NpyArray_CLONGDOUBLE:
+            return totype > fromtype;
+        case NpyArray_STRING:
+        case NpyArray_UNICODE:
+            return totype > fromtype;
+        default:
+            return 0;
+    }
+}
+
+/*NUMPY_API
+ * leaves reference count alone --- cannot be NULL
+ */
+npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
+{
+    int fromtype=from->type_num;
+    int totype=to->type_num;
+    npy_bool ret;
+    
+    ret = NpyArray_CanCastSafely(fromtype, totype);
+    if (ret) {
+        /* Check String and Unicode more closely */
+        if (fromtype == NpyArray_STRING) {
+            if (totype == NpyArray_STRING) {
+                ret = (from->elsize <= to->elsize);
+            }
+            else if (totype == NpyArray_UNICODE) {
+                ret = (from->elsize << 2 <= to->elsize);
+            }
+        }
+        else if (fromtype == NpyArray_UNICODE) {
+            if (totype == NpyArray_UNICODE) {
+                ret = (from->elsize <= to->elsize);
+            }
+        }
+        /*
+         * TODO: If totype is STRING or unicode
+         * see if the length is long enough to hold the
+         * stringified value of the object.
+         */
+    }
+    return ret;
+}
+
+/*NUMPY_API
+ * See if array scalars can be cast.
+ */
+npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
+{
+    int fromtype;
+    int totype;
+    
+    /* TODO: Should _typenum_fromtypeobj be converted or is it available in core? */
+    fromtype = _typenum_fromtypeobj((PyObject *)from, 0);
+    totype = _typenum_fromtypeobj((PyObject *)to, 0);
+    if (fromtype == NpyArray_NOTYPE || totype == NpyArray_NOTYPE) {
+        return NPY_FALSE;
+    }
+    return (npy_bool) NpyArray_CanCastSafely(fromtype, totype);
+}
+
+/*NUMPY_API
+ * Is the typenum valid?
+ */
+int NpyArray_ValidType(int type)
+{
+    NpyArray_Descr *descr;
+    int res=NPY_TRUE;
+    
+    descr = NpyArray_DescrFromType(type);
+    if (descr == NULL) {
+        res = NPY_FALSE;
+    }
+    Npy_DECREF(descr);
+    return res;
+}
+
+
+
+

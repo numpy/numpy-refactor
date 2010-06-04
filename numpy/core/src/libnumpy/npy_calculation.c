@@ -11,8 +11,7 @@
 
 
 
-NpyArray *
-NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
+NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
 {
     NpyArray *ap = NULL, *rp = NULL;
     NpyArray_ArgFunc *arg_func;

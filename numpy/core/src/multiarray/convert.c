@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -51,6 +52,98 @@ PyArray_ToList(PyArrayObject *self)
     return lp;
 }
 
+
+int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
+{
+    intp n, n2;
+    size_t n3, n4;
+    PyArrayIterObject *it;
+    PyObject *obj, *strobj, *tupobj, *byteobj;
+        
+    it = (PyArrayIterObject *)
+    PyArray_IterNew((PyObject *)self);
+    n3 = (sep ? strlen((const char *)sep) : 0);
+    n4 = (format ? strlen((const char *)format) : 0);
+    while (it->index < it->size) {
+        obj = self->descr->f->getitem(it->dataptr, self);
+        if (obj == NULL) {
+            Py_DECREF(it);
+            return -1;
+        }
+        if (n4 == 0) {
+            /*
+             * standard writing
+             */
+            strobj = PyObject_Str(obj);
+            Py_DECREF(obj);
+            if (strobj == NULL) {
+                Py_DECREF(it);
+                return -1;
+            }
+        }
+        else {
+            /*
+             * use format string
+             */
+            tupobj = PyTuple_New(1);
+            if (tupobj == NULL) {
+                Py_DECREF(it);
+                return -1;
+            }
+            PyTuple_SET_ITEM(tupobj,0,obj);
+            obj = PyUString_FromString((const char *)format);
+            if (obj == NULL) {
+                Py_DECREF(tupobj);
+                Py_DECREF(it);
+                return -1;
+            }
+            strobj = PyUString_Format(obj, tupobj);
+            Py_DECREF(obj);
+            Py_DECREF(tupobj);
+            if (strobj == NULL) {
+                Py_DECREF(it);
+                return -1;
+            }
+        }
+#if defined(NPY_PY3K)
+        byteobj = PyUnicode_AsASCIIString(strobj);
+#else
+        byteobj = strobj;
+#endif
+        NPY_BEGIN_ALLOW_THREADS;
+        n2 = PyBytes_GET_SIZE(byteobj);
+        n = fwrite(PyBytes_AS_STRING(byteobj), 1, n2, fp);
+        NPY_END_ALLOW_THREADS;
+#if defined(NPY_PY3K)
+        Py_DECREF(byteobj);
+#endif
+        if (n < n2) {
+            PyErr_Format(PyExc_IOError,
+                         "problem writing element %"INTP_FMT\
+                         " to file", it->index);
+            Py_DECREF(strobj);
+            Py_DECREF(it);
+            return -1;
+        }
+        /* write separator for all but last one */
+        if (it->index != it->size-1) {
+            if (fwrite(sep, 1, n3, fp) < n3) {
+                PyErr_Format(PyExc_IOError,
+                             "problem writing "\
+                             "separator to file");
+                Py_DECREF(strobj);
+                Py_DECREF(it);
+                return -1;
+            }
+        }
+        Py_DECREF(strobj);
+        PyArray_ITER_NEXT(it);
+    }
+    Py_DECREF(it);
+    return 0;
+}
+
+
 /* XXX: FIXME --- add ordering argument to
    Allow Fortran ordering on write
    This will need the addition of a Fortran-order iterator.
@@ -62,143 +155,14 @@ PyArray_ToList(PyArrayObject *self)
 NPY_NO_EXPORT int
 PyArray_ToFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
 {
-    intp size;
-    intp n, n2;
-    size_t n3, n4;
-    PyArrayIterObject *it;
-    PyObject *obj, *strobj, *tupobj, *byteobj;
+    size_t n3;
 
     n3 = (sep ? strlen((const char *)sep) : 0);
     if (n3 == 0) {
-        /* binary data */
-        if (PyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
-            PyErr_SetString(PyExc_ValueError, "cannot write " \
-                    "object arrays to a file in "   \
-                    "binary mode");
-            return -1;
-        }
-
-        if (PyArray_ISCONTIGUOUS(self)) {
-            size = PyArray_SIZE(self);
-            NPY_BEGIN_ALLOW_THREADS;
-            n = fwrite((const void *)self->data,
-                    (size_t) self->descr->elsize,
-                    (size_t) size, fp);
-            NPY_END_ALLOW_THREADS;
-            if (n < size) {
-                PyErr_Format(PyExc_ValueError,
-                        "%ld requested and %ld written",
-                        (long) size, (long) n);
-                return -1;
-            }
-        }
-        else {
-            NPY_BEGIN_THREADS_DEF;
-
-            it = (PyArrayIterObject *) PyArray_IterNew((PyObject *)self);
-            NPY_BEGIN_THREADS;
-            while (it->index < it->size) {
-                if (fwrite((const void *)it->dataptr,
-                            (size_t) self->descr->elsize,
-                            1, fp) < 1) {
-                    NPY_END_THREADS;
-                    PyErr_Format(PyExc_IOError,
-                            "problem writing element"\
-                            " %"INTP_FMT" to file",
-                            it->index);
-                    Py_DECREF(it);
-                    return -1;
-                }
-                PyArray_ITER_NEXT(it);
-            }
-            NPY_END_THREADS;
-            Py_DECREF(it);
-        }
+        NpyArray_ToBinaryFile(self, fp);
     }
     else {
-        /*
-         * text data
-         */
-
-        it = (PyArrayIterObject *)
-            PyArray_IterNew((PyObject *)self);
-        n4 = (format ? strlen((const char *)format) : 0);
-        while (it->index < it->size) {
-            obj = self->descr->f->getitem(it->dataptr, self);
-            if (obj == NULL) {
-                Py_DECREF(it);
-                return -1;
-            }
-            if (n4 == 0) {
-                /*
-                 * standard writing
-                 */
-                strobj = PyObject_Str(obj);
-                Py_DECREF(obj);
-                if (strobj == NULL) {
-                    Py_DECREF(it);
-                    return -1;
-                }
-            }
-            else {
-                /*
-                 * use format string
-                 */
-                tupobj = PyTuple_New(1);
-                if (tupobj == NULL) {
-                    Py_DECREF(it);
-                    return -1;
-                }
-                PyTuple_SET_ITEM(tupobj,0,obj);
-                obj = PyUString_FromString((const char *)format);
-                if (obj == NULL) {
-                    Py_DECREF(tupobj);
-                    Py_DECREF(it);
-                    return -1;
-                }
-                strobj = PyUString_Format(obj, tupobj);
-                Py_DECREF(obj);
-                Py_DECREF(tupobj);
-                if (strobj == NULL) {
-                    Py_DECREF(it);
-                    return -1;
-                }
-            }
-#if defined(NPY_PY3K)
-            byteobj = PyUnicode_AsASCIIString(strobj);
-#else
-            byteobj = strobj;
-#endif
-            NPY_BEGIN_ALLOW_THREADS;
-            n2 = PyBytes_GET_SIZE(byteobj);
-            n = fwrite(PyBytes_AS_STRING(byteobj), 1, n2, fp);
-            NPY_END_ALLOW_THREADS;
-#if defined(NPY_PY3K)
-            Py_DECREF(byteobj);
-#endif
-            if (n < n2) {
-                PyErr_Format(PyExc_IOError,
-                        "problem writing element %"INTP_FMT\
-                        " to file", it->index);
-                Py_DECREF(strobj);
-                Py_DECREF(it);
-                return -1;
-            }
-            /* write separator for all but last one */
-            if (it->index != it->size-1) {
-                if (fwrite(sep, 1, n3, fp) < n3) {
-                    PyErr_Format(PyExc_IOError,
-                            "problem writing "\
-                            "separator to file");
-                    Py_DECREF(strobj);
-                    Py_DECREF(it);
-                    return -1;
-                }
-            }
-            Py_DECREF(strobj);
-            PyArray_ITER_NEXT(it);
-        }
-        Py_DECREF(it);
+        PyArray_ToTextFile(self, fp, sep, format);
     }
     return 0;
 }

@@ -27,25 +27,6 @@ void *PyCapsule_GetPointer(void *ptr, void *notused)
 
 
 
-/* TODO: Fix NpyCapsule_AsVoidPtr, uses CPy interface */
-static NPY_INLINE void *
-NpyCapsule_AsVoidPtr(PyObject *obj)
-{
-    void *ret = PyCapsule_GetPointer(obj, NULL);
-    if (ret == NULL) {
-        PyErr_Clear();
-    }
-    return ret;
-}
-
-/* TODO: Fix NpyCapsule_AsVoidPtr, uses CPy interface */
-static NPY_INLINE int
-NpyCapsule_Check(PyObject *ptr)
-{
-    return PyCapsule_CheckExact(ptr);
-}
-
-
 
 static void _unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
                                          npy_intp instrides, npy_intp N, int elsize)

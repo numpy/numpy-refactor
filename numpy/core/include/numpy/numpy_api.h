@@ -2,6 +2,9 @@
 #define _NUMPY_API_H_
 
 #include "numpy/arrayobject.h"
+#include "npy_3kcompat.h"
+
+
 
 typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
 typedef PyArrayObject NpyArray;
@@ -14,6 +17,7 @@ typedef PyArrayIterObject NpyArrayIterObject;
 typedef PyArray_Dims NpyArray_Dims;
 
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
+typedef PyArray_CopySwapNFunc NpyArray_CopySwapNFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef PyArray_ArgFunc NpyArray_ArgFunc;
 typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
@@ -31,6 +35,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 #define Npy_TYPE(a) Py_TYPE(a)
 #define NpyArray_SIZE(a) PyArray_SIZE(a)
+#define NpyArray_BUFSIZE PyArray_BUFSIZE
 #define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
 #define NpyArray_NDIM(a) PyArray_NDIM(a)
 #define NpyArray_DIM(a, i) PyArray_DIM(a, i)
@@ -47,9 +52,19 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
 #define NpyArray_ISONESEGMENT(a) PyArray_ISONESEGMENT(a)
 #define NpyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
-#define NpyArray_ISUNSIGNED(obj) PyArray_ISUNSIGNED(obj)
 #define NpyArray_ISWRITEABLE(a) PyArray_ISWRITEABLE(a)
 #define NpyArray_SAMESHAPE(a1, a2) PyArray_SAMESHAPE(a1,a2)
+#define NpyTypeNum_ISCOMPLEX(a) PyTypeNum_ISCOMPLEX(a)
+#define NpyTypeNum_ISNUMBER(a) PyTypeNum_ISNUMBER(a)
+#define NpyTypeNum_ISBOOL(a) PyTypeNum_ISBOOL(a)
+#define NpyTypeNum_ISOBJECT(a) PyTypeNum_ISOBJECT(a)
+#define NpyTypeNum_ISINTEGER(a) PyTypeNum_ISINTEGER(a)
+#define NpyTypeNum_ISSIGNED(a) PyTypeNum_ISSIGNED(a)
+#define NpyTypeNum_ISUNSIGNED(a) PyTypeNum_ISUNSIGNED(a)
+#define NpyTypeNum_ISFLOAT(a) PyTypeNum_ISFLOAT(a)
+#define NpyArray_ISOBJECT(a) PyArray_ISOBJECT(a)
+#define NpyArray_ISNUMBER(a) PyArray_ISNUMBER(a)
+#define NpyArray_ISUNSIGNED(a) PyArray_ISUNSIGNED(a)
 
 #define NpyDataType_FLAGCHK(dtype, flag)                                   \
         (((dtype)->flags & (flag)) == (flag))
@@ -62,7 +77,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 #define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&       \
         NpyArray_ISNOTSWAPPED(m))
-
+#define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
 
 #define NpyArray_SAFEALIGNEDCOPY(obj) PyArray_SAFEALIGNEDCOPY(obj)
 #define NpyArray_ISCARRAY(m) PyArray_FLAGSWAP(m, NPY_CARRAY)
@@ -82,6 +97,8 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_BOOL PyArray_BOOL
 #define NpyArray_GENBOOLLTR PyArray_GENBOOLLTR
 #define NpyArray_SIGNEDLTR PyArray_SIGNEDLTR
+#define NpyArray_SHORT PyArray_SHORT
+#define NpyArray_INT PyArray_INT
 #define NpyArray_INT8 PyArray_INT8
 #define NpyArray_INT16 PyArray_INT16
 #define NpyArray_INT32 PyArray_INT32
@@ -92,7 +109,18 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_UINT16 PyArray_UINT16
 #define NpyArray_UINT32 PyArray_UINT32
 #define NpyArray_UINT64 PyArray_UINT64
+#define NpyArray_UINT  PyArray_UINT
+#define NpyArray_LONG PyArray_LONG
+#define NpyArray_LONGLONG PyArray_LONGLONG
+#define NpyArray_ULONG PyArray_ULONG
+#define NpyArray_ULONGLONG PyArray_ULONGLONG
 #define NpyArray_FLOATINGLTR PyArray_FLOATINGLTR
+#define NpyArray_FLOAT PyArray_FLOAT
+#define NpyArray_DOUBLE PyArray_DOUBLE
+#define NpyArray_LONGDOUBLE PyArray_LONGDOUBLE
+#define NpyArray_CFLOAT PyArray_CFLOAT
+#define NpyArray_CDOUBLE PyArray_CDOUBLE
+#define NpyArray_CLONGDOUBLE PyArray_CLONGDOUBLE
 #define NpyArray_FLOAT32 PyArray_FLOAT32
 #define NpyArray_FLOAT64 PyArray_FLOAT64
 #define NpyArray_FLOAT128 PyArray_FLOAT128
@@ -100,12 +128,19 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_COMPLEX64 PyArray_COMPLEX64
 #define NpyArray_COMPLEX128 PyArray_COMPLEX128
 #define NpyArray_COMPLEX256 PyArray_COMPLEX256
+#define NpyArray_STRING PyArray_STRING
+#define NpyArray_UNICODE PyArray_UNICODE
+#define NpyArray_VOID PyArray_VOID
+#define NpyArray_BYTE PyArray_BYTE
+#define NpyArray_UBYTE PyArray_UBYTE
+#define NpyArray_USHORT PyArray_USHORT
 
 #define NpyArray_NOSCALAR PyArray_NOSCALAR
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
 #define NpyArray_FORTRANORDER NPY_FORTRANORDER
 
 #define NpyArray_ITER_NEXT(it) PyArray_ITER_NEXT(it)
+#define NpyArray_ITER_RESET(it) PyArray_ITER_RESET(it)
 #define NpyArray_MultiIter_RESET(multi) PyArray_MultiIter_RESET(multi)
 #define NpyArray_MultiIter_NEXT(multi) PyArray_MultiIter_NEXT(multi)
 #define NpyArray_MultiIter_GOTO(multi, dest) PyArray_MultiIter_GOTO(multi, dest) 
@@ -128,11 +163,6 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
-
-/* convert_datatype.c */
-#define NpyArray_CanCastTo(a, b) PyArray_CanCastTo(a, b)
-#define NpyArray_CastTo(a, b) PyArray_CastTo(a, b)
-#define NpyArray_CastAnyTo(a, b) PyArray_CastAnyTo(a, b)
 
 
 /* ctors.c */
@@ -177,6 +207,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
  */
 npy_intp NpyArray_Size(NpyArray *op);
 NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
+NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);
@@ -188,6 +219,7 @@ NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
 NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num);
 NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num);
 NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires);
+int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 
@@ -200,6 +232,14 @@ int NpyArray_TypestrConvert(int itemsize, int gentype);
 NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 
+NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran);
+NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num);
+int NpyArray_CastTo(NpyArray *out, NpyArray *mp);
+int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp);
+int NpyArray_CanCastSafely(int fromtype, int totype);
+npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
+npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
+int NpyArray_ValidType(int type);
 
 NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
                             NpyArray *ret, NPY_CLIPMODE clipmode);
@@ -233,7 +273,11 @@ NpyArray *NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_
                        npy_intp *strides, void *data, int itemsize, int flags,
                        NpyObject *obj);
 int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
-int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
+int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
+int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck, NPY_ORDER fortran);
+
+/* TODO: Check this, defined in npy_ctors.c. */
+int NpyCapsule_Check(PyObject *ptr);
 
 /*
  * Reference counting.
@@ -275,6 +319,12 @@ int NpyArray_CopyAnyInfo(NpyArray *dest, NpyArray *src);
 #define NpyExc_RuntimeError PyExc_RuntimeError
 #define NpyErr_Format PyErr_Format
 #define NpyExc_RuntimeError PyExc_RuntimeError
+
+#if PY_VERSION_HEX >= 0x02050000
+#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 
+#else
+#define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
+#endif
 
 
 
