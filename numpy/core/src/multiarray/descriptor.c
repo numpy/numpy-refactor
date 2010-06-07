@@ -8,6 +8,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -1141,13 +1142,8 @@ _convert_from_dict(PyObject *obj, int align)
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrNewFromType(int type_num)
 {
-    PyArray_Descr *old;
-    PyArray_Descr *new;
-
-    old = PyArray_DescrFromType(type_num);
-    new = PyArray_DescrNew(old);
-    Py_DECREF(old);
-    return new;
+    /* TODO: Wrap result in pyobject. */
+    return NpyArray_DescrNewFromType(type_num);
 }
 
 /*NUMPY_API
@@ -1453,31 +1449,9 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrNew(PyArray_Descr *base)
 {
-    PyArray_Descr *new = PyObject_New(PyArray_Descr, &PyArrayDescr_Type);
-
-    if (new == NULL) {
-        return NULL;
-    }
-    /* Don't copy PyObject_HEAD part */
-    memcpy((char *)new + sizeof(PyObject),
-           (char *)base + sizeof(PyObject),
-           sizeof(PyArray_Descr) - sizeof(PyObject));
-
-    if (new->fields == Py_None) {
-        new->fields = NULL;
-    }
-    Py_XINCREF(new->fields);
-    Py_XINCREF(new->names);
-    if (new->subarray) {
-        new->subarray = _pya_malloc(sizeof(PyArray_ArrayDescr));
-        memcpy(new->subarray, base->subarray, sizeof(PyArray_ArrayDescr));
-        Py_INCREF(new->subarray->shape);
-        Py_INCREF(new->subarray->base);
-    }
-    Py_XINCREF(new->typeobj);
-    Py_XINCREF(new->metadata);
-
-    return new;
+    /* TODO: Fix conversion of base->npy descr, wrap result in pyobject. */
+    PyArray_Descr *ret = NpyArray_DescrNew(base);
+    return ret;
 }
 
 /*

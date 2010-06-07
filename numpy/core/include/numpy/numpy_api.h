@@ -11,6 +11,7 @@ typedef PyArrayObject NpyArray;
 typedef struct PyArrayIterObject_tag NpyArrayIter;
 typedef PyArrayMultiIterObject NpyArrayMultiIter;
 typedef PyArray_Descr NpyArray_Descr;
+typedef PyArray_ArrayDescr NpyArray_ArrayDescr;
 typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
 typedef PyArrayIterObject NpyArrayIterObject;
 
@@ -30,6 +31,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
+#define NpyArrayDescr_Type PyArrayDescr_Type
 #define NpyArrayIter_Type PyArrayIter_Type
 #define NpyArrayMultiIter_Type PyArrayMultiIter_Type
 
@@ -162,6 +164,7 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
  * Functions we need to convert.
  */
 
+/* arraytypes.c.src */
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
 
@@ -171,7 +174,9 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 
 /* descriptor.c */
-#define NpyArray_DescrNew(base) PyArray_DescrNew(base)
+NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
+NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
+
 
 /* iterators.c */
 NpyArrayIter * NpyArray_IterNew(NpyArray *ao);
@@ -298,6 +303,7 @@ int NpyCapsule_Check(PyObject *ptr);
 
 #define Npy_INCREF(a) Py_INCREF(a)
 #define Npy_DECREF(a) Py_DECREF(a)
+#define Npy_XINCREF(a) Py_XINCREF(a)
 #define Npy_XDECREF(a) Py_XDECREF(a)
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
 #define NpyArray_INCREF(a) PyArray_INCREF(a)
@@ -307,6 +313,8 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
 #define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
 #define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
+
+#define NpyObject_New(a, b) PyObject_New(a, b)
 
 /*
  * Object model. 
