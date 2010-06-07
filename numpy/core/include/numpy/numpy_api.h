@@ -168,14 +168,24 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
 
+/* common.c */
+npy_bool _IsWriteable(NpyArray *ap);
+int _IsAligned(NpyArray *ap);
+
+#define Npy_IsAligned(a) _IsAligned(a)
+#define Npy_IsWriteable(op) _IsWriteable(op)
+
 
 /* ctors.c */
 #define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
 
-
 /* descriptor.c */
 NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
 NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
+
+
+/* flagsobject.c */
+void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
 
 /* iterators.c */
@@ -364,7 +374,6 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyArray_OverflowMultiplyList(a, b) PyArray_OverflowMultiplyList(a, b)
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
-#define NpyArray_UpdateFlags(a, flags) PyArray_UpdateFlags(a, flags)
 #define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
 extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
