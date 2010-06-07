@@ -165,6 +165,8 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
  */
 
 /* arraytypes.c.src */
+#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interfae layer */
+
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
 
@@ -199,6 +201,13 @@ NpyArrayMultiIterObject * NpyArray_MultiIterFromArrays(NpyArray **mps, int n,
                                                         int nadd, ...);
 NpyArrayMultiIterObject * NpyArray_vMultiIterFromArrays(NpyArray **mps, int n,
                                                         int nadd, va_list va);
+
+
+/* methods.c */
+NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
+int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyObject *val);
+NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
+
 
 
 /* multiarraymodule.c */

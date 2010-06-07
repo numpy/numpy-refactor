@@ -7,6 +7,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -300,30 +301,8 @@ array_swapaxes(PyArrayObject *self, PyObject *args)
 NPY_NO_EXPORT PyObject *
 PyArray_GetField(PyArrayObject *self, PyArray_Descr *typed, int offset)
 {
-    PyObject *ret = NULL;
-
-    if (offset < 0 || (offset + typed->elsize) > self->descr->elsize) {
-        PyErr_Format(PyExc_ValueError,
-                     "Need 0 <= offset <= %d for requested type "  \
-                     "but received offset = %d",
-                     self->descr->elsize-typed->elsize, offset);
-        Py_DECREF(typed);
-        return NULL;
-    }
-    ret = PyArray_NewFromDescr(Py_TYPE(self),
-                               typed,
-                               self->nd, self->dimensions,
-                               self->strides,
-                               self->data + offset,
-                               self->flags, (PyObject *)self);
-    if (ret == NULL) {
-        return NULL;
-    }
-    Py_INCREF(self);
-    ((PyArrayObject *)ret)->base = (PyObject *)self;
-
-    PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
-    return ret;
+    /* TODO: Unwrap self, wrap return object. */
+    return NpyArray_GetField(self, typed, offset);
 }
 
 static PyObject *
@@ -352,31 +331,8 @@ NPY_NO_EXPORT int
 PyArray_SetField(PyArrayObject *self, PyArray_Descr *dtype,
                  int offset, PyObject *val)
 {
-    PyObject *ret = NULL;
-    int retval = 0;
-
-    if (offset < 0 || (offset + dtype->elsize) > self->descr->elsize) {
-        PyErr_Format(PyExc_ValueError,
-                     "Need 0 <= offset <= %d for requested type "  \
-                     "but received offset = %d",
-                     self->descr->elsize-dtype->elsize, offset);
-        Py_DECREF(dtype);
-        return -1;
-    }
-    ret = PyArray_NewFromDescr(Py_TYPE(self),
-                               dtype, self->nd, self->dimensions,
-                               self->strides, self->data + offset,
-                               self->flags, (PyObject *)self);
-    if (ret == NULL) {
-        return -1;
-    }
-    Py_INCREF(self);
-    ((PyArrayObject *)ret)->base = (PyObject *)self;
-
-    PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
-    retval = PyArray_CopyObject((PyArrayObject *)ret, val);
-    Py_DECREF(ret);
-    return retval;
+    /* TODO: Unwrap array from PyObject */
+    return NpyArray_SetField(self, dtype, offset, val);
 }
 
 static PyObject *
@@ -408,49 +364,8 @@ array_setfield(PyArrayObject *self, PyObject *args, PyObject *kwds)
 NPY_NO_EXPORT PyObject *
 PyArray_Byteswap(PyArrayObject *self, Bool inplace)
 {
-    PyArrayObject *ret;
-    intp size;
-    PyArray_CopySwapNFunc *copyswapn;
-    PyArrayIterObject *it;
-
-    copyswapn = self->descr->f->copyswapn;
-    if (inplace) {
-        if (!PyArray_ISWRITEABLE(self)) {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Cannot byte-swap in-place on a " \
-                            "read-only array");
-            return NULL;
-        }
-        size = PyArray_SIZE(self);
-        if (PyArray_ISONESEGMENT(self)) {
-            copyswapn(self->data, self->descr->elsize, NULL, -1, size, 1, self);
-        }
-        else { /* Use iterator */
-            int axis = -1;
-            intp stride;
-            it = (PyArrayIterObject *)                      \
-                PyArray_IterAllButAxis((PyObject *)self, &axis);
-            stride = self->strides[axis];
-            size = self->dimensions[axis];
-            while (it->index < it->size) {
-                copyswapn(it->dataptr, stride, NULL, -1, size, 1, self);
-                PyArray_ITER_NEXT(it);
-            }
-            Py_DECREF(it);
-        }
-
-        Py_INCREF(self);
-        return (PyObject *)self;
-    }
-    else {
-        PyObject *new;
-        if ((ret = (PyArrayObject *)PyArray_NewCopy(self,-1)) == NULL) {
-            return NULL;
-        }
-        new = PyArray_Byteswap(ret, TRUE);
-        Py_DECREF(new);
-        return (PyObject *)ret;
-    }
+    /* TODO: Wrap returned array with PyObject */
+    return NpyArray_Byteswap(self, inplace);
 }
 
 
