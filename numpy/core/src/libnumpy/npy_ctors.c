@@ -144,8 +144,7 @@ return
 
 
 
-NPY_NO_EXPORT void
-_strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
+void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 {
     char *a, *b, c = 0;
     int j, m;

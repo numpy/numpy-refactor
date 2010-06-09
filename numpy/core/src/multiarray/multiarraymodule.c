@@ -22,6 +22,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "numpy/npy_math.h"
 
@@ -73,12 +74,7 @@ PyArray_GetPriority(PyObject *obj, double default_)
 NPY_NO_EXPORT int
 PyArray_MultiplyIntList(int *l1, int n)
 {
-    int s = 1;
-
-    while (n--) {
-        s *= (*l1++);
-    }
-    return s;
+    return NpyArray_MultiplyIntList(l1, n);
 }
 
 /*NUMPY_API
@@ -87,13 +83,9 @@ PyArray_MultiplyIntList(int *l1, int n)
 NPY_NO_EXPORT intp
 PyArray_MultiplyList(intp *l1, int n)
 {
-    intp s = 1;
-
-    while (n--) {
-        s *= (*l1++);
-    }
-    return s;
+    return NpyArray_MultiplyList(l1, n);
 }
+
 
 /*NUMPY_API
  * Multiply a List of Non-negative numbers with over-flow detection.
@@ -101,23 +93,7 @@ PyArray_MultiplyList(intp *l1, int n)
 NPY_NO_EXPORT intp
 PyArray_OverflowMultiplyList(intp *l1, int n)
 {
-    intp prod = 1;
-    intp imax = NPY_MAX_INTP;
-    int i;
-
-    for (i = 0; i < n; i++) {
-        intp dim = l1[i];
-
-        if (dim == 0) {
-            return 0;
-        }
-        if (dim > imax) {
-            return -1;
-        }
-        imax /= dim;
-        prod *= dim;
-    }
-    return prod;
+    return NpyArray_OverflowMultiplyList(l1, n);
 }
 
 /*NUMPY_API
@@ -126,14 +102,8 @@ PyArray_OverflowMultiplyList(intp *l1, int n)
 NPY_NO_EXPORT void *
 PyArray_GetPtr(PyArrayObject *obj, intp* ind)
 {
-    int n = obj->nd;
-    intp *strides = obj->strides;
-    char *dptr = obj->data;
-
-    while (n--) {
-        dptr += (*strides++) * (*ind++);
-    }
-    return (void *)dptr;
+    /* TODO: Unwrap array object. */
+    return NpyArray_GetPtr(obj, ind);
 }
 
 /*NUMPY_API
@@ -142,14 +112,7 @@ PyArray_GetPtr(PyArrayObject *obj, intp* ind)
 NPY_NO_EXPORT int
 PyArray_CompareLists(intp *l1, intp *l2, int n)
 {
-    int i;
-
-    for (i = 0; i < n; i++) {
-        if (l1[i] != l2[i]) {
-            return 0;
-        }
-    }
-    return 1;
+    return NpyArray_CompareLists(l1, l2, n);
 }
 
 /*
@@ -170,58 +133,37 @@ NPY_NO_EXPORT int
 PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
                  PyArray_Descr* typedescr)
 {
-    PyArrayObject *ap;
-    intp n, m, i, j;
-    char **ptr2;
-    char ***ptr3;
-
+    PyArrayObject *ap, *oldAp;
+    intp result;
+    
     if ((nd < 1) || (nd > 3)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "C arrays of only 1-3 dimensions available");
-        Py_XDECREF(typedescr);
+        NpyErr_SetString(NpyExc_ValueError,
+                         "C arrays of only 1-3 dimensions available");
+        Npy_XDECREF(typedescr);
         return -1;
     }
-    if ((ap = (PyArrayObject*)PyArray_FromAny(*op, typedescr, nd, nd,
-                                              CARRAY, NULL)) == NULL) {
+    if ((ap = PyArray_FromAny(*op, typedescr, nd, nd,
+                               NPY_CARRAY, NULL)) == NULL) {
         return -1;
     }
-    switch(nd) {
-    case 1:
-        *((char **)ptr) = ap->data;
-        break;
-    case 2:
-        n = ap->dimensions[0];
-        ptr2 = (char **)_pya_malloc(n * sizeof(char *));
-        if (!ptr2) {
-            goto fail;
-        }
-        for (i = 0; i < n; i++) {
-            ptr2[i] = ap->data + i*ap->strides[0];
-        }
-        *((char ***)ptr) = ptr2;
-        break;
-    case 3:
-        n = ap->dimensions[0];
-        m = ap->dimensions[1];
-        ptr3 = (char ***)_pya_malloc(n*(m+1) * sizeof(char *));
-        if (!ptr3) {
-            goto fail;
-        }
-        for (i = 0; i < n; i++) {
-            ptr3[i] = ptr3[n + (m-1)*i];
-            for (j = 0; j < m; j++) {
-                ptr3[i][j] = ap->data + i*ap->strides[0] + j*ap->strides[1];
-            }
-        }
-        *((char ****)ptr) = ptr3;
-    }
-    memcpy(dims, ap->dimensions, nd*sizeof(intp));
-    *op = (PyObject *)ap;
-    return 0;
-
- fail:
-    PyErr_SetString(PyExc_MemoryError, "no memory");
-    return -1;
+    
+    /* TODO: LOTS of potential bugs here, code is ugly.  Above PyArray_FromAny steals a reference to
+       typedescr, and so does NpyArray_AsCArray.  However, they steal references to _difference_ objects,
+       first one is an interface object, second is a core object.
+     
+       Also, PyArray_FromAny creates a new Python object that gets thrown away - probably want to refactor
+       PyArray_FromAny to return a core-only object.
+     
+       Lastly, I think this function leaks a reference. op comes in pointing to an object which gets 
+       converted to an array and *op is overwritten with the new array object but the original object
+       is not decref'd.  This is how it was so I left it alone.  Either the caller must decref or it's
+       a leak or I just need more coffee. */
+    Py_INCREF(typedescr);
+    oldAp = ap;
+    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr);
+    Py_DECREF(oldAp);
+    *op = ap;
+    return result;
 }
 
 /* Deprecated --- Use PyArray_AsCArray instead */
@@ -277,16 +219,8 @@ PyArray_As2D(PyObject **op, char ***ptr, int *d1, int *d2, int typecode)
 NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
-    PyArrayObject *ap = (PyArrayObject *)op;
-
-    if ((ap->nd < 1) || (ap->nd > 3)) {
-        return -1;
-    }
-    if (ap->nd >= 2) {
-        _pya_free(ptr);
-    }
-    Py_DECREF(ap);
-    return 0;
+    /* TODO: Needs to free both pieces, core array and Py object. */
+    return NpyArray_Free(op, ptr);
 }
 
 
@@ -457,26 +391,6 @@ PyArray_Concatenate(PyObject *op, int axis)
     return NULL;
 }
 
-static int
-_signbit_set(PyArrayObject *arr)
-{
-    static char bitmask = (char) 0x80;
-    char *ptr;  /* points to the byte to test */
-    char byteorder;
-    int elsize;
-
-    elsize = arr->descr->elsize;
-    byteorder = arr->descr->byteorder;
-    ptr = arr->data;
-    if (elsize > 1 &&
-        (byteorder == PyArray_LITTLE ||
-         (byteorder == PyArray_NATIVE &&
-          PyArray_ISNBO(PyArray_LITTLE)))) {
-        ptr += elsize - 1;
-    }
-    return ((*ptr & bitmask) != 0);
-}
-
 
 /*NUMPY_API
  * ScalarKind
@@ -484,90 +398,20 @@ _signbit_set(PyArrayObject *arr)
 NPY_NO_EXPORT NPY_SCALARKIND
 PyArray_ScalarKind(int typenum, PyArrayObject **arr)
 {
-    if (PyTypeNum_ISSIGNED(typenum)) {
-        if (arr && _signbit_set(*arr)) {
-            return PyArray_INTNEG_SCALAR;
-        }
-        else {
-            return PyArray_INTPOS_SCALAR;
-        }
-    }
-    if (PyTypeNum_ISFLOAT(typenum)) {
-        return PyArray_FLOAT_SCALAR;
-    }
-    if (PyTypeNum_ISUNSIGNED(typenum)) {
-        return PyArray_INTPOS_SCALAR;
-    }
-    if (PyTypeNum_ISCOMPLEX(typenum)) {
-        return PyArray_COMPLEX_SCALAR;
-    }
-    if (PyTypeNum_ISBOOL(typenum)) {
-        return PyArray_BOOL_SCALAR;
-    }
-
-    if (PyTypeNum_ISUSERDEF(typenum)) {
-        NPY_SCALARKIND retval;
-        PyArray_Descr* descr = PyArray_DescrFromType(typenum);
-
-        if (descr->f->scalarkind) {
-            retval = descr->f->scalarkind((arr ? *arr : NULL));
-        }
-        else {
-            retval = PyArray_NOSCALAR;
-        }
-        Py_DECREF(descr);
-        return retval;
-    }
-    return PyArray_OBJECT_SCALAR;
+    /* TODO: Unwrap array objects. */
+    return NpyArray_ScalarKind(typenum, arr);
 }
+
 
 /*NUMPY_API*/
 NPY_NO_EXPORT int
 PyArray_CanCoerceScalar(int thistype, int neededtype,
                         NPY_SCALARKIND scalar)
 {
-    PyArray_Descr* from;
-    int *castlist;
-
-    if (scalar == PyArray_NOSCALAR) {
-        return PyArray_CanCastSafely(thistype, neededtype);
-    }
-    from = PyArray_DescrFromType(thistype);
-    if (from->f->cancastscalarkindto
-        && (castlist = from->f->cancastscalarkindto[scalar])) {
-        while (*castlist != PyArray_NOTYPE) {
-            if (*castlist++ == neededtype) {
-                Py_DECREF(from);
-                return 1;
-            }
-        }
-    }
-    Py_DECREF(from);
-
-    switch(scalar) {
-    case PyArray_BOOL_SCALAR:
-    case PyArray_OBJECT_SCALAR:
-        return PyArray_CanCastSafely(thistype, neededtype);
-    default:
-        if (PyTypeNum_ISUSERDEF(neededtype)) {
-            return FALSE;
-        }
-        switch(scalar) {
-        case PyArray_INTPOS_SCALAR:
-            return (neededtype >= PyArray_BYTE);
-        case PyArray_INTNEG_SCALAR:
-            return (neededtype >= PyArray_BYTE)
-                && !(PyTypeNum_ISUNSIGNED(neededtype));
-        case PyArray_FLOAT_SCALAR:
-            return (neededtype >= PyArray_FLOAT);
-        case PyArray_COMPLEX_SCALAR:
-            return (neededtype >= PyArray_CFLOAT);
-        default:
-            /* should never get here... */
-            return 1;
-        }
-    }
+    return NpyArray_CanCoerceScalar(thistype, neededtype, scalar);
 }
+
+
 
 /*
  * Make a new empty array, of the passed size, of a type that takes the
@@ -601,6 +445,8 @@ new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
     return ret;
 }
 
+
+
 /* Could perhaps be redone to not make contiguous arrays */
 
 /*NUMPY_API
@@ -610,13 +456,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_InnerProduct(PyObject *op1, PyObject *op2)
 {
     PyArrayObject *ap1, *ap2, *ret = NULL;
-    PyArrayIterObject *it1, *it2;
-    intp i, j, l;
-    int typenum, nd, axis;
-    intp is1, is2, os;
-    char *op;
-    intp dimensions[MAX_DIMS];
-    PyArray_DotFunc *dot;
+    int typenum;
     PyArray_Descr *typec;
     NPY_BEGIN_THREADS_DEF;
 
@@ -643,65 +483,8 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    l = ap1->dimensions[ap1->nd - 1];
-    if (ap2->dimensions[ap2->nd - 1] != l) {
-        PyErr_SetString(PyExc_ValueError, "matrices are not aligned");
-        goto fail;
-    }
-
-    nd = ap1->nd + ap2->nd - 2;
-    j = 0;
-    for (i = 0; i < ap1->nd - 1; i++) {
-        dimensions[j++] = ap1->dimensions[i];
-    }
-    for (i = 0; i < ap2->nd - 1; i++) {
-        dimensions[j++] = ap2->dimensions[i];
-    }
-
-    /*
-     * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
-     */
-    ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
-    if (ret == NULL) {
-        goto fail;
-    }
-    dot = (ret->descr->f->dotfunc);
-    if (dot == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "dot not available for this type");
-        goto fail;
-    }
-    is1 = ap1->strides[ap1->nd - 1];
-    is2 = ap2->strides[ap2->nd - 1];
-    op = ret->data; os = ret->descr->elsize;
-    axis = ap1->nd - 1;
-    it1 = (PyArrayIterObject *) PyArray_IterAllButAxis((PyObject *)ap1, &axis);
-    axis = ap2->nd - 1;
-    it2 = (PyArrayIterObject *) PyArray_IterAllButAxis((PyObject *)ap2, &axis);
-    NPY_BEGIN_THREADS_DESCR(ap2->descr);
-    while (1) {
-        while (it2->index < it2->size) {
-            dot(it1->dataptr, is1, it2->dataptr, is2, op, l, ret);
-            op += os;
-            PyArray_ITER_NEXT(it2);
-        }
-        PyArray_ITER_NEXT(it1);
-        if (it1->index >= it1->size) {
-            break;
-        }
-        PyArray_ITER_RESET(it2);
-    }
-    NPY_END_THREADS_DESCR(ap2->descr);
-    Py_DECREF(it1);
-    Py_DECREF(it2);
-    if (PyErr_Occurred()) {
-        goto fail;
-    }
-    Py_DECREF(ap1);
-    Py_DECREF(ap2);
-    return (PyObject *)ret;
-
+    return NpyArray_InnerProduct(ap1, ap2, typenum);
+    
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);

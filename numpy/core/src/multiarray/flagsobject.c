@@ -460,7 +460,7 @@ static PyObject*
 arrayflags_richcompare(PyObject *self, PyObject *other, int cmp_op)
 {
     PyObject *result = Py_NotImplemented;
-    int cmp;
+    int cmp;        /* TODO: cmp is uninitialized. What should the failure mode be if type check values? Always false? */
 
     if (cmp_op != Py_EQ && cmp_op != Py_NE) {
         PyErr_SetString(PyExc_TypeError,

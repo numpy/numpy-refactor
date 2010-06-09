@@ -28,6 +28,8 @@ typedef PyArray_SortFunc NpyArray_SortFunc;
 typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
+typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
+
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
@@ -171,11 +173,12 @@ typedef PyArray_CompareFunc NpyArray_CompareFunc;
         PyArray_DescrFromType(type)
 
 /* common.c */
-npy_bool _IsWriteable(NpyArray *ap);
-int _IsAligned(NpyArray *ap);
+#define NpyString_Check(a) PyString_Check(a)        /* TODO: Npy_IsWriteable() need callback to interface for base of string, buffer */
+#define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c) 
+int Npy_IsAligned(NpyArray *ap);
+npy_bool Npy_IsWriteable(NpyArray *ap);
 
-#define Npy_IsAligned(a) _IsAligned(a)
-#define Npy_IsWriteable(op) _IsWriteable(op)
+
 
 
 /* ctors.c */
@@ -211,7 +214,20 @@ NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
 
 
 /* multiarraymodule.c */
+#define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
 #define NpyArray_EquivTypes(a1, a2) PyArray_EquivTypes(a1, a2)
+
+int NpyArray_MultiplyIntList(int *l1, int n);
+npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
+npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
+void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
+int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
+int NpyArray_AsCArray(NpyArray **op, void *ptr, npy_intp *dims, int nd,
+                      NpyArray_Descr* typedescr);
+int NpyArray_Free(NpyArray *ap, void *ptr);
+NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
+int NpyArray_CanCoerceScalar(int thistype, int neededtype, NPY_SCALARKIND scalar);
+NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
 
 
 /* number.c */
@@ -351,6 +367,7 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
 
 #define NpyArray_malloc(size) PyArray_malloc(size)
+#define NpyArray_free(ptr) PyArray_free(malloc)
 
 /*
  * Error handling.
@@ -378,9 +395,6 @@ int NpyCapsule_Check(PyObject *ptr);
 /*
  * TMP
  */
-#define NpyArray_MultiplyList(a, b) PyArray_MultiplyList(a, b)
-#define NpyArray_CompareLists(a, b, n) PyArray_CompareLists(a, b, n)
-#define NpyArray_OverflowMultiplyList(a, b) PyArray_OverflowMultiplyList(a, b)
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
@@ -390,7 +404,7 @@ extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *s
                                          npy_intp instrides, npy_intp N, int elsize);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
-extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
+//extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
 
 #endif
 
