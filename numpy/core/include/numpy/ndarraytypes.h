@@ -387,6 +387,11 @@ typedef struct {
 } PyArray_Dims;
 
 typedef struct {
+    int totype;
+    PyArray_VectorUnaryFunc* castfunc;
+} PyArray_CastFuncsItem;
+
+typedef struct {
         /* The next four functions *cannot* be NULL */
 
         /*
@@ -461,12 +466,11 @@ typedef struct {
         PyArray_ArgSortFunc *argsort[NPY_NSORTS];
 
         /*
-         * Dictionary of additional casting functions
-         * PyArray_VectorUnaryFuncs
-         * which can be populated to support casting
-         * to other registered types. Can be NULL
+         * Array of PyArray_CastFuncsItem given cast functions to 
+         * user defined types. The array it terminated with PyArray_NOTYPE.
+         * Can be NULL.
          */
-        PyObject *castdict;
+        PyArray_CastFuncsItem* castfuncs;
 
         /*
          * Functions useful for generalizing

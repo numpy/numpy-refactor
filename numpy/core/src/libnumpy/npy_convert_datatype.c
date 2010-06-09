@@ -177,22 +177,18 @@ static int _broadcast_cast(NpyArray *out, NpyArray *in,
 NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 {
     NpyArray_VectorUnaryFunc *castfunc = NULL;
-    
+
     if (type_num < NpyArray_NTYPES) {
         castfunc = descr->f->cast[type_num];
-    }
-    if (castfunc == NULL) {
-        /* TODO: Refactor once PyArray_ArrFunc class is refactored to get rid of PyDict. */
-        PyObject *obj = descr->f->castdict;
-        if (obj && PyDict_Check(obj)) {
-            PyObject *key;
-            PyObject *cobj;
-            
-            key = PyInt_FromLong(type_num);
-            cobj = PyDict_GetItem(obj, key);
-            Py_DECREF(key);
-            if (NpyCapsule_Check(cobj)) {
-                castfunc = PyCObject_AsVoidPtr(cobj);
+    } else {
+        /* Check castfuncs for casts to user defined types. */
+        PyArray_CastFuncsItem* pitem = descr->f->castfuncs;
+        if (pitem != NULL) {
+            while (pitem->totype != NpyArray_NOTYPE) {
+                if (pitem->totype == type_num) {
+                    castfunc = pitem->castfunc;
+                    break;
+                }
             }
         }
     }

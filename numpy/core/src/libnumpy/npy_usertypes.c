@@ -30,6 +30,32 @@ maintainer email:  oliphant.travis@ieee.org
 
 NpyArray_Descr **npy_userdescrs=NULL;
 
+static PyArray_CastFuncsItem* 
+castfuncs_new()
+{
+    PyArray_CastFuncsItem* result = 
+        (PyArray_CastFuncsItem *) malloc(sizeof(PyArray_CastFuncsItem));
+    result[0].totype = NpyArray_NOTYPE;
+}
+
+static PyArray_CastFuncsItem* 
+castfuncs_append(PyArray_CastFuncsItem* items,
+                 int totype, PyArray_VectorUnaryFunc* func)
+{
+    int n = 0;
+
+    while (items[n].totype != NpyArray_NOTYPE) {
+        n++;
+    }
+    items = (PyArray_CastFuncsItem *)
+        realloc(items, (n + 2)*sizeof(PyArray_CastFuncsItem));
+    items[n].totype = totype;
+    items[n].castfunc = func;
+    items[n+1].totype = NpyArray_NOTYPE;
+
+    return items;
+}
+
 static int *
 _append_new(int *types, int insert)
 {
@@ -103,7 +129,7 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
         f->sort[i] = NULL;
         f->argsort[i] = NULL;
     }
-    f->castdict = NULL;
+    f->castfuncs = NULL;
     f->scalarkind = NULL;
     f->cancastscalarkindto = NULL;
     f->cancastto = NULL;
@@ -187,25 +213,14 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
         NpyErr_SetString(NpyExc_TypeError, "invalid type number.");
         return -1;
     }
-    /* XXX: This uses a Python dict and needs to be changed. */
-    if (descr->f->castdict == NULL) {
-        descr->f->castdict = PyDict_New();
-        if (descr->f->castdict == NULL) {
+    if (descr->f->castfuncs == NULL) {
+        descr->f->castfuncs = castfuncs_new();
+        if (descr->f->castfuncs == NULL) {
             return -1;
         }
     }
-    key = PyInt_FromLong(totype);
-    if (PyErr_Occurred()) {
-        return -1;
-    }
-    cobj = NpyCapsule_FromVoidPtr((void *)castfunc, NULL);
-    if (cobj == NULL) {
-        Py_DECREF(key);
-        return -1;
-    }
-    ret = PyDict_SetItem(descr->f->castdict, key, cobj);
-    Py_DECREF(key);
-    Py_DECREF(cobj);
+    descr->f->castfuncs =
+        castfuncs_append(descr->f->castfuncs, totype, castfunc);
     return ret;
 }
 
