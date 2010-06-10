@@ -15,7 +15,8 @@
 /*NUMPY_API
  * Typestr converter
  */
-int NpyArray_TypestrConvert(int itemsize, int gentype)
+int 
+NpyArray_TypestrConvert(int itemsize, int gentype)
 {
     int newtype = gentype;
     

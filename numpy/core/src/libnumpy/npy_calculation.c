@@ -11,7 +11,8 @@
 
 
 
-NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
+NpyArray *
+NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
 {
     NpyArray *ap = NULL, *rp = NULL;
     NpyArray_ArgFunc *arg_func;
@@ -124,12 +125,14 @@ fail:
 
 
 
-NpyArray *NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
+NpyArray *
+NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
 {
     PyObject *obj, *new, *ret;
     
-    // TODO: Code still uses PyInt_FromLong and PyNumber_Subtract.  Either need to move
-    // this function to the interface layer or find a solution for these.
+    /* TODO: Code still uses PyInt_FromLong and PyNumber_Subtract.  
+       Either need to move this function to the interface layer or 
+       find a solution for these. */
     if (NpyArray_ISFLEXIBLE(ap)) {
         NpyErr_SetString(NpyExc_TypeError,
                          "argmax is unsupported for this type");

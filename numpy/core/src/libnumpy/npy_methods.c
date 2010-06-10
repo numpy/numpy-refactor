@@ -17,7 +17,8 @@
 /*NUMPY_API
  Get a subset of bytes from each element of the array
  */
-NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
+NpyArray *
+NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 {
     NpyArray *ret = NULL;
     
@@ -51,8 +52,9 @@ NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 /*NUMPY_API
  Set a subset of bytes from each element of the array
  */
-int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
-                      int offset, NpyObject *val)
+int 
+NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
+                  int offset, NpyObject *val)
 {
     NpyArray *ret = NULL;
     int retval = 0;
@@ -88,7 +90,8 @@ int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
  */
 
 /*NUMPY_API*/
-NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
+NpyArray *
+NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
 {
     NpyArray *ret;
     npy_intp size;

@@ -60,8 +60,9 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
 
 
 
-static int _broadcast_cast(NpyArray *out, NpyArray *in,
-                           PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
+static int 
+_broadcast_cast(NpyArray *out, NpyArray *in,
+                PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
 {
     int delsize, selsize, maxaxis, i, N;
     NpyArrayMultiIter *multi;
@@ -174,7 +175,8 @@ static int _broadcast_cast(NpyArray *out, NpyArray *in,
  * output type_number (must be a registered data-type).
  * Returns NULL if un-successful.
  */
-NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
+NpyArray_VectorUnaryFunc *
+NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 {
     NpyArray_VectorUnaryFunc *castfunc = NULL;
 
@@ -230,7 +232,8 @@ NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_n
 /*NUMPY_API
  * Cast to an already created array.
  */
-int NpyArray_CastTo(NpyArray *out, NpyArray *mp)
+int 
+NpyArray_CastTo(NpyArray *out, NpyArray *mp)
 {
     int simple;
     int same;
@@ -300,7 +303,8 @@ int NpyArray_CastTo(NpyArray *out, NpyArray *mp)
  * Cast an array using typecode structure.
  * steals reference to at --- cannot be NULL
  */
-NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
+NpyArray *
+NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
 {
     NpyArray *out;
     int ret;
@@ -360,8 +364,9 @@ NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
 
 
 
-static int _bufferedcast(NpyArray *out, NpyArray *in,
-                         NpyArray_VectorUnaryFunc *castfunc)
+static int 
+_bufferedcast(NpyArray *out, NpyArray *in,
+              NpyArray_VectorUnaryFunc *castfunc)
 {
     char *inbuffer, *bptr, *optr;
     char *outbuffer=NULL;
@@ -466,7 +471,8 @@ exit:
  * Cast to an already created array.  Arrays don't have to be "broadcastable"
  * Only requirement is they have the same number of elements.
  */
-int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
+int
+NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
 {
     int simple;
     NpyArray_VectorUnaryFunc *castfunc = NULL;
@@ -509,7 +515,8 @@ int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
 /*NUMPY_API
  *Check the type coercion rules.
  */
-int NpyArray_CanCastSafely(int fromtype, int totype)
+int 
+NpyArray_CanCastSafely(int fromtype, int totype)
 {
     NpyArray_Descr *from, *to;
     int felsize, telsize;
@@ -645,7 +652,8 @@ int NpyArray_CanCastSafely(int fromtype, int totype)
 /*NUMPY_API
  * leaves reference count alone --- cannot be NULL
  */
-npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
+npy_bool 
+NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 {
     int fromtype=from->type_num;
     int totype=to->type_num;
@@ -679,7 +687,8 @@ npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 /*NUMPY_API
  * See if array scalars can be cast.
  */
-npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
+npy_bool 
+NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
 {
     int fromtype;
     int totype;
@@ -696,7 +705,8 @@ npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
 /*NUMPY_API
  * Is the typenum valid?
  */
-int NpyArray_ValidType(int type)
+int 
+NpyArray_ValidType(int type)
 {
     NpyArray_Descr *descr;
     int res=NPY_TRUE;

@@ -82,7 +82,8 @@ _IsFortranContiguous(PyArrayObject *ap)
 /*NUMPY_API
  * Update Several Flags at once.
  */
-void NpyArray_UpdateFlags(NpyArray *ret, int flagmask)
+void 
+NpyArray_UpdateFlags(NpyArray *ret, int flagmask)
 {    
     if (flagmask & NPY_FORTRAN) {
         if (_IsFortranContiguous(ret)) {

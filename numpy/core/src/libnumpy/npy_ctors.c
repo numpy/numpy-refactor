@@ -12,12 +12,14 @@
 
 
 #if PY_VERSION_HEX < 0x02070000
-int PyCapsule_CheckExact(PyObject *ptr)
+int 
+PyCapsule_CheckExact(PyObject *ptr)
 {
     return PyCObject_Check(ptr);
 }
 
-void *PyCapsule_GetPointer(void *ptr, void *notused)
+void *
+PyCapsule_GetPointer(void *ptr, void *notused)
 {
     return PyCObject_AsVoidPtr(ptr);
 }
@@ -28,8 +30,9 @@ void *PyCapsule_GetPointer(void *ptr, void *notused)
 
 
 
-static void _unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
-                                         npy_intp instrides, npy_intp N, int elsize)
+static void 
+_unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
+                             npy_intp instrides, npy_intp N, int elsize)
 {
     npy_intp i;
     char *tout = dst;
@@ -62,8 +65,9 @@ return
     
 }
 
-void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
-                                  npy_intp instrides, npy_intp N, int elsize)
+void 
+_unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
+                             npy_intp instrides, npy_intp N, int elsize)
 {
     npy_intp i;
     char *tout = dst;
@@ -144,7 +148,8 @@ return
 
 
 
-void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
+void 
+_strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 {
     char *a, *b, c = 0;
     int j, m;
@@ -428,7 +433,8 @@ finish:
  * NpyArray_CopyInto requires broadcastable arrays while
  * this one is a flattening operation...
  */
-int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
+int 
+_flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
 {
     NpyArrayIter *it;
     NpyArray *orig_src;
@@ -521,8 +527,9 @@ int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
  * array is desired.
  */
 
-size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
-                           int inflag, int *objflags)
+size_t 
+_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
+                    int inflag, int *objflags)
 {
     int i;
     /* Only make Fortran strides if not contiguous as well */
@@ -567,8 +574,9 @@ size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t ite
  *
  * Strides are only added if given (because data is given).
  */
-static int _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
-                                        npy_intp *newstrides, int oldnd, int isfortran)
+static int 
+_update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
+                             npy_intp *newstrides, int oldnd, int isfortran)
 {
     NpyArray_Descr *old;
     int newnd;
@@ -580,7 +588,7 @@ static int _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
     old = *des;
     *des = old->subarray->base;
     
-    /* TODO: NpyArray, NpyArray_Descr use Python tuples and other object types. Still needs to be refactors. */
+    /* TODO: NpyArray, NpyArray_Descr use Python tuples and other object types. Still needs to be refactored. */
     mydim = newdims + oldnd;
     tuple = PyTuple_Check(old->subarray->shape);
     if (tuple) {
@@ -643,7 +651,8 @@ finish:
  They can be different sizes and have different types however.
  */
 
-static int _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
+static int 
+_array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
 {
     int swap;
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
@@ -709,7 +718,8 @@ static int _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
 /*NUMPY_API
  * Move the memory of one array into another.
  */
-int NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
+int 
+NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
 {
     return _array_copy_into(dest, src, 0);
 }
@@ -718,7 +728,8 @@ int NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
 /*NUMPY_API
  * steals a reference to descr -- accepts NULL
  */
-NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
+NpyArray *
+NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
 {
     NpyArray *obj;
 
@@ -750,7 +761,8 @@ NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requi
 }
 
 
-NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
+NpyArray *
+NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 {
     NpyArray *temp1, *temp2;
     int n = arr->nd;
@@ -812,10 +824,11 @@ NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
  *
  * steals a reference to descr (even on failure)
  */
-NpyArray *NpyArray_NewFromDescr(NpyTypeObject *subtype, 
-                                NpyArray_Descr *descr, int nd,
-                                npy_intp *dims, npy_intp *strides, void *data,
-                                int flags, NpyObject *obj)
+NpyArray *
+NpyArray_NewFromDescr(NpyTypeObject *subtype, 
+                      NpyArray_Descr *descr, int nd,
+                      npy_intp *dims, npy_intp *strides, void *data,
+                      int flags, NpyObject *obj)
 {
     NpyArray *self;
     int i;
@@ -1046,9 +1059,10 @@ fail:
 /*NUMPY_API
  * Generic new array creation routine.
  */
-NpyArray *NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
-                       npy_intp *strides, void *data, int itemsize, int flags,
-                       NpyObject *obj)
+NpyArray *
+NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
+             npy_intp *strides, void *data, int itemsize, int flags,
+             NpyObject *obj)
 {
     NpyArray_Descr *descr;
     NpyArray *new;
@@ -1078,7 +1092,8 @@ NpyArray *NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_
 /*NUMPY_API
  * steals reference to newtype --- acc. NULL
  */
-NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
+NpyArray *
+NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
 {
     NpyArray *ret = NULL;
     int itemsize;
@@ -1231,7 +1246,8 @@ NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
  * Does not require src and dest to have "broadcastable" shapes
  * (only the same number of elements).
  */
-int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
+int 
+NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 {
     int elsize, simple;
     NpyArrayIter *idest, *isrc;
@@ -1306,7 +1322,8 @@ int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 }
 
 
-int NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
+int 
+NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 {
     return _array_copy_into(dest, src, 1);
 }
@@ -1360,7 +1377,8 @@ static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp 
 
 
 
-NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
+NpyArray *
+NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
 {
     NpyArray *ret;
     size_t nread = 0;
@@ -1400,7 +1418,8 @@ NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
 
 
 
-NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num)
+NpyArray *
+NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num)
 {
     int itemsize;
     NpyArray *ret;

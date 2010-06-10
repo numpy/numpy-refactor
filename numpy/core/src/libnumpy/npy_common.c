@@ -11,7 +11,8 @@
 
 
 
-int Npy_IsAligned(NpyArray *ap)
+int 
+Npy_IsAligned(NpyArray *ap)
 {
     int i, alignment, aligned = 1;
     npy_intp ptr;
@@ -36,7 +37,8 @@ int Npy_IsAligned(NpyArray *ap)
 }
 
 
-npy_bool Npy_IsWriteable(NpyArray *ap)
+npy_bool 
+Npy_IsWriteable(NpyArray *ap)
 {
     NpyArray *base = ap->base;
     void *dummy;

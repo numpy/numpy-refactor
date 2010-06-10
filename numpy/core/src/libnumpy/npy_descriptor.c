@@ -14,7 +14,8 @@
 
 
 /*NUMPY_API*/
-NpyArray_Descr *NpyArray_DescrNewFromType(int type_num)
+NpyArray_Descr *
+NpyArray_DescrNewFromType(int type_num)
 {
     NpyArray_Descr *old;
     NpyArray_Descr *new;
@@ -44,7 +45,8 @@ NpyArray_Descr *NpyArray_DescrNewFromType(int type_num)
 /*NUMPY_API
  * base cannot be NULL
  */
-NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base)
+NpyArray_Descr *
+NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new = NpyObject_New(NpyArray_Descr, &NpyArrayDescr_Type);
     

@@ -13,7 +13,8 @@
 
 
 
-int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
+int 
+NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 {
     npy_intp size;
     npy_intp n;

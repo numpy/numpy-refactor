@@ -17,7 +17,8 @@
 /*NUMPY_API
  * Multiply a List of ints
  */
-int NpyArray_MultiplyIntList(int *l1, int n)
+int 
+NpyArray_MultiplyIntList(int *l1, int n)
 {
     int s = 1;
     
@@ -31,7 +32,8 @@ int NpyArray_MultiplyIntList(int *l1, int n)
 /*NUMPY_API
  * Multiply a List
  */
-npy_intp NpyArray_MultiplyList(npy_intp *l1, int n)
+npy_intp 
+NpyArray_MultiplyList(npy_intp *l1, int n)
 {
     npy_intp s = 1;
     
@@ -45,7 +47,8 @@ npy_intp NpyArray_MultiplyList(npy_intp *l1, int n)
 /*NUMPY_API
  * Multiply a List of Non-negative numbers with over-flow detection.
  */
-npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
+npy_intp 
+NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
 {
     npy_intp prod = 1;
     npy_intp imax = NPY_MAX_INTP;
@@ -69,7 +72,8 @@ npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
 /*NUMPY_API
  * Produce a pointer into array
  */
-void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
+void *
+NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
 {
     int n = obj->nd;
     npy_intp *strides = obj->strides;
@@ -85,7 +89,8 @@ void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
 /*NUMPY_API
  * Compare Lists
  */
-int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
+int 
+NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
 {
     int i;
     
@@ -111,8 +116,9 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
  * Simulate a C-array
  * steals a reference to typedescr -- can be NULL
  */
-int NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
-                      NpyArray_Descr* typedescr)
+int 
+NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
+                  NpyArray_Descr* typedescr)
 {
     NpyArray *ap;
     npy_intp n, m, i, j;
@@ -174,7 +180,8 @@ fail:
 /*NUMPY_API
  * Free pointers created if As2D is called
  */
-int NpyArray_Free(NpyArray *ap, void *ptr)
+int 
+NpyArray_Free(NpyArray *ap, void *ptr)
 {
     if ((ap->nd < 1) || (ap->nd > 3)) {
         return -1;
@@ -189,7 +196,8 @@ int NpyArray_Free(NpyArray *ap, void *ptr)
 
 
 
-static int _signbit_set(NpyArray *arr)
+static int 
+_signbit_set(NpyArray *arr)
 {
     static char bitmask = (char) 0x80;
     char *ptr;  /* points to the byte to test */
@@ -212,7 +220,8 @@ static int _signbit_set(NpyArray *arr)
 /*NUMPY_API
  * ScalarKind
  */
-NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr)
+NPY_SCALARKIND 
+NpyArray_ScalarKind(int typenum, NpyArray **arr)
 {
     if (NpyTypeNum_ISSIGNED(typenum)) {
         if (arr && _signbit_set(*arr)) {
@@ -252,8 +261,9 @@ NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr)
 }
 
 /*NUMPY_API*/
-int NpyArray_CanCoerceScalar(int thistype, int neededtype,
-                             NPY_SCALARKIND scalar)
+int 
+NpyArray_CanCoerceScalar(int thistype, int neededtype,
+                         NPY_SCALARKIND scalar)
 {
     NpyArray_Descr* from;
     int *castlist;
@@ -305,8 +315,9 @@ int NpyArray_CanCoerceScalar(int thistype, int neededtype,
  * Make a new empty array, of the passed size, of a type that takes the
  * priority of ap1 and ap2 into account.
  */
-static NpyArray *new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
-                                   int nd, npy_intp dimensions[], int typenum)
+static NpyArray *
+new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
+                  int nd, npy_intp dimensions[], int typenum)
 {
     NpyArray *ret;
     NpyTypeObject *subtype;
@@ -337,7 +348,8 @@ static NpyArray *new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
 /*NUMPY_API
  * Numeric.innerproduct(a,v)
  */
-NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
+NpyArray *
+NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 {
     NpyArray *ret = NULL;
     NpyArrayIter *it1, *it2;

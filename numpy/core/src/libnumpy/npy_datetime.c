@@ -260,7 +260,8 @@ seconds_to_hmsstruct(npy_longlong dlong)
 /*NUMPY_API
  * Create a datetime value from a filled datetime struct and resolution unit.
  */
-npy_datetime NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
+npy_datetime 
+NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
 {
     npy_datetime ret;
     npy_longlong days; /* The absolute number of days since Jan 1, 1970 */
@@ -391,7 +392,8 @@ npy_datetime NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetime
 /*NUMPY_API
  * Create a timdelta value from a filled timedelta struct and resolution unit.
  */
-npy_datetime NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
+npy_datetime 
+NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
 {
     npy_datetime ret;
     
@@ -486,8 +488,9 @@ npy_datetime NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timede
 /*NUMPY_API
  * Fill the datetime struct from the value and resolution unit.
  */
-void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
-                                       npy_datetimestruct *result)
+void 
+NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
+                                  npy_datetimestruct *result)
 {
     int year = 1970, month = 1, day = 1,
     hour = 0, min = 0, sec = 0,
@@ -781,8 +784,9 @@ void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
 /*NUMPY_API
  * Fill the timedelta struct from the timedelta value and resolution unit.
  */
-void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
-                                         npy_timedeltastruct *result)
+void 
+NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
+                                    npy_timedeltastruct *result)
 {
     npy_longlong day=0;
     int sec=0, us=0, ps=0, as=0;
