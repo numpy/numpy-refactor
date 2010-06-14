@@ -591,7 +591,7 @@ VOID_getitem(char *ip, PyArrayObject *ap)
     if (descr->subarray) {
         /* return an array of the basic type */
         PyArray_Dims shape = {NULL, -1};
-        PyObject *ret;
+        PyArrayObject *ret;
 
         if (!(PyArray_IntpConverter(descr->subarray->shape, &shape))) {
             PyDimMem_FREE(shape.ptr);
@@ -607,10 +607,11 @@ VOID_getitem(char *ip, PyArrayObject *ap)
         if (!ret) {
             return NULL;
         }
-        PyArray_BASE(ret) = (PyObject *)ap;
-        Py_INCREF(ap);
-        PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
-        return ret;
+        ret->base_arr = ap;         /* TODO: Need to unwrap array structure */
+        assert(NULL == ret->base_arr || NULL == ret->base_obj);
+        Npy_INCREF(ret->base_arr);
+        PyArray_UpdateFlags(ret, UPDATE_ALL);
+        return (PyObject *)ret;
     }
 
 finish:
@@ -635,8 +636,9 @@ finish:
                                  ip,
                                  PyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
                                  NULL);
-        ((PyArrayObject*)u)->base = ap;
-        Py_INCREF(ap);
+        ((PyArrayObject*)u)->base_arr = ap;     /* TODO: Need to unwrap array structure */
+        assert(NULL == ((PyArrayObject *)u)->base_arr || NULL == ((PyArrayObject *)u)->base_obj);
+        Npy_INCREF(ap);
     }
 #else
     /*
@@ -718,7 +720,7 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
     if (descr->subarray) {
         /* copy into an array of the same basic type */
         PyArray_Dims shape = {NULL, -1};
-        PyObject *ret;
+        PyArrayObject *ret;
         if (!(PyArray_IntpConverter(descr->subarray->shape, &shape))) {
             PyDimMem_FREE(shape.ptr);
             PyErr_SetString(PyExc_ValueError,
@@ -733,8 +735,9 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
         if (!ret) {
             return -1;
         }
-        PyArray_BASE(ret) = (PyObject *)ap;
-        Py_INCREF(ap);
+        ret->base_arr = ap;     /* TODO: Need to unwrap array object */
+        assert(NULL == ret->base_arr || NULL == ret->base_obj);
+        Npy_INCREF(ap);
         PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
         res = PyArray_CopyObject((PyArrayObject *)ret, op);
         Py_DECREF(ret);
@@ -3413,6 +3416,7 @@ static PyArray_ArrFuncs _Py@NAME@_ArrFuncs = {
 static PyArray_Descr @from@_Descr = {
     PyObject_HEAD_INIT(&PyArrayDescr_Type)
     &Py@NAME@ArrType_Type,
+    NPY_VALID_MAGIC,
     PyArray_@from@LTR,
     PyArray_@from@LTR,
     '@endian@',
@@ -3509,6 +3513,7 @@ static PyArray_ArrFuncs _Py@NAME@_ArrFuncs = {
 NPY_NO_EXPORT PyArray_Descr @from@_Descr = {
     PyObject_HEAD_INIT(&PyArrayDescr_Type)
     &Py@NAME@ArrType_Type,
+    NPY_VALID_MAGIC,
     PyArray_@kind@LTR,
     PyArray_@from@LTR,
     '@endian@',

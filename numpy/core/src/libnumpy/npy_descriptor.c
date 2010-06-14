@@ -49,6 +49,7 @@ NpyArray_Descr *
 NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new = NpyObject_New(NpyArray_Descr, &NpyArrayDescr_Type);
+    new->magic_number = NPY_VALID_MAGIC;
     
     if (new == NULL) {
         return NULL;
@@ -63,16 +64,16 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     if (new->fields == Py_None) {
         new->fields = NULL;
     }
-    Npy_XINCREF(new->fields);
-    Npy_XINCREF(new->names);
+    Npy_Interface_XINCREF(new->fields);
+    Npy_Interface_XINCREF(new->names);
     if (new->subarray) {
         new->subarray = NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
         memcpy(new->subarray, base->subarray, sizeof(NpyArray_ArrayDescr));
-        Npy_INCREF(new->subarray->shape);
+        Npy_Interface_INCREF(new->subarray->shape);
         Npy_INCREF(new->subarray->base);
     }
-    Npy_XINCREF(new->typeobj);
-    Npy_XINCREF(new->metadata);
+    Npy_Interface_XINCREF(new->typeobj);
+    Npy_Interface_XINCREF(new->metadata);
     
     return new;
 }

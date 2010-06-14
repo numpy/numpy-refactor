@@ -6,6 +6,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -64,8 +65,9 @@ array_big_item(PyArrayObject *self, intp i)
     if (r == NULL) {
         return NULL;
     }
-    Py_INCREF(self);
-    r->base = (PyObject *)self;
+    r->base_arr = self;               /* TODO: Unwrap array object, incref core obj */
+    Npy_INCREF(r->base_arr); 
+    assert(NULL == r->base_arr || NULL == r->base_obj);
     PyArray_UpdateFlags(r, CONTIGUOUS | FORTRAN);
     return (PyObject *)r;
 }
@@ -398,8 +400,10 @@ add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
                               arr->flags,
                               (PyObject *)arr)) == NULL)
         return NULL;
-    other->base = (PyObject *)arr;
-    Py_INCREF(arr);
+    
+    other->base_arr = arr;      /* Unwrap array object */
+    Npy_INCREF(other->base_arr);
+    assert(NULL == other->base_arr || NULL == other->base_obj);
     return (PyObject *)other;
 }
 
@@ -528,9 +532,10 @@ array_subscript_simple(PyArrayObject *self, PyObject *op)
                               (PyObject *)self)) == NULL) {
         return NULL;
     }
-    other->base = (PyObject *)self;
-    Py_INCREF(self);
+    other->base_arr = self;     /* TODO: Unwrap array object */
+    Npy_INCREF(other->base_arr);
     PyArray_UpdateFlags(other, UPDATE_ALL);
+    assert(NULL == other->base_arr || NULL == other->base_obj);
     return (PyObject *)other;
 }
 

@@ -82,6 +82,7 @@ NpyArray_IterNew(NpyArray *ao)
 
     it = (NpyArrayIter *)NpyArray_malloc(sizeof(NpyArrayIter));
     NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    it->magic_number = NPY_VALID_MAGIC;
     if (it == NULL) {
         return NULL;
     }
@@ -369,7 +370,6 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 {
     PyArrayMultiIterObject *multi;
     NpyArray *current;
-    PyObject *arr;
 
     int i, ntot, err=0;
 
@@ -385,6 +385,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         NpyErr_NoMemory();
         return NULL;
     }
+    multi->magic_number = NPY_VALID_MAGIC;
     NpyObject_Init((NpyObject *)multi, &NpyArrayMultiIter_Type);
 
     for (i = 0; i < ntot; i++) {

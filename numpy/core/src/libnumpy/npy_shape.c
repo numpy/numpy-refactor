@@ -80,7 +80,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
             refcnt = 1;
         }
         if ((refcnt > 2)
-            || (self->base != NULL)) {
+            || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
                     "by another array in this way.  Use the resize function");
@@ -281,8 +281,9 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
     if (incref) {
         Npy_INCREF(self);
     }
-    ret->base = (NpyObject *)self;
+    ret->base_arr = self;
     NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
     return ret;
 
  fail:
@@ -333,8 +334,9 @@ NpyArray_Squeeze(NpyArray *self)
         return NULL;
     }
     PyArray_FLAGS(ret) &= ~NPY_OWNDATA;
-    PyArray_BASE(ret) = (NpyObject*)self;
+    ret->base_arr = self;
     Npy_INCREF(self);
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
     return ret;
 }
 
@@ -459,7 +461,8 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
         return NULL;
     }
     /* point at true owner of memory: */
-    ret->base = (PyObject *)ap;
+    ret->base_arr = ap;
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
     Npy_INCREF(ap);
 
     /* fix the dimensions and strides of the return-array */

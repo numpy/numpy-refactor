@@ -37,6 +37,7 @@
 
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
+#include "numpy/numpy_api.h"
 
 #include "ufunc_object.h"
 
@@ -1151,8 +1152,9 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
         return NULL;
     }
     /* point at true owner of memory: */
-    ret->base = (PyObject *)ap;
-    Py_INCREF(ap);
+    ret->base_arr = ap;                 /* TODO: Unwrap array object, increment core obj */
+    Npy_INCREF(ret->base_arr);
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
     PyArray_UpdateFlags(ret, CONTIGUOUS | FORTRAN);
     return ret;
 }
@@ -1316,8 +1318,9 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     if (self->core_enabled) {
         for (i = 0; i < self->nin; i++) {
             PyArrayObject *ao = mps[i];
-            mps[i] = (PyArrayObject *)mps[i]->base;
+            mps[i] = mps[i]->base_arr;          /* TODO: Need to wrap return object */
             Py_DECREF(ao);
+            Py_INCREF(mps[i]);
         }
     }
 
@@ -1459,7 +1462,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         /* Recover mps[i]. */
         if (self->core_enabled) {
             PyArrayObject *ao = mps[i];
-            mps[i] = (PyArrayObject *)mps[i]->base;
+            mps[i] = mps[i]->base_arr;          /* TODO: Important - need to wrap core array object here. Think about wrapper vs. core ref cnt */
             Py_DECREF(ao);
         }
 
@@ -2841,7 +2844,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
-        ret = (PyArrayObject *)loop->ret->base;
+        ret = (PyArrayObject *)loop->ret->base_arr;     /* TODO: Important, wrap array object */
     }
     else {
         ret = loop->ret;
@@ -3007,7 +3010,7 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
-        ret = (PyArrayObject *)loop->ret->base;
+        ret = (PyArrayObject *)loop->ret->base_arr;     /* TODO: Important, wrap core array */
     }
     else {
         ret = loop->ret;
@@ -3183,7 +3186,7 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
     NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
-        ret = (PyArrayObject *)loop->ret->base;
+        ret = (PyArrayObject *)loop->ret->base_arr;     /* TODO: Important, wrap array object */
     }
     else {
         ret = loop->ret;
@@ -3565,12 +3568,12 @@ ufunc_generic_call(PyUFuncObject *self, PyObject *args, PyObject *kwds)
          * which meant that a temporary output was generated
          */
         if (mps[j]->flags & UPDATEIFCOPY) {
-            PyObject *old = mps[j]->base;
+            PyArrayObject *old = mps[j]->base_arr;      /* TODO: Important, wrap array object. Remember wrapper refcnt vs core refcnt */
             /* we want to hang on to this */
             Py_INCREF(old);
             /* should trigger the copyback into old */
             Py_DECREF(mps[j]);
-            mps[j] = (PyArrayObject *)old;
+            mps[j] = old;
         }
         wrap = wraparr[i];
         if (wrap != NULL) {

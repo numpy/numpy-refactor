@@ -545,6 +545,7 @@ typedef struct _PyArray_Descr {
                                  * be two type_numbers with the same type
                                  * object.
                                  */
+        int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         char kind;              /* kind for this type */
         char type;              /* unique-character representing this type */
         char byteorder;         /*
@@ -593,6 +594,7 @@ typedef struct _arr_descr {
 
 typedef struct PyArrayObject {
         PyObject_HEAD
+        int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         char *data;             /* pointer to raw data buffer */
         int nd;                 /* number of dimensions, also called ndim */
         npy_intp *dimensions;   /* size in each dimension */
@@ -600,7 +602,10 @@ typedef struct PyArrayObject {
                                  * bytes to jump to get to the
                                  * next element in each dimension
                                  */
-        PyObject *base;         /*
+        struct PyArrayObject *base_arr; /* Base when it's specifically an array object */
+        void *base_obj;         /* Base when it's an opaque interface object */
+    
+        /*PyObject *base; */         /*
                                  * This object should be decref'd upon
                                  * deletion of array
                                  *
@@ -851,6 +856,7 @@ typedef char* (*npy_iter_get_dataptr_t)(PyArrayIterObject* iter, npy_intp*);
 
 struct PyArrayIterObject_tag {
         PyObject_HEAD
+        int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         int               nd_m1;            /* number of dimensions - 1 */
         npy_intp          index, size;
         npy_intp          coordinates[NPY_MAXDIMS];/* N-dimensional loop */
@@ -1000,9 +1006,10 @@ struct PyArrayIterObject_tag {
  * Any object passed to PyArray_Broadcast must be binary compatible
  * with this structure.
  */
-
 typedef struct {
         PyObject_HEAD
+        /* DANGER - this must be in sync with MyUFuncLoopObject in ufuncobject.h */
+        int                  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         int                  numiter;                 /* number of iters */
         npy_intp             size;                    /* broadcasted size */
         npy_intp             index;                   /* current index */
@@ -1061,6 +1068,7 @@ typedef struct {
          * Multi-iterator portion --- needs to be present in this
          * order to work with PyArray_Broadcast
          */
+        int                   magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
 
         int                   numiter;                 /* number of index-array
                                                           iterators */
@@ -1104,6 +1112,7 @@ enum {
 
 typedef struct {
     PyObject_HEAD
+    int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
 
     /*
      * PyArrayIterObject part: keep this in this exact order

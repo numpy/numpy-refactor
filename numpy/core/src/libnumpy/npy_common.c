@@ -40,12 +40,13 @@ Npy_IsAligned(NpyArray *ap)
 npy_bool 
 Npy_IsWriteable(NpyArray *ap)
 {
-    NpyArray *base = ap->base;
+    NpyArray *base_arr = ap->base_arr;
+    void *base_obj = ap->base_obj;
     void *dummy;
     size_t n;
     
     /* If we own our own data, then no-problem */
-    if ((base == NULL) || (ap->flags & NPY_OWNDATA)) {
+    if ((base_arr == NULL && NULL == base_obj) || (ap->flags & NPY_OWNDATA)) {
         return NPY_TRUE;
     }
     /*
@@ -58,11 +59,12 @@ Npy_IsWriteable(NpyArray *ap)
      * buffer was added to Python.
      */
     
-    while(NpyArray_Check(base)) {
-        if (NpyArray_CHKFLAGS(base, NPY_OWNDATA)) {
-            return (npy_bool) (NpyArray_ISWRITEABLE(base));
+    while (NULL != base_arr) {
+        if (NpyArray_CHKFLAGS(base_arr, NPY_OWNDATA)) {
+            return (npy_bool) (NpyArray_ISWRITEABLE(base_arr));
         }
-        base = NpyArray_BASE(base);
+        base_arr = base_arr->base_arr;
+        base_obj = base_arr->base_obj;
     }
     
     /*
@@ -70,11 +72,11 @@ Npy_IsWriteable(NpyArray *ap)
      * and unpickled array can be set and reset writeable
      * -- could be abused --
      */
-    /* TODO: Handling for string and buffers as the array base, related to pickling. */
-    if (NpyString_Check(base)) {
+    /* TODO: How is this related to pickling? Need to promote to interface layer to determine if opaque obj is writable. */
+    if (NpyString_Check(base_obj)) {
         return NPY_TRUE;
     }
-    if (NpyObject_AsWriteBuffer(base, &dummy, &n) < 0) {
+    if (NpyObject_AsWriteBuffer(base_obj, &dummy, &n) < 0) {
         return NPY_FALSE;
     }
     return NPY_TRUE;

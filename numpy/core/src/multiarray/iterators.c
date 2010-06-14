@@ -986,7 +986,7 @@ static PyObject *
 iter_array(PyArrayIterObject *it, PyObject *NPY_UNUSED(op))
 {
 
-    PyObject *r;
+    PyArrayObject *r;
     intp size;
 
     /* Any argument ignored */
@@ -1028,10 +1028,10 @@ iter_array(PyArrayIterObject *it, PyObject *NPY_UNUSED(op))
         PyArray_FLAGS(r) |= UPDATEIFCOPY;
         it->ao->flags &= ~WRITEABLE;
     }
-    Py_INCREF(it->ao);
-    PyArray_BASE(r) = (PyObject *)it->ao;
-    return r;
-
+    Npy_INCREF(it->ao);
+    r->base_arr = it->ao;
+    assert(NULL == r->base_arr || NULL == r->base_obj);
+    return (PyObject *)r;
 }
 
 static PyObject *

@@ -97,3 +97,66 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
     }
     return NPY_TRUE;
 }
+
+
+
+
+/* Deallocs & destroy's the array object. */
+/* TODO: For now caller is expected to call _array_dealloc_buffer_info and clear weak refs.  Need to revisit. */
+void
+NpyArray_dealloc(NpyArray *self) {
+    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NULL == self->base_arr || NPY_VALID_MAGIC == self->base_arr->magic_number);
+    
+    if (self->base_arr) {
+        /*
+         * UPDATEIFCOPY means that base points to an
+         * array that should be updated with the contents
+         * of this array upon destruction.
+         * self->base->flags must have been WRITEABLE
+         * (checked previously) and it was locked here
+         * thus, unlock it.
+         */
+        if (self->flags & NPY_UPDATEIFCOPY) {
+            self->base_arr->flags |= NPY_WRITEABLE;
+            Npy_INCREF(self); /* hold on to self in next call */
+            if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
+                NpyErr_Print();
+                NpyErr_Clear();
+            }
+            /*
+             * Don't need to DECREF -- because we are deleting
+             *self already...
+             */
+        }
+        /*
+         * In any case base is pointing to something that we need
+         * to DECREF -- either a view or a buffer object
+         */
+        Npy_DECREF(self->base_arr);
+        self->base_arr = NULL;
+    } else if (NULL != self->base_obj) {
+        Npy_Interface_DECREF(self->base_obj);
+        self->base_obj = NULL;
+    }
+    
+    if ((self->flags & NPY_OWNDATA) && self->data) {
+        /* Free internal references if an Object array */
+        if (NpyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
+            Npy_INCREF(self); /*hold on to self */
+            NpyArray_XDECREF(self);
+            /*
+             * Don't need to DECREF -- because we are deleting
+             * self already...
+             */
+        }
+        NpyDataMem_FREE(self->data);
+    }
+    
+    NpyDimMem_FREE(self->dimensions);
+    Npy_DECREF(self->descr);
+    self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */
+
+    /* TODO: Free allocation here, does the interface override this function or do we leave this to the interface */
+    Py_TYPE(self)->tp_free(self);
+}

@@ -919,6 +919,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
         Npy_DECREF(descr);
         return NULL;
     }
+    self->magic_number = NPY_VALID_MAGIC;
     self->nd = nd;
     self->dimensions = NULL;
     self->data = NULL;
@@ -936,7 +937,8 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
     }
     self->descr = descr;
-    self->base = (PyObject *)NULL;          // TODO: Check this type
+    self->base_arr = NULL;
+    self->base_obj = NULL;
     self->weakreflist = (PyObject *)NULL;   // TODO: Check this type
     
     if (nd > 0) {
@@ -1044,7 +1046,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
             }
         }
         /* TODO: END code to be converted */
-        else Npy_XDECREF(func);
+        else Npy_Interface_XDECREF(func);
     }
     return self;
     
@@ -1168,8 +1170,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             }
             if (flags & NPY_UPDATEIFCOPY)  {
                 ret->flags |= NPY_UPDATEIFCOPY;
-                ret->base = (PyObject *)arr;
-                NpyArray_FLAGS(ret->base) &= ~NPY_WRITEABLE;
+                ret->base_arr = arr;
+                assert(NULL == ret->base_arr || NULL == ret->base_obj);
+                NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
                 Npy_INCREF(arr);
             }
         }
@@ -1192,7 +1195,8 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 if (ret == NULL) {
                     return NULL;
                 }
-                ret->base = arr;
+                ret->base_arr = arr;
+                assert(NULL == ret->base_arr || NULL == ret->base_obj);
             }
             else {
                 ret = arr;
@@ -1230,8 +1234,8 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         }
         if (flags & NPY_UPDATEIFCOPY)  {
             ret->flags |= NPY_UPDATEIFCOPY;
-            ret->base = (PyObject *)arr;
-            NpyArray_FLAGS(ret->base) &= ~NPY_WRITEABLE;
+            ret->base_arr = arr;
+            NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
             Npy_INCREF(arr);
         }
     }

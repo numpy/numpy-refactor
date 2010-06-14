@@ -866,7 +866,12 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
     r = PyArray_NewFromDescr(&PyArray_Type, descr,
                              nd, shape, strides, view->buf,
                              flags, NULL);
-    ((PyArrayObject *)r)->base = memoryview;
+    if (PyArray_Check(memoryview)) {
+        ((PyArrayObject *)r)->base_arr = memoryview;        /* TODO: Unwrap array object if we can ever get here. Think about ref cnt of wrapper vs. core array */        
+    } else {
+        ((PyArrayObject *)r)->base_obj = memoryview;   
+    }
+    assert(NULL == ((PyArrayObject *)r)->base_arr || NULL == ((PyArrayObject *)r)->base_obj);
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
 
     *out = r;
@@ -1119,7 +1124,8 @@ PyArray_FromStructInterface(PyObject *input)
     PyArray_Descr *thetype = NULL;
     char buf[40];
     PyArrayInterface *inter;
-    PyObject *attr, *r;
+    PyObject *attr;
+    PyArrayObject *r;
     char endian = PyArray_NATBYTE;
 
     attr = PyObject_GetAttrString(input, "__array_struct__");
@@ -1159,11 +1165,17 @@ PyArray_FromStructInterface(PyObject *input)
                              inter->nd, inter->shape,
                              inter->strides, inter->data,
                              inter->flags, NULL);
-    Py_INCREF(input);
-    PyArray_BASE(r) = input;
+    if (PyArray_Check(input)) {
+        r->base_arr = input;            /* TODO: Unwrap array object, incref the core array. */
+        Npy_INCREF(r->base_arr);
+    } else {
+        r->base_obj = input;
+        Py_INCREF(r->base_obj);
+    }
+    assert(NULL == r->base_arr || NULL == r->base_obj);
     Py_DECREF(attr);
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
-    return r;
+    return (PyObject *)r;
 
  fail:
     PyErr_SetString(PyExc_ValueError, "invalid __array_struct__");
@@ -1321,8 +1333,14 @@ PyArray_FromInterface(PyObject *input)
     if (ret == NULL) {
         return NULL;
     }
-    Py_INCREF(base);
-    ret->base = base;
+    if (PyArray_Check(base)) {
+        ret->base_arr = base;       /* TODO: Unwrap array object, incref the core object */
+        Npy_INCREF(ret->base_arr);
+    } else {
+        ret->base_obj = base;
+        Py_INCREF(ret->base_obj);
+    }
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
 
     attr = PyDict_GetItemString(inter, "strides");
     if (attr != NULL && attr != Py_None) {
@@ -2209,8 +2227,9 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
         ret->flags &= ~WRITEABLE;
     }
     /* Store a reference for decref on deallocation */
-    ret->base = buf;
+    ret->base_obj = buf;
     PyArray_UpdateFlags(ret, ALIGNED);
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
     return (PyObject *)ret;
 }
 

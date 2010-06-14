@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "numpy/npy_math.h"
 
@@ -267,7 +268,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
 {
     PyArray_Descr *typecode;
-    PyObject *r;
+    PyArrayObject *r;
     char *memptr;
     PyObject *ret;
 
@@ -282,9 +283,16 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
                 ((PyVoidScalarObject *)scalar)->obval,
                 ((PyVoidScalarObject *)scalar)->flags,
                 NULL);
-        PyArray_BASE(r) = (PyObject *)scalar;
-        Py_INCREF(scalar);
-        return r;
+        
+        if (PyArray_Check(scalar)) {
+            r->base_arr = scalar;
+            Npy_INCREF(r->base_arr);    /* TODO: Unwrap array object */
+        } else {
+            r->base_obj = scalar;
+            Py_INCREF(r->base_obj);
+        }
+        assert(NULL == r->base_arr || NULL == r->base_obj);
+        return (PyObject *)r;
     }
 
     r = PyArray_NewFromDescr(&PyArray_Type,

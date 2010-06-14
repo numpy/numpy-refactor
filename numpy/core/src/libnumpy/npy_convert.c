@@ -62,7 +62,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
             NpyArray_ITER_NEXT(it);
         }
         NPY_END_THREADS;
-        Npy_DECREF(it);
+        Npy_Interface_DECREF(it);       /* TODO: Important, this should be Npy_DECREF but only changed because iterators don't have magic numbers yet. */
     }
     return 0;
 }

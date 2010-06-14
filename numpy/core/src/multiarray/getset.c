@@ -7,6 +7,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -110,16 +111,16 @@ array_strides_set(PyArrayObject *self, PyObject *obj)
         goto fail;
     }
     new = self;
-    while(new->base && PyArray_Check(new->base)) {
-        new = (PyArrayObject *)(new->base);
+    while(NULL != new->base_arr) {
+        new = new->base_arr;
     }
     /*
      * Get the available memory through the buffer interface on
      * new->base or if that fails from the current new
      */
-    if (new->base && PyObject_AsReadBuffer(new->base,
-                                           (const void **)&buf,
-                                           &buf_len) >= 0) {
+    if (NULL != new->base_obj && PyObject_AsReadBuffer(new->base_obj,
+                                                       (const void **)&buf,
+                                                       &buf_len) >= 0) {
         offset = self->data - buf;
         numbytes = buf_len + offset;
     }
@@ -327,15 +328,27 @@ array_data_set(PyArrayObject *self, PyObject *op)
         PyArray_XDECREF(self);
         PyDataMem_FREE(self->data);
     }
-    if (self->base) {
+    if (self->base_arr) {
         if (self->flags & UPDATEIFCOPY) {
-            ((PyArrayObject *)self->base)->flags |= WRITEABLE;
+            self->base_arr->flags |= WRITEABLE;
             self->flags &= ~UPDATEIFCOPY;
         }
-        Py_DECREF(self->base);
+        Npy_DECREF(self->base_arr);
+        self->base_arr = NULL;
+    } 
+    if (NULL != self->base_obj) {
+        Py_DECREF(self->base_obj);
+        self->base_obj = NULL;
     }
-    Py_INCREF(op);
-    self->base = op;
+    
+    if (PyArray_Check(op)) {
+        self->base_arr = (NpyArray *)op;        /* TODO: Unwrap core array */
+        Npy_INCREF(self->base_arr);
+    } else {
+        self->base_obj = op;        
+        Py_INCREF(self->base_obj);
+    }
+    assert(NULL == self->base_arr || NULL == self->base_obj);
     self->data = buf;
     self->flags = CARRAY;
     if (!writeable) {
@@ -559,13 +572,16 @@ array_struct_get(PyArrayObject *self)
 static PyObject *
 array_base_get(PyArrayObject *self)
 {
-    if (self->base == NULL) {
+    if (NULL != self->base_arr) {
+        /* TODO: Wrap array with PyArrayObject */
+        Npy_INCREF(self->base_arr);
+        return self->base_arr;
+    } else if (NULL != self->base_obj) {
+        Py_INCREF(self->base_obj);
+        return self->base_obj;
+    } else {
         Py_INCREF(Py_None);
         return Py_None;
-    }
-    else {
-        Py_INCREF(self->base);
-        return self->base;
     }
 }
 
@@ -604,8 +620,8 @@ _get_part(PyArrayObject *self, int imag)
     }
     ret->flags &= ~CONTIGUOUS;
     ret->flags &= ~FORTRAN;
-    Py_INCREF(self);
-    ret->base = (PyObject *)self;
+    ret->base_arr = self;       /* TODO: Unwrap array object, incref core object */
+    Npy_INCREF(ret->base_arr);
     return ret;
 }
 

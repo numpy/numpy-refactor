@@ -109,7 +109,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
-        obj = (NpyArray *)rp->base;
+        obj = rp->base_arr;
         Npy_INCREF(obj);
         Npy_DECREF(rp);
         rp = obj;
@@ -128,7 +128,8 @@ fail:
 NpyArray *
 NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
 {
-    PyObject *obj, *new, *ret;
+    PyObject *obj;
+    NpyArray *new, *ret;
     
     /* TODO: Code still uses PyInt_FromLong and PyNumber_Subtract.  
        Either need to move this function to the interface layer or 
@@ -148,7 +149,7 @@ NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
         obj = PyInt_FromLong((long) 0);
     }
     new = NpyArray_EnsureAnyArray(PyNumber_Subtract(obj, ap));
-    Npy_DECREF(obj);
+    Npy_Interface_DECREF(obj);
     if (new == NULL) {
         return NULL;
     }

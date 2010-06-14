@@ -166,11 +166,11 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     Npy_XDECREF(indices);
     Npy_XDECREF(self);
     if (copyret) {
-        PyObject *obj;
-        obj = ret->base;
+        NpyArray *obj;
+        obj = ret->base_arr;
         Npy_INCREF(obj);
         Npy_DECREF(ret);
-        ret = (NpyArray *)obj;
+        ret = obj;
     }
     return ret;
 
@@ -661,7 +661,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
-        obj = (NpyArray*)ret->base;
+        obj = ret->base_arr;
         Npy_INCREF(obj);
         Npy_DECREF(ret);
         ret = obj;

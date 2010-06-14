@@ -80,7 +80,9 @@ typedef struct {
 typedef struct {
         /* Multi-iterator portion --- needs to be present in this order
            to work with PyArray_Broadcast */
+        /* DANGER - this must be in sync with multi-interator structure in ndarraytypes.h */
         PyObject_HEAD
+        int magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         int  numiter;
         npy_intp size;
         npy_intp index;

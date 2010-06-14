@@ -1202,7 +1202,7 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
     intp newdims[MAX_DIMS];
     intp newstrides[MAX_DIMS];
     int i, k, num;
-    PyObject *ret;
+    PyArrayObject *ret;
 
     num = ndmin - nd;
     for (i = 0; i < num; i++) {
@@ -1218,8 +1218,9 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
     ret = PyArray_NewFromDescr(Py_TYPE(arr), arr->descr, ndmin,
             newdims, newstrides, arr->data, arr->flags, (PyObject *)arr);
     /* steals a reference to arr --- so don't increment here */
-    PyArray_BASE(ret) = (PyObject *)arr;
-    return ret;
+    ret->base_arr = arr;
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    return (PyObject *)ret;
 }
 
 

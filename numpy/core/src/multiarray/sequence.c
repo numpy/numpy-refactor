@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -76,8 +77,9 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     if (r == NULL) {
         return NULL;
     }
-    r->base = (PyObject *)self;
-    Py_INCREF(self);
+    r->base_arr = self;             /* TODO: Unwrap array object */
+    Npy_INCREF(r->base_arr);
+    assert(NULL == r->base_arr || NULL == r->base_obj);
     PyArray_UpdateFlags(r, UPDATE_ALL);
     return (PyObject *)r;
 }

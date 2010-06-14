@@ -83,7 +83,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         NpyErr_SetString(PyExc_ValueError,
                          "array dimensions are not "\
                          "compatible for copy");
-        Npy_DECREF(multi);
+        Npy_Interface_DECREF(multi);        /* TODO: Important: should be Npy_DECREF, changed while adding magic numbers. */
         return -1;
     }
     
@@ -144,7 +144,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         NPY_END_THREADS;
     }
 #endif
-    Npy_DECREF(multi);
+    Npy_Interface_DECREF(multi);        /* TODO: Change to Npy_DECREF */
     if (NpyDataType_REFCHK(in->descr)) {
         obptr = buffers[1];
         for (i = 0; i < N; i++, obptr+=selsize) {
@@ -209,7 +209,7 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         NpyErr_WarnEx(cls, 
                       "Casting complex values to real discards the imaginary "
                       "part", 0);
-        Npy_XDECREF(cls);
+        Npy_Interface_XDECREF(cls);
     }
     
     if (NULL == castfunc) {

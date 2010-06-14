@@ -154,56 +154,17 @@ PyArray_TypeNumFromName(char *str)
 
 static void
 array_dealloc(PyArrayObject *self) {
-
+    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NULL == self->base_arr || NPY_VALID_MAGIC == self->base_arr->magic_number);
+    
     _array_dealloc_buffer_info(self);
 
     if (self->weakreflist != NULL) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
-    if (self->base) {
-        /*
-         * UPDATEIFCOPY means that base points to an
-         * array that should be updated with the contents
-         * of this array upon destruction.
-         * self->base->flags must have been WRITEABLE
-         * (checked previously) and it was locked here
-         * thus, unlock it.
-         */
-        if (self->flags & UPDATEIFCOPY) {
-            ((PyArrayObject *)self->base)->flags |= WRITEABLE;
-            Py_INCREF(self); /* hold on to self in next call */
-            if (PyArray_CopyAnyInto((PyArrayObject *)self->base, self) < 0) {
-                PyErr_Print();
-                PyErr_Clear();
-            }
-            /*
-             * Don't need to DECREF -- because we are deleting
-             *self already...
-             */
-        }
-        /*
-         * In any case base is pointing to something that we need
-         * to DECREF -- either a view or a buffer object
-         */
-        Py_DECREF(self->base);
-    }
-
-    if ((self->flags & OWNDATA) && self->data) {
-        /* Free internal references if an Object array */
-        if (PyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
-            Py_INCREF(self); /*hold on to self */
-            PyArray_XDECREF(self);
-            /*
-             * Don't need to DECREF -- because we are deleting
-             * self already...
-             */
-        }
-        PyDataMem_FREE(self->data);
-    }
-
-    PyDimMem_FREE(self->dimensions);
-    Py_DECREF(self->descr);
-    Py_TYPE(self)->tp_free((PyObject *)self);
+    
+    /* TODO: Unwrap self into the array */
+    NpyArray_dealloc(self);
 }
 
 static int
@@ -1190,8 +1151,16 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
             goto fail;
         }
         PyArray_UpdateFlags(ret, UPDATE_ALL);
-        ret->base = buffer.base;
-        Py_INCREF(buffer.base);
+        
+        /* TODO: This will be an issue.  Probably need to split buffer.base or we have to unwrap it. */
+        if (PyArray_Check(buffer.base)) {
+            ret->base_arr = buffer.base;
+            Npy_INCREF(ret->base_arr);
+        } else {
+            ret->base_obj = buffer.base;
+            Py_INCREF(ret->base_obj);
+        }
+        assert(NULL == ret->base_arr || NULL == ret->base_obj);
     }
 
     PyDimMem_FREE(dims.ptr);

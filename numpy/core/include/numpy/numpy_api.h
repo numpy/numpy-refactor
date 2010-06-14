@@ -3,7 +3,7 @@
 
 #include "numpy/arrayobject.h"
 #include "npy_3kcompat.h"
-
+#include "assert.h"
 
 
 typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
@@ -167,10 +167,13 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
  */
 
 /* arraytypes.c.src */
-#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interfae layer */
+#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interface layer */
 
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
+
+void NpyArray_dealloc(NpyArray *self);
+
 
 /* common.c */
 #define NpyString_Check(a) PyString_Check(a)        /* TODO: Npy_IsWriteable() need callback to interface for base of string, buffer */
@@ -183,6 +186,9 @@ npy_bool Npy_IsWriteable(NpyArray *ap);
 
 /* ctors.c */
 #define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
+size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
+                           int inflag, int *objflags);
+
 
 /* descriptor.c */
 NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
@@ -336,10 +342,36 @@ int NpyCapsule_Check(PyObject *ptr);
  * Reference counting.
  */
 
-#define Npy_INCREF(a) Py_INCREF(a)
-#define Npy_DECREF(a) Py_DECREF(a)
-#define Npy_XINCREF(a) Py_XINCREF(a)
-#define Npy_XDECREF(a) Py_XDECREF(a)
+/* These operate on core data structures, NOT interface objects. */
+#define NPY_VALID_MAGIC 1234567
+#define NPY_INVALID_MAGIC 0xdeadbeef
+
+#define Npy_INCREF(a) { \
+    assert(NPY_VALID_MAGIC == (a)->magic_number);     \
+    Py_INCREF(a);   }
+
+#define Npy_DECREF(a) { \
+    assert(NPY_VALID_MAGIC == (a)->magic_number); \
+    Py_DECREF(a); }
+
+#define Npy_XINCREF(a) { \
+    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);     \
+    Py_XINCREF(a); }
+
+#define Npy_XDECREF(a) { \
+    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);     \
+    Py_XDECREF(a); }
+
+
+/* These operate on interface objects and will be replaced with callbacks to the interface layer. */
+#define Npy_Interface_INCREF(a) Py_INCREF(a)
+#define Npy_Interface_DECREF(a) Py_DECREF(a)
+#define Npy_Interface_XINCREF(a) Py_XINCREF(a)
+#define Npy_Interface_XDECREF(a) Py_XDECREF(a)
+
+
+/* These operate on the elements IN the array, not the array itself. */
+/* TODO: Would love to rename these, easy to misread NpyArray_XX and Npy_XX */
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
 #define NpyArray_INCREF(a) PyArray_INCREF(a)
 #define NpyArray_DECREF(a) PyArray_DECREF(a)
@@ -365,9 +397,17 @@ int NpyCapsule_Check(PyObject *ptr);
 
 #define NpyDimMem_NEW(size) PyDimMem_NEW(size)
 #define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
+#define NpyDimMem_FREE(ptr) PyDimMem_FREE(ptr)
 
 #define NpyArray_malloc(size) PyArray_malloc(size)
 #define NpyArray_free(ptr) PyArray_free(malloc)
+
+
+/*
+ * scalar
+ */
+int _typenum_fromtypeobj(NpyObject *type, int user);
+
 
 /*
  * Error handling.
@@ -383,6 +423,8 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyExc_RuntimeError PyExc_RuntimeError
 #define NpyErr_Format PyErr_Format
 #define NpyExc_RuntimeError PyExc_RuntimeError
+#define NpyErr_Clear() PyErr_Clear()
+#define NpyErr_Print() PyErr_Print()
 
 #if PY_VERSION_HEX >= 0x02050000
 #define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 

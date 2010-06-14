@@ -328,7 +328,7 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
-    PyObject *new = NULL;
+    PyArrayObject *new = NULL;
     PyTypeObject *subtype;
 
     if (pytype) {
@@ -347,8 +347,11 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
     if (new == NULL) {
         return NULL;
     }
-    Py_INCREF(self);
-    PyArray_BASE(new) = (PyObject *)self;
+    
+    /* TODO: Unwrap array structure, increment NpyArray, not PyArrayObject refcnt. */
+    new->base_arr = self;
+    Npy_INCREF(new->base_arr);
+    assert(NULL == new->base_arr || NULL == new->base_obj);
 
     if (type != NULL) {
         if (PyObject_SetAttrString(new, "dtype",
@@ -359,5 +362,5 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
         }
         Py_DECREF(type);
     }
-    return new;
+    return (PyObject *)new;
 }

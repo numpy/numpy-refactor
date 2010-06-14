@@ -701,7 +701,7 @@ static PyObject *
 array_wraparray(PyArrayObject *self, PyObject *args)
 {
     PyObject *arr;
-    PyObject *ret;
+    PyArrayObject *ret;
 
     if (PyTuple_Size(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
@@ -729,9 +729,15 @@ array_wraparray(PyArrayObject *self, PyObject *args)
         if (ret == NULL) {
             return NULL;
         }
-        Py_INCREF(arr);
-        PyArray_BASE(ret) = arr;
-        return ret;
+        if (PyArray_Check(arr)) {
+            ret->base_arr = arr;
+            Npy_INCREF(ret->base_arr);       /* TODO: Unwrap array object */
+        } else {
+            ret->base_obj = arr;
+            Py_INCREF(ret->base_obj);
+        }
+        assert(NULL == ret->base_arr || NULL == ret->base_obj);
+        return (PyObject *)ret;
     } else {
         /*The type was set in __array_prepare__*/
         Py_INCREF(arr);
@@ -744,7 +750,7 @@ static PyObject *
 array_preparearray(PyArrayObject *self, PyObject *args)
 {
     PyObject *arr;
-    PyObject *ret;
+    PyArrayObject *ret;
 
     if (PyTuple_Size(args) < 1) {
         PyErr_SetString(PyExc_TypeError,
@@ -768,9 +774,15 @@ array_preparearray(PyArrayObject *self, PyObject *args)
     if (ret == NULL) {
         return NULL;
     }
-    Py_INCREF(arr);
-    PyArray_BASE(ret) = arr;
-    return ret;
+    if (PyArray_Check(arr)) {
+        ret->base_arr = arr;
+        Npy_INCREF(ret->base_arr);            /* TODO: Unwrap array object */
+    } else {
+        ret->base_obj = arr;
+        Py_INCREF(ret->base_obj);
+    }
+    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    return (PyObject *)ret;
 }
 
 
@@ -788,7 +800,7 @@ array_getarray(PyArrayObject *self, PyObject *args)
 
     /* convert to PyArray_Type */
     if (!PyArray_CheckExact(self)) {
-        PyObject *new;
+        PyArrayObject *new;
         PyTypeObject *subtype = &PyArray_Type;
 
         if (!PyType_IsSubtype(Py_TYPE(self), &PyArray_Type)) {
@@ -806,9 +818,10 @@ array_getarray(PyArrayObject *self, PyObject *args)
         if (new == NULL) {
             return NULL;
         }
-        Py_INCREF(self);
-        PyArray_BASE(new) = (PyObject *)self;
+        Npy_INCREF(self);
+        new->base_arr = self;
         self = (PyArrayObject *)new;
+        assert(NULL == new->base_arr || NULL == new->base_obj);
     }
     else {
         Py_INCREF(self);
@@ -1348,7 +1361,10 @@ array_setstate(PyArrayObject *self, PyObject *args)
         }
         self->flags &= ~OWNDATA;
     }
-    Py_XDECREF(self->base);
+    Npy_XDECREF(self->base_arr);
+    Py_XDECREF(self->base_obj);
+    self->base_arr = NULL;
+    self->base_obj = NULL;
 
     self->flags &= ~UPDATEIFCOPY;
 
@@ -1405,13 +1421,22 @@ array_setstate(PyArrayObject *self, PyObject *args)
                 memcpy(self->data, datastr, num);
             }
             self->flags |= OWNDATA;
-            self->base = NULL;
+            self->base_arr = NULL;
+            self->base_obj = NULL;
         }
         else {
-            self->base = rawdata;
-            if (incref_base) {
-                Py_INCREF(self->base);
+            if (PyArray_Check(rawdata)) {
+                self->base_arr = rawdata;       /* TODO: Unwrap array object */
+                if (incref_base) {
+                    Npy_INCREF(self->base_arr);
+                }
+            } else {
+                self->base_obj = rawdata;
+                if (incref_base) {
+                    Py_INCREF(self->base_obj);
+                }
             }
+            assert(NULL == self->base_arr || NULL == self->base_obj);
         }
     }
     else {
@@ -1428,7 +1453,8 @@ array_setstate(PyArrayObject *self, PyObject *args)
             memset(self->data, 0, PyArray_NBYTES(self));
         }
         self->flags |= OWNDATA;
-        self->base = NULL;
+        self->base_arr = NULL;
+        self->base_obj = NULL;
         if (_setlist_pkl(self, rawdata) < 0) {
             return NULL;
         }
@@ -1994,8 +2020,10 @@ array_setflags(PyArrayObject *self, PyObject *args, PyObject *kwds)
         }
         else {
             self->flags &= ~UPDATEIFCOPY;
-            Py_XDECREF(self->base);
-            self->base = NULL;
+            Py_XDECREF(self->base_obj);
+            self->base_obj = NULL;
+            Npy_XDECREF(self->base_arr);
+            self->base_arr = NULL;
         }
     }
 
