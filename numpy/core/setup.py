@@ -696,6 +696,7 @@ def configuration(parent_package='',top_path=None):
         join('src', 'libnumpy', 'npy_ctors.c'),
         join('src', 'libnumpy', 'npy_datetime.c'),
         join('src', 'libnumpy', 'npy_descriptor.c'),
+        join('src', 'libnumpy', 'npy_dict.c'),
         join('src', 'libnumpy', 'npy_flagsobject.c'),
         join('src', 'libnumpy', 'npy_item_selection.c'),
         join('src', 'libnumpy', 'npy_iterators.c'),

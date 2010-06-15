@@ -162,6 +162,27 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 
 #define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
+
+typedef struct NpyDict_KVPair_struct {
+    const void *key;
+    void *value;
+    struct NpyDict_KVPair_struct *next;
+} NpyDict_KVPair;
+
+typedef struct {
+    long numOfBuckets;
+    long numOfElements;
+    NpyDict_KVPair **bucketArray;
+    float idealRatio, lowerRehashThreshold, upperRehashThreshold;
+    int (*keycmp)(const void *key1, const void *key2);
+    int (*valuecmp)(const void *value1, const void *value2);
+    unsigned long (*hashFunction)(const void *key);
+    void (*keyDeallocator)(void *key);
+    void (*valueDeallocator)(void *value);
+} NpyDict;
+
+
+
 /*
  * Functions we need to convert.
  */
@@ -234,6 +255,33 @@ int NpyArray_Free(NpyArray *ap, void *ptr);
 NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
 int NpyArray_CanCoerceScalar(int thistype, int neededtype, NPY_SCALARKIND scalar);
 NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
+
+
+/* npy_hash_table.c */
+NpyDict *NpyDict_CreateTable(long numOfBuckets);
+void NpyDict_Destroy(NpyDict *hashTable);
+int NpyDict_ContainsKey(const NpyDict *hashTable, const void *key);
+int NpyDict_ContainsValue(const NpyDict *hashTable, const void *value);
+int NpyDict_Put(NpyDict *hashTable, const void *key, void *value);
+void *NpyDict_Get(const NpyDict *hashTable, const void *key);
+void NpyDict_Remove(NpyDict *hashTable, const void *key);
+void NpyDict_RemoveAll(NpyDict *hashTable);
+int NpyDict_IsEmpty(const NpyDict *hashTable);
+long NpyDict_Size(const NpyDict *hashTable);
+long NpyDict_GetNumBuckets(const NpyDict *hashTable);
+void NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
+                                      int (*keycmp)(const void *key1, const void *key2));
+void NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
+                                        int (*valuecmp)(const void *value1, const void *value2));
+void NpyDict_SetHashFunction(NpyDict *hashTable,
+                             unsigned long (*hashFunction)(const void *key));
+void NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets);
+void NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
+                           float lowerRehashThreshold, float upperRehashThreshold);
+void NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
+                                      void (*keyDeallocator)(void *key),
+                                      void (*valueDeallocator)(void *value));
+unsigned long NpyDict_StringHashFunction(const void *key);
 
 
 /* number.c */
