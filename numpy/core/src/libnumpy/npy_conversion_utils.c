@@ -42,7 +42,7 @@ NpyArray_TypestrConvert(int itemsize, int gentype)
             case 8:
                 newtype = NpyArray_INT64;
                 break;
-#ifdef PyArray_INT128
+#ifdef NpyArray_INT128
             case 16:
                 newtype = NpyArray_INT128;
                 break;
@@ -65,7 +65,7 @@ NpyArray_TypestrConvert(int itemsize, int gentype)
             case 8:
                 newtype = NpyArray_UINT64;
                 break;
-#ifdef PyArray_INT128
+#ifdef NpyArray_INT128
             case 16:
                 newtype = NpyArray_UINT128;
                 break;
@@ -83,17 +83,17 @@ NpyArray_TypestrConvert(int itemsize, int gentype)
             case 8:
                 newtype = NpyArray_FLOAT64;
                 break;
-#ifdef PyArray_FLOAT80
+#ifdef NpyArray_FLOAT80
             case 10:
                 newtype = NpyArray_FLOAT80;
                 break;
 #endif
-#ifdef PyArray_FLOAT96
+#ifdef NpyArray_FLOAT96
             case 12:
                 newtype = NpyArray_FLOAT96;
                 break;
 #endif
-#ifdef PyArray_FLOAT128
+#ifdef NpyArray_FLOAT128
             case 16:
                 newtype = NpyArray_FLOAT128;
                 break;
@@ -110,17 +110,17 @@ NpyArray_TypestrConvert(int itemsize, int gentype)
             case 16:
                 newtype = NpyArray_COMPLEX128;
                 break;
-#ifdef PyArray_FLOAT80
+#ifdef NpyArray_FLOAT80
             case 20:
                 newtype = NpyArray_COMPLEX160;
                 break;
 #endif
-#ifdef PyArray_FLOAT96
+#ifdef NpyArray_FLOAT96
             case 24:
                 newtype = NpyArray_COMPLEX192;
                 break;
 #endif
-#ifdef PyArray_FLOAT128
+#ifdef NpyArray_FLOAT128
             case 32:
                 newtype = NpyArray_COMPLEX256;
                 break;

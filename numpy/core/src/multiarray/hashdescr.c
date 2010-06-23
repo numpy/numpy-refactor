@@ -89,7 +89,7 @@ clean_t:
 static int _array_descr_walk_fields(NpyDict *fields, PyObject* l)
 {
     const char *key = NULL;
-    NpyArray_DescrField *value = NULL;;
+    NpyArray_DescrField *value = NULL;
     NpyDict_Iter pos;
     int st;
 
