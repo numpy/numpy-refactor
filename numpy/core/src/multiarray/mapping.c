@@ -796,6 +796,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
             
             value = NpyDict_Get(self->descr->fields, PyString_AsString(index));
             if (NULL != value) {
+                Npy_INCREF(value->descr);
                 return NpyArray_SetField(self, value->descr, value->offset, op);
             }
         }

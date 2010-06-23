@@ -978,6 +978,7 @@ array_sort(PyArrayObject *self, PyObject *args, PyObject *kwds)
         newd = PyArray_DescrNew(saved);
         NpyArray_DescrSetNames(newd, arraydescr_seq_to_nameslist(new_name));
         self->descr = newd;
+        Py_DECREF(new_name);
     }
 
     val = PyArray_Sort(self, axis, which);
@@ -1032,6 +1033,7 @@ array_argsort(PyArrayObject *self, PyObject *args, PyObject *kwds)
         newd = PyArray_DescrNew(saved);
         newd->names = arraydescr_seq_to_nameslist(new_name);
         self->descr = newd;
+        Py_DECREF(new_name);
     }
 
     res = PyArray_ArgSort(self, axis, which);
