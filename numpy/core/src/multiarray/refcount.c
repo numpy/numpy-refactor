@@ -11,6 +11,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -35,20 +36,16 @@ PyArray_Item_INCREF(char *data, PyArray_Descr *descr)
         Py_XINCREF(temp);
     }
     else if (PyDescr_HASFIELDS(descr)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new;
-        int offset;
-        Py_ssize_t pos = 0;
+        const char *key;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
 
-        while (PyDict_Next(descr->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset,
-                                  &title)) {
-                return;
-            }
-            PyArray_Item_INCREF(data + offset, new);
+            NpyArray_Item_INCREF(data + value->offset, value->descr);
         }
     }
     return;
@@ -71,22 +68,18 @@ PyArray_Item_XDECREF(char *data, PyArray_Descr *descr)
         Py_XDECREF(temp);
     }
     else if PyDescr_HASFIELDS(descr) {
-            PyObject *key, *value, *title = NULL;
-            PyArray_Descr *new;
-            int offset;
-            Py_ssize_t pos = 0;
-
-            while (PyDict_Next(descr->fields, &pos, &key, &value)) {
-                if NPY_TITLE_KEY(key, value) {
-                    continue;
-                }
-                if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset,
-                                      &title)) {
-                    return;
-                }
-                PyArray_Item_XDECREF(data + offset, new);
+        const char *key;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
+                continue;
             }
+            NpyArray_Item_XDECREF(data + value->offset, value->descr);
         }
+    }
     return;
 }
 
@@ -259,19 +252,16 @@ _fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype)
         }
     }
     else if (PyDescr_HASFIELDS(dtype)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new;
-        int offset;
-        Py_ssize_t pos = 0;
-
-        while (PyDict_Next(dtype->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        const char *key;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(dtype->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset, &title)) {
-                return;
-            }
-            _fillobject(optr + offset, obj, new);
+            _fillobject(optr + value->offset, obj, value->descr);   /* TODO: Either need to wrap/unwrap descr or move this func to core */
         }
     }
     else {

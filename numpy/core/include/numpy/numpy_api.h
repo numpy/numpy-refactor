@@ -14,6 +14,7 @@ typedef PyArray_Descr NpyArray_Descr;
 typedef PyArray_ArrayDescr NpyArray_ArrayDescr;
 typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
 typedef PyArrayIterObject NpyArrayIterObject;
+typedef PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
 
 typedef PyArray_Dims NpyArray_Dims;
 
@@ -169,7 +170,7 @@ typedef struct NpyDict_KVPair_struct {
     struct NpyDict_KVPair_struct *next;
 } NpyDict_KVPair;
 
-typedef struct {
+typedef struct NpyDict_struct {
     long numOfBuckets;
     long numOfElements;
     NpyDict_KVPair **bucketArray;
@@ -180,6 +181,20 @@ typedef struct {
     void (*keyDeallocator)(void *key);
     void (*valueDeallocator)(void *value);
 } NpyDict;
+
+typedef struct {
+    long bucket;
+    NpyDict_KVPair *element;
+} NpyDict_Iter;
+
+
+
+/* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
+typedef struct {
+    NpyArray_Descr *descr;
+    int offset;
+    char *title;                /* String owned/managed by each instance */
+} NpyArray_DescrField;
 
 
 
@@ -214,6 +229,48 @@ size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t ite
 /* descriptor.c */
 NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
 NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
+void NpyArray_DescrDestroy(NpyArray_Descr *);
+char **NpyArray_DescrAllocNames(int n);
+NpyDict *NpyArray_DescrAllocFields();
+void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
+NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
+void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
+                            int offset, const char *title);
+NpyDict *NpyArray_DescrFieldsCopy(NpyDict *fields);
+char **NpyArray_DescrNamesCopy(char **names);
+int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
+void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+
+/* npy_dict.c */
+NpyDict *NpyDict_CreateTable(long numOfBuckets);
+void NpyDict_Destroy(NpyDict *hashTable);
+NpyDict *NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(void *));
+int NpyDict_ContainsKey(const NpyDict *hashTable, const void *key);
+int NpyDict_ContainsValue(const NpyDict *hashTable, const void *value);
+int NpyDict_Put(NpyDict *hashTable, const void *key, void *value);
+void *NpyDict_Get(const NpyDict *hashTable, const void *key);
+void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey);
+void NpyDict_Remove(NpyDict *hashTable, const void *key);
+void NpyDict_RemoveAll(NpyDict *hashTable);
+void NpyDict_IterInit(NpyDict_Iter *iter);
+int NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key, void **value);
+int NpyDict_IsEmpty(const NpyDict *hashTable);
+long NpyDict_Size(const NpyDict *hashTable);
+long NpyDict_GetNumBuckets(const NpyDict *hashTable);
+void NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
+                                      int (*keycmp)(const void *key1, const void *key2));
+void NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
+                                        int (*valuecmp)(const void *value1, const void *value2));
+void NpyDict_SetHashFunction(NpyDict *hashTable,
+                             unsigned long (*hashFunction)(const void *key));
+void NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets);
+void NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
+                           float lowerRehashThreshold, float upperRehashThreshold);
+void NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
+                                      void (*keyDeallocator)(void *key),
+                                      void (*valueDeallocator)(void *value));
+unsigned long NpyDict_StringHashFunction(const void *key);
+
 
 
 /* flagsobject.c */
@@ -237,12 +294,12 @@ NpyArrayMultiIterObject * NpyArray_vMultiIterFromArrays(NpyArray **mps, int n,
 NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
 int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyObject *val);
 NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
+unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 
 
 /* multiarraymodule.c */
 #define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
-#define NpyArray_EquivTypes(a1, a2) PyArray_EquivTypes(a1, a2)
 
 int NpyArray_MultiplyIntList(int *l1, int n);
 npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
@@ -255,33 +312,6 @@ int NpyArray_Free(NpyArray *ap, void *ptr);
 NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
 int NpyArray_CanCoerceScalar(int thistype, int neededtype, NPY_SCALARKIND scalar);
 NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
-
-
-/* npy_hash_table.c */
-NpyDict *NpyDict_CreateTable(long numOfBuckets);
-void NpyDict_Destroy(NpyDict *hashTable);
-int NpyDict_ContainsKey(const NpyDict *hashTable, const void *key);
-int NpyDict_ContainsValue(const NpyDict *hashTable, const void *value);
-int NpyDict_Put(NpyDict *hashTable, const void *key, void *value);
-void *NpyDict_Get(const NpyDict *hashTable, const void *key);
-void NpyDict_Remove(NpyDict *hashTable, const void *key);
-void NpyDict_RemoveAll(NpyDict *hashTable);
-int NpyDict_IsEmpty(const NpyDict *hashTable);
-long NpyDict_Size(const NpyDict *hashTable);
-long NpyDict_GetNumBuckets(const NpyDict *hashTable);
-void NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
-                                      int (*keycmp)(const void *key1, const void *key2));
-void NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
-                                        int (*valuecmp)(const void *value1, const void *value2));
-void NpyDict_SetHashFunction(NpyDict *hashTable,
-                             unsigned long (*hashFunction)(const void *key));
-void NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets);
-void NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
-                           float lowerRehashThreshold, float upperRehashThreshold);
-void NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
-                                      void (*keyDeallocator)(void *key),
-                                      void (*valueDeallocator)(void *value));
-unsigned long NpyDict_StringHashFunction(const void *key);
 
 
 /* number.c */

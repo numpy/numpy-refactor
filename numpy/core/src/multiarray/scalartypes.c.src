@@ -1697,23 +1697,41 @@ voidtype_length(PyVoidScalarObject *self)
         return 0;
     }
     else { /* return the number of fields */
-        return (Py_ssize_t) PyTuple_GET_SIZE(self->descr->names);
+        int i;
+        
+        for (i=0; NULL != self->descr->names[i]; i++) ;
+        return i;
     }
 }
 
+    
+
+/* Convert an NpyArray_Descr and offset to a 2-tuple for use in calling Python methods. */
+static PyObject *voidtype_npydescr_to_tuple(NpyArray_Descr *descr, int offset)
+{
+    PyObject *tup = PyTuple_New(2);
+    Py_INCREF(descr);
+    PyTuple_SET_ITEM(tup, 0, descr);            /* TODO: Wrap descriptor */
+    PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(offset));
+    return tup;
+}
+
+    
 static PyObject *
 voidtype_item(PyVoidScalarObject *self, Py_ssize_t n)
 {
-    intp m;
-    PyObject *flist=NULL, *fieldinfo;
+    NpyArray_DescrField *value;
+    int m;
+    PyObject *fieldinfo;
+    PyObject *ret=NULL, *tup=NULL;
 
     if (!(PyDescr_HASFIELDS(self->descr))) {
         PyErr_SetString(PyExc_IndexError,
                 "can't index void scalar without fields");
         return NULL;
     }
-    flist = self->descr->names;
-    m = PyTuple_GET_SIZE(flist);
+    
+    for (m=0; NULL != self->descr->names[m]; m++) ;
     if (n < 0) {
         n += m;
     }
@@ -1721,18 +1739,22 @@ voidtype_item(PyVoidScalarObject *self, Py_ssize_t n)
         PyErr_Format(PyExc_IndexError, "invalid index (%d)", (int) n);
         return NULL;
     }
-    fieldinfo = PyDict_GetItem(self->descr->fields,
-            PyTuple_GET_ITEM(flist, n));
-    return voidtype_getfield(self, fieldinfo, NULL);
+    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, self->descr->names[n]);
+    tup = voidtype_npydescr_to_tuple(value->descr, value->offset);
+    ret = voidtype_getfield(self, tup, NULL);
+    Py_DECREF(tup);
+    return ret;
 }
 
+    
 
 /* get field by name or number */
 static PyObject *
 voidtype_subscript(PyVoidScalarObject *self, PyObject *ind)
 {
     intp n;
-    PyObject *fieldinfo;
+    PyObject *tup=NULL, *ret=NULL;
+    NpyArray_DescrField *value;
 
     if (!(PyDescr_HASFIELDS(self->descr))) {
         PyErr_SetString(PyExc_IndexError,
@@ -1746,11 +1768,14 @@ voidtype_subscript(PyVoidScalarObject *self, PyObject *ind)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        fieldinfo = PyDict_GetItem(self->descr->fields, ind);
-        if (!fieldinfo) {
+        value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, PyString_AsString(ind));
+        if (NULL == value) {
             goto fail;
         }
-        return voidtype_getfield(self, fieldinfo, NULL);
+        tup = voidtype_npydescr_to_tuple(value->descr, value->offset);
+        ret = voidtype_getfield(self, tup, NULL);
+        Py_DECREF(tup);
+        return ret;
     }
 
     /* try to convert it to a number */
@@ -1768,8 +1793,9 @@ fail:
 static int
 voidtype_ass_item(PyVoidScalarObject *self, Py_ssize_t n, PyObject *val)
 {
-    intp m;
-    PyObject *flist=NULL, *fieldinfo, *newtup;
+    int m;
+    NpyArray_DescrField *value;
+    PyObject *newtup;
     PyObject *res;
 
     if (!(PyDescr_HASFIELDS(self->descr))) {
@@ -1778,19 +1804,16 @@ voidtype_ass_item(PyVoidScalarObject *self, Py_ssize_t n, PyObject *val)
         return -1;
     }
 
-    flist = self->descr->names;
-    m = PyTuple_GET_SIZE(flist);
+    for (m = 0; NULL != self->descr->names[m]; m++) ;
     if (n < 0) {
         n += m;
     }
     if (n < 0 || n >= m) {
         goto fail;
     }
-    fieldinfo = PyDict_GetItem(self->descr->fields,
-            PyTuple_GET_ITEM(flist, n));
-    newtup = Py_BuildValue("(OOO)", val,
-            PyTuple_GET_ITEM(fieldinfo, 0),
-            PyTuple_GET_ITEM(fieldinfo, 1));
+    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, self->descr->names[n]);
+    newtup = Py_BuildValue("(OOO)", val, value->descr,      /* TODO: Wrap descr */
+                           PyInt_FromLong(value->offset));
     res = voidtype_setfield(self, newtup, NULL);
     Py_DECREF(newtup);
     if (!res) {
@@ -1807,9 +1830,10 @@ fail:
 static int
 voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
 {
-    intp n;
+    int n;
     char *msg = "invalid index";
-    PyObject *fieldinfo, *newtup;
+    NpyArray_DescrField *value = NULL;
+    PyObject *newtup;
     PyObject *res;
 
     if (!PyDescr_HASFIELDS(self->descr)) {
@@ -1824,13 +1848,12 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        fieldinfo = PyDict_GetItem(self->descr->fields, ind);
-        if (!fieldinfo) {
+        value = NpyDict_Get(self->descr->fields, PyString_AsString(ind));
+        if (NULL != value) {
             goto fail;
         }
-        newtup = Py_BuildValue("(OOO)", val,
-                PyTuple_GET_ITEM(fieldinfo, 0),
-                PyTuple_GET_ITEM(fieldinfo, 1));
+        newtup = Py_BuildValue("(OOO)", val, value->descr,          /* TODO: wrap descriptor */
+                               PyInt_FromLong(value->offset));
         res = voidtype_setfield(self, newtup, NULL);
         Py_DECREF(newtup);
         if (!res) {

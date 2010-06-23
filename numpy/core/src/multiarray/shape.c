@@ -114,18 +114,16 @@ _putzero(char *optr, PyObject *zero, PyArray_Descr *dtype)
         memset(optr, 0, dtype->elsize);
     }
     else if (PyDescr_HASFIELDS(dtype)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new;
-        int offset;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(dtype->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        const char *key;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(dtype->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset, &title)) {
-                return;
-            }
-            _putzero(optr + offset, zero, new);
+            _putzero(optr + value->offset, zero, value->descr);
         }
     }
     else {

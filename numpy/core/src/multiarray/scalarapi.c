@@ -462,10 +462,28 @@ PyArray_DescrFromTypeObject(PyObject *type)
         new = PyArray_DescrNewFromType(PyArray_VOID);
         conv = _arraydescr_fromobj(type);
         if (conv) {
-            new->fields = conv->fields;
-            Py_INCREF(new->fields);
-            new->names = conv->names;
-            Py_INCREF(new->names);
+            char **nameslist;
+            const char *key = NULL;
+            NpyArray_DescrField *value = NULL;
+            int i, n;
+            NpyDict_Iter pos;
+            
+            NpyArray_DescrDeallocNamesAndFields(new);
+            for (n=0; NULL != conv->names[n]; n++) ;
+            nameslist = NpyArray_DescrAllocNames(n);
+            for (i=0; i < n; i++) {
+                nameslist[i] = strdup(conv->names[i]);
+            }
+            nameslist[n] = NULL;
+            NpyArray_DescrSetNames(new, nameslist);
+            new->fields = NpyArray_DescrAllocFields();
+            
+            NpyDict_IterInit(&pos);
+            while (NpyDict_IterNext(conv->fields, &pos, (void **)&key, (void **)&value)) {
+                Npy_INCREF(value->descr);
+                NpyArray_DescrSetField(new->fields, key, value->descr, value->offset, value->title);
+            }
+            
             new->elsize = conv->elsize;
             new->subarray = conv->subarray;
             conv->subarray = NULL;
@@ -576,17 +594,24 @@ PyArray_DescrFromScalar(PyObject *sc)
 #endif
         }
         else {
+            PyObject *fields = NULL;
+            
             descr->elsize = Py_SIZE((PyVoidScalarObject *)sc);
-            descr->fields = PyObject_GetAttrString(sc, "fields");
-            if (!descr->fields
-                    || !PyDict_Check(descr->fields)
-                    || (descr->fields == Py_None)) {
-                Py_XDECREF(descr->fields);
-                descr->fields = NULL;
+            fields = PyObject_GetAttrString(sc, "fields");
+            if (NULL == fields
+                    || !PyDict_Check(fields)
+                    || (fields == Py_None)) {
+                if (NULL != descr->fields) {
+                    NpyDict_Destroy(descr->fields);
+                    descr->fields = NULL;
+                }
             }
-            if (descr->fields) {
-                descr->names = PyArray_FieldNames(descr->fields);
+            if (NULL != descr->fields) {
+                PyObject *names = PyArray_FieldNames(fields);
+                descr->names = arraydescr_seq_to_nameslist(names);
+                Py_DECREF(names);
             }
+            Py_XDECREF(fields);
             PyErr_Clear();
         }
     }

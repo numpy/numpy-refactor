@@ -79,10 +79,7 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
         if (testsize != outtype->elsize) {
             PyArray_DESCR_REPLACE(outtype);
             outtype->elsize = testsize;
-            Py_XDECREF(outtype->fields);
-            outtype->fields = NULL;
-            Py_XDECREF(outtype->names);
-            outtype->names = NULL;
+            NpyArray_DescrDeallocNamesAndFields(outtype);
         }
     }
     return outtype;

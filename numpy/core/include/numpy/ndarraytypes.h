@@ -537,6 +537,9 @@ typedef struct {
 #define PyDataType_REFCHK(dtype)                                          \
         PyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
 
+
+struct NpyDict_struct;     /* TODO: From numpy_api.h, needed until PyArray_Descr is split into
+                              CPython and core parts */
 typedef struct _PyArray_Descr {
         PyObject_HEAD
         PyTypeObject *typeobj;  /*
@@ -545,7 +548,8 @@ typedef struct _PyArray_Descr {
                                  * be two type_numbers with the same type
                                  * object.
                                  */
-        int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+        int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
+                                   NPY_INVALID_MAGIC on dealloc */
         char kind;              /* kind for this type */
         char type;              /* unique-character representing this type */
         char byteorder;         /*
@@ -563,15 +567,14 @@ typedef struct _PyArray_Descr {
                                  * is an array (C-contiguous)
                                  * of some other type
                                  */
-        PyObject *fields;       /* The fields dictionary for this type
+        struct NpyDict_struct 
+            *fields;            /* The fields dictionary for this type
                                  * For statically defined descr this
-                                 * is always Py_None
+                                 * is always NULL.
                                  */
 
-        PyObject *names;        /*
-                                 * An ordered tuple of field names or NULL
-                                 * if no fields are defined
-                                 */
+        char **names;           /* Array of char *, NULL indicates end of array. 
+                                 * char* lifetime is exactly lifetime of array itself. */
 
         PyArray_ArrFuncs *f;     /*
                                   * a table of functions specific for each

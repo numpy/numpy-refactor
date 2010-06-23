@@ -1080,70 +1080,6 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
     return PY_FAIL;
 }
 
-/*
- * compare the field dictionary for two types
- * return 1 if the same or 0 if not
- */
-static int
-_equivalent_fields(PyObject *field1, PyObject *field2) {
-
-    int same, val;
-
-    if (field1 == field2) {
-        return 1;
-    }
-    if (field1 == NULL || field2 == NULL) {
-        return 0;
-    }
-#if defined(NPY_PY3K)
-    val = PyObject_RichCompareBool(field1, field2, Py_EQ);
-    if (val != 1 || PyErr_Occurred()) {
-#else
-    val = PyObject_Compare(field1, field2);
-    if (val != 0 || PyErr_Occurred()) {
-#endif
-        same = 0;
-    }
-    else {
-        same = 1;
-    }
-    PyErr_Clear();
-    return same;
-}
-
-/*
- * compare the metadata for two date-times
- * return 1 if they are the same
- * or 0 if not
- */
-static int
-_equivalent_units(PyObject *meta1, PyObject *meta2)
-{
-    PyObject *cobj1, *cobj2;
-    PyArray_DatetimeMetaData *data1, *data2;
-
-    /* Same meta object */
-    if (meta1 == meta2) {
-        return 1;
-    }
-
-    cobj1 = PyDict_GetItemString(meta1, NPY_METADATA_DTSTR);
-    cobj2 = PyDict_GetItemString(meta2, NPY_METADATA_DTSTR);
-    if (cobj1 == cobj2) {
-        return 1;
-    }
-
-/* FIXME
- * There is no err handling here.
- */
-    data1 = NpyCapsule_AsVoidPtr(cobj1);
-    data2 = NpyCapsule_AsVoidPtr(cobj2);
-    return ((data1->base == data2->base)
-            && (data1->num == data2->num)
-            && (data1->den == data2->den)
-            && (data1->events == data2->events));
-}
-
 
 /*NUMPY_API
  *
@@ -1153,31 +1089,11 @@ _equivalent_units(PyObject *meta1, PyObject *meta2)
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 {
-    int typenum1 = typ1->type_num;
-    int typenum2 = typ2->type_num;
-    int size1 = typ1->elsize;
-    int size2 = typ2->elsize;
-
-    if (size1 != size2) {
-        return FALSE;
-    }
-    if (PyArray_ISNBO(typ1->byteorder) != PyArray_ISNBO(typ2->byteorder)) {
-        return FALSE;
-    }
-    if (typenum1 == PyArray_VOID
-        || typenum2 == PyArray_VOID) {
-        return ((typenum1 == typenum2)
-                && _equivalent_fields(typ1->fields, typ2->fields));
-    }
-    if (typenum1 == PyArray_DATETIME
-            || typenum1 == PyArray_DATETIME
-            || typenum2 == PyArray_TIMEDELTA
-            || typenum2 == PyArray_TIMEDELTA) {
-        return ((typenum1 == typenum2)
-                && _equivalent_units(typ1->metadata, typ2->metadata));
-    }
-    return typ1->kind == typ2->kind;
+    /* TODO: Unwrap array descr objects */
+    return NpyArray_EquivTypes(typ1, typ2);
 }
+
+
 
 /*NUMPY_API*/
 NPY_NO_EXPORT unsigned char

@@ -57,14 +57,10 @@ maintainer email:  oliphant.travis@ieee.org
 NPY_NO_EXPORT intp
 PyArray_Size(PyObject *op)
 {
-    if (PyArray_Check(op)) {
-        NpyArray_Size((NpyArray*)op);
-    }
-    else {
-        return 0;
-    }
+    return PyArray_Check(op) ? NpyArray_Size((NpyArray*)op) : 0;
 }
 
+            
 /*NUMPY_API*/
 NPY_NO_EXPORT int
 PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
@@ -759,27 +755,35 @@ _void_compare(PyArrayObject *self, PyArrayObject *other, int cmp_op)
         return NULL;
     }
     if (PyArray_HASFIELDS(self)) {
+        const char *key;
+        NpyArray_DescrField *value;
         PyObject *res = NULL, *temp, *a, *b;
-        PyObject *key, *value, *temp2;
-        PyObject *op;
-        Py_ssize_t pos = 0;
+        PyObject *temp2;
+        PyObject *op, *tempKey;
+        NpyDict_Iter pos;
 
         op = (cmp_op == Py_EQ ? n_ops.logical_and : n_ops.logical_or);
-        while (PyDict_Next(self->descr->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(self->descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            a = PyArray_EnsureAnyArray(array_subscript(self, key));
+            tempKey = PyString_FromString(key);
+            a = PyArray_EnsureAnyArray(array_subscript(self, tempKey));
             if (a == NULL) {
                 Py_XDECREF(res);
+                Py_DECREF(tempKey);
                 return NULL;
             }
-            b = array_subscript(other, key);
+            b = array_subscript(other, tempKey);
             if (b == NULL) {
                 Py_XDECREF(res);
                 Py_DECREF(a);
+                Py_DECREF(tempKey);
                 return NULL;
             }
+            Py_DECREF(tempKey);
+            
             temp = array_richcompare((PyArrayObject *)a,b,cmp_op);
             Py_DECREF(a);
             Py_DECREF(b);

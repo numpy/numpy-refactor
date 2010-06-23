@@ -2,6 +2,7 @@
 #include <Python.h>
 #define _MULTIARRAYMODULE
 #include <numpy/ndarrayobject.h>
+#include <numpy/numpy_api.h>
 
 #include "npy_config.h"
 
@@ -27,7 +28,7 @@
 
 static int _is_array_descr_builtin(PyArray_Descr* descr);
 static int _array_descr_walk(PyArray_Descr* descr, PyObject *l);
-static int _array_descr_walk_fields(PyObject* fields, PyObject* l);
+static int _array_descr_walk_fields(NpyDict *fields, PyObject* l);
 static int _array_descr_builtin(PyArray_Descr* descr, PyObject *l);
 
 /*
@@ -35,7 +36,7 @@ static int _array_descr_builtin(PyArray_Descr* descr, PyObject *l);
  */
 static int _is_array_descr_builtin(PyArray_Descr* descr)
 {
-        if (descr->fields != NULL && descr->fields != Py_None) {
+        if (NULL != descr->fields) {
                 return 0;
         }
         if (descr->subarray != NULL) {
@@ -85,63 +86,32 @@ clean_t:
  *
  * Return 0 on success
  */
-static int _array_descr_walk_fields(PyObject* fields, PyObject* l)
+static int _array_descr_walk_fields(NpyDict *fields, PyObject* l)
 {
-    PyObject *key, *value, *foffset, *fdescr;
-    Py_ssize_t pos = 0;
+    const char *key = NULL;
+    NpyArray_DescrField *value = NULL;;
+    NpyDict_Iter pos;
     int st;
 
-    while (PyDict_Next(fields, &pos, &key, &value)) {
+    NpyDict_IterInit(&pos);
+    while (NpyDict_IterNext(fields, &pos, (void **)&key, (void **)&value)) {
         /*
          * For each field, add the key + descr + offset to l
          */
 
-        /* XXX: are those checks necessary ? */
-        if (!PyUString_Check(key)) {
-            PyErr_SetString(PyExc_SystemError,
-                    "(Hash) key of dtype dict not a string ???");
-            return -1;
-        }
-        if (!PyTuple_Check(value)) {
-            PyErr_SetString(PyExc_SystemError,
-                    "(Hash) value of dtype dict not a dtype ???");
-            return -1;
-        }
-        if (PyTuple_Size(value) < 2) {
-            PyErr_SetString(PyExc_SystemError,
-                    "(Hash) Less than 2 items in dtype dict ???");
-            return -1;
-        }
-        Py_INCREF(key);
-        PyList_Append(l, key);
+        PyList_Append(l, PyString_FromString(key));
 
-        fdescr = PyTuple_GetItem(value, 0);
-        if (!PyArray_DescrCheck(fdescr)) {
-            PyErr_SetString(PyExc_SystemError,
-                    "(Hash) First item in compound dtype tuple not a descr ???");
+        /* TODO: Wrap, then unwrap descr */
+        st = _array_descr_walk(value->descr, l);
+        if (st) {
             return -1;
-        } else {
-            Py_INCREF(fdescr);
-            st = _array_descr_walk((PyArray_Descr*)fdescr, l);
-            Py_DECREF(fdescr);
-            if (st) {
-                return -1;
-            }
         }
-
-        foffset = PyTuple_GetItem(value, 1);
-        if (!PyInt_Check(foffset)) {
-            PyErr_SetString(PyExc_SystemError,
-                    "(Hash) Second item in compound dtype tuple not an int ???");
-            return -1;
-        } else {
-            Py_INCREF(foffset);
-            PyList_Append(l, foffset);
-        }
+        PyList_Append(l, PyInt_FromLong(value->offset));
     }
 
     return 0;
 }
+
 
 /*
  * Walk into subarray, and add items for hashing in l
@@ -194,12 +164,7 @@ static int _array_descr_walk(PyArray_Descr* descr, PyObject *l)
     if (_is_array_descr_builtin(descr)) {
         return _array_descr_builtin(descr, l);
     } else {
-        if(descr->fields != NULL && descr->fields != Py_None) {
-            if (!PyDict_Check(descr->fields)) {
-                PyErr_SetString(PyExc_SystemError,
-                        "(Hash) fields is not a dict ???");
-                return -1;
-            }
+        if (NULL != descr->fields) {
             st = _array_descr_walk_fields(descr->fields, l);
             if (st) {
                 return -1;

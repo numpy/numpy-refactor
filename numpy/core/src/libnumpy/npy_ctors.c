@@ -936,6 +936,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
     }
+//    Npy_INCREF(descr);      /* TODO: WRONG!  Inserted here makes crash go away, but is wrong. */
     self->descr = descr;
     self->base_arr = NULL;
     self->base_obj = NULL;

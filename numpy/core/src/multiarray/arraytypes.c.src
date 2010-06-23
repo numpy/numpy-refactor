@@ -546,42 +546,39 @@ VOID_getitem(char *ip, PyArrayObject *ap)
     int itemsize;
 
     descr = ap->descr;
-    if (descr->names) {
-        PyObject *key;
-        PyObject *names;
+    if (NULL != descr->names) {
+        char **names;
         int i, n;
         PyObject *ret;
-        PyObject *tup, *title;
-        PyArray_Descr *new;
-        int offset;
+        NpyArray_DescrField *value;
         int savedflags;
 
         /* get the names from the fields dictionary*/
         names = descr->names;
-        if (!names) {
+        if (NULL == names) {
             goto finish;
         }
-        n = PyTuple_GET_SIZE(names);
+        for (n=0; NULL != names[n]; n++) ;
+        
         ret = PyTuple_New(n);
         savedflags = ap->flags;
         for (i = 0; i < n; i++) {
-            key = PyTuple_GET_ITEM(names, i);
-            tup = PyDict_GetItem(descr->fields, key);
-            if (!PyArg_ParseTuple(tup, "Oi|O", &new, &offset, &title)) {
+            value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
+            if (NULL == value) {
                 Py_DECREF(ret);
                 ap->descr = descr;
                 return NULL;
             }
-            ap->descr = new;
+            ap->descr = value->descr;
             /* update alignment based on offset */
-            if ((new->alignment > 1)
-                    && ((((intp)(ip+offset)) % new->alignment) != 0)) {
+            if ((value->descr->alignment > 1)
+                    && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
                 ap->flags &= ~ALIGNED;
             }
             else {
                 ap->flags |= ALIGNED;
             }
-            PyTuple_SET_ITEM(ret, i, new->f->getitem(ip+offset, ap));
+            PyTuple_SET_ITEM(ret, i, value->descr->f->getitem(ip +  value->offset, ap));
             ap->flags = savedflags;
         }
         ap->descr = descr;
@@ -673,18 +670,15 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
 
     descr = ap->descr;
     if (descr->names && PyTuple_Check(op)) {
-        PyObject *key;
-        PyObject *names;
+        char **names;
         int i, n;
-        PyObject *tup, *title;
-        PyArray_Descr *new;
-        int offset;
+        NpyArray_DescrField *value;
         int savedflags;
 
         res = -1;
         /* get the names from the fields dictionary*/
         names = descr->names;
-        n = PyTuple_GET_SIZE(names);
+        for (n=0; NULL != names[n]; n++) ;
         if (PyTuple_GET_SIZE(op) != n) {
             PyErr_SetString(PyExc_ValueError,
                     "size of tuple must match number of fields.");
@@ -692,22 +686,17 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
         }
         savedflags = ap->flags;
         for (i = 0; i < n; i++) {
-            key = PyTuple_GET_ITEM(names, i);
-            tup = PyDict_GetItem(descr->fields, key);
-            if (!PyArg_ParseTuple(tup, "Oi|O", &new, &offset, &title)) {
-                ap->descr = descr;
-                return -1;
-            }
-            ap->descr = new;
+            value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
+            ap->descr = value->descr;
             /* remember to update alignment flags */
-            if ((new->alignment > 1)
-                    && ((((intp)(ip+offset)) % new->alignment) != 0)) {
+            if ((value->descr->alignment > 1)
+                    && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
                 ap->flags &= ~ALIGNED;
             }
             else {
                 ap->flags |= ALIGNED;
             }
-            res = new->f->setitem(PyTuple_GET_ITEM(op, i), ip+offset, ap);
+            res = value->descr->f->setitem(PyTuple_GET_ITEM(op, i), ip+value->offset, ap);
             ap->flags = savedflags;
             if (res < 0) {
                 break;
@@ -2043,23 +2032,20 @@ VOID_copyswapn (char *dst, intp dstride, char *src, intp sstride,
         return;
     }
     if (PyArray_HASFIELDS(arr)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new, *descr;
-        int offset;
-        Py_ssize_t pos = 0;
+        const char *key;
+        NpyArray_Descr *descr;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
 
         descr = arr->descr;
-        while (PyDict_Next(descr->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset, &title)) {
-                arr->descr = descr;
-                return;
-            }
-            arr->descr = new;
-            new->f->copyswapn(dst+offset, dstride,
-                    (src != NULL ? src+offset : NULL),
+            arr->descr = value->descr;
+            value->descr->f->copyswapn(dst + value->offset, dstride,
+                    (src != NULL ? src + value->offset : NULL),
                     sstride, n, swap, arr);
         }
         arr->descr = descr;
@@ -2103,23 +2089,20 @@ VOID_copyswap (char *dst, char *src, int swap, PyArrayObject *arr)
         return;
     }
     if (PyArray_HASFIELDS(arr)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new, *descr;
-        int offset;
-        Py_ssize_t pos = 0;
+        const char *key;
+        NpyArray_Descr *descr;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
 
         descr = arr->descr;
-        while (PyDict_Next(descr->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset, &title)) {
-                arr->descr = descr;
-                return;
-            }
-            arr->descr = new;
-            new->f->copyswap(dst+offset,
-                    (src != NULL ? src+offset : NULL),
+            arr->descr = value->descr;
+            value->descr->f->copyswap(dst + value->offset,
+                    (src != NULL ? src + value->offset : NULL),
                     swap, arr);
         }
         arr->descr = descr;
@@ -2389,30 +2372,28 @@ VOID_nonzero (char *ip, PyArrayObject *ap)
 
     if (PyArray_HASFIELDS(ap)) {
         PyArray_Descr *descr, *new;
-        PyObject *key, *value, *title;
-        int savedflags, offset;
-        Py_ssize_t pos = 0;
+        const char *key;
+        NpyArray_DescrField *value;
+        int savedflags;
+        NpyDict_Iter pos;
 
         descr = ap->descr;
         savedflags = ap->flags;
-        while (PyDict_Next(descr->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset,
-                        &title)) {
-                PyErr_Clear();
-                continue;
-            }
+            new = value->descr;
             ap->descr = new;
             ap->flags = savedflags;
-            if ((new->alignment > 1) && !__ALIGNED(ip+offset, new->alignment)) {
+            if ((new->alignment > 1) && !__ALIGNED(ip + value->offset, new->alignment)) {
                 ap->flags &= ~ALIGNED;
             }
             else {
                 ap->flags |= ALIGNED;
             }
-            if (new->f->nonzero(ip+offset, ap)) {
+            if (new->f->nonzero(ip + value->offset, ap)) {
                 nonz = TRUE;
                 break;
             }
@@ -2659,8 +2640,8 @@ static int
 VOID_compare(char *ip1, char *ip2, PyArrayObject *ap)
 {
     PyArray_Descr *descr, *new;
-    PyObject *names, *key;
-    PyObject *tup, *title;
+    char **names;
+    NpyArray_DescrField *value;
     char *nip1, *nip2;
     int i, offset, res = 0, swap=0;
 
@@ -2673,12 +2654,11 @@ VOID_compare(char *ip1, char *ip2, PyArrayObject *ap)
      * compare on the second-field, etc.
      */
     names = descr->names;
-    for (i = 0; i < PyTuple_GET_SIZE(names); i++) {
-        key = PyTuple_GET_ITEM(names, i);
-        tup = PyDict_GetItem(descr->fields, key);
-        if (!PyArg_ParseTuple(tup, "Oi|O", &new, &offset, &title)) {
-            goto finish;
-        }
+    for (i = 0; NULL != names[i]; i++) {
+        value = NpyDict_Get(descr->fields, names[i]);
+        new = value->descr;
+        offset = value->offset;
+        
         ap->descr = new;
         swap = PyArray_ISBYTESWAPPED(ap);
         nip1 = ip1+offset;
@@ -3679,7 +3659,7 @@ set_typeinfo(PyObject *dict)
   *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
   *         DATETIME, TIMEDELTA#
 */
-    @name@_Descr.fields = Py_None;
+    @name@_Descr.fields = NULL;
 /**end repeat**/
 
     /* Set a dictionary with type information */

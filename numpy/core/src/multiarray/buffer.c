@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_config.h"
 
@@ -220,20 +221,22 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
         return ret;
     }
     else if (PyDataType_HASFIELDS(descr)) {
+        int n;
+        
         _append_str(str, "T{");
-        for (k = 0; k < PyTuple_GET_SIZE(descr->names); ++k) {
-            PyObject *name, *item, *offset_obj, *tmp;
+        for (n=0; NULL != descr->names[n]; n++) ;
+        for (k = 0; k < n; ++k) {
+            const char *name;
+            NpyArray_DescrField *item = NULL;
             PyArray_Descr *child;
             char *p;
-            Py_ssize_t len;
             int new_offset;
 
-            name = PyTuple_GET_ITEM(descr->names, k);
-            item = PyDict_GetItem(descr->fields, name);
+            name = descr->names[k];
+            item = (NpyArray_DescrField *)NpyDict_Get(descr->fields, name);
 
-            child = (PyArray_Descr*)PyTuple_GetItem(item, 0);
-            offset_obj = PyTuple_GetItem(item, 1);
-            new_offset = PyInt_AsLong(offset_obj);
+            child = item->descr;
+            new_offset = item->offset;
 
             /* Insert padding manually */
             while (*offset < new_offset) {
@@ -246,21 +249,10 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
             _buffer_format_string(child, str, arr, offset,
                                   active_byteorder);
 
-            /* Insert field name */
-#if defined(NPY_PY3K)
-            /* FIXME: XXX -- should it use UTF-8 here? */
-            tmp = PyUnicode_AsUTF8String(name);
-#else
-            tmp = name;
-#endif
-            if (tmp == NULL || PyBytes_AsStringAndSize(tmp, &p, &len) < 0) {
-                PyErr_SetString(PyExc_ValueError, "invalid field name");
-                return -1;
-            }
             _append_char(str, ':');
-            while (len > 0) {
+            p = name;
+            while (*p) {
                 if (*p == ':') {
-                    Py_DECREF(tmp);
                     PyErr_SetString(PyExc_ValueError,
                                     "':' is not an allowed character in buffer "
                                     "field names");
@@ -268,7 +260,6 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
                 }
                 _append_char(str, *p);
                 ++p;
-                --len;
             }
             _append_char(str, ':');
 #if defined(NPY_PY3K)

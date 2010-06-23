@@ -545,22 +545,17 @@ array_subscript(PyArrayObject *self, PyObject *op)
     int nd, fancy;
     PyArrayObject *other;
     PyArrayMapIterObject *mit;
+    NpyArray_DescrField *value;
     PyObject *obj;
 
     if (PyString_Check(op) || PyUnicode_Check(op)) {
         PyObject *temp;
 
-        if (self->descr->names) {
-            obj = PyDict_GetItem(self->descr->fields, op);
-            if (obj != NULL) {
-                PyArray_Descr *descr;
-                int offset;
-                PyObject *title;
-
-                if (PyArg_ParseTuple(obj, "Oi|O", &descr, &offset, &title)) {
-                    Py_INCREF(descr);
-                    return PyArray_GetField(self, descr, offset);
-                }
+        if (NULL != self->descr->names) {
+            value = NpyDict_Get(self->descr->fields, PyString_AsString(op));
+            if (NULL != value) {
+                Py_INCREF(value->descr);                     /* TODO: Looks wrong, why was this here? */
+                return NpyArray_GetField(self, value->descr, value->offset);    /* TODO: Wrap returned array object */
             }
         }
 
@@ -797,18 +792,11 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
 
     if (PyString_Check(index) || PyUnicode_Check(index)) {
         if (self->descr->names) {
-            PyObject *obj;
-
-            obj = PyDict_GetItem(self->descr->fields, index);
-            if (obj != NULL) {
-                PyArray_Descr *descr;
-                int offset;
-                PyObject *title;
-
-                if (PyArg_ParseTuple(obj, "Oi|O", &descr, &offset, &title)) {
-                    Py_INCREF(descr);
-                    return PyArray_SetField(self, descr, offset, op);
-                }
+            NpyArray_DescrField *value;
+            
+            value = NpyDict_Get(self->descr->fields, PyString_AsString(index));
+            if (NULL != value) {
+                return NpyArray_SetField(self, value->descr, value->offset, op);
             }
         }
 

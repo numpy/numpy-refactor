@@ -16,6 +16,7 @@
 #include "common.h"
 #include "ctors.h"
 #include "calculation.h"
+#include "descriptor.h"
 
 #include "methods.h"
 
@@ -975,7 +976,7 @@ array_sort(PyArrayObject *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
         newd = PyArray_DescrNew(saved);
-        newd->names = new_name;
+        NpyArray_DescrSetNames(newd, arraydescr_seq_to_nameslist(new_name));
         self->descr = newd;
     }
 
@@ -1029,7 +1030,7 @@ array_argsort(PyArrayObject *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
         newd = PyArray_DescrNew(saved);
-        newd->names = new_name;
+        newd->names = arraydescr_seq_to_nameslist(new_name);
         self->descr = newd;
     }
 
@@ -1064,19 +1065,16 @@ _deepcopy_call(char *iptr, char *optr, PyArray_Descr *dtype,
         return;
     }
     else if (PyDescr_HASFIELDS(dtype)) {
-        PyObject *key, *value, *title = NULL;
-        PyArray_Descr *new;
-        int offset;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(dtype->fields, &pos, &key, &value)) {
-            if NPY_TITLE_KEY(key, value) {
+        const char *key = NULL;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(dtype->fields, &pos, (void **)&key, (void **)&value)) {
+            if (NULL != value->title && !strcmp(key, value->title)) {
                 continue;
             }
-            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset,
-                                  &title)) {
-                return;
-            }
-            _deepcopy_call(iptr + offset, optr + offset, new,
+            _deepcopy_call(iptr + value->offset, optr + value->offset, value->descr,
                            deepcopy, visit);
         }
     }
