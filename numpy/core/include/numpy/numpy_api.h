@@ -489,7 +489,7 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyDimMem_FREE(ptr) PyDimMem_FREE(ptr)
 
 #define NpyArray_malloc(size) PyArray_malloc(size)
-#define NpyArray_free(ptr) PyArray_free(malloc)
+#define NpyArray_free(ptr) PyArray_free(ptr)
 
 
 /*

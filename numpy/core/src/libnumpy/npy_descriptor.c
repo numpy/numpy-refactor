@@ -100,7 +100,7 @@ void NpyArray_DescrDestroy(NpyArray_Descr *self)
     if (self->subarray) {
         Npy_Interface_DECREF(self->subarray->shape);
         Npy_DECREF(self->subarray->base);
-        free(self->subarray);
+        NpyArray_free(self->subarray);
     }
     Npy_Interface_XDECREF(self->metadata);
     self->magic_number = NPY_INVALID_MAGIC;
