@@ -1014,6 +1014,8 @@ array_argsort(PyArrayObject *self, PyObject *args, PyObject *kwds)
     if (order != NULL) {
         PyObject *new_name;
         PyObject *_numpy_internal;
+        char** new_names;
+        int result;
         saved = self->descr;
         if (saved->names == NULL) {
             PyErr_SetString(PyExc_ValueError, "Cannot specify " \
@@ -1031,7 +1033,10 @@ array_argsort(PyArrayObject *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
         newd = PyArray_DescrNew(saved);
-        newd->names = arraydescr_seq_to_nameslist(new_name);
+	new_names = arraydescr_seq_to_nameslist(new_name);
+        result = NpyArray_DescrReplaceNames(newd, new_names);
+        /* The replace should not fail. */
+        assert(result != 0);
         self->descr = newd;
         Py_DECREF(new_name);
     }
