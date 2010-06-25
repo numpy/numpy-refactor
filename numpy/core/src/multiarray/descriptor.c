@@ -330,8 +330,7 @@ _convert_from_array_descr(PyObject *obj, int align)
         }
 
         /* Insert name into nameslist */
-        /* TODO: Verify that this incref supports the SET_ITEM call later. */
-        //Py_INCREF(name);  
+        Py_INCREF(name);  
 
         if (PyUString_GET_SIZE(name) == 0) {
             Py_DECREF(name);
@@ -355,6 +354,7 @@ _convert_from_array_descr(PyObject *obj, int align)
 #endif
         }
         nameslist[i] = strdup(PyString_AsString(name));
+        Py_DECREF(name);
 
         /* Process rest */
 
@@ -523,6 +523,7 @@ _convert_from_list(PyObject *obj, int align)
         NpyArray_DescrSetField(fields, PyString_AsString(key), conv, totalsize, NULL);
         nameslist[i] = strdup(PyString_AsString(key));
         totalsize += conv->elsize;
+        Py_DECREF(key);
     }
     new = PyArray_DescrNewFromType(PyArray_VOID);
     new->fields = fields;
@@ -706,6 +707,7 @@ _convert_datetime_tuple_to_cobj(PyObject *tuple)
 
     if (dt_data->den > 1) {
         if (_convert_divisor_to_multiple(dt_data) < 0) {
+            _pya_free(dt_data);
             return NULL;
         }
     }

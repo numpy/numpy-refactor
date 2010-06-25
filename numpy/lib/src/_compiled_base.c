@@ -616,6 +616,7 @@ arr_add_docstring(PyObject *NPY_UNUSED(dummy), PyObject *args)
 
         doc_attr = PyObject_GetAttrString(obj, "__doc__");
         if (doc_attr != NULL && doc_attr != Py_None) {
+            Py_DECREF(doc_attr);
             PyErr_Format(PyExc_RuntimeError, "object %s", msg);
             return NULL;
         }
