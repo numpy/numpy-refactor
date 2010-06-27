@@ -57,6 +57,7 @@ _arraydescr_fromobj(PyObject *obj)
                 PyObject *newtup;
                 PyArray_Descr *derived;
                 newtup = Py_BuildValue("NO", new, length);
+                Py_DECREF(length);
                 ret = PyArray_DescrConverter(newtup, &derived);
                 Py_DECREF(newtup);
                 if (ret == PY_SUCCEED) {
@@ -97,8 +98,7 @@ array_set_typeDict(PyObject *NPY_UNUSED(ignored), PyObject *args)
     /* Decrement old reference (if any)*/
     Py_XDECREF(typeDict);
     typeDict = dict;
-    /* Create an internal reference to it */
-    Py_INCREF(dict);
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -408,7 +408,6 @@ _convert_from_array_descr(PyObject *obj, int align)
          * and if it is not the same as the name.
          */
         if (title != NULL) {
-            Py_INCREF(title);
 #if defined(NPY_PY3K)
             if (PyUString_Check(title)) 
 #else

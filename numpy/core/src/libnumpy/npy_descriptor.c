@@ -211,8 +211,6 @@ NpyArray_DescrAllocFields()
 
 /*NUMPY_API
  * self cannot be NULL
- * new is an uninitialized block of memory to hold the descriptor data. This
- * function initializes that memory.
  */
 void
 NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
