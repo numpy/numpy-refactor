@@ -100,7 +100,7 @@ void NpyArray_DescrDestroy(NpyArray_Descr *self)
     if (self->subarray) {
         Npy_Interface_DECREF(self->subarray->shape);
         Npy_DECREF(self->subarray->base);
-        free(self->subarray);
+        NpyArray_free(self->subarray);
     }
     Npy_Interface_XDECREF(self->metadata);
     self->magic_number = NPY_INVALID_MAGIC;
@@ -211,8 +211,6 @@ NpyArray_DescrAllocFields()
 
 /*NUMPY_API
  * self cannot be NULL
- * new is an uninitialized block of memory to hold the descriptor data. This
- * function initializes that memory.
  */
 void
 NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)

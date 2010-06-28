@@ -130,7 +130,18 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_CLONGDOUBLE PyArray_CLONGDOUBLE
 #define NpyArray_FLOAT32 PyArray_FLOAT32
 #define NpyArray_FLOAT64 PyArray_FLOAT64
+#ifdef PyArray_FLOAT80
+#define NpyArray_FLOAT80 PyArray_FLOAT80
+#define NpyArray_COMPLEX160 PyArray_COMPLEX160
+#endif
+#ifdef PyArray_FLOAT96
+#define NpyArray_FLOAT96 PyArray_FLOAT96
+#define NpyArray_COMPLEX192 PyArray_COMPLEX192
+#endif
+#ifdef PyArray_FLOAT128
 #define NpyArray_FLOAT128 PyArray_FLOAT128
+#define NpyArray_COMPLEX256 PyArray_COMPLEX256
+#endif
 #define NpyArray_COMPLEXLTR PyArray_COMPLEXLTR
 #define NpyArray_COMPLEX64 PyArray_COMPLEX64
 #define NpyArray_COMPLEX128 PyArray_COMPLEX128
@@ -478,7 +489,7 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NpyDimMem_FREE(ptr) PyDimMem_FREE(ptr)
 
 #define NpyArray_malloc(size) PyArray_malloc(size)
-#define NpyArray_free(ptr) PyArray_free(malloc)
+#define NpyArray_free(ptr) PyArray_free(ptr)
 
 
 /*
