@@ -67,7 +67,6 @@ NpyArray_DescrNew(NpyArray_Descr *base)
            (char *)base + sizeof(PyObject),
            sizeof(NpyArray_Descr) - sizeof(PyObject));
     
-    /* TODO: Fix once NpyDescr fields no longer use python objects. */
     assert(NULL == new->fields && NULL == new->names || NULL != new->fields && NULL != new->names);
     if (NULL != new->fields) {
         new->names = NpyArray_DescrNamesCopy(new->names);
