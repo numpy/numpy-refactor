@@ -416,7 +416,7 @@ _convert_from_array_descr(PyObject *obj, int align)
 #endif
             {
                 char *titleStr = PyString_AsString(title);
-                if (NpyDict_ContainsKey(fields, titleStr)) {
+                if (!strcmp(nameslist[i], titleStr) || NpyDict_ContainsKey(fields, titleStr)) {
                     PyErr_SetString(PyExc_ValueError,
                             "title already used as a name or title.");
                     Py_DECREF(conv);
@@ -1779,7 +1779,7 @@ arraydescr_isnative_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_fields_get(PyArray_Descr *self)
 {
-    PyObject *dict = NULL, *roDict = NULL;
+    PyObject *dict = NULL;
     NpyDict_Iter pos;
     const char *key;
     NpyArray_DescrField *value;

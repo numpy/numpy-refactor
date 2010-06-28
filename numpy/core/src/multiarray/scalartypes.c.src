@@ -1849,7 +1849,7 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
 #endif
         /* look up in fields */
         value = NpyDict_Get(self->descr->fields, PyString_AsString(ind));
-        if (NULL != value) {
+        if (NULL == value) {
             goto fail;
         }
         newtup = Py_BuildValue("(OOO)", val, value->descr,          /* TODO: wrap descriptor */
