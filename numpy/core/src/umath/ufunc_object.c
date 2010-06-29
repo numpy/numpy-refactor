@@ -1320,7 +1320,6 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             PyArrayObject *ao = mps[i];
             mps[i] = mps[i]->base_arr;          /* TODO: Need to wrap return object */
             Py_DECREF(ao);
-            Py_INCREF(mps[i]);
         }
     }
 
@@ -3816,6 +3815,7 @@ PyUFunc_FromFuncAndDataAndSignature(PyUFuncGenericFunction *func, void **data,
     self->core_signature = NULL;
     if (signature != NULL) {
         if (_parse_signature(self, signature) != 0) {
+            Py_DECREF(self);
             return NULL;
         }
     }
