@@ -1566,6 +1566,7 @@ array_arange(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws) {
     PyObject *o_start = NULL, *o_stop = NULL, *o_step = NULL;
     static char *kwd[]= {"start", "stop", "step", "dtype", NULL};
     PyArray_Descr *typecode = NULL;
+    PyObject* result;
 
     if(!PyArg_ParseTupleAndKeywords(args, kws, "O|OOO&", kwd,
                 &o_start, &o_stop, &o_step,
@@ -1573,7 +1574,9 @@ array_arange(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws) {
         Py_XDECREF(typecode);
         return NULL;
     }
-    return PyArray_ArangeObj(o_start, o_stop, o_step, typecode);
+    result = PyArray_ArangeObj(o_start, o_stop, o_step, typecode);
+    Py_XDECREF(typecode);
+    return result;
 }
 
 /*NUMPY_API
