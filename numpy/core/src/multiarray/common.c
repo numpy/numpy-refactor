@@ -117,8 +117,7 @@ _array_find_python_scalar_type(PyObject *op)
 static PyArray_Descr *
 _use_default_type(PyObject *op)
 {
-    int typenum, l;
-    PyObject *type;
+    int typenum;
 
     typenum = NpyArray_TypeNumFromTypeObj(Py_TYPE(op));
     if (typenum == NpyArray_NOTYPE) {

@@ -1001,7 +1001,8 @@ iter_array(PyArrayIterObject *it, PyObject *NPY_UNUSED(op))
     size = PyArray_SIZE(it->ao);
     Py_INCREF(it->ao->descr);
     if (PyArray_ISCONTIGUOUS(it->ao)) {
-        r = PyArray_NewFromDescr(&PyArray_Type,
+        r = (PyArrayObject *)
+            PyArray_NewFromDescr(&PyArray_Type,
                                  it->ao->descr,
                                  1, &size,
                                  NULL, it->ao->data,
@@ -1012,7 +1013,8 @@ iter_array(PyArrayIterObject *it, PyObject *NPY_UNUSED(op))
         }
     }
     else {
-        r = PyArray_NewFromDescr(&PyArray_Type,
+        r = (PyArrayObject *)
+            PyArray_NewFromDescr(&PyArray_Type,
                                  it->ao->descr,
                                  1, &size,
                                  NULL, NULL,
@@ -1214,7 +1216,7 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
             if (i < n) {
                 arrays[i] = (NpyArray*) PyArray_FROM_O(mps[i]);
             } else {
-                PyArrayObject* arg = va_arg(va, PyObject*);
+                PyObject* arg = va_arg(va, PyObject*);
                 arrays[i] = (NpyArray*) PyArray_FROM_O(arg);
             }
             if (arrays[i] == NULL) {

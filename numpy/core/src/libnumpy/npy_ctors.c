@@ -264,7 +264,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     NPY_BEGIN_THREADS_DEF;
     
     elsize = NpyArray_ITEMSIZE(dest);
-    multi = NpyArray_MultiIterNew(2, dest, src);
+    multi = (NpyArrayMultiIter *)NpyArray_MultiIterNew(2, dest, src);
     if (multi == NULL) {
         return -1;
     }
@@ -752,9 +752,9 @@ NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
     }
     if ((requires & NPY_ELEMENTSTRIDES) &&
         !NpyArray_ElementStrides(obj)) {
-        PyObject *new;
+        NpyArray *new;
         new = NpyArray_NewCopy(obj, PyArray_ANYORDER);
-        Py_DECREF(obj);
+        Npy_DECREF(obj);
         obj = new;
     }
     return obj;
@@ -1413,7 +1413,8 @@ NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
         
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
             Npy_DECREF(ret);
-            return NpyErr_NoMemory();
+            NpyErr_NoMemory();
+            return NULL;
         }
         ret->data = tmp;
         NpyArray_DIM(ret,0) = nread;

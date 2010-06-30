@@ -303,7 +303,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_GetField(PyArrayObject *self, PyArray_Descr *typed, int offset)
 {
     /* TODO: Unwrap self, wrap return object. */
-    return NpyArray_GetField(self, typed, offset);
+    return (PyObject *) NpyArray_GetField(self, typed, offset);
 }
 
 static PyObject *
@@ -366,7 +366,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_Byteswap(PyArrayObject *self, Bool inplace)
 {
     /* TODO: Wrap returned array with PyObject */
-    return NpyArray_Byteswap(self, inplace);
+    return (PyObject *)NpyArray_Byteswap(self, inplace);
 }
 
 
@@ -721,17 +721,18 @@ array_wraparray(PyArrayObject *self, PyObject *args)
 
     if (Py_TYPE(self) != Py_TYPE(arr)){
         Py_INCREF(PyArray_DESCR(arr));
-        ret = PyArray_NewFromDescr(Py_TYPE(self),
-                                   PyArray_DESCR(arr),
-                                   PyArray_NDIM(arr),
-                                   PyArray_DIMS(arr),
-                                   PyArray_STRIDES(arr), PyArray_DATA(arr),
-                                   PyArray_FLAGS(arr), (PyObject *)self);
+        ret = (PyArrayObject *)
+            PyArray_NewFromDescr(Py_TYPE(self),
+                                 PyArray_DESCR(arr),
+                                 PyArray_NDIM(arr),
+                                 PyArray_DIMS(arr),
+                                 PyArray_STRIDES(arr), PyArray_DATA(arr),
+                                 PyArray_FLAGS(arr), (PyObject *)self);
         if (ret == NULL) {
             return NULL;
         }
         if (PyArray_Check(arr)) {
-            ret->base_arr = arr;
+            ret->base_arr = (NpyArray* )arr;
             Npy_INCREF(ret->base_arr);       /* TODO: Unwrap array object */
         } else {
             ret->base_obj = arr;
@@ -766,17 +767,18 @@ array_preparearray(PyArrayObject *self, PyObject *args)
     }
 
     Py_INCREF(PyArray_DESCR(arr));
-    ret = PyArray_NewFromDescr(Py_TYPE(self),
-                               PyArray_DESCR(arr),
-                               PyArray_NDIM(arr),
-                               PyArray_DIMS(arr),
-                               PyArray_STRIDES(arr), PyArray_DATA(arr),
-                               PyArray_FLAGS(arr), (PyObject *)self);
+    ret = (PyArrayObject *)
+        PyArray_NewFromDescr(Py_TYPE(self),
+                             PyArray_DESCR(arr),
+                             PyArray_NDIM(arr),
+                             PyArray_DIMS(arr),
+                             PyArray_STRIDES(arr), PyArray_DATA(arr),
+                             PyArray_FLAGS(arr), (PyObject *)self);
     if (ret == NULL) {
         return NULL;
     }
     if (PyArray_Check(arr)) {
-        ret->base_arr = arr;
+        ret->base_arr = (NpyArray *)arr;
         Npy_INCREF(ret->base_arr);            /* TODO: Unwrap array object */
     } else {
         ret->base_obj = arr;
@@ -809,13 +811,14 @@ array_getarray(PyArrayObject *self, PyObject *args)
         }
 
         Py_INCREF(PyArray_DESCR(self));
-        new = PyArray_NewFromDescr(subtype,
-                                   PyArray_DESCR(self),
-                                   PyArray_NDIM(self),
-                                   PyArray_DIMS(self),
-                                   PyArray_STRIDES(self),
-                                   PyArray_DATA(self),
-                                   PyArray_FLAGS(self), NULL);
+        new = (PyArrayObject *)
+            PyArray_NewFromDescr(subtype,
+                                 PyArray_DESCR(self),
+                                 PyArray_NDIM(self),
+                                 PyArray_DIMS(self),
+                                 PyArray_STRIDES(self),
+                                 PyArray_DATA(self),
+                                 PyArray_FLAGS(self), NULL);
         if (new == NULL) {
             return NULL;
         }
@@ -1431,7 +1434,8 @@ array_setstate(PyArrayObject *self, PyObject *args)
         }
         else {
             if (PyArray_Check(rawdata)) {
-                self->base_arr = rawdata;       /* TODO: Unwrap array object */
+                /* TODO: Unwrap array object */
+                self->base_arr = (NpyArray *)rawdata;       
                 if (incref_base) {
                     Npy_INCREF(self->base_arr);
                 }

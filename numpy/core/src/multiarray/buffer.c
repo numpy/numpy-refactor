@@ -229,7 +229,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
             const char *name;
             NpyArray_DescrField *item = NULL;
             PyArray_Descr *child;
-            char *p;
+            const char *p;
             int new_offset;
 
             name = descr->names[k];
@@ -738,7 +738,7 @@ _descriptor_from_pep3118_format(char *s)
     }
     str = PyUString_FromStringAndSize(buf, strlen(buf));
     free(buf);
-    descr = (PyArray_Descr*)PyObject_CallMethod(
+    descr = PyObject_CallMethod(
         _numpy_internal, "_dtype_from_pep3118", "O", str);
     Py_DECREF(str);
     if (descr == NULL) {

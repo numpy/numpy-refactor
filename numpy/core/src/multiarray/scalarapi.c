@@ -277,7 +277,8 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
     if ((typecode->type_num == PyArray_VOID) &&
             !(((PyVoidScalarObject *)scalar)->flags & OWNDATA) &&
             outcode == NULL) {
-        r = PyArray_NewFromDescr(&PyArray_Type,
+        r = (PyArrayObject *)
+            PyArray_NewFromDescr(&PyArray_Type,
                 typecode,
                 0, NULL, NULL,
                 ((PyVoidScalarObject *)scalar)->obval,
@@ -285,7 +286,7 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
                 NULL);
         
         if (PyArray_Check(scalar)) {
-            r->base_arr = scalar;
+            r->base_arr = (NpyArray *)scalar;
             Npy_INCREF(r->base_arr);    /* TODO: Unwrap array object */
         } else {
             r->base_obj = scalar;
@@ -295,7 +296,8 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
         return (PyObject *)r;
     }
 
-    r = PyArray_NewFromDescr(&PyArray_Type,
+    r = (PyArrayObject *)
+        PyArray_NewFromDescr(&PyArray_Type,
             typecode,
             0, NULL,
             NULL, NULL, 0, NULL);
@@ -332,13 +334,13 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
 
 finish:
     if (outcode == NULL) {
-        return r;
+        return (PyObject *)r;
     }
     if (outcode->type_num == typecode->type_num) {
         if (!PyTypeNum_ISEXTENDED(typecode->type_num)
                 || (outcode->elsize == typecode->elsize)) {
             Py_DECREF(outcode);
-            return r;
+            return (PyObject *)r;
         }
     }
 

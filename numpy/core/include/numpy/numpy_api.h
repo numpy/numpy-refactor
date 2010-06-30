@@ -232,7 +232,7 @@ npy_bool Npy_IsWriteable(NpyArray *ap);
 
 
 /* ctors.c */
-#define NpyArray_EnsureAnyArray(op)  (PyObject *)PyArray_EnsureAnyArray(op)
+#define NpyArray_EnsureAnyArray(op)  (NpyArray *)PyArray_EnsureAnyArray(op)
 size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
                            int inflag, int *objflags);
 
@@ -242,7 +242,7 @@ NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
 NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
 void NpyArray_DescrDestroy(NpyArray_Descr *);
 char **NpyArray_DescrAllocNames(int n);
-NpyDict *NpyArray_DescrAllocFields();
+NpyDict *NpyArray_DescrAllocFields(void);
 void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
 NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
 void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
@@ -348,7 +348,7 @@ NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
  */
 npy_intp NpyArray_Size(NpyArray *op);
 NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
-NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
+NpyArray *NpyArray_ArgMin(NpyArray *op, int axis, NpyArray *out);
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);

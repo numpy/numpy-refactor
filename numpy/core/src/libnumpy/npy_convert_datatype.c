@@ -74,7 +74,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     
     delsize = NpyArray_ITEMSIZE(out);
     selsize = NpyArray_ITEMSIZE(in);
-    multi = NpyArray_MultiIterNew(2, out, in);
+    multi = (NpyArrayMultiIter *)NpyArray_MultiIterNew(2, out, in);
     if (multi == NULL) {
         return -1;
     }

@@ -142,8 +142,9 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
         Npy_XDECREF(typedescr);
         return -1;
     }
-    if ((ap = PyArray_FromAny(*op, typedescr, nd, nd,
-                               NPY_CARRAY, NULL)) == NULL) {
+    ap = (PyArrayObject *) PyArray_FromAny(*op, typedescr, nd, nd,
+                                           NPY_CARRAY, NULL);
+    if (ap == NULL) {
         return -1;
     }
     
@@ -162,7 +163,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
     oldAp = ap;
     result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr);
     Py_DECREF(oldAp);
-    *op = ap;
+    *op = (PyObject *) ap;
     return result;
 }
 
@@ -220,7 +221,7 @@ NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
     /* TODO: Needs to free both pieces, core array and Py object. */
-    return NpyArray_Free(op, ptr);
+    return NpyArray_Free((NpyArray *)op, ptr);
 }
 
 
@@ -445,8 +446,6 @@ new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
     return ret;
 }
 
-
-
 /* Could perhaps be redone to not make contiguous arrays */
 
 /*NUMPY_API
@@ -458,7 +457,6 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
     PyArrayObject *ap1, *ap2, *ret = NULL;
     int typenum;
     PyArray_Descr *typec;
-    NPY_BEGIN_THREADS_DEF;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
@@ -483,7 +481,7 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    return NpyArray_InnerProduct(ap1, ap2, typenum);
+    return (PyObject *)NpyArray_InnerProduct(ap1, ap2, typenum);
     
  fail:
     Py_XDECREF(ap1);
@@ -1131,7 +1129,8 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newstrides[i] = arr->strides[k];
     }
     Py_INCREF(arr->descr);
-    ret = PyArray_NewFromDescr(Py_TYPE(arr), arr->descr, ndmin,
+    ret = (PyArrayObject *) 
+        PyArray_NewFromDescr(Py_TYPE(arr), arr->descr, ndmin,
             newdims, newstrides, arr->data, arr->flags, (PyObject *)arr);
     /* steals a reference to arr --- so don't increment here */
     ret->base_arr = arr;

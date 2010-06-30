@@ -27,7 +27,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
                NPY_ORDER fortran)
 {
     npy_intp oldsize, newsize;
-    int new_nd=newshape->len, k, n, elsize;
+    int new_nd=newshape->len, k, elsize;
     int refcnt;
     npy_intp* new_dimensions=newshape->ptr;
     npy_intp new_strides[NPY_MAXDIMS];
@@ -524,7 +524,7 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
         return NULL;
     }
     /* XXX: We will need to move _flat_copyinto. */
-    if (_flat_copyinto((NpyObject*)ret, (NpyObject *)a, order) < 0) {
+    if (_flat_copyinto(ret, a, order) < 0) {
         Npy_DECREF(ret);
         return NULL;
     }

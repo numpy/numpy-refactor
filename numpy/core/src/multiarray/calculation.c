@@ -1,3 +1,4 @@
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "structmember.h"
@@ -52,7 +53,7 @@ PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMin(PyArrayObject *ap, int axis, PyArrayObject *out)
 {
-    NpyArray_ArgMin(ap, axis, out);
+    return (PyObject *) NpyArray_ArgMin(ap, axis, out);
 }
 
 

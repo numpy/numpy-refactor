@@ -12,7 +12,7 @@
 
 
 /* Local functions */
-static NpyDict *npy_create_fields_table();
+static NpyDict *npy_create_fields_table(void);
 static void *npy_copy_fields_key(void *key);
 static void npy_dealloc_fields_key(void *key);
 static void *npy_copy_fields_value(void *value);

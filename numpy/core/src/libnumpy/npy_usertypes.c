@@ -31,11 +31,12 @@ maintainer email:  oliphant.travis@ieee.org
 NpyArray_Descr **npy_userdescrs=NULL;
 
 static PyArray_CastFuncsItem* 
-castfuncs_new()
+castfuncs_new(void)
 {
     PyArray_CastFuncsItem* result = 
         (PyArray_CastFuncsItem *) malloc(sizeof(PyArray_CastFuncsItem));
     result[0].totype = NpyArray_NOTYPE;
+    return result;
 }
 
 static PyArray_CastFuncsItem* 
@@ -202,9 +203,6 @@ int
 NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
                           NpyArray_VectorUnaryFunc *castfunc)
 {
-    PyObject *cobj, *key;
-    int ret;
-
     if (totype < NpyArray_NTYPES) {
         descr->f->cast[totype] = castfunc;
         return 0;
@@ -221,7 +219,7 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
     }
     descr->f->castfuncs =
         castfuncs_append(descr->f->castfuncs, totype, castfunc);
-    return ret;
+    return 0;
 }
 
 /*

@@ -1711,7 +1711,8 @@ static PyObject *voidtype_npydescr_to_tuple(NpyArray_Descr *descr, int offset)
 {
     PyObject *tup = PyTuple_New(2);
     Py_INCREF(descr);
-    PyTuple_SET_ITEM(tup, 0, descr);            /* TODO: Wrap descriptor */
+    /* TODO: Wrap descriptor */
+    PyTuple_SET_ITEM(tup, 0, (PyObject *)descr); 
     PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(offset));
     return tup;
 }
@@ -1722,7 +1723,6 @@ voidtype_item(PyVoidScalarObject *self, Py_ssize_t n)
 {
     NpyArray_DescrField *value;
     int m;
-    PyObject *fieldinfo;
     PyObject *ret=NULL, *tup=NULL;
 
     if (!(PyDescr_HASFIELDS(self->descr))) {

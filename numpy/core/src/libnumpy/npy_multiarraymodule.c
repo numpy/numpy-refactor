@@ -328,8 +328,11 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
      * -- use priority to determine which subtype.
      */
     if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
-        prior2 = NpyArray_GetPriority(ap2, 0.0);
-        prior1 = NpyArray_GetPriority(ap1, 0.0);
+        /* TODO: We can't get priority from the core object.
+           We need to refactor this and probably move this
+           funciton to the interface layer. */
+        prior2 = PyArray_GetPriority((PyObject*)ap2, 0.0);
+        prior1 = PyArray_GetPriority((PyObject*)ap1, 0.0);
         subtype = (prior2 > prior1 ? Py_TYPE(ap2) : Py_TYPE(ap1));
     }
     else {
@@ -339,7 +342,7 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
     
     ret = NpyArray_New(subtype, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
-                       (prior2 > prior1 ? ap2 : ap1));
+                       (NpyObject *)(prior2 > prior1 ? ap2 : ap1));
     return ret;
 }
 

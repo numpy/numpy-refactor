@@ -1940,7 +1940,8 @@ arraydescr_fields_from_pydict(PyObject *dict)
        descriptor */
     pos = 0;
     while (PyDict_Next(dict, &pos, &key, &value)) {
-        descr = PyTuple_GetItem(value, 0);                   /* TODO: Unwrap descr object, fix ref counting */
+        /* TODO: Unwrap descr object. Do we need type checking? */
+        descr = (NpyArray_Descr *) PyTuple_GetItem(value, 0);                   
         offset = PyInt_AsLong(PyTuple_GetItem(value, 1));
         title = (2 < PyTuple_Size(value)) ? PyString_AsString(PyTuple_GetItem(value, 2)) : NULL;
         

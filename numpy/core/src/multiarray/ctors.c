@@ -771,7 +771,9 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
                      int flags, PyObject *obj)
 {
     // TODO: Returns NpyArray, needs to be wrapped into PyObject.
-    return NpyArray_NewFromDescr(subtype, descr, nd, dims, strides, data, flags, obj);
+    return (PyObject *) 
+        NpyArray_NewFromDescr(subtype, descr, nd, dims, strides, 
+                              data, flags, obj);
 }
 
 /*NUMPY_API
@@ -783,7 +785,9 @@ PyArray_New(PyTypeObject *subtype, int nd, intp *dims, int type_num,
             PyObject *obj)
 {
     /* TODO: Need to convert subtype going in, wrap returned NpyArray into PyObject on return */
-    return NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj);
+    return (PyObject *) 
+        NpyArray_New(subtype, nd, dims, type_num, 
+                     strides, data, itemsize, flags, obj);
 }
 
 
@@ -808,7 +812,7 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
 
     view = PyMemoryView_GET_BUFFER(memoryview);
     if (view->format != NULL) {
-        descr = (PyObject*)_descriptor_from_pep3118_format(view->format);
+        descr = _descriptor_from_pep3118_format(view->format);
         if (descr == NULL) {
             PyObject *msg;
             msg = PyBytes_FromFormat("Invalid PEP 3118 format string: '%s'",
@@ -867,7 +871,9 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
                              nd, shape, strides, view->buf,
                              flags, NULL);
     if (PyArray_Check(memoryview)) {
-        ((PyArrayObject *)r)->base_arr = memoryview;        /* TODO: Unwrap array object if we can ever get here. Think about ref cnt of wrapper vs. core array */        
+        /* TODO: Unwrap array object if we can ever get here. 
+           Think about ref cnt of wrapper vs. core array */        
+        ((PyArrayObject *)r)->base_arr = (NpyArray *) memoryview;
     } else {
         ((PyArrayObject *)r)->base_obj = memoryview;   
     }
@@ -1112,7 +1118,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags)
 {
     /* TODO: Wrap returned NpyArray in PyObject, fix conversion of arr to NpyArray. */
-    return NpyArray_FromArray(arr, newtype, flags);
+    return (PyObject *) NpyArray_FromArray(arr, newtype, flags);
 }
 
 
@@ -1161,12 +1167,13 @@ PyArray_FromStructInterface(PyObject *input)
         }
     }
 
-    r = PyArray_NewFromDescr(&PyArray_Type, thetype,
+    r = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, thetype,
                              inter->nd, inter->shape,
                              inter->strides, inter->data,
                              inter->flags, NULL);
     if (PyArray_Check(input)) {
-        r->base_arr = input;            /* TODO: Unwrap array object, incref the core array. */
+        /* TODO: Unwrap array object, incref the core array. */
+        r->base_arr = (NpyArray *) input;
         Npy_INCREF(r->base_arr);
     } else {
         r->base_obj = input;
@@ -1334,7 +1341,8 @@ PyArray_FromInterface(PyObject *input)
         return NULL;
     }
     if (PyArray_Check(base)) {
-        ret->base_arr = base;       /* TODO: Unwrap array object, incref the core object */
+        /* TODO: Unwrap array object, incref the core object */
+        ret->base_arr = (NpyArray *) base;       
         Npy_INCREF(ret->base_arr);
     } else {
         ret->base_obj = base;
@@ -1575,7 +1583,7 @@ PyArray_CopyInto(PyArrayObject *dest, PyArrayObject *src)
 NPY_NO_EXPORT PyObject *
 PyArray_CheckAxis(PyArrayObject *arr, int *axis, int flags)
 {
-    return NpyArray_CheckAxis(arr, axis, flags);
+    return (PyObject *) NpyArray_CheckAxis(arr, axis, flags);
 }
 
 
@@ -2115,9 +2123,9 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     
     if (NULL == sep || 0 == strlen(sep))
         ret = NpyArray_FromBinaryFile(fp, dtype, num);
-    else ret = PyArray_FromTextFile(fp, dtype, num, sep);
+    else ret = (PyArrayObject* ) PyArray_FromTextFile(fp, dtype, num, sep);
     
-    return ret;
+    return (PyObject *)ret;
 }
 
 

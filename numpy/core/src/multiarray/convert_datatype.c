@@ -30,7 +30,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 {
     /* TODO: Wrap array return in PyObject */
-    return NpyArray_CastToType(mp, at, fortran);
+    return (PyObject *)NpyArray_CastToType(mp, at, fortran);
 }
 
 
@@ -43,7 +43,7 @@ PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 NPY_NO_EXPORT PyArray_VectorUnaryFunc *
 PyArray_GetCastFunc(PyArray_Descr *descr, int type_num)
 {
-    return NpyArray_GetCastFunc(descr, type_num);
+    return (PyArray_VectorUnaryFunc *)NpyArray_GetCastFunc(descr, type_num);
 }
 
 

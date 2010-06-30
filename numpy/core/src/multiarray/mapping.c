@@ -554,8 +554,11 @@ array_subscript(PyArrayObject *self, PyObject *op)
         if (NULL != self->descr->names) {
             value = NpyDict_Get(self->descr->fields, PyString_AsString(op));
             if (NULL != value) {
-                Py_INCREF(value->descr);                     /* TODO: Looks wrong, why was this here? */
-                return NpyArray_GetField(self, value->descr, value->offset);    /* TODO: Wrap returned array object */
+                Py_INCREF(value->descr);  /* NpyArray_GetField steal ref. */
+                /* TODO: Wrap returned array object */
+                return (PyObject *) 
+                    NpyArray_GetField(self, value->descr, value->offset);
+
             }
         }
 

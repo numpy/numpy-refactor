@@ -1382,8 +1382,7 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
     }
 
     /* need ap2 as contiguous array and of right type */
-    ap2 = (NpyArray *)PyArray_FromAny(op2, dtype,
-                                          0, 0, NPY_DEFAULT, NULL);
+    ap2 = NpyArray_FromArray(op2, dtype, NPY_DEFAULT);
     if (ap2 == NULL) {
         goto fail;
     }

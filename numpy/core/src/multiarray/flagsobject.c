@@ -16,12 +16,6 @@
 
 #include "common.h"
 
-static int
-_IsContiguous(PyArrayObject *ap);
-
-static int
-_IsFortranContiguous(PyArrayObject *ap);
-
 /*NUMPY_API
  *
  * Get New ArrayFlagsObject
@@ -461,7 +455,8 @@ static PyObject*
 arrayflags_richcompare(PyObject *self, PyObject *other, int cmp_op)
 {
     PyObject *result = Py_NotImplemented;
-    int cmp;        /* TODO: cmp is uninitialized. What should the failure mode be if type check values? Always false? */
+    int cmp = 1;  /* Initialized to non-zero so comparison to non-flags
+                     objects will give not equal. */
 
     if (cmp_op != Py_EQ && cmp_op != Py_NE) {
         PyErr_SetString(PyExc_TypeError,

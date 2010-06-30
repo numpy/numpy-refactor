@@ -597,7 +597,7 @@ VOID_getitem(char *ip, PyArrayObject *ap)
             return NULL;
         }
         Py_INCREF(descr->subarray->base);
-        ret = PyArray_NewFromDescr(&PyArray_Type,
+        ret = (PyArrayObject *) PyArray_NewFromDescr(&PyArray_Type,
                 descr->subarray->base, shape.len, shape.ptr,
                 NULL, ip, ap->flags, NULL);
         PyDimMem_FREE(shape.ptr);
@@ -717,7 +717,7 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
             return -1;
         }
         Py_INCREF(descr->subarray->base);
-        ret = PyArray_NewFromDescr(&PyArray_Type,
+        ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
                 descr->subarray->base, shape.len, shape.ptr,
                 NULL, ip, ap->flags, NULL);
         PyDimMem_FREE(shape.ptr);

@@ -338,12 +338,12 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
         subtype = Py_TYPE(self);
     }
     Py_INCREF(self->descr);
-    new = PyArray_NewFromDescr(subtype,
-                               self->descr,
-                               self->nd, self->dimensions,
-                               self->strides,
-                               self->data,
-                               self->flags, (PyObject *)self);
+    new = (PyArrayObject* )PyArray_NewFromDescr(subtype,
+                                                self->descr,
+                                                self->nd, self->dimensions,
+                                                self->strides,
+                                                self->data,
+                                                self->flags, (PyObject *)self);
     if (new == NULL) {
         return NULL;
     }
@@ -354,7 +354,7 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
     assert(NULL == new->base_arr || NULL == new->base_obj);
 
     if (type != NULL) {
-        if (PyObject_SetAttrString(new, "dtype",
+        if (PyObject_SetAttrString((PyObject *)new, "dtype",
                                    (PyObject *)type) < 0) {
             Py_DECREF(new);
             Py_DECREF(type);

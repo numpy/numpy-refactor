@@ -575,7 +575,7 @@ array_base_get(PyArrayObject *self)
     if (NULL != self->base_arr) {
         /* TODO: Wrap array with PyArrayObject */
         Npy_INCREF(self->base_arr);
-        return self->base_arr;
+        return (PyObject *) self->base_arr;
     } else if (NULL != self->base_obj) {
         Py_INCREF(self->base_obj);
         return self->base_obj;

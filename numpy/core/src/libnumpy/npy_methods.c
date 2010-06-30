@@ -169,9 +169,10 @@ _equivalent_fields(NpyDict *field1, NpyDict *field2)
     while (same && NpyDict_IterNext(field1, &pos, (void **)&key, (void **)&value1)) {
         value2 = NpyDict_Get(field2, key);
         if (NULL == value2 || value1->offset != value2->offset ||
-            (NULL == value1->title && NULL != value2->title ||
-             NULL != value1->title && NULL == value2->title ||
-             NULL != value1->title && NULL != value2->title && strcmp(value1->title, value2->title))) {
+            ((NULL == value1->title && NULL != value2->title) ||
+             (NULL != value1->title && NULL == value2->title) ||
+             (NULL != value1->title && NULL != value2->title && 
+              strcmp(value1->title, value2->title)))) {
             same = 0;
         } else if (!NpyArray_EquivTypes(value1->descr, value2->descr)) {
             same = 0;

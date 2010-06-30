@@ -264,121 +264,122 @@ npy_datetime
 NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
 {
     npy_datetime ret;
-    npy_longlong days; /* The absolute number of days since Jan 1, 1970 */
     
-    if (fr > NPY_FR_M) {
-        days = days_from_ymd(d->year, d->month, d->day);
-    }
     if (fr == NPY_FR_Y) {
         ret = d->year - 1970;
     }
     else if (fr == NPY_FR_M) {
         ret = (d->year - 1970) * 12 + d->month - 1;
     }
-    else if (fr == NPY_FR_W) {
-        /* This is just 7-days for now. */
-        if (days >= 0) {
-            ret = days / 7;
-        }
-        else {
-            ret = (days - 6) / 7;
-        }
-    }
-    else if (fr == NPY_FR_B) {
-        npy_longlong x;
-        int dotw = day_of_week(days);
-        
-        if (dotw > 4) {
-            /* Invalid business day */
-            ret = 0;
-        }
-        else {
+    else {
+        npy_longlong days; /* The absolute number of days since Jan 1, 1970 */
+
+        days = days_from_ymd(d->year, d->month, d->day);
+        if (fr == NPY_FR_W) {
+            /* This is just 7-days for now. */
             if (days >= 0) {
-                /* offset to adjust first week */
-                x = days - 4;
+                ret = days / 7;
             }
             else {
-                x = days - 2;
+                ret = (days - 6) / 7;
             }
-            ret = 2 + (x / 7) * 5 + x % 7;
         }
-    }
-    else if (fr == NPY_FR_D) {
-        ret = days;
-    }
-    else if (fr == NPY_FR_h) {
-        ret = days * 24 + d->hour;
-    }
-    else if (fr == NPY_FR_m) {
-        ret = days * 1440 + d->hour * 60 + d->min;
-    }
-    else if (fr == NPY_FR_s) {
-        ret = days * (npy_int64)(86400) +
-        secs_from_hms(d->hour, d->min, d->sec, 1);
-    }
-    else if (fr == NPY_FR_ms) {
-        ret = days * (npy_int64)(86400000)
-        + secs_from_hms(d->hour, d->min, d->sec, 1000)
-        + (d->us / 1000);
-    }
-    else if (fr == NPY_FR_us) {
-        npy_int64 num = 86400 * 1000;
-        num *= (npy_int64)(1000);
-        ret = days * num + secs_from_hms(d->hour, d->min, d->sec, 1000000)
-        + d->us;
-    }
-    else if (fr == NPY_FR_ns) {
-        npy_int64 num = 86400 * 1000;
-        num *= (npy_int64)(1000 * 1000);
-        ret = days * num + secs_from_hms(d->hour, d->min, d->sec, 1000000000)
-        + d->us * (npy_int64)(1000) + (d->ps / 1000);
-    }
-    else if (fr == NPY_FR_ps) {
-        npy_int64 num2 = 1000 * 1000;
-        npy_int64 num1;
+        else if (fr == NPY_FR_B) {
+            npy_longlong x;
+            int dotw = day_of_week(days);
         
-        num2 *= (npy_int64)(1000 * 1000);
-        num1 = (npy_int64)(86400) * num2;
-        ret = days * num1 + secs_from_hms(d->hour, d->min, d->sec, num2)
-        + d->us * (npy_int64)(1000000) + d->ps;
-    }
-    else if (fr == NPY_FR_fs) {
-        /* only 2.6 hours */
-        npy_int64 num2 = 1000000;
-        num2 *= (npy_int64)(1000000);
-        num2 *= (npy_int64)(1000);
+            if (dotw > 4) {
+                /* Invalid business day */
+                ret = 0;
+            }
+            else {
+                if (days >= 0) {
+                    /* offset to adjust first week */
+                    x = days - 4;
+                }
+                else {
+                    x = days - 2;
+                }
+                ret = 2 + (x / 7) * 5 + x % 7;
+            }
+        }
+        else if (fr == NPY_FR_D) {
+            ret = days;
+        }
+        else if (fr == NPY_FR_h) {
+            ret = days * 24 + d->hour;
+        }
+        else if (fr == NPY_FR_m) {
+            ret = days * 1440 + d->hour * 60 + d->min;
+        }
+        else if (fr == NPY_FR_s) {
+            ret = days * (npy_int64)(86400) +
+                secs_from_hms(d->hour, d->min, d->sec, 1);
+        }
+        else if (fr == NPY_FR_ms) {
+            ret = days * (npy_int64)(86400000)
+                + secs_from_hms(d->hour, d->min, d->sec, 1000)
+                + (d->us / 1000);
+        }
+        else if (fr == NPY_FR_us) {
+            npy_int64 num = 86400 * 1000;
+            num *= (npy_int64)(1000);
+            ret = days * num + secs_from_hms(d->hour, d->min, d->sec, 1000000)
+                + d->us;
+        }
+        else if (fr == NPY_FR_ns) {
+            npy_int64 num = 86400 * 1000;
+            num *= (npy_int64)(1000 * 1000);
+            ret = days * num + secs_from_hms(d->hour, d->min, d->sec, 1000000000)
+                + d->us * (npy_int64)(1000) + (d->ps / 1000);
+        }
+        else if (fr == NPY_FR_ps) {
+            npy_int64 num2 = 1000 * 1000;
+            npy_int64 num1;
         
-        /* get number of seconds as a postive or negative number */
-        if (days >= 0) {
-            ret = secs_from_hms(d->hour, d->min, d->sec, 1);
+            num2 *= (npy_int64)(1000 * 1000);
+            num1 = (npy_int64)(86400) * num2;
+            ret = days * num1 + secs_from_hms(d->hour, d->min, d->sec, num2)
+                + d->us * (npy_int64)(1000000) + d->ps;
+        }
+        else if (fr == NPY_FR_fs) {
+            /* only 2.6 hours */
+            npy_int64 num2 = 1000000;
+            num2 *= (npy_int64)(1000000);
+            num2 *= (npy_int64)(1000);
+        
+            /* get number of seconds as a postive or negative number */
+            if (days >= 0) {
+                ret = secs_from_hms(d->hour, d->min, d->sec, 1);
+            }
+            else {
+                ret = ((d->hour - 24)*3600 + d->min*60 + d->sec);
+            }
+            ret = ret * num2 + d->us * (npy_int64)(1000000000)
+                + d->ps * (npy_int64)(1000) + (d->as / 1000);
+        }
+        else if (fr == NPY_FR_as) {
+            /* only 9.2 secs */
+            npy_int64 num1, num2;
+        
+            num1 = 1000000;
+            num1 *= (npy_int64)(1000000);
+            num2 = num1 * (npy_int64)(1000000);
+        
+            if (days >= 0) {
+                ret = d->sec;
+            }
+            else {
+                ret = d->sec - 60;
+            }
+            ret = ret * num2 + d->us * num1 + d->ps * (npy_int64)(1000000)
+                + d->as;
         }
         else {
-            ret = ((d->hour - 24)*3600 + d->min*60 + d->sec);
+            /* Shouldn't get here */
+            NpyErr_SetString(NpyExc_ValueError, "invalid internal frequency");
+            ret = -1;
         }
-        ret = ret * num2 + d->us * (npy_int64)(1000000000)
-        + d->ps * (npy_int64)(1000) + (d->as / 1000);
-    }
-    else if (fr == NPY_FR_as) {
-        /* only 9.2 secs */
-        npy_int64 num1, num2;
-        
-        num1 = 1000000;
-        num1 *= (npy_int64)(1000000);
-        num2 = num1 * (npy_int64)(1000000);
-        
-        if (days >= 0) {
-            ret = d->sec;
-        }
-        else {
-            ret = d->sec - 60;
-        }
-        ret = ret * num2 + d->us * num1 + d->ps * (npy_int64)(1000000)
-        + d->as;
-    }
-    else {
-        /* Shouldn't get here */
-        NpyErr_SetString(NpyExc_ValueError, "invalid internal frequency");
-        ret = -1;
     }
     
     return ret;
