@@ -587,20 +587,13 @@ VOID_getitem(char *ip, PyArrayObject *ap)
 
     if (descr->subarray) {
         /* return an array of the basic type */
-        PyArray_Dims shape = {NULL, -1};
         PyArrayObject *ret;
 
-        if (!(PyArray_IntpConverter(descr->subarray->shape, &shape))) {
-            PyDimMem_FREE(shape.ptr);
-            PyErr_SetString(PyExc_ValueError,
-                    "invalid shape in fixed-type tuple.");
-            return NULL;
-        }
         Py_INCREF(descr->subarray->base);
-        ret = (PyArrayObject *) PyArray_NewFromDescr(&PyArray_Type,
-                descr->subarray->base, shape.len, shape.ptr,
+        ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
+                descr->subarray->base, descr->subarray->shape_num_dims, 
+                descr->subarray->shape_dims,
                 NULL, ip, ap->flags, NULL);
-        PyDimMem_FREE(shape.ptr);
         if (!ret) {
             return NULL;
         }
@@ -708,19 +701,12 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
 
     if (descr->subarray) {
         /* copy into an array of the same basic type */
-        PyArray_Dims shape = {NULL, -1};
         PyArrayObject *ret;
-        if (!(PyArray_IntpConverter(descr->subarray->shape, &shape))) {
-            PyDimMem_FREE(shape.ptr);
-            PyErr_SetString(PyExc_ValueError,
-                    "invalid shape in fixed-type tuple.");
-            return -1;
-        }
         Py_INCREF(descr->subarray->base);
         ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
-                descr->subarray->base, shape.len, shape.ptr,
+                descr->subarray->base, descr->subarray->shape_num_dims, 
+                descr->subarray->shape_dims,
                 NULL, ip, ap->flags, NULL);
-        PyDimMem_FREE(shape.ptr);
         if (!ret) {
             return -1;
         }

@@ -202,14 +202,11 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
         int ret;
 
         _append_char(str, '(');
-        for (k = 0; k < PyTuple_GET_SIZE(descr->subarray->shape); ++k) {
+        for (k = 0; k < descr->subarray->shape_num_dims; ++k) {
             if (k > 0) {
                 _append_char(str, ',');
             }
-            item = PyTuple_GET_ITEM(descr->subarray->shape, k);
-            dim_size = PyNumber_AsSsize_t(item, NULL);
-
-            PyOS_snprintf(buf, sizeof(buf), "%ld", (long)dim_size);
+            PyOS_snprintf(buf, sizeof(buf), "%ld", (long)descr->subarray->shape_dims[k]);
             _append_str(str, buf);
             total_count *= dim_size;
         }

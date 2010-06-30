@@ -73,10 +73,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
         new->fields = NpyDict_Copy(new->fields, npy_copy_fields_key, npy_copy_fields_value);
     }
     if (new->subarray) {
-        new->subarray = NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
-        memcpy(new->subarray, base->subarray, sizeof(NpyArray_ArrayDescr));
-        Npy_Interface_INCREF(new->subarray->shape);         /* TODO: Fix shape to not be PyTuple */
-        Npy_INCREF(new->subarray->base);
+        new->subarray = NpyArray_DupSubarray(base->subarray);
     }
     Npy_Interface_XINCREF(new->typeobj);
     Npy_Interface_XINCREF(new->metadata);
@@ -85,11 +82,35 @@ NpyArray_DescrNew(NpyArray_Descr *base)
 }
 
 
+
+
+
+/* Duplicates an array descr structure and the sub-structures. */
+NpyArray_ArrayDescr *
+NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
+{
+    NpyArray_ArrayDescr *dest = (NpyArray_ArrayDescr *)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+    assert(0 == src->shape_num_dims && NULL == src->shape_dims || 0 < src->shape_num_dims && NULL != src->shape_dims);
+    
+    dest->base = src->base;
+    Npy_INCREF(dest->base);
+    
+    dest->shape_num_dims = src->shape_num_dims;
+    if (0 < dest->shape_num_dims) {
+        dest->shape_dims = (int **)NpyArray_malloc(dest->shape_num_dims * sizeof(int *));
+        memcpy(dest->shape_dims, src->shape_dims, dest->shape_num_dims * sizeof(int *));
+    } else {
+        dest->shape_dims = NULL;
+    }
+    return dest;
+}
+
 /*NUMPY_API
  * self cannot be NULL
  * Destroys the given descriptor and deallocates the memory for it.
  */
-void NpyArray_DescrDestroy(NpyArray_Descr *self)
+void 
+NpyArray_DescrDestroy(NpyArray_Descr *self)
 {
     assert(NPY_VALID_MAGIC == self->magic_number);
 
@@ -97,9 +118,8 @@ void NpyArray_DescrDestroy(NpyArray_Descr *self)
     
     Npy_Interface_XDECREF(self->typeobj);
     if (self->subarray) {
-        Npy_Interface_DECREF(self->subarray->shape);
-        Npy_DECREF(self->subarray->base);
-        NpyArray_free(self->subarray);
+        NpyArray_DestroySubarray(self->subarray);
+        self->subarray = NULL;
     }
     Npy_Interface_XDECREF(self->metadata);
     self->magic_number = NPY_INVALID_MAGIC;
@@ -108,6 +128,16 @@ void NpyArray_DescrDestroy(NpyArray_Descr *self)
 }
 
 
+void 
+NpyArray_DestroySubarray(NpyArray_ArrayDescr *self)
+{
+    Npy_DECREF(self->base);
+    if (0 < self->shape_num_dims) {
+        NpyArray_free(self->shape_dims);
+    }
+    self->shape_dims = NULL;
+    NpyArray_free(self);
+}
 
 
 /*NUMPY_API
