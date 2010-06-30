@@ -194,9 +194,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
     }
 
     if (descr->subarray) {
-        PyObject *item;
         Py_ssize_t total_count = 1;
-        Py_ssize_t dim_size;
         char buf[128];
         int old_offset;
         int ret;
@@ -208,7 +206,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
             }
             PyOS_snprintf(buf, sizeof(buf), "%ld", (long)descr->subarray->shape_dims[k]);
             _append_str(str, buf);
-            total_count *= dim_size;
+            total_count *= descr->subarray->shape_dims[k];
         }
         _append_char(str, ')');
         old_offset = *offset;

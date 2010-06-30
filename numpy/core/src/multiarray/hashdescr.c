@@ -120,7 +120,6 @@ static int _array_descr_walk_fields(NpyDict *fields, PyObject* l)
  */
 static int _array_descr_walk_subarray(PyArray_ArrayDescr* adescr, PyObject *l)
 {
-    PyObject *item;
     Py_ssize_t i;
     int st;
 
