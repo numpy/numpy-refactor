@@ -877,7 +877,6 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
                  Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
-                Py_DECREF(array_other);
                 return NULL;
             }
             if (_res) {
@@ -886,8 +885,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
                     (self,
                       (PyArrayObject *)array_other,
                      cmp_op);
-                Py_DECREF(array_other);
             }
+            Py_DECREF(array_other);
             return result;
         }
         /*

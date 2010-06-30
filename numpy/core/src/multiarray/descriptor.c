@@ -497,12 +497,13 @@ _convert_from_list(PyObject *obj, int align)
     if (n == 0) {
         return NULL;
     }
-    fields = NpyArray_DescrAllocFields();
-    if (NULL == fields) {
-        return NULL;
-    }
     nameslist = NpyArray_DescrAllocNames(n);
     if (NULL == nameslist) {
+        return NULL;
+    }
+    fields = NpyArray_DescrAllocFields();
+    if (NULL == fields) {
+        free(nameslist);
         return NULL;
     }
     
@@ -1304,7 +1305,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
         PyObject *obj2;
         obj2 = PyUnicode_AsASCIIString(obj);
         if (obj2 == NULL) {
-            return PY_FAIL;
+            goto fail;
         }
         retval = PyArray_DescrConverter(obj2, at);
         Py_DECREF(obj2);
@@ -1869,7 +1870,6 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
     int n = 0;
     int i;
     char **nameslist = NULL;
-    PyObject *new_names;
     if (self->names == NULL) {
         PyErr_SetString(PyExc_ValueError,
                 "there are no fields defined");
@@ -1898,10 +1898,8 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
         }
     }
     /* Update dictionary keys in fields */
-    new_names = PySequence_Tuple(val);
-    nameslist = arraydescr_seq_to_nameslist(new_names);
+    nameslist = arraydescr_seq_to_nameslist(val);
     NpyArray_DescrReplaceNames(self, nameslist);
-    Py_DECREF(new_names);
 
     return 0;
 }

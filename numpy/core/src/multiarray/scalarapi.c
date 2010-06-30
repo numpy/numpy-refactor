@@ -337,6 +337,7 @@ finish:
     if (outcode->type_num == typecode->type_num) {
         if (!PyTypeNum_ISEXTENDED(typecode->type_num)
                 || (outcode->elsize == typecode->elsize)) {
+            Py_DECREF(outcode);
             return r;
         }
     }

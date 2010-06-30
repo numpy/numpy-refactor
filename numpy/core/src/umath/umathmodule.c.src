@@ -94,7 +94,6 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
         fname_len = 1;
         PyErr_Clear();
     }
-    Py_XDECREF(pyname);
 
     /*
      * self->ptr holds a pointer for enough memory for
@@ -119,6 +118,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     self->ptr = _pya_malloc(offset[0] + offset[1] + sizeof(void *) +
                             (fname_len + 14));
     if (self->ptr == NULL) {
+        Py_XDECREF(pyname);
         return PyErr_NoMemory();
     }
     Py_INCREF(function);
@@ -141,6 +141,8 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 
     /* Do a better job someday */
     self->doc = "dynamic ufunc based on a python function";
+
+    Py_XDECREF(pyname);
 
     return (PyObject *)self;
 }
