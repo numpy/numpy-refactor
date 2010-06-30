@@ -585,8 +585,11 @@ typedef struct _PyArray_Descr {
 } PyArray_Descr;
 
 typedef struct _arr_descr {
-        PyArray_Descr *base;
-        PyObject *shape;       /* a tuple */
+    PyArray_Descr *base;
+    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
+    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
+                                /* allocated array of ints; shape_dims == NULL iff */
+                                /* shape_num_dims == 1 */
 } PyArray_ArrayDescr;
 
 /*

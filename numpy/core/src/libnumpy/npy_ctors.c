@@ -583,22 +583,14 @@ _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
     int numnew;
     npy_intp *mydim;
     int i;
-    int tuple;
     
     old = *des;
     *des = old->subarray->base;
     
     /* TODO: NpyArray, NpyArray_Descr use Python tuples and other object types. Still needs to be refactored. */
     mydim = newdims + oldnd;
-    tuple = PyTuple_Check(old->subarray->shape);
-    if (tuple) {
-        numnew = PyTuple_GET_SIZE(old->subarray->shape);
-    }
-    else {
-        numnew = 1;
-    }
-    
-    
+    numnew = old->subarray->shape_num_dims;
+        
     newnd = oldnd + numnew;
     if (newnd > NPY_MAXDIMS) {
         goto finish;
@@ -607,13 +599,8 @@ _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
         memmove(newdims+numnew, newdims, oldnd*sizeof(npy_intp));
         mydim = newdims;
     }
-    if (tuple) {
-        for (i = 0; i < numnew; i++) {
-            mydim[i] = (npy_intp) PyInt_AsLong(PyTuple_GET_ITEM(old->subarray->shape, i));
-        }
-    }
-    else {
-        mydim[0] = (npy_intp) PyInt_AsLong(old->subarray->shape);
+    for (i = 0; i < numnew; i++) {
+        mydim[i] = old->subarray->shape_dims[i];
     }
     
     if (newstrides) {

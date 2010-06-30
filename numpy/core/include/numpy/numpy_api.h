@@ -243,6 +243,8 @@ NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
 void NpyArray_DescrDestroy(NpyArray_Descr *);
 char **NpyArray_DescrAllocNames(int n);
 NpyDict *NpyArray_DescrAllocFields();
+NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
+void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
 void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
 NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
 void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,

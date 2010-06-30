@@ -252,14 +252,16 @@ _convert_from_tuple(PyObject *obj)
         }
         newdescr->elsize = type->elsize;
         newdescr->elsize *= PyArray_MultiplyList(shape.ptr, shape.len);
-        PyDimMem_FREE(shape.ptr);
-        newdescr->subarray = _pya_malloc(sizeof(PyArray_ArrayDescr));
+        newdescr->subarray = NpyArray_malloc(sizeof(PyArray_ArrayDescr));
         newdescr->subarray->base = type;
+        newdescr->subarray->shape_num_dims = shape.len;
+        newdescr->subarray->shape_dims = shape.ptr;
+        shape.ptr = NULL; /* Stole shape.ptr, do not free. */
         newdescr->flags = type->flags;
-        Py_INCREF(val);
-        newdescr->subarray->shape = val;
         NpyArray_DescrDeallocNamesAndFields(newdescr);
         type = newdescr;
+        assert(0 == newdescr->subarray->shape_num_dims && NULL == newdescr->subarray->shape_dims || 
+               0 < newdescr->subarray->shape_num_dims && NULL != newdescr->subarray->shape_dims);
     }
     return type;
 
@@ -1533,16 +1535,25 @@ static PyMemberDef arraydescr_members[] = {
     {NULL, 0, 0, 0, NULL},
 };
 
+
 static PyObject *
 arraydescr_subdescr_get(PyArray_Descr *self)
 {
+    PyObject *shape = NULL;
+    PyObject *ret = NULL;
+
     if (self->subarray == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return Py_BuildValue("OO",
-            (PyObject *)self->subarray->base, self->subarray->shape);
+    
+    shape = PyArray_IntTupleFromIntp(self->subarray->shape_num_dims, self->subarray->shape_dims);
+    ret = Py_BuildValue("OO", (PyObject *)self->subarray->base, shape);
+    Py_DECREF(shape);
+    return ret;
 }
+
+
 
 static PyObject *
 _append_to_datetime_typestr(PyArray_Descr *self, PyObject *ret)
@@ -1672,11 +1683,7 @@ arraydescr_shape_get(PyArray_Descr *self)
     if (self->subarray == NULL) {
         return PyTuple_New(0);
     }
-    if (PyTuple_Check(self->subarray->shape)) {
-        Py_INCREF(self->subarray->shape);
-        return (PyObject *)(self->subarray->shape);
-    }
-    return Py_BuildValue("(O)", self->subarray->shape);
+    return PyArray_IntTupleFromIntp(self->subarray->shape_num_dims, self->subarray->shape_dims);
 }
 
 NPY_NO_EXPORT PyObject *
@@ -2401,18 +2408,30 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
     }
     self->byteorder = endian;
     if (self->subarray) {
-        Py_XDECREF(self->subarray->base);
-        Py_XDECREF(self->subarray->shape);
-        _pya_free(self->subarray);
+        NpyArray_DestroySubarray(self->subarray);
     }
     self->subarray = NULL;
 
     if (subarray != Py_None) {
-        self->subarray = _pya_malloc(sizeof(PyArray_ArrayDescr));
-        self->subarray->base = (PyArray_Descr *)PyTuple_GET_ITEM(subarray, 0);
+        PyObject *shape = NULL;
+        int len = 0;
+        
+        self->subarray = NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+        self->subarray->base = (PyArray_Descr *)PyTuple_GET_ITEM(subarray, 0);  /* TODO: Unwrap descr */
         Py_INCREF(self->subarray->base);
-        self->subarray->shape = PyTuple_GET_ITEM(subarray, 1);
-        Py_INCREF(self->subarray->shape);
+        
+        shape = PyTuple_GET_ITEM(subarray, 1);
+        len = PySequence_Check(shape) ? PySequence_Length(shape) : 1;
+        self->subarray->shape_dims = NpyArray_malloc(len * sizeof(npy_intp));
+        if (PyArray_IntpFromSequence(shape, self->subarray->shape_dims, len) == -1) {
+            NpyArray_free(self->subarray->shape_dims);
+            NpyArray_free(self->subarray);
+            self->subarray = NULL;
+            return PY_FAIL;
+        }
+        self->subarray->shape_num_dims = len;
+        assert(0 == self->subarray->shape_num_dims && NULL == self->subarray->shape_dims || 
+               0 < self->subarray->shape_num_dims && NULL != self->subarray->shape_dims);
     }
 
     if (fields != Py_None) {
@@ -2637,13 +2656,7 @@ arraydescr_str(PyArray_Descr *self)
         }
         PyUString_ConcatAndDel(&t, p);
         PyUString_ConcatAndDel(&t, PyUString_FromString(","));
-        if (!PyTuple_Check(self->subarray->shape)) {
-            sh = Py_BuildValue("(O)", self->subarray->shape);
-        }
-        else {
-            sh = self->subarray->shape;
-            Py_INCREF(sh);
-        }
+        sh = PyArray_IntTupleFromIntp(self->subarray->shape_num_dims, self->subarray->shape_dims);
         PyUString_ConcatAndDel(&t, PyObject_Str(sh));
         Py_DECREF(sh);
         PyUString_ConcatAndDel(&t, PyUString_FromString(")"));
