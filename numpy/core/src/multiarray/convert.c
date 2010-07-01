@@ -205,7 +205,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
             Py_INCREF(self);
             new = (PyObject *)self;
         }
-        it = NpyArray_IterNew(new);
+        it = NpyArray_IterNew((PyArrayObject*)new);
         Py_DECREF(new);
         if (it == NULL) {
             return NULL;
@@ -221,7 +221,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
         while (index--) {
             memcpy(dptr, it->dataptr, elsize);
             dptr += elsize;
-            _NpyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
     }
