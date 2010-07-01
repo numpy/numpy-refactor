@@ -477,6 +477,7 @@ int _typenum_fromtypeobj(NpyObject *type, int user);
  * Error handling.
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
+#define NpyErr_SetNone(e) PyErr_SetNone(e)
 #define NpyErr_NoMemory() PyErr_NoMemory()
 #define NpyErr_Occurred() PyErr_Occurred()
 #define NpyExc_ValueError PyExc_ValueError

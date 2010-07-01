@@ -417,3 +417,254 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
     NpyArray_MultiIter_RESET(multi);
     return multi;
 }
+
+
+
+/*========================= Neighborhood iterator ======================*/
+
+static char* _set_constant(PyArrayNeighborhoodIterObject* iter,
+                           NpyArray *fill)
+{
+    char *ret;
+    NpyArrayIter *ar = iter->_internal_iter;
+    int storeflags, st;
+    
+    ret = (char *)NpyArray_malloc(ar->ao->descr->elsize);
+    if (ret == NULL) {
+        NpyErr_SetNone(NpyExc_MemoryError);
+        return NULL;
+    }
+    
+    if (NpyArray_ISOBJECT(ar->ao)) {                /* TODO: Double check this case, memcpy of a pointer? Is ISOBJECT still correct? */
+        memcpy(ret, fill->data, sizeof(PyObject*));
+        Npy_Interface_INCREF(*(PyObject**)ret);     /* TODO: What are the possible object types for ret? */
+    } else {
+        /* Non-object types */
+        
+        storeflags = ar->ao->flags;
+        ar->ao->flags |= NPY_BEHAVED;
+        st = ar->ao->descr->f->setitem((PyObject*)fill, ret, ar->ao);
+        ar->ao->flags = storeflags;
+        
+        if (st < 0) {
+            NpyArray_free(ret);
+            return NULL;
+        }
+    }
+    
+    return ret;
+}
+
+#define _INF_SET_PTR(c) \
+bd = coordinates[c] + p->coordinates[c]; \
+if (bd < p->limits[c][0] || bd > p->limits[c][1]) { \
+return niter->constant; \
+} \
+_coordinates[c] = bd;
+
+/* set the dataptr from its current coordinates */
+static char*
+get_ptr_constant(PyArrayIterObject* _iter, npy_intp *coordinates)
+{
+    int i;
+    npy_intp bd, _coordinates[NPY_MAXDIMS];
+    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
+    PyArrayIterObject *p = niter->_internal_iter;
+    
+    for(i = 0; i < niter->nd; ++i) {
+        _INF_SET_PTR(i)
+    }
+    
+    return p->translate(p, _coordinates);
+}
+#undef _INF_SET_PTR
+
+#define _NPY_IS_EVEN(x) ((x) % 2 == 0)
+
+/* For an array x of dimension n, and given index i, returns j, 0 <= j < n
+ * such as x[i] = x[j], with x assumed to be mirrored. For example, for x =
+ * {1, 2, 3} (n = 3)
+ *
+ * index -5 -4 -3 -2 -1 0 1 2 3 4 5 6
+ * value  2  3  3  2  1 1 2 3 3 2 1 1
+ *
+ * _npy_pos_index_mirror(4, 3) will return 1, because x[4] = x[1]*/
+static inline npy_intp
+__npy_pos_remainder(npy_intp i, npy_intp n)
+{
+    npy_intp k, l, j;
+    
+    /* Mirror i such as it is guaranteed to be positive */
+    if (i < 0) {
+        i = - i - 1;
+    }
+    
+    /* compute k and l such as i = k * n + l, 0 <= l < k */
+    k = i / n;
+    l = i - k * n;
+    
+    if (_NPY_IS_EVEN(k)) {
+        j = l;
+    } else {
+        j = n - 1 - l;
+    }
+    return j;
+}
+#undef _NPY_IS_EVEN
+
+#define _INF_SET_PTR_MIRROR(c) \
+lb = p->limits[c][0]; \
+bd = coordinates[c] + p->coordinates[c] - lb; \
+_coordinates[c] = lb + __npy_pos_remainder(bd, p->limits_sizes[c]);
+
+/* set the dataptr from its current coordinates */
+static char*
+get_ptr_mirror(PyArrayIterObject* _iter, npy_intp *coordinates)
+{
+    int i;
+    npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
+    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
+    PyArrayIterObject *p = niter->_internal_iter;
+    
+    for(i = 0; i < niter->nd; ++i) {
+        _INF_SET_PTR_MIRROR(i)
+    }
+    
+    return p->translate(p, _coordinates);
+}
+#undef _INF_SET_PTR_MIRROR
+
+/* compute l such as i = k * n + l, 0 <= l < |k| */
+static inline npy_intp
+__npy_euclidean_division(npy_intp i, npy_intp n)
+{
+    npy_intp l;
+    
+    l = i % n;
+    if (l < 0) {
+        l += n;
+    }
+    return l;
+}
+
+#define _INF_SET_PTR_CIRCULAR(c) \
+lb = p->limits[c][0]; \
+bd = coordinates[c] + p->coordinates[c] - lb; \
+_coordinates[c] = lb + __npy_euclidean_division(bd, p->limits_sizes[c]);
+
+static char*
+get_ptr_circular(PyArrayIterObject* _iter, npy_intp *coordinates)
+{
+    int i;
+    npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
+    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
+    PyArrayIterObject *p = niter->_internal_iter;
+    
+    for(i = 0; i < niter->nd; ++i) {
+        _INF_SET_PTR_CIRCULAR(i)
+    }
+    return p->translate(p, _coordinates);
+}
+
+#undef _INF_SET_PTR_CIRCULAR
+
+/*
+ * fill and x->ao should have equivalent types
+ */
+/*NUMPY_API
+ * A Neighborhood Iterator object.
+ */
+NPY_NO_EXPORT NpyArrayNeighborhoodIterObject*
+NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
+                             int mode, NpyArray *fill,
+                             NpyArrayNeighborhoodIterObject *ret)
+{
+    /* TODO: ret is passed in for now, will be allocated locally in the future */
+    int i;
+    
+    array_iter_base_init((NpyArrayIterObject *)ret, x->ao);
+    Npy_INCREF(x);
+    ret->_internal_iter = x;
+    
+    ret->nd = x->ao->nd;
+    
+    for (i = 0; i < ret->nd; ++i) {
+        ret->dimensions[i] = x->ao->dimensions[i];
+    }
+    
+    /* Compute the neighborhood size and copy the shape */
+    ret->size = 1;
+    for (i = 0; i < ret->nd; ++i) {
+        ret->bounds[i][0] = bounds[2 * i];
+        ret->bounds[i][1] = bounds[2 * i + 1];
+        ret->size *= (ret->bounds[i][1] - ret->bounds[i][0]) + 1;
+        
+        /* limits keep track of valid ranges for the neighborhood: if a bound
+         * of the neighborhood is outside the array, then limits is the same as
+         * boundaries. On the contrary, if a bound is strictly inside the
+         * array, then limits correspond to the array range. For example, for
+         * an array [1, 2, 3], if bounds are [-1, 3], limits will be [-1, 3],
+         * but if bounds are [1, 2], then limits will be [0, 2].
+         *
+         * This is used by neighborhood iterators stacked on top of this one */
+        ret->limits[i][0] = ret->bounds[i][0] < 0 ? ret->bounds[i][0] : 0;
+        ret->limits[i][1] = ret->bounds[i][1] >= ret->dimensions[i] - 1 ?
+        ret->bounds[i][1] :
+        ret->dimensions[i] - 1;
+        ret->limits_sizes[i] = (ret->limits[i][1] - ret->limits[i][0]) + 1;
+    }
+    
+    switch (mode) {
+        case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
+            ret->constant = PyArray_Zero(x->ao);
+            ret->mode = mode;
+            ret->translate = &get_ptr_constant;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
+            ret->constant = PyArray_One(x->ao);
+            ret->mode = mode;
+            ret->translate = &get_ptr_constant;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
+            /* New reference in returned value of _set_constant if array
+             * object */
+            assert(PyArray_EquivArrTypes(x->ao, fill) == NPY_TRUE);
+            ret->constant = _set_constant(ret, fill);
+            if (ret->constant == NULL) {
+                goto clean_x;
+            }
+            ret->mode = mode;
+            ret->translate = &get_ptr_constant;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
+            ret->mode = mode;
+            ret->constant = NULL;
+            ret->translate = &get_ptr_mirror;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_CIRCULAR_PADDING:
+            ret->mode = mode;
+            ret->constant = NULL;
+            ret->translate = &get_ptr_circular;
+            break;
+        default:
+            NpyErr_SetString(NpyExc_ValueError, "Unsupported padding mode");
+            goto clean_x;
+    }
+    
+    /*
+     * XXX: we force x iterator to be non contiguous because we need
+     * coordinates... Modifying the iterator here is not great
+     */
+    x->contiguous = 0;
+    
+    NpyArrayNeighborhoodIter_Reset(ret);
+    
+    return ret;
+    
+clean_x:
+    Npy_DECREF(ret->_internal_iter);
+    /* TODO: Free ret here once we add a level of indirection */
+    return NULL;
+}
+
+

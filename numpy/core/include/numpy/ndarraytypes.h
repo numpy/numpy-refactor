@@ -603,21 +603,6 @@ typedef struct PyArrayObject {
         struct PyArrayObject *base_arr; /* Base when it's specifically an array object */
         void *base_obj;         /* Base when it's an opaque interface object */
     
-        /*PyObject *base; */         /*
-                                 * This object should be decref'd upon
-                                 * deletion of array
-                                 *
-                                 * For views it points to the original
-                                 * array
-                                 *
-                                 * For creation from buffer object it
-                                 * points to an object that shold be
-                                 * decref'd on deletion
-                                 *
-                                 * For UPDATEIFCOPY flag this is an
-                                 * array to-be-updated upon deletion
-                                 * of this one
-                                 */
         PyArray_Descr *descr;   /* Pointer to type structure */
         int flags;              /* Flags describing array -- see below */
         PyObject *weakreflist;  /* For weakreferences */

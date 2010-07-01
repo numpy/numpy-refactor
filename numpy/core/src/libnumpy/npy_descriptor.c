@@ -67,7 +67,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
            (char *)base + sizeof(PyObject),
            sizeof(NpyArray_Descr) - sizeof(PyObject));
     
-    assert(NULL == new->fields && NULL == new->names || NULL != new->fields && NULL != new->names);
+    assert((NULL == new->fields && NULL == new->names) || (NULL != new->fields && NULL != new->names));
     if (NULL != new->fields) {
         new->names = NpyArray_DescrNamesCopy(new->names);
         new->fields = NpyDict_Copy(new->fields, npy_copy_fields_key, npy_copy_fields_value);
@@ -90,15 +90,15 @@ NpyArray_ArrayDescr *
 NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
 {
     NpyArray_ArrayDescr *dest = (NpyArray_ArrayDescr *)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
-    assert(0 == src->shape_num_dims && NULL == src->shape_dims || 0 < src->shape_num_dims && NULL != src->shape_dims);
+    assert((0 == src->shape_num_dims && NULL == src->shape_dims) || (0 < src->shape_num_dims && NULL != src->shape_dims));
     
     dest->base = src->base;
     Npy_INCREF(dest->base);
     
     dest->shape_num_dims = src->shape_num_dims;
     if (0 < dest->shape_num_dims) {
-        dest->shape_dims = (int **)NpyArray_malloc(dest->shape_num_dims * sizeof(int *));
-        memcpy(dest->shape_dims, src->shape_dims, dest->shape_num_dims * sizeof(int *));
+        dest->shape_dims = (npy_intp *)NpyArray_malloc(dest->shape_num_dims * sizeof(npy_intp *));
+        memcpy(dest->shape_dims, src->shape_dims, dest->shape_num_dims * sizeof(npy_intp *));
     } else {
         dest->shape_dims = NULL;
     }
@@ -376,7 +376,7 @@ NpyArray_DescrNamesCopy(char **names)
 static NpyDict *npy_create_fields_table()
 {
     NpyDict *new = NpyDict_CreateTable(7);  /* TODO: Should be price, 7 is a guess at size that avoids rehashing most of the time. */
-    NpyDict_SetKeyComparisonFunction(new, strcmp);
+    NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))strcmp);
     NpyDict_SetHashFunction(new, NpyDict_StringHashFunction);
     NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key, npy_dealloc_fields_value);
     return new;
