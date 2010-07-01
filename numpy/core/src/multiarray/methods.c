@@ -1109,7 +1109,7 @@ array_deepcopy(PyArrayObject *self, PyObject *args)
 {
     PyObject* visit;
     char *optr;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
     PyObject *copy, *ret, *deepcopy;
 
     if (!PyArg_ParseTuple(args, "O", &visit)) {
@@ -1126,7 +1126,7 @@ array_deepcopy(PyArrayObject *self, PyObject *args)
         if (deepcopy == NULL) {
             return NULL;
         }
-        it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)self);
+        it = NpyArray_IterNew(self);
         if (it == NULL) {
             Py_DECREF(deepcopy);
             return NULL;
@@ -1135,10 +1135,10 @@ array_deepcopy(PyArrayObject *self, PyObject *args)
         while(it->index < it->size) {
             _deepcopy_call(it->dataptr, optr, self->descr, deepcopy, visit);
             optr += self->descr->elsize;
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
         Py_DECREF(deepcopy);
-        Py_DECREF(it);
+        _Npy_DECREF(it);
     }
     return _ARET(ret);
 }
@@ -1148,26 +1148,26 @@ static PyObject *
 _getlist_pkl(PyArrayObject *self)
 {
     PyObject *theobject;
-    PyArrayIterObject *iter = NULL;
+    NpyArrayIterObject *iter = NULL;
     PyObject *list;
     PyArray_GetItemFunc *getitem;
 
     getitem = self->descr->f->getitem;
-    iter = (PyArrayIterObject *)PyArray_IterNew((PyObject *)self);
+    iter = NpyArray_IterNew(self);
     if (iter == NULL) {
         return NULL;
     }
     list = PyList_New(iter->size);
     if (list == NULL) {
-        Py_DECREF(iter);
+        _Npy_DECREF(iter);
         return NULL;
     }
     while (iter->index < iter->size) {
         theobject = getitem(iter->dataptr, self);
         PyList_SET_ITEM(list, (int) iter->index, theobject);
-        PyArray_ITER_NEXT(iter);
+        NpyArray_ITER_NEXT(iter);
     }
-    Py_DECREF(iter);
+    _Npy_DECREF(iter);
     return list;
 }
 
@@ -1175,20 +1175,20 @@ static int
 _setlist_pkl(PyArrayObject *self, PyObject *list)
 {
     PyObject *theobject;
-    PyArrayIterObject *iter = NULL;
+    NpyArrayIterObject *iter = NULL;
     PyArray_SetItemFunc *setitem;
 
     setitem = self->descr->f->setitem;
-    iter = (PyArrayIterObject *)PyArray_IterNew((PyObject *)self);
+    iter = NpyArray_IterNew(self);
     if (iter == NULL) {
         return -1;
     }
     while(iter->index < iter->size) {
         theobject = PyList_GET_ITEM(list, (int) iter->index);
         setitem(theobject, iter->dataptr, self);
-        PyArray_ITER_NEXT(iter);
+        NpyArray_ITER_NEXT(iter);
     }
-    Py_XDECREF(iter);
+    _Npy_XDECREF(iter);
     return 0;
 }
 

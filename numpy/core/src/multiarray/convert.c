@@ -57,17 +57,16 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
 {
     intp n, n2;
     size_t n3, n4;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
     PyObject *obj, *strobj, *tupobj, *byteobj;
         
-    it = (PyArrayIterObject *)
-    PyArray_IterNew((PyObject *)self);
+    it = NpyArray_IterNew(self);
     n3 = (sep ? strlen((const char *)sep) : 0);
     n4 = (format ? strlen((const char *)format) : 0);
     while (it->index < it->size) {
         obj = self->descr->f->getitem(it->dataptr, self);
         if (obj == NULL) {
-            Py_DECREF(it);
+            _Npy_DECREF(it);
             return -1;
         }
         if (n4 == 0) {
@@ -77,7 +76,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
             strobj = PyObject_Str(obj);
             Py_DECREF(obj);
             if (strobj == NULL) {
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
         }
@@ -87,21 +86,21 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
              */
             tupobj = PyTuple_New(1);
             if (tupobj == NULL) {
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
             PyTuple_SET_ITEM(tupobj,0,obj);
             obj = PyUString_FromString((const char *)format);
             if (obj == NULL) {
                 Py_DECREF(tupobj);
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
             strobj = PyUString_Format(obj, tupobj);
             Py_DECREF(obj);
             Py_DECREF(tupobj);
             if (strobj == NULL) {
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
         }
@@ -122,7 +121,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
                          "problem writing element %"INTP_FMT\
                          " to file", it->index);
             Py_DECREF(strobj);
-            Py_DECREF(it);
+            _Npy_DECREF(it);
             return -1;
         }
         /* write separator for all but last one */
@@ -132,14 +131,14 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
                              "problem writing "\
                              "separator to file");
                 Py_DECREF(strobj);
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
         }
         Py_DECREF(strobj);
-        PyArray_ITER_NEXT(it);
+        NpyArray_ITER_NEXT(it);
     }
-    Py_DECREF(it);
+    _Npy_DECREF(it);
     return 0;
 }
 
@@ -176,7 +175,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
     char *dptr;
     int elsize;
     PyObject *ret;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
 
     if (order == NPY_ANYORDER)
         order = PyArray_ISFORTRAN(self);
@@ -206,14 +205,14 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
             Py_INCREF(self);
             new = (PyObject *)self;
         }
-        it = (PyArrayIterObject *)PyArray_IterNew(new);
+        it = NpyArray_IterNew(new);
         Py_DECREF(new);
         if (it == NULL) {
             return NULL;
         }
         ret = PyBytes_FromStringAndSize(NULL, (Py_ssize_t) numbytes);
         if (ret == NULL) {
-            Py_DECREF(it);
+            _Npy_DECREF(it);
             return NULL;
         }
         dptr = PyBytes_AS_STRING(ret);
@@ -222,9 +221,9 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
         while (index--) {
             memcpy(dptr, it->dataptr, elsize);
             dptr += elsize;
-            PyArray_ITER_NEXT(it);
+            _NpyArray_ITER_NEXT(it);
         }
-        Py_DECREF(it);
+        _Npy_DECREF(it);
     }
     return ret;
 }
@@ -274,19 +273,18 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
         }
     }
     else {
-        PyArrayIterObject *iter;
+        NpyArrayIterObject *iter;
 
-        iter = (PyArrayIterObject *)\
-            PyArray_IterNew((PyObject *)arr);
+        iter = NpyArray_IterNew(arr);
         if (iter == NULL) {
             Py_XDECREF(newarr);
             return -1;
         }
         while (size--) {
             copyswap(iter->dataptr, fromptr, swap, arr);
-            PyArray_ITER_NEXT(iter);
+            NpyArray_ITER_NEXT(iter);
         }
-        Py_DECREF(iter);
+        _Npy_DECREF(iter);
     }
     Py_XDECREF(newarr);
     return 0;
