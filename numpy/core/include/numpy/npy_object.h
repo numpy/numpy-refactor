@@ -1,22 +1,26 @@
 #ifndef _NPY_OBJECT_H_
 #define _NPY_OBJECT_H_
 
+#include "npy_defs.h"
+
 /* Simple object model for numpy objects. 
    This is similar to the Python object model. */
 
-typedef void (*npy_destructor)(NpyObject *);
+typedef struct _NpyObject _NpyObject;
 
-typedef struct NpyTypeObject {
+typedef void (*npy_destructor)(_NpyObject *);
+
+typedef struct _NpyTypeObject {
     npy_destructor ntp_dealloc;
 } NpyTypeObject;
 
 #define NpyObject_HEAD                          \
-    npy_intp nob_refcnt;                         \
+    npy_intp nob_refcnt;                        \
     NpyTypeObject* nob_type;
 
-typedef struct _NpyObject {
+struct _NpyObject {
     NpyObject_HEAD;
-} _NpyObject;
+};
 
 #define _Npy_INCREF(a)                          \
        (((NpyObject*)(a))->nob_refcnt++)
@@ -27,6 +31,8 @@ typedef struct _NpyObject {
 
 #define _Npy_XINCREF(a) if ((a) == NULL) ; else _Npy_INCREF(a)
 #define _Npy_XDECREF(a) if ((a) == NULL) ; else _Npy_DECREF(a)
+
+#define NpyObject_TypeCheck(a, t) ((a)->nob_type == t)
 
 
 #endif

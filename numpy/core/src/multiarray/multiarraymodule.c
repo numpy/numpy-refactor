@@ -499,7 +499,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 {
     PyArrayObject *ap1, *ap2, *ret = NULL;
-    PyArrayIterObject *it1, *it2;
+    NpyArrayIterObject *it1, *it2;
     intp i, j, l;
     int typenum, nd, axis, matchDim;
     intp is1, is2, os;
@@ -587,26 +587,25 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 
     op = ret->data; os = ret->descr->elsize;
     axis = ap1->nd-1;
-    it1 = (PyArrayIterObject *)
-        PyArray_IterAllButAxis((PyObject *)ap1, &axis);
-    it2 = (PyArrayIterObject *)
-        PyArray_IterAllButAxis((PyObject *)ap2, &matchDim);
+    it1 = NpyArray_IterAllButAxis((PyObject *)ap1, &axis);
+    it2 = PyArray_IterAllButAxis((PyObject *)ap2, &matchDim);
     NPY_BEGIN_THREADS_DESCR(ap2->descr);
     while (1) {
-        while (it2->index < it2->size) {
-            dot(it1->dataptr, is1, it2->dataptr, is2, op, l, ret);
+        while (NpyArray_ITER_NOTDONE(it2)) {
+            dot(NpyArray_ITER_DATA(it1), is1, NpyArray_ITER_DATA(it2), is2, 
+                op, l, ret);
             op += os;
-            PyArray_ITER_NEXT(it2);
+            NpyArray_ITER_NEXT(it2);
         }
-        PyArray_ITER_NEXT(it1);
+        NpyArray_ITER_NEXT(it1);
         if (it1->index >= it1->size) {
             break;
         }
-        PyArray_ITER_RESET(it2);
+        NpyArray_ITER_RESET(it2);
     }
     NPY_END_THREADS_DESCR(ap2->descr);
-    Py_DECREF(it1);
-    Py_DECREF(it2);
+    Npy_DECREF(it1);
+    Npy_DECREF(it2);
     if (PyErr_Occurred()) {
         /* only for OBJECT arrays */
         goto fail;
@@ -2112,10 +2111,10 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     if (in_iter == NULL) {
         goto err;
     }
-    n = in_iter->numiter;
+    n = in_iter->iter->numiter;
 
-    result = (PyArrayObject*)PyArray_SimpleNewFromDescr(in_iter->nd,
-            in_iter->dimensions, type);
+    result = (PyArrayObject*)PyArray_SimpleNewFromDescr(in_iter->iter->nd,
+            in_iter->iter->dimensions, type);
     if (result == NULL) {
         goto err;
     }
@@ -2134,8 +2133,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
         PyObject* item_result;
 
         for (i = 0; i < n; i++) {
-            PyArrayIterObject* it = in_iter->iters[i];
-            PyObject* arg = PyArray_ToScalar(PyArray_ITER_DATA(it), it->ao);
+            NpyArrayIterObject* it = in_iter->iter->iters[i];
+            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), it->ao);
             if (arg == NULL) {
                 goto err;
             }
@@ -2185,11 +2184,11 @@ _vec_string_no_args(PyArrayObject* char_array,
      * require a broadcast iterator (and broadcast iterators don't work
      * with 1 argument anyway).
      */
-    PyArrayIterObject* in_iter = NULL;
+    NpyArrayIterObject* in_iter = NULL;
     PyArrayObject* result = NULL;
-    PyArrayIterObject* out_iter = NULL;
+    NpyArrayIterObject* out_iter = NULL;
 
-    in_iter = (PyArrayIterObject*)PyArray_IterNew((PyObject*)char_array);
+    in_iter = NpyArray_IterNew(char_array);
     if (in_iter == NULL) {
         goto err;
     }
@@ -2200,14 +2199,15 @@ _vec_string_no_args(PyArrayObject* char_array,
         goto err;
     }
 
-    out_iter = (PyArrayIterObject*)PyArray_IterNew((PyObject*)result);
+    out_iter = NpyArray_IterNew(result);
     if (out_iter == NULL) {
         goto err;
     }
 
-    while (PyArray_ITER_NOTDONE(in_iter)) {
+    while (NpyArray_ITER_NOTDONE(in_iter)) {
         PyObject* item_result;
-        PyObject* item = PyArray_ToScalar(in_iter->dataptr, in_iter->ao);
+        PyObject* item = PyArray_ToScalar(in_iter->dataptr, 
+                                          in_iter->ao);
         if (item == NULL) {
             goto err;
         }

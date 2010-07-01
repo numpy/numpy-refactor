@@ -7,13 +7,9 @@
 
 
 typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
-typedef PyArrayObject NpyArray;
-typedef struct PyArrayIterObject_tag NpyArrayIter;
-typedef PyArrayMultiIterObject NpyArrayMultiIter;
+typedef struct PyArrayObject NpyArray;
 typedef PyArray_Descr NpyArray_Descr;
 typedef PyArray_ArrayDescr NpyArray_ArrayDescr;
-typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
-typedef PyArrayIterObject NpyArrayIterObject;
 typedef PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
 
 typedef PyArray_Dims NpyArray_Dims;
@@ -35,8 +31,6 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
 #define NpyArrayDescr_Type PyArrayDescr_Type
-#define NpyArrayIter_Type PyArrayIter_Type
-#define NpyArrayMultiIter_Type PyArrayMultiIter_Type
 
 #define NpyArray_UCS4 npy_ucs4
 
@@ -156,17 +150,6 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_NOSCALAR PyArray_NOSCALAR
 #define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
 #define NpyArray_FORTRANORDER NPY_FORTRANORDER
-
-#define NpyArray_ITER_NEXT(it) PyArray_ITER_NEXT(it)
-#define NpyArray_ITER_RESET(it) PyArray_ITER_RESET(it)
-#define NpyArray_MultiIter_RESET(multi) PyArray_MultiIter_RESET(multi)
-#define NpyArray_MultiIter_NEXT(multi) PyArray_MultiIter_NEXT(multi)
-#define NpyArray_MultiIter_GOTO(multi, dest) PyArray_MultiIter_GOTO(multi, dest) 
-#define NpyArray_MultiIter_GOTO1D(multi, ind) PyArray_MultiIter_GOTO1D(multi, ind)
-#define NpyArray_MultiIter_DATA(multi, i) PyArray_MultiIter_DATA(multi, i)    
-#define NpyArray_MultiIter_NOTDONE(i) PyArray_MultiIter_NOTDONE(i)
-#define NpyArray_NEXTi(multi, i) PyArray_MultiIter_NEXTi(multi, i)   
-#define NpyArray_NOTDONE(multi) PyArray_MultiIter_NOTDONE(multi)
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
@@ -290,17 +273,7 @@ unsigned long NpyDict_StringHashFunction(const void *key);
 void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
 
-/* iterators.c */
-NpyArrayIter * NpyArray_IterNew(NpyArray *ao);
-NpyArrayIter * NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd);
-#define NpyArray_MultiIterNew PyArray_MultiIterNew
-NpyArrayIter * NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis);
-int NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
-int NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
-NpyArrayMultiIterObject * NpyArray_MultiIterFromArrays(NpyArray **mps, int n,
-                                                        int nadd, ...);
-NpyArrayMultiIterObject * NpyArray_vMultiIterFromArrays(NpyArray **mps, int n,
-                                                        int nadd, va_list va);
+#include <numpy/npy_iterators.h>
 
 
 /* methods.c */

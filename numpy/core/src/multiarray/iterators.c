@@ -265,69 +265,6 @@ slice_GetIndices(PySliceObject *r, intp length,
     return 0;
 }
 
-/*********************** Element-wise Array Iterator ***********************/
-/*  Aided by Peter J. Verveer's  nd_image package and numpy's arraymap  ****/
-/*         and Python's array iterator                                   ***/
-
-/* get the dataptr from its current coordinates for simple iterator */
-static char*
-get_ptr_simple(PyArrayIterObject* iter, npy_intp *coordinates)
-{
-    npy_intp i;
-    char *ret;
-
-    ret = iter->ao->data;
-
-    for(i = 0; i < iter->ao->nd; ++i) {
-            ret += coordinates[i] * iter->strides[i];
-    }
-
-    return ret;
-}
-
-/*
- * This is common initialization code between PyArrayIterObject and
- * PyArrayNeighborhoodIterObject
- *
- * Increase ao refcount
- */
-static PyObject *
-array_iter_base_init(PyArrayIterObject *it, PyArrayObject *ao)
-{
-    int nd, i;
-
-    nd = ao->nd;
-    PyArray_UpdateFlags(ao, CONTIGUOUS);
-    if (PyArray_ISCONTIGUOUS(ao)) {
-        it->contiguous = 1;
-    }
-    else {
-        it->contiguous = 0;
-    }
-    Py_INCREF(ao);
-    it->ao = ao;
-    it->size = PyArray_SIZE(ao);
-    it->nd_m1 = nd - 1;
-    it->factors[nd-1] = 1;
-    for (i = 0; i < nd; i++) {
-        it->dims_m1[i] = ao->dimensions[i] - 1;
-        it->strides[i] = ao->strides[i];
-        it->backstrides[i] = it->strides[i] * it->dims_m1[i];
-        if (i > 0) {
-            it->factors[nd-i-1] = it->factors[nd-i] * ao->dimensions[nd-i];
-        }
-        it->bounds[i][0] = 0;
-        it->bounds[i][1] = ao->dimensions[i] - 1;
-        it->limits[i][0] = 0;
-        it->limits[i][1] = ao->dimensions[i] - 1;
-        it->limits_sizes[i] = it->limits[i][1] - it->limits[i][0] + 1;
-    }
-
-    it->translate = &get_ptr_simple;
-    PyArray_ITER_RESET(it);
-
-    return (PyObject *)it;
-}
 
 static void
 array_iter_base_dealloc(PyArrayIterObject *it)

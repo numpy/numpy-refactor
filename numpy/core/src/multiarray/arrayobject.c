@@ -585,10 +585,10 @@ _uni_release(char *ptr, int nc)
         else _reg_loop(CMP)
 
 static int
-_compare_strings(PyObject *result, PyArrayMultiIterObject *multi,
+_compare_strings(PyObject *result, NpyArrayMultiIterObject *multi,
                  int cmp_op, void *func, int rstrip)
 {
-    PyArrayIterObject *iself, *iother;
+    NpyArrayIterObject *iself, *iother;
     Bool *dptr;
     intp size;
     int val;
@@ -650,7 +650,7 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
                      int rstrip)
 {
     PyObject *result;
-    PyArrayMultiIterObject *mit;
+    NpyArrayMultiIterObject *mit;
     int val;
 
     /* Cast arrays to a common type */
@@ -703,7 +703,7 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
     /* Broad-cast the arrays to a common shape */
-    mit = (PyArrayMultiIterObject *)PyArray_MultiIterNew(2, self, other);
+    mit = NpyArray_MultiIterNew(2, self, other);
     Py_DECREF(self);
     Py_DECREF(other);
     if (mit == NULL) {
@@ -732,7 +732,7 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
  finish:
-    Py_DECREF(mit);
+    Npy_DECREF(mit);
     return result;
 }
 
