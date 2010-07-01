@@ -1,5 +1,6 @@
 #define _MULTIARRAYMODULE
 #include <numpy/npy_iterators.h>
+#include <numpy/numpy_api.h>
 #include "npy_config.h"
 /* TODO: Get rid of this include once we've split PyArrayObject. */
 #include <numpy/ndarraytypes.h>
@@ -28,7 +29,7 @@ get_ptr_simple(NpyArrayIterObject* iter, npy_intp *coordinates)
 
 /*
  * This is common initialization code between NpyArrayIter and
- * PyArrayNeighborhoodIterObject
+ * NpyArrayNeighborhoodIterObject
  *
  * Increase ao refcount
  */
@@ -86,7 +87,7 @@ NpyArray_IterNew(NpyArray *ao)
     NpyArrayIterObject *it;
 
     it = (NpyArrayIterObject *)NpyArray_malloc(sizeof(NpyArrayIterObject));
-    _NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
     it->magic_number = NPY_VALID_MAGIC;
     if (it == NULL) {
         return NULL;
@@ -122,8 +123,8 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     if (!compat) {
         goto err;
     }
-    it = (NpyArrayIterObject *) PyArray_malloc(sizeof(NpyArrayIterObject));
-    _NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    it = (NpyArrayIterObject *) NpyArray_malloc(sizeof(NpyArrayIterObject));
+    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
 
     if (it == NULL) {
         return NULL;
@@ -167,7 +168,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
 
 /*
  * Get Iterator that iterates over all but one axis (don't use this with
- * PyArray_ITER_GOTO1D).  The axis will be over-written if negative
+ * NpyArray_ITER_GOTO1D).  The axis will be over-written if negative
  * with the axis having the smallest stride.
  */
 NpyArrayIterObject *
@@ -210,7 +211,7 @@ NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
 
     /*
      * (won't fix factors so don't use
-     * PyArray_ITER_GOTO1D with this iterator)
+     * NpyArray_ITER_GOTO1D with this iterator)
      */
     return it;
 }
@@ -221,7 +222,7 @@ NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
  * Returns dimension which is smallest in the range [0,multi->nd).
  * A -1 is returned if multi->nd == 0.
  *
- * don't use with PyArray_ITER_GOTO1D because factors are not adjusted
+ * don't use with NpyArray_ITER_GOTO1D because factors are not adjusted
  */
 int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi)
@@ -352,40 +353,18 @@ static void
 arrayiter_dealloc(NpyArrayIterObject *it)
 {
     array_iter_base_dealloc(it);
-    NpyArray_Free(it);
+    NpyArray_free(it);
 }
 
 
-NpyTypeObject NpyArrayIter_Type = {
-    arrayiter_dealloc,
+_NpyTypeObject NpyArrayIter_Type = {
+    (npy_destructor)arrayiter_dealloc,
 };
-
-/*
- * Get MultiIterator from array of Python objects and any additional
- *
- * NpyArray **mps -- array of NpyArrays
- * int n - number of NpyArrays in the array
- * int nadd - number of additional arrays to include in the iterator.
- *
- * Returns a multi-iterator object.
- */
-NpyArrayMultiIterObject *
-NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
-{
-    NpyArrayMultiIterObject* result;
-
-    va_list va;
-    va_start(va, nadd);
-    result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
-    va_end(va);
-
-    return result;
-}
 
 NpyArrayMultiIterObject *
 NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 {
-    PyArrayMultiIterObject *multi;
+    NpyArrayMultiIterObject *multi;
     NpyArray *current;
 
     int i, ntot, err=0;
@@ -397,13 +376,13 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
                      "array objects (inclusive).", NPY_MAXARGS);
         return NULL;
     }
-    multi = NpyArray_malloc(sizeof(PyArrayMultiIterObject));
+    multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (multi == NULL) {
         NpyErr_NoMemory();
         return NULL;
     }
-    multi->magic_number = NPY_VALID_MAGIC;
-    _NpyObject_Init((NpyObject *)multi, &NpyArrayMultiIter_Type);
+    /*multi->magic_number = NPY_VALID_MAGIC;*/
+    _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
 
     for (i = 0; i < ntot; i++) {
         multi->iters[i] = NULL;
@@ -429,11 +408,33 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         err = 1;
     }
     if (err) {
-        Npy_DECREF(multi);
+        _Npy_DECREF(multi);
         return NULL;
     }
     NpyArray_MultiIter_RESET(multi);
     return multi;
+}
+
+/*
+ * Get MultiIterator from array of Python objects and any additional
+ *
+ * NpyArray **mps -- array of NpyArrays
+ * int n - number of NpyArrays in the array
+ * int nadd - number of additional arrays to include in the iterator.
+ *
+ * Returns a multi-iterator object.
+ */
+NpyArrayMultiIterObject *
+NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
+{
+    NpyArrayMultiIterObject* result;
+
+    va_list va;
+    va_start(va, nadd);
+    result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
+    va_end(va);
+
+    return result;
 }
 
 static void
@@ -444,11 +445,11 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
     for (i = 0; i < multi->numiter; i++) {
         _Npy_XDECREF(multi->iters[i]);
     }
-    NpyArray_Free(multi);
+    NpyArray_free(multi);
 }
 
-NpyTypeObject NpyArrayMultiIter_Type =   {
-    arraymultiter_dealloc,
+_NpyTypeObject NpyArrayMultiIter_Type =   {
+    (npy_destructor)arraymultiter_dealloc,
 };
 
 
@@ -456,7 +457,7 @@ NpyTypeObject NpyArrayMultiIter_Type =   {
 
 /*========================= Neighborhood iterator ======================*/
 
-static char* _set_constant(PyArrayNeighborhoodIterObject* iter,
+static char* _set_constant(NpyArrayNeighborhoodIterObject* iter,
                            NpyArray *fill)
 {
     char *ret;
@@ -498,12 +499,13 @@ _coordinates[c] = bd;
 
 /* set the dataptr from its current coordinates */
 static char*
-get_ptr_constant(PyArrayIterObject* _iter, npy_intp *coordinates)
+get_ptr_constant(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS];
-    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
-    PyArrayIterObject *p = niter->_internal_iter;
+    NpyArrayNeighborhoodIterObject *niter = 
+        (NpyArrayNeighborhoodIterObject*)_iter;
+    NpyArrayIterObject *p = niter->_internal_iter;
     
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR(i)
@@ -553,12 +555,13 @@ _coordinates[c] = lb + __npy_pos_remainder(bd, p->limits_sizes[c]);
 
 /* set the dataptr from its current coordinates */
 static char*
-get_ptr_mirror(PyArrayIterObject* _iter, npy_intp *coordinates)
+get_ptr_mirror(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
-    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
-    PyArrayIterObject *p = niter->_internal_iter;
+    NpyArrayNeighborhoodIterObject *niter = 
+        (NpyArrayNeighborhoodIterObject*)_iter;
+    NpyArrayIterObject *p = niter->_internal_iter;
     
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR_MIRROR(i)
@@ -587,12 +590,13 @@ bd = coordinates[c] + p->coordinates[c] - lb; \
 _coordinates[c] = lb + __npy_euclidean_division(bd, p->limits_sizes[c]);
 
 static char*
-get_ptr_circular(PyArrayIterObject* _iter, npy_intp *coordinates)
+get_ptr_circular(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
-    PyArrayNeighborhoodIterObject *niter = (PyArrayNeighborhoodIterObject*)_iter;
-    PyArrayIterObject *p = niter->_internal_iter;
+    NpyArrayNeighborhoodIterObject *niter = 
+        (NpyArrayNeighborhoodIterObject*)_iter;
+    NpyArrayIterObject *p = niter->_internal_iter;
     
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR_CIRCULAR(i)
@@ -615,7 +619,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     int i;
     NpyArrayNeighborhoodIterObject *ret;
 
-    ret = NpyArray_malloc(sizoef(*ret));
+    ret = NpyArray_malloc(sizeof(*ret));
     if (ret == NULL) {
         return NULL;
     }
@@ -719,10 +723,10 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
     }
     _Npy_DECREF(iter->_internal_iter);
 
-    array_iter_base_dealloc((PyArrayIterObject*)iter);
-    NpyArray_Free((PyArrayObject*)iter);
+    array_iter_base_dealloc((NpyArrayIterObject*)iter);
+    NpyArray_free(iter);
 }
 
-NpyTypeObject NpyArrayNeighborhoodIter_Type = {
-    neighiter_dealloc,
-}
+_NpyTypeObject NpyArrayNeighborhoodIter_Type = {
+    (npy_destructor)neighiter_dealloc,
+};

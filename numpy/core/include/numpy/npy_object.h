@@ -12,11 +12,11 @@ typedef void (*npy_destructor)(_NpyObject *);
 
 typedef struct _NpyTypeObject {
     npy_destructor ntp_dealloc;
-} NpyTypeObject;
+} _NpyTypeObject;
 
 #define NpyObject_HEAD                          \
     npy_intp nob_refcnt;                        \
-    NpyTypeObject* nob_type;
+    _NpyTypeObject* nob_type;
 
 struct _NpyObject {
     NpyObject_HEAD;

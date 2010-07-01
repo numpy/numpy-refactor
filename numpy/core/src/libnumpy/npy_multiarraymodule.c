@@ -355,7 +355,7 @@ NpyArray *
 NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 {
     NpyArray *ret = NULL;
-    NpyArrayIter *it1, *it2;
+    NpyArrayIterObject *it1, *it2;
     npy_intp i, j, l;
     int nd, axis;
     npy_intp is1, is2, os;
@@ -416,8 +416,8 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
         NpyArray_ITER_RESET(it2);
     }
     NPY_END_THREADS_DESCR(ap2->descr);
-    Npy_DECREF(it1);
-    Npy_DECREF(it2);
+    _Npy_DECREF(it1);
+    _Npy_DECREF(it2);
     if (NpyErr_Occurred()) {
         goto fail;
     }
