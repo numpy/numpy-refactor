@@ -166,10 +166,10 @@ static int
 array_any_nonzero(PyArrayObject *mp)
 {
     intp index;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
     Bool anyTRUE = FALSE;
 
-    it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)mp);
+    it = NpyArray_IterNew(mp);
     if (it == NULL) {
         return anyTRUE;
     }
@@ -179,9 +179,9 @@ array_any_nonzero(PyArrayObject *mp)
             anyTRUE = TRUE;
             break;
         }
-        PyArray_ITER_NEXT(it);
+        NpyArray_ITER_NEXT(it);
     }
-    Py_DECREF(it);
+    _Npy_DECREF(it);
     return anyTRUE;
 }
 

@@ -746,7 +746,7 @@ array_flat_set(PyArrayObject *self, PyObject *val)
 {
     PyObject *arr = NULL;
     int retval = -1;
-    PyArrayIterObject *selfit = NULL, *arrit = NULL;
+    NpyArrayIterObject *selfit = NULL, *arrit = NULL;
     PyArray_Descr *typecode;
     int swap;
     PyArray_CopySwapFunc *copyswap;
@@ -758,11 +758,11 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     if (arr == NULL) {
         return -1;
     }
-    arrit = (PyArrayIterObject *)PyArray_IterNew(arr);
+    arrit = NpyArray_IterNew((PyArrayObject*)arr);
     if (arrit == NULL) {
         goto exit;
     }
-    selfit = (PyArrayIterObject *)PyArray_IterNew((PyObject *)self);
+    selfit = NpyArray_IterNew(self);
     if (selfit == NULL) {
         goto exit;
     }
@@ -780,10 +780,10 @@ array_flat_set(PyArrayObject *self, PyObject *val)
             if (swap) {
                 copyswap(selfit->dataptr, NULL, swap, self);
             }
-            PyArray_ITER_NEXT(selfit);
-            PyArray_ITER_NEXT(arrit);
+            NpyArray_ITER_NEXT(selfit);
+            NpyArray_ITER_NEXT(arrit);
             if (arrit->index == arrit->size) {
-                PyArray_ITER_RESET(arrit);
+                NpyArray_ITER_RESET(arrit);
             }
         }
         retval = 0;
@@ -795,17 +795,17 @@ array_flat_set(PyArrayObject *self, PyObject *val)
         if (swap) {
             copyswap(selfit->dataptr, NULL, swap, self);
         }
-        PyArray_ITER_NEXT(selfit);
-        PyArray_ITER_NEXT(arrit);
+        NpyArray_ITER_NEXT(selfit);
+        NpyArray_ITER_NEXT(arrit);
         if (arrit->index == arrit->size) {
-            PyArray_ITER_RESET(arrit);
+            NpyArray_ITER_RESET(arrit);
         }
     }
     retval = 0;
 
  exit:
-    Py_XDECREF(selfit);
-    Py_XDECREF(arrit);
+    _Npy_XDECREF(selfit);
+    _Npy_XDECREF(arrit);
     Py_XDECREF(arr);
     return retval;
 }
