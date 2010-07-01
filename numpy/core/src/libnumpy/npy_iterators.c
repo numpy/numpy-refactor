@@ -605,19 +605,24 @@ get_ptr_circular(PyArrayIterObject* _iter, npy_intp *coordinates)
 /*
  * fill and x->ao should have equivalent types
  */
-/*NUMPY_API
+/*
  * A Neighborhood Iterator object.
  */
-NPY_NO_EXPORT NpyArrayNeighborhoodIterObject*
+NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
-                             int mode, NpyArray *fill,
-                             NpyArrayNeighborhoodIterObject *ret)
+                             int mode, NpyArray *fill)
 {
-    /* TODO: ret is passed in for now, will be allocated locally in the future */
     int i;
-    
+    NpyArrayNeighborhoodIterObject *ret;
+
+    ret = NpyArray_malloc(sizoef(*ret));
+    if (ret == NULL) {
+        return NULL;
+    }
+    _NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
+
     array_iter_base_init((NpyArrayIterObject *)ret, x->ao);
-    Npy_INCREF(x);
+    _Npy_INCREF(x);
     ret->_internal_iter = x;
     
     ret->nd = x->ao->nd;
@@ -696,7 +701,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     return ret;
     
 clean_x:
-    Npy_DECREF(ret->_internal_iter);
+    _Npy_DECREF(ret->_internal_iter);
     /* TODO: Free ret here once we add a level of indirection */
     return NULL;
 }
@@ -718,3 +723,6 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
     NpyArray_Free((PyArrayObject*)iter);
 }
 
+NpyTypeObject NpyArrayNeighborhoodIter_Type = {
+    neighiter_dealloc,
+}

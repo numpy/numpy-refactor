@@ -194,6 +194,8 @@ NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
 
 int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
+int
+NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 
 #define NpyArray_MultiIter_RESET(multi) {                               \
@@ -332,9 +334,16 @@ typedef struct {
     int mode;
 } NpyArrayNeighborhoodIterObject;
 
+
+extern NpyTypeObject NpyArrayNeighborhoodIter_Type;
+
 /*
  * Neighborhood iterator API
  */
+
+NpyArrayNeighborhoodIterObject*
+NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
+                             int mode, struct PyArrayObject *fill);
 
 #if 0
 /* General: those work for any mode */
