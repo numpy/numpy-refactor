@@ -18,7 +18,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 {
     npy_intp size;
     npy_intp n;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
         
     /* binary data */
     if (NpyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
@@ -56,13 +56,13 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
                               "problem writing element"\
                               " %"NPY_INTP_FMT" to file",
                               it->index);
-                Py_DECREF(it);
+                _Npy_DECREF(it);
                 return -1;
             }
             NpyArray_ITER_NEXT(it);
         }
         NPY_END_THREADS;
-        Npy_Interface_DECREF(it);       /* TODO: Important, this should be Npy_DECREF but only changed because iterators don't have magic numbers yet. */
+        _Npy_DECREF(it);
     }
     return 0;
 }
