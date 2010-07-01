@@ -11,7 +11,7 @@
 
 /* get the dataptr from its current coordinates for simple iterator */
 static char*
-get_ptr_simple(NpyArrayIter* iter, npy_intp *coordinates)
+get_ptr_simple(NpyArrayIterObject* iter, npy_intp *coordinates)
 {
     npy_intp i;
     char *ret;
@@ -33,7 +33,7 @@ get_ptr_simple(NpyArrayIter* iter, npy_intp *coordinates)
  * Increase ao refcount
  */
 static int
-array_iter_base_init(NpyArrayIter *it, NpyArray *ao)
+array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 {
     int nd, i;
 
@@ -71,16 +71,22 @@ array_iter_base_init(NpyArrayIter *it, NpyArray *ao)
 }
 
 
+static void
+array_iter_base_dealloc(NpyArrayIterObject *it)
+{
+    Py_XDECREF(it->ao);
+}
+
 /*
  * Get Iterator.
  */
-NpyArrayIter *
+NpyArrayIterObject *
 NpyArray_IterNew(NpyArray *ao)
 {
-    NpyArrayIter *it;
+    NpyArrayIterObject *it;
 
-    it = (NpyArrayIter *)NpyArray_malloc(sizeof(NpyArrayIter));
-    NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    it = (NpyArrayIterObject *)NpyArray_malloc(sizeof(NpyArrayIterObject));
+    _NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
     it->magic_number = NPY_VALID_MAGIC;
     if (it == NULL) {
         return NULL;
@@ -93,10 +99,10 @@ NpyArray_IterNew(NpyArray *ao)
 /*
  * Get Iterator broadcast to a particular shape
  */
-NpyArrayIter *
+NpyArrayIterObject *
 NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
 {
-    NpyArrayIter *it;
+    NpyArrayIterObject *it;
     int i, diff, j, compat, k;
 
     if (ao->nd > nd) {
@@ -116,8 +122,8 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     if (!compat) {
         goto err;
     }
-    it = (NpyArrayIter *) PyArray_malloc(sizeof(NpyArrayIter));
-    NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
+    it = (NpyArrayIterObject *) PyArray_malloc(sizeof(NpyArrayIterObject));
+    _NpyObject_Init((NpyObject *)it, &NpyArrayIter_Type);
 
     if (it == NULL) {
         return NULL;
@@ -164,10 +170,10 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
  * PyArray_ITER_GOTO1D).  The axis will be over-written if negative
  * with the axis having the smallest stride.
  */
-NpyArrayIter *
+NpyArrayIterObject *
 NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
 {
-    NpyArrayIter* it;
+    NpyArrayIterObject* it;
     int axis;
     it = NpyArray_IterNew(obj);
     if (it == NULL) {
@@ -220,7 +226,7 @@ NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
 int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi)
 {
-    NpyArrayIter *it;
+    NpyArrayIterObject *it;
     int i, j;
     int axis;
     npy_intp smallest;
@@ -265,7 +271,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit)
 {
     int i, nd, k, j;
     npy_intp tmp;
-    NpyArrayIter *it;
+    NpyArrayIterObject *it;
 
     /* Discover the broadcast number of dimensions */
     for (i = 0, nd = 0; i < mit->numiter; i++) {
@@ -342,6 +348,18 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit)
     return 0;
 }
 
+static void
+arrayiter_dealloc(NpyArrayIterObject *it)
+{
+    array_iter_base_dealloc(it);
+    NpyArray_Free(it);
+}
+
+
+NpyTypeObject NpyArrayIter_Type = {
+    arrayiter_dealloc,
+};
+
 /*
  * Get MultiIterator from array of Python objects and any additional
  *
@@ -385,7 +403,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         return NULL;
     }
     multi->magic_number = NPY_VALID_MAGIC;
-    NpyObject_Init((NpyObject *)multi, &NpyArrayMultiIter_Type);
+    _NpyObject_Init((NpyObject *)multi, &NpyArrayMultiIter_Type);
 
     for (i = 0; i < ntot; i++) {
         multi->iters[i] = NULL;
@@ -418,6 +436,22 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
     return multi;
 }
 
+static void
+arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
+{
+    int i;
+
+    for (i = 0; i < multi->numiter; i++) {
+        _Npy_XDECREF(multi->iters[i]);
+    }
+    NpyArray_Free(multi);
+}
+
+NpyTypeObject NpyArrayMultiIter_Type =   {
+    arraymultiter_dealloc,
+};
+
+
 
 
 /*========================= Neighborhood iterator ======================*/
@@ -426,7 +460,7 @@ static char* _set_constant(PyArrayNeighborhoodIterObject* iter,
                            NpyArray *fill)
 {
     char *ret;
-    NpyArrayIter *ar = iter->_internal_iter;
+    NpyArrayIterObject *ar = iter->_internal_iter;
     int storeflags, st;
     
     ret = (char *)NpyArray_malloc(ar->ao->descr->elsize);
@@ -667,4 +701,20 @@ clean_x:
     return NULL;
 }
 
+static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
+{
+    if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
+        /* TODO: fix when we split the array object.*/
+        if (PyArray_ISOBJECT(iter->_internal_iter->ao)) {
+            Py_DECREF(*(PyObject**)iter->constant);
+        }
+    }
+    if (iter->constant != NULL) {
+        PyDataMem_FREE(iter->constant);
+    }
+    _Npy_DECREF(iter->_internal_iter);
+
+    array_iter_base_dealloc((PyArrayIterObject*)iter);
+    NpyArray_Free((PyArrayObject*)iter);
+}
 

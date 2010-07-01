@@ -587,8 +587,8 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 
     op = ret->data; os = ret->descr->elsize;
     axis = ap1->nd-1;
-    it1 = NpyArray_IterAllButAxis((PyObject *)ap1, &axis);
-    it2 = PyArray_IterAllButAxis((PyObject *)ap2, &matchDim);
+    it1 = NpyArray_IterAllButAxis(ap1, &axis);
+    it2 = NpyArray_IterAllButAxis(ap2, &matchDim);
     NPY_BEGIN_THREADS_DESCR(ap2->descr);
     while (1) {
         while (NpyArray_ITER_NOTDONE(it2)) {

@@ -23,16 +23,22 @@ struct _NpyObject {
 };
 
 #define _Npy_INCREF(a)                          \
-       (((NpyObject*)(a))->nob_refcnt++)
+       (((_NpyObject*)(a))->nob_refcnt++)
 
 #define _Npy_DECREF(a)                                          \
-        if (--((NpyObject*)(a))->nob_refcnt == 0)               \
-            ((NpyObject*)(a))->ntp_dealloc((NpyObject*)a)
+        if (--((_NpyObject*)(a))->nob_refcnt == 0)               \
+            ((_NpyObject*)(a))->nob_type->ntp_dealloc((_NpyObject*)a)
 
 #define _Npy_XINCREF(a) if ((a) == NULL) ; else _Npy_INCREF(a)
 #define _Npy_XDECREF(a) if ((a) == NULL) ; else _Npy_DECREF(a)
 
 #define NpyObject_TypeCheck(a, t) ((a)->nob_type == t)
+
+#define _NpyObject_Init(a, t)                   \
+    do {                                        \
+        (a)->nob_type = t;                      \
+        (a)->nob_refcnt = 1;                    \
+    } while (0)
 
 
 #endif

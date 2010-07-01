@@ -31,8 +31,21 @@ struct NpyArrayIterObject {
         npy_iter_get_dataptr_t translate;
 };
 
+extern NpyTypeObject NpyArrayIter_Type;
+
 
 /* Iterator API */
+
+
+NpyArrayIterObject *
+NpyArray_IterNew(struct PyArrayObject *ao);
+
+NpyArrayIterObject *
+NpyArray_IterAllButAxis(struct PyArrayObject* obj, int *inaxis);
+
+NpyArrayIterObject *
+NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
+
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
 #define NpyArray_ITER_RESET(it) {                                        \
@@ -174,20 +187,29 @@ typedef struct {
         NpyArrayIterObject    *iters[NPY_MAXARGS];     /* iterators */
 } NpyArrayMultiIterObject;
 
-#define NpyArray_MultiIter_RESET(multi) {                                      \
-        int __npy_mi;                                                         \
+extern NpyTypeObject NpyArrayMultiIter_Type;
+
+NpyArrayMultiIterObject *
+NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
+
+int
+NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
+
+
+#define NpyArray_MultiIter_RESET(multi) {                               \
+        int __npy_mi;                                                   \
         (multi)->index = 0;                                             \
         for (__npy_mi=0; __npy_mi < (multi)->numiter;  __npy_mi++) {    \
-                NpyArray_ITER_RESET((multi)->iters[__npy_mi]);           \
-        }                                                                     \
+                NpyArray_ITER_RESET((multi)->iters[__npy_mi]);          \
+        }                                                               \
 }
 
-#define NpyArray_MultiIter_NEXT(multi) {                                       \
-        int __npy_mi;                                                         \
+#define NpyArray_MultiIter_NEXT(multi) {                                \
+        int __npy_mi;                                                   \
         (multi)->index++;                                               \
         for (__npy_mi=0; __npy_mi < (multi)->numiter;   __npy_mi++) {   \
-                NpyArray_ITER_NEXT((multi)->iters[__npy_mi]);            \
-        }                                                                     \
+                NpyArray_ITER_NEXT((multi)->iters[__npy_mi]);           \
+        }                                                               \
 }
 
 #define NpyArray_MultiIter_GOTO(multi, dest) {                               \

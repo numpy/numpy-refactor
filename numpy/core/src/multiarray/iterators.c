@@ -266,12 +266,6 @@ slice_GetIndices(PySliceObject *r, intp length,
 }
 
 
-static void
-array_iter_base_dealloc(PyArrayIterObject *it)
-{
-    Py_XDECREF(it->ao);
-}
-
 /*NUMPY_API
  * Get Iterator.
  */
@@ -329,14 +323,15 @@ PyArray_IterAllButAxis(PyObject *obj, int *inaxis)
 NPY_NO_EXPORT int
 PyArray_RemoveSmallest(PyArrayMultiIterObject *multi)
 {
-    return NpyArray_RemoveSmallest(multi);
+    return NpyArray_RemoveSmallest(multi->iter);
 }
 
 /* Returns an array scalar holding the element desired */
 
 static PyObject *
-arrayiter_next(PyArrayIterObject *it)
+arrayiter_next(PyArrayIterObject *pit)
 {
+    NpyArrayIterObject *it = pit->iter;
     PyObject *ret;
 
     if (it->index < it->size) {
@@ -350,19 +345,19 @@ arrayiter_next(PyArrayIterObject *it)
 static void
 arrayiter_dealloc(PyArrayIterObject *it)
 {
-    array_iter_base_dealloc(it);
+    _Npy_DECREF(it->iter);
     _pya_free(it);
 }
 
 static Py_ssize_t
 iter_length(PyArrayIterObject *self)
 {
-    return self->size;
+    return self->iter->size;
 }
 
 
 static PyObject *
-iter_subscript_Bool(PyArrayIterObject *self, PyArrayObject *ind)
+iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
 {
     intp index, strides;
     int itemsize;
@@ -423,11 +418,11 @@ iter_subscript_Bool(PyArrayIterObject *self, PyArrayObject *ind)
 }
 
 static PyObject *
-iter_subscript_int(PyArrayIterObject *self, PyArrayObject *ind)
+iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
 {
     intp num;
     PyObject *r;
-    PyArrayIterObject *ind_it;
+    NpyArrayIterObject *ind_it;
     int itemsize;
     int swap;
     char *optr;
@@ -464,7 +459,7 @@ iter_subscript_int(PyArrayIterObject *self, PyArrayObject *ind)
         return NULL;
     }
     optr = PyArray_DATA(r);
-    ind_it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)ind);
+    ind_it = NpyArray_IterNew(ind);
     if (ind_it == NULL) {
         Py_DECREF(r);
         return NULL;
@@ -497,9 +492,17 @@ iter_subscript_int(PyArrayIterObject *self, PyArrayObject *ind)
     return r;
 }
 
+static PyObject* npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind);
+
 /* Always returns arrays */
 NPY_NO_EXPORT PyObject *
 iter_subscript(PyArrayIterObject *self, PyObject *ind)
+{
+    return npy_iter_subscript(self->iter, ind);
+}
+
+static PyObject*
+npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
 {
     PyArray_Descr *indtype = NULL;
     intp start, step_size;
@@ -512,7 +515,7 @@ iter_subscript(PyArrayIterObject *self, PyObject *ind)
 
     if (ind == Py_Ellipsis) {
         ind = PySlice_New(NULL, NULL, NULL);
-        obj = iter_subscript(self, ind);
+        obj = npy_iter_subscript(self, ind);
         Py_DECREF(ind);
         return obj;
     }
@@ -647,8 +650,8 @@ iter_subscript(PyArrayIterObject *self, PyObject *ind)
 
 
 static int
-iter_ass_sub_Bool(PyArrayIterObject *self, PyArrayObject *ind,
-                  PyArrayIterObject *val, int swap)
+iter_ass_sub_Bool(NpyArrayIterObject *self, PyArrayObject *ind,
+                  NpyArrayIterObject *val, int swap)
 {
     intp index, strides;
     char *dptr;
@@ -688,12 +691,12 @@ iter_ass_sub_Bool(PyArrayIterObject *self, PyArrayObject *ind,
 }
 
 static int
-iter_ass_sub_int(PyArrayIterObject *self, PyArrayObject *ind,
-                 PyArrayIterObject *val, int swap)
+iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
+                 NpyArrayIterObject *val, int swap)
 {
     PyArray_Descr *typecode;
     intp num;
-    PyArrayIterObject *ind_it;
+    NpyArrayIterObject *ind_it;
     intp index;
     PyArray_CopySwapFunc *copyswap;
 
@@ -705,7 +708,7 @@ iter_ass_sub_int(PyArrayIterObject *self, PyArrayObject *ind,
         copyswap(self->dataptr, val->dataptr, swap, self->ao);
         return 0;
     }
-    ind_it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)ind);
+    ind_it = NpyArray_IterNew(ind);
     if (ind_it == NULL) {
         return -1;
     }
@@ -735,11 +738,20 @@ iter_ass_sub_int(PyArrayIterObject *self, PyArrayObject *ind,
     return 0;
 }
 
+static int
+npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val);
+    
 NPY_NO_EXPORT int
 iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
 {
-    PyObject *arrval = NULL;
-    PyArrayIterObject *val_it = NULL;
+    return npy_iter_ass_subscript(self->iter, ind, val);
+}
+
+static int
+npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
+{
+    PyArrayObject *arrval = NULL;
+    NpyArrayIterObject *val_it = NULL;
     PyArray_Descr *type;
     PyArray_Descr *indtype = NULL;
     int swap, retval = -1;
@@ -751,7 +763,7 @@ iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
 
     if (ind == Py_Ellipsis) {
         ind = PySlice_New(NULL, NULL, NULL);
-        retval = iter_ass_subscript(self, ind, val);
+        retval = npy_iter_ass_subscript(self, ind, val);
         Py_DECREF(ind);
         return retval;
     }
@@ -806,11 +818,11 @@ iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
 
  skip:
     Py_INCREF(type);
-    arrval = PyArray_FromAny(val, type, 0, 0, 0, NULL);
+    arrval = (PyArrayObject*) PyArray_FromAny(val, type, 0, 0, 0, NULL);
     if (arrval == NULL) {
         return -1;
     }
-    val_it = (PyArrayIterObject *)PyArray_IterNew(arrval);
+    val_it = NpyArray_IterNew(arrval);
     if (val_it == NULL) {
         goto finish;
     }
@@ -920,9 +932,9 @@ static PyMappingMethods iter_as_mapping = {
 
 
 static PyObject *
-iter_array(PyArrayIterObject *it, PyObject *NPY_UNUSED(op))
+iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
 {
-
+    NpyArrayIterObject *it = pit->iter;
     PyArrayObject *r;
     intp size;
 
@@ -979,7 +991,7 @@ iter_copy(PyArrayIterObject *it, PyObject *args)
     if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    return PyArray_Flatten(it->ao, 0);
+    return PyArray_Flatten(it->iter->ao, 0);
 }
 
 static PyMethodDef iter_methods[] = {
@@ -1021,8 +1033,9 @@ static PyMemberDef iter_members[] = {
 };
 
 static PyObject *
-iter_coords_get(PyArrayIterObject *self)
+iter_coords_get(PyArrayIterObject *pself)
 {
+    NpyArrayIterObject *self = pself->iter;
     int nd;
     nd = self->ao->nd;
     if (self->contiguous) {
@@ -1124,7 +1137,7 @@ NPY_NO_EXPORT PyTypeObject PyArrayIter_Type = {
 NPY_NO_EXPORT int
 PyArray_Broadcast(PyArrayMultiIterObject *mit)
 {
-    return NpyArray_Broadcast(mit);
+    return NpyArray_Broadcast(mit->iter);
 }
 
 static PyObject*
@@ -1299,11 +1312,7 @@ arraymultiter_next(PyArrayMultiIterObject *multi)
 static void
 arraymultiter_dealloc(PyArrayMultiIterObject *multi)
 {
-    int i;
-
-    for (i = 0; i < multi->numiter; i++) {
-        Py_XDECREF(multi->iters[i]);
-    }
+    _Npy_DECREF(multi->iter);
     Py_TYPE(multi)->tp_free((PyObject *)multi);
 }
 
@@ -1475,9 +1484,6 @@ NPY_NO_EXPORT PyTypeObject PyArrayMultiIter_Type = {
 
 /*========================= Neighborhood iterator ======================*/
 
-static void neighiter_dealloc(PyArrayNeighborhoodIterObject* iter);
-
-
 /*
  * fill and x->ao should have equivalent types
  */
@@ -1499,7 +1505,6 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
     
     coreRet = NpyArray_NeighborhoodIterNew(x, bounds, mode, fill, ret);
     if (NULL == coreRet) {
-        array_iter_base_dealloc((PyArrayIterObject*)ret);
         _pya_free((PyArrayObject*)ret);
         return NULL;        
     }
@@ -1509,17 +1514,7 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
 
 static void neighiter_dealloc(PyArrayNeighborhoodIterObject* iter)
 {
-    if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
-        if (PyArray_ISOBJECT(iter->_internal_iter->ao)) {
-            Py_DECREF(*(PyObject**)iter->constant);
-        }
-    }
-    if (iter->constant != NULL) {
-        PyDataMem_FREE(iter->constant);
-    }
-    Py_DECREF(iter->_internal_iter);
-
-    array_iter_base_dealloc((PyArrayIterObject*)iter);
+    _Npy_DECREF(iter->iter);
     _pya_free((PyArrayObject*)iter);
 }
 
