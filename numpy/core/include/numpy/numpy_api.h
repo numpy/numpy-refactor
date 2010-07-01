@@ -14,6 +14,7 @@ typedef PyArray_Descr NpyArray_Descr;
 typedef PyArray_ArrayDescr NpyArray_ArrayDescr;
 typedef PyArrayMultiIterObject NpyArrayMultiIterObject;
 typedef PyArrayIterObject NpyArrayIterObject;
+typedef PyArrayNeighborhoodIterObject NpyArrayNeighborhoodIterObject;
 typedef PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
 
 typedef PyArray_Dims NpyArray_Dims;
@@ -301,7 +302,10 @@ NpyArrayMultiIterObject * NpyArray_MultiIterFromArrays(NpyArray **mps, int n,
                                                         int nadd, ...);
 NpyArrayMultiIterObject * NpyArray_vMultiIterFromArrays(NpyArray **mps, int n,
                                                         int nadd, va_list va);
-
+NpyArrayNeighborhoodIterObject *NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
+                                                             int mode, NpyArray *fill,
+                                                             NpyArrayNeighborhoodIterObject *ret);
+#define NpyArrayNeighborhoodIter_Reset(a) PyArrayNeighborhoodIter_Reset(a)
 
 /* methods.c */
 NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
@@ -504,6 +508,7 @@ int _typenum_fromtypeobj(NpyObject *type, int user);
  * Error handling.
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
+#define NpyErr_SetNone(e) PyErr_SetNone(e)
 #define NpyErr_NoMemory() PyErr_NoMemory()
 #define NpyErr_Occurred() PyErr_Occurred()
 #define NpyExc_ValueError PyExc_ValueError
