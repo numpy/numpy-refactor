@@ -1421,6 +1421,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                      * Copy the array to a temporary copy
                      * and set the UPDATEIFCOPY flag
                      */
+		    /* FIXME:  Date-time support */
                     ntype = PyArray_DescrFromType(arg_types[i]);
                     new = PyArray_FromAny((PyObject *)mps[i],
                                           ntype, 0, 0,

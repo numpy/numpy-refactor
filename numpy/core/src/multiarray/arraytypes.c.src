@@ -821,28 +821,25 @@ PyTimeDelta_FromNormalized(npy_timedelta val, NPY_DATETIMEUNIT base)
 NPY_NO_EXPORT PyObject *
 PyDateTime_FromInt64(datetime val, PyArray_Descr *descr)
 {
-    PyArray_DatetimeMetaData *meta;
-
-    meta = PyDataType_GetDatetimeMetaData(descr);
-    if (meta == NULL) {
+    if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "metadata not set for descriptor");
         return NULL;
     }
 
-    if (meta->events > 1) {
+    if (descr->dtinfo->events > 1) {
         int events, rem, div;
         PyObject *obj;
 
         obj = PyTuple_New(2);
-        events = meta->events;
+        events = descr->dtinfo->events;
         div = val/events;
         rem = val % events;
         PyTuple_SET_ITEM(obj, 1, PyInt_FromLong(rem));
-        /* This resets meta->events for recursive call */
-        meta->events = 1;
+        /* This resets descr->dtinfo->events for recursive call */
+        descr->dtinfo->events = 1;
         PyTuple_SET_ITEM(obj, 0, PyDateTime_FromInt64(div, descr));
-        meta->events = events;
+        descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             Py_DECREF(obj);
             return NULL;
@@ -860,34 +857,32 @@ PyDateTime_FromInt64(datetime val, PyArray_Descr *descr)
 
     /* Normalization and then conversion to Datetime */
     /* FIXME? : Check for Overflow... */
-    return PyDateTime_FromNormalized(val*meta->num, meta->base);
+    return PyDateTime_FromNormalized(val*descr->dtinfo->num, descr->dtinfo->base);
 }
 
 
 NPY_NO_EXPORT PyObject *
 PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descr)
 {
-    PyArray_DatetimeMetaData *meta;
-    meta = PyDataType_GetDatetimeMetaData(descr);
-    if (meta == NULL) {
+  if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "metadata not set for descriptor");
         return NULL;
     }
 
-    if (meta->events > 1) {
+    if (descr->dtinfo->events > 1) {
         int events, rem, div;
         PyObject *obj;
 
         obj = PyTuple_New(2);
-        events = meta->events;
+        events = descr->dtinfo->events;
         div = val/events;
         rem = val % events;
         PyTuple_SET_ITEM(obj, 1, PyInt_FromLong(rem));
-        /* This resets meta->events for recursive call */
-        meta->events = 1;
+        /* This resets descr->dtinfo->events for recursive call */
+        descr->dtinfo->events = 1;
         PyTuple_SET_ITEM(obj, 0, PyTimeDelta_FromInt64(div, descr));
-        meta->events = events;
+        descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             Py_DECREF(obj);
             return NULL;
@@ -896,7 +891,7 @@ PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descr)
     }
 
     /* FIXME? : Check for Overflow */
-    return PyTimeDelta_FromNormalized(val*meta->num, meta->base);
+    return PyTimeDelta_FromNormalized(val*descr->dtinfo->num, descr->dtinfo->base);
 }
 
 
@@ -963,7 +958,7 @@ PyTimeDelta_AsNormalized(PyObject *obj, NPY_DATETIMEUNIT base)
 
 
 /*
- * These expect a 2-tuple if meta->events > 1  (baseobj, num-counts)
+ * These expect a 2-tuple if descr->dtinfo->events > 1  (baseobj, num-counts)
  * where baseobj is a datetime object or a timedelta object respectively.
  *
  */
@@ -971,18 +966,16 @@ PyTimeDelta_AsNormalized(PyObject *obj, NPY_DATETIMEUNIT base)
 NPY_NO_EXPORT npy_datetime
 PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
 {
-    PyArray_DatetimeMetaData *meta;
     npy_datetime res;
 
-    meta = PyDataType_GetDatetimeMetaData(descr);
-    if (meta == NULL) {
+    if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "metadata not set for descriptor");
         return -1;
     }
 
 
-    if (meta->events > 1) {
+    if (descr->dtinfo->events > 1) {
         datetime tmp;
         int events;
 
@@ -993,10 +986,10 @@ PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
         }
         /* Alter the dictionary and call again */
         /* FIXME:  not thread safe */
-        events = meta->events;
-        meta->events = 1;
+        events = descr->dtinfo->events;
+        descr->dtinfo->events = 1;
         tmp = PyDateTime_AsInt64(PyTuple_GET_ITEM(obj, 0), descr);
-        meta->events = events;
+        descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             return -1;
         }
@@ -1009,25 +1002,23 @@ PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
         return tmp;
     }
 
-    res = PyDateTime_AsNormalized(obj, meta->base);
-    return res/meta->num;
+    res = PyDateTime_AsNormalized(obj, descr->dtinfo->base);
+    return res/descr->dtinfo->num;
 }
 
 
 NPY_NO_EXPORT timedelta
 PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descr)
 {
-    PyArray_DatetimeMetaData *meta;
     npy_timedelta res;
 
-    meta = PyDataType_GetDatetimeMetaData(descr);
-    if (meta == NULL) {
+     if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "metadata not set for descriptor");
         return -1;
     }
 
-    if (meta->events > 1) {
+    if (descr->dtinfo->events > 1) {
         timedelta tmp;
         int events;
 
@@ -1037,10 +1028,10 @@ PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descr)
             return -1;
         }
         /* Alter the dictionary and call again (not thread safe) */
-        events = meta->events;
-        meta->events = 1;
+        events = descr->dtinfo->events;
+        descr->dtinfo->events = 1;
         tmp = PyTimeDelta_AsInt64(PyTuple_GET_ITEM(obj, 0), descr);
-        meta->events = events;
+        descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             return -1;
         }
@@ -1053,14 +1044,14 @@ PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descr)
         return tmp;
     }
 
-    res = PyTimeDelta_AsNormalized(obj, meta->base);
-    return res / meta->num;
+    res = PyTimeDelta_AsNormalized(obj, descr->dtinfo->base);
+    return res / descr->dtinfo->num;
 }
 
 
 /*
  * Always return DateTime Object after normalizing to basic units (or a tuple
- * if meta->events > 1):
+ * if descr->dtinfo->events > 1):
  *
  *  Problem:  DateTime does not support all the resolutions (ns) nor the
  *  dynamic range (pre 1 AD) of NumPy Date-times.
@@ -1118,7 +1109,7 @@ TIMEDELTA_getitem(char *ip, PyArrayObject *ap) {
  *      2) Strings (ISO-style dates)
  *      3) Datetime Scalars (that it converts based on scalar dtype.
  *      4) Datetime and Date objects
- *  Plus a tuple for meta->events > 1
+ *  Plus a tuple for descr->dtinfo->events > 1
  *
  *      3) is partially implemented, 4) is implemented
  */
@@ -1182,7 +1173,7 @@ DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
  *    2) Timedelta scalar objects (with resolution conversion)
  *    3) Python Timedelta objects
  *
- *    Plus a tuple for meta->events > 1
+ *    Plus a tuple for descr->dtinfo->events > 1
  */
 
 static int
@@ -3524,10 +3515,9 @@ NPY_NO_EXPORT PyArray_Descr @from@_Descr = {
 static void
 _init_datetime_descr(PyArray_Descr *descr)
 {
-    PyArray_DatetimeMetaData *dt_data;
-    PyObject *cobj;
+    PyArray_DateeTimeInfo *dt_data;
 
-    dt_data = _pya_malloc(sizeof(PyArray_DatetimeMetaData));
+    dt_data = _pya_malloc(sizeof(PyArray_DatetimeInfo));
     dt_data->base = NPY_FR_us;
     dt_data->num = 1;
     dt_data->den = 1;
@@ -3537,10 +3527,7 @@ _init_datetime_descr(PyArray_Descr *descr)
  * There is no error check here and no way to indicate an error
  * until the metadata turns up NULL.
  */
-    cobj = NpyCapsule_FromVoidPtr((void *)dt_data, simple_capsule_dtor);
-    descr->metadata = PyDict_New();
-    PyDict_SetItemString(descr->metadata, NPY_METADATA_DTSTR, cobj);
-    Py_DECREF(cobj);
+    descr->dtinfo = dt_data;
 
 }
 
@@ -3626,7 +3613,7 @@ PyArray_DescrFromType(int type)
 
     /* Make sure dtype metadata is initialized for DATETIME */
     if (PyTypeNum_ISDATETIME(type)) {
-        if (ret->metadata == NULL) {
+        if (ret->dtinfo == NULL) {
             _init_datetime_descr(ret);
         }
     }
