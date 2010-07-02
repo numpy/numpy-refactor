@@ -77,19 +77,13 @@ typedef struct {
         (UFUNC_ERR_PRINT << UFUNC_SHIFT_INVALID)
 
         /* Only internal -- not exported, yet*/
-typedef struct {
+typedef struct PyUFuncLoopObject {
         /* Multi-iterator portion --- needs to be present in this order
            to work with PyArray_Broadcast */
-        /* DANGER - this must be in sync with multi-interator structure in ndarraytypes.h */
         PyObject_HEAD
-        int magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
-        int  numiter;
-        npy_intp size;
-        npy_intp index;
-        int nd;
-        npy_intp dimensions[NPY_MAXDIMS];
-        PyArrayIterObject *iters[NPY_MAXARGS];
-        /*  End of Multi-iterator portion */
+
+	/* The iterators. */
+	struct NpyArrayMultiIter *iter;
 
         /* The ufunc */
         PyUFuncObject *ufunc;
