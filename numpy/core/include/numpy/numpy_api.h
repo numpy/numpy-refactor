@@ -284,6 +284,13 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 
 
+
+/* mapping.c */
+NpyArrayMapIterObject *NpyArray_MapIterNew();
+void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
+void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
+
+
 /* multiarraymodule.c */
 #define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
 

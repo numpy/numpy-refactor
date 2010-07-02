@@ -11,8 +11,14 @@ parse_index(PyArrayObject *self, PyObject *op,
 NPY_NO_EXPORT PyObject
 *iter_subscript(PyArrayIterObject *, PyObject *);
 
+NPY_NO_EXPORT PyObject*
+npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind);
+
 NPY_NO_EXPORT int
 iter_ass_subscript(PyArrayIterObject *, PyObject *, PyObject *);
+
+NPY_NO_EXPORT int
+npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val);
 
 NPY_NO_EXPORT int
 slice_GetIndices(PySliceObject *r, intp length,

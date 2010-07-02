@@ -501,7 +501,7 @@ iter_subscript(PyArrayIterObject *self, PyObject *ind)
     return npy_iter_subscript(self->iter, ind);
 }
 
-static PyObject*
+NPY_NO_EXPORT PyObject*
 npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
 {
     PyArray_Descr *indtype = NULL;
@@ -738,8 +738,6 @@ iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
     return 0;
 }
 
-static int
-npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val);
     
 NPY_NO_EXPORT int
 iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
@@ -747,7 +745,7 @@ iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
     return npy_iter_ass_subscript(self->iter, ind, val);
 }
 
-static int
+NPY_NO_EXPORT int
 npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
 {
     PyArrayObject *arrval = NULL;

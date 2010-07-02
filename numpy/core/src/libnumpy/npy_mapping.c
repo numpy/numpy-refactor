@@ -1,0 +1,157 @@
+#define _MULTIARRAYMODULE
+#include <numpy/npy_iterators.h>
+#include "npy_config.h"
+/* TODO: Get rid of this include once we've split PyArrayObject. */
+#include <numpy/ndarraytypes.h>
+
+/* XXX: We should be getting this from an include. */
+#ifndef MAX
+#define MAX(a,b) ((a > b) ? (a) : (b))
+#endif
+
+
+static void
+arraymapiter_dealloc(NpyArrayMapIterObject *mit);
+
+
+NpyTypeObject NpyArrayMapIter_Type = {
+    arrayiter_dealloc,
+};
+
+
+
+NpyArrayMapIterObject *
+NpyArray_MapIterNew()
+{
+    NpyArrayMapIterObject *mit;
+    int i;
+    
+    /* Allocates the Python object wrapper around the map iterator. */
+    mit = (NpyArrayMapIterObject *)NpyArray_malloc(sizeof(NpyArrayMapIterObject));
+    NpyObject_Init((NpyObject *)mit, &NpyArrayMapIter_Type);
+    if (mit == NULL) {
+        return NULL;
+    }
+    for (i = 0; i < MAX_DIMS; i++) {
+        mit->iters[i] = NULL;
+    }
+    mit->index = 0;
+    mit->ait = NULL;
+    mit->subspace = NULL;
+    mit->numiter = 0;
+    mit->consec = 1;
+    mit->indexob = NULL;
+    
+    return (PyObject *)mit;
+}
+
+
+static void
+arraymapiter_dealloc(PyArrayMapIterObject *mit)
+{
+    int i;
+    Npy_Interface_XDECREF(mit->indexobj);   /* TODO: Need to refactor indexobj field */
+    _Npy_XDECREF(mit->ait);
+    _Npy_XDECREF(mit->subspace);
+    for (i = 0; i < mit->numiter; i++) {
+        _Npy_XDECREF(mit->iters[i]);
+    }
+    NpyArray_free(mit);
+}
+
+
+
+/* Reset the map iterator to the beginning */
+NPY_NO_EXPORT void
+NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
+{
+    NpyArrayIterObject *it;
+    int i,j; intp coord[MAX_DIMS];
+    NpyArray_CopySwapFunc *copyswap;
+    
+    mit->index = 0;
+    
+    copyswap = mit->iters[0]->ao->descr->f->copyswap;
+    
+    if (mit->subspace != NULL) {
+        memcpy(coord, mit->bscoord, sizeof(intp)*mit->ait->ao->nd);
+        NpyArray_ITER_RESET(mit->subspace);
+        for (i = 0; i < mit->numiter; i++) {
+            it = mit->iters[i];
+            NpyArray_ITER_RESET(it);
+            j = mit->iteraxes[i];
+            copyswap(coord+j,it->dataptr, !NpyArray_ISNOTSWAPPED(it->ao),
+                     it->ao);
+        }
+        NpyArray_ITER_GOTO(mit->ait, coord);
+        mit->subspace->dataptr = mit->ait->dataptr;
+        mit->dataptr = mit->subspace->dataptr;
+    }
+    else {
+        for (i = 0; i < mit->numiter; i++) {
+            it = mit->iters[i];
+            if (it->size != 0) {
+                NpyArray_ITER_RESET(it);
+                copyswap(coord+i,it->dataptr, !NpyArray_ISNOTSWAPPED(it->ao),
+                         it->ao);
+            }
+            else {
+                coord[i] = 0;
+            }
+        }
+        NpyArray_ITER_GOTO(mit->ait, coord);
+        mit->dataptr = mit->ait->dataptr;
+    }
+    return;
+}
+
+/*
+ * This function needs to update the state of the map iterator
+ * and point mit->dataptr to the memory-location of the next object
+ */
+NPY_NO_EXPORT void
+NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
+{
+    NpyArrayIterObject *it;
+    int i, j;
+    intp coord[MAX_DIMS];
+    NpyArray_CopySwapFunc *copyswap;
+    
+    mit->index += 1;
+    if (mit->index >= mit->size) {
+        return;
+    }
+    copyswap = mit->iters[0]->ao->descr->f->copyswap;
+    /* Sub-space iteration */
+    if (mit->subspace != NULL) {
+        NpyArray_ITER_NEXT(mit->subspace);
+        if (mit->subspace->index >= mit->subspace->size) {
+            /* reset coord to coordinates of beginning of the subspace */
+            memcpy(coord, mit->bscoord, sizeof(intp)*mit->ait->ao->nd);
+            NpyArray_ITER_RESET(mit->subspace);
+            for (i = 0; i < mit->numiter; i++) {
+                it = mit->iters[i];
+                NpyArray_ITER_NEXT(it);
+                j = mit->iteraxes[i];
+                copyswap(coord+j,it->dataptr, !PyArray_ISNOTSWAPPED(it->ao),
+                         it->ao);
+            }
+            NpyArray_ITER_GOTO(mit->ait, coord);
+            mit->subspace->dataptr = mit->ait->dataptr;
+        }
+        mit->dataptr = mit->subspace->dataptr;
+    }
+    else {
+        for (i = 0; i < mit->numiter; i++) {
+            it = mit->iters[i];
+            NpyArray_ITER_NEXT(it);
+            copyswap(coord+i,it->dataptr,
+                     !PyArray_ISNOTSWAPPED(it->ao),
+                     it->ao);
+        }
+        NpyArray_ITER_GOTO(mit->ait, coord);
+        mit->dataptr = mit->ait->dataptr;
+    }
+    return;
+}
+
