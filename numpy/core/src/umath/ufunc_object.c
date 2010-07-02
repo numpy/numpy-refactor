@@ -2079,7 +2079,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 
             /* Adjust loop pointers */
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iter->iters[i]);
+                NpyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             loop->iter->index++;
         }
@@ -2095,7 +2095,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 
             /* Adjust loop pointers */
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iter->iters[i]);
+                NpyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             loop->iter->index++;
         }
@@ -2336,7 +2336,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
             UFUNC_CHECK_ERROR(loop);
 
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iter->iters[i]);
+                NpyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             index++;
         }

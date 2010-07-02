@@ -351,7 +351,7 @@ arrayiter_next(PyArrayIterObject *pit)
 
     if (it->index < it->size) {
         ret = PyArray_ToScalar(it->dataptr, it->ao);
-        PyArray_ITER_NEXT(it);
+        NpyArray_ITER_NEXT(it);
         return ret;
     }
     return NULL;
@@ -427,9 +427,9 @@ iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
             optr += itemsize;
         }
         dptr += strides;
-        PyArray_ITER_NEXT(self);
+        NpyArray_ITER_NEXT(self);
     }
-    PyArray_ITER_RESET(self);
+    NpyArray_ITER_RESET(self);
     return r;
 }
 
@@ -459,10 +459,10 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
             r = NULL;
         }
         else {
-            PyArray_ITER_GOTO1D(self, num);
+            NpyArray_ITER_GOTO1D(self, num);
             r = PyArray_ToScalar(self->dataptr, self->ao);
         }
-        PyArray_ITER_RESET(self);
+        NpyArray_ITER_RESET(self);
         return r;
     }
 
@@ -493,18 +493,18 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
                          "index %"INTP_FMT" out of bounds" \
                          " 0<=index<%"INTP_FMT,
                          num, self->size);
-            Py_DECREF(ind_it);
+            _Npy_DECREF(ind_it);
             Py_DECREF(r);
-            PyArray_ITER_RESET(self);
+            NpyArray_ITER_RESET(self);
             return NULL;
         }
-        PyArray_ITER_GOTO1D(self, num);
+        NpyArray_ITER_GOTO1D(self, num);
         copyswap(optr, self->dataptr, swap, r);
         optr += itemsize;
-        PyArray_ITER_NEXT(ind_it);
+        NpyArray_ITER_NEXT(ind_it);
     }
-    Py_DECREF(ind_it);
-    PyArray_ITER_RESET(self);
+    _Npy_DECREF(ind_it);
+    NpyArray_ITER_RESET(self);
     return r;
 }
 
@@ -688,21 +688,21 @@ iter_ass_sub_Bool(NpyArrayIterObject *self, PyArrayObject *ind,
 
     strides = ind->strides[0];
     dptr = ind->data;
-    PyArray_ITER_RESET(self);
+    NpyArray_ITER_RESET(self);
     /* Loop over Boolean array */
     copyswap = self->ao->descr->f->copyswap;
     while (index--) {
         if (*((Bool *)dptr) != 0) {
             copyswap(self->dataptr, val->dataptr, swap, self->ao);
-            PyArray_ITER_NEXT(val);
+            NpyArray_ITER_NEXT(val);
             if (val->index == val->size) {
-                PyArray_ITER_RESET(val);
+                NpyArray_ITER_RESET(val);
             }
         }
         dptr += strides;
-        PyArray_ITER_NEXT(self);
+        NpyArray_ITER_NEXT(self);
     }
-    PyArray_ITER_RESET(self);
+    NpyArray_ITER_RESET(self);
     return 0;
 }
 
@@ -720,7 +720,7 @@ iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
     copyswap = self->ao->descr->f->copyswap;
     if (ind->nd == 0) {
         num = *((intp *)ind->data);
-        PyArray_ITER_GOTO1D(self, num);
+        NpyArray_ITER_GOTO1D(self, num);
         copyswap(self->dataptr, val->dataptr, swap, self->ao);
         return 0;
     }
@@ -739,18 +739,18 @@ iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
                          "index %"INTP_FMT" out of bounds"           \
                          " 0<=index<%"INTP_FMT, num,
                          self->size);
-            Py_DECREF(ind_it);
+            _Npy_DECREF(ind_it);
             return -1;
         }
-        PyArray_ITER_GOTO1D(self, num);
+        NpyArray_ITER_GOTO1D(self, num);
         copyswap(self->dataptr, val->dataptr, swap, self->ao);
-        PyArray_ITER_NEXT(ind_it);
-        PyArray_ITER_NEXT(val);
+        NpyArray_ITER_NEXT(ind_it);
+        NpyArray_ITER_NEXT(val);
         if (val->index == val->size) {
-            PyArray_ITER_RESET(val);
+            NpyArray_ITER_RESET(val);
         }
     }
-    Py_DECREF(ind_it);
+    _Npy_DECREF(ind_it);
     return 0;
 }
 
@@ -820,9 +820,9 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
             goto finish;
         }
         retval = 0;
-        PyArray_ITER_GOTO1D(self, start);
+        NpyArray_ITER_GOTO1D(self, start);
         retval = type->f->setitem(val, self->dataptr, self->ao);
-        PyArray_ITER_RESET(self);
+        NpyArray_ITER_RESET(self);
         if (retval < 0) {
             PyErr_SetString(PyExc_ValueError,
                             "Error setting single item of array.");
@@ -859,24 +859,24 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
                             "cannot use Ellipsis or newaxes here");
             goto finish;
         }
-        PyArray_ITER_GOTO1D(self, start);
+        NpyArray_ITER_GOTO1D(self, start);
         if (n_steps == SingleIndex) {
             /* Integer */
             copyswap(self->dataptr, PyArray_DATA(arrval), swap, arrval);
-            PyArray_ITER_RESET(self);
+            NpyArray_ITER_RESET(self);
             retval = 0;
             goto finish;
         }
         while (n_steps--) {
             copyswap(self->dataptr, val_it->dataptr, swap, arrval);
             start += step_size;
-            PyArray_ITER_GOTO1D(self, start);
-            PyArray_ITER_NEXT(val_it);
+            NpyArray_ITER_GOTO1D(self, start);
+            NpyArray_ITER_NEXT(val_it);
             if (val_it->index == val_it->size) {
-                PyArray_ITER_RESET(val_it);
+                NpyArray_ITER_RESET(val_it);
             }
         }
-        PyArray_ITER_RESET(self);
+        NpyArray_ITER_RESET(self);
         retval = 0;
         goto finish;
     }
@@ -926,7 +926,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     }
     Py_XDECREF(indtype);
     Py_XDECREF(obj);
-    Py_XDECREF(val_it);
+    _Npy_XDECREF(val_it);
     Py_XDECREF(arrval);
     return retval;
 
@@ -1377,7 +1377,7 @@ static void
 arraymultiter_dealloc(PyArrayMultiIterObject *multi)
 {
     _Npy_DECREF(multi->iter);
-    multi->magic_number = NPY_VALID_MAGIC;
+    multi->magic_number = NPY_INVALID_MAGIC;
     Py_TYPE(multi)->tp_free((PyObject *)multi);
 }
 

@@ -417,12 +417,12 @@ int NpyCapsule_Check(PyObject *ptr);
 
 #define Npy_XINCREF(a) {                                                \
     assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
+    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
     Py_XINCREF(a); }
 
 #define Npy_XDECREF(a) {                                                \
     assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
+    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
     Py_XDECREF(a); }
 
 

@@ -1401,7 +1401,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
 #undef SOBJ_LISTTUP
 
     if (oned) {
-        return (PyObject *)mit;
+        return (PyObject *)pyMit;
     }
     /*
      * Must have some kind of fancy indexing if we are here
@@ -1510,15 +1510,15 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
          * Store the number of iterators actually converted
          * These will be mapped to actual axes at bind time
          */
-        if (PyArray_Broadcast((PyArrayMultiIterObject *)mit) < 0) {
+        if (NpyArray_Broadcast((NpyArrayMultiIterObject *)mit) < 0) {
             goto fail;
         }
     }
 
-    return (PyObject *)mit;
+    return (PyObject *)pyMit;
 
  fail:
-    Py_DECREF(mit);
+    Py_DECREF(pyMit);
     return NULL;
 }
 

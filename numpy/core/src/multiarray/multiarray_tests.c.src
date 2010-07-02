@@ -86,7 +86,7 @@ static int copy_object(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *
 
         PyList_Append(*out, (PyObject*)aout);
         Py_DECREF(aout);
-        PyArray_ITER_NEXT(itx);
+        NpyArray_ITER_NEXT(itx);
     }
 
     return 0;
