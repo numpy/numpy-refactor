@@ -12,6 +12,12 @@
  * library.
  */
 
+/* VALID indicates a currently-allocated object, INVALID means object has
+   been deallocated. */
+#define NPY_VALID_MAGIC 1234567
+#define NPY_INVALID_MAGIC 0xdeadbeef
+
+
 /*
  * This is to typedef npy_intp to the appropriate pointer size for
  * this platform.  Py_intptr_t, Py_uintptr_t are defined in pyport.h.
@@ -34,6 +40,29 @@ typedef Py_uintptr_t npy_uintp;
 
 #define NPY_MAXDIMS 32
 #define NPY_MAXARGS 32
+
+
+/* Forward structure declarations */
+
+/* Temporary forward structure declarations.  These will be removed as objects
+ are refactored into two layers */
+struct PyArrayObject;
+struct PyArrayFlagsObject;
+struct _PyArray_Descr;
+struct _arr_descr;
+struct PyArray_DatetimeMetaData;
+struct PyArray_Dims;
+
+
+typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
+typedef struct PyArrayObject NpyArray;
+typedef struct _PyArray_Descr NpyArray_Descr;
+typedef struct _arr_descr NpyArray_ArrayDescr;
+typedef struct PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
+
+typedef struct PyArray_Dims NpyArray_Dims;
+
+
 
 
 #endif

@@ -373,7 +373,7 @@ typedef int  (PyArray_FastTakeFunc)(void *dest, void *src, npy_intp *indarray,
                                        npy_intp m_middle, npy_intp nelem,
                                        NPY_CLIPMODE clipmode);
 
-typedef struct {
+typedef struct PyArray_Dims {
         npy_intp *ptr;
         int len;
 } PyArray_Dims;
@@ -630,7 +630,7 @@ typedef struct {
 } PyArray_Chunk;
 
 
-typedef struct {
+typedef struct PyArray_DatetimeMetaData {
         NPY_DATETIMEUNIT base;
         int num;
         int den;      /*
@@ -833,7 +833,8 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 
 typedef struct PyArrayIterObject_tag {
         PyObject_HEAD
-        int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+        int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
+        int  magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         struct NpyArrayIterObject* iter;
 } PyArrayIterObject;
 
@@ -856,8 +857,10 @@ typedef struct PyArrayIterObject_tag {
 
 
 typedef struct {
-        PyObject_HEAD
-        NpyArrayMultiIterObject* iter;
+    PyObject_HEAD
+    int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
+    int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+    NpyArrayMultiIterObject* iter;
 } PyArrayMultiIterObject;
 
 #define _PyMIT(m) ((PyArrayMultiIterObject *)(m))
@@ -886,13 +889,15 @@ typedef struct {
          * Multi-iterator portion --- needs to be present in this
          * order to work with PyArray_Broadcast
          */
-        int                   magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+        int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
+        int  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         NpyArrayMapIterObject* iter;
 } PyArrayMapIterObject;
 
 typedef struct {
     PyObject_HEAD
-    int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+    int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
+    int  magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
     NpyArrayNeighborhoodIterObject* iter;
 } PyArrayNeighborhoodIterObject;
 

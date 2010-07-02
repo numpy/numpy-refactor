@@ -49,6 +49,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
 #define NpyArray_ITER_RESET(it) {                                        \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         (it)->index = 0;                                          \
         (it)->dataptr = (it)->ao->data;                     \
         memset((it)->coordinates, 0,                              \
@@ -56,11 +57,13 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 }
 
 #define _NpyArray_ITER_NEXT1(it) {                                       \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         (it)->dataptr += (it)->strides[0];                        \
         (it)->coordinates[0]++;                                         \
 }
 
 #define _NpyArray_ITER_NEXT2(it) {                                       \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         if ((it)->coordinates[1] < (it)->dims_m1[1]) {                  \
                 (it)->coordinates[1]++;                                 \
                 (it)->dataptr += (it)->strides[1];                      \
@@ -74,6 +77,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 }
 
 #define _NpyArray_ITER_NEXT3(it) {                                       \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         if ((it)->coordinates[2] < (it)->dims_m1[2]) {                  \
                 (it)->coordinates[2]++;                                 \
                 (it)->dataptr += (it)->strides[2];                      \
@@ -95,6 +99,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 }
 
 #define NpyArray_ITER_NEXT(it) {                                            \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         (it)->index++;                                               \
         if ((it)->nd_m1 == 0) {                                      \
                 _NpyArray_ITER_NEXT1((it));                           \
@@ -125,6 +130,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 
 #define NpyArray_ITER_GOTO(it, destination) {                            \
         int __npy_i;                                                    \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         (it)->index = 0;                                          \
         (it)->dataptr = (it)->ao->data;                     \
         for (__npy_i = (it)->nd_m1; __npy_i>=0; __npy_i--) {      \
@@ -145,6 +151,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
 #define NpyArray_ITER_GOTO1D(it, ind) {                                     \
         int __npy_i;                                                       \
         npy_intp __npy_ind = (npy_intp) (ind);                             \
+        assert( NPY_VALID_MAGIC == (it)->magic_number );                \
         if (__npy_ind < 0) __npy_ind += (it)->size;                  \
         (it)->index = __npy_ind;                                     \
         if ((it)->nd_m1 == 0) {                                      \
@@ -200,6 +207,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 #define NpyArray_MultiIter_RESET(multi) {                               \
         int __npy_mi;                                                   \
+        assert( NPY_VALID_MAGIC == (multi)->magic_number );             \
         (multi)->index = 0;                                             \
         for (__npy_mi=0; __npy_mi < (multi)->numiter;  __npy_mi++) {    \
                 NpyArray_ITER_RESET((multi)->iters[__npy_mi]);          \
@@ -208,6 +216,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 #define NpyArray_MultiIter_NEXT(multi) {                                \
         int __npy_mi;                                                   \
+        assert( NPY_VALID_MAGIC == (multi)->magic_number );             \
         (multi)->index++;                                               \
         for (__npy_mi=0; __npy_mi < (multi)->numiter;   __npy_mi++) {   \
                 NpyArray_ITER_NEXT((multi)->iters[__npy_mi]);           \
@@ -216,6 +225,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 #define NpyArray_MultiIter_GOTO(multi, dest) {                               \
         int __npy_mi;                                                       \
+        assert( NPY_VALID_MAGIC == (multi)->magic_number );             \
         for (__npy_mi=0; __npy_mi < (multi)->numiter; __npy_mi++) {   \
                 NpyArray_ITER_GOTO((multi)->iters[__npy_mi], dest);    \
         }                                                                   \
@@ -224,6 +234,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 #define NpyArray_MultiIter_GOTO1D(multi, ind) {                             \
         int __npy_mi;                                                      \
+        assert( NPY_VALID_MAGIC == (multi)->magic_number );             \
         for (__npy_mi=0; __npy_mi < (multi)->numiter; __npy_mi++) {  \
                 NpyArray_ITER_GOTO1D((multi)->iters[__npy_mi], ind);  \
         }                                                                  \

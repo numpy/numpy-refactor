@@ -273,13 +273,28 @@ NPY_NO_EXPORT PyObject *
 PyArray_IterNew(PyObject *obj)
 {
     PyArrayObject *ao = (PyArrayObject *)obj;
-
+    NpyArrayIterObject *iter;
+    PyArrayIterObject *result;
+    
     if (!PyArray_Check(ao)) {
         PyErr_BadInternalCall();
         return NULL;
     }
 
-    return (PyObject *) NpyArray_IterNew(ao);
+    iter = NpyArray_IterNew(ao);
+    if (NULL == iter) {
+        return NULL;
+    }
+    result = _pya_malloc(sizeof(*result));
+    if (result == NULL) {
+        _Npy_DECREF(iter);
+        return NULL;
+    }
+    
+    PyObject_Init((PyObject *)result, &PyArrayIter_Type);
+    result->magic_number = NPY_VALID_MAGIC;
+    result->iter = iter;
+    return (PyObject *)result;
 }
 
 /*NUMPY_API
@@ -346,6 +361,7 @@ static void
 arrayiter_dealloc(PyArrayIterObject *it)
 {
     _Npy_DECREF(it->iter);
+    it->magic_number = NPY_INVALID_MAGIC;
     _pya_free(it);
 }
 
@@ -1211,6 +1227,7 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
     }
     
     PyObject_Init((PyObject *)result, &PyArrayMultiIter_Type);
+    result->magic_number = NPY_VALID_MAGIC;
     result->iter = multi;
     
 
@@ -1292,7 +1309,8 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
         return PyErr_NoMemory();
     }
     _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
-
+    multi->magic_number = NPY_VALID_MAGIC;
+    
     multi->numiter = n;
     multi->index = 0;
     for (i = 0; i < n; i++) {
@@ -1320,6 +1338,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
         goto fail;
     }
     PyObject_Init((PyObject *)result, &PyArrayMultiIter_Type);
+    result->magic_number = NPY_VALID_MAGIC;
     result->iter = multi;
         
     return (PyObject *)result;
@@ -1358,6 +1377,7 @@ static void
 arraymultiter_dealloc(PyArrayMultiIterObject *multi)
 {
     _Npy_DECREF(multi->iter);
+    multi->magic_number = NPY_VALID_MAGIC;
     Py_TYPE(multi)->tp_free((PyObject *)multi);
 }
 
@@ -1416,6 +1436,7 @@ arraymultiter_iters_get(PyArrayMultiIterObject *self)
             return NULL;
         }
         PyObject_Init((PyObject *)iter, &PyArrayIter_Type);
+        iter->magic_number = NPY_VALID_MAGIC;
         iter->iter = self->iter->iters[i];
         /* Add to tuple. */
         PyTuple_SET_ITEM(res, i, (PyObject *)iter);
@@ -1564,6 +1585,7 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
         return NULL;
     }
     PyObject_Init((PyObject *)ret, &PyArrayNeighborhoodIter_Type);
+    ret->magic_number = NPY_VALID_MAGIC;
     
     coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode, fill);
     if (NULL == coreRet) {
@@ -1578,6 +1600,7 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
 static void neighiter_dealloc(PyArrayNeighborhoodIterObject* iter)
 {
     _Npy_DECREF(iter->iter);
+    iter->magic_number = NPY_INVALID_MAGIC;
     _pya_free((PyArrayObject*)iter);
 }
 

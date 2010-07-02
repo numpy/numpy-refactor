@@ -561,8 +561,8 @@ _uni_release(char *ptr, int nc)
             }                                                   \
             val = cmpfunc(aptr, bptr, N1, N2);                  \
             *dptr = (val CMP 0);                                \
-            PyArray_ITER_NEXT(iself);                           \
-            PyArray_ITER_NEXT(iother);                          \
+            NpyArray_ITER_NEXT(iself);                          \
+            NpyArray_ITER_NEXT(iother);                         \
             dptr += 1;                                          \
             relfunc(aptr, N1);                                  \
             relfunc(bptr, N2);                                  \
@@ -575,8 +575,8 @@ _uni_release(char *ptr, int nc)
                           (void *)iother->dataptr,      \
                           N1, N2);                      \
             *dptr = (val CMP 0);                        \
-            PyArray_ITER_NEXT(iself);                   \
-            PyArray_ITER_NEXT(iother);                  \
+            NpyArray_ITER_NEXT(iself);                  \
+            NpyArray_ITER_NEXT(iother);                 \
             dptr += 1;                                  \
         }                                               \
     }

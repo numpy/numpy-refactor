@@ -6,14 +6,6 @@
 #include "assert.h"
 
 
-typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
-typedef struct PyArrayObject NpyArray;
-typedef PyArray_Descr NpyArray_Descr;
-typedef PyArray_ArrayDescr NpyArray_ArrayDescr;
-typedef PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
-
-typedef PyArray_Dims NpyArray_Dims;
-
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_CopySwapNFunc NpyArray_CopySwapNFunc;
 typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
@@ -26,7 +18,6 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
 
 typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
-
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
@@ -414,9 +405,6 @@ int NpyCapsule_Check(PyObject *ptr);
  */
 
 /* These operate on core data structures, NOT interface objects. */
-#define NPY_VALID_MAGIC 1234567
-#define NPY_INVALID_MAGIC 0xdeadbeef
-
 #define Npy_INCREF(a) {                                 \
     assert(NPY_VALID_MAGIC == (a)->magic_number);       \
     (a)->ob_refcnt = (a)->ob_refcnt;                    \
