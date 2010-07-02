@@ -208,7 +208,7 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
 {
     int maxaxis = -1, elsize;
     npy_intp maxdim;
-    NpyArrayIter *dit, *sit;
+    NpyArrayIterObject *dit, *sit;
     NPY_BEGIN_THREADS_DEF;
     
     dit = NpyArray_IterAllButAxis(dest, &maxaxis);
@@ -217,8 +217,8 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     maxdim = dest->dimensions[maxaxis];
     
     if ((dit == NULL) || (sit == NULL)) {
-        Npy_XDECREF(dit);
-        Npy_XDECREF(sit);
+        _Npy_XDECREF(dit);
+        _Npy_XDECREF(sit);
         return -1;
     }
     elsize = NpyArray_ITEMSIZE(dest);
@@ -244,8 +244,8 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     }
     NPY_END_THREADS;
     
-    Npy_DECREF(sit);
-    Npy_DECREF(dit);
+    _Npy_DECREF(sit);
+    _Npy_DECREF(dit);
     return 0;
 }
 
@@ -258,13 +258,13 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
                 int swap)
 {
     int elsize;
-    NpyArrayMultiIter *multi;
+    NpyArrayMultiIterObject *multi;
     int maxaxis; 
     npy_intp maxdim;
     NPY_BEGIN_THREADS_DEF;
     
     elsize = NpyArray_ITEMSIZE(dest);
-    multi = (NpyArrayMultiIter *)NpyArray_MultiIterNew(2, dest, src);
+    multi = NpyArray_MultiIterFromArrays(NULL, 0, 2, dest, src);
     if (multi == NULL) {
         return -1;
     }
@@ -273,7 +273,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
         NpyErr_SetString(NpyExc_ValueError,
                         "array dimensions are not "\
                         "compatible for copy");
-        Npy_DECREF(multi);
+        _Npy_DECREF(multi);
         return -1;
     }
     
@@ -321,7 +321,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     NpyArray_INCREF(dest);
     NpyArray_XDECREF(src);
     
-    Npy_DECREF(multi);
+    _Npy_DECREF(multi);
     return 0;
 }
 
@@ -390,7 +390,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
         NpyArray_XDECREF(src);
     }
     else {
-        NpyArrayIter *dit;
+        NpyArrayIterObject *dit;
         int axis = -1;
         
         dit = NpyArray_IterAllButAxis(dest, &axis);
@@ -413,7 +413,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
         NPY_END_THREADS;
         NpyArray_INCREF(dest);
         NpyArray_XDECREF(src);
-        Npy_DECREF(dit);
+        _Npy_DECREF(dit);
     }
     retval = 0;
     
@@ -436,7 +436,7 @@ finish:
 int 
 _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
 {
-    NpyArrayIter *it;
+    NpyArrayIterObject *it;
     NpyArray *orig_src;
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
     char *dptr;
@@ -504,7 +504,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     if (src != orig_src) {
         Npy_DECREF(src);
     }
-    Npy_DECREF(it);
+    _Npy_DECREF(it);
     return 0;
 }
 
@@ -1242,7 +1242,7 @@ int
 NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 {
     int elsize, simple;
-    NpyArrayIter *idest, *isrc;
+    NpyArrayIterObject *idest, *isrc;
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
     NPY_BEGIN_THREADS_DEF;
     
@@ -1293,7 +1293,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
     }
     isrc = NpyArray_IterNew(src);
     if (isrc == NULL) {
-        Npy_DECREF(idest);
+        _Npy_DECREF(idest);
         return -1;
     }
     elsize = dest->descr->elsize;
@@ -1308,8 +1308,8 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
         NpyArray_ITER_NEXT(isrc);
     }
     NPY_END_THREADS;
-    Npy_DECREF(idest);
-    Npy_DECREF(isrc);
+    _Npy_DECREF(idest);
+    _Npy_DECREF(isrc);
     return 0;
 }
 

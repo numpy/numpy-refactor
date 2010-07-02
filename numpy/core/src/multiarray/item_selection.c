@@ -494,11 +494,11 @@ PyArray_Nonzero(PyArrayObject *self)
 {
     int n = self->nd, j;
     intp count = 0, i, size;
-    PyArrayIterObject *it = NULL;
+    NpyArrayIterObject *it = NULL;
     PyObject *ret = NULL, *item;
     intp *dptr[MAX_DIMS];
 
-    it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)self);
+    it = NpyArray_IterNew(self);
     if (it == NULL) {
         return NULL;
     }
@@ -507,10 +507,10 @@ PyArray_Nonzero(PyArrayObject *self)
         if (self->descr->f->nonzero(it->dataptr, self)) {
             count++;
         }
-        PyArray_ITER_NEXT(it);
+        NpyArray_ITER_NEXT(it);
     }
 
-    PyArray_ITER_RESET(it);
+    NpyArray_ITER_RESET(it);
     ret = PyTuple_New(n);
     if (ret == NULL) {
         goto fail;
@@ -530,7 +530,7 @@ PyArray_Nonzero(PyArrayObject *self)
             if (self->descr->f->nonzero(it->dataptr, self)) {
                 *(dptr[0])++ = i;
             }
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
     }
     else {
@@ -542,11 +542,11 @@ PyArray_Nonzero(PyArrayObject *self)
                     *(dptr[j])++ = it->coordinates[j];
                 }
             }
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
     }
 
-    Py_DECREF(it);
+    _Npy_DECREF(it);
     return ret;
 
  fail:

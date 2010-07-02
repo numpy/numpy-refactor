@@ -417,20 +417,24 @@ int NpyCapsule_Check(PyObject *ptr);
 #define NPY_VALID_MAGIC 1234567
 #define NPY_INVALID_MAGIC 0xdeadbeef
 
-#define Npy_INCREF(a) { \
-    assert(NPY_VALID_MAGIC == (a)->magic_number);     \
+#define Npy_INCREF(a) {                                 \
+    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
+    (a)->ob_refcnt = (a)->ob_refcnt;                    \
     Py_INCREF(a);   }
 
-#define Npy_DECREF(a) { \
-    assert(NPY_VALID_MAGIC == (a)->magic_number); \
+#define Npy_DECREF(a) {                                 \
+    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
+    (a)->ob_refcnt = (a)->ob_refcnt;                    \
     Py_DECREF(a); }
 
-#define Npy_XINCREF(a) { \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);     \
+#define Npy_XINCREF(a) {                                                \
+    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
+    (a)->ob_refcnt = (a)->ob_refcnt;                    \
     Py_XINCREF(a); }
 
-#define Npy_XDECREF(a) { \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);     \
+#define Npy_XDECREF(a) {                                                \
+    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
+    (a)->ob_refcnt = (a)->ob_refcnt;                    \
     Py_XDECREF(a); }
 
 

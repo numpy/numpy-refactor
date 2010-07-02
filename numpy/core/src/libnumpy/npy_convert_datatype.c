@@ -65,7 +65,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
                 PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
 {
     int delsize, selsize, maxaxis, i, N;
-    NpyArrayMultiIter *multi;
+    NpyArrayMultiIterObject *multi;
     npy_intp maxdim, ostrides, istrides;
     char *buffers[2];
     NpyArray_CopySwapNFunc *ocopyfunc, *icopyfunc;
@@ -74,7 +74,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     
     delsize = NpyArray_ITEMSIZE(out);
     selsize = NpyArray_ITEMSIZE(in);
-    multi = (NpyArrayMultiIter *)NpyArray_MultiIterNew(2, out, in);
+    multi = NpyArray_MultiIterFromArrays(NULL, 0, 2, out, in);
     if (multi == NULL) {
         return -1;
     }
@@ -83,7 +83,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         NpyErr_SetString(PyExc_ValueError,
                          "array dimensions are not "\
                          "compatible for copy");
-        Npy_Interface_DECREF(multi);        /* TODO: Important: should be Npy_DECREF, changed while adding magic numbers. */
+        _Npy_DECREF(multi);
         return -1;
     }
     
@@ -144,7 +144,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         NPY_END_THREADS;
     }
 #endif
-    Npy_Interface_DECREF(multi);        /* TODO: Change to Npy_DECREF */
+    _Npy_DECREF(multi);
     if (NpyDataType_REFCHK(in->descr)) {
         obptr = buffers[1];
         for (i = 0; i < N; i++, obptr+=selsize) {
@@ -370,7 +370,7 @@ _bufferedcast(NpyArray *out, NpyArray *in,
 {
     char *inbuffer, *bptr, *optr;
     char *outbuffer=NULL;
-    NpyArrayIter *it_in = NULL, *it_out = NULL;
+    NpyArrayIterObject *it_in = NULL, *it_out = NULL;
     npy_intp i, index;
     npy_intp ncopies = NpyArray_SIZE(out) / NpyArray_SIZE(in);
     int elsize=in->descr->elsize;
@@ -458,11 +458,11 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     retval = 0;
     
 exit:
-    Npy_XDECREF(it_in);
+    _Npy_XDECREF(it_in);
     NpyDataMem_FREE(inbuffer);
     NpyDataMem_FREE(outbuffer);
     if (obuf) {
-        Npy_XDECREF(it_out);
+        _Npy_XDECREF(it_out);
     }
     return retval;
 }

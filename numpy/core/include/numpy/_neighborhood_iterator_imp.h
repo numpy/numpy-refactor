@@ -5,7 +5,7 @@
  * Private API (here for inline)
  */
 static NPY_INLINE int
-_PyArrayNeighborhoodIter_IncrCoord(PyArrayNeighborhoodIterObject* iter);
+_NpyArrayNeighborhoodIter_IncrCoord(NpyArrayNeighborhoodIterObject* iter);
 
 /*
  * Update to next item of the iterator
@@ -35,7 +35,7 @@ _PyArrayNeighborhoodIter_IncrCoord(PyArrayNeighborhoodIterObject* iter);
     }
 
 static NPY_INLINE int
-_PyArrayNeighborhoodIter_IncrCoord(PyArrayNeighborhoodIterObject* iter)
+_NpyArrayNeighborhoodIter_IncrCoord(NpyArrayNeighborhoodIterObject* iter)
 {
     npy_intp i, wb;
 
@@ -50,7 +50,7 @@ _PyArrayNeighborhoodIter_IncrCoord(PyArrayNeighborhoodIterObject* iter)
  * Version optimized for 2d arrays, manual loop unrolling
  */
 static NPY_INLINE int
-_PyArrayNeighborhoodIter_IncrCoord2D(PyArrayNeighborhoodIterObject* iter)
+_NpyArrayNeighborhoodIter_IncrCoord2D(NpyArrayNeighborhoodIterObject* iter)
 {
     npy_intp wb;
 
@@ -65,10 +65,10 @@ _PyArrayNeighborhoodIter_IncrCoord2D(PyArrayNeighborhoodIterObject* iter)
  * Advance to the next neighbour
  */
 static NPY_INLINE int
-PyArrayNeighborhoodIter_Next(PyArrayNeighborhoodIterObject* iter)
+NpyArrayNeighborhoodIter_Next(NpyArrayNeighborhoodIterObject* iter)
 {
-    _PyArrayNeighborhoodIter_IncrCoord (iter);
-    iter->dataptr = iter->translate((PyArrayIterObject*)iter, iter->coordinates);
+    _NpyArrayNeighborhoodIter_IncrCoord (iter);
+    iter->dataptr = iter->translate((NpyArrayIterObject*)iter, iter->coordinates);
 
     return 0;
 }
@@ -77,14 +77,14 @@ PyArrayNeighborhoodIter_Next(PyArrayNeighborhoodIterObject* iter)
  * Reset functions
  */
 static NPY_INLINE int
-PyArrayNeighborhoodIter_Reset(PyArrayNeighborhoodIterObject* iter)
+NpyArrayNeighborhoodIter_Reset(NpyArrayNeighborhoodIterObject* iter)
 {
     npy_intp i;
 
     for (i = 0; i < iter->nd; ++i) {
         iter->coordinates[i] = iter->bounds[i][0];
     }
-    iter->dataptr = iter->translate((PyArrayIterObject*)iter, iter->coordinates);
+    iter->dataptr = iter->translate((NpyArrayIterObject*)iter, iter->coordinates);
 
     return 0;
 }

@@ -122,7 +122,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
                 copyswapn(it->dataptr, stride, NULL, -1, size, 1, self);
                 NpyArray_ITER_NEXT(it);
             }
-            Npy_DECREF(it);
+            _Npy_DECREF(it);
         }
         
         Npy_INCREF(self);

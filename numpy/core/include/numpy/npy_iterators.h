@@ -31,7 +31,7 @@ struct NpyArrayIterObject {
         npy_iter_get_dataptr_t translate;
 };
 
-extern NpyTypeObject NpyArrayIter_Type;
+extern _NpyTypeObject NpyArrayIter_Type;
 
 
 /* Iterator API */
@@ -187,7 +187,7 @@ typedef struct {
         NpyArrayIterObject    *iters[NPY_MAXARGS];     /* iterators */
 } NpyArrayMultiIterObject;
 
-extern NpyTypeObject NpyArrayMultiIter_Type;
+extern _NpyTypeObject NpyArrayMultiIter_Type;
 
 NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
@@ -335,7 +335,7 @@ typedef struct {
 } NpyArrayNeighborhoodIterObject;
 
 
-extern NpyTypeObject NpyArrayNeighborhoodIter_Type;
+extern _NpyTypeObject NpyArrayNeighborhoodIter_Type;
 
 /*
  * Neighborhood iterator API
@@ -345,7 +345,6 @@ NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
                              int mode, struct PyArrayObject *fill);
 
-#if 0
 /* General: those work for any mode */
 static NPY_INLINE int
 NpyArrayNeighborhoodIter_Reset(NpyArrayNeighborhoodIterObject* iter);
@@ -363,7 +362,5 @@ NpyArrayNeighborhoodIter_Next2D(NpyArrayNeighborhoodIterObject* iter);
 #define _NPY_INCLUDE_NEIGHBORHOOD_IMP
 #include "_neighborhood_iterator_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
-
-#endif
 
 #endif

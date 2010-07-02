@@ -657,7 +657,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     }
 
     NpyArray_INCREF(ret);
-    Npy_DECREF(multi);
+    _Npy_DECREF(multi);
     Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
@@ -669,7 +669,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     return ret;
 
  fail:
-    Npy_XDECREF(multi);
+    _Npy_XDECREF(multi);
     Npy_XDECREF(ap);
     NpyArray_XDECREF_ERR(ret);
     return NULL;
@@ -740,12 +740,12 @@ _new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
         }
     }
     NPY_END_THREADS_DESCR(op->descr);
-    Npy_DECREF(it);
+    _Npy_DECREF(it);
     return 0;
 
  fail:
     NPY_END_THREADS;
-    Npy_DECREF(it);
+    _Npy_DECREF(it);
     return 0;
 }
 
@@ -830,15 +830,15 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
 
     NPY_END_THREADS_DESCR(op->descr);
 
-    Npy_DECREF(it);
-    Npy_DECREF(rit);
+    _Npy_DECREF(it);
+    _Npy_DECREF(rit);
     return ret;
 
  fail:
     NPY_END_THREADS;
     Npy_DECREF(ret);
-    Npy_XDECREF(it);
-    Npy_XDECREF(rit);
+    _Npy_XDECREF(it);
+    _Npy_XDECREF(rit);
     return NULL;
 }
 
@@ -1256,18 +1256,18 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
 
  finish:
     for (i = 0; i < n; i++) {
-        Npy_XDECREF(its[i]);
+        _Npy_XDECREF(its[i]);
     }
-    Npy_XDECREF(rit);
+    _Npy_XDECREF(rit);
     NpyDataMem_FREE(its);
     return ret;
 
  fail:
     NPY_END_THREADS;
-    Npy_XDECREF(rit);
+    _Npy_XDECREF(rit);
     Npy_XDECREF(ret);
     for (i = 0; i < n; i++) {
-        Npy_XDECREF(its[i]);
+        _Npy_XDECREF(its[i]);
     }
     NpyDataMem_FREE(its);
     return NULL;

@@ -94,21 +94,21 @@ PyArray_INCREF(PyArrayObject *mp)
     intp i, n;
     PyObject **data;
     PyObject *temp;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
 
     if (!PyDataType_REFCHK(mp->descr)) {
         return 0;
     }
     if (mp->descr->type_num != PyArray_OBJECT) {
-        it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)mp);
+        it = NpyArray_IterNew(mp);
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
             PyArray_Item_INCREF(it->dataptr, mp->descr);
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
-        Py_DECREF(it);
+        _Npy_DECREF(it);
         return 0;
     }
 
@@ -128,16 +128,16 @@ PyArray_INCREF(PyArrayObject *mp)
         }
     }
     else { /* handles misaligned data too */
-        it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)mp);
+        it = NpyArray_IterNew(mp);
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
             NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
             Py_XINCREF(temp);
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
-        Py_DECREF(it);
+        _Npy_DECREF(it);
     }
     return 0;
 }
@@ -152,21 +152,21 @@ PyArray_XDECREF(PyArrayObject *mp)
     intp i, n;
     PyObject **data;
     PyObject *temp;
-    PyArrayIterObject *it;
+    NpyArrayIterObject *it;
 
     if (!PyDataType_REFCHK(mp->descr)) {
         return 0;
     }
     if (mp->descr->type_num != PyArray_OBJECT) {
-        it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)mp);
+        it = NpyArray_IterNew(mp);
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
             PyArray_Item_XDECREF(it->dataptr, mp->descr);
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
-        Py_DECREF(it);
+        _Npy_DECREF(it);
         return 0;
     }
 
@@ -184,16 +184,16 @@ PyArray_XDECREF(PyArrayObject *mp)
         }
     }
     else { /* handles misaligned data too */
-        it = (PyArrayIterObject *)PyArray_IterNew((PyObject *)mp);
+        it = NpyArray_IterNew(mp);
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
             NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
             Py_XDECREF(temp);
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
-        Py_DECREF(it);
+        _Npy_DECREF(it);
     }
     return 0;
 }

@@ -604,8 +604,8 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
         NpyArray_ITER_RESET(it2);
     }
     NPY_END_THREADS_DESCR(ap2->descr);
-    Npy_DECREF(it1);
-    Npy_DECREF(it2);
+    _Npy_DECREF(it1);
+    _Npy_DECREF(it2);
     if (PyErr_Occurred()) {
         /* only for OBJECT arrays */
         goto fail;

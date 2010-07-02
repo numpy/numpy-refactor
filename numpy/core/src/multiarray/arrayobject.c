@@ -732,7 +732,7 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
  finish:
-    Npy_DECREF(mit);
+    _Npy_DECREF(mit);
     return result;
 }
 
