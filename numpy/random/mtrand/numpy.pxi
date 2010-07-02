@@ -85,18 +85,23 @@ cdef extern from "numpy/arrayobject.h":
         cdef dtype descr
         cdef int flags
 
+    ctypedef struct NpyArrayIterObject:
+        int  nd_m1
+        npy_intp index, size
+        char *dataptr
+    
     ctypedef extern class numpy.flatiter [object PyArrayIterObject]:
-        cdef int  nd_m1
-        cdef npy_intp index, size
-        cdef ndarray ao
-        cdef char *dataptr
+        cdef NpyArrayIterObject *iter
+
+    ctypedef struct NpyArrayMultiIterObject:
+        int numiter
+        npy_intp size, index
+        int nd
+        npy_intp *dimensions
+        void **iters
 
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
-        cdef int numiter
-        cdef npy_intp size, index
-        cdef int nd
-        cdef npy_intp *dimensions
-        cdef void **iters
+        cdef NpyArrayMultiIterObject *iter
 
     object PyArray_ZEROS(int ndims, npy_intp* dims, NPY_TYPES type_num, int fortran)
     object PyArray_EMPTY(int ndims, npy_intp* dims, NPY_TYPES type_num, int fortran)

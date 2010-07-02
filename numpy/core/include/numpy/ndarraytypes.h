@@ -871,7 +871,7 @@ typedef struct {
 #define PyArray_MultiIter_GOTO1D(multi, ind) \
     NpyArray_MultiIter_GOTO1D(_NpyMIT(multi), ind)
 #define PyArray_MultiIter_DATA(multi, i)                \
-    NpyArray_MultiIter_DATA(_NpyMIT(multi, i)
+    NpyArray_MultiIter_DATA(_NpyMIT(multi), i)
 #define PyArray_MultiIter_NEXTi(multi, i)               \
     NpyArray_MultiIter_NEXTi(_NpyMIT(multi), i)
 

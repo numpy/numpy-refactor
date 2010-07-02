@@ -173,7 +173,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size, ndarray oa)
         array_data = <double *>array.data
         itera = <flatiter>PyArray_IterNew(<object>oa)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            array_data[i] = func(state, (<double *>(itera.iter.dataptr))[0])
             PyArray_ITER_NEXT(itera)
     else:
         array = <ndarray>np.empty(size, np.float64)
@@ -218,9 +218,9 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
 
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>oa, <void *>ob)
-        array = <ndarray> PyArray_SimpleNew(multi.nd, multi.dimensions, NPY_DOUBLE)
+        array = <ndarray> PyArray_SimpleNew(multi.iter.nd, multi.iter.dimensions, NPY_DOUBLE)
         array_data = <double *>array.data
-        for i from 0 <= i < multi.size:
+        for i from 0 <= i < multi.iter.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 0)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             array_data[i] = func(state, oa_data[0], ob_data[0])
@@ -271,9 +271,9 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size, ndarray oa,
 
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>oa, <void *>ob, <void *>oc)
-        array = <ndarray> PyArray_SimpleNew(multi.nd, multi.dimensions, NPY_DOUBLE)
+        array = <ndarray> PyArray_SimpleNew(multi.iter.nd, multi.iter.dimensions, NPY_DOUBLE)
         array_data = <double *>array.data
-        for i from 0 <= i < multi.size:
+        for i from 0 <= i < multi.iter.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 0)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             oc_data = <double *>PyArray_MultiIter_DATA(multi, 2)
@@ -337,7 +337,7 @@ cdef object discnp_array(rk_state *state, rk_discnp func, object size, ndarray o
 
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
-        array = <ndarray> PyArray_SimpleNew(multi.nd, multi.dimensions, NPY_LONG)
+        array = <ndarray> PyArray_SimpleNew(multi.iter.nd, multi.iter.dimensions, NPY_LONG)
         array_data = <long *>array.data
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 0)
@@ -386,7 +386,7 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size, ndarray o
 
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
-        array = <ndarray> PyArray_SimpleNew(multi.nd, multi.dimensions, NPY_LONG)
+        array = <ndarray> PyArray_SimpleNew(multi.iter.nd, multi.iter.dimensions, NPY_LONG)
         array_data = <long *>array.data
         for i from 0 <= i < multi.size:
             on_data = <double *>PyArray_MultiIter_DATA(multi, 0)
@@ -438,7 +438,7 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
 
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>on, <void *>om, <void *>oN)
-        array = <ndarray> PyArray_SimpleNew(multi.nd, multi.dimensions, NPY_LONG)
+        array = <ndarray> PyArray_SimpleNew(multi.iter.nd, multi.iter.dimensions, NPY_LONG)
         array_data = <long *>array.data
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 0)
@@ -493,7 +493,7 @@ cdef object discd_array(rk_state *state, rk_discd func, object size, ndarray oa)
         array_data = <long *>array.data
         itera = <flatiter>PyArray_IterNew(<object>oa)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            array_data[i] = func(state, (<double *>(itera.iter.dataptr))[0])
             PyArray_ITER_NEXT(itera)
     else:
         array = <ndarray>np.empty(size, int)
