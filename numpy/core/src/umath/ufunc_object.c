@@ -1325,8 +1325,8 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     }
 
     /* Broadcast the result */
-    loop->iter->numiter = self->nin;
-    if (PyArray_Broadcast((PyArrayMultiIterObject *)loop) < 0) {
+    loop->numiter = self->nin;
+    if (NpyArray_Broadcast(loop->iter) < 0) {
         return -1;
     }
 
@@ -1837,9 +1837,7 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
         if (self->core_strides) {
             _pya_free(self->core_strides);
         }
-        for (i = 0; i < self->ufunc->nargs; i++) {
-            Py_XDECREF(self->iters[i]);
-        }
+        _Npy_DECREF(self->iter);
         if (self->buffer[0]) {
             PyDataMem_FREE(self->buffer[0]);
         }
@@ -1867,12 +1865,21 @@ construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObjec
         return loop;
     }
 
+    loop->iter = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
+    if (loop->iter == NULL) {
+        _pya_free(loop);
+        PyErr_NoMemory();
+        return NULL;
+    }
+    _NpyObject_Init((_NpyObject *)loop->iter, &NpyArrayMultiIter_Type);
+    
     loop->iter->index = 0;
+    loop->iter->numiter = self->nargs;
     loop->ufunc = self;
     Py_INCREF(self);
     loop->buffer[0] = NULL;
     for (i = 0; i < self->nargs; i++) {
-        loop->iters[i] = NULL;
+        loop->iter->iters[i] = NULL;
         loop->cast[i] = NULL;
     }
     loop->errobj = NULL;
