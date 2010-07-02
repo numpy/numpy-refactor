@@ -283,7 +283,7 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_ax;
     }
 
-    itx = (PyArrayIterObject*)PyArray_IterNew(x);
+    itx = NpyArray_IterNew((NpyArray *)x);      /* TODO: Unwrap array */
     if (itx == NULL) {
         goto clean_out;
     }
@@ -328,7 +328,7 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     niterx2 = NpyArray_NeighborhoodIterNew(
-                    niterx1, bounds,
+                    (NpyArrayIterObject *)niterx1, bounds,
                     mode2, NULL);
     if (niterx1 == NULL) {
         goto clean_niterx1;

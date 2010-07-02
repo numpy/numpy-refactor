@@ -38,6 +38,7 @@
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_iterators.h"
 
 #include "ufunc_object.h"
 
@@ -1081,11 +1082,11 @@ _compute_output_dims(PyUFuncLoopObject *loop, int iarg,
     PyUFuncObject *ufunc = loop->ufunc;
     if (ufunc->core_enabled == 0) {
         /* case of ufunc with trivial core-signature */
-        *out_nd = loop->nd;
-        return loop->dimensions;
+        *out_nd = loop->iter->nd;
+        return loop->iter->dimensions;
     }
 
-    *out_nd = loop->nd + ufunc->core_num_dims[iarg];
+    *out_nd = loop->iter->nd + ufunc->core_num_dims[iarg];
     if (*out_nd > NPY_MAXARGS) {
         PyErr_SetString(PyExc_ValueError,
                         "dimension of output variable exceeds limit");
@@ -1093,11 +1094,11 @@ _compute_output_dims(PyUFuncLoopObject *loop, int iarg,
     }
 
     /* copy loop dimensions */
-    memcpy(tmp_dims, loop->dimensions, sizeof(npy_intp) * loop->nd);
+    memcpy(tmp_dims, loop->iter->dimensions, sizeof(npy_intp) * loop->iter->nd);
 
     /* copy core dimension */
     for (i = 0; i < ufunc->core_num_dims[iarg]; i++) {
-        tmp_dims[loop->nd + i] = loop->core_dim_sizes[1 +
+        tmp_dims[loop->iter->nd + i] = loop->core_dim_sizes[1 +
             ufunc->core_dim_ixs[ufunc->core_offsets[iarg] + i]];
     }
     return tmp_dims;
@@ -1307,9 +1308,9 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
 
     /* Create Iterators for the Inputs */
     for (i = 0; i < self->nin; i++) {
-        loop->iters[i] = (PyArrayIterObject *)
+        loop->iter->iters[i] = (PyArrayIterObject *)
             PyArray_IterNew((PyObject *)mps[i]);
-        if (loop->iters[i] == NULL) {
+        if (loop->iter->iters[i] == NULL) {
             return -1;
         }
     }
@@ -1324,7 +1325,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     }
 
     /* Broadcast the result */
-    loop->numiter = self->nin;
+    loop->iter->numiter = self->nin;
     if (PyArray_Broadcast((PyArrayMultiIterObject *)loop) < 0) {
         return -1;
     }
@@ -1417,7 +1418,7 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             /* still not the same -- or will we have to use buffers?*/
             if (mps[i]->descr->type_num != arg_types[i]
                 || !PyArray_ISBEHAVED_RO(mps[i])) {
-                if (loop->size < loop->bufsize || self->core_enabled) {
+                if (loop->iter->size < loop->bufsize || self->core_enabled) {
                     PyObject *new;
                     /*
                      * Copy the array to a temporary copy
@@ -1452,9 +1453,9 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             mps[i] = ao;
         }
 
-        loop->iters[i] = (PyArrayIterObject *)
+        loop->iter->iters[i] = (PyArrayIterObject *)
             PyArray_IterNew((PyObject *)mps[i]);
-        if (loop->iters[i] == NULL) {
+        if (loop->iter->iters[i] == NULL) {
             return -1;
         }
 
@@ -1563,13 +1564,13 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         /* All correct type and BEHAVED */
         /* Check for non-uniform stridedness */
         for (i = 0; i < self->nargs; i++) {
-            if (!(loop->iters[i]->iter->contiguous)) {
+            if (!(loop->iter->iters[i]->iter->contiguous)) {
                 /*
                  * May still have uniform stride
                  * if (broadcast result) <= 1-d
                  */
                 if (mps[i]->nd != 0 &&                  \
-                    (loop->iters[i]->iter->nd_m1 > 0)) {
+                    (loop->iter->iters[i]->iter->nd_m1 > 0)) {
                     loop->meth = NOBUFFER_UFUNCLOOP;
                     break;
                 }
@@ -1582,10 +1583,10 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         }
     }
 
-    loop->numiter = self->nargs;
+    loop->iter->numiter = self->nargs;
 
     /* Fill in steps  */
-    if (loop->meth == SIGNATURE_NOBUFFER_UFUNCLOOP && loop->nd == 0) {
+    if (loop->meth == SIGNATURE_NOBUFFER_UFUNCLOOP && loop->iter->nd == 0) {
         /* Use default core_strides */
     }
     else if (loop->meth != ONE_UFUNCLOOP) {
@@ -1611,23 +1612,23 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
          * Thus, choose the axis for which strides of the last iterator is
          * smallest but non-zero.
          */
-        for (i = 0; i < loop->nd; i++) {
+        for (i = 0; i < loop->iter->nd; i++) {
             stride_sum[i] = 0;
-            for (j = 0; j < loop->numiter; j++) {
-                stride_sum[i] += loop->iters[j]->iter->strides[i];
+            for (j = 0; j < loop->iter->numiter; j++) {
+                stride_sum[i] += loop->iter->iters[j]->iter->strides[i];
             }
         }
 
-        ldim = loop->nd - 1;
-        minsum = stride_sum[loop->nd - 1];
-        for (i = loop->nd - 2; i >= 0; i--) {
+        ldim = loop->iter->nd - 1;
+        minsum = stride_sum[loop->iter->nd - 1];
+        for (i = loop->iter->nd - 2; i >= 0; i--) {
             if (stride_sum[i] < minsum ) {
                 ldim = i;
                 minsum = stride_sum[i];
             }
         }
-        maxdim = loop->dimensions[ldim];
-        loop->size /= maxdim;
+        maxdim = loop->iter->dimensions[ldim];
+        loop->iter->size /= maxdim;
         loop->bufcnt = maxdim;
         loop->lastdim = ldim;
 
@@ -1637,8 +1638,8 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
          * setting the size to 1 in that dimension
          * (just in the iterators)
          */
-        for (i = 0; i < loop->numiter; i++) {
-            it = loop->iters[i]->iter;
+        for (i = 0; i < loop->iter->numiter; i++) {
+            it = loop->iter->iters[i]->iter;
             it->contiguous = 0;
             it->size /= (it->dims_m1[ldim] + 1);
             it->dims_m1[ldim] = 0;
@@ -1866,7 +1867,7 @@ construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObjec
         return loop;
     }
 
-    loop->index = 0;
+    loop->iter->index = 0;
     loop->ufunc = self;
     Py_INCREF(self);
     loop->buffer[0] = NULL;
@@ -2067,7 +2068,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
         /*fprintf(stderr, "NOBUFFER...%d\n", loop->size);*/
         while (loop->index < loop->size) {
             for (i = 0; i < self->nargs; i++) {
-                loop->bufptr[i] = loop->iters[i]->iter->dataptr;
+                loop->bufptr[i] = loop->iter->iters[i]->iter->dataptr;
             }
             loop->function((char **)loop->bufptr, &(loop->bufcnt),
                     loop->steps, loop->funcdata);
@@ -2075,7 +2076,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 
             /* Adjust loop pointers */
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iters[i]);
+                PyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             loop->index++;
         }
@@ -2083,7 +2084,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     case SIGNATURE_NOBUFFER_UFUNCLOOP:
         while (loop->index < loop->size) {
             for (i = 0; i < self->nargs; i++) {
-                loop->bufptr[i] = loop->iters[i]->iter->dataptr;
+                loop->bufptr[i] = loop->iter->iters[i]->iter->dataptr;
             }
             loop->function((char **)loop->bufptr, loop->core_dim_sizes,
                     loop->core_strides, loop->funcdata);
@@ -2091,7 +2092,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 
             /* Adjust loop pointers */
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iters[i]);
+                PyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             loop->index++;
         }
@@ -2099,7 +2100,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     case BUFFER_UFUNCLOOP: {
         /* This should be a function */
         PyArray_CopySwapNFunc *copyswapn[NPY_MAXARGS];
-        PyArrayIterObject **iters=loop->iters;
+        PyArrayIterObject **iters=loop->iter->iters;
         int *swap=loop->swap;
         char **dptr=loop->dptr;
         int mpselsize[NPY_MAXARGS];
@@ -2185,7 +2186,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
         while (index < size) {
             bufsize=loop->bufsize;
             for(i = 0; i<self->nargs; i++) {
-                tptr[i] = loop->iters[i]->iter->dataptr;
+                tptr[i] = loop->iter->iters[i]->iter->dataptr;
                 if (needbuffer[i]) {
                     dptr[i] = bufptr[i];
                     datasize[i] = (steps[i] ? bufsize : 1);
@@ -2332,7 +2333,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
             UFUNC_CHECK_ERROR(loop);
 
             for (i = 0; i < self->nargs; i++) {
-                PyArray_ITER_NEXT(loop->iters[i]);
+                PyArray_ITER_NEXT(loop->iter->iters[i]);
             }
             index++;
         }
@@ -2441,7 +2442,7 @@ construct_reduce(PyUFuncObject *self, PyArrayObject **arr, PyArrayObject *out,
 
     loop->retbase = 0;
     loop->swap = 0;
-    loop->index = 0;
+    loop->iter->index = 0;
     loop->ufunc = self;
     Py_INCREF(self);
     loop->cast = NULL;
@@ -2745,7 +2746,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
         break;
     case NOBUFFER_UFUNCLOOP:
         /*fprintf(stderr, "NOBUFFER..%d\n", loop->size); */
-        while (loop->index < loop->size) {
+        while (loop->index < loop->iter->size) {
             /* Copy first element to output */
             if (loop->obj & UFUNC_OBJ_ISOBJECT) {
                 Py_INCREF(*((PyObject **)loop->it->iter->dataptr));
@@ -2759,7 +2760,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             PyArray_ITER_NEXT(loop->it);
             loop->bufptr[0] += loop->outsize;
             loop->bufptr[2] = loop->bufptr[0];
-            loop->index++;
+            loop->iter->index++;
         }
         break;
     case BUFFER_UFUNCLOOP:
@@ -2775,7 +2776,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
          * 4. Repeat 2 until row is done.
          */
         /* fprintf(stderr, "BUFFERED..%d %d\n", loop->size, loop->swap); */
-        while(loop->index < loop->size) {
+        while(loop->iter->index < loop->iter->size) {
             loop->inptr = loop->it->iter->dataptr;
             /* Copy (cast) First term over to output */
             if (loop->cast) {
@@ -2819,7 +2820,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             PyArray_ITER_NEXT(loop->it);
             loop->bufptr[0] += loop->outsize;
             loop->bufptr[2] = loop->bufptr[0];
-            loop->index++;
+            loop->iter->index++;
         }
 
         /*
@@ -2883,7 +2884,7 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     case ZERO_EL_REDUCELOOP:
         /* Accumulate */
         /* fprintf(stderr, "ZERO..%d\n", loop->size); */
-        for (i = 0; i < loop->size; i++) {
+        for (i = 0; i < loop->iter->size; i++) {
             if (loop->obj & UFUNC_OBJ_ISOBJECT) {
                 Py_INCREF(*((PyObject **)loop->idptr));
             }
@@ -2894,20 +2895,20 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     case ONE_EL_REDUCELOOP:
         /* Accumulate */
         /* fprintf(stderr, "ONEDIM..%d\n", loop->size); */
-        while (loop->index < loop->size) {
+        while (loop->iter->index < loop->iter->size) {
             if (loop->obj & UFUNC_OBJ_ISOBJECT) {
                 Py_INCREF(*((PyObject **)loop->it->iter->dataptr));
             }
             memmove(loop->bufptr[0], loop->it->iter->dataptr, loop->outsize);
             PyArray_ITER_NEXT(loop->it);
             loop->bufptr[0] += loop->outsize;
-            loop->index++;
+            loop->iter->index++;
         }
         break;
     case NOBUFFER_UFUNCLOOP:
         /* Accumulate */
         /* fprintf(stderr, "NOBUFFER..%d\n", loop->size); */
-        while (loop->index < loop->size) {
+        while (loop->iter->index < loop->iter->size) {
             /* Copy first element to output */
             if (loop->obj & UFUNC_OBJ_ISOBJECT) {
                 Py_INCREF(*((PyObject **)loop->it->iter->dataptr));
@@ -2916,13 +2917,13 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             /* Adjust input pointer */
             loop->bufptr[1] = loop->it->iter->dataptr + loop->steps[1];
             loop->function((char **)loop->bufptr, &(loop->N),
-                           loop->steps, loop->funcdata);
+                           loop->iter->steps, loop->funcdata);
             UFUNC_CHECK_ERROR(loop);
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
             loop->bufptr[0] = loop->rit->iter->dataptr;
             loop->bufptr[2] = loop->bufptr[0] + loop->steps[0];
-            loop->index++;
+            loop->iter->index++;
         }
         break;
     case BUFFER_UFUNCLOOP:
@@ -2939,7 +2940,7 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
          * 4. Repeat 2 until row is done.
          */
         /* fprintf(stderr, "BUFFERED..%d %p\n", loop->size, loop->cast); */
-        while (loop->index < loop->size) {
+        while (loop->iter->index < loop->iter->size) {
             loop->inptr = loop->it->iter->dataptr;
             /* Copy (cast) First term over to output */
             if (loop->cast) {
@@ -2976,16 +2977,16 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                     loop->cast(loop->buffer, loop->castbuf, i, NULL, NULL);
                 }
                 loop->function((char **)loop->bufptr, &i,
-                               loop->steps, loop->funcdata);
-                loop->bufptr[0] += loop->steps[0]*i;
-                loop->bufptr[2] += loop->steps[2]*i;
+                               loop->iter->steps, loop->funcdata);
+                loop->bufptr[0] += loop->iter->steps[0]*i;
+                loop->bufptr[2] += loop->iter->steps[2]*i;
                 UFUNC_CHECK_ERROR(loop);
             }
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
             loop->bufptr[0] = loop->rit->iter->dataptr;
             loop->bufptr[2] = loop->bufptr[0] + loop->steps[0];
-            loop->index++;
+            loop->iter->index++;
         }
 
         /*
@@ -3087,10 +3088,10 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
          * NOBUFFER -- behaved array and same type
          */
         /* fprintf(stderr, "NOBUFFER..%d\n", loop->size); */
-        while (loop->index < loop->size) {
+        while (loop->iter->index < loop->iter->size) {
             ptr = (intp *)ind->data;
             for (i = 0; i < nn; i++) {
-                loop->bufptr[1] = loop->it->iter->dataptr + (*ptr)*loop->steps[1];
+                loop->bufptr[1] = loop->it->iter->dataptr + (*ptr)*loop->iter->steps[1];
                 if (loop->obj & UFUNC_OBJ_ISOBJECT) {
                     Py_XINCREF(*((PyObject **)loop->bufptr[1]));
                 }
@@ -3098,10 +3099,10 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
                 mm = (i == nn - 1 ? arr->dimensions[axis] - *ptr :
                         *(ptr + 1) - *ptr) - 1;
                 if (mm > 0) {
-                    loop->bufptr[1] += loop->steps[1];
+                    loop->bufptr[1] += loop->iter->steps[1];
                     loop->bufptr[2] = loop->bufptr[0];
                     loop->function((char **)loop->bufptr, &mm,
-                            loop->steps, loop->funcdata);
+                            loop->iter->steps, loop->funcdata);
                     UFUNC_CHECK_ERROR(loop);
                 }
                 loop->bufptr[0] += loop->ret->strides[axis];
@@ -3110,7 +3111,7 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
             loop->bufptr[0] = loop->rit->iter->dataptr;
-            loop->index++;
+            loop->iter->index++;
         }
         break;
 
@@ -3119,7 +3120,7 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
          * BUFFER -- misbehaved array or different types
          */
         /* fprintf(stderr, "BUFFERED..%d\n", loop->size); */
-        while (loop->index < loop->size) {
+        while (loop->iter->index < loop->iter->size) {
             ptr = (intp *)ind->data;
             for (i = 0; i < nn; i++) {
                 if (loop->obj & UFUNC_OBJ_ISOBJECT) {
@@ -3150,9 +3151,9 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
                     }
                     loop->bufptr[2] = loop->bufptr[0];
                     loop->function((char **)loop->bufptr, &j,
-                            loop->steps, loop->funcdata);
+                            loop->iter->steps, loop->funcdata);
                     UFUNC_CHECK_ERROR(loop);
-                    loop->bufptr[0] += j*loop->steps[0];
+                    loop->bufptr[0] += j*loop->iter->steps[0];
                 }
                 loop->bufptr[0] += loop->ret->strides[axis];
                 ptr++;
@@ -3160,7 +3161,7 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
             PyArray_ITER_NEXT(loop->it);
             PyArray_ITER_NEXT(loop->rit);
             loop->bufptr[0] = loop->rit->iter->dataptr;
-            loop->index++;
+            loop->iter->index++;
         }
 
         /*

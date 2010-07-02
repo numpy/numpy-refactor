@@ -82,8 +82,8 @@ typedef struct PyUFuncLoopObject {
            to work with PyArray_Broadcast */
         PyObject_HEAD
 
-	/* The iterators. */
-	struct NpyArrayMultiIter *iter;
+        /* The iterators. */
+        struct NpyArrayMultiIterObject *iter;
 
         /* The ufunc */
         PyUFuncObject *ufunc;
