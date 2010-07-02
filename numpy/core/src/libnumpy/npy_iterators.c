@@ -381,8 +381,8 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         NpyErr_NoMemory();
         return NULL;
     }
-    /*multi->magic_number = NPY_VALID_MAGIC;*/
     _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
+    multi->magic_number = NPY_VALID_MAGIC;
 
     for (i = 0; i < ntot; i++) {
         multi->iters[i] = NULL;

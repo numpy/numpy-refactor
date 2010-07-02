@@ -2218,7 +2218,7 @@ _vec_string_no_args(PyArrayObject* char_array,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                 "result array type does not match underlying function");
@@ -2226,18 +2226,18 @@ _vec_string_no_args(PyArrayObject* char_array,
         }
         Py_DECREF(item_result);
 
-        PyArray_ITER_NEXT(in_iter);
-        PyArray_ITER_NEXT(out_iter);
+        NpyArray_ITER_NEXT(in_iter);
+        NpyArray_ITER_NEXT(out_iter);
     }
 
-    Py_DECREF(in_iter);
-    Py_DECREF(out_iter);
+    _Npy_DECREF(in_iter);
+    _Npy_DECREF(out_iter);
 
     return (PyObject*)result;
 
  err:
-    Py_XDECREF(in_iter);
-    Py_XDECREF(out_iter);
+    _Npy_XDECREF(in_iter);
+    _Npy_XDECREF(out_iter);
     Py_XDECREF(result);
 
     return 0;
