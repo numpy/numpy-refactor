@@ -492,7 +492,7 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
     return r;
 }
 
-static PyObject* npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind);
+NPY_NO_EXPORT PyObject* npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind);
 
 /* Always returns arrays */
 NPY_NO_EXPORT PyObject *
