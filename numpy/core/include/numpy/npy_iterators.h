@@ -175,7 +175,7 @@ NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
  * Any object passed to NpyArray_Broadcast must be binary compatible
  * with this structure.
  */
-typedef struct {
+typedef struct NpyArrayMultiIterObject {
         NpyObject_HEAD
         /* DANGER - this must be in sync with MyUFuncLoopObject in ufuncobject.h */
         int                  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
