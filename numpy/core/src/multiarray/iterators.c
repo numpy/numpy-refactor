@@ -553,7 +553,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
      * Could implement this with adjusted strides and dimensions in iterator
      * Check for Boolean -- this is first becasue Bool is a subclass of Int
      */
-    PyArray_ITER_RESET(self);
+    NpyArray_ITER_RESET(self);
 
     if (PyBool_Check(ind)) {
         if (PyObject_IsTrue(ind)) {
@@ -583,10 +583,10 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
                             "cannot use Ellipsis or newaxes here");
             goto fail;
         }
-        PyArray_ITER_GOTO1D(self, start)
+        NpyArray_ITER_GOTO1D(self, start)
             if (n_steps == SingleIndex) { /* Integer */
                 r = PyArray_ToScalar(self->dataptr, self->ao);
-                PyArray_ITER_RESET(self);
+                NpyArray_ITER_RESET(self);
                 return r;
             }
         size = self->ao->descr->elsize;
@@ -604,10 +604,10 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         while (n_steps--) {
             copyswap(dptr, self->dataptr, 0, r);
             start += step_size;
-            PyArray_ITER_GOTO1D(self, start)
+            NpyArray_ITER_GOTO1D(self, start)
                 dptr += size;
         }
-        PyArray_ITER_RESET(self);
+        NpyArray_ITER_RESET(self);
         return r;
     }
 

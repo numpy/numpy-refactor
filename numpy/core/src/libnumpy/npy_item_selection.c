@@ -564,15 +564,14 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     int copyret = 0;
     ap = NULL;
 
+    
     ap = NpyArray_FromArray(ip, NpyArray_DescrFromType(NPY_INTP), 0);
     if (ap == NULL) {
         goto fail;
     }
+    
     /* Broadcast all arrays to each other, index array at the end. */ 
-    /* XXX: This needs to be changed when we convert MultiIters.
-       We can't replace witha  macro due to variable args. */
-    multi = (NpyArrayMultiIterObject *)
-        PyArray_MultiIterFromObjects((PyObject **)mps, n, 1, ap);
+    multi = NpyArray_MultiIterFromArrays(mps, n, 1, ap);
     if (multi == NULL) {
         goto fail;
     }
