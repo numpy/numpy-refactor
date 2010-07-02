@@ -286,7 +286,7 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 
 /* mapping.c */
-NpyArrayMapIterObject *NpyArray_MapIterNew();
+NpyArrayMapIterObject *NpyArray_MapIterNew(void);
 void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
 void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 
