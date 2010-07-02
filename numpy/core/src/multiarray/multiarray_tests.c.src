@@ -1,5 +1,6 @@
 #include <Python.h>
 #include "numpy/ndarrayobject.h"
+#include "numpy/numpy_api.h"
 
 #include "npy_3kcompat.h"
 
@@ -12,7 +13,7 @@
  * #type = double, int#
  * #typenum = NPY_DOUBLE, NPY_INT#
  */
-static int copy_@type@(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *niterx,
+static int copy_@type@(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *niterx,
         npy_intp *bounds,
         PyObject **out)
 {
@@ -26,7 +27,7 @@ static int copy_@type@(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *ni
      * is appended at the output list
      */
     for (i = 0; i < itx->size; ++i) {
-        PyArrayNeighborhoodIter_Reset(niterx);
+        NpyArrayNeighborhoodIter_Reset(niterx);
 
         for (j = 0; j < itx->ao->nd; ++j) {
             odims[j] = bounds[2 * j + 1] - bounds[2 * j] + 1;
@@ -40,20 +41,20 @@ static int copy_@type@(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *ni
 
         for (j = 0; j < niterx->size; ++j) {
             *ptr = *((@type@*)niterx->dataptr);
-            PyArrayNeighborhoodIter_Next(niterx);
+            NpyArrayNeighborhoodIter_Next(niterx);
             ptr += 1;
         }
 
         PyList_Append(*out, (PyObject*)aout);
         Py_DECREF(aout);
-        PyArray_ITER_NEXT(itx);
+        NpyArray_ITER_NEXT(itx);
     }
 
     return 0;
 }
 /**end repeat**/
 
-static int copy_object(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *niterx,
+static int copy_object(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *niterx,
         npy_intp *bounds,
         PyObject **out)
 {
@@ -68,7 +69,7 @@ static int copy_object(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *ni
      * is appended at the output list
      */
     for (i = 0; i < itx->size; ++i) {
-        PyArrayNeighborhoodIter_Reset(niterx);
+        NpyArrayNeighborhoodIter_Reset(niterx);
 
         for (j = 0; j < itx->ao->nd; ++j) {
             odims[j] = bounds[2 * j + 1] - bounds[2 * j] + 1;
@@ -80,7 +81,7 @@ static int copy_object(PyArrayIterObject *itx, PyArrayNeighborhoodIterObject *ni
 
         for (j = 0; j < niterx->size; ++j) {
             copyswap(aout->data + j * itemsize, niterx->dataptr, 0, NULL);
-            PyArrayNeighborhoodIter_Next(niterx);
+            NpyArrayNeighborhoodIter_Next(niterx);
         }
 
         PyList_Append(*out, (PyObject*)aout);
@@ -96,10 +97,10 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
 {
     PyObject *x, *fill, *out, *b;
     PyArrayObject *ax, *afill;
-    PyArrayIterObject *itx;
+    NpyArrayIterObject *itx;
     int i, typenum, mode, st;
     npy_intp bounds[NPY_MAXDIMS*2];
-    PyArrayNeighborhoodIterObject *niterx;
+    NpyArrayNeighborhoodIterObject *niterx;
 
     if (!PyArg_ParseTuple(args, "OOOi", &x, &b, &fill, &mode)) {
         return NULL;
@@ -127,7 +128,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_ax;
     }
 
-    itx = (PyArrayIterObject*)PyArray_IterNew(x);
+    itx = NpyArray_IterNew((NpyArray *)x);
     if (itx == NULL) {
         goto clean_out;
     }
@@ -157,8 +158,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
         }
     }
 
-    niterx = (PyArrayNeighborhoodIterObject*)PyArray_NeighborhoodIterNew(
-                    (PyArrayIterObject*)itx, bounds, mode, afill);
+    niterx = NpyArray_NeighborhoodIterNew(itx, bounds, mode, afill);
     if (niterx == NULL) {
         goto clean_afill;
     }
@@ -182,20 +182,20 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_niterx;
     }
 
-    Py_DECREF(niterx);
+    _Npy_DECREF(niterx);
     Py_XDECREF(afill);
-    Py_DECREF(itx);
+    _Npy_DECREF(itx);
 
     Py_DECREF(ax);
 
     return out;
 
 clean_niterx:
-    Py_DECREF(niterx);
+    _Npy_DECREF(niterx);
 clean_afill:
     Py_XDECREF(afill);
 clean_itx:
-    Py_DECREF(itx);
+    _Npy_DECREF(itx);
 clean_out:
     Py_DECREF(out);
 clean_ax:
@@ -204,8 +204,8 @@ clean_ax:
 }
 
 static int
-copy_double_double(PyArrayNeighborhoodIterObject *itx,
-        PyArrayNeighborhoodIterObject *niterx,
+copy_double_double(NpyArrayNeighborhoodIterObject *itx,
+        NpyArrayNeighborhoodIterObject *niterx,
         npy_intp *bounds,
         PyObject **out)
 {
@@ -218,7 +218,7 @@ copy_double_double(PyArrayNeighborhoodIterObject *itx,
      * For each point in itx, copy the current neighborhood into an array which
      * is appended at the output list
      */
-    PyArrayNeighborhoodIter_Reset(itx);
+    NpyArrayNeighborhoodIter_Reset(itx);
     for (i = 0; i < itx->size; ++i) {
         for (j = 0; j < itx->ao->nd; ++j) {
             odims[j] = bounds[2 * j + 1] - bounds[2 * j] + 1;
@@ -230,15 +230,15 @@ copy_double_double(PyArrayNeighborhoodIterObject *itx,
 
         ptr = (double*)aout->data;
 
-        PyArrayNeighborhoodIter_Reset(niterx);
+        NpyArrayNeighborhoodIter_Reset(niterx);
         for (j = 0; j < niterx->size; ++j) {
             *ptr = *((double*)niterx->dataptr);
             ptr += 1;
-            PyArrayNeighborhoodIter_Next(niterx);
+            NpyArrayNeighborhoodIter_Next(niterx);
         }
         PyList_Append(*out, (PyObject*)aout);
         Py_DECREF(aout);
-        PyArrayNeighborhoodIter_Next(itx);
+        NpyArrayNeighborhoodIter_Next(itx);
     }
     return 0;
 }
@@ -248,10 +248,10 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
 {
     PyObject *x, *out, *b1, *b2;
     PyArrayObject *ax;
-    PyArrayIterObject *itx;
+    NpyArrayIterObject *itx;
     int i, typenum, mode1, mode2, st;
     npy_intp bounds[NPY_MAXDIMS*2];
-    PyArrayNeighborhoodIterObject *niterx1, *niterx2;
+    NpyArrayNeighborhoodIterObject *niterx1, *niterx2;
 
     if (!PyArg_ParseTuple(args, "OOiOi", &x, &b1, &mode1, &b2, &mode2)) {
         return NULL;
@@ -305,8 +305,8 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     /* Create the neighborhood iterator */
-    niterx1 = (PyArrayNeighborhoodIterObject*)PyArray_NeighborhoodIterNew(
-                    (PyArrayIterObject*)itx, bounds,
+    niterx1 = NpyArray_NeighborhoodIterNew(
+                    itx, bounds,
                     mode1, NULL);
     if (niterx1 == NULL) {
         goto clean_out;
@@ -327,8 +327,8 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
         Py_DECREF(bound);
     }
 
-    niterx2 = (PyArrayNeighborhoodIterObject*)PyArray_NeighborhoodIterNew(
-                    (PyArrayIterObject*)niterx1, bounds,
+    niterx2 = NpyArray_NeighborhoodIterNew(
+                    niterx1, bounds,
                     mode2, NULL);
     if (niterx1 == NULL) {
         goto clean_niterx1;
@@ -347,18 +347,18 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_niterx2;
     }
 
-    Py_DECREF(niterx2);
-    Py_DECREF(niterx1);
-    Py_DECREF(itx);
+    _Npy_DECREF(niterx2);
+    _Npy_DECREF(niterx1);
+    _Npy_DECREF(itx);
     Py_DECREF(ax);
     return out;
 
 clean_niterx2:
-    Py_DECREF(niterx2);
+    _Npy_DECREF(niterx2);
 clean_niterx1:
-    Py_DECREF(niterx1);
+    _Npy_DECREF(niterx1);
 clean_itx:
-    Py_DECREF(itx);
+    _Npy_DECREF(itx);
 clean_out:
     Py_DECREF(out);
 clean_ax:
