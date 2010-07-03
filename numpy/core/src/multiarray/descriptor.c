@@ -211,12 +211,7 @@ _convert_from_tuple(PyObject *obj)
     }
     else if (PyDict_Check(val)) {
       /* Assume it's a metadata dictionary */
-        
-      
-      /* if (PyDict_Merge(type->metadata, val, 0) == -1) {
-            Py_DECREF(type);
-            return NULL;
-	    } */
+      /* FIXME: metadata removed from structure */
     }
     else {
         /*
@@ -954,7 +949,6 @@ _convert_from_dict(PyObject *obj, int align)
     PyArray_Descr *new;
     PyObject *fields = NULL;
     PyObject *names, *offsets, *descrs, *titles;
-    PyObject *metadata;
     int n, i;
     int totalsize;
     int maxalign = 0;
@@ -1109,23 +1103,6 @@ _convert_from_dict(PyObject *obj, int align)
     new->names = names;
     new->fields = fields;
     new->flags = dtypeflags;
-
-
-    /* ocordes: Is it useful to take whatever it is in "metadata" ? */
-    /*
-    metadata = PyDict_GetItemString(obj, "metadata");
-
-    if (new->metadata == NULL) {
-        new->metadata = metadata;
-        Py_XINCREF(new->metadata);
-    }
-    else if (metadata != NULL) {
-        if (PyDict_Merge(new->metadata, metadata, 0) == -1) {
-            Py_DECREF(new);
-            return NULL;
-        }
-    }
-    */
 
     return new;
 
@@ -1936,23 +1913,18 @@ static PyGetSetDef arraydescr_getsets[] = {
 static PyObject *
 arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds)
 {
-  PyObject *odescr, *ometadata=NULL;
+    PyObject *odescr=NULL;
     PyArray_Descr *descr, *conv;
     Bool align = FALSE;
     Bool copy = FALSE;
     Bool copied = FALSE;
-    static char *kwlist[] = {"dtype", "align", "copy", "metadata", NULL};
+    static char *kwlist[] = {"dtype", "align", "copy", NULL};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&O&O!", kwlist,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&O&", kwlist,
                 &odescr, PyArray_BoolConverter, &align,
-		PyArray_BoolConverter, &copy,
-                &PyDict_Type, &ometadata)) {
+		PyArray_BoolConverter, &copy )) {
         return NULL;
     }
-
-    /*if ((ometadata != NULL) && (_invalid_metadata_check(ometadata))) {
-        return NULL;
-	} */
 
     if (align) {
         if (!PyArray_DescrAlignConverter(odescr, &conv)) {
