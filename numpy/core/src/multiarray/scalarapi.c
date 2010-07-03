@@ -517,38 +517,25 @@ PyArray_DescrFromScalar(PyObject *sc)
     }
 
     if (PyArray_IsScalar(sc, TimeInteger)) {
-        PyObject *cobj;
-        PyArray_DatetimeMetaData *dt_data;
+        PyArray_DateTimeInfo *dt_data;
 
-        dt_data = _pya_malloc(sizeof(PyArray_DatetimeMetaData));
+        dt_data = _pya_malloc(sizeof(PyArray_DateTimeInfo));
         if (PyArray_IsScalar(sc, Datetime)) {
             descr = PyArray_DescrNewFromType(PyArray_DATETIME);
-            memcpy(dt_data, &((PyDatetimeScalarObject *)sc)->obmeta,
-                   sizeof(PyArray_DatetimeMetaData));
+	    memcpy(dt_data, &((PyDatetimeScalarObject *)sc)->obdtinfo,
+                   sizeof(PyArray_DateTimeInfo));
         }
         else {
             /* Timedelta */
             descr = PyArray_DescrNewFromType(PyArray_TIMEDELTA);
-            memcpy(dt_data, &((PyTimedeltaScalarObject *)sc)->obmeta,
-                   sizeof(PyArray_DatetimeMetaData));
+	    memcpy(dt_data, &((PyTimedeltaScalarObject *)sc)->obdtinfo,
+                   sizeof(PyArray_DateTimeInfo));
         }
-        cobj = NpyCapsule_FromVoidPtr((void *)dt_data, simple_capsule_dtor);
 
-        /* Add correct meta-data to the data-type */
         if (descr == NULL) {
-            Py_DECREF(cobj);
-            return NULL;
-        }
-        Py_XDECREF(descr->metadata);
-        if ((descr->metadata = PyDict_New()) == NULL) {
-            Py_DECREF(descr);
-            Py_DECREF(cobj);
             return NULL;
         }
 
-        /* Assume this sets a new reference to cobj */
-        PyDict_SetItemString(descr->metadata, NPY_METADATA_DTSTR, cobj);
-        Py_DECREF(cobj);
         return descr;
     }
 
@@ -661,16 +648,11 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
          * We need to copy the resolution information over to the scalar
          * Get the void * from the metadata dictionary
          */
-        PyObject *cobj;
-        PyArray_DatetimeMetaData *dt_data;
-        cobj = PyDict_GetItemString(descr->metadata, NPY_METADATA_DTSTR);
+        PyArray_DateTimeInfo *dt_data;
 
-/* FIXME
- * There is no error handling here.
- */
-        dt_data = NpyCapsule_AsVoidPtr(cobj);
-        memcpy(&(((PyDatetimeScalarObject *)obj)->obmeta), dt_data,
-               sizeof(PyArray_DatetimeMetaData));
+        dt_data = descr->dtinfo;
+	memcpy(&(((PyDatetimeScalarObject *)obj)->obdtinfo), dt_data,
+               sizeof(PyArray_DateTimeInfo));
     }
     if (PyTypeNum_ISFLEXIBLE(type_num)) {
         if (type_num == PyArray_STRING) {
