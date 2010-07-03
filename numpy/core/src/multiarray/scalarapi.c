@@ -517,26 +517,22 @@ PyArray_DescrFromScalar(PyObject *sc)
     }
 
     if (PyArray_IsScalar(sc, TimeInteger)) {
-        PyArray_DateTimeInfo *dt_data;
+      if (PyArray_IsScalar(sc, Datetime)) {
+	if ( (descr = PyArray_DescrNewFromType(PyArray_DATETIME) ) == NULL )
+	  return NULL;
+	
+	memcpy(descr->dtinfo, &((PyDatetimeScalarObject *)sc)->obdtinfo,
+	       sizeof(PyArray_DateTimeInfo));
+      }
+      else {
+	/* Timedelta */
+	if ( ( descr = PyArray_DescrNewFromType(PyArray_TIMEDELTA) ) == NULL )
+	  return NULL;
+	memcpy(descr->dtinfo, &((PyTimedeltaScalarObject *)sc)->obdtinfo,
+	       sizeof(PyArray_DateTimeInfo));
+      }
 
-        dt_data = _pya_malloc(sizeof(PyArray_DateTimeInfo));
-        if (PyArray_IsScalar(sc, Datetime)) {
-            descr = PyArray_DescrNewFromType(PyArray_DATETIME);
-	    memcpy(dt_data, &((PyDatetimeScalarObject *)sc)->obdtinfo,
-                   sizeof(PyArray_DateTimeInfo));
-        }
-        else {
-            /* Timedelta */
-            descr = PyArray_DescrNewFromType(PyArray_TIMEDELTA);
-	    memcpy(dt_data, &((PyTimedeltaScalarObject *)sc)->obdtinfo,
-                   sizeof(PyArray_DateTimeInfo));
-        }
-
-        if (descr == NULL) {
-            return NULL;
-        }
-
-        return descr;
+      return descr;
     }
 
     descr = PyArray_DescrFromTypeObject((PyObject *)Py_TYPE(sc));

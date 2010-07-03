@@ -76,7 +76,6 @@ enum NPY_TYPES {    NPY_BOOL=0,
                     NPY_USERDEF=256  /* leave room for characters */
 };
 
-#define NPY_METADATA_DTSTR "__frequency__"
 
 /* basetype array priority */
 #define NPY_PRIORITY 0.0
@@ -676,18 +675,6 @@ typedef struct {
         int sec, us, ps, as;
 } npy_timedeltastruct;
 
-#if PY_VERSION_HEX >= 0x02070000
-#define PyDataType_GetDatetimeMetaData(descr)                                 \
-    ((descr->metadata == NULL) ? NULL :                                       \
-        ((PyArray_MetaData *)(PyCapsule_GetPointer(                   \
-                PyDict_GetItemString(                                         \
-                    descr->metadata, NPY_METADATA_DTSTR), NULL))))
-#else
-#define PyDataType_GetMetaData(descr)                                 \
-    ((descr->metadata == NULL) ? NULL :                                       \
-        ((PyArray_DatetimeMetaData *)(PyCObject_AsVoidPtr(                    \
-                PyDict_GetItemString(descr->metadata, NPY_METADATA_DTSTR)))))
-#endif
 
 typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 

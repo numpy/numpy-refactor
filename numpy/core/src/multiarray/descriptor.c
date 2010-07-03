@@ -1932,23 +1932,6 @@ static PyGetSetDef arraydescr_getsets[] = {
 };
 
 
-static int
-_invalid_metadata_check(PyObject *metadata)
-{
-    PyObject *res;
-
-    /* borrowed reference */
-    res = PyDict_GetItemString(metadata, NPY_METADATA_DTSTR);
-    if (res == NULL) {
-        return 0;
-    }
-    else {
-        PyErr_SetString(PyExc_ValueError,
-                "cannot set " NPY_METADATA_DTSTR "in dtype metadata");
-        return 1;
-    }
-}
-
 
 static PyObject *
 arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds)
@@ -1967,9 +1950,10 @@ arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds
         return NULL;
     }
 
-    if ((ometadata != NULL) && (_invalid_metadata_check(ometadata))) {
+    /*if ((ometadata != NULL) && (_invalid_metadata_check(ometadata))) {
         return NULL;
-    }
+	} */
+
     if (align) {
         if (!PyArray_DescrAlignConverter(odescr, &conv)) {
             return NULL;
