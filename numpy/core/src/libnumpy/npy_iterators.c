@@ -364,82 +364,6 @@ _NpyTypeObject NpyArrayIter_Type = {
     (npy_destructor)arrayiter_dealloc,
 };
 
-NpyArrayMultiIterObject *
-NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
-{
-    NpyArrayMultiIterObject *multi;
-    NpyArray *current;
-
-    int i, ntot, err=0;
-
-    ntot = n + nadd;
-    if (ntot < 2 || ntot > NPY_MAXARGS) {
-        NpyErr_Format(NpyExc_ValueError,
-                     "Need between 2 and (%d) "                 \
-                     "array objects (inclusive).", NPY_MAXARGS);
-        return NULL;
-    }
-    multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
-    if (multi == NULL) {
-        NpyErr_NoMemory();
-        return NULL;
-    }
-    _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
-    multi->magic_number = NPY_VALID_MAGIC;
-
-    for (i = 0; i < ntot; i++) {
-        multi->iters[i] = NULL;
-    }
-    multi->numiter = ntot;
-    multi->index = 0;
-
-    for (i = 0; i < ntot; i++) {
-        if (i < n) {
-            current = mps[i];
-        }
-        else {
-            current = va_arg(va, NpyArray *);
-            if (!PyArray_Check(current)) {
-                err = 1;
-                break;
-            }
-        }
-        multi->iters[i] = NpyArray_IterNew(current);
-    }
-
-    if (!err && NpyArray_Broadcast(multi) < 0) {
-        err = 1;
-    }
-    if (err) {
-        _Npy_DECREF(multi);
-        return NULL;
-    }
-    NpyArray_MultiIter_RESET(multi);
-    return multi;
-}
-
-/*
- * Get MultiIterator from array of Python objects and any additional
- *
- * NpyArray **mps -- array of NpyArrays
- * int n - number of NpyArrays in the array
- * int nadd - number of additional arrays to include in the iterator.
- *
- * Returns a multi-iterator object.
- */
-NpyArrayMultiIterObject *
-NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
-{
-    NpyArrayMultiIterObject* result;
-
-    va_list va;
-    va_start(va, nadd);
-    result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
-    va_end(va);
-
-    return result;
-}
-
 static void
 arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
 {
@@ -455,6 +379,85 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
 _NpyTypeObject NpyArrayMultiIter_Type =   {
     (npy_destructor)arraymultiter_dealloc,
 };
+
+
+
+NpyArrayMultiIterObject *
+NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
+{
+    NpyArrayMultiIterObject *multi;
+    NpyArray *current;
+    
+    int i, ntot, err=0;
+    
+    ntot = n + nadd;
+    if (ntot < 2 || ntot > NPY_MAXARGS) {
+        NpyErr_Format(NpyExc_ValueError,
+                      "Need between 2 and (%d) "                 \
+                      "array objects (inclusive).", NPY_MAXARGS);
+        return NULL;
+    }
+    multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
+    if (multi == NULL) {
+        NpyErr_NoMemory();
+        return NULL;
+    }
+    _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
+    multi->magic_number = NPY_VALID_MAGIC;
+    
+    for (i = 0; i < ntot; i++) {
+        multi->iters[i] = NULL;
+    }
+    multi->numiter = ntot;
+    multi->index = 0;
+    
+    for (i = 0; i < ntot; i++) {
+        if (i < n) {
+            current = mps[i];
+        }
+        else {
+            current = va_arg(va, NpyArray *);
+            if (!PyArray_Check(current)) {
+                err = 1;
+                break;
+            }
+        }
+        multi->iters[i] = NpyArray_IterNew(current);
+    }
+    
+    if (!err && NpyArray_Broadcast(multi) < 0) {
+        err = 1;
+    }
+    if (err) {
+        _Npy_DECREF(multi);
+        return NULL;
+    }
+    NpyArray_MultiIter_RESET(multi);
+    return multi;
+}
+
+
+/*
+ * Get MultiIterator from array of Python objects and any additional
+ *
+ * NpyArray **mps -- array of NpyArrays
+ * int n - number of NpyArrays in the array
+ * int nadd - number of additional arrays to include in the iterator.
+ *
+ * Returns a multi-iterator object.
+ */
+NpyArrayMultiIterObject *
+NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
+{
+    NpyArrayMultiIterObject* result;
+    
+    va_list va;
+    va_start(va, nadd);
+    result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
+    va_end(va);
+    
+    return result;
+}
 
 
 
