@@ -437,6 +437,23 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 }
 
 
+NpyArrayMultiIterObject *
+NpyArray_MultiIterNew()
+{
+    NpyArrayMultiIterObject *ret;
+    
+    ret = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
+    if (NULL == ret) {
+        PyErr_NoMemory();
+        return NULL;
+    }
+    _NpyObject_Init(ret, &NpyArrayMultiIter_Type);
+    return ret;
+}
+
+
+
+
 /*
  * Get MultiIterator from array of Python objects and any additional
  *

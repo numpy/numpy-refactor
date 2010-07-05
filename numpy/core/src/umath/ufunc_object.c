@@ -1861,13 +1861,11 @@ construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObjec
         return loop;
     }
 
-    loop->iter = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
+    loop->iter = NpyArray_MultiIterNew();
     if (loop->iter == NULL) {
         _pya_free(loop);
-        PyErr_NoMemory();
         return NULL;
     }
-    _NpyObject_Init((_NpyObject *)loop->iter, &NpyArrayMultiIter_Type);
     
     loop->iter->index = 0;
     loop->iter->numiter = self->nargs;

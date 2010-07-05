@@ -199,6 +199,9 @@ extern _NpyTypeObject NpyArrayMultiIter_Type;
 NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
 
+NpyArrayMultiIterObject *
+NpyArray_MultiIterNew();
+
 int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
 int
