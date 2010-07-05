@@ -180,7 +180,7 @@ static PyGetSetDef memorysimpleview_getsets[] =
     {"suboffsets", (getter)memorysimpleview_suboffsets_get, NULL, NULL, NULL},
     {"readonly", (getter)memorysimpleview_readonly_get, NULL, NULL, NULL},
     {"ndim", (getter)memorysimpleview_ndim_get, NULL, NULL, NULL},
-    {NULL, NULL, NULL, NULL, NULL}
+    {NULL, NULL, NULL, NULL}
 };
 
 NPY_NO_EXPORT PyTypeObject PyMemorySimpleView_Type = {

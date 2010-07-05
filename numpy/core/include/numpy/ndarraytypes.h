@@ -78,7 +78,6 @@ enum NPY_TYPES {    NPY_BOOL=0,
                     NPY_USERDEF=256  /* leave room for characters */
 };
 
-#define NPY_METADATA_DTSTR "__frequency__"
 
 /* basetype array priority */
 #define NPY_PRIORITY 0.0
@@ -511,7 +510,13 @@ typedef struct {
 #define NPY_USE_GETITEM     0x20
 /* Use f.setitem when setting creating 0-d array from this data-type.*/
 #define NPY_USE_SETITEM     0x40
-/* define NPY_IS_COMPLEX */
+
+
+/* Data-type needs extra initialization on creation */
+#define NPY_EXTRA_DTYPE_INIT 0x80
+
+/* When creating an array of this type -- call extra function */
+#define NPY_UFUNC_OUTPUT_CREATION 0x100
 
 /*
  *These are inherited for global data-type if any data-types in the
@@ -533,6 +538,17 @@ typedef struct {
 
 struct NpyDict_struct;     /* TODO: From numpy_api.h, needed until PyArray_Descr is split into
                               CPython and core parts */
+
+typedef struct {
+        NPY_DATETIMEUNIT base;
+        int num;
+        int den;      /*
+                       * Converted to 1 on input for now -- an
+                       * input-only mechanism
+                       */
+        int events;
+} PyArray_DateTimeInfo;	
+
 typedef struct _PyArray_Descr {
         PyObject_HEAD
         PyTypeObject *typeobj;  /*
@@ -554,7 +570,8 @@ typedef struct _PyArray_Descr {
         int type_num;           /* number representing this type */
         int elsize;             /* element size for this type */
         int alignment;          /* alignment needed for this type */
-        struct _arr_descr                                       \
+
+        struct _arr_descr				\
         *subarray;              /*
                                  * Non-NULL if this type is
                                  * is an array (C-contiguous)
@@ -574,8 +591,16 @@ typedef struct _PyArray_Descr {
                                   * basic data descriptor
                                   */
 
-        PyObject *metadata;     /* Metadata about this dtype */
+
+	PyArray_DateTimeInfo  \
+	*dtinfo;		/*
+				 * Non-NULL if this type is array of 
+				 DATETIME or TIMEDELTA */
+
+        
 } PyArray_Descr;
+
+	
 
 typedef struct _arr_descr {
     PyArray_Descr *base;
@@ -631,16 +656,6 @@ typedef struct {
 } PyArray_Chunk;
 
 
-typedef struct PyArray_DatetimeMetaData {
-        NPY_DATETIMEUNIT base;
-        int num;
-        int den;      /*
-                       * Converted to 1 on input for now -- an
-                       * input-only mechanism
-                       */
-        int events;
-} PyArray_DatetimeMetaData;
-
 typedef struct {
         npy_longlong year;
         int month, day, hour, min, sec, us, ps, as;
@@ -651,18 +666,6 @@ typedef struct {
         int sec, us, ps, as;
 } npy_timedeltastruct;
 
-#if PY_VERSION_HEX >= 0x02070000
-#define PyDataType_GetDatetimeMetaData(descr)                                 \
-    ((descr->metadata == NULL) ? NULL :                                       \
-        ((PyArray_DatetimeMetaData *)(PyCapsule_GetPointer(                   \
-                PyDict_GetItemString(                                         \
-                    descr->metadata, NPY_METADATA_DTSTR), NULL))))
-#else
-#define PyDataType_GetDatetimeMetaData(descr)                                 \
-    ((descr->metadata == NULL) ? NULL :                                       \
-        ((PyArray_DatetimeMetaData *)(PyCObject_AsVoidPtr(                    \
-                PyDict_GetItemString(descr->metadata, NPY_METADATA_DTSTR)))))
-#endif
 
 typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 

@@ -60,7 +60,6 @@ PyArray_Size(PyObject *op)
     return PyArray_Check(op) ? NpyArray_Size((NpyArray*)op) : 0;
 }
 
-            
 /*NUMPY_API*/
 NPY_NO_EXPORT int
 PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)

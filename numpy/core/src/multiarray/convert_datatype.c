@@ -18,8 +18,6 @@
 
 #include "convert_datatype.h"
 
-
-
 /*NUMPY_API
  * For backward compatibility
  *

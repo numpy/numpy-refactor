@@ -382,10 +382,8 @@ PyArray_ScalarFromObject(PyObject *object)
         if (ret == NULL) {
             return NULL;
         }
-        PyArrayScalar_VAL(ret, CDouble).real =
-                ((PyComplexObject *)object)->cval.real;
-        PyArrayScalar_VAL(ret, CDouble).imag =
-                ((PyComplexObject *)object)->cval.imag;
+        PyArrayScalar_VAL(ret, CDouble).real = PyComplex_RealAsDouble(object);
+        PyArrayScalar_VAL(ret, CDouble).imag = PyComplex_ImagAsDouble(object);
     }
     else if (PyLong_Check(object)) {
         longlong val;
@@ -699,16 +697,11 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
          * We need to copy the resolution information over to the scalar
          * Get the void * from the metadata dictionary
          */
-        PyObject *cobj;
-        PyArray_DatetimeMetaData *dt_data;
-        cobj = PyDict_GetItemString(descr->metadata, NPY_METADATA_DTSTR);
+        PyArray_DateTimeInfo *dt_data;
 
-/* FIXME
- * There is no error handling here.
- */
-        dt_data = NpyCapsule_AsVoidPtr(cobj);
-        memcpy(&(((PyDatetimeScalarObject *)obj)->obmeta), dt_data,
-               sizeof(PyArray_DatetimeMetaData));
+        dt_data = descr->dtinfo;
+	memcpy(&(((PyDatetimeScalarObject *)obj)->obdtinfo), dt_data,
+               sizeof(PyArray_DateTimeInfo));
     }
     if (PyTypeNum_ISFLEXIBLE(type_num)) {
         if (type_num == PyArray_STRING) {
