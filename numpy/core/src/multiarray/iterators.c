@@ -1304,7 +1304,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
     }
 
     /* TODO: Shouldn't this just call PyArray_MultiIterFromObjects? */
-    multi = NpyArray_malloc(sizeof(PyArrayMultiIterObject));
+    multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (multi == NULL) {
         return PyErr_NoMemory();
     }
