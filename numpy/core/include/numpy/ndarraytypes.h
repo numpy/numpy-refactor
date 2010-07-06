@@ -971,42 +971,25 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
      * states whether or not it is variable length.  Because the
      * ISFLEXIBLE check is hard-coded to the built-in data-types.
      */
-#define PyArray_ISVARIABLE(obj) NpyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
+#define PyArray_ISVARIABLE(obj) NpyArray_ISVARIABLE(PAA(obj))
 
-#define PyArray_SAFEALIGNEDCOPY(obj) (PyArray_ISALIGNED(obj) && !PyArray_ISVARIABLE(obj))
-
-
-#define NPY_LITTLE '<'
-#define NPY_BIG '>'
-#define NPY_NATIVE '='
-#define NPY_SWAP 's'
-#define NPY_IGNORE '|'
-
-#if NPY_BYTE_ORDER == NPY_BIG_ENDIAN
-#define NPY_NATBYTE NPY_BIG
-#define NPY_OPPBYTE NPY_LITTLE
-#else
-#define NPY_NATBYTE NPY_LITTLE
-#define NPY_OPPBYTE NPY_BIG
-#endif
-
-#define PyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
-#define PyArray_IsNativeByteOrder PyArray_ISNBO
-#define PyArray_ISNOTSWAPPED(m) PyArray_ISNBO(PyArray_DESCR(m)->byteorder)
-#define PyArray_ISBYTESWAPPED(m) (!PyArray_ISNOTSWAPPED(m))
-
-#define PyArray_FLAGSWAP(m, flags) (PyArray_CHKFLAGS(m, flags) &&       \
-                                    PyArray_ISNOTSWAPPED(m))
-
-#define PyArray_ISCARRAY(m) PyArray_FLAGSWAP(m, NPY_CARRAY)
-#define PyArray_ISCARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_CARRAY_RO)
-#define PyArray_ISFARRAY(m) PyArray_FLAGSWAP(m, NPY_FARRAY)
-#define PyArray_ISFARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_FARRAY_RO)
-#define PyArray_ISBEHAVED(m) PyArray_FLAGSWAP(m, NPY_BEHAVED)
-#define PyArray_ISBEHAVED_RO(m) PyArray_FLAGSWAP(m, NPY_ALIGNED)
+#define PyArray_SAFEALIGNEDCOPY(obj) NpyArray_SAFEALIGNEDCOPY(PAA(obj))
 
 
-#define PyDataType_ISNOTSWAPPED(d) PyArray_ISNBO(((PyArray_Descr *)(d))->byteorder)
+#define PyArray_ISNOTSWAPPED(m) NpyArray_ISNOTSWAPPED(PAA(m))
+#define PyArray_ISBYTESWAPPED(m) NpyArray_ISBYTESWAPPED(PAA(m))
+
+#define PyArray_FLAGSWAP(m, flags) NpyArray_FLAGSWAP(PAA(m), flags)
+
+#define PyArray_ISCARRAY(m) NpyArray_ISCARRAY(PAA(m))
+#define PyArray_ISCARRAY_RO(m) NpyArray_ISCARRAY_RO(PAA(m))
+#define PyArray_ISFARRAY(m) NpyArray_ISFARRAY(PAA(m))
+#define PyArray_ISFARRAY_RO(m) NpyArray_ISFARRAY_RO(PAA(m))
+#define PyArray_ISBEHAVED(m) NpyArray_ISBEHAVED(PAA(m))
+#define PyArray_ISBEHAVED_RO(m) NpyArray_ISBEHAVED_RO(PAA(m))
+
+
+#define PyDataType_ISNOTSWAPPED(d) NpyArray_ISNBO(((PyArray_Descr *)(d))->byteorder)
 #define PyDataType_ISBYTESWAPPED(d) (!PyDataType_ISNOTSWAPPED(d))
 
 

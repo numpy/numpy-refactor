@@ -473,7 +473,7 @@ _array_typedescr_fromstr(char *str)
     if (descr == NULL) {
         return NULL;
     }
-    swap = !PyArray_ISNBO(swapchar);
+    swap = !NpyArray_ISNBO(swapchar);
     if (descr->elsize == 0 || swap) {
         /* Need to make a new PyArray_Descr */
         PyArray_DESCR_REPLACE(descr);

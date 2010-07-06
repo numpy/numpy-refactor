@@ -75,4 +75,27 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_HASFIELDS(obj) (NpyArray_DESCR(obj)->fields != NULL)
 
 
+    /*
+     * FIXME: This should check for a flag on the data-type that
+     * states whether or not it is variable length.  Because the
+     * ISFLEXIBLE check is hard-coded to the built-in data-types.
+     */
+#define NpyArray_ISVARIABLE(obj) NpyTypeNum_ISFLEXIBLE(NpyArray_TYPE(obj))
+
+#define NpyArray_SAFEALIGNEDCOPY(obj) (NpyArray_ISALIGNED(obj) && !NpyArray_ISVARIABLE(obj))
+
+
+#define NpyArray_ISNOTSWAPPED(m) NpyArray_ISNBO(NpyArray_DESCR(m)->byteorder)
+#define NpyArray_ISBYTESWAPPED(m) (!NpyArray_ISNOTSWAPPED(m))
+
+#define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&       \
+                                    NpyArray_ISNOTSWAPPED(m))
+
+#define NpyArray_ISCARRAY(m) NpyArray_FLAGSWAP(m, NPY_CARRAY)
+#define NpyArray_ISCARRAY_RO(m) NpyArray_FLAGSWAP(m, NPY_CARRAY_RO)
+#define NpyArray_ISFARRAY(m) NpyArray_FLAGSWAP(m, NPY_FARRAY)
+#define NpyArray_ISFARRAY_RO(m) NpyArray_FLAGSWAP(m, NPY_FARRAY_RO)
+#define NpyArray_ISBEHAVED(m) NpyArray_FLAGSWAP(m, NPY_BEHAVED)
+#define NpyArray_ISBEHAVED_RO(m) NpyArray_FLAGSWAP(m, NPY_ALIGNED)
+
 #endif

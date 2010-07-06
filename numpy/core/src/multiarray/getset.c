@@ -600,7 +600,7 @@ _get_part(PyArrayObject *self, int imag)
                                  PyArray_NUM_FLOATTYPE);
     offset = (imag ? type->elsize : 0);
 
-    if (!PyArray_ISNBO(self->descr->byteorder)) {
+    if (!NpyArray_ISNBO(self->descr->byteorder)) {
         PyArray_Descr *new;
         new = PyArray_DescrNew(type);
         new->byteorder = self->descr->byteorder;

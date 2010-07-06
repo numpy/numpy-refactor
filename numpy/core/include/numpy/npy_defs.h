@@ -1,11 +1,12 @@
 #ifndef _NPY_DEFS_H_
 #define _NPY_DEFS_H_
 
-
 /* TODO: This needs to be fixed so we are not dependent on Python. */
 #include <Python.h>
 
 #include "npy_common.h"
+#include "npy_endian.h"
+
 
 /* 
  * This file contains defines and basic types used by the core
@@ -134,5 +135,21 @@ enum NPY_TYPES {    NPY_BOOL=0,
 #define NpyTypeNum_ISOBJECT(type) ((type) == NPY_OBJECT)
 
 
+#define NPY_LITTLE '<'
+#define NPY_BIG '>'
+#define NPY_NATIVE '='
+#define NPY_SWAP 's'
+#define NPY_IGNORE '|'
+
+#if NPY_BYTE_ORDER == NPY_BIG_ENDIAN
+#define NPY_NATBYTE NPY_BIG
+#define NPY_OPPBYTE NPY_LITTLE
+#else
+#define NPY_NATBYTE NPY_LITTLE
+#define NPY_OPPBYTE NPY_BIG
+#endif
+
+#define NpyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
+#define NpyArray_IsNativeByteOrder NpyArray_ISNBO
 
 #endif

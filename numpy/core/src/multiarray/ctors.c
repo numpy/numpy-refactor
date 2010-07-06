@@ -1086,10 +1086,10 @@ PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
     PyObject *obj;
     if (requires & NOTSWAPPED) {
         if (!descr && PyArray_Check(op) &&
-            !PyArray_ISNBO(PyArray_DESCR(op)->byteorder)) {
+            !NpyArray_ISNBO(PyArray_DESCR(op)->byteorder)) {
             descr = PyArray_DescrNew(PyArray_DESCR(op));
         }
-        else if (descr && !PyArray_ISNBO(descr->byteorder)) {
+        else if (descr && !NpyArray_ISNBO(descr->byteorder)) {
             PyArray_DESCR_REPLACE(descr);
         }
         if (descr) {
@@ -1469,7 +1469,7 @@ PyArray_FromDimsAndDataAndDescr(int nd, int *d,
     if (DEPRECATE(msg) < 0) {
         return NULL;
     }
-    if (!PyArray_ISNBO(descr->byteorder))
+    if (!NpyArray_ISNBO(descr->byteorder))
         descr->byteorder = '=';
     for (i = 0; i < nd; i++) {
         newd[i] = (intp) d[i];
@@ -1882,7 +1882,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
      * If dtype is not in native byte-order then get native-byte
      * order version.  And then swap on the way out.
      */
-    if (!PyArray_ISNBO(dtype->byteorder)) {
+    if (!NpyArray_ISNBO(dtype->byteorder)) {
         native = PyArray_DescrNewByteorder(dtype, PyArray_NATBYTE);
         swap = 1;
     }

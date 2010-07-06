@@ -116,7 +116,7 @@ extern "C" CONFUSE_EMACS
         PyArray_EquivTypes(PyArray_DESCR(a1), PyArray_DESCR(a2))
 
 #define PyArray_EquivByteorders(b1, b2)                                       \
-        (((b1) == (b2)) || (PyArray_ISNBO(b1) == PyArray_ISNBO(b2)))
+        (((b1) == (b2)) || (NpyArray_ISNBO(b1) == NpyArray_ISNBO(b2)))
 
 #define PyArray_SimpleNew(nd, dims, typenum)                                  \
         PyArray_New(&PyArray_Type, nd, dims, typenum, NULL, NULL, 0, 0, NULL)

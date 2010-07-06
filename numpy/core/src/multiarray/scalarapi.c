@@ -667,7 +667,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
     itemsize = descr->elsize;
     copyswap = descr->f->copyswap;
     type = descr->typeobj;
-    swap = !PyArray_ISNBO(descr->byteorder);
+    swap = !NpyArray_ISNBO(descr->byteorder);
     if (NpyTypeNum_ISSTRING(type_num)) {
         /* Eliminate NULL bytes */
         char *dptr = data;

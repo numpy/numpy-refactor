@@ -31,22 +31,7 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
         (((dtype)->flags & (flag)) == (flag))
 
 #define NpyArray_DESCR_REPLACE(descr) PyArray_DESCR_REPLACE(descr)
-#define NpyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
-#define NpyArray_IsNativeByteOrder NpyArray_ISNBO
-#define NpyArray_ISNOTSWAPPED(m) NpyArray_ISNBO(PyArray_DESCR(m)->byteorder)
-#define NpyArray_ISBYTESWAPPED(m) (!NpyArray_ISNOTSWAPPED(m))
-
-#define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&       \
-        NpyArray_ISNOTSWAPPED(m))
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
-
-#define NpyArray_SAFEALIGNEDCOPY(obj) PyArray_SAFEALIGNEDCOPY(obj)
-#define NpyArray_ISCARRAY(m) PyArray_FLAGSWAP(m, NPY_CARRAY)
-#define NpyArray_ISCARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_CARRAY_RO)
-#define NpyArray_ISFARRAY(m) PyArray_FLAGSWAP(m, NPY_FARRAY)
-#define NpyArray_ISFARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_FARRAY_RO)
-#define NpyArray_ISBEHAVED(m) PyArray_FLAGSWAP(m, NPY_BEHAVED)
-#define NpyArray_ISBEHAVED_RO(m) PyArray_FLAGSWAP(m, NPY_ALIGNED)
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)

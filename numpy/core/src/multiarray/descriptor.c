@@ -1459,7 +1459,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
         PyArray_DESCR_REPLACE(*at);
         (*at)->elsize = elsize;
     }
-    if (endian != '=' && PyArray_ISNBO(endian)) {
+    if (endian != '=' && NpyArray_ISNBO(endian)) {
         endian = '=';
     }
     if (endian != '=' && (*at)->byteorder != '|'
@@ -1608,7 +1608,7 @@ arraydescr_protocol_typestr_get(PyArray_Descr *self)
 
     if (endian == '=') {
         endian = '<';
-        if (!PyArray_IsNativeByteOrder(endian)) {
+        if (!NpyArray_IsNativeByteOrder(endian)) {
             endian = '>';
         }
     }
@@ -1742,7 +1742,7 @@ static int
 _arraydescr_isnative(PyArray_Descr *self)
 {
     if (self->names == NULL) {
-        return PyArray_ISNBO(self->byteorder);
+        return NpyArray_ISNBO(self->byteorder);
     }
     else {
         const char *key;
@@ -2173,7 +2173,7 @@ arraydescr_reduce(PyArray_Descr *self, PyObject *NPY_UNUSED(args))
     endian = self->byteorder;
     if (endian == '=') {
         endian = '<';
-        if (!PyArray_IsNativeByteOrder(endian)) {
+        if (!NpyArray_IsNativeByteOrder(endian)) {
             endian = '>';
         }
     }
@@ -2402,7 +2402,7 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
         return NULL;
     }
 
-    if (endian != '|' && PyArray_IsNativeByteOrder(endian)) {
+    if (endian != '|' && NpyArray_IsNativeByteOrder(endian)) {
         endian = '=';
     }
     self->byteorder = endian;
@@ -2661,7 +2661,7 @@ arraydescr_str(PyArray_Descr *self)
         PyUString_ConcatAndDel(&t, PyUString_FromString(")"));
         sub = t;
     }
-    else if (PyDataType_ISFLEXIBLE(self) || !PyArray_ISNBO(self->byteorder)) {
+    else if (PyDataType_ISFLEXIBLE(self) || !NpyArray_ISNBO(self->byteorder)) {
         sub = arraydescr_protocol_typestr_get(self);
     }
     else {
