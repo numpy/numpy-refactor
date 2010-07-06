@@ -3431,7 +3431,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
 {
     int typenum, utypenum, i;
 
-    typenum = PyArray_NOTYPE;
+    typenum = NPY_NOTYPE;
     i = 0;
     while(i < PyArray_NTYPES) {
         if (type == (PyObject *)typeobjects[i]) {
@@ -3446,7 +3446,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
     }
     /* Search any registered types */
     utypenum = NpyArray_TypeNumFromTypeObj(type);
-    if (utypenum != NpyArray_NOTYPE) {
+    if (utypenum != NPY_NOTYPE) {
         typenum = utypenum;
     }
 

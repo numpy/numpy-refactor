@@ -268,7 +268,7 @@ NpyArray_CanCoerceScalar(int thistype, int neededtype,
     NpyArray_Descr* from;
     int *castlist;
     
-    if (scalar == NpyArray_NOSCALAR) {
+    if (scalar == NPY_NOSCALAR) {
         return NpyArray_CanCastSafely(thistype, neededtype);
     }
     from = NpyArray_DescrFromType(thistype);

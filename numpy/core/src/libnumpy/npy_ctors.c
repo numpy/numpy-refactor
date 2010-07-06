@@ -460,7 +460,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     
     axis = NpyArray_NDIM(src)-1;
     
-    if (order == NpyArray_FORTRANORDER) {
+    if (order == NPY_FORTRANORDER) {
         if (NpyArray_NDIM(src) <= 2) {
             axis = 0;
         }

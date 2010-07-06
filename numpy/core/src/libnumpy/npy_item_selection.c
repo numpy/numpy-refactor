@@ -22,7 +22,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     if (self == NULL) {
         return NULL;
     }
-    indices = NpyArray_ContiguousFromArray(indices0, NpyArray_INTP);
+    indices = NpyArray_ContiguousFromArray(indices0, NPY_INTP);
     if (indices == NULL) {
         goto fail;
     }
@@ -212,7 +212,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
     max_item = NpyArray_SIZE(self);
     dest = self->data;
     chunk = self->descr->elsize;
-    indices = NpyArray_ContiguousFromArray(indices0, NpyArray_INTP);
+    indices = NpyArray_ContiguousFromArray(indices0, NPY_INTP);
     if (indices == NULL) {
         goto fail;
     }
@@ -380,7 +380,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
     max_item = NpyArray_SIZE(self);
     dest = self->data;
     chunk = self->descr->elsize;
-    mask = NpyArray_FromArray(mask0, NpyArray_DescrFromType(NpyArray_BOOL),
+    mask = NpyArray_FromArray(mask0, NpyArray_DescrFromType(NPY_BOOL),
                               NPY_CARRAY | NPY_FORCECAST);
     if (mask == NULL) {
         goto fail;
@@ -460,7 +460,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
     NpyArray *ret = NULL;
     char *new_data, *old_data;
 
-    repeats = NpyArray_ContiguousFromArray(op, NpyArray_INTP);
+    repeats = NpyArray_ContiguousFromArray(op, NPY_INTP);
     if (repeats == NULL) {
         return NULL;
     }
@@ -763,7 +763,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
     NPY_BEGIN_THREADS_DEF;
 
     ret = NpyArray_New(Npy_TYPE(op), op->nd,
-                          op->dimensions, NpyArray_INTP,
+                          op->dimensions, NPY_INTP,
                           NULL, NULL, 0, 0, (NpyObject *)op);
     if (ret == NULL) {
         return NULL;
@@ -1005,7 +1005,7 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
         ret = NpyArray_New(Npy_TYPE(op), op->nd,
                            op->dimensions,
-                           NpyArray_INTP,
+                           NPY_INTP,
                            NULL, NULL, 0, 0,
                            (NpyObject *)op);
         if (ret == NULL) {
@@ -1042,7 +1042,7 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
         return NULL;
     }
     ret = NpyArray_New(Npy_TYPE(op), op->nd,
-                       op->dimensions, NpyArray_INTP,
+                       op->dimensions, NPY_INTP,
                        NULL, NULL, 0, 0, (NpyObject *)op);
     if (ret == NULL) {
         goto fail;
@@ -1144,7 +1144,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
         /* single element case */
         ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
                            mps[0]->dimensions,
-                           NpyArray_INTP,
+                           NPY_INTP,
                            NULL, NULL, 0, 0, NULL);
 
         if (ret == NULL) {
@@ -1164,7 +1164,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
 
     /* Now do the sorting */
     ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
-                       mps[0]->dimensions, NpyArray_INTP,
+                       mps[0]->dimensions, NPY_INTP,
                        NULL, NULL, 0, 0, NULL);
     if (ret == NULL) {
         goto fail;
@@ -1387,7 +1387,7 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
     }
     /* ret is a contiguous array of intp type to hold returned indices */
     ret = NpyArray_New(Npy_TYPE(ap2), ap2->nd,
-                       ap2->dimensions, NpyArray_INTP,
+                       ap2->dimensions, NPY_INTP,
                        NULL, NULL, 0, 0, (NpyObject *)ap2);
     if (ret == NULL) {
         goto fail;

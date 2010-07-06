@@ -120,7 +120,7 @@ _use_default_type(PyObject *op)
     int typenum;
 
     typenum = NpyArray_TypeNumFromTypeObj(Py_TYPE(op));
-    if (typenum == NpyArray_NOTYPE) {
+    if (typenum == NPY_NOTYPE) {
         typenum = PyArray_OBJECT;
     }
     return PyArray_DescrFromType(typenum);
