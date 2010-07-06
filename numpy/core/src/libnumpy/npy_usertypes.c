@@ -75,7 +75,7 @@ _append_new(int *types, int insert)
 static npy_bool
 _default_nonzero(void *ip, void *arr)
 {
-    int elsize = NpyArray_ITEMSIZE(arr);
+    int elsize = NpyArray_ITEMSIZE((NpyArray *)arr);
     char *ptr = ip;
     while (elsize--) {
         if (*ptr++ != 0) {
@@ -94,7 +94,7 @@ _default_copyswapn(void *dst, npy_intp dstride, void *src,
     char *dstptr = dst;
     char *srcptr = src;
 
-    copyswap = NpyArray_DESCR(arr)->f->copyswap;
+    copyswap = NpyArray_DESCR((NpyArray *)arr)->f->copyswap;
 
     for (i = 0; i < n; i++) {
         copyswap(dstptr, srcptr, swap, arr);

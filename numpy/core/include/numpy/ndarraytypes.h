@@ -9,6 +9,7 @@
 #include "npy_defs.h"
 #include "npy_endian.h"
 #include "utils.h"
+#include "numpy/npy_arrayobject.h"
 
 #ifdef NPY_ENABLE_SEPARATE_COMPILATION
         #define NPY_NO_EXPORT NPY_VISIBILITY_HIDDEN
@@ -785,13 +786,14 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
  * here.
  */
 
+#define PyArray_ARRAY(m) ((PyArrayObject *)(m))
+#define PAA(m) PyArray_ARRAY(m)
 
-#define PyArray_CHKFLAGS(m, FLAGS)                              \
-        ((((PyArrayObject *)(m))->flags & (FLAGS)) == (FLAGS))
+#define PyArray_CHKFLAGS(m, FLAGS) NpyArray_CHKFLAGS(PAA(m), FLAGS)
 
-#define PyArray_ISCONTIGUOUS(m) PyArray_CHKFLAGS(m, NPY_CONTIGUOUS)
-#define PyArray_ISWRITEABLE(m) PyArray_CHKFLAGS(m, NPY_WRITEABLE)
-#define PyArray_ISALIGNED(m) PyArray_CHKFLAGS(m, NPY_ALIGNED)
+#define PyArray_ISCONTIGUOUS(m) NpyArray_ISCONTIGUOUS(PAA(m))
+#define PyArray_ISWRITEABLE(m) NpyArray_ISWRITEABLE(PAA(m))
+#define PyArray_ISALIGNED(m) NpyArray_ISALIGNED(PAA(m))
 
 
 #if NPY_ALLOW_THREADS
@@ -943,38 +945,24 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
  * members directly.
  */
 
-#define PyArray_NDIM(obj) (((PyArrayObject *)(obj))->nd)
-#define PyArray_ISONESEGMENT(m) (PyArray_NDIM(m) == 0 ||                      \
-                                 PyArray_CHKFLAGS(m, NPY_CONTIGUOUS) ||       \
-                                 PyArray_CHKFLAGS(m, NPY_FORTRAN))
-
-#define PyArray_ISFORTRAN(m) (PyArray_CHKFLAGS(m, NPY_FORTRAN) &&             \
-                             (PyArray_NDIM(m) > 1))
-
-#define PyArray_FORTRAN_IF(m) ((PyArray_CHKFLAGS(m, NPY_FORTRAN) ?            \
-                              NPY_FORTRAN : 0))
-
+#define PyArray_NDIM(obj) NpyArray_NDIM(PAA(obj))
+#define PyArray_ISONESEGMENT(m) NpyArray_ISONESEGMENT(PAA(m))
+#define PyArray_ISFORTRAN(m) NpyArray_ISFORTRAN(PAA(m))
+#define PyArray_FORTRAN_IF(m) NpyArray_FORTRAN_IF(PAA(m))
 #define FORTRAN_IF PyArray_FORTRAN_IF
-#define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
-#define PyArray_BYTES(obj) (((PyArrayObject *)(obj))->data)
-#define PyArray_DIMS(obj) (((PyArrayObject *)(obj))->dimensions)
-#define PyArray_STRIDES(obj) (((PyArrayObject *)(obj))->strides)
-#define PyArray_DIM(obj,n) (PyArray_DIMS(obj)[n])
-#define PyArray_STRIDE(obj,n) (PyArray_STRIDES(obj)[n])
-#define PyArray_BASE(obj) (((PyArrayObject *)(obj))->base)
-#define PyArray_DESCR(obj) (((PyArrayObject *)(obj))->descr)
-#define PyArray_FLAGS(obj) (((PyArrayObject *)(obj))->flags)
-#define PyArray_ITEMSIZE(obj) (((PyArrayObject *)(obj))->descr->elsize)
-#define PyArray_TYPE(obj) (((PyArrayObject *)(obj))->descr->type_num)
+#define PyArray_DATA(obj) NpyArray_DATA(PAA(obj))
+#define PyArray_BYTES(obj) NpyArray_BYTES(PAA(obj))
+#define PyArray_DIMS(obj) NpyArray_DIMS(PAA(obj))
+#define PyArray_STRIDES(obj) NpyArray_STRIDES(PAA(obj))
+#define PyArray_DIM(obj,n) NpyArray_DIM(PAA(obj),n)
+#define PyArray_STRIDE(obj,n) NpyArray_STRIDE(PAA(obj),n)
+#define PyArray_DESCR(obj) NpyArray_DESCR(PAA(obj))
+#define PyArray_FLAGS(obj) NpyArray_FLAGS(PAA(obj))
+#define PyArray_ITEMSIZE(obj) NpyArray_ITEMSIZE(PAA(obj))
+#define PyArray_TYPE(obj) NpyArray_TYPE(PAA(obj))
 
-#define PyArray_GETITEM(obj,itemptr)                                          \
-        ((PyArrayObject *)(obj))->descr->f->getitem((char *)(itemptr),        \
-                                                 (PyArrayObject *)(obj))
-
-#define PyArray_SETITEM(obj,itemptr,v)                                        \
-        ((PyArrayObject *)(obj))->descr->f->setitem((PyObject *)(v),          \
-                                                    (char *)(itemptr),        \
-                                                    (PyArrayObject *)(obj))
+#define PyArray_GETITEM(obj,itemptr) NpyArray_GETITEM(PAA(obj),itemptr)
+#define PyArray_SETITEM(obj,itemptr,v) NpyArray_SETITEM(PAA(obj),itemptr,v)
 
 
 #define PyTypeNum_ISBOOL(type) ((type) == NPY_BOOL)
