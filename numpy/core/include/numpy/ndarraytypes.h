@@ -26,19 +26,6 @@
 
 
 
-/*
- * There are several places in the code where an array of dimensions
- * is allocated statically.  This is the size of that static
- * allocation.
- *
- * The array creation itself could have arbitrary dimensions but all
- * the places where static allocation is used would need to be changed
- * to dynamic (including inside of several structures)
- */
-
-#define NPY_MAXDIMS 32
-#define NPY_MAXARGS 32
-
 /* Used for Converter Functions "O&" code in ParseTuple */
 #define NPY_FAIL 0
 #define NPY_SUCCEED 1

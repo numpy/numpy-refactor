@@ -2,6 +2,11 @@
 #define _NPY_ARRAYOBJECT_H_
 
 #include "npy_object.h"
+#include "npy_defs.h"
+
+npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
+int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
+
 
 #define NpyArray_CHKFLAGS(m, FLAGS)                              \
     (((m)->flags & (FLAGS)) == (FLAGS))
@@ -41,6 +46,17 @@
         (obj)->descr->f->setitem((PyObject *)(v),               \
                                  (char *)(itemptr),             \
                                  (PyArrayObject *)(obj))
+
+
+#define NpyArray_SIZE(m) NpyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))
+#define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
+
+#define NpyArray_SAMESHAPE(a1,a2) ((NpyArray_NDIM(a1) == NpyArray_NDIM(a2)) && \
+                                   NpyArray_CompareLists(NpyArray_DIMS(a1), \
+                                                         NpyArray_DIMS(a2), \
+                                                       NpyArray_NDIM(a1)))
+
+
 
 
 #endif

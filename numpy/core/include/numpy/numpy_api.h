@@ -26,10 +26,7 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_UCS4 npy_ucs4
 
 #define Npy_TYPE(a) Py_TYPE(a)
-#define NpyArray_SIZE(a) PyArray_SIZE(a)
-#define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
 #define NpyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
-#define NpyArray_SAMESHAPE(a1, a2) PyArray_SAMESHAPE(a1,a2)
 #define NpyTypeNum_ISCOMPLEX(a) PyTypeNum_ISCOMPLEX(a)
 #define NpyTypeNum_ISNUMBER(a) PyTypeNum_ISNUMBER(a)
 #define NpyTypeNum_ISBOOL(a) PyTypeNum_ISBOOL(a)
@@ -209,7 +206,6 @@ void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 #define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
 
 int NpyArray_MultiplyIntList(int *l1, int n);
-npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
 npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
 void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
 int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);

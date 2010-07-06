@@ -73,13 +73,10 @@ extern "C" CONFUSE_EMACS
                                   Py_INCREF(m), (m) :                         \
                                   (PyArrayObject *)(PyArray_Copy(m)))
 
-#define PyArray_SAMESHAPE(a1,a2) ((PyArray_NDIM(a1) == PyArray_NDIM(a2)) &&   \
-                                  PyArray_CompareLists(PyArray_DIMS(a1),      \
-                                                       PyArray_DIMS(a2),      \
-                                                       PyArray_NDIM(a1)))
+#define PyArray_SAMESHAPE(a1,a2) NpyArray_SAMESHAPE(PAA(a1), PAA(a2))
 
-#define PyArray_SIZE(m) PyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))
-#define PyArray_NBYTES(m) (PyArray_ITEMSIZE(m) * PyArray_SIZE(m))
+#define PyArray_SIZE(m) NpyArray_SIZE(PAA(m))
+#define PyArray_NBYTES(m) NpyArray_NBYTES(PAA(m))
 #define PyArray_FROM_O(m) PyArray_FromAny(m, NULL, 0, 0, 0, NULL)
 
 #define PyArray_FROM_OF(m,flags) PyArray_CheckFromAny(m, NULL, 0, 0, flags,   \
