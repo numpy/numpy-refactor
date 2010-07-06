@@ -63,6 +63,76 @@ typedef struct PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
 typedef struct PyArray_Dims NpyArray_Dims;
 
 
+/* 
+ * TODO: Move this to npy_descriptor.h.
+ */
+enum NPY_TYPES {    NPY_BOOL=0,
+                    NPY_BYTE, NPY_UBYTE,
+                    NPY_SHORT, NPY_USHORT,
+                    NPY_INT, NPY_UINT,
+                    NPY_LONG, NPY_ULONG,
+                    NPY_LONGLONG, NPY_ULONGLONG,
+                    NPY_FLOAT, NPY_DOUBLE, NPY_LONGDOUBLE,
+                    NPY_CFLOAT, NPY_CDOUBLE, NPY_CLONGDOUBLE,
+                    NPY_DATETIME, NPY_TIMEDELTA,
+                    NPY_OBJECT=19,
+                    NPY_STRING, NPY_UNICODE,
+                    NPY_VOID,
+                    NPY_NTYPES,
+                    NPY_NOTYPE,
+                    NPY_CHAR,      /* special flag */
+                    NPY_USERDEF=256  /* leave room for characters */
+};
+
+#define NpyTypeNum_ISBOOL(type) ((type) == NPY_BOOL)
+
+#define NpyTypeNum_ISUNSIGNED(type) (((type) == NPY_UBYTE) ||  \
+                                     ((type) == NPY_USHORT) || \
+                                     ((type) == NPY_UINT) ||   \
+                                     ((type) == NPY_ULONG) ||  \
+                                     ((type) == NPY_ULONGLONG))
+
+#define NpyTypeNum_ISSIGNED(type) (((type) == NPY_BYTE) ||      \
+                               ((type) == NPY_SHORT) ||        \
+                               ((type) == NPY_INT) ||          \
+                               ((type) == NPY_LONG) ||         \
+                               ((type) == NPY_LONGLONG))
+
+#define NpyTypeNum_ISINTEGER(type) (((type) >= NPY_BYTE) &&     \
+                                    ((type) <= NPY_ULONGLONG))
+
+#define NpyTypeNum_ISFLOAT(type) (((type) >= NPY_FLOAT) &&      \
+                                  ((type) <= NPY_LONGDOUBLE))
+
+#define NpyTypeNum_ISNUMBER(type) ((type) <= NPY_CLONGDOUBLE)
+
+#define NpyTypeNum_ISSTRING(type) (((type) == NPY_STRING) ||    \
+                                   ((type) == NPY_UNICODE))
+
+#define NpyTypeNum_ISCOMPLEX(type) (((type) >= NPY_CFLOAT) &&   \
+                                    ((type) <= NPY_CLONGDOUBLE))
+
+#define NpyTypeNum_ISPYTHON(type) (((type) == NPY_LONG) ||      \
+                                   ((type) == NPY_DOUBLE) ||    \
+                                   ((type) == NPY_CDOUBLE) ||   \
+                                   ((type) == NPY_BOOL) ||      \
+                                   ((type) == NPY_OBJECT ))
+
+#define NpyTypeNum_ISFLEXIBLE(type) (((type) >=NPY_STRING) &&  \
+                                     ((type) <=NPY_VOID))
+
+#define NpyTypeNum_ISDATETIME(type) (((type) >=NPY_DATETIME) &&  \
+                                     ((type) <=NPY_TIMEDELTA))
+
+#define NpyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) && \
+                                    ((type) < NPY_USERDEF+     \
+                                     NPY_NUMUSERTYPES))
+
+#define NpyTypeNum_ISEXTENDED(type) (NpyTypeNum_ISFLEXIBLE(type) ||  \
+                                     NpyTypeNum_ISUSERDEF(type))
+
+#define NpyTypeNum_ISOBJECT(type) ((type) == NPY_OBJECT)
+
 
 
 #endif

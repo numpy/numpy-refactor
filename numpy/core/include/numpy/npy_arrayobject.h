@@ -4,6 +4,7 @@
 #include "npy_object.h"
 #include "npy_defs.h"
 
+
 npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
 int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 
@@ -57,6 +58,21 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
                                                        NpyArray_NDIM(a1)))
 
 
+#define NpyArray_ISBOOL(obj) NpyTypeNum_ISBOOL(NpyArray_TYPE(obj))
+#define NpyArray_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(NpyArray_TYPE(obj))
+#define NpyArray_ISSIGNED(obj) NpyTypeNum_ISSIGNED(NpyArray_TYPE(obj))
+#define NpyArray_ISINTEGER(obj) NpyTypeNum_ISINTEGER(NpyArray_TYPE(obj))
+#define NpyArray_ISFLOAT(obj) NpyTypeNum_ISFLOAT(NpyArray_TYPE(obj))
+#define NpyArray_ISNUMBER(obj) NpyTypeNum_ISNUMBER(NpyArray_TYPE(obj))
+#define NpyArray_ISSTRING(obj) NpyTypeNum_ISSTRING(NpyArray_TYPE(obj))
+#define NpyArray_ISCOMPLEX(obj) NpyTypeNum_ISCOMPLEX(NpyArray_TYPE(obj))
+#define NpyArray_ISPYTHON(obj) NpyTypeNum_ISPYTHON(NpyArray_TYPE(obj))
+#define NpyArray_ISFLEXIBLE(obj) NpyTypeNum_ISFLEXIBLE(NpyArray_TYPE(obj))
+#define NpyArray_ISDATETIME(obj) NpyTypeNum_ISDATETIME(NpyArray_TYPE(obj))
+#define NpyArray_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(NpyArray_TYPE(obj))
+#define NpyArray_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(NpyArray_TYPE(obj))
+#define NpyArray_ISOBJECT(obj) NpyTypeNum_ISOBJECT(NpyArray_TYPE(obj))
+#define NpyArray_HASFIELDS(obj) (NpyArray_DESCR(obj)->fields != NULL)
 
 
 #endif

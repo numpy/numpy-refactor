@@ -26,18 +26,6 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_UCS4 npy_ucs4
 
 #define Npy_TYPE(a) Py_TYPE(a)
-#define NpyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
-#define NpyTypeNum_ISCOMPLEX(a) PyTypeNum_ISCOMPLEX(a)
-#define NpyTypeNum_ISNUMBER(a) PyTypeNum_ISNUMBER(a)
-#define NpyTypeNum_ISBOOL(a) PyTypeNum_ISBOOL(a)
-#define NpyTypeNum_ISOBJECT(a) PyTypeNum_ISOBJECT(a)
-#define NpyTypeNum_ISINTEGER(a) PyTypeNum_ISINTEGER(a)
-#define NpyTypeNum_ISSIGNED(a) PyTypeNum_ISSIGNED(a)
-#define NpyTypeNum_ISUNSIGNED(a) PyTypeNum_ISUNSIGNED(a)
-#define NpyTypeNum_ISFLOAT(a) PyTypeNum_ISFLOAT(a)
-#define NpyArray_ISOBJECT(a) PyArray_ISOBJECT(a)
-#define NpyArray_ISNUMBER(a) PyArray_ISNUMBER(a)
-#define NpyArray_ISUNSIGNED(a) PyArray_ISUNSIGNED(a)
 
 #define NpyDataType_FLAGCHK(dtype, flag)                                   \
         (((dtype)->flags & (flag)) == (flag))
@@ -59,8 +47,6 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_ISFARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_FARRAY_RO)
 #define NpyArray_ISBEHAVED(m) PyArray_FLAGSWAP(m, NPY_BEHAVED)
 #define NpyArray_ISBEHAVED_RO(m) PyArray_FLAGSWAP(m, NPY_ALIGNED)
-
-#define NpyTypeNum_ISUSERDEF(a) PyTypeNum_ISUSERDEF(a)
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)

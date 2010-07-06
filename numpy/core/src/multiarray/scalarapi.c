@@ -174,7 +174,7 @@ PyArray_ScalarAsCtype(PyObject *scalar, void *ctypeptr)
     typecode = PyArray_DescrFromScalar(scalar);
     newptr = scalar_value(scalar, typecode);
 
-    if (PyTypeNum_ISEXTENDED(typecode->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(typecode->type_num)) {
         void **ct = (void **)ctypeptr;
         *ct = newptr;
     }
@@ -206,8 +206,8 @@ PyArray_CastScalarToCtype(PyObject *scalar, void *ctypeptr,
     if (castfunc == NULL) {
         return -1;
     }
-    if (PyTypeNum_ISEXTENDED(descr->type_num) ||
-            PyTypeNum_ISEXTENDED(outcode->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(descr->type_num) ||
+            NpyTypeNum_ISEXTENDED(outcode->type_num)) {
         PyArrayObject *ain, *aout;
 
         ain = (PyArrayObject *)PyArray_FromScalar(scalar, NULL);
@@ -337,7 +337,7 @@ finish:
         return (PyObject *)r;
     }
     if (outcode->type_num == typecode->type_num) {
-        if (!PyTypeNum_ISEXTENDED(typecode->type_num)
+        if (!NpyTypeNum_ISEXTENDED(typecode->type_num)
                 || (outcode->elsize == typecode->elsize)) {
             Py_DECREF(outcode);
             return (PyObject *)r;
@@ -668,7 +668,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
     copyswap = descr->f->copyswap;
     type = descr->typeobj;
     swap = !PyArray_ISNBO(descr->byteorder);
-    if PyTypeNum_ISSTRING(type_num) {
+    if (NpyTypeNum_ISSTRING(type_num)) {
         /* Eliminate NULL bytes */
         char *dptr = data;
 
@@ -694,7 +694,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
     if (obj == NULL) {
         return NULL;
     }
-    if (PyTypeNum_ISDATETIME(type_num)) {
+    if (NpyTypeNum_ISDATETIME(type_num)) {
         /*
          * We need to copy the resolution information over to the scalar
          * Get the void * from the metadata dictionary
@@ -710,7 +710,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
         memcpy(&(((PyDatetimeScalarObject *)obj)->obmeta), dt_data,
                sizeof(PyArray_DatetimeMetaData));
     }
-    if (PyTypeNum_ISFLEXIBLE(type_num)) {
+    if (NpyTypeNum_ISFLEXIBLE(type_num)) {
         if (type_num == PyArray_STRING) {
             destptr = PyString_AS_STRING(obj);
             ((PyStringObject *)obj)->ob_shash = -1;

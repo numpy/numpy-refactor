@@ -56,7 +56,7 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
     else {
         outtype = PyArray_DescrFromType(outtype_num);
     }
-    if (PyTypeNum_ISEXTENDED(outtype->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
         int testsize = outtype->elsize;
         int chksize, minsize;
         chksize = chktype->elsize;

@@ -1634,7 +1634,7 @@ arraydescr_typename_get(PyArray_Descr *self)
     /* fixme: not reentrant */
     static int prefix_len = 0;
 
-    if (PyTypeNum_ISUSERDEF(self->type_num)) {
+    if (NpyTypeNum_ISUSERDEF(self->type_num)) {
         s = strrchr(typeobj->tp_name, '.');
         if (s == NULL) {
             res = PyUString_FromString(typeobj->tp_name);
@@ -1655,7 +1655,7 @@ arraydescr_typename_get(PyArray_Descr *self)
         len -= prefix_len;
         res = PyUString_FromStringAndSize(typeobj->tp_name+prefix_len, len);
     }
-    if (PyTypeNum_ISFLEXIBLE(self->type_num) && self->elsize != 0) {
+    if (NpyTypeNum_ISFLEXIBLE(self->type_num) && self->elsize != 0) {
         PyObject *p;
         p = PyUString_FromFormat("%d", self->elsize * 8);
         PyUString_ConcatAndDel(&res, p);
@@ -1732,7 +1732,7 @@ arraydescr_isbuiltin_get(PyArray_Descr *self)
     if (NULL != self->fields) {
         val = 1;
     }
-    if (PyTypeNum_ISUSERDEF(self->type_num)) {
+    if (NpyTypeNum_ISUSERDEF(self->type_num)) {
         val = 2;
     }
     return PyInt_FromLong(val);
@@ -2151,7 +2151,7 @@ arraydescr_reduce(PyArray_Descr *self, PyObject *NPY_UNUSED(args))
         return NULL;
     }
     PyTuple_SET_ITEM(ret, 0, obj);
-    if (PyTypeNum_ISUSERDEF(self->type_num)
+    if (NpyTypeNum_ISUSERDEF(self->type_num)
             || ((self->type_num == PyArray_VOID
                     && self->typeobj != &PyVoidArrType_Type))) {
         obj = (PyObject *)self->typeobj;
@@ -2214,7 +2214,7 @@ arraydescr_reduce(PyArray_Descr *self, PyObject *NPY_UNUSED(args))
     }
 
     /* for extended types it also includes elsize and alignment */
-    if (PyTypeNum_ISEXTENDED(self->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(self->type_num)) {
         elsize = self->elsize;
         alignment = self->alignment;
     }
@@ -2443,7 +2443,7 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
         }
     }
 
-    if (PyTypeNum_ISEXTENDED(self->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(self->type_num)) {
         self->elsize = elsize;
         self->alignment = alignment;
     }

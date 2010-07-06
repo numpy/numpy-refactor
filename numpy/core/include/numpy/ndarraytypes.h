@@ -48,24 +48,6 @@
  */
 #define NPY_FEATURE_VERSION NPY_API_VERSION
 
-enum NPY_TYPES {    NPY_BOOL=0,
-                    NPY_BYTE, NPY_UBYTE,
-                    NPY_SHORT, NPY_USHORT,
-                    NPY_INT, NPY_UINT,
-                    NPY_LONG, NPY_ULONG,
-                    NPY_LONGLONG, NPY_ULONGLONG,
-                    NPY_FLOAT, NPY_DOUBLE, NPY_LONGDOUBLE,
-                    NPY_CFLOAT, NPY_CDOUBLE, NPY_CLONGDOUBLE,
-                    NPY_DATETIME, NPY_TIMEDELTA,
-                    NPY_OBJECT=19,
-                    NPY_STRING, NPY_UNICODE,
-                    NPY_VOID,
-                    NPY_NTYPES,
-                    NPY_NOTYPE,
-                    NPY_CHAR,      /* special flag */
-                    NPY_USERDEF=256  /* leave room for characters */
-};
-
 #define NPY_METADATA_DTSTR "__frequency__"
 
 /* basetype array priority */
@@ -952,86 +934,36 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
 #define PyArray_SETITEM(obj,itemptr,v) NpyArray_SETITEM(PAA(obj),itemptr,v)
 
 
-#define PyTypeNum_ISBOOL(type) ((type) == NPY_BOOL)
-
-#define PyTypeNum_ISUNSIGNED(type) (((type) == NPY_UBYTE) ||   \
-                                 ((type) == NPY_USHORT) ||     \
-                                 ((type) == NPY_UINT) ||       \
-                                 ((type) == NPY_ULONG) ||      \
-                                 ((type) == NPY_ULONGLONG))
-
-#define PyTypeNum_ISSIGNED(type) (((type) == NPY_BYTE) ||      \
-                               ((type) == NPY_SHORT) ||        \
-                               ((type) == NPY_INT) ||          \
-                               ((type) == NPY_LONG) ||         \
-                               ((type) == NPY_LONGLONG))
-
-#define PyTypeNum_ISINTEGER(type) (((type) >= NPY_BYTE) &&     \
-                                ((type) <= NPY_ULONGLONG))
-
-#define PyTypeNum_ISFLOAT(type) (((type) >= NPY_FLOAT) &&      \
-                              ((type) <= NPY_LONGDOUBLE))
-
-#define PyTypeNum_ISNUMBER(type) ((type) <= NPY_CLONGDOUBLE)
-
-#define PyTypeNum_ISSTRING(type) (((type) == NPY_STRING) ||    \
-                                  ((type) == NPY_UNICODE))
-
-#define PyTypeNum_ISCOMPLEX(type) (((type) >= NPY_CFLOAT) &&   \
-                                ((type) <= NPY_CLONGDOUBLE))
-
-#define PyTypeNum_ISPYTHON(type) (((type) == NPY_LONG) ||      \
-                                  ((type) == NPY_DOUBLE) ||    \
-                                  ((type) == NPY_CDOUBLE) ||   \
-                                  ((type) == NPY_BOOL) ||      \
-                                  ((type) == NPY_OBJECT ))
-
-#define PyTypeNum_ISFLEXIBLE(type) (((type) >=NPY_STRING) &&  \
-                                    ((type) <=NPY_VOID))
-
-#define PyTypeNum_ISDATETIME(type) (((type) >=NPY_DATETIME) &&  \
-                                    ((type) <=NPY_TIMEDELTA))
-
-#define PyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) && \
-                                   ((type) < NPY_USERDEF+     \
-                                    NPY_NUMUSERTYPES))
-
-#define PyTypeNum_ISEXTENDED(type) (PyTypeNum_ISFLEXIBLE(type) ||  \
-                                    PyTypeNum_ISUSERDEF(type))
-
-#define PyTypeNum_ISOBJECT(type) ((type) == NPY_OBJECT)
-
-
-#define PyDataType_ISBOOL(obj) PyTypeNum_ISBOOL(_PyADt(obj))
-#define PyDataType_ISUNSIGNED(obj) PyTypeNum_ISUNSIGNED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISSIGNED(obj) PyTypeNum_ISSIGNED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISINTEGER(obj) PyTypeNum_ISINTEGER(((PyArray_Descr*)(obj))->type_num )
-#define PyDataType_ISFLOAT(obj) PyTypeNum_ISFLOAT(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISNUMBER(obj) PyTypeNum_ISNUMBER(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISSTRING(obj) PyTypeNum_ISSTRING(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISCOMPLEX(obj) PyTypeNum_ISCOMPLEX(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISPYTHON(obj) PyTypeNum_ISPYTHON(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISDATETIME(obj) PyTypeNum_ISDATETIME(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISUSERDEF(obj) PyTypeNum_ISUSERDEF(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISEXTENDED(obj) PyTypeNum_ISEXTENDED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISOBJECT(obj) PyTypeNum_ISOBJECT(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADt(obj))
+#define PyDataType_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISSIGNED(obj) NpyTypeNum_ISSIGNED(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISINTEGER(obj) NpyTypeNum_ISINTEGER(((PyArray_Descr*)(obj))->type_num )
+#define PyDataType_ISFLOAT(obj) NpyTypeNum_ISFLOAT(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISNUMBER(obj) NpyTypeNum_ISNUMBER(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISCOMPLEX(obj) NpyTypeNum_ISCOMPLEX(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISPYTHON(obj) NpyTypeNum_ISPYTHON(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISFLEXIBLE(obj) NpyTypeNum_ISFLEXIBLE(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISDATETIME(obj) NpyTypeNum_ISDATETIME(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(((PyArray_Descr*)(obj))->type_num)
+#define PyDataType_ISOBJECT(obj) NpyTypeNum_ISOBJECT(((PyArray_Descr*)(obj))->type_num)
 #define PyDataType_HASFIELDS(obj) (((PyArray_Descr *)(obj))->names != NULL)
 
-#define PyArray_ISBOOL(obj) PyTypeNum_ISBOOL(PyArray_TYPE(obj))
-#define PyArray_ISUNSIGNED(obj) PyTypeNum_ISUNSIGNED(PyArray_TYPE(obj))
-#define PyArray_ISSIGNED(obj) PyTypeNum_ISSIGNED(PyArray_TYPE(obj))
-#define PyArray_ISINTEGER(obj) PyTypeNum_ISINTEGER(PyArray_TYPE(obj))
-#define PyArray_ISFLOAT(obj) PyTypeNum_ISFLOAT(PyArray_TYPE(obj))
-#define PyArray_ISNUMBER(obj) PyTypeNum_ISNUMBER(PyArray_TYPE(obj))
-#define PyArray_ISSTRING(obj) PyTypeNum_ISSTRING(PyArray_TYPE(obj))
-#define PyArray_ISCOMPLEX(obj) PyTypeNum_ISCOMPLEX(PyArray_TYPE(obj))
-#define PyArray_ISPYTHON(obj) PyTypeNum_ISPYTHON(PyArray_TYPE(obj))
-#define PyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
-#define PyArray_ISDATETIME(obj) PyTypeNum_ISDATETIME(PyArray_TYPE(obj))
-#define PyArray_ISUSERDEF(obj) PyTypeNum_ISUSERDEF(PyArray_TYPE(obj))
-#define PyArray_ISEXTENDED(obj) PyTypeNum_ISEXTENDED(PyArray_TYPE(obj))
-#define PyArray_ISOBJECT(obj) PyTypeNum_ISOBJECT(PyArray_TYPE(obj))
+#define PyArray_ISBOOL(obj) NpyTypeNum_ISBOOL(PyArray_TYPE(obj))
+#define PyArray_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(PyArray_TYPE(obj))
+#define PyArray_ISSIGNED(obj) NpyTypeNum_ISSIGNED(PyArray_TYPE(obj))
+#define PyArray_ISINTEGER(obj) NpyTypeNum_ISINTEGER(PyArray_TYPE(obj))
+#define PyArray_ISFLOAT(obj) NpyTypeNum_ISFLOAT(PyArray_TYPE(obj))
+#define PyArray_ISNUMBER(obj) NpyTypeNum_ISNUMBER(PyArray_TYPE(obj))
+#define PyArray_ISSTRING(obj) NpyTypeNum_ISSTRING(PyArray_TYPE(obj))
+#define PyArray_ISCOMPLEX(obj) NpyTypeNum_ISCOMPLEX(PyArray_TYPE(obj))
+#define PyArray_ISPYTHON(obj) NpyTypeNum_ISPYTHON(PyArray_TYPE(obj))
+#define PyArray_ISFLEXIBLE(obj) NpyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
+#define PyArray_ISDATETIME(obj) NpyTypeNum_ISDATETIME(PyArray_TYPE(obj))
+#define PyArray_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(PyArray_TYPE(obj))
+#define PyArray_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(PyArray_TYPE(obj))
+#define PyArray_ISOBJECT(obj) NpyTypeNum_ISOBJECT(PyArray_TYPE(obj))
 #define PyArray_HASFIELDS(obj) PyDataType_HASFIELDS(PyArray_DESCR(obj))
 
     /*
@@ -1039,7 +971,7 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
      * states whether or not it is variable length.  Because the
      * ISFLEXIBLE check is hard-coded to the built-in data-types.
      */
-#define PyArray_ISVARIABLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
+#define PyArray_ISVARIABLE(obj) NpyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
 
 #define PyArray_SAFEALIGNEDCOPY(obj) (PyArray_ISALIGNED(obj) && !PyArray_ISVARIABLE(obj))
 

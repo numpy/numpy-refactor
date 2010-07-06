@@ -403,7 +403,7 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
     itemsize = typecode->elsize;
     type = typecode->type_num;
 
-    if (itemsize == 0 && PyTypeNum_ISEXTENDED(type)) {
+    if (itemsize == 0 && NpyTypeNum_ISEXTENDED(type)) {
         itemsize = PyObject_Length(op);
         if (type == PyArray_UNICODE) {
             itemsize *= 4;
@@ -707,7 +707,7 @@ Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
                 "invalid input sequence");
         goto fail;
     }
-    if (max_depth && PyTypeNum_ISOBJECT(type) && (nd > max_depth)) {
+    if (max_depth && NpyTypeNum_ISOBJECT(type) && (nd > max_depth)) {
         nd = max_depth;
     }
     if ((max_depth && nd > max_depth) || (min_depth && nd < min_depth)) {
@@ -724,7 +724,7 @@ Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
         nd = nd - 1;
     }
 
-    if (itemsize == 0 && PyTypeNum_ISEXTENDED(type)) {
+    if (itemsize == 0 && NpyTypeNum_ISEXTENDED(type)) {
         err = discover_itemsize(s, nd, &itemsize);
         if (err == -1) {
             goto fail;
@@ -1861,7 +1861,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
     }
     /* calculate the length and next = start + step*/
     length = _calc_length(start, stop, step, &next,
-                          PyTypeNum_ISCOMPLEX(dtype->type_num));
+                          NpyTypeNum_ISCOMPLEX(dtype->type_num));
     err = PyErr_Occurred();
     if (err) {
         Py_DECREF(dtype);
