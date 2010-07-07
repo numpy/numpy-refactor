@@ -1,0 +1,94 @@
+#ifndef _NPY_DESCRIPTOR_H_
+#define _NPY_DESCRIPTOR_H_
+
+#include "npy_object.h"
+
+
+struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
+
+struct NpyArray_ArrayDescr;
+
+
+typedef struct NpyArray_Descr {
+    NpyObject_HEAD
+    
+    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
+                             NPY_INVALID_MAGIC on dealloc */
+    char kind;              /* kind for this type */
+    char type;              /* unique-character representing this type */
+    char byteorder;         /*
+                             * '>' (big), '<' (little), '|'
+                             * (not-applicable), or '=' (native).
+                             */
+    char unused;
+    int flags;              /* flag describing data type */
+    int type_num;           /* number representing this type */
+    int elsize;             /* element size for this type */
+    int alignment;          /* alignment needed for this type */
+    struct _arr_descr                                       \
+        *subarray;          /*
+                             * Non-NULL if this type is
+                             * is an array (C-contiguous)
+                             * of some other type
+                             */
+    struct NpyDict_struct 
+        *fields;            /* The fields dictionary for this type
+                             * For statically defined descr this
+                             * is always NULL.
+                             */
+    
+    char **names;           /* Array of char *, NULL indicates end of array. 
+                             * char* lifetime is exactly lifetime of array itself. */
+    
+    PyArray_ArrFuncs *f;     /*
+                              * a table of functions specific for each
+                              * basic data descriptor
+                              */
+    
+    PyObject *metadata;     /* Metadata about this dtype */
+} NpyArray_Descr;
+
+
+
+typedef struct NpyArray_ArrayDescr {
+    NpyArray_Descr *base;
+    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
+    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
+    /* allocated array of ints; shape_dims == NULL iff */
+    /* shape_num_dims == 1 */
+} NpyArray_ArrayDescr;
+
+
+
+/* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
+typedef struct {
+    NpyArray_Descr *descr;
+    int offset;
+    char *title;                /* String owned/managed by each instance */
+} NpyArray_DescrField;
+
+
+
+extern _NpyTypeObject NpyArrayDescr_Type;
+
+
+/* Descriptor API */
+
+NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
+NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
+void NpyArray_DescrDestroy(NpyArray_Descr *);
+char **NpyArray_DescrAllocNames(int n);
+NpyDict *NpyArray_DescrAllocFields(void);
+NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
+void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
+void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
+NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
+void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
+                            int offset, const char *title);
+NpyDict *NpyArray_DescrFieldsCopy(NpyDict *fields);
+char **NpyArray_DescrNamesCopy(char **names);
+int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
+void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+
+
+#endif
