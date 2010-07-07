@@ -108,8 +108,16 @@ PyArray_CanCastTo(PyArray_Descr *from, PyArray_Descr *to)
 NPY_NO_EXPORT Bool
 PyArray_CanCastScalar(PyTypeObject *from, PyTypeObject *to)
 {
-    /* TODO: Fix cast of from, to to access array object */
-    return NpyArray_CanCastScalar(from, to);
+    int fromtype;
+    int totype;
+    
+    /* TODO: Should _typenum_fromtypeobj be converted or is it available in core? */
+    fromtype = _typenum_fromtypeobj((PyObject *)from, 0);
+    totype = _typenum_fromtypeobj((PyObject *)to, 0);
+    if (fromtype == NPY_NOTYPE || totype == NPY_NOTYPE) {
+        return NPY_FALSE;
+    }
+    return (npy_bool) NpyArray_CanCastSafely(fromtype, totype);
 }
 
 

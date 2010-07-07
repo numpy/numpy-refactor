@@ -357,12 +357,6 @@ int NpyCapsule_Check(PyObject *ptr);
 
 
 /*
- * scalar
- */
-int _typenum_fromtypeobj(NpyObject *type, int user);
-
-
-/*
  * Error handling.
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
