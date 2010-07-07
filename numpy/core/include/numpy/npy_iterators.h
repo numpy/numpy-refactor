@@ -200,7 +200,7 @@ NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
 
 NpyArrayMultiIterObject *
-NpyArray_MultiIterNew();
+NpyArray_MultiIterNew(void);
 
 int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);

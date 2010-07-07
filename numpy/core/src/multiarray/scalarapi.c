@@ -546,39 +546,22 @@ PyArray_DescrFromScalar(PyObject *sc)
     }
 
     if (PyArray_IsScalar(sc, TimeInteger)) {
-        PyObject *cobj;
-        PyArray_DatetimeMetaData *dt_data;
+      if (PyArray_IsScalar(sc, Datetime)) {
+	if ( (descr = PyArray_DescrNewFromType(PyArray_DATETIME) ) == NULL )
+	  return NULL;
+	
+	memcpy(descr->dtinfo, &((PyDatetimeScalarObject *)sc)->obdtinfo,
+	       sizeof(PyArray_DateTimeInfo));
+      }
+      else {
+	/* Timedelta */
+	if ( ( descr = PyArray_DescrNewFromType(PyArray_TIMEDELTA) ) == NULL )
+	  return NULL;
+	memcpy(descr->dtinfo, &((PyTimedeltaScalarObject *)sc)->obdtinfo,
+	       sizeof(PyArray_DateTimeInfo));
+      }
 
-        dt_data = _pya_malloc(sizeof(PyArray_DatetimeMetaData));
-        if (PyArray_IsScalar(sc, Datetime)) {
-            descr = PyArray_DescrNewFromType(PyArray_DATETIME);
-            memcpy(dt_data, &((PyDatetimeScalarObject *)sc)->obmeta,
-                   sizeof(PyArray_DatetimeMetaData));
-        }
-        else {
-            /* Timedelta */
-            descr = PyArray_DescrNewFromType(PyArray_TIMEDELTA);
-            memcpy(dt_data, &((PyTimedeltaScalarObject *)sc)->obmeta,
-                   sizeof(PyArray_DatetimeMetaData));
-        }
-        cobj = NpyCapsule_FromVoidPtr((void *)dt_data, simple_capsule_dtor);
-
-        /* Add correct meta-data to the data-type */
-        if (descr == NULL) {
-            Py_DECREF(cobj);
-            return NULL;
-        }
-        Py_XDECREF(descr->metadata);
-        if ((descr->metadata = PyDict_New()) == NULL) {
-            Py_DECREF(descr);
-            Py_DECREF(cobj);
-            return NULL;
-        }
-
-        /* Assume this sets a new reference to cobj */
-        PyDict_SetItemString(descr->metadata, NPY_METADATA_DTSTR, cobj);
-        Py_DECREF(cobj);
-        return descr;
+      return descr;
     }
 
     descr = PyArray_DescrFromTypeObject((PyObject *)Py_TYPE(sc));

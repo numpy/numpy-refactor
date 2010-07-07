@@ -363,7 +363,6 @@ rk_devfill(void *buffer, size_t size, int strong)
 
 rk_error
 rk_altfill(void *buffer, size_t size, int strong, rk_state *state)
-rk_error rk_altfill(void *buffer, size_t size, int strong, rk_state *state)
 {
     rk_error err;
 

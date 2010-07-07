@@ -213,10 +213,7 @@ _convert_from_tuple(PyObject *obj)
     }
     else if (PyDict_Check(val)) {
         /* Assume it's a metadata dictionary */
-        if (PyDict_Merge(type->metadata, val, 0) == -1) {
-            Py_DECREF(type);
-            return NULL;
-        }
+        /* FIXME: metadata removed from structure */
     }
     else {
         /*
@@ -698,7 +695,6 @@ static PyArray_DateTimeInfo *
 _convert_datetime_tuple_to_datetimeinfo(PyObject *tuple) 
 {
     PyArray_DateTimeInfo *dt_data; 
-    PyObject *ret;
 
     dt_data = _pya_malloc(sizeof(PyArray_DateTimeInfo));
     dt_data->base = _unit_from_str(
@@ -1792,17 +1788,22 @@ arraydescr_fields_get(PyArray_Descr *self)
     return dict;
 }
 
-
-
 static PyObject *
-arraydescr_metadata_get(PyArray_Descr *self)
+arraydescr_dtinfo_get(PyArray_Descr *self)
 {
-    if (self->metadata == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    return PyDictProxy_New(self->metadata);
+  PyObject *res;
+  
+  if (self->dtinfo == NULL) {
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  
+  res = _get_datetime_tuple_from_datetimeinfo( self->dtinfo );
+  Py_INCREF( res );
+
+  return PyDictProxy_New(res);
 }
+
 
 static PyObject *
 arraydescr_hasobject_get(PyArray_Descr *self)
