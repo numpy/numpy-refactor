@@ -73,6 +73,10 @@ typedef struct {
 } NpyArray_DescrField;
 
 
+/* Really internal to the core, but required for now by PyArray_TypeNumFromString */
+/* TODO: Refactor and add an accessor for npy_userdescrs */
+extern NpyArray_Descr **npy_userdescrs;
+
 
 /*
  * Functions we need to convert.

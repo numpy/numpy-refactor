@@ -266,22 +266,6 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
 }
 
 int
-NpyArray_TypeNumFromName(char *str)
-{
-    int i;
-    NpyArray_Descr *descr;
-
-    /* TODO: This looks at the python type and needs to change. */
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
-        descr = npy_userdescrs[i];
-        if (strcmp(descr->typeobj->tp_name, str) == 0) {
-            return descr->type_num;
-        }
-    }
-    return NPY_NOTYPE;
-}
-
-int
 NpyArray_TypeNumFromTypeObj(void* typeobj)
 {
     int i;

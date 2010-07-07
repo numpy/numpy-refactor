@@ -492,7 +492,7 @@ PyArray_DescrFromTypeObject(PyObject *type)
             conv->subarray = NULL;
             Py_DECREF(conv);
         }
-        Py_XDECREF(new->typeobj);
+        Py_XDECREF((PyTypeObject *)new->typeobj);
         new->typeobj = (PyTypeObject *)type;
         Py_INCREF(type);
         return new;
@@ -666,7 +666,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
     }
     itemsize = descr->elsize;
     copyswap = descr->f->copyswap;
-    type = descr->typeobj;
+    type = (PyTypeObject *)descr->typeobj;
     swap = !NpyArray_ISNBO(descr->byteorder);
     if (NpyTypeNum_ISSTRING(type_num)) {
         /* Eliminate NULL bytes */

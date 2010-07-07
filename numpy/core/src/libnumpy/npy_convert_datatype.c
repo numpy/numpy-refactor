@@ -684,23 +684,6 @@ NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
     return ret;
 }
 
-/*NUMPY_API
- * See if array scalars can be cast.
- */
-npy_bool 
-NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
-{
-    int fromtype;
-    int totype;
-    
-    /* TODO: Should _typenum_fromtypeobj be converted or is it available in core? */
-    fromtype = _typenum_fromtypeobj((PyObject *)from, 0);
-    totype = _typenum_fromtypeobj((PyObject *)to, 0);
-    if (fromtype == NPY_NOTYPE || totype == NPY_NOTYPE) {
-        return NPY_FALSE;
-    }
-    return (npy_bool) NpyArray_CanCastSafely(fromtype, totype);
-}
 
 /*NUMPY_API
  * Is the typenum valid?

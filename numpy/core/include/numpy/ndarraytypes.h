@@ -505,12 +505,8 @@ struct NpyDict_struct;     /* TODO: From numpy_api.h, needed until PyArray_Descr
                               CPython and core parts */
 typedef struct _PyArray_Descr {
         PyObject_HEAD
-        PyTypeObject *typeobj;  /*
-                                 * the type object representing an
-                                 * instance of this type -- should not
-                                 * be two type_numbers with the same type
-                                 * object.
-                                 */
+        void *typeobj;          /* Opaque pointer provided by interface layer to describe the
+                                 * scalar type. For CPython this is a PyTypeObject. */
         int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
                                    NPY_INVALID_MAGIC on dealloc */
         char kind;              /* kind for this type */

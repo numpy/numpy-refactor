@@ -1628,7 +1628,7 @@ static PyObject *
 arraydescr_typename_get(PyArray_Descr *self)
 {
     int len;
-    PyTypeObject *typeobj = self->typeobj;
+    PyTypeObject *typeobj = (PyTypeObject *)self->typeobj;
     PyObject *res;
     char *s;
     /* fixme: not reentrant */
