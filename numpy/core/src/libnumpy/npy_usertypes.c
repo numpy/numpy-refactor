@@ -271,7 +271,7 @@ NpyArray_TypeNumFromName(char *str)
     int i;
     NpyArray_Descr *descr;
 
-    /* XXX: This looks at the python type and needs to change. */
+    /* TODO: This looks at the python type and needs to change. */
     for (i = 0; i < NPY_NUMUSERTYPES; i++) {
         descr = npy_userdescrs[i];
         if (strcmp(descr->typeobj->tp_name, str) == 0) {
@@ -287,7 +287,7 @@ NpyArray_TypeNumFromTypeObj(void* typeobj)
     int i;
     NpyArray_Descr *descr;
 
-    /* XXX: This looks at the python type and needs to change. */
+    /* TODO: This looks at the python type and needs to change. */
     for (i = 0; i < NPY_NUMUSERTYPES; i++) {
         descr = npy_userdescrs[i];
         if (descr->typeobj == typeobj) {
