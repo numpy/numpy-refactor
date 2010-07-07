@@ -602,7 +602,7 @@ select_types(PyUFuncObject *self, int *arg_types,
 
     if (self->userloops) {
         for(i = 0; i < self->nin; i++) {
-            if (PyTypeNum_ISUSERDEF(arg_types[i])) {
+            if (NpyTypeNum_ISUSERDEF(arg_types[i])) {
                 userdef = arg_types[i];
                 userdef_ind = i;
                 break;
@@ -628,7 +628,7 @@ select_types(PyUFuncObject *self, int *arg_types,
                 break;
             }
             userdef = arg_types[userdef_ind++];
-            if (!(PyTypeNum_ISUSERDEF(userdef))) {
+            if (!(NpyTypeNum_ISUSERDEF(userdef))) {
                 continue;
             }
             key = PyInt_FromLong((long) userdef);
@@ -1206,10 +1206,10 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             return -1;
         }
         arg_types[i] = PyArray_TYPE(mps[i]);
-        if (!flexible && PyTypeNum_ISFLEXIBLE(arg_types[i])) {
+        if (!flexible && NpyTypeNum_ISFLEXIBLE(arg_types[i])) {
             flexible = 1;
         }
-        if (!object && PyTypeNum_ISOBJECT(arg_types[i])) {
+        if (!object && NpyTypeNum_ISOBJECT(arg_types[i])) {
             object = 1;
         }
         /*
@@ -3300,7 +3300,7 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
     }
     /* Check to see that type (and otype) is not FLEXIBLE */
     if (PyArray_ISFLEXIBLE(mp) ||
-        (otype && PyTypeNum_ISFLEXIBLE(otype->type_num))) {
+        (otype && NpyTypeNum_ISFLEXIBLE(otype->type_num))) {
         PyErr_Format(PyExc_TypeError,
                      "cannot perform %s with flexible type",
                      _reduce_type[operation]);
@@ -3335,11 +3335,11 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
         if ((typenum < NPY_FLOAT)
             && ((strcmp(self->name,"add") == 0)
                 || (strcmp(self->name,"multiply") == 0))) {
-            if (PyTypeNum_ISBOOL(typenum)) {
+            if (NpyTypeNum_ISBOOL(typenum)) {
                 typenum = PyArray_LONG;
             }
             else if ((size_t)mp->descr->elsize < sizeof(long)) {
-                if (PyTypeNum_ISUNSIGNED(typenum)) {
+                if (NpyTypeNum_ISUNSIGNED(typenum)) {
                     typenum = PyArray_ULONG;
                 }
                 else {

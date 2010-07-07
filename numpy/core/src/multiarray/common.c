@@ -56,7 +56,7 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
     else {
         outtype = PyArray_DescrFromType(outtype_num);
     }
-    if (PyTypeNum_ISEXTENDED(outtype->type_num)) {
+    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
         int testsize = outtype->elsize;
         int chksize, minsize;
         chksize = chktype->elsize;
@@ -120,7 +120,7 @@ _use_default_type(PyObject *op)
     int typenum;
 
     typenum = NpyArray_TypeNumFromTypeObj(Py_TYPE(op));
-    if (typenum == NpyArray_NOTYPE) {
+    if (typenum == NPY_NOTYPE) {
         typenum = PyArray_OBJECT;
     }
     return PyArray_DescrFromType(typenum);
@@ -473,7 +473,7 @@ _array_typedescr_fromstr(char *str)
     if (descr == NULL) {
         return NULL;
     }
-    swap = !PyArray_ISNBO(swapchar);
+    swap = !NpyArray_ISNBO(swapchar);
     if (descr->elsize == 0 || swap) {
         /* Need to make a new PyArray_Descr */
         PyArray_DESCR_REPLACE(descr);

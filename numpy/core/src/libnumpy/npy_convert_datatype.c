@@ -180,13 +180,13 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 {
     NpyArray_VectorUnaryFunc *castfunc = NULL;
 
-    if (type_num < NpyArray_NTYPES) {
+    if (type_num < NPY_NTYPES) {
         castfunc = descr->f->cast[type_num];
     } else {
         /* Check castfuncs for casts to user defined types. */
         PyArray_CastFuncsItem* pitem = descr->f->castfuncs;
         if (pitem != NULL) {
-            while (pitem->totype != NpyArray_NOTYPE) {
+            while (pitem->totype != NPY_NOTYPE) {
                 if (pitem->totype == type_num) {
                     castfunc = pitem->castfunc;
                     break;
@@ -327,15 +327,15 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
         if (at == NULL) {
             return NULL;
         }
-        if (mpd->type_num == NpyArray_STRING &&
-            at->type_num == NpyArray_UNICODE) {
+        if (mpd->type_num == NPY_STRING &&
+            at->type_num == NPY_UNICODE) {
             at->elsize = mpd->elsize << 2;
         }
-        if (mpd->type_num == NpyArray_UNICODE &&
-            at->type_num == NpyArray_STRING) {
+        if (mpd->type_num == NPY_UNICODE &&
+            at->type_num == NPY_STRING) {
             at->elsize = mpd->elsize >> 2;
         }
-        if (at->type_num == NpyArray_VOID) {
+        if (at->type_num == NPY_VOID) {
             at->elsize = mpd->elsize;
         }
     }
@@ -374,7 +374,7 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     npy_intp i, index;
     npy_intp ncopies = NpyArray_SIZE(out) / NpyArray_SIZE(in);
     int elsize=in->descr->elsize;
-    int nels = NpyArray_BUFSIZE;
+    int nels = NPY_BUFSIZE;
     int el;
     int inswap, outswap = 0;
     int obuf=!NpyArray_ISCARRAY(out);
@@ -394,12 +394,12 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     
     inswap = !(NpyArray_ISFLEXIBLE(in) || NpyArray_ISNOTSWAPPED(in));
     
-    inbuffer = NpyDataMem_NEW(NpyArray_BUFSIZE*elsize);
+    inbuffer = NpyDataMem_NEW(NPY_BUFSIZE*elsize);
     if (inbuffer == NULL) {
         return -1;
     }
     if (NpyArray_ISOBJECT(in)) {
-        memset(inbuffer, 0, NpyArray_BUFSIZE*elsize);
+        memset(inbuffer, 0, NPY_BUFSIZE*elsize);
     }
     it_in = NpyArray_IterNew(in);
     if (it_in == NULL) {
@@ -408,18 +408,18 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     if (obuf) {
         outswap = !(NpyArray_ISFLEXIBLE(out) ||
                     NpyArray_ISNOTSWAPPED(out));
-        outbuffer = NpyDataMem_NEW(NpyArray_BUFSIZE*oelsize);
+        outbuffer = NpyDataMem_NEW(NPY_BUFSIZE*oelsize);
         if (outbuffer == NULL) {
             goto exit;
         }
         if (NpyArray_ISOBJECT(out)) {
-            memset(outbuffer, 0, NpyArray_BUFSIZE*oelsize);
+            memset(outbuffer, 0, NPY_BUFSIZE*oelsize);
         }
         it_out = NpyArray_IterNew(out);
         if (it_out == NULL) {
             goto exit;
         }
-        nels = NPY_MIN(nels, NpyArray_BUFSIZE);
+        nels = NPY_MIN(nels, NPY_BUFSIZE);
     }
     
     optr = (obuf) ? outbuffer: out->data;
@@ -564,11 +564,11 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     Npy_DECREF(to);
     
     switch(fromtype) {
-        case NpyArray_BYTE:
-        case NpyArray_SHORT:
-        case NpyArray_INT:
-        case NpyArray_LONG:
-        case NpyArray_LONGLONG:
+        case NPY_BYTE:
+        case NPY_SHORT:
+        case NPY_INT:
+        case NPY_LONG:
+        case NPY_LONGLONG:
             if (NpyTypeNum_ISINTEGER(totype)) {
                 if (NpyTypeNum_ISUNSIGNED(totype)) {
                     return 0;
@@ -596,11 +596,11 @@ NpyArray_CanCastSafely(int fromtype, int totype)
             else {
                 return totype > fromtype;
             }
-        case NpyArray_UBYTE:
-        case NpyArray_USHORT:
-        case NpyArray_UINT:
-        case NpyArray_ULONG:
-        case NpyArray_ULONGLONG:
+        case NPY_UBYTE:
+        case NPY_USHORT:
+        case NPY_UINT:
+        case NPY_ULONG:
+        case NPY_ULONGLONG:
             if (NpyTypeNum_ISINTEGER(totype)) {
                 if (NpyTypeNum_ISSIGNED(totype)) {
                     return telsize > felsize;
@@ -628,21 +628,21 @@ NpyArray_CanCastSafely(int fromtype, int totype)
             else {
                 return totype > fromtype;
             }
-        case NpyArray_FLOAT:
-        case NpyArray_DOUBLE:
-        case NpyArray_LONGDOUBLE:
+        case NPY_FLOAT:
+        case NPY_DOUBLE:
+        case NPY_LONGDOUBLE:
             if (NpyTypeNum_ISCOMPLEX(totype)) {
                 return (telsize >> 1) >= felsize;
             }
             else {
                 return totype > fromtype;
             }
-        case NpyArray_CFLOAT:
-        case NpyArray_CDOUBLE:
-        case NpyArray_CLONGDOUBLE:
+        case NPY_CFLOAT:
+        case NPY_CDOUBLE:
+        case NPY_CLONGDOUBLE:
             return totype > fromtype;
-        case NpyArray_STRING:
-        case NpyArray_UNICODE:
+        case NPY_STRING:
+        case NPY_UNICODE:
             return totype > fromtype;
         default:
             return 0;
@@ -662,16 +662,16 @@ NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
     ret = NpyArray_CanCastSafely(fromtype, totype);
     if (ret) {
         /* Check String and Unicode more closely */
-        if (fromtype == NpyArray_STRING) {
-            if (totype == NpyArray_STRING) {
+        if (fromtype == NPY_STRING) {
+            if (totype == NPY_STRING) {
                 ret = (from->elsize <= to->elsize);
             }
-            else if (totype == NpyArray_UNICODE) {
+            else if (totype == NPY_UNICODE) {
                 ret = (from->elsize << 2 <= to->elsize);
             }
         }
-        else if (fromtype == NpyArray_UNICODE) {
-            if (totype == NpyArray_UNICODE) {
+        else if (fromtype == NPY_UNICODE) {
+            if (totype == NPY_UNICODE) {
                 ret = (from->elsize <= to->elsize);
             }
         }
@@ -696,7 +696,7 @@ NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to)
     /* TODO: Should _typenum_fromtypeobj be converted or is it available in core? */
     fromtype = _typenum_fromtypeobj((PyObject *)from, 0);
     totype = _typenum_fromtypeobj((PyObject *)to, 0);
-    if (fromtype == NpyArray_NOTYPE || totype == NpyArray_NOTYPE) {
+    if (fromtype == NPY_NOTYPE || totype == NPY_NOTYPE) {
         return NPY_FALSE;
     }
     return (npy_bool) NpyArray_CanCastSafely(fromtype, totype);

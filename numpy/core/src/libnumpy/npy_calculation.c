@@ -142,7 +142,7 @@ NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
     else if (NpyArray_ISUNSIGNED(ap)) {
         obj = PyInt_FromLong((long) -1);
     }
-    else if (NpyArray_TYPE(ap) == NpyArray_BOOL) {
+    else if (NpyArray_TYPE(ap) == NPY_BOOL) {
         obj = PyInt_FromLong((long) 1);
     }
     else {

@@ -26,121 +26,12 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_UCS4 npy_ucs4
 
 #define Npy_TYPE(a) Py_TYPE(a)
-#define NpyArray_SIZE(a) PyArray_SIZE(a)
-#define NpyArray_BUFSIZE PyArray_BUFSIZE
-#define NpyArray_ITEMSIZE(a) PyArray_ITEMSIZE(a)
-#define NpyArray_NDIM(a) PyArray_NDIM(a)
-#define NpyArray_DIM(a, i) PyArray_DIM(a, i)
-#define NpyArray_DIMS(a) PyArray_DIMS(a)
-#define NpyArray_STRIDES(a) PyArray_STRIDES(a)
-#define NpyArray_STRIDE(obj, n) PyArray_STRIDE(obj,n)
-#define NpyArray_DESCR(a) PyArray_DESCR(a)
-#define NpyArray_FLAGS(a) PyArray_FLAGS(a)
-#define NpyArray_BASE(a) PyArray_BASE(a)
-#define NpyArray_BYTES(obj) PyArray_BYTES(obj) 
-#define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
-#define NpyArray_CHKFLAGS(a, flags) PyArray_CHKFLAGS(a, flags)
-#define NpyArray_ISFORTRAN(a) PyArray_ISFORTRAN(a)
-#define NpyArray_ISCONTIGUOUS(a) PyArray_ISCONTIGUOUS(a)
-#define NpyArray_ISONESEGMENT(a) PyArray_ISONESEGMENT(a)
-#define NpyArray_ISFLEXIBLE(obj) PyTypeNum_ISFLEXIBLE(PyArray_TYPE(obj))
-#define NpyArray_ISWRITEABLE(a) PyArray_ISWRITEABLE(a)
-#define NpyArray_SAMESHAPE(a1, a2) PyArray_SAMESHAPE(a1,a2)
-#define NpyTypeNum_ISCOMPLEX(a) PyTypeNum_ISCOMPLEX(a)
-#define NpyTypeNum_ISNUMBER(a) PyTypeNum_ISNUMBER(a)
-#define NpyTypeNum_ISBOOL(a) PyTypeNum_ISBOOL(a)
-#define NpyTypeNum_ISOBJECT(a) PyTypeNum_ISOBJECT(a)
-#define NpyTypeNum_ISINTEGER(a) PyTypeNum_ISINTEGER(a)
-#define NpyTypeNum_ISSIGNED(a) PyTypeNum_ISSIGNED(a)
-#define NpyTypeNum_ISUNSIGNED(a) PyTypeNum_ISUNSIGNED(a)
-#define NpyTypeNum_ISFLOAT(a) PyTypeNum_ISFLOAT(a)
-#define NpyArray_ISOBJECT(a) PyArray_ISOBJECT(a)
-#define NpyArray_ISNUMBER(a) PyArray_ISNUMBER(a)
-#define NpyArray_ISUNSIGNED(a) PyArray_ISUNSIGNED(a)
 
 #define NpyDataType_FLAGCHK(dtype, flag)                                   \
         (((dtype)->flags & (flag)) == (flag))
 
 #define NpyArray_DESCR_REPLACE(descr) PyArray_DESCR_REPLACE(descr)
-#define NpyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
-#define NpyArray_IsNativeByteOrder NpyArray_ISNBO
-#define NpyArray_ISNOTSWAPPED(m) NpyArray_ISNBO(PyArray_DESCR(m)->byteorder)
-#define NpyArray_ISBYTESWAPPED(m) (!NpyArray_ISNOTSWAPPED(m))
-
-#define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&       \
-        NpyArray_ISNOTSWAPPED(m))
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
-
-#define NpyArray_SAFEALIGNEDCOPY(obj) PyArray_SAFEALIGNEDCOPY(obj)
-#define NpyArray_ISCARRAY(m) PyArray_FLAGSWAP(m, NPY_CARRAY)
-#define NpyArray_ISCARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_CARRAY_RO)
-#define NpyArray_ISFARRAY(m) PyArray_FLAGSWAP(m, NPY_FARRAY)
-#define NpyArray_ISFARRAY_RO(m) PyArray_FLAGSWAP(m, NPY_FARRAY_RO)
-#define NpyArray_ISBEHAVED(m) PyArray_FLAGSWAP(m, NPY_BEHAVED)
-#define NpyArray_ISBEHAVED_RO(m) PyArray_FLAGSWAP(m, NPY_ALIGNED)
-#define NpyArray_ISALIGNED(m) PyArray_ISALIGNED(m)
-
-#define NpyArray_TYPE(obj) PyArray_TYPE(obj)
-#define NpyArray_NOTYPE PyArray_NOTYPE
-#define NpyArray_NTYPES PyArray_NTYPES
-#define NpyArray_NSORTS PyArray_NSORTS
-#define NpyArray_USERDEF PyArray_USERDEF
-#define NpyTypeNum_ISUSERDEF(a) PyTypeNum_ISUSERDEF(a)
-#define NpyArray_BOOL PyArray_BOOL
-#define NpyArray_GENBOOLLTR PyArray_GENBOOLLTR
-#define NpyArray_SIGNEDLTR PyArray_SIGNEDLTR
-#define NpyArray_SHORT PyArray_SHORT
-#define NpyArray_INT PyArray_INT
-#define NpyArray_INT8 PyArray_INT8
-#define NpyArray_INT16 PyArray_INT16
-#define NpyArray_INT32 PyArray_INT32
-#define NpyArray_INT64 PyArray_INT64
-#define NpyArray_INTP PyArray_INTP
-#define NpyArray_UNSIGNEDLTR PyArray_UNSIGNEDLTR
-#define NpyArray_UINT8 PyArray_UINT8
-#define NpyArray_UINT16 PyArray_UINT16
-#define NpyArray_UINT32 PyArray_UINT32
-#define NpyArray_UINT64 PyArray_UINT64
-#define NpyArray_UINT  PyArray_UINT
-#define NpyArray_LONG PyArray_LONG
-#define NpyArray_LONGLONG PyArray_LONGLONG
-#define NpyArray_ULONG PyArray_ULONG
-#define NpyArray_ULONGLONG PyArray_ULONGLONG
-#define NpyArray_FLOATINGLTR PyArray_FLOATINGLTR
-#define NpyArray_FLOAT PyArray_FLOAT
-#define NpyArray_DOUBLE PyArray_DOUBLE
-#define NpyArray_LONGDOUBLE PyArray_LONGDOUBLE
-#define NpyArray_CFLOAT PyArray_CFLOAT
-#define NpyArray_CDOUBLE PyArray_CDOUBLE
-#define NpyArray_CLONGDOUBLE PyArray_CLONGDOUBLE
-#define NpyArray_FLOAT32 PyArray_FLOAT32
-#define NpyArray_FLOAT64 PyArray_FLOAT64
-#ifdef PyArray_FLOAT80
-#define NpyArray_FLOAT80 PyArray_FLOAT80
-#define NpyArray_COMPLEX160 PyArray_COMPLEX160
-#endif
-#ifdef PyArray_FLOAT96
-#define NpyArray_FLOAT96 PyArray_FLOAT96
-#define NpyArray_COMPLEX192 PyArray_COMPLEX192
-#endif
-#ifdef PyArray_FLOAT128
-#define NpyArray_FLOAT128 PyArray_FLOAT128
-#define NpyArray_COMPLEX256 PyArray_COMPLEX256
-#endif
-#define NpyArray_COMPLEXLTR PyArray_COMPLEXLTR
-#define NpyArray_COMPLEX64 PyArray_COMPLEX64
-#define NpyArray_COMPLEX128 PyArray_COMPLEX128
-#define NpyArray_COMPLEX256 PyArray_COMPLEX256
-#define NpyArray_STRING PyArray_STRING
-#define NpyArray_UNICODE PyArray_UNICODE
-#define NpyArray_VOID PyArray_VOID
-#define NpyArray_BYTE PyArray_BYTE
-#define NpyArray_UBYTE PyArray_UBYTE
-#define NpyArray_USHORT PyArray_USHORT
-
-#define NpyArray_NOSCALAR PyArray_NOSCALAR
-#define NpyArray_NSCALARKINDS PyArray_NSCALARKINDS
-#define NpyArray_FORTRANORDER NPY_FORTRANORDER
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
@@ -286,7 +177,6 @@ void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 #define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
 
 int NpyArray_MultiplyIntList(int *l1, int n);
-npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
 npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
 void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
 int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);

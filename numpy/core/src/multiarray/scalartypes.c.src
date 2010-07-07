@@ -1262,7 +1262,7 @@ voidtype_getfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
             (!PyArray_IsScalar(ret, Void))) {
         PyArray_Descr *new;
         void *ptr;
-        if (!PyArray_ISNBO(self->descr->byteorder)) {
+        if (!NpyArray_ISNBO(self->descr->byteorder)) {
             new = PyArray_DescrFromScalar(ret);
             ptr = scalar_value(ret, new);
             byte_swap_vector(ptr, 1, new->elsize);
@@ -1330,7 +1330,7 @@ voidtype_setfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
         typecode->f->copyswap(dptr, PyArray_DATA(src),
-                !PyArray_ISNBO(self->descr->byteorder),
+                !NpyArray_ISNBO(self->descr->byteorder),
                 src);
         Py_DECREF(src);
     }
@@ -3431,7 +3431,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
 {
     int typenum, utypenum, i;
 
-    typenum = PyArray_NOTYPE;
+    typenum = NPY_NOTYPE;
     i = 0;
     while(i < PyArray_NTYPES) {
         if (type == (PyObject *)typeobjects[i]) {
@@ -3446,7 +3446,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
     }
     /* Search any registered types */
     utypenum = NpyArray_TypeNumFromTypeObj(type);
-    if (utypenum != NpyArray_NOTYPE) {
+    if (utypenum != NPY_NOTYPE) {
         typenum = utypenum;
     }
 
