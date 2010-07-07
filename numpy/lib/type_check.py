@@ -611,6 +611,9 @@ def datetime_data(dtype):
     if dtype.kind not in ['m','M']:
         raise ValueError, "Not a date-time dtype"
 
+    # TODO: This used to have
+    #   obj = dtype.metadata[METADATA_DTSTR]
+    # now we get an error because obj is not set.
     class DATETIMEMETA(ctypes.Structure):
         _fields_ = [('base', ctypes.c_int),
                     ('num', ctypes.c_int),
