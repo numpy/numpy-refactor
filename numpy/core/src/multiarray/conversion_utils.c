@@ -643,7 +643,7 @@ PyArray_IntTupleFromIntp(int len, intp *vals)
 {
     int i;
     PyObject *intTuple = PyTuple_New(len);
-    
+
     if (!intTuple) {
         goto fail;
     }
@@ -660,8 +660,8 @@ PyArray_IntTupleFromIntp(int len, intp *vals)
         }
         PyTuple_SET_ITEM(intTuple, i, o);
     }
-    
-fail:
+
+ fail:
     return intTuple;
 }
 

@@ -499,6 +499,13 @@ class TestSinc(TestCase):
         #check symmetry
         assert_array_almost_equal(w, flipud(w), 7)
 
+    def test_array_like(self):
+        x = [0, 0.5]
+        y1 = sinc(array(x))
+        y2 = sinc(list(x))
+        y3 = sinc(tuple(x))
+        assert_array_equal(y1, y2)
+        assert_array_equal(y1, y3)
 
 class TestHistogram(TestCase):
     def setUp(self):
@@ -779,6 +786,38 @@ class TestNaNFuncts(TestCase):
         assert_equal(test, [1, 2])
         assert_equal(a._mask, ctrl_mask)
         assert_equal(np.isinf(a), np.zeros((2, 4), dtype=bool))
+
+
+class TestNanFunctsIntTypes(TestCase):
+
+    int_types = (int8, int16, int32, int64, uint8, uint16, uint32, uint64)
+
+    def setUp(self, *args, **kwargs):
+        self.A = array([127, 39,  93,  87, 46])
+
+    def integer_arrays(self):
+        for dtype in self.int_types:
+            yield self.A.astype(dtype)
+
+    def test_nanmin(self):
+        min_value = min(self.A)
+        for A in self.integer_arrays():
+            assert_equal(nanmin(A), min_value)
+
+    def test_nanmax(self):
+        max_value = max(self.A)
+        for A in self.integer_arrays():
+            assert_equal(nanmax(A), max_value)
+
+    def test_nanargmin(self):
+        min_arg = argmin(self.A)
+        for A in self.integer_arrays():
+            assert_equal(nanargmin(A), min_arg)
+
+    def test_nanargmax(self):
+        max_arg = argmax(self.A)
+        for A in self.integer_arrays():
+            assert_equal(nanargmax(A), max_arg)
 
 
 class TestCorrCoef(TestCase):
