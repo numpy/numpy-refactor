@@ -30,11 +30,11 @@
  * regards to the handling of text representations.
  */
 
-typedef int (*next_element)(void **, void *, PyArray_Descr *, void *);
+typedef int (*next_element)(void **, void *, NpyArray_Descr *, void *);
 typedef int (*skip_separator)(void **, const char *, void *);
 
 static int
-fromstr_next_element(char **s, void *dptr, PyArray_Descr *dtype,
+fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
                      const char *end)
 {
     int r = dtype->f->fromstr(*s, dptr, s, dtype);
@@ -45,7 +45,7 @@ fromstr_next_element(char **s, void *dptr, PyArray_Descr *dtype,
 }
 
 static int
-fromfile_next_element(FILE **fp, void *dptr, PyArray_Descr *dtype,
+fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
                       void *NPY_UNUSED(stream_data))
 {
     /* the NULL argument is for backwards-compatibility */
@@ -394,7 +394,7 @@ Assign_Array(PyArrayObject *self, PyObject *v)
  * steals reference to typecode -- no NULL
  */
 static PyObject *
-Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
+Array_FromPyScalar(PyObject *op, NpyArray_Descr *typecode)
 {
     PyArrayObject *ret;
     int itemsize;
@@ -414,7 +414,7 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
         }
     }
 
-    ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, typecode,
+    ret = (PyArrayObject *)NpyArray_NewFromDescr(&PyArray_Type, typecode,       /* TODO: Rewrap array or optimize */
                                                 0, NULL,
                                                 NULL, NULL, 0, NULL);
     if (ret == NULL) {
@@ -439,7 +439,7 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
 
 
 static PyObject *
-ObjectArray_FromNestedList(PyObject *s, PyArray_Descr *typecode, int fortran)
+ObjectArray_FromNestedList(PyObject *s, NpyArray_Descr *typecode, int fortran)
 {
     int nd;
     intp d[MAX_DIMS];
@@ -453,7 +453,7 @@ ObjectArray_FromNestedList(PyObject *s, PyArray_Descr *typecode, int fortran)
     if (nd == 0) {
         return Array_FromPyScalar(s, typecode);
     }
-    r = (PyArrayObject*)PyArray_NewFromDescr(&PyArray_Type, typecode,
+    r = (PyArrayObject*)NpyArray_NewFromDescr(&PyArray_Type, typecode,
                                              nd, d,
                                              NULL, NULL,
                                              fortran, NULL);
@@ -679,7 +679,7 @@ discover_dimensions(PyObject *s, int nd, intp *d, int check_it)
  * steals reference to typecode
  */
 static PyObject *
-Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
+Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
                    int min_depth, int max_depth)
 {
     PyArrayObject *r;
@@ -738,10 +738,10 @@ Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
         typecode->elsize = itemsize;
     }
 
-    r = (PyArrayObject*)PyArray_NewFromDescr(&PyArray_Type, typecode,
-                                             nd, d,
-                                             NULL, NULL,
-                                             fortran, NULL);
+    r = (PyArrayObject*)NpyArray_NewFromDescr(&PyArray_Type, typecode,  /* TODO: Wrap array return or optimize out */
+                                              nd, d,
+                                              NULL, NULL,
+                                              fortran, NULL);
     if (!r) {
         return NULL;
     }
@@ -754,7 +754,7 @@ Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
     return (PyObject*)r;
 
  fail:
-    Py_DECREF(typecode);
+    _Npy_DECREF(typecode);
     return NULL;
 }
 
@@ -897,10 +897,26 @@ fail:
 /*NUMPY_API
  * Does not check for ENSURECOPY and NOTSWAPPED in flags
  * Steals a reference to newtype --- which can be NULL
+ *
+ * Only here for compatibility with older API prior to 
+ * refactoring.
  */
 NPY_NO_EXPORT PyObject *
 PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 int max_depth, int flags, PyObject *context)
+{
+    return PyArray_FromAnyUnwrap(op, newtype->descr, min_depth,
+                                 max_depth, flags, context);
+}
+
+
+/*NUMPY_API
+ * Does not check for ENSURECOPY and NOTSWAPPED in flags
+ * Steals a reference to newtype --- which can be NULL
+ */
+NPY_NO_EXPORT PyObject *
+PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
+                      int max_depth, int flags, PyObject *context)
 {
     /*
      * This is the main code to make a NumPy array from a Python
@@ -916,39 +932,39 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
      * This is where the flags are used
      */
     if (PyArray_Check(op)) {
-        r = PyArray_FromArray((PyArrayObject *)op, newtype, flags);
+        r = NpyArray_FromArray((NpyArray *)op, newtype, flags);     /* TODO: Unwrap op, re-wrap r */
     }
     else if (PyArray_IsScalar(op, Generic)) {
         if (flags & UPDATEIFCOPY) {
             goto err;
         }
-        r = PyArray_FromScalar(op, newtype);
+        r = PyArray_FromScalarUnwrap(op, newtype);
     }
     else if (newtype == NULL &&
                (newtype = _array_find_python_scalar_type(op))) {
         if (flags & UPDATEIFCOPY) {
             goto err;
         }
-        r = Array_FromPyScalar(op, newtype);
+        r = Array_FromPyScalarUnwrap(op, newtype);
     }
     else if (!PyBytes_Check(op) && !PyUnicode_Check(op) &&
              _array_from_buffer_3118(op, &r) == 0) {
         /* PEP 3118 buffer -- but don't accept Bytes objects here */
         PyObject *new;
         if (newtype != NULL || flags != 0) {
-            new = PyArray_FromArray((PyArrayObject *)r, newtype, flags);
+            new = NpyArray_FromArray((NpyArray *)r, newtype, flags);
             Py_DECREF(r);
             r = new;
         }
     }
-    else if (PyArray_HasArrayInterfaceType(op, newtype, context, r)) {
+    else if (PyArray_HasArrayInterfaceTypeUnwrap(op, newtype, context, r)) {
         PyObject *new;
         if (r == NULL) {
             Py_XDECREF(newtype);
             return NULL;
         }
         if (newtype != NULL || flags != 0) {
-            new = PyArray_FromArray((PyArrayObject *)r, newtype, flags);
+            new = NpyArray_FromArray((NpyArray *)r, newtype, flags);
             Py_DECREF(r);
             r = new;
         }
@@ -962,14 +978,14 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
         if (newtype == NULL) {
             newtype = _array_find_type(op, NULL, MAX_DIMS);
         }
-        else if (newtype->type_num == PyArray_OBJECT) {
+        else if (newtype->type_num == NPY_OBJECT) {
             isobject = 1;
         }
         if (PySequence_Check(op)) {
             PyObject *thiserr = NULL;
 
             /* necessary but not sufficient */
-            Py_INCREF(newtype);
+            _Npy_INCREF(newtype);
             r = Array_FromSequence(op, newtype, flags & FORTRAN,
                                    min_depth, max_depth);
             if (r == NULL && (thiserr=PyErr_Occurred())) {
@@ -983,16 +999,16 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                  */
                 PyErr_Clear();
                 if (isobject) {
-                    Py_INCREF(newtype);
+                    _Npy_INCREF(newtype);
                     r = ObjectArray_FromNestedList
                         (op, newtype, flags & FORTRAN);
                     seq = TRUE;
-                    Py_DECREF(newtype);
+                    _Npy_DECREF(newtype);
                 }
             }
             else {
                 seq = TRUE;
-                Py_DECREF(newtype);
+                _Npy_DECREF(newtype);
             }
         }
         if (!seq) {
@@ -1080,24 +1096,24 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
  * steals a reference to descr -- accepts NULL
  */
 NPY_NO_EXPORT PyObject *
-PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
-                     int max_depth, int requires, PyObject *context)
+PyArray_CheckFromAnyUnwrap(PyObject *op, NpyArray_Descr *descr, int min_depth,
+                           int max_depth, int requires, PyObject *context)
 {
     PyObject *obj;
     if (requires & NOTSWAPPED) {
         if (!descr && PyArray_Check(op) &&
             !PyArray_ISNBO(PyArray_DESCR(op)->byteorder)) {
-            descr = PyArray_DescrNew(PyArray_DESCR(op));
+            descr = NpyArray_DescrNew(PyArray_DESCR(op));
         }
         else if (descr && !PyArray_ISNBO(descr->byteorder)) {
-            PyArray_DESCR_REPLACE(descr);
+            NpyArray_DESCR_REPLACE(descr);
         }
         if (descr) {
             descr->byteorder = PyArray_NATIVE;
         }
     }
 
-    obj = PyArray_FromAny(op, descr, min_depth, max_depth, requires, context);
+    obj = PyArray_FromAnyUnwrap(op, descr, min_depth, max_depth, requires, context);
     if (obj == NULL) {
         return NULL;
     }
@@ -1111,6 +1127,19 @@ PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
     return obj;
 }
 
+
+/*NUMPY_API
+ * steals a reference to descr -- accepts NULL
+ */
+NPY_NO_EXPORT PyObject *
+PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
+                     int max_depth, int requires, PyObject *context)
+{
+    return PyArray_CheckFromAnyUnwrap(op, descr->descr, min_depth,
+                                      max_depth, requires, context);
+}
+
+
 /*NUMPY_API
  * steals reference to newtype --- acc. NULL
  */
@@ -1118,7 +1147,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags)
 {
     /* TODO: Wrap returned NpyArray in PyObject, fix conversion of arr to NpyArray. */
-    return (PyObject *) NpyArray_FromArray(arr, newtype, flags);
+    return (PyObject *) NpyArray_FromArray(arr, newtype->descr, flags);
 }
 
 
@@ -1387,6 +1416,8 @@ PyArray_FromInterface(PyObject *input)
     return NULL;
 }
 
+
+
 /*NUMPY_API*/
 NPY_NO_EXPORT PyObject *
 PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
@@ -1437,13 +1468,30 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
     return new;
 }
 
+
+/*NUMPY_API*/
+NPY_NO_EXPORT PyObject *
+PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode, PyObject *context)
+{
+    PyObject *result = NULL;
+    PyArray_Descr *typeWrap;
+    
+    /* PyArray_FromArrayAttr calls into Python so we have to create a temporary wrapper. */
+    typeWrap = _array_wrap_npy_descr(typecode);    
+    result = PyArray_FromArrayAttr(op, typeWrap, context);
+    Py_DECREF(typeWrap);
+    return result;
+}
+
+
+
 /*NUMPY_API
 * new reference -- accepts NULL for mintype
 */
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromObject(PyObject *op, PyArray_Descr *mintype)
 {
-    return _array_find_type(op, mintype, MAX_DIMS);
+    return _array_wrap_npy_descr(_array_find_type(op, mintype->descr, MAX_DIMS));
 }
 
 /* These are also old calls (should use PyArray_NewFromDescr) */
@@ -1952,7 +2000,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
  */
 #define FROM_BUFFER_SIZE 4096
 static PyArrayObject *
-array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
+array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
                 void *stream, next_element next, skip_separator skip_sep,
                 void *stream_data)
 {
@@ -1966,11 +2014,11 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
 
     size = (num >= 0) ? num : FROM_BUFFER_SIZE;
     r = (PyArrayObject *)
-        PyArray_NewFromDescr(&PyArray_Type,
-                             dtype,
-                             1, &size,
-                             NULL, NULL,
-                             0, NULL);
+        NpyArray_NewFromDescr(&PyArray_Type,        /* TODO: Wrap array result or optimize out */
+                              dtype,
+                              1, &size,
+                              NULL, NULL,
+                              0, NULL);
     if (r == NULL) {
         return NULL;
     }

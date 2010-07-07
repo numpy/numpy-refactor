@@ -14,6 +14,26 @@
 #include "common.h"
 #include "buffer.h"
 
+
+/*NUMPY_API
+ *
+ * Wraps an NpyArray_Descr in a PyArray_Descr object that can be used with CPython.
+ *
+ * Steals a reference as the typical calling convension is:
+ *    _array_wrap_npy_descr(f_returning_descr());
+ */
+NPY_NO_EXPORT PyArray_Descr *
+_array_wrap_npy_descr(NpyArray_Descr *descr)
+{
+    PyArray_Descr *typeWrap = PyObject_New(PyArray_Descr, &PyArrayDescr_Type);
+    typeWrap->magic_number = NPY_VALID_MAGIC;
+    typeWrap->descr = descr;
+    typeWrap->metadata = NULL;    
+    
+    return typeWrap;
+}
+
+
 /*
  * new reference
  * doesn't alter refcount of chktype or mintype ---
@@ -135,13 +155,13 @@ _use_default_type(PyObject *op)
  * max is the maximum number of dimensions -- used for recursive call
  * to avoid infinite recursion...
  */
-NPY_NO_EXPORT PyArray_Descr *
-_array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
+NPY_NO_EXPORT NpyArray_Descr *
+_array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
 {
     int l;
     PyObject *ip;
-    PyArray_Descr *chktype = NULL;
-    PyArray_Descr *outtype;
+    NpyArray_Descr *chktype = NULL;
+    NpyArray_Descr *outtype;
 #if PY_VERSION_HEX >= 0x02060000
     Py_buffer buffer_view;
 #endif
@@ -153,16 +173,16 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
      */
     if (PyArray_Check(op)) {
         chktype = PyArray_DESCR(op);
-        Py_INCREF(chktype);
+        _Npy_INCREF(chktype);
         if (minitype == NULL) {
             return chktype;
         }
-        Py_INCREF(minitype);
+        _Npy_INCREF(minitype);
         goto finish;
     }
 
     if (PyArray_IsScalar(op, Generic)) {
-        chktype = PyArray_DescrFromScalar(op);
+        chktype = PyArray_DescrFromScalarUnwrap(op);
         if (minitype == NULL) {
             return chktype;
         }
@@ -341,10 +361,10 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
 }
 
 /* new reference */
-NPY_NO_EXPORT PyArray_Descr *
+NPY_NO_EXPORT NpyArray_Descr *
 _array_typedescr_fromstr(char *str)
 {
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     int type_num;
     char typechar;
     int size;
@@ -469,14 +489,14 @@ _array_typedescr_fromstr(char *str)
         return NULL;
     }
 
-    descr = PyArray_DescrFromType(type_num);
+    descr = NpyArray_DescrFromType(type_num);
     if (descr == NULL) {
         return NULL;
     }
     swap = !PyArray_ISNBO(swapchar);
     if (descr->elsize == 0 || swap) {
         /* Need to make a new PyArray_Descr */
-        PyArray_DESCR_REPLACE(descr);
+        NpyArray_DESCR_REPLACE(descr);
         if (descr==NULL) {
             return NULL;
         }

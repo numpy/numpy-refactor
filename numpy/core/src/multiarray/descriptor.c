@@ -25,17 +25,17 @@ static PyObject *typeDict = NULL;   /* Must be explicitly loaded */
 static PyArray_Descr *
 _use_inherit(PyArray_Descr *type, PyObject *newobj, int *errflag);
 
-NPY_NO_EXPORT PyArray_Descr *
+NPY_NO_EXPORT NpyArray_Descr *
 _arraydescr_fromobj(PyObject *obj)
 {
     PyObject *dtypedescr;
-    PyArray_Descr *new;
+    NpyArray_Descr *new;
     int ret;
 
     dtypedescr = PyObject_GetAttrString(obj, "dtype");
     PyErr_Clear();
     if (dtypedescr) {
-        ret = PyArray_DescrConverter(dtypedescr, &new);
+        ret = PyArray_DescrConverterUnwrap(dtypedescr, &new);
         Py_DECREF(dtypedescr);
         if (ret == PY_SUCCEED) {
             return new;
@@ -46,7 +46,7 @@ _arraydescr_fromobj(PyObject *obj)
     dtypedescr = PyObject_GetAttrString(obj, "_type_");
     PyErr_Clear();
     if (dtypedescr) {
-        ret = PyArray_DescrConverter(dtypedescr, &new);
+        ret = PyArray_DescrConverterUnwrap(dtypedescr, &new);
         Py_DECREF(dtypedescr);
         if (ret == PY_SUCCEED) {
             PyObject *length;
@@ -55,10 +55,10 @@ _arraydescr_fromobj(PyObject *obj)
             if (length) {
                 /* derived type */
                 PyObject *newtup;
-                PyArray_Descr *derived;
+                NpyArray_Descr *derived;
                 newtup = Py_BuildValue("NO", new, length);
                 Py_DECREF(length);
-                ret = PyArray_DescrConverter(newtup, &derived);
+                ret = PyArray_DescrConverterUnwrap(newtup, &derived);
                 Py_DECREF(newtup);
                 if (ret == PY_SUCCEED) {
                     return derived;
@@ -77,7 +77,7 @@ _arraydescr_fromobj(PyObject *obj)
     dtypedescr = PyObject_GetAttrString(obj, "_fields_");
     PyErr_Clear();
     if (dtypedescr) {
-        ret = PyArray_DescrAlignConverter(dtypedescr, &new);
+        ret = PyArray_DescrAlignConverterUnwrap(dtypedescr, &new);
         Py_DECREF(dtypedescr);
         if (ret == PY_SUCCEED) {
             return new;
@@ -1220,7 +1220,7 @@ PyArray_DescrConverter2(PyObject *obj, PyArray_Descr **at)
  * new reference in *at
  */
 NPY_NO_EXPORT int
-PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
+PyArray_DescrConverterUnwrap(PyObject *obj, NpyArray_Descr **at)
 {
     char *type;
     int check_num = PyArray_NOTYPE + 10;
@@ -1232,18 +1232,18 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     *at = NULL;
     /* default */
     if (obj == Py_None) {
-        *at = PyArray_DescrFromType(PyArray_DEFAULT);
+        *at = NpyArray_DescrFromType(PyArray_DEFAULT);
         return PY_SUCCEED;
     }
     if (PyArray_DescrCheck(obj)) {
-        *at = (PyArray_Descr *)obj;
-        Py_INCREF(*at);
+        *at = ((PyArray_Descr *)obj)->descr;
+        _Npy_INCREF(*at);
         return PY_SUCCEED;
     }
 
     if (PyType_Check(obj)) {
         if (PyType_IsSubtype((PyTypeObject *)obj, &PyGenericArrType_Type)) {
-            *at = PyArray_DescrFromTypeObject(obj);
+            *at = PyArray_DescrFromTypeObjectUnwrap(obj);
             if (*at) {
                 return PY_SUCCEED;
             }
@@ -1307,7 +1307,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
         if (obj2 == NULL) {
             goto fail;
         }
-        retval = PyArray_DescrConverter(obj2, at);
+        retval = PyArray_DescrConverterUnwrap(obj2, at);
         Py_DECREF(obj2);
         return retval;
     }
@@ -1433,7 +1433,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
 
  finish:
     if ((check_num == PyArray_NOTYPE + 10)
-        || (*at = PyArray_DescrFromType(check_num)) == NULL) {
+        || (*at = NpyArray_DescrFromType(check_num)) == NULL) {
         PyErr_Clear();
         /* Now check to see if the object is registered in typeDict */
         if (typeDict != NULL) {
@@ -1449,14 +1449,14 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
             }
 #endif
             if (item) {
-                return PyArray_DescrConverter(item, at);
+                return PyArray_DescrConverterUnwrap(item, at);
             }
         }
         goto fail;
     }
 
     if (((*at)->elsize == 0) && (elsize != 0)) {
-        PyArray_DESCR_REPLACE(*at);
+        NpyArray_DESCR_REPLACE(*at);
         (*at)->elsize = elsize;
     }
     if (endian != '=' && PyArray_ISNBO(endian)) {
@@ -1464,7 +1464,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     }
     if (endian != '=' && (*at)->byteorder != '|'
         && (*at)->byteorder != endian) {
-        PyArray_DESCR_REPLACE(*at);
+        NpyArray_DESCR_REPLACE(*at);
         (*at)->byteorder = endian;
     }
     return PY_SUCCEED;
@@ -1474,6 +1474,34 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     *at = NULL;
     return PY_FAIL;
 }
+
+
+
+/*NUMPY_API
+ * Get typenum from an object -- None goes to PyArray_DEFAULT
+ * This function takes a Python object representing a type and converts it
+ * to a the correct PyArray_Descr * structure to describe the type.
+ *
+ * Many objects can be used to represent a data-type which in NumPy is
+ * quite a flexible concept.
+ *
+ * This is the central code that converts Python objects to
+ * Type-descriptor objects that are used throughout numpy.
+ * new reference in *at
+ */
+NPY_NO_EXPORT int
+PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
+{
+    NpyArray_Descr *npyAt;
+    int result;
+    
+    result = PyArray_DescrConverterUnwrap(obj, &npyAt);
+    *at = _array_wrap_npy_descr(npyAt);
+    return result;
+}
+
+
+
 
 /** Array Descr Objects for dynamic types **/
 

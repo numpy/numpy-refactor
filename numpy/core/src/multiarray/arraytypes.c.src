@@ -3379,16 +3379,16 @@ static PyArray_ArrFuncs _Py@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-static PyArray_Descr @from@_Descr = {
-    PyObject_HEAD_INIT(&PyArrayDescr_Type)
-    &Py@NAME@ArrType_Type,
+static NpyArray_Descr @from@_Descr = {
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    &Npy@NAME@ArrType_Type,
     NPY_VALID_MAGIC,
-    PyArray_@from@LTR,
-    PyArray_@from@LTR,
+    NpyArray_@from@LTR,
+    NpyArray_@from@LTR,
     '@endian@',
     0,
     0,
-    PyArray_@from@,
+    NpyArray_@from@,
     0,
     _ALIGN(@align@),
     NULL,
@@ -3523,7 +3523,7 @@ _init_datetime_descr(PyArray_Descr *descr)
 #define _MAX_LETTER 128
 static char _letter_to_num[_MAX_LETTER];
 
-static PyArray_Descr *_builtin_descrs[] = {
+static NpyArray_Descr *_builtin_descrs[] = {
     &BOOL_Descr,
     &BYTE_Descr,
     &UBYTE_Descr,
@@ -3552,13 +3552,13 @@ static PyArray_Descr *_builtin_descrs[] = {
 /*NUMPY_API
  * Get the PyArray_Descr structure for a type.
  */
-NPY_NO_EXPORT PyArray_Descr *
-PyArray_DescrFromType(int type)
+NPY_NO_EXPORT NpyArray_Descr *              /* TODO: Push this down into core, requires stuff above to move, too, which means big build changes. */
+NpyArray_DescrFromType(int type)
 {
-    PyArray_Descr *ret = NULL;
+    NpyArray_Descr *ret = NULL;
 
     if (type < PyArray_NTYPES) {
-        ret = _builtin_descrs[type];
+        ret = _builtin_descrs[type]->descr;
     }
     else if (type == PyArray_NOTYPE) {
         /*
@@ -3569,7 +3569,7 @@ PyArray_DescrFromType(int type)
         return NULL;
     }
     else if ((type == PyArray_CHAR) || (type == PyArray_CHARLTR)) {
-        ret = PyArray_DescrNew(_builtin_descrs[PyArray_STRING]);
+        ret = NpyArray_DescrNew(_builtin_descrs[PyArray_STRING]->descr);
         if (ret == NULL) {
             return NULL;
         }
@@ -3589,7 +3589,7 @@ PyArray_DescrFromType(int type)
             ret = NULL;
         }
         else {
-            ret = _builtin_descrs[num];
+            ret = _builtin_descrs[num]->descr;
         }
     }
     if (ret == NULL) {
@@ -3608,6 +3608,13 @@ PyArray_DescrFromType(int type)
     }
 
     return ret;
+}
+
+    
+NPY_NO_EXPORT PyArray_Descr *
+PyArray_DescrFromType(int type)
+{
+    return _array_wrap_npy_descr(NpyArray_DescrFromType(type));
 }
 
 

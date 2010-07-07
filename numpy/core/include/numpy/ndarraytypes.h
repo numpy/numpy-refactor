@@ -541,49 +541,19 @@ typedef struct _PyArray_Descr {
                                  * be two type_numbers with the same type
                                  * object.
                                  */
+        int magic_offset;       /* Simply pushes the magic_number of a different offset
+                                   that the magic number in the Npy version - aids
+                                   fault detection. */
         int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
                                    NPY_INVALID_MAGIC on dealloc */
-        char kind;              /* kind for this type */
-        char type;              /* unique-character representing this type */
-        char byteorder;         /*
-                                 * '>' (big), '<' (little), '|'
-                                 * (not-applicable), or '=' (native).
-                                 */
-        char unused;
-        int flags;              /* flag describing data type */
-        int type_num;           /* number representing this type */
-        int elsize;             /* element size for this type */
-        int alignment;          /* alignment needed for this type */
-        struct _arr_descr                                       \
-        *subarray;              /*
-                                 * Non-NULL if this type is
-                                 * is an array (C-contiguous)
-                                 * of some other type
-                                 */
-        struct NpyDict_struct 
-            *fields;            /* The fields dictionary for this type
-                                 * For statically defined descr this
-                                 * is always NULL.
-                                 */
-
-        char **names;           /* Array of char *, NULL indicates end of array. 
-                                 * char* lifetime is exactly lifetime of array itself. */
-
-        PyArray_ArrFuncs *f;     /*
-                                  * a table of functions specific for each
-                                  * basic data descriptor
-                                  */
-
+    
+        struct NpyArray_Descr *descr;
+    
         PyObject *metadata;     /* Metadata about this dtype */
 } PyArray_Descr;
 
-typedef struct _arr_descr {
-    PyArray_Descr *base;
-    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
-    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
-                                /* allocated array of ints; shape_dims == NULL iff */
-                                /* shape_num_dims == 1 */
-} PyArray_ArrayDescr;
+
+
 
 /*
  * The main array object structure. It is recommended to use the macros
@@ -604,7 +574,7 @@ typedef struct PyArrayObject {
         struct PyArrayObject *base_arr; /* Base when it's specifically an array object */
         void *base_obj;         /* Base when it's an opaque interface object */
     
-        PyArray_Descr *descr;   /* Pointer to type structure */
+        struct NpyArray_Descr *descr;  /* Pointer to type structure */
         int flags;              /* Flags describing array -- see below */
         PyObject *weakreflist;  /* For weakreferences */
 } PyArrayObject;

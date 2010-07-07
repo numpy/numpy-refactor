@@ -1373,10 +1373,10 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
 
     dtype = NpyArray_DescrFromArray(op2, op1->descr);
     /* need ap1 as contiguous array and of right type */
-    Py_INCREF(dtype);
+    _Npy_INCREF(dtype);
     ap1 = NpyArray_FromArray(op1, dtype, NPY_DEFAULT);
     if (ap1 == NULL) {
-        Py_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
 

@@ -232,18 +232,18 @@ PyArray_One(PyArrayObject *arr)
 NPY_NO_EXPORT int
 PyArray_ObjectType(PyObject *op, int minimum_type)
 {
-    PyArray_Descr *intype;
-    PyArray_Descr *outtype;
+    NpyArray_Descr *intype;
+    NpyArray_Descr *outtype;
     int ret;
 
-    intype = PyArray_DescrFromType(minimum_type);
+    intype = NpyArray_DescrFromType(minimum_type);
     if (intype == NULL) {
         PyErr_Clear();
     }
     outtype = _array_find_type(op, intype, MAX_DIMS);
     ret = outtype->type_num;
-    Py_DECREF(outtype);
-    Py_XDECREF(intype);
+    _Npy_DECREF(outtype);
+    _Npy_XDECREF(intype);
     return ret;
 }
 

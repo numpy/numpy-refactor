@@ -100,9 +100,10 @@ PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
         src = (PyArrayObject *)r;
     }
     else {
-        PyArray_Descr* dtype;
+        /* TODO: Once array is split we can probably drop the PyObject wrapper here */
+        NpyArray_Descr* dtype;
         dtype = dest->descr;
-        Py_INCREF(dtype);
+        _Npy_INCREF(dtype);
         src = (PyArrayObject *)PyArray_FromAny(src_object, dtype, 0,
                                                dest->nd,
                                                FORTRAN_IF(dest),
@@ -167,7 +168,7 @@ static int
 dump_data(char **string, int *n, int *max_n, char *data, int nd,
           intp *dimensions, intp *strides, PyArrayObject* self)
 {
-    PyArray_Descr *descr=self->descr;
+    PyArray_Descr *descr=self->descr;       
     PyObject *op, *sp;
     char *ostring;
     intp i, N;

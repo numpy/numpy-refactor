@@ -39,6 +39,12 @@ extern "C" CONFUSE_EMACS
          (((out)=PyArray_FromArrayAttr(op, type, context)) !=                 \
           Py_NotImplemented))
 
+#define PyArray_HasArrayInterfaceTypeUnwrap(op, type, context, out)           \
+        ((((out)=PyArray_FromStructInterface(op)) != Py_NotImplemented) ||    \
+        (((out)=PyArray_FromInterface(op)) != Py_NotImplemented) ||           \
+        (((out)=PyArray_FromArrayAttrUnwrap(op, type, context)) !=            \
+        Py_NotImplemented))
+
 #define PyArray_HasArrayInterface(op, out)                                    \
         PyArray_HasArrayInterfaceType(op, NULL, NULL, out)
 
@@ -172,6 +178,15 @@ extern "C" CONFUSE_EMACS
                 Py_XDECREF(descr);                                            \
                 descr = _new_;                                                \
         } while(0)
+
+#define NpyArray_DESCR_REPLACE(descr) do {                                    \
+            NpyArray_Descr *_new_;                                            \
+            _new_ = NpyArray_DescrNew(descr);                                 \
+            Npy_XDECREF(descr);                                               \
+            descr = _new_;                                                    \
+        } while(0)
+
+
 
 /* Copy should always return contiguous array */
 #define PyArray_Copy(obj) PyArray_NewCopy(obj, NPY_CORDER)

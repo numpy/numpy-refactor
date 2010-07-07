@@ -26,28 +26,7 @@ _fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype);
 NPY_NO_EXPORT void
 PyArray_Item_INCREF(char *data, PyArray_Descr *descr)
 {
-    PyObject *temp;
-
-    if (!PyDataType_REFCHK(descr)) {
-        return;
-    }
-    if (descr->type_num == PyArray_OBJECT) {
-        NPY_COPY_PYOBJECT_PTR(&temp, data);
-        Py_XINCREF(temp);
-    }
-    else if (PyDescr_HASFIELDS(descr)) {
-        const char *key;
-        NpyArray_DescrField *value;
-        NpyDict_Iter pos;
-
-        NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
-            if (NULL != value->title && !strcmp(value->title, key)) {
-                continue;
-            }
-            NpyArray_Item_INCREF(data + value->offset, value->descr);
-        }
-    }
+    NpyArray_Item_INCREF(data, descr->descr);
     return;
 }
 

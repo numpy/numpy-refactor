@@ -621,8 +621,8 @@ _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
     }
     
 finish:
-    Npy_INCREF(*des);
-    Npy_DECREF(old);
+    _Npy_INCREF(*des);
+    _Npy_DECREF(old);
     return newnd;
 }
 
@@ -716,7 +716,7 @@ NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
  * steals a reference to descr -- accepts NULL
  */
 NpyArray *
-NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
+NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
 {
     NpyArray *obj;
 
@@ -845,13 +845,13 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     if (nd < 0) {
         NpyErr_SetString(NpyExc_ValueError,
                         "number of dimensions must be >=0");
-        Npy_DECREF(descr);
+        _Npy_DECREF(descr);
         return NULL;
     }
     if (nd > NPY_MAXDIMS) {
         NpyErr_Format(NpyExc_ValueError,
                      "maximum number of dimensions is %d", NPY_MAXDIMS);
-        Npy_DECREF(descr);
+        _Npy_DECREF(descr);
         return NULL;
     }
     
@@ -861,7 +861,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     if (sd == 0) {
         if (!NpyDataType_ISSTRING(descr)) {
             NpyErr_SetString(NpyExc_ValueError, "Empty data-type");
-            Npy_DECREF(descr);
+            _Npy_DECREF(descr);
             return NULL;
         }
         NpyArray_DESCR_REPLACE(descr);
@@ -888,13 +888,13 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
         if (dim < 0) {
             NpyErr_SetString(NpyExc_ValueError,
                             "negative dimensions are not allowed");
-            Npy_DECREF(descr);
+            _Npy_DECREF(descr);
             return NULL;
         }
         if (dim > largest) {
             NpyErr_SetString(NpyExc_ValueError,
                             "array is too big.");
-            Npy_DECREF(descr);
+            _Npy_DECREF(descr);
             return NULL;
         }
         size *= dim;
@@ -903,7 +903,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     
     self = (NpyArray *) subtype->tp_alloc(subtype, 0);
     if (self == NULL) {
-        Npy_DECREF(descr);
+        _Npy_DECREF(descr);
         return NULL;
     }
     self->magic_number = NPY_VALID_MAGIC;
@@ -923,7 +923,6 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
     }
-//    Npy_INCREF(descr);      /* TODO: WRONG!  Inserted here makes crash go away, but is wrong. */
     self->descr = descr;
     self->base_arr = NULL;
     self->base_obj = NULL;
@@ -1097,7 +1096,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     subtype = Npy_TYPE(arr);
     if (newtype == NULL) {
         newtype = oldtype; 
-        Npy_INCREF(oldtype);
+        _Npy_INCREF(oldtype);
     }
     itemsize = newtype->elsize;
     if (itemsize == 0) {
@@ -1115,7 +1114,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
      */
     if (!(flags & NPY_FORCECAST) && !NpyArray_NDIM(arr) == 0 &&
         !NpyArray_CanCastTo(oldtype, newtype)) {
-        Npy_DECREF(newtype);
+        _Npy_DECREF(newtype);
         NpyErr_SetString(NpyExc_TypeError,
                         "array cannot be safely cast "  \
                         "to required type");
@@ -1135,7 +1134,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         if (copy) {
             if ((flags & NPY_UPDATEIFCOPY) &&
                 (!NpyArray_ISWRITEABLE(arr))) {
-                Npy_DECREF(newtype);
+                _Npy_DECREF(newtype);
                 NpyErr_SetString(NpyExc_ValueError, msg);
                 return NULL;
             }
@@ -1169,7 +1168,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
          * count and return the input
          */
         else {
-            Npy_DECREF(newtype);
+            _Npy_DECREF(newtype);
             if ((flags & NPY_ENSUREARRAY) &&
                 !NpyArray_CheckExact(arr)) {
                 Npy_INCREF(arr->descr);
@@ -1200,7 +1199,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     else {
         if ((flags & NPY_UPDATEIFCOPY) &&
             (!NpyArray_ISWRITEABLE(arr))) {
-            Npy_DECREF(newtype);
+            _Npy_DECREF(newtype);
             NpyErr_SetString(NpyExc_ValueError, msg);
             return NULL;
         }
@@ -1347,7 +1346,7 @@ static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp 
         if (fail) {
             NpyErr_SetString(NpyExc_IOError,
                              "could not seek in file");
-            Npy_DECREF(dtype);
+            _Npy_DECREF(dtype);
             return NULL;
         }
         num = numbytes / dtype->elsize;
@@ -1378,19 +1377,19 @@ NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
     if (NpyDataType_REFCHK(dtype)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot read into object array");
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
     if (dtype->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError,
                          "The elements are 0-sized.");
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
 
     ret = array_fromfile_binary(fp, dtype, num, &nread);
     if (ret == NULL) {
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
     if (((npy_intp) nread) < num) {
@@ -1412,25 +1411,25 @@ NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
 
 
 NpyArray *
-NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num)
+NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype, npy_intp num)
 {
     int itemsize;
     NpyArray *ret;
     
     if (dtype == NULL) {
-        dtype=NpyArray_DescrFromType(PyArray_DEFAULT);
+        dtype=NpyArray_DescrFromType(NPY_DEFAULT_TYPE);
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot create an object array from"    \
                          " a string");
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
     itemsize = dtype->elsize;
     if (itemsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
     
@@ -1439,7 +1438,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_i
             NpyErr_SetString(NpyExc_ValueError,
                              "string size must be a "\
                              "multiple of element size");
-            Npy_DECREF(dtype);
+            _Npy_DECREF(dtype);
             return NULL;
         }
         num = slen/itemsize;
@@ -1449,7 +1448,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_i
             NpyErr_SetString(NpyExc_ValueError,
                              "string is smaller than " \
                              "requested size");
-            Npy_DECREF(dtype);
+            _Npy_DECREF(dtype);
             return NULL;
         }
     }

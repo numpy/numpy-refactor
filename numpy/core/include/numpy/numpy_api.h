@@ -174,13 +174,6 @@ typedef struct {
 
 
 
-/* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
-typedef struct {
-    NpyArray_Descr *descr;
-    int offset;
-    char *title;                /* String owned/managed by each instance */
-} NpyArray_DescrField;
-
 
 
 /*
@@ -189,9 +182,6 @@ typedef struct {
 
 /* arraytypes.c.src */
 #define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interface layer */
-
-#define NpyArray_DescrFromType(type) \
-        PyArray_DescrFromType(type)
 
 void NpyArray_dealloc(NpyArray *self);
 
@@ -212,21 +202,8 @@ size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t ite
 
 
 /* descriptor.c */
-NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
-NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
-void NpyArray_DescrDestroy(NpyArray_Descr *);
-char **NpyArray_DescrAllocNames(int n);
-NpyDict *NpyArray_DescrAllocFields(void);
-NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
-void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
-void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
-NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
-void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
-                            int offset, const char *title);
-NpyDict *NpyArray_DescrFieldsCopy(NpyDict *fields);
-char **NpyArray_DescrNamesCopy(char **names);
-int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
-void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+#include <numpy/npy_descriptor.h>
+
 
 /* npy_dict.c */
 NpyDict *NpyDict_CreateTable(long numOfBuckets);
@@ -301,6 +278,12 @@ NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
         PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
+
+
+/* refcount.c */
+NPY_NO_EXPORT void
+NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr);
+
 
 
 /* Already exists as a macro */
