@@ -590,6 +590,24 @@ def configuration(parent_package='',top_path=None):
 
         cmd.template_sources(sources, ext)
 
+    # libnumpy version: this function is needed to build foo.c from foo.c.src
+    # when foo.c is included in another file and as such not in the src
+    # argument of build_ext command
+    def generate_libnumpy_templated_sources(ext, build_dir):
+        from numpy.distutils.misc_util import get_cmd
+
+        subpath = join('src', 'libnumpy')
+        sources = [join(local_dir, subpath, 'npy_arraytypes.c.src')]
+
+        # numpy.distutils generate .c from .c.src in weird directories, we have
+        # to add them there as they depend on the build_dir
+        config.add_include_dirs(join(build_dir, subpath))
+
+        cmd = get_cmd('build_src')
+        cmd.ensure_finalized()
+
+        cmd.template_sources(sources, ext)
+
     # umath version: this function is needed to build foo.c from foo.c.src
     # when foo.c is included in another file and as such not in the src
     # argument of build_ext command
@@ -686,8 +704,15 @@ def configuration(parent_package='',top_path=None):
     config.add_npy_pkg_config("mlib.ini.in", "lib/npy-pkg-config",
             subst_dict)
 
+    libnumpy_deps = [
+        join('include', 'numpy', 'numpy_api.h'),
+        join('include', 'numpy', 'npy_defs.h'),
+        join('include', 'numpy', 'npy_iterators.h'),
+        join('include', 'numpy', 'npy_object.h')]
+    
     libnumpy_source = [
         join('src', 'libnumpy', 'npy_arrayobject.c'),
+        join('src', 'libnumpy', 'npy_arraytypes.c.src'),
         join('src', 'libnumpy', 'npy_calculation.c'),
         join('src', 'libnumpy', 'npy_common.c'),
         join('src', 'libnumpy', 'npy_conversion_utils.c'),
@@ -780,6 +805,9 @@ def configuration(parent_package='',top_path=None):
         multiarray_deps.extend(multiarray_src)
         multiarray_src = [join('src', 'multiarray', 'multiarraymodule_onefile.c')]
         multiarray_src.append(generate_multiarray_templated_sources)
+ 
+        libnumpy_deps.extend(libnumpy_src)
+        libnumpy_src.append(generate_libnumpy_templated_sources)
  
         umath_deps.extend(umath_src)
         umath_src = [join('src', 'umath', 'umathmodule_onefile.c')]
