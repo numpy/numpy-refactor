@@ -113,13 +113,13 @@ typedef struct {
 typedef struct {
         PyObject_HEAD
         npy_datetime obval;
-        PyArray_DatetimeMetaData obmeta;
+        PyArray_DateTimeInfo obdtinfo;
 } PyDatetimeScalarObject;
 
 typedef struct {
         PyObject_HEAD
         npy_timedelta obval;
-        PyArray_DatetimeMetaData obmeta;
+        PyArray_DateTimeInfo obdtinfo;
 } PyTimedeltaScalarObject;
 
 

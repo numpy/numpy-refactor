@@ -8,7 +8,6 @@ __all__ = ['iscomplexobj','isrealobj','imag','iscomplex',
 import numpy.core.numeric as _nx
 from numpy.core.numeric import asarray, asanyarray, array, isnan, \
                 obj2sctype, zeros
-from numpy.core.multiarray import METADATA_DTSTR
 from ufunclike import isneginf, isposinf
 
 _typecodes_by_elsize = 'GDFgdfQqLlIiHhBb?'
@@ -612,7 +611,9 @@ def datetime_data(dtype):
     if dtype.kind not in ['m','M']:
         raise ValueError, "Not a date-time dtype"
 
-    obj = dtype.metadata[METADATA_DTSTR]
+    # TODO: This used to have
+    #   obj = dtype.metadata[METADATA_DTSTR]
+    # now we get an error because obj is not set.
     class DATETIMEMETA(ctypes.Structure):
         _fields_ = [('base', ctypes.c_int),
                     ('num', ctypes.c_int),

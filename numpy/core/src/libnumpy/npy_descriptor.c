@@ -76,7 +76,11 @@ NpyArray_DescrNew(NpyArray_Descr *base)
         new->subarray = NpyArray_DupSubarray(base->subarray);
     }
     Npy_Interface_XINCREF(new->typeobj);
-    Npy_Interface_XINCREF(new->metadata);
+
+    if (new->dtinfo) {
+        new->dtinfo = NpyArray_malloc(sizeof(PyArray_DateTimeInfo));
+        memcpy(new->dtinfo, base->dtinfo, sizeof(PyArray_DateTimeInfo));
+    }
     
     return new;
 }
@@ -121,7 +125,10 @@ NpyArray_DescrDestroy(NpyArray_Descr *self)
         NpyArray_DestroySubarray(self->subarray);
         self->subarray = NULL;
     }
-    Npy_Interface_XDECREF(self->metadata);
+    if (self->dtinfo) {
+      NpyArray_free(self->dtinfo);
+    }
+
     self->magic_number = NPY_INVALID_MAGIC;
     
     /* free(self); */       /* TODO: Revisit free(), depends on memory allocation scheme we pick */

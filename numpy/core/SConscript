@@ -487,9 +487,6 @@ else:
 multiarray = env.DistutilsPythonExtension('multiarray', LIBS=['libnumpy', 'npymath'], source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
-
-
-
 #------------------
 # Build sort module
 #------------------

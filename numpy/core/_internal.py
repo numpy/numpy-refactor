@@ -79,17 +79,17 @@ def _usefields(adict, align):
 #  a simple typestring
 
 def _array_descr(descriptor):
-    from multiarray import METADATA_DTSTR
     fields = descriptor.fields
     if fields is None:
         subdtype = descriptor.subdtype
         if subdtype is None:
-            if descriptor.metadata is None:
+            if descriptor.dtinfo is None:
                 return descriptor.str
             else:
-                new = descriptor.metadata.copy()
-                # Eliminate any key related to internal implementation
-                _ = new.pop(METADATA_DTSTR, None)
+                # TODO: This used to put a copy of the metadata
+                # in the tuple. Now we put in the dtinfo tuple.
+                # I have no idea if this is right.
+                new = descriptor.dtinfo
                 return (descriptor.str, new)
         else:
             return (_array_descr(subdtype[0]), subdtype[1])
