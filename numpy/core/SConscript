@@ -373,6 +373,8 @@ umath_funcs_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'funcs.inc.src'
 umath_loops_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'loops.c.src'))
 arraytypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'arraytypes.c.src'))
+npy_arraytypes_src = env.GenerateFromTemplate(
+    pjoin('src', 'libnumpy', 'npy_arraytypes.c.src'))
 sortmodule_src = env.GenerateFromTemplate(pjoin('src', '_sortmodule.c.src'))
 umathmodule_src = env.GenerateFromTemplate(pjoin('src', 'umath',
     'umathmodule.c.src'))
@@ -441,6 +443,7 @@ libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
                 pjoin('src', 'libnumpy', 'npy_multiarraymodule.c'),
                 pjoin('src', 'libnumpy', 'npy_shape.c'),
                 pjoin('src', 'libnumpy', 'npy_usertypes.c')]
+libnumpy_src.extend(npy_arraytypes_src)
 
 
 libnumpy = env.StaticExtLibrary('libnumpy', source = libnumpy_src)

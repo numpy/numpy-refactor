@@ -44,6 +44,7 @@ API_FILES = [join('multiarray', 'methods.c'),
              join('multiarray', 'conversion_utils.c'),
              join('multiarray', 'buffer.c'),
              join('multiarray', 'datetime.c'),
+             join('libnumpy', 'npy_arraytypes.c.src'),
              join('umath', 'ufunc_object.c'),
              join('umath', 'loops.c.src'),
             ]

@@ -105,6 +105,10 @@ npy_bool Npy_IsWriteable(NpyArray *ap);
 size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
                            int inflag, int *objflags);
 
+NPY_NO_EXPORT void
+byte_swap_vector(void *p, npy_intp n, int size);
+
+
 
 /* descriptor.c */
 NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
