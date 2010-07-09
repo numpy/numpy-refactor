@@ -37,12 +37,12 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     Py_ssize_t l;
     char *data;
 
-    if (self->nd == 0) {
+    if (PyArray_NDIM(self) == 0) {
         PyErr_SetString(PyExc_ValueError, "cannot slice a 0-d array");
         return NULL;
     }
 
-    l=self->dimensions[0];
+    l=PyArray_DIM(self, 0);
     if (ilow < 0) {
         ilow = 0;
     }
@@ -63,23 +63,23 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
         }
     }
     else {
-        data = self->data;
+        data = PyArray_BYTES(self);
     }
 
-    self->dimensions[0] = ihigh-ilow;
-    Py_INCREF(self->descr);
-    r = (PyArrayObject *)                                           \
-        PyArray_NewFromDescr(Py_TYPE(self), self->descr,
-                             self->nd, self->dimensions,
-                             self->strides, data,
-                             self->flags, (PyObject *)self);
-    self->dimensions[0] = l;
+    PyArray_DIM(self, 0) = ihigh-ilow;
+    Py_INCREF(PyArray_DESCR(self));
+    r = (PyArrayObject *)
+        PyArray_NewFromDescr(Py_TYPE(self), PyArray_DESCR(self),
+                             PyArray_NDIM(self), PyArray_DIMS(self),
+                             PyArray_STRIDES(self), data,
+                             PyArray_FLAGS(self), (PyObject *)self);
+    PyArray_DIM(self, 0) = l;
     if (r == NULL) {
         return NULL;
     }
-    r->base_arr = self;             /* TODO: Unwrap array object */
-    Npy_INCREF(r->base_arr);
-    assert(NULL == r->base_arr || NULL == r->base_obj);
+    PyArray_BASE_ARRAY(r) = PyArray_ARRAY(self);
+    Npy_INCREF(PyArray_BASE_ARRAY(r));
+    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r));
     PyArray_UpdateFlags(r, UPDATE_ALL);
     return (PyObject *)r;
 }
@@ -169,13 +169,13 @@ array_any_nonzero(PyArrayObject *mp)
     NpyArrayIterObject *it;
     Bool anyTRUE = FALSE;
 
-    it = NpyArray_IterNew(mp);
+    it = NpyArray_IterNew(PyArray_ARRAY(mp));
     if (it == NULL) {
         return anyTRUE;
     }
     index = it->size;
     while(index--) {
-        if (mp->descr->f->nonzero(it->dataptr, mp)) {
+        if (PyArray_DESCR(mp)->f->nonzero(it->dataptr, mp)) {
             anyTRUE = TRUE;
             break;
         }

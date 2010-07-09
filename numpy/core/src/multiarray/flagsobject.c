@@ -47,7 +47,7 @@ PyArray_NewFlagsObject(PyObject *obj)
 NPY_NO_EXPORT void
 PyArray_UpdateFlags(PyArrayObject *ret, int flagmask)
 {
-    NpyArray_UpdateFlags(ret, flagmask);
+    NpyArray_UpdateFlags(PyArray_ARRAY(ret), flagmask);
 }
 
 

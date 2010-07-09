@@ -116,8 +116,8 @@ parse_index(PyArrayObject *self, PyObject *op,
             }
         }
         start = parse_subindex(op1, &step_size, &n_steps,
-                               nd_old < self->nd ?
-                               self->dimensions[nd_old] : 0);
+                               nd_old < PyArray_NDIM(self) ?
+                               PyArray_DIM(self, nd_old) : 0);
         Py_DECREF(op1);
         if (start == -1) {
             break;
@@ -135,7 +135,7 @@ parse_index(PyArrayObject *self, PyObject *op,
                     }
                     Py_DECREF(op1);
                 }
-                n_add = self->nd-(n-i-n_pseudo-1+nd_old);
+                n_add = PyArray_NDIM(self)-(n-i-n_pseudo-1+nd_old);
                 if (n_add < 0) {
                     PyErr_SetString(PyExc_IndexError,
                                     "too many indices");
@@ -143,24 +143,24 @@ parse_index(PyArrayObject *self, PyObject *op,
                 }
                 for (j = 0; j < n_add; j++) {
                     dimensions[nd_new] = \
-                        self->dimensions[nd_old];
+                        PyArray_DIM(self, nd_old);
                     strides[nd_new] = \
-                        self->strides[nd_old];
+                        PyArray_STRIDE(self, nd_old);
                     nd_new++; nd_old++;
                 }
             }
             else {
-                if (nd_old >= self->nd) {
+                if (nd_old >= PyArray_NDIM(self)) {
                     PyErr_SetString(PyExc_IndexError,
                                     "too many indices");
                     return -1;
                 }
-                offset += self->strides[nd_old]*start;
+                offset += PyArray_STRIDE(self, nd_old)*start;
                 nd_old++;
                 if (n_steps != SingleIndex) {
                     dimensions[nd_new] = n_steps;
                     strides[nd_new] = step_size * \
-                        self->strides[nd_old-1];
+                        PyArray_STRIDE(self, nd_old-1);
                     nd_new++;
                 }
             }
@@ -169,10 +169,10 @@ parse_index(PyArrayObject *self, PyObject *op,
     if (i < n) {
         return -1;
     }
-    n_add = self->nd-nd_old;
+    n_add = PyArray_NDIM(self)-nd_old;
     for (j = 0; j < n_add; j++) {
-        dimensions[nd_new] = self->dimensions[nd_old];
-        strides[nd_new] = self->strides[nd_old];
+        dimensions[nd_new] = PyArray_DIM(self, nd_old);
+        strides[nd_new] = PyArray_STRIDE(self, nd_old);
         nd_new++;
         nd_old++;
     }
@@ -281,7 +281,7 @@ PyArray_IterNew(PyObject *obj)
         return NULL;
     }
 
-    iter = NpyArray_IterNew(ao);
+    iter = NpyArray_IterNew(PyArray_ARRAY(ao));
     if (NULL == iter) {
         return NULL;
     }
@@ -303,9 +303,7 @@ PyArray_IterNew(PyObject *obj)
 NPY_NO_EXPORT PyObject *
 PyArray_BroadcastToShape(PyObject *obj, intp *dims, int nd)
 {
-    PyArrayObject *ao = (PyArrayObject *)obj;
-
-    return (PyObject*) NpyArray_BroadcastToShape(ao, dims, nd);
+    return (PyObject*) NpyArray_BroadcastToShape(PyArray_ARRAY(obj), dims, nd);
 }
 
 
@@ -384,20 +382,20 @@ iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
     PyArray_CopySwapFunc *copyswap;
 
 
-    if (ind->nd != 1) {
+    if (PyArray_NDIM(ind) != 1) {
         PyErr_SetString(PyExc_ValueError,
                         "boolean index array should have 1 dimension");
         return NULL;
     }
-    index = ind->dimensions[0];
+    index = PyArray_DIM(ind, 0);
     if (index > self->size) {
         PyErr_SetString(PyExc_ValueError,
                         "too many boolean indices");
         return NULL;
     }
 
-    strides = ind->strides[0];
-    dptr = ind->data;
+    strides = PyArray_STRIDE(ind, 0);
+    dptr = PyArray_BYTES(ind);
     /* Get size of return array */
     while (index--) {
         if (*((Bool *)dptr) != 0) {
@@ -416,8 +414,8 @@ iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
     }
     /* Set up loop */
     optr = PyArray_DATA(r);
-    index = ind->dimensions[0];
-    dptr = ind->data;
+    index = PyArray_DIM(ind, 0);
+    dptr = PyArray_BYTES(ind);
     copyswap = self->ao->descr->f->copyswap;
     /* Loop over Boolean array */
     swap = (PyArray_ISNOTSWAPPED(self->ao) != PyArray_ISNOTSWAPPED(r));
@@ -446,8 +444,8 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
     PyArray_CopySwapFunc *copyswap;
 
     itemsize = self->ao->descr->elsize;
-    if (ind->nd == 0) {
-        num = *((intp *)ind->data);
+    if (PyArray_NDIM(ind) == 0) {
+        num = *((intp *)PyArray_BYTES(ind));
         if (num < 0) {
             num += self->size;
         }
@@ -468,14 +466,14 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
 
     Py_INCREF(self->ao->descr);
     r = PyArray_NewFromDescr(Py_TYPE(self->ao), self->ao->descr,
-                             ind->nd, ind->dimensions,
+                             PyArray_NDIM(ind), PyArray_DIMS(ind),
                              NULL, NULL,
                              0, (PyObject *)self->ao);
     if (r == NULL) {
         return NULL;
     }
     optr = PyArray_DATA(r);
-    ind_it = NpyArray_IterNew(ind);
+    ind_it = NpyArray_IterNew(PyArray_ARRAY(ind));
     if (ind_it == NULL) {
         Py_DECREF(r);
         return NULL;
@@ -673,21 +671,21 @@ iter_ass_sub_Bool(NpyArrayIterObject *self, PyArrayObject *ind,
     char *dptr;
     PyArray_CopySwapFunc *copyswap;
 
-    if (ind->nd != 1) {
+    if (PyArray_NDIM(ind) != 1) {
         PyErr_SetString(PyExc_ValueError,
                         "boolean index array should have 1 dimension");
         return -1;
     }
 
-    index = ind->dimensions[0];
+    index = PyArray_DIM(ind, 0);
     if (index > self->size) {
         PyErr_SetString(PyExc_ValueError,
                         "boolean index array has too many values");
         return -1;
     }
 
-    strides = ind->strides[0];
-    dptr = ind->data;
+    strides = PyArray_STRIDE(ind, 0);
+    dptr = PyArray_BYTES(ind);
     NpyArray_ITER_RESET(self);
     /* Loop over Boolean array */
     copyswap = self->ao->descr->f->copyswap;
@@ -718,13 +716,13 @@ iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
 
     typecode = self->ao->descr;
     copyswap = self->ao->descr->f->copyswap;
-    if (ind->nd == 0) {
-        num = *((intp *)ind->data);
+    if (PyArray_NDIM(ind) == 0) {
+        num = *((intp *)PyArray_BYTES(ind));
         NpyArray_ITER_GOTO1D(self, num);
         copyswap(self->dataptr, val->dataptr, swap, self->ao);
         return 0;
     }
-    ind_it = NpyArray_IterNew(ind);
+    ind_it = NpyArray_IterNew(PyArray_ARRAY(ind));
     if (ind_it == NULL) {
         return -1;
     }
@@ -836,7 +834,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     if (arrval == NULL) {
         return -1;
     }
-    val_it = NpyArray_IterNew(arrval);
+    val_it = NpyArray_IterNew(PyArray_ARRAY(arrval));
     if (val_it == NULL) {
         goto finish;
     }
@@ -994,8 +992,8 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
         it->ao->flags &= ~WRITEABLE;
     }
     Npy_INCREF(it->ao);
-    r->base_arr = it->ao;
-    assert(NULL == r->base_arr || NULL == r->base_obj);
+    PyArray_BASE_ARRAY(r) = it->ao;
+    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r));
     
     return (PyObject *)r;
 }
@@ -1006,7 +1004,8 @@ iter_copy(PyArrayIterObject *it, PyObject *args)
     if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    return PyArray_Flatten(it->iter->ao, 0);
+    /* TODO: Wrap object. */
+    return (PyObject *)NpyArray_Flatten(it->iter->ao, 0);
 }
 
 static PyMethodDef iter_methods[] = {
@@ -1284,7 +1283,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
     Py_ssize_t n, i;
     NpyArrayMultiIterObject *multi;
     PyArrayMultiIterObject* result;
-    NpyArray *arr;
+    PyArrayObject *arr;
 
     if (kwds != NULL) {
         PyErr_SetString(PyExc_ValueError,
@@ -1322,7 +1321,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
         if (arr == NULL) {
             goto fail;
         }
-        if ((multi->iters[i] = NpyArray_IterNew(arr))
+        if ((multi->iters[i] = NpyArray_IterNew(PyArray_ARRAY(arr)))
                 == NULL) {
             goto fail;
         }
@@ -1587,7 +1586,8 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
     PyObject_Init((PyObject *)ret, &PyArrayNeighborhoodIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
     
-    coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode, fill);
+    coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode, 
+                                           PyArray_ARRAY(fill));
     if (NULL == coreRet) {
         _pya_free((PyArrayObject*)ret);
         return NULL;        

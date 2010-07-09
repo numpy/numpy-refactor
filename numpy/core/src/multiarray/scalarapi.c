@@ -20,6 +20,21 @@
 
 #include "common.h"
 
+#define ASSERT_ONE_BASE(r) \
+    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
+
+#define SET_BASE(a, b)                                  \
+    do {                                                \
+        if (PyArray_Check(b)) {                         \
+            PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
+            Npy_INCREF(PyArray_BASE_ARRAY(a));         \
+        } else {                                        \
+            PyArray_BASE(a) = (PyObject*) b;            \
+            Py_INCREF(b);                               \
+        }                                               \
+    } while(0)
+            
+
 static PyArray_Descr *
 _descr_from_subtype(PyObject *type)
 {
@@ -225,7 +240,7 @@ PyArray_CastScalarToCtype(PyObject *scalar, void *ctypeptr,
             Py_DECREF(ain);
             return -1;
         }
-        castfunc(ain->data, aout->data, 1, ain, aout);
+        castfunc(PyArray_BYTES(ain), PyArray_BYTES(aout), 1, ain, aout);
         Py_DECREF(ain);
         Py_DECREF(aout);
     }
@@ -284,15 +299,9 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
                 ((PyVoidScalarObject *)scalar)->obval,
                 ((PyVoidScalarObject *)scalar)->flags,
                 NULL);
-        
-        if (PyArray_Check(scalar)) {
-            r->base_arr = (NpyArray *)scalar;
-            Npy_INCREF(r->base_arr);    /* TODO: Unwrap array object */
-        } else {
-            r->base_obj = scalar;
-            Py_INCREF(r->base_obj);
-        }
-        assert(NULL == r->base_arr || NULL == r->base_obj);
+
+        SET_BASE(r, scalar);
+        ASSERT_ONE_BASE(r);
         return (PyObject *)r;
     }
 
@@ -812,9 +821,9 @@ PyArray_Return(PyArrayObject *mp)
     if (!PyArray_Check(mp)) {
         return (PyObject *)mp;
     }
-    if (mp->nd == 0) {
+    if (PyArray_NDIM(mp) == 0) {
         PyObject *ret;
-        ret = PyArray_ToScalar(mp->data, mp);
+        ret = PyArray_ToScalar(PyArray_BYTES(mp), mp);
         Py_DECREF(mp);
         return ret;
     }

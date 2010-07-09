@@ -30,15 +30,15 @@ PyArray_ToList(PyArrayObject *self)
     if (!PyArray_Check(self)) {
         return (PyObject *)self;
     }
-    if (self->nd == 0) {
-        return self->descr->f->getitem(self->data,self);
+    if (PyArray_NDIM(self) == 0) {
+        return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self),self);
     }
 
-    sz = self->dimensions[0];
+    sz = PyArray_DIM(self, 0);
     lp = PyList_New(sz);
     for (i = 0; i < sz; i++) {
         v = (PyArrayObject *)array_big_item(self, i);
-        if (PyArray_Check(v) && (v->nd >= self->nd)) {
+        if (PyArray_Check(v) && (PyArray_NDIM(v) >= PyArray_NDIM(self))) {
             PyErr_SetString(PyExc_RuntimeError,
                             "array_item not returning smaller-" \
                             "dimensional array");
@@ -60,11 +60,11 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
     NpyArrayIterObject *it;
     PyObject *obj, *strobj, *tupobj, *byteobj;
         
-    it = NpyArray_IterNew(self);
+    it = NpyArray_IterNew(PyArray_ARRAY(self));
     n3 = (sep ? strlen((const char *)sep) : 0);
     n4 = (format ? strlen((const char *)format) : 0);
     while (it->index < it->size) {
-        obj = self->descr->f->getitem(it->dataptr, self);
+        obj = PyArray_DESCR(self)->f->getitem(it->dataptr, self);
         if (obj == NULL) {
             _Npy_DECREF(it);
             return -1;
@@ -158,7 +158,7 @@ PyArray_ToFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
 
     n3 = (sep ? strlen((const char *)sep) : 0);
     if (n3 == 0) {
-        NpyArray_ToBinaryFile(self, fp);
+        NpyArray_ToBinaryFile(PyArray_ARRAY(self), fp);
     }
     else {
         PyArray_ToTextFile(self, fp, sep, format);
@@ -190,7 +190,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
     numbytes = PyArray_NBYTES(self);
     if ((PyArray_ISCONTIGUOUS(self) && (order == NPY_CORDER))
         || (PyArray_ISFORTRAN(self) && (order == NPY_FORTRANORDER))) {
-        ret = PyBytes_FromStringAndSize(self->data, (Py_ssize_t) numbytes);
+        ret = PyBytes_FromStringAndSize(PyArray_BYTES(self), (Py_ssize_t) numbytes);
     }
     else {
         PyObject *new;
@@ -205,7 +205,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
             Py_INCREF(self);
             new = (PyObject *)self;
         }
-        it = NpyArray_IterNew((PyArrayObject*)new);
+        it = NpyArray_IterNew(PyArray_ARRAY(new));
         Py_DECREF(new);
         if (it == NULL) {
             return NULL;
@@ -217,7 +217,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
         }
         dptr = PyBytes_AS_STRING(ret);
         index = it->size;
-        elsize = self->descr->elsize;
+        elsize = PyArray_ITEMSIZE(self);
         while (index--) {
             memcpy(dptr, it->dataptr, elsize);
             dptr += elsize;
@@ -239,7 +239,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     intp size;
     PyArray_CopySwapFunc *copyswap;
 
-    itemsize = arr->descr->elsize;
+    itemsize = PyArray_ITEMSIZE(arr);
     if (PyArray_ISOBJECT(arr)) {
         fromptr = &obj;
         swap = 0;
@@ -256,11 +256,11 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
         swap = (PyArray_ISNOTSWAPPED(arr) != PyArray_ISNOTSWAPPED(newarr));
     }
     size=PyArray_SIZE(arr);
-    copyswap = arr->descr->f->copyswap;
+    copyswap = PyArray_DESCR(arr)->f->copyswap;
     if (PyArray_ISONESEGMENT(arr)) {
         char *toptr=PyArray_DATA(arr);
         PyArray_FillWithScalarFunc* fillwithscalar =
-            arr->descr->f->fillwithscalar;
+            PyArray_DESCR(arr)->f->fillwithscalar;
         if (fillwithscalar && PyArray_ISALIGNED(arr)) {
             copyswap(fromptr, NULL, swap, newarr);
             fillwithscalar(toptr, size, fromptr, arr);
@@ -275,7 +275,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     else {
         NpyArrayIterObject *iter;
 
-        iter = NpyArray_IterNew(arr);
+        iter = NpyArray_IterNew(PyArray_ARRAY(arr));
         if (iter == NULL) {
             Py_XDECREF(newarr);
             return -1;
@@ -300,11 +300,11 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
     if (fortran == PyArray_ANYORDER)
         fortran = PyArray_ISFORTRAN(m1);
 
-    Py_INCREF(m1->descr);
+    Py_INCREF(PyArray_DESCR(m1));
     ret = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(m1),
-                                                m1->descr,
-                                                m1->nd,
-                                                m1->dimensions,
+                                                PyArray_DESCR(m1),
+                                                PyArray_NDIM(m1),
+                                                PyArray_DIMS(m1),
                                                 NULL, NULL,
                                                 fortran,
                                                 (PyObject *)m1);
@@ -335,21 +335,21 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
     else {
         subtype = Py_TYPE(self);
     }
-    Py_INCREF(self->descr);
+    Py_INCREF(PyArray_DESCR(self));
     new = (PyArrayObject* )PyArray_NewFromDescr(subtype,
-                                                self->descr,
-                                                self->nd, self->dimensions,
-                                                self->strides,
-                                                self->data,
-                                                self->flags, (PyObject *)self);
+                                                PyArray_DESCR(self),
+                                                PyArray_NDIM(self), PyArray_DIMS(self),
+                                                PyArray_STRIDES(self),
+                                                PyArray_BYTES(self),
+                                                PyArray_FLAGS(self), (PyObject *)self);
     if (new == NULL) {
         return NULL;
     }
     
     /* TODO: Unwrap array structure, increment NpyArray, not PyArrayObject refcnt. */
-    new->base_arr = self;
-    Npy_INCREF(new->base_arr);
-    assert(NULL == new->base_arr || NULL == new->base_obj);
+    PyArray_BASE_ARRAY(new) = PyArray_ARRAY(self);
+    Npy_INCREF(PyArray_BASE_ARRAY(new));
+    assert(NULL == PyArray_BASE_ARRAY(new) || NULL == PyArray_BASE(new));
 
     if (type != NULL) {
         if (PyObject_SetAttrString((PyObject *)new, "dtype",

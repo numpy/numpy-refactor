@@ -96,16 +96,16 @@ PyArray_INCREF(PyArrayObject *mp)
     PyObject *temp;
     NpyArrayIterObject *it;
 
-    if (!PyDataType_REFCHK(mp->descr)) {
+    if (!PyDataType_REFCHK(PyArray_DESCR(mp))) {
         return 0;
     }
-    if (mp->descr->type_num != PyArray_OBJECT) {
-        it = NpyArray_IterNew(mp);
+    if (PyArray_TYPE(mp) != PyArray_OBJECT) {
+        it = NpyArray_IterNew(PyArray_ARRAY(mp));
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
-            PyArray_Item_INCREF(it->dataptr, mp->descr);
+            PyArray_Item_INCREF(it->dataptr, PyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
@@ -113,7 +113,7 @@ PyArray_INCREF(PyArrayObject *mp)
     }
 
     if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)mp->data;
+        data = (PyObject **)PyArray_BYTES(mp);
         n = PyArray_SIZE(mp);
         if (PyArray_ISALIGNED(mp)) {
             for (i = 0; i < n; i++, data++) {
@@ -128,7 +128,7 @@ PyArray_INCREF(PyArrayObject *mp)
         }
     }
     else { /* handles misaligned data too */
-        it = NpyArray_IterNew(mp);
+        it = NpyArray_IterNew(PyArray_ARRAY(mp));
         if (it == NULL) {
             return -1;
         }
@@ -154,16 +154,16 @@ PyArray_XDECREF(PyArrayObject *mp)
     PyObject *temp;
     NpyArrayIterObject *it;
 
-    if (!PyDataType_REFCHK(mp->descr)) {
+    if (!PyDataType_REFCHK(PyArray_DESCR(mp))) {
         return 0;
     }
-    if (mp->descr->type_num != PyArray_OBJECT) {
-        it = NpyArray_IterNew(mp);
+    if (PyArray_TYPE(mp) != PyArray_OBJECT) {
+        it = NpyArray_IterNew(PyArray_ARRAY(mp));
         if (it == NULL) {
             return -1;
         }
         while(it->index < it->size) {
-            PyArray_Item_XDECREF(it->dataptr, mp->descr);
+            PyArray_Item_XDECREF(it->dataptr, PyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
@@ -171,7 +171,7 @@ PyArray_XDECREF(PyArrayObject *mp)
     }
 
     if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)mp->data;
+        data = (PyObject **)PyArray_BYTES(PyArray_ARRAY(mp));
         n = PyArray_SIZE(mp);
         if (PyArray_ISALIGNED(mp)) {
             for (i = 0; i < n; i++, data++) Py_XDECREF(*data);
@@ -184,7 +184,7 @@ PyArray_XDECREF(PyArrayObject *mp)
         }
     }
     else { /* handles misaligned data too */
-        it = NpyArray_IterNew(mp);
+        it = NpyArray_IterNew(PyArray_ARRAY(mp));
         if (it == NULL) {
             return -1;
         }
@@ -206,9 +206,9 @@ PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj)
 {
     intp i,n;
     n = PyArray_SIZE(arr);
-    if (arr->descr->type_num == PyArray_OBJECT) {
+    if (PyArray_TYPE(arr) == PyArray_OBJECT) {
         PyObject **optr;
-        optr = (PyObject **)(arr->data);
+        optr = (PyObject **)(PyArray_BYTES(arr));
         n = PyArray_SIZE(arr);
         if (obj == NULL) {
             for (i = 0; i < n; i++) {
@@ -224,10 +224,10 @@ PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj)
     }
     else {
         char *optr;
-        optr = arr->data;
+        optr = PyArray_BYTES(arr);
         for (i = 0; i < n; i++) {
-            _fillobject(optr, obj, arr->descr);
-            optr += arr->descr->elsize;
+            _fillobject(optr, obj, PyArray_DESCR(arr));
+            optr += PyArray_ITEMSIZE(arr);
         }
     }
 }

@@ -158,8 +158,8 @@ extern "C" CONFUSE_EMACS
 
 #define PyArray_XDECREF_ERR(obj) \
         if (obj && (PyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {                 \
-                PyArray_FLAGS(obj->base_arr) |= NPY_WRITEABLE;                \
-                PyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                      \
+            PyArray_FLAGS(PyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
+            PyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                    \
         }                                                                     \
         Py_XDECREF(obj)
 

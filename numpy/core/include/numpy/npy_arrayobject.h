@@ -38,6 +38,8 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_FLAGS(obj) ((obj)->flags)
 #define NpyArray_ITEMSIZE(obj) ((obj)->descr->elsize)
 #define NpyArray_TYPE(obj) ((obj)->descr->type_num)
+#define NpyArray_BASE_ARRAY(obj) ((obj)->base_arr)
+#define NpyArray_BASE(obj) ((obj)->base_obj)
 
 #define NpyArray_GETITEM(obj,itemptr)                           \
         (obj)->descr->f->getitem((char *)(itemptr),             \
