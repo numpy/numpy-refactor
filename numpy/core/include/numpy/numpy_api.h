@@ -81,8 +81,14 @@ extern NpyArray_Descr **npy_userdescrs;
 /*
  * External interface-provided functions 
  */
-void *NpyInterface_NewArrayWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtype, void *interfaceData);
-
+void NpyInterface_Incref(void *);
+void NpyInterface_Decref(void *);
+int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, 
+                                 void *subtype, void *interfaceData, void **interfaceRet);
+int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
+int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
+int NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter, void **interfaceRet);
+int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet);
 
 
 

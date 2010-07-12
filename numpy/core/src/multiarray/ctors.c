@@ -819,8 +819,9 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
    by NpyArray_NewFromDescr to initialize the Python wrapper object. */
 /* TODO: I don't understand the function of customStrides and why the flag only gets set
    if __array_finalize__ is defined. */
-NPY_NO_EXPORT void *
-NpyInterface_NewArrayWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtypeTmp, void *interfaceData)
+NPY_NO_EXPORT int
+NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtypeTmp, 
+                             void *interfaceData, void **interfaceRet)
 {
     PyTypeObject *subtype;
     PyArrayObject *wrapper = NULL;
@@ -889,11 +890,12 @@ NpyInterface_NewArrayWrapper(NpyArray *newArray, int ensureArray, int customStri
         }
         else Npy_Interface_XDECREF(func);
     }
-    return wrapper;
+    *interfaceRet = wrapper;
+    return NPY_TRUE;
     
 fail:
-    /* TODO: How do we flag a failure?  NULL is a legal return value. How should the error be handled? */
-    return NULL;
+    *interfaceRet = NULL;
+    return NPY_FALSE;
 }
 
 

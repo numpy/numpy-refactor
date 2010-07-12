@@ -20,6 +20,28 @@
 static void
 _fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype);
 
+
+/*
+ * Reference counting callbacks provided to the core. 
+ */
+
+void
+NpyInterface_Incref(void *objtmp)
+{
+    PyObject *obj = (PyObject *)objtmp;
+    Py_INCREF(obj);
+}
+
+void
+NpyInterface_Decref(void *objtmp)
+{
+    PyObject *obj = (PyObject *)objtmp;
+    Py_DECREF(obj);
+}
+
+
+
+
 /* Incref all objects found at this record */
 /*NUMPY_API
  */

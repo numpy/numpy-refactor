@@ -38,6 +38,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 {
     int nd, i;
 
+    Npy_INTERFACE(it) = NULL;
     it->magic_number = NPY_VALID_MAGIC;
     nd = ao->nd;
     NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
@@ -76,6 +77,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
+    Npy_INTERFACE(it) = NULL;
     Npy_XDECREF(it->ao);
     it->magic_number = NPY_INVALID_MAGIC;
 }
@@ -90,12 +92,17 @@ NpyArray_IterNew(NpyArray *ao)
 
     it = (NpyArrayIterObject *)NpyArray_malloc(sizeof(NpyArrayIterObject));
     _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
-    it->magic_number = NPY_VALID_MAGIC;
     if (it == NULL) {
         return NULL;
     }
+    it->magic_number = NPY_VALID_MAGIC;
 
     array_iter_base_init(it, ao);
+    if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
+        Npy_INTERFACE(it) = NULL;
+        _Npy_DECREF(it);
+        return NULL;
+    }
     return it;
 }
 
@@ -126,12 +133,17 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
         goto err;
     }
     it = (NpyArrayIterObject *) NpyArray_malloc(sizeof(NpyArrayIterObject));
-    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
-    it->magic_number = NPY_VALID_MAGIC;
-    
     if (it == NULL) {
         return NULL;
     }
+    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
+    it->magic_number = NPY_VALID_MAGIC;
+    if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
+        Npy_INTERFACE(it) = NULL;
+        _Npy_DECREF(it);
+        return NULL;
+    }
+
     NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
     if (NpyArray_ISCONTIGUOUS(ao)) {
         it->contiguous = 1;
@@ -355,6 +367,8 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit)
 static void
 arrayiter_dealloc(NpyArrayIterObject *it)
 {
+    assert(0 == it->nob_refcnt);
+    
     array_iter_base_dealloc(it);
     NpyArray_free(it);
 }
@@ -368,6 +382,8 @@ static void
 arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
 {
     int i;
+
+    assert(0 == multi->nob_refcnt);
 
     for (i = 0; i < multi->numiter; i++) {
         _Npy_XDECREF(multi->iters[i]);
@@ -433,6 +449,11 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         return NULL;
     }
     NpyArray_MultiIter_RESET(multi);
+    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(multi, &multi->nob_interface)) {
+        Npy_INTERFACE(multi) = NULL;
+        _Npy_DECREF(multi);
+        return NULL;
+    }
     return multi;
 }
 
@@ -448,6 +469,12 @@ NpyArray_MultiIterNew()
         return NULL;
     }
     _NpyObject_Init(ret, &NpyArrayMultiIter_Type);
+    ret->magic_number = NPY_VALID_MAGIC;
+    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret, &ret->nob_interface)) {
+        Npy_INTERFACE(ret) = NULL;
+        _Npy_DECREF(ret);
+        return NULL;
+    }
     return ret;
 }
 
@@ -726,7 +753,12 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     x->contiguous = 0;
     
     NpyArrayNeighborhoodIter_Reset(ret);
-    
+    if (NPY_FALSE == NpyInterface_NeighborhoodIterNewWrapper(ret, &ret->nob_interface)) {
+        Npy_INTERFACE(ret) = NULL;
+        _Npy_DECREF(ret);
+        return NULL;
+    }
+
     return ret;
     
 clean_x:
@@ -737,6 +769,8 @@ clean_x:
 
 static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 {
+    assert(0 == iter->nob_refcnt);
+
     if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
         /* TODO: fix when we split the array object.*/
         if (PyArray_ISOBJECT(iter->_internal_iter->ao)) {

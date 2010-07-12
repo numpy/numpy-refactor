@@ -930,7 +930,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
     }
-    self->interface = NULL;
+    self->nob_interface = NULL;
     self->descr = descr;
     self->base_arr = NULL;
     self->base_obj = NULL;
@@ -999,9 +999,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
      * method if a subtype.
      * If obj is NULL, then call method with Py_None
      */
-    self->interface = NpyInterface_NewArrayWrapper(self, ensureArray, 
-                                                   (NULL != strides), 
-                                                   subtype, interfaceData);
+    if (NPY_FALSE == NpyInterface_ArrayNewWrapper(self, ensureArray, 
+                                                  (NULL != strides), 
+                                                  subtype, interfaceData, &self->nob_interface)) {
+        Npy_INTERFACE(self) = NULL;
+        Npy_DECREF(self);
+        return NULL;
+    }
     return self;
     
 fail:

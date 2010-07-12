@@ -28,6 +28,30 @@
 static PyObject *
 array_subscript_simple(PyArrayObject *self, PyObject *op);
 
+
+/* Callback from the core to construct the PyObject wrapper around an interator. */
+NPY_NO_EXPORT int
+NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet)
+{
+    PyArrayMapIterObject *result;
+    
+    result = _pya_malloc(sizeof(*result));
+    if (result == NULL) {
+        *interfaceRet = NULL;
+        return NPY_FALSE;
+    }
+    
+    PyObject_Init((PyObject *)result, &PyArrayMapIter_Type);
+    result->magic_number = NPY_VALID_MAGIC;
+    result->iter = iter;
+    
+    *interfaceRet = result;
+    return NPY_TRUE;
+}
+
+
+
+
 /******************************************************************************
  ***                    IMPLEMENT MAPPING PROTOCOL                          ***
  *****************************************************************************/
@@ -325,8 +349,8 @@ PyArray_SetMap(PyArrayMapIterObject *pyMit, PyObject *op)
     /* Need to decref arrays with objects in them */
     if (PyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)) {
         while (index--) {
-            PyArray_Item_INCREF(it->dataptr, PyArray_DESCR(arr));
-            PyArray_Item_XDECREF(mit->dataptr, PyArray_DESCR(arr));
+            NpyArray_Item_INCREF(it->dataptr, PyArray_DESCR(arr));
+            NpyArray_Item_XDECREF(mit->dataptr, PyArray_DESCR(arr));
             memmove(mit->dataptr, it->dataptr, PyArray_ITEMSIZE(arr));
             /* ignored unless VOID array with object's */
             if (swap) {
@@ -1372,19 +1396,17 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
         return NULL;
     }
 
-    /* This is the Python object wrapper around a core object. */
-    pyMit = (PyArrayMapIterObject *)_pya_malloc(sizeof(PyArrayMapIterObject));
-    PyObject_Init((PyObject *)pyMit, &PyArrayMapIter_Type);
-    if (pyMit == NULL) {
-        return NULL;
-    }
-    
     /* This is the core iterator object - not a Python object. */
-    pyMit->iter = mit = NpyArray_MapIterNew();
+    mit = NpyArray_MapIterNew();
     if (NULL == mit) {
         Py_DECREF(mit);
         return NULL;
     }
+    pyMit = Npy_INTERFACE(mit);
+    
+    /* Move the held reference from the core obj to the interface obj. */
+    Py_INCREF(pyMit);
+    _Npy_DECREF(mit);
     
     /* TODO: Refactor away the use of Py object for indexobj. */
     Py_INCREF(indexobj);
@@ -1533,7 +1555,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
 static void
 arraymapiter_dealloc(PyArrayMapIterObject *mit)
 {
-    _Npy_DECREF(mit->iter);
+    Npy_DEALLOC(mit->iter);
     _pya_free(mit);
 }
 
