@@ -76,7 +76,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
-    Py_XDECREF(it->ao);
+    Npy_XDECREF(it->ao);
     it->magic_number = NPY_INVALID_MAGIC;
 }
 

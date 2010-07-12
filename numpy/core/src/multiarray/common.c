@@ -246,8 +246,8 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
         PyArrayInterface *inter;
         char buf[40];
 
-        if (NpyCapsule_Check(ip)) {
-            inter = (PyArrayInterface *)NpyCapsule_AsVoidPtr(ip);
+        if (PyCapsule_Check(ip)) {
+            inter = (PyArrayInterface *)PyCapsule_AsVoidPtr(ip);
             if (inter->two == 2) {
                 PyOS_snprintf(buf, sizeof(buf),
                         "|%c%d", inter->typekind, inter->itemsize);

@@ -565,7 +565,7 @@ array_struct_get(PyArrayObject *self)
         inter->descr = NULL;
     }
     Py_INCREF(self);
-    ret = NpyCapsule_FromVoidPtrAndDesc(inter, self, gentype_struct_free);
+    ret = PyCapsule_FromVoidPtrAndDesc(inter, self, gentype_struct_free);
     return ret;
 }
 

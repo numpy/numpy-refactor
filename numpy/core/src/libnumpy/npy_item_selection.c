@@ -46,11 +46,10 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     }
     Npy_INCREF(self->descr);
     if (!ret) {
-        ret = NpyArray_NewFromDescr(Npy_TYPE(self),
-                                    self->descr,
+        ret = NpyArray_NewFromDescr(self->descr,
                                     nd, shape,
                                     NULL, NULL, 0,
-                                    (NpyObject *)self);
+                                    NPY_FALSE, NULL, self);
 
         if (ret == NULL) {
             goto fail;
@@ -505,12 +504,11 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
     /* Construct new array */
     aop->dimensions[axis] = total;
     Npy_INCREF(aop->descr);
-    ret = NpyArray_NewFromDescr(Npy_TYPE(aop),
-                                aop->descr,
+    ret = NpyArray_NewFromDescr(aop->descr,
                                 aop->nd,
                                 aop->dimensions,
                                 NULL, NULL, 0,
-                                (NpyObject *)aop);
+                                NPY_FALSE, NULL, aop);
     aop->dimensions[axis] = n;
     if (ret == NULL) {
         goto fail;
@@ -578,12 +576,11 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     /* Set-up return array */
     if (!ret) {
         Npy_INCREF(mps[0]->descr);
-        ret = NpyArray_NewFromDescr(Npy_TYPE(ap),
-                                    mps[0]->descr,
+        ret = NpyArray_NewFromDescr(mps[0]->descr,
                                     multi->nd,
                                     multi->dimensions,
                                     NULL, NULL, 0,
-                                    (NpyObject *)ap);
+                                    NPY_FALSE, NULL, ap);
     }
     else {
         NpyArray *obj;

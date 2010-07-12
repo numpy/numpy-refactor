@@ -41,4 +41,7 @@ struct _NpyObject {
     } while (0)
 
 
+#define NpyObject_Wrapper(a) ((a)->interface)
+
+
 #endif

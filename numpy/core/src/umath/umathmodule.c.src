@@ -306,7 +306,7 @@ PyMODINIT_FUNC initumath(void)
     /* Add some symbolic constants to the module */
     d = PyModule_GetDict(m);
 
-    c_api = NpyCapsule_FromVoidPtr((void *)PyUFunc_API, NULL);
+    c_api = PyCapsule_FromVoidPtr((void *)PyUFunc_API, NULL);
     if (PyErr_Occurred()) {
         goto err;
     }

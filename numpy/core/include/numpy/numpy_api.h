@@ -79,6 +79,14 @@ extern NpyArray_Descr **npy_userdescrs;
 
 
 /*
+ * External interface-provided functions 
+ */
+void *NpyInterface_NewArrayWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtype, void *interfaceData);
+
+
+
+
+/*
  * Functions we need to convert.
  */
 
@@ -277,10 +285,10 @@ int NpyArray_TypeNumFromName(char *str);
 int NpyArray_TypeNumFromTypeObj(void* typeobj);
 NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
-NpyArray *NpyArray_NewFromDescr(NpyTypeObject *subtype, 
-                                NpyArray_Descr *descr, int nd,
+NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                 npy_intp *dims, npy_intp *strides, void *data,
-                                int flags, NpyObject *obj);
+                                int flags, int ensureArray, void *subtype, 
+                                void *interfaceData);
 NpyArray *NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
                        NpyObject *obj);
@@ -293,9 +301,6 @@ npy_datetime NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timede
 void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr, npy_datetimestruct *result);
 void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr, npy_timedeltastruct *result);
 
-
-/* TODO: Check this, defined in npy_ctors.c. */
-int NpyCapsule_Check(PyObject *ptr);
 
 
 /*

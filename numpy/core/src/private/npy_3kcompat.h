@@ -222,7 +222,7 @@ PyObject_Cmp(PyObject *i1, PyObject *i2, int *cmp)
 #if PY_VERSION_HEX >= 0x02070000
 
 static NPY_INLINE PyObject *
-NpyCapsule_FromVoidPtr(void *ptr, void (*dtor)(PyObject *))
+PyCapsule_FromVoidPtr(void *ptr, void (*dtor)(PyObject *))
 {
     PyObject *ret = PyCapsule_New(ptr, NULL, dtor);
     if (ret == NULL) {
@@ -232,9 +232,9 @@ NpyCapsule_FromVoidPtr(void *ptr, void (*dtor)(PyObject *))
 }
 
 static NPY_INLINE PyObject *
-NpyCapsule_FromVoidPtrAndDesc(void *ptr, void* context, void (*dtor)(PyObject *))
+PyCapsule_FromVoidPtrAndDesc(void *ptr, void* context, void (*dtor)(PyObject *))
 {
-    PyObject *ret = NpyCapsule_FromVoidPtr(ptr, dtor);
+    PyObject *ret = PyCapsule_FromVoidPtr(ptr, dtor);
     if (ret != NULL && PyCapsule_SetContext(ret, context) != 0) {
         PyErr_Clear();
         Py_DECREF(ret);
@@ -244,7 +244,7 @@ NpyCapsule_FromVoidPtrAndDesc(void *ptr, void* context, void (*dtor)(PyObject *)
 }
 
 static NPY_INLINE void *
-NpyCapsule_AsVoidPtr(PyObject *obj)
+PyCapsule_AsVoidPtr(PyObject *obj)
 {
     void *ret = PyCapsule_GetPointer(obj, NULL);
     if (ret == NULL) {
@@ -254,7 +254,7 @@ NpyCapsule_AsVoidPtr(PyObject *obj)
 }
 
 static NPY_INLINE int
-NpyCapsule_Check(PyObject *ptr)
+PyCapsule_Check(PyObject *ptr)
 {
     return PyCapsule_CheckExact(ptr);
 }
@@ -268,26 +268,26 @@ simple_capsule_dtor(PyObject *cap)
 #else
 
 static NPY_INLINE PyObject *
-NpyCapsule_FromVoidPtr(void *ptr, void (*dtor)(void *))
+PyCapsule_FromVoidPtr(void *ptr, void (*dtor)(void *))
 {
     return PyCObject_FromVoidPtr(ptr, dtor);
 }
 
 static NPY_INLINE PyObject *
-NpyCapsule_FromVoidPtrAndDesc(void *ptr, void* context,
+PyCapsule_FromVoidPtrAndDesc(void *ptr, void* context,
         void (*dtor)(void *, void *))
 {
     return PyCObject_FromVoidPtrAndDesc(ptr, context, dtor);
 }
 
 static NPY_INLINE void *
-NpyCapsule_AsVoidPtr(PyObject *ptr)
+PyCapsule_AsVoidPtr(PyObject *ptr)
 {
     return PyCObject_AsVoidPtr(ptr);
 }
 
 static NPY_INLINE int
-NpyCapsule_Check(PyObject *ptr)
+PyCapsule_Check(PyObject *ptr)
 {
     return PyCObject_Check(ptr);
 }

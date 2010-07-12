@@ -374,7 +374,7 @@ _find_matching_userloop(PyObject *obj, int *arg_types,
     PyUFunc_Loop1d *funcdata;
     int i;
 
-    funcdata = (PyUFunc_Loop1d *)NpyCapsule_AsVoidPtr(obj);
+    funcdata = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(obj);
     while (funcdata != NULL) {
         for (i = 0; i < nin; i++) {
             if (!PyArray_CanCoerceScalar(arg_types[i],
@@ -519,7 +519,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
          * extract the correct function
          * data and argtypes
          */
-        funcdata = (PyUFunc_Loop1d *)NpyCapsule_AsVoidPtr(obj);
+        funcdata = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(obj);
         while (funcdata != NULL) {
             if (n != 1) {
                 for (i = 0; i < nargs; i++) {
@@ -3966,7 +3966,7 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
     cobj = PyDict_GetItem(ufunc->userloops, key);
     /* If it's not there, then make one and return. */
     if (cobj == NULL) {
-        cobj = NpyCapsule_FromVoidPtr((void *)funcdata, _loop1d_list_free);
+        cobj = PyCapsule_FromVoidPtr((void *)funcdata, _loop1d_list_free);
         if (cobj == NULL) {
             goto fail;
         }
@@ -3984,7 +3984,7 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
          * is exactly like this one, then just replace.
          * Otherwise insert.
          */
-        current = (PyUFunc_Loop1d *)NpyCapsule_AsVoidPtr(cobj);
+        current = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(cobj);
         while (current != NULL) {
             cmp = cmp_arg_types(current->arg_types, newtypes, ufunc->nargs);
             if (cmp >= 0) {

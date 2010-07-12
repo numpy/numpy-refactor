@@ -858,7 +858,7 @@ gentype_struct_get(PyObject *self)
     inter->data = arr->data;
     inter->descr = NULL;
 
-    ret = NpyCapsule_FromVoidPtrAndDesc(inter, arr, gentype_struct_free);
+    ret = PyCapsule_FromVoidPtrAndDesc(inter, arr, gentype_struct_free);
     return ret;
 }
 

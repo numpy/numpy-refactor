@@ -268,12 +268,11 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
     }
 
     Npy_INCREF(self->descr);
-    ret = NpyArray_NewFromDescr(Py_TYPE(self),
-                                self->descr,
+    ret = NpyArray_NewFromDescr(self->descr,
                                 n, dimensions,
                                 strides,
                                 self->data,
-                                flags, (NpyObject*)self);
+                                flags, NPY_FALSE, NULL, self);
 
     if (ret == NULL) {
         goto fail;
@@ -324,12 +323,11 @@ NpyArray_Squeeze(NpyArray *self)
     }
 
     Npy_INCREF(self->descr);
-    ret = NpyArray_NewFromDescr(Py_TYPE(self),
-                                self->descr,
+    ret = NpyArray_NewFromDescr(self->descr,
                                 newnd, dimensions,
                                 strides, self->data,
                                 self->flags,
-                                (NpyObject *)self);
+                                NPY_FALSE, NULL, self);
     if (ret == NULL) {
         return NULL;
     }
@@ -452,11 +450,10 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
      * incorrectly), sets up descr, and points data at ap->data.
      */
     Npy_INCREF(ap->descr);
-    ret = NpyArray_NewFromDescr(Py_TYPE(ap),
-                                ap->descr,
+    ret = NpyArray_NewFromDescr(ap->descr,
                                 n, ap->dimensions,
                                 NULL, ap->data, ap->flags,
-                                (PyObject *)ap);
+                                NPY_FALSE, NULL, ap);
     if (ret == NULL) {
         return NULL;
     }
@@ -513,12 +510,12 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     }
     Npy_INCREF(a->descr);
     size = NpyArray_SIZE(a);
-    ret = NpyArray_NewFromDescr(Py_TYPE(a),
-                                a->descr,
+    ret = NpyArray_NewFromDescr(a->descr,
                                 1, &size,
                                 NULL,
                                 NULL,
-                                0, (NpyObject *)a);
+                                0, 
+                                NPY_FALSE, NULL, a);
 
     if (ret == NULL) {
         return NULL;

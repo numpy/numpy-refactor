@@ -340,11 +340,11 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
         }
     }
     
-    out = NpyArray_NewFromDescr(Py_TYPE(mp), at,
-                                mp->nd,
+    out = NpyArray_NewFromDescr(at, mp->nd,
                                 mp->dimensions,
                                 NULL, NULL,
-                                fortran,
+                                fortran, NPY_FALSE,
+                                Py_TYPE(mp),
                                 (PyObject *)mp);
     
     if (out == NULL) {

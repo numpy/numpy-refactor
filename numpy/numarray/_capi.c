@@ -2830,9 +2830,9 @@ NA_NewAllFromBuffer(int ndim, maybelong *shape, NumarrayType type,
 
     if (bufferObject == Py_None || bufferObject == NULL) {
         self = (PyArrayObject *)        \
-               PyArray_NewFromDescr(&PyArray_Type, dtype,
+               NpyArray_NewFromDescr(dtype,
                        ndim, shape, NULL, NULL,
-                       0, NULL);
+                       0, NPY_TRUE, NULL, NULL);
     }
     else {
         npy_intp size = 1;
@@ -3156,8 +3156,8 @@ static PyArrayObject *
 NA_FromDimsStridesDescrAndData(int nd, maybelong *d, maybelong *s, PyArray_Descr *descr, char *data)
 {
     return (PyArrayObject *)\
-        PyArray_NewFromDescr(&PyArray_Type, descr, nd, d,
-                s, data, 0, NULL);
+        NpyArray_NewFromDescr(descr, nd, d,
+                s, data, 0, NPY_TRUE, NULL, NULL);
 }
 
 static PyArrayObject *

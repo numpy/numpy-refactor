@@ -2753,7 +2753,7 @@ PyMODINIT_FUNC initmultiarray(void) {
 /* FIXME
  * There is no error handling here
  */
-    c_api = NpyCapsule_FromVoidPtr((void *)PyArray_API, NULL);
+    c_api = PyCapsule_FromVoidPtr((void *)PyArray_API, NULL);
     PyDict_SetItemString(d, "_ARRAY_API", c_api);
     Py_DECREF(c_api);
     if (PyErr_Occurred()) {
@@ -2783,7 +2783,7 @@ PyMODINIT_FUNC initmultiarray(void) {
 /* FIXME
  * There is no error handling here
  */
-    s = NpyCapsule_FromVoidPtr((void *)_datetime_strings, NULL);
+    s = PyCapsule_FromVoidPtr((void *)_datetime_strings, NULL);
     PyDict_SetItemString(d, "DATETIMEUNITS", s);
     Py_DECREF(s);
 

@@ -11,21 +11,6 @@
 
 
 
-#if PY_VERSION_HEX < 0x02070000
-int 
-PyCapsule_CheckExact(PyObject *ptr)
-{
-    return PyCObject_Check(ptr);
-}
-
-void *
-PyCapsule_GetPointer(void *ptr, void *notused)
-{
-    return PyCObject_AsVoidPtr(ptr);
-}
-
-#endif
-
 
 
 
@@ -809,19 +794,25 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 /*NUMPY_API
  * Generic new array creation routine.
  *
+ * Array type algorithm: IF
+ *  ensureArray             - use base array type
+ *  subtype != NULL         - use subtype
+ *  interfaceData != NULL   - use type of interface data
+ *  default                 - use base array type
  * steals a reference to descr (even on failure)
  */
 NpyArray *
-NpyArray_NewFromDescr(NpyTypeObject *subtype, 
-                      NpyArray_Descr *descr, int nd,
+NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                       npy_intp *dims, npy_intp *strides, void *data,
-                      int flags, NpyObject *obj)
+                      int flags, int ensureArray, void *subtype, 
+                      void *interfaceData)
 {
     NpyArray *self;
     int i;
     size_t sd;
     npy_intp largest;
     npy_intp size;
+    PyTypeObject *subtypeHack = NULL;
     
     if (descr->subarray) {
         NpyArray *ret;
@@ -837,9 +828,9 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
         }
         nd =_update_descr_and_dimensions(&descr, newdims,
                                          newstrides, nd, isfortran);
-        ret = NpyArray_NewFromDescr(subtype, descr, nd, newdims,
-                                   newstrides,
-                                   data, flags, obj);
+        ret = NpyArray_NewFromDescr(descr, nd, newdims,
+                                    newstrides,
+                                    data, flags, ensureArray, subtype, interfaceData);
         return ret;
     }
     if (nd < 0) {
@@ -901,7 +892,23 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
         largest /= dim;
     }
     
-    self = (NpyArray *) subtype->tp_alloc(subtype, 0);
+    
+    /* TODO: This code should go away as soon as we split the array object from the Python wrapper. */
+    if (NPY_TRUE == ensureArray) {
+        subtypeHack = &PyArray_Type;
+    } else if (NULL != subtype) {
+        subtypeHack = (PyTypeObject *)subtype;
+        assert(PyType_Check((PyObject *)subtypeHack));
+    } else if (NULL != interfaceData) {
+        assert(PyArray_Check(interfaceData));
+        subtypeHack = Py_TYPE((PyObject *)interfaceData);
+    } else {
+        subtypeHack = &PyArray_Type;
+    }
+    self = (NpyArray *)subtypeHack->tp_alloc(subtypeHack, 0);
+    //self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
+    
+    
     if (self == NULL) {
         Npy_DECREF(descr);
         return NULL;
@@ -923,7 +930,7 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
     else {
         self->flags = (flags & ~NPY_UPDATEIFCOPY);
     }
-//    Npy_INCREF(descr);      /* TODO: WRONG!  Inserted here makes crash go away, but is wrong. */
+    self->interface = NULL;
     self->descr = descr;
     self->base_arr = NULL;
     self->base_obj = NULL;
@@ -992,50 +999,9 @@ NpyArray_NewFromDescr(NpyTypeObject *subtype,
      * method if a subtype.
      * If obj is NULL, then call method with Py_None
      */
-    if ((subtype != &NpyArray_Type)) {
-        PyObject *res, *func, *args;
-        
-        /* TODO: Unconverted code - triggers finalizer, needs to be pushed back to interface layer, but
-           TODO: not sure yet if this is generic code or not. */
-        func = PyObject_GetAttrString((PyObject *)self, "__array_finalize__");
-        if (func && func != Py_None) {
-            if (strides != NULL) {
-                /*
-                 * did not allocate own data or funny strides
-                 * update flags before finalize function
-                 */
-                PyArray_UpdateFlags(self, NPY_UPDATE_ALL);
-            }
-            if (NpyCapsule_Check(func)) {
-                /* A C-function is stored here */
-                PyArray_FinalizeFunc *cfunc;
-                cfunc = NpyCapsule_AsVoidPtr(func);
-                Py_DECREF(func);
-                if (cfunc(self, obj) < 0) {
-                    goto fail;
-                }
-            }
-            else {
-                args = PyTuple_New(1);
-                if (obj == NULL) {
-                    obj=Py_None;
-                }
-                Py_INCREF(obj);
-                PyTuple_SET_ITEM(args, 0, obj);
-                res = PyObject_Call(func, args, NULL);
-                Py_DECREF(args);
-                Py_DECREF(func);
-                if (res == NULL) {
-                    goto fail;
-                }
-                else {
-                    Py_DECREF(res);
-                }
-            }
-        }
-        /* TODO: END code to be converted */
-        else Npy_Interface_XDECREF(func);
-    }
+    self->interface = NpyInterface_NewArrayWrapper(self, ensureArray, 
+                                                   (NULL != strides), 
+                                                   subtype, interfaceData);
     return self;
     
 fail:
@@ -1071,8 +1037,8 @@ NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
         NpyArray_DESCR_REPLACE(descr);
         descr->elsize = itemsize;
     }
-    new = NpyArray_NewFromDescr(subtype, descr, nd, dims, strides,
-                                data, flags, obj);
+    new = NpyArray_NewFromDescr(descr, nd, dims, strides,
+                                data, flags, NPY_FALSE, subtype, obj);
     return new;
 }
 
@@ -1091,10 +1057,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     int arrflags;
     NpyArray_Descr *oldtype;
     char *msg = "cannot copy back to a read-only array";
-    NpyTypeObject *subtype;
+    int ensureArray = NPY_FALSE;
     
     oldtype = NpyArray_DESCR(arr);
-    subtype = Npy_TYPE(arr);
     if (newtype == NULL) {
         newtype = oldtype; 
         Npy_INCREF(oldtype);
@@ -1140,14 +1105,15 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 return NULL;
             }
             if ((flags & NPY_ENSUREARRAY)) {
-                subtype = &PyArray_Type;
+                ensureArray = NPY_TRUE;
             }
             ret = (PyArrayObject *)
-            NpyArray_NewFromDescr(subtype, newtype,
+            NpyArray_NewFromDescr(newtype,
                                   arr->nd,
                                   arr->dimensions,
                                   NULL, NULL,
                                   flags & NPY_FORTRAN,
+                                  ensureArray, NULL,
                                   (PyObject *)arr);
             if (ret == NULL) {
                 return NULL;
@@ -1173,13 +1139,13 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             if ((flags & NPY_ENSUREARRAY) &&
                 !NpyArray_CheckExact(arr)) {
                 Npy_INCREF(arr->descr);
-                ret = NpyArray_NewFromDescr(&NpyArray_Type,
-                                           arr->descr,
-                                           arr->nd,
-                                           arr->dimensions,
-                                           arr->strides,
-                                           arr->data,
-                                           arr->flags,NULL);
+                ret = NpyArray_NewFromDescr(arr->descr,
+                                            arr->nd,
+                                            arr->dimensions,
+                                            arr->strides,
+                                            arr->data,
+                                            arr->flags, 
+                                            NPY_TRUE, NULL, NULL);
                 if (ret == NULL) {
                     return NULL;
                 }
@@ -1205,14 +1171,14 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             return NULL;
         }
         if ((flags & NPY_ENSUREARRAY)) {
-            subtype = &NpyArray_Type;
+            ensureArray = NPY_TRUE;
         }
         ret = (NpyArray *)
-        NpyArray_NewFromDescr(subtype, newtype,
+        NpyArray_NewFromDescr(newtype,
                               arr->nd, arr->dimensions,
                               NULL, NULL,
                               flags & NPY_FORTRAN,
-                              (PyObject *)arr);
+                              ensureArray, NULL, arr);
         if (ret == NULL) {
             return NULL;
         }
@@ -1352,11 +1318,10 @@ static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp 
         }
         num = numbytes / dtype->elsize;
     }
-    r = (NpyArray *)NpyArray_NewFromDescr(&PyArray_Type,
-                                              dtype,
-                                              1, &num,
-                                              NULL, NULL,
-                                              0, NULL);
+    r = (NpyArray *)NpyArray_NewFromDescr(dtype,
+                                          1, &num,
+                                          NULL, NULL,
+                                          0, NPY_TRUE, NULL, NULL);
     if (r == NULL) {
         return NULL;
     }
@@ -1455,9 +1420,9 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_i
     }
     
     
-    ret = NpyArray_NewFromDescr(&NpyArray_Type, dtype,
+    ret = NpyArray_NewFromDescr(dtype,
                                 1, &num, NULL, NULL,
-                                0, NULL);
+                                0, NPY_TRUE, NULL, NULL);
     if (ret == NULL) {
         return NULL;
     }

@@ -22,6 +22,26 @@
 
 #include "numpymemoryview.h"
 
+
+
+#if PY_VERSION_HEX < 0x02070000
+int 
+PyCapsule_CheckExact(PyObject *ptr)
+{
+    return PyCObject_Check(ptr);
+}
+
+void *
+PyCapsule_GetPointer(void *ptr, void *notused)
+{
+    return PyCObject_AsVoidPtr(ptr);
+}
+
+#endif
+
+
+
+
 /*
  * Reading from a file or a string.
  *
@@ -414,9 +434,10 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
         }
     }
 
-    ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, typecode,
+    ret = (PyArrayObject *)NpyArray_NewFromDescr(typecode,
                                                 0, NULL,
-                                                NULL, NULL, 0, NULL);
+                                                NULL, NULL, 0, 
+                                                NPY_FALSE, NULL, NULL);
     if (ret == NULL) {
         return NULL;
     }
@@ -453,10 +474,10 @@ ObjectArray_FromNestedList(PyObject *s, PyArray_Descr *typecode, int fortran)
     if (nd == 0) {
         return Array_FromPyScalar(s, typecode);
     }
-    r = (PyArrayObject*)PyArray_NewFromDescr(&PyArray_Type, typecode,
+    r = (PyArrayObject*)NpyArray_NewFromDescr(typecode,
                                              nd, d,
                                              NULL, NULL,
-                                             fortran, NULL);
+                                             fortran, NPY_FALSE, NULL, NULL);
     if (!r) {
         return NULL;
     }
@@ -530,9 +551,9 @@ discover_depth(PyObject *s, int max, int stop_at_string, int stop_at_tuple)
 #endif
     if ((e = PyObject_GetAttrString(s, "__array_struct__")) != NULL) {
         d = -1;
-        if (NpyCapsule_Check(e)) {
+        if (PyCapsule_Check(e)) {
             PyArrayInterface *inter;
-            inter = (PyArrayInterface *)NpyCapsule_AsVoidPtr(e);
+            inter = (PyArrayInterface *)PyCapsule_AsVoidPtr(e);
             if (inter->two == 2) {
                 d = inter->nd;
             }
@@ -738,10 +759,11 @@ Array_FromSequence(PyObject *s, PyArray_Descr *typecode, int fortran,
         typecode->elsize = itemsize;
     }
 
-    r = (PyArrayObject*)PyArray_NewFromDescr(&PyArray_Type, typecode,
+    r = (PyArrayObject*)NpyArray_NewFromDescr(typecode,
                                              nd, d,
                                              NULL, NULL,
-                                             fortran, NULL);
+                                             fortran, 
+                                             NPY_FALSE, NULL, NULL);
     if (!r) {
         return NULL;
     }
@@ -772,9 +794,95 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
 {
     // TODO: Returns NpyArray, needs to be wrapped into PyObject.
     return (PyObject *) 
-        NpyArray_NewFromDescr(subtype, descr, nd, dims, strides, 
-                              data, flags, obj);
+        NpyArray_NewFromDescr(descr, nd, dims, strides, 
+                              data, flags, NPY_FALSE, subtype, obj);
 }
+
+
+
+/* This isn't part of the API but is a support function for the core.  It is called
+   by NpyArray_NewFromDescr to initialize the Python wrapper object. */
+/* TODO: I don't understand the function of customStrides and why the flag only gets set
+   if __array_finalize__ is defined. */
+NPY_NO_EXPORT void *
+NpyInterface_NewArrayWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtypeTmp, void *interfaceData)
+{
+    PyTypeObject *subtype;
+    PyArrayObject *wrapper = NULL;
+    PyObject *obj = (PyObject *)interfaceData;
+    
+    
+    /* Figures out the subtype, defaulting to a basic array.  Ugly, overly complex because
+       the core doesn't know about PyArray_Type but needs to be able to force it. */
+    if (NPY_TRUE == ensureArray) {
+        subtype = &PyArray_Type;
+    } else if (NULL != subtypeTmp) {
+        subtype = (PyTypeObject *)subtypeTmp;
+        assert(PyType_Check((PyObject *)subtype));
+    } else if (NULL != interfaceData) {
+        assert(PyArray_Check(interfaceData));
+        subtype = Py_TYPE((PyObject *)interfaceData);
+    } else {
+        subtype = &PyArray_Type;
+    }
+    
+    
+    /* Create the Python wrapper for the array.  This object will manage the lifetime of the
+       core array */
+    /* TODO: For now, the objects are one and the same - fix this once split. */
+    wrapper = (PyArrayObject *)newArray;
+    
+    /* For subclasses of array allows the classes to do type-specific initialization. */
+    if ((subtype != &PyArray_Type)) {
+        PyObject *res, *func, *args;
+        
+        func = PyObject_GetAttrString((PyObject *)wrapper, "__array_finalize__");
+        if (func && func != Py_None) {
+            if (customStrides) {
+                /*
+                 * did not allocate own data or funny strides
+                 * update flags before finalize function
+                 */
+                PyArray_UpdateFlags(wrapper, NPY_UPDATE_ALL);
+            }
+            if (PyCapsule_Check(func)) {
+                /* A C-function is stored here */
+                PyArray_FinalizeFunc *cfunc;
+                cfunc = PyCapsule_AsVoidPtr(func);
+                Py_DECREF(func);
+                if (cfunc(wrapper, obj) < 0) {
+                    goto fail;
+                }
+            }
+            else {
+                args = PyTuple_New(1);
+                if (obj == NULL) {
+                    obj=Py_None;
+                }
+                Py_INCREF(obj);
+                PyTuple_SET_ITEM(args, 0, obj);
+                res = PyObject_Call(func, args, NULL);
+                Py_DECREF(args);
+                Py_DECREF(func);
+                if (res == NULL) {
+                    goto fail;
+                }
+                else {
+                    Py_DECREF(res);
+                }
+            }
+        }
+        else Npy_Interface_XDECREF(func);
+    }
+    return wrapper;
+    
+fail:
+    /* TODO: How do we flag a failure?  NULL is a legal return value. How should the error be handled? */
+    return NULL;
+}
+
+
+
 
 /*NUMPY_API
  * Generic new array creation routine.
@@ -1139,10 +1247,10 @@ PyArray_FromStructInterface(PyObject *input)
         PyErr_Clear();
         return Py_NotImplemented;
     }
-    if (!NpyCapsule_Check(attr)) {
+    if (!PyCapsule_Check(attr)) {
         goto fail;
     }
-    inter = NpyCapsule_AsVoidPtr(attr);
+    inter = PyCapsule_AsVoidPtr(attr);
     if (inter->two != 2) {
         goto fail;
     }
