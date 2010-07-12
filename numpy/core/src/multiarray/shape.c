@@ -46,21 +46,21 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
             return NULL;
         }
     }
-    if (NpyArray_Resize(self, newshape, refcheck, fortran) != 0) {
+    if (NpyArray_Resize(PyArray_ARRAY(self), newshape, refcheck, fortran) != 0) {
         return NULL;
     }
     if (newsize > oldsize && 
-        PyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
+        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_REFCOUNT)) {
         /* Fill with zeros. */
         int n, k;
         char *optr;
         int elsize = PyArray_ITEMSIZE(self);
         PyObject *zero = PyInt_FromLong(0);
 
-        optr = self->data + oldsize*elsize;
+        optr = PyArray_BYTES(self) + oldsize*elsize;
         n = newsize - oldsize;
         for (k = 0; k < n; k++) {
-            _putzero((char *)optr, zero, self->descr);
+            _putzero((char *)optr, zero, PyArray_DESCR(self));
             optr += elsize;
         }
         Py_DECREF(zero);
@@ -83,7 +83,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_Newshape(PyArrayObject *self, PyArray_Dims *newdims,
                  NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Newshape(self, newdims, fortran);
+    return (PyObject*) NpyArray_Newshape(PyArray_ARRAY(self), newdims, fortran);
 }
 
 
@@ -145,7 +145,7 @@ _putzero(char *optr, PyObject *zero, PyArray_Descr *dtype)
 NPY_NO_EXPORT PyObject *
 PyArray_Squeeze(PyArrayObject *self)
 {
-    return (PyObject*) NpyArray_Squeeze(self);
+    return (PyObject*) NpyArray_Squeeze(PyArray_ARRAY(self));
 }
 
 /*NUMPY_API
@@ -154,7 +154,7 @@ PyArray_Squeeze(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 {
-    return (PyObject*) NpyArray_SwapAxes(ap, a1, a2);
+    return (PyObject*) NpyArray_SwapAxes(PyArray_ARRAY(ap), a1, a2);
 }
 
 /*NUMPY_API
@@ -163,7 +163,7 @@ PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 NPY_NO_EXPORT PyObject *
 PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 {
-    return (PyObject*) NpyArray_Transpose(ap, permute);
+    return (PyObject*) NpyArray_Transpose(PyArray_ARRAY(ap), permute);
 }
 
 /*NUMPY_API
@@ -173,7 +173,7 @@ PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 NPY_NO_EXPORT PyObject *
 PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Ravel(a, fortran);
+    return (PyObject*) NpyArray_Ravel(PyArray_ARRAY(a), fortran);
 }
 
 /*NUMPY_API
@@ -182,5 +182,5 @@ PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_Flatten(PyArrayObject *a, NPY_ORDER order)
 {
-    return (PyObject*) NpyArray_Flatten(a, order);
+    return (PyObject*) NpyArray_Flatten(PyArray_ARRAY(a), order);
 }

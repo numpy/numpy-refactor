@@ -40,6 +40,20 @@ PyCapsule_GetPointer(void *ptr, void *notused)
 #endif
 
 
+#define ASSERT_ONE_BASE(r) \
+    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
+
+#define SET_BASE(a, b)                                  \
+    do {                                                \
+        if (PyArray_Check(b)) {                         \
+            PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
+            Npy_INCREF(PyArray_BASE_ARRAY(a));          \
+        } else {                                        \
+            PyArray_BASE(a) = (PyObject*) b;            \
+            Py_INCREF(b);                               \
+        }                                               \
+    } while(0)
+            
 
 
 /*
@@ -327,7 +341,8 @@ copy_and_swap(void *dst, void *src, int itemsize, intp numitems,
 NPY_NO_EXPORT int
 PyArray_MoveInto(PyArrayObject *dest, PyArrayObject *src)
 {
-    return NpyArray_MoveInto(dest, src);    // TODO: Argument conversion
+    return NpyArray_MoveInto(PyArray_ARRAY(dest), 
+                             PyArray_ARRAY(src));
 }
 
 
@@ -357,14 +372,14 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, intp offset)
         s = PyArray_EnsureArray(s);
     }
 
-    if (dim > a->nd) {
+    if (dim > PyArray_NDIM(a)) {
         PyErr_Format(PyExc_ValueError,
                      "setArrayFromSequence: sequence/array dimensions mismatch.");
         goto fail;
     }
 
     slen = PySequence_Length(s);
-    if (slen != a->dimensions[dim]) {
+    if (slen != PyArray_DIM(a, dim)) {
         PyErr_Format(PyExc_ValueError,
                      "setArrayFromSequence: sequence/array shape mismatch.");
         goto fail;
@@ -372,17 +387,17 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, intp offset)
 
     for (i = 0; i < slen; i++) {
         PyObject *o = PySequence_GetItem(s, i);
-        if ((a->nd - dim) > 1) {
+        if ((PyArray_NDIM(a) - dim) > 1) {
             res = setArrayFromSequence(a, o, dim+1, offset);
         }
         else {
-            res = a->descr->f->setitem(o, (a->data + offset), a);
+            res = PyArray_DESCR(a)->f->setitem(o, (PyArray_BYTES(a) + offset), a);
         }
         Py_DECREF(o);
         if (res < 0) {
             goto fail;
         }
-        offset += a->strides[dim];
+        offset += PyArray_STRIDE(a, dim);
     }
 
     Py_DECREF(s);
@@ -401,7 +416,7 @@ Assign_Array(PyArrayObject *self, PyObject *v)
                         "assignment from non-sequence");
         return -1;
     }
-    if (self->nd == 0) {
+    if (PyArray_NDIM(self) == 0) {
         PyErr_SetString(PyExc_ValueError,
                         "assignment to 0-d array");
         return -1;
@@ -441,14 +456,14 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
     if (ret == NULL) {
         return NULL;
     }
-    if (ret->nd > 0) {
+    if (PyArray_NDIM(ret) > 0) {
         PyErr_SetString(PyExc_ValueError,
                         "shape-mismatch on array construction");
         Py_DECREF(ret);
         return NULL;
     }
 
-    ret->descr->f->setitem(op, ret->data, ret);
+    PyArray_DESCR(ret)->f->setitem(op, PyArray_BYTES(ret), ret);
     if (PyErr_Occurred()) {
         Py_DECREF(ret);
         return NULL;
@@ -981,11 +996,11 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
     if (PyArray_Check(memoryview)) {
         /* TODO: Unwrap array object if we can ever get here. 
            Think about ref cnt of wrapper vs. core array */        
-        ((PyArrayObject *)r)->base_arr = (NpyArray *) memoryview;
+        PyArray_BASE_ARRAY(r) = PyArray_ARRAY(memoryview);
     } else {
-        ((PyArrayObject *)r)->base_obj = memoryview;   
+        PyArray_BASE(r) = memoryview;
     }
-    assert(NULL == ((PyArrayObject *)r)->base_arr || NULL == ((PyArrayObject *)r)->base_obj);
+    ASSERT_ONE_BASE(r);
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
 
     *out = r;
@@ -1122,13 +1137,13 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
         return NULL;
     }
 
-    if (min_depth != 0 && ((PyArrayObject *)r)->nd < min_depth) {
+    if (min_depth != 0 && (PyArray_NDIM(r) < min_depth)) {
         PyErr_SetString(PyExc_ValueError,
                         "object of too small depth for desired array");
         Py_DECREF(r);
         return NULL;
     }
-    if (max_depth != 0 && ((PyArrayObject *)r)->nd > max_depth) {
+    if (max_depth != 0 && (PyArray_NDIM(r) > max_depth)) {
         PyErr_SetString(PyExc_ValueError,
                         "object too deep for desired array");
         Py_DECREF(r);
@@ -1226,7 +1241,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags)
 {
     /* TODO: Wrap returned NpyArray in PyObject, fix conversion of arr to NpyArray. */
-    return (PyObject *) NpyArray_FromArray(arr, newtype, flags);
+    return (PyObject *) NpyArray_FromArray(PyArray_ARRAY(arr), newtype, flags);
 }
 
 
@@ -1277,17 +1292,10 @@ PyArray_FromStructInterface(PyObject *input)
 
     r = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type, thetype,
                              inter->nd, inter->shape,
-                             inter->strides, inter->data,
+                             inter->strides, PyArray_BYTES(inter),
                              inter->flags, NULL);
-    if (PyArray_Check(input)) {
-        /* TODO: Unwrap array object, incref the core array. */
-        r->base_arr = (NpyArray *) input;
-        Npy_INCREF(r->base_arr);
-    } else {
-        r->base_obj = input;
-        Py_INCREF(r->base_obj);
-    }
-    assert(NULL == r->base_arr || NULL == r->base_obj);
+    SET_BASE(r, input);
+    ASSERT_ONE_BASE(r);
     Py_DECREF(attr);
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
     return (PyObject *)r;
@@ -1448,15 +1456,8 @@ PyArray_FromInterface(PyObject *input)
     if (ret == NULL) {
         return NULL;
     }
-    if (PyArray_Check(base)) {
-        /* TODO: Unwrap array object, incref the core object */
-        ret->base_arr = (NpyArray *) base;       
-        Npy_INCREF(ret->base_arr);
-    } else {
-        ret->base_obj = base;
-        Py_INCREF(ret->base_obj);
-    }
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    SET_BASE(ret, base);
+    ASSERT_ONE_BASE(ret);
 
     attr = PyDict_GetItemString(inter, "strides");
     if (attr != NULL && attr != Py_None) {
@@ -1483,7 +1484,7 @@ PyArray_FromInterface(PyObject *input)
         if (PyErr_Occurred()) {
             PyErr_Clear();
         }
-        memcpy(ret->strides, strides, n*sizeof(intp));
+        memcpy(PyArray_STRIDES(ret), strides, n*sizeof(intp));
     }
     else PyErr_Clear();
     PyArray_UpdateFlags(ret, UPDATE_ALL);
@@ -1610,7 +1611,7 @@ PyArray_FromDims(int nd, int *d, int type)
      * Object type, then it's already been set to zero, though.
      */
     if (ret && (PyArray_DESCR(ret)->type_num != PyArray_OBJECT)) {
-        memset(PyArray_DATA(ret), 0, PyArray_NBYTES(ret));
+        memset(PyArray_BYTES(ret), 0, PyArray_NBYTES(ret));
     }
     return ret;
 }
@@ -1668,7 +1669,8 @@ NPY_NO_EXPORT int
 PyArray_CopyAnyInto(PyArrayObject *dest, PyArrayObject *src)
 {
     /* TODO: Fix conversion of dest, src to NpyArrays. */
-    return NpyArray_CopyAnyInto(dest, src);
+    return NpyArray_CopyAnyInto(PyArray_ARRAY(dest), 
+                                PyArray_ARRAY(src));
 }
 
 /*NUMPY_API
@@ -1678,7 +1680,8 @@ NPY_NO_EXPORT int
 PyArray_CopyInto(PyArrayObject *dest, PyArrayObject *src)
 {
     /* TODO: Fix conversion of dest, src to NpyArray types. */
-    return NpyArray_CopyInto(dest, src);
+    return NpyArray_CopyInto(PyArray_ARRAY(dest), 
+                             PyArray_ARRAY(src));
 }
 
 
@@ -1691,7 +1694,7 @@ PyArray_CopyInto(PyArrayObject *dest, PyArrayObject *src)
 NPY_NO_EXPORT PyObject *
 PyArray_CheckAxis(PyArrayObject *arr, int *axis, int flags)
 {
-    return (PyObject *) NpyArray_CheckAxis(arr, axis, flags);
+    return (PyObject *) NpyArray_CheckAxis(PyArray_ARRAY(arr), axis, flags);
 }
 
 
@@ -1810,7 +1813,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
      * if length > 2, then call the inner loop, otherwise stop
      */
     obj = PyFloat_FromDouble(start);
-    ret = funcs->setitem(obj, PyArray_DATA(range), (PyArrayObject *)range);
+    ret = funcs->setitem(obj, PyArray_BYTES(range), (PyArrayObject *)range);
     Py_DECREF(obj);
     if (ret < 0) {
         goto fail;
@@ -1833,7 +1836,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
         Py_DECREF(range);
         return NULL;
     }
-    funcs->fill(PyArray_DATA(range), length, (PyArrayObject *)range);
+    funcs->fill(PyArray_BYTES(range), length, (PyArrayObject *)range);
     if (PyErr_Occurred()) {
         goto fail;
     }
@@ -2010,7 +2013,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
      */
     funcs = PyArray_DESCR(range)->f;
     if (funcs->setitem(
-                start, PyArray_DATA(range), (PyArrayObject *)range) < 0) {
+                start, PyArray_BYTES(range), (PyArrayObject *)range) < 0) {
         goto fail;
     }
     if (length == 1) {
@@ -2028,7 +2031,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
         Py_DECREF(range);
         goto fail;
     }
-    funcs->fill(PyArray_DATA(range), length, (PyArrayObject *)range);
+    funcs->fill(PyArray_BYTES(range), length, (PyArrayObject *)range);
     if (PyErr_Occurred()) {
         goto fail;
     }
@@ -2085,7 +2088,7 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
     clean_sep = swab_separator(sep);
     NPY_BEGIN_ALLOW_THREADS;
     totalbytes = bytes = size * dtype->elsize;
-    dptr = r->data;
+    dptr = PyArray_BYTES(r);
     for (i= 0; num < 0 || i < num; i++) {
         if (next(&stream, dptr, dtype, stream_data) < 0) {
             break;
@@ -2095,12 +2098,12 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
         dptr += dtype->elsize;
         if (num < 0 && thisbuf == size) {
             totalbytes += bytes;
-            tmp = PyDataMem_RENEW(r->data, totalbytes);
+            tmp = PyDataMem_RENEW(PyArray_BYTES(r), totalbytes);
             if (tmp == NULL) {
                 err = 1;
                 break;
             }
-            r->data = tmp;
+            PyArray_BYTES(r) = tmp;
             dptr = tmp + (totalbytes - bytes);
             thisbuf = 0;
         }
@@ -2109,13 +2112,13 @@ array_from_text(PyArray_Descr *dtype, intp num, char *sep, size_t *nread,
         }
     }
     if (num < 0) {
-        tmp = PyDataMem_RENEW(r->data, NPY_MAX(*nread,1)*dtype->elsize);
+        tmp = PyDataMem_RENEW(PyArray_BYTES(r), NPY_MAX(*nread,1)*dtype->elsize);
         if (tmp == NULL) {
             err = 1;
         }
         else {
             PyArray_DIM(r,0) = *nread;
-            r->data = tmp;
+            PyArray_BYTES(r) = tmp;
         }
     }
     NPY_END_ALLOW_THREADS;
@@ -2176,14 +2179,14 @@ PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     }
     if (((intp) nread) < num) {
         /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1)*ret->descr->elsize;
+        const size_t nsize = NPY_MAX(nread,1)*PyArray_ITEMSIZE(ret);
         char *tmp;
         
-        if((tmp = PyDataMem_RENEW(ret->data, nsize)) == NULL) {
+        if((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
             Py_DECREF(ret);
             return PyErr_NoMemory();
         }
-        ret->data = tmp;
+        PyArray_BYTES(ret) = tmp;
         PyArray_DIM(ret,0) = nread;
     }
     return (PyObject *)ret;
@@ -2230,7 +2233,8 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     }
     
     if (NULL == sep || 0 == strlen(sep))
-        ret = NpyArray_FromBinaryFile(fp, dtype, num);
+        /* TODO: Wrap result. */
+        ret = (PyArrayObject *)NpyArray_FromBinaryFile(fp, dtype, num);
     else ret = (PyArrayObject* ) PyArray_FromTextFile(fp, dtype, num, sep);
     
     return (PyObject *)ret;
@@ -2340,12 +2344,12 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
     }
 
     if (!write) {
-        ret->flags &= ~WRITEABLE;
+        PyArray_FLAGS(ret) &= ~WRITEABLE;
     }
     /* Store a reference for decref on deallocation */
-    ret->base_obj = buf;
+    PyArray_BASE(ret) = buf;
     PyArray_UpdateFlags(ret, ALIGNED);
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    ASSERT_ONE_BASE(ret);
     return (PyObject *)ret;
 }
 
@@ -2397,7 +2401,8 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
 
     binary = ((sep == NULL) || (strlen(sep) == 0));
     if (binary) {
-        ret = NpyArray_FromBinaryString(data, slen, dtype, num);
+        /* TODO: Wrap result. */
+        ret = (PyArrayObject *)NpyArray_FromBinaryString(data, slen, dtype, num);
     } else {
         /* read from character-based string */
         size_t nread = 0;
@@ -2469,13 +2474,13 @@ PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
              (value = PyIter_Next(iter)); i++) {
         if (i >= elcount) {
             /*
-              Grow ret->data:
+              Grow PyArray_BYTES(ret):
               this is similar for the strategy for PyListObject, but we use
               50% overallocation => 0, 4, 8, 14, 23, 36, 56, 86 ...
             */
             elcount = (i >> 1) + (i < 4 ? 4 : 2) + i;
             if (elcount <= NPY_MAX_INTP/elsize) {
-                new_data = PyDataMem_RENEW(ret->data, elcount * elsize);
+                new_data = PyDataMem_RENEW(PyArray_BYTES(ret), elcount * elsize);
             }
             else {
                 new_data = NULL;
@@ -2486,12 +2491,12 @@ PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
                 Py_DECREF(value);
                 goto done;
             }
-            ret->data = new_data;
+            PyArray_BYTES(ret) = new_data;
         }
-        ret->dimensions[0] = i + 1;
+        PyArray_DIM(ret, 0) = i + 1;
 
         if (((item = index2ptr(ret, i)) == NULL)
-            || (ret->descr->f->setitem(value, item, ret) == -1)) {
+            || (PyArray_DESCR(ret)->f->setitem(value, item, ret) == -1)) {
             Py_DECREF(value);
             goto done;
         }
@@ -2510,12 +2515,12 @@ PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
     if (i == 0) {
         i = 1;
     }
-    new_data = PyDataMem_RENEW(ret->data, i * elsize);
+    new_data = PyDataMem_RENEW(PyArray_BYTES(ret), i * elsize);
     if (new_data == NULL) {
         PyErr_SetString(PyExc_MemoryError, "cannot allocate array memory");
         goto done;
     }
-    ret->data = new_data;
+    PyArray_BYTES(ret) = new_data;
 
  done:
     Py_XDECREF(iter);

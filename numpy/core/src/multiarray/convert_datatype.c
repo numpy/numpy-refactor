@@ -28,7 +28,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 {
     /* TODO: Wrap array return in PyObject */
-    return (PyObject *)NpyArray_CastToType(mp, at, fortran);
+    return (PyObject *)NpyArray_CastToType(PyArray_ARRAY(mp), at, fortran);
 }
 
 
@@ -58,8 +58,7 @@ PyArray_GetCastFunc(PyArray_Descr *descr, int type_num)
 NPY_NO_EXPORT int
 PyArray_CastTo(PyArrayObject *out, PyArrayObject *mp)
 {
-    /* TODO: Fix array arguments. */
-    return NpyArray_CastTo(out, mp);
+    return NpyArray_CastTo(PyArray_ARRAY(out), PyArray_ARRAY(mp));
 }
 
 
@@ -71,8 +70,7 @@ PyArray_CastTo(PyArrayObject *out, PyArrayObject *mp)
 NPY_NO_EXPORT int
 PyArray_CastAnyTo(PyArrayObject *out, PyArrayObject *mp)
 {
-    /* TODO: Fix array accesses of out, mp */
-    return NpyArray_CastAnyTo(out, mp);
+    return NpyArray_CastAnyTo(PyArray_ARRAY(out), PyArray_ARRAY(mp));
 }
 
 
@@ -165,10 +163,10 @@ PyArray_Zero(PyArrayObject *arr)
     int ret, storeflags;
     PyObject *obj;
 
-    if (_check_object_rec(arr->descr) < 0) {
+    if (_check_object_rec(PyArray_DESCR(arr)) < 0) {
         return NULL;
     }
-    zeroval = PyDataMem_NEW(arr->descr->elsize);
+    zeroval = PyDataMem_NEW(PyArray_ITEMSIZE(arr));
     if (zeroval == NULL) {
         PyErr_SetNone(PyExc_MemoryError);
         return NULL;
@@ -180,10 +178,10 @@ PyArray_Zero(PyArrayObject *arr)
         Py_DECREF(obj);
         return zeroval;
     }
-    storeflags = arr->flags;
-    arr->flags |= BEHAVED;
-    ret = arr->descr->f->setitem(obj, zeroval, arr);
-    arr->flags = storeflags;
+    storeflags = PyArray_FLAGS(arr);
+    PyArray_FLAGS(arr) |= BEHAVED;
+    ret = PyArray_DESCR(arr)->f->setitem(obj, zeroval, arr);
+    PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {
         PyDataMem_FREE(zeroval);
@@ -202,10 +200,10 @@ PyArray_One(PyArrayObject *arr)
     int ret, storeflags;
     PyObject *obj;
 
-    if (_check_object_rec(arr->descr) < 0) {
+    if (_check_object_rec(PyArray_DESCR(arr)) < 0) {
         return NULL;
     }
-    oneval = PyDataMem_NEW(arr->descr->elsize);
+    oneval = PyDataMem_NEW(PyArray_ITEMSIZE(arr));
     if (oneval == NULL) {
         PyErr_SetNone(PyExc_MemoryError);
         return NULL;
@@ -218,10 +216,10 @@ PyArray_One(PyArrayObject *arr)
         return oneval;
     }
 
-    storeflags = arr->flags;
-    arr->flags |= BEHAVED;
-    ret = arr->descr->f->setitem(obj, oneval, arr);
-    arr->flags = storeflags;
+    storeflags = PyArray_FLAGS(arr);
+    PyArray_FLAGS(arr) |= BEHAVED;
+    ret = PyArray_DESCR(arr)->f->setitem(obj, oneval, arr);
+    PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {
         PyDataMem_FREE(oneval);

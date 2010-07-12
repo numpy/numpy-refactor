@@ -40,7 +40,10 @@ PyArray_TakeFrom(PyArrayObject *self0, PyObject *indices0, int axis,
             return NULL;
         }
     }
-    result = (PyObject*) NpyArray_TakeFrom(self0, indices, axis, ret, clipmode);
+    result = (PyObject*) NpyArray_TakeFrom(PyArray_ARRAY(self0), 
+                                           PyArray_ARRAY(indices), 
+                                           axis, PyArray_ARRAY(ret), 
+                                           clipmode);
     Py_DECREF(indices);
     return result;
 }
@@ -52,8 +55,8 @@ NPY_NO_EXPORT PyObject *
 PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
               NPY_CLIPMODE clipmode)
 {
-    NpyArray* indices = NULL;
-    NpyArray* values = NULL;
+    PyArrayObject* indices = NULL;
+    PyArrayObject* values = NULL;
 
     if (!PyArray_Check(self)) {
         PyErr_SetString(PyExc_TypeError,
@@ -74,14 +77,15 @@ PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
         values = (PyArrayObject *) values0;
         Py_INCREF(values);
     } else {
-        Py_INCREF(self->descr);
+        Py_INCREF(PyArray_DESCR(self));
         values = (PyArrayObject*) 
-            PyArray_FromAny(values0, self->descr, 0, 0, NPY_CARRAY, NULL);
+            PyArray_FromAny(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             goto fail;
         }
     }
-    NpyArray_PutTo(self, values, indices, clipmode);
+    NpyArray_PutTo(PyArray_ARRAY(self), PyArray_ARRAY(values), 
+                   PyArray_ARRAY(indices), clipmode);
     Py_XDECREF(indices);
     Py_XDECREF(values);
     Py_INCREF(Py_None);
@@ -113,9 +117,9 @@ PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
         values = (PyArrayObject*) values0;
         Py_INCREF(values);
     } else {
-        Py_INCREF(self->descr);
+        Py_INCREF(PyArray_DESCR(self));
         values = (PyArrayObject*) 
-            PyArray_FromAny(values0, self->descr, 0, 0, NPY_CARRAY, NULL);
+            PyArray_FromAny(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             return NULL;
         }
@@ -132,7 +136,8 @@ PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
         }
     }
 
-    if (NpyArray_PutMask(self, values, mask) == -1) {
+    if (NpyArray_PutMask(PyArray_ARRAY(self), 
+                         PyArray_ARRAY(values), PyArray_ARRAY(mask)) == -1) {
         goto fail;
     }
 
@@ -165,7 +170,8 @@ PyArray_Repeat(PyArrayObject *aop, PyObject *op, int axis)
             goto finish;
         }
     }
-    result = (PyObject*) NpyArray_Repeat(aop, repeats, axis);
+    result = (PyObject*) NpyArray_Repeat(PyArray_ARRAY(aop), 
+                                         PyArray_ARRAY(repeats), axis);
   finish:
     Py_XDECREF(repeats);
     return result;
@@ -194,7 +200,9 @@ PyArray_Choose(PyArrayObject *ip, PyObject *op, PyArrayObject *ret,
             goto finish;
         }
     }
-    result =  (PyObject*) NpyArray_Choose(ip, mps, n, ret, clipmode);
+    result =  (PyObject*) NpyArray_Choose(PyArray_ARRAY(ip), mps, n, 
+                                          PyArray_ARRAY(ret), 
+                                          clipmode);
   finish:
     for (i = 0; i < n; i++) {
         Py_XDECREF(mps[i]);
@@ -210,7 +218,7 @@ PyArray_Choose(PyArrayObject *ip, PyObject *op, PyArrayObject *ret,
 NPY_NO_EXPORT int
 PyArray_Sort(PyArrayObject *op, int axis, NPY_SORTKIND which)
 {
-    return NpyArray_Sort(op, axis, which);
+    return NpyArray_Sort(PyArray_ARRAY(op), axis, which);
 }
 
 
@@ -220,7 +228,7 @@ PyArray_Sort(PyArrayObject *op, int axis, NPY_SORTKIND which)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgSort(PyArrayObject *op, int axis, NPY_SORTKIND which)
 {
-    return (PyObject*) NpyArray_ArgSort(op, axis, which);
+    return (PyObject*) NpyArray_ArgSort(PyArray_ARRAY(op), axis, which);
 }
 
 
@@ -298,7 +306,7 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
     } else {
         PyArray_Descr* dtype;
 
-        dtype = PyArray_DescrFromObject((PyObject *)op2, op1->descr);
+        dtype = PyArray_DescrFromObject((PyObject *)op2, PyArray_DESCR(op1));
         /* need ap2 as contiguous array and of right type */
         ap2 = (PyArrayObject*)PyArray_FromAny(op2, dtype,
                                               0, 0, NPY_DEFAULT, NULL);
@@ -307,7 +315,8 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
             goto finish;
         }
     }
-    ret = NpyArray_SearchSorted(op1, ap2, side);
+    /* TODO: Wrap object. */
+    ret = (PyArrayObject *) NpyArray_SearchSorted(PyArray_ARRAY(op1), PyArray_ARRAY(ap2), side);
   finish:
     Py_XDECREF(ap2);
     return (PyObject *) ret;
@@ -319,7 +328,7 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
 NPY_NO_EXPORT PyObject *
 PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
 {
-    int n = self->nd;
+    int n = PyArray_NDIM(self);
     PyObject *new;
     PyArray_Dims newaxes;
     intp dims[MAX_DIMS];
@@ -367,8 +376,8 @@ PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
         intp n1, n2, start, stop, step, count;
         intp *dptr;
 
-        n1 = self->dimensions[0];
-        n2 = self->dimensions[1];
+        n1 = PyArray_DIM(self, 0);
+        n2 = PyArray_DIM(self, 1);
         step = n2 + 1;
         if (offset < 0) {
             start = -n2 * offset;
@@ -415,13 +424,13 @@ PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
         int res;
         PyArray_Descr *typecode;
 
-        typecode = self->descr;
+        typecode = PyArray_DESCR(self);
         mydiagonal = PyList_New(0);
         if (mydiagonal == NULL) {
             Py_DECREF(self);
             return NULL;
         }
-        n1 = self->dimensions[0];
+        n1 = PyArray_DIM(self, 0);
         for (i = 0; i < n1; i++) {
             new = PyInt_FromLong((long) i);
             sel = PyArray_EnsureAnyArray(PyObject_GetItem((PyObject *)self, new));
@@ -468,7 +477,7 @@ PyArray_Compress(PyArrayObject *self, PyObject *condition, int axis,
     if (cond == NULL) {
         return NULL;
     }
-    if (cond->nd != 1) {
+    if (PyArray_NDIM(cond) != 1) {
         Py_DECREF(cond);
         PyErr_SetString(PyExc_ValueError,
                         "condition must be 1-d array");
@@ -492,19 +501,19 @@ PyArray_Compress(PyArrayObject *self, PyObject *condition, int axis,
 NPY_NO_EXPORT PyObject *
 PyArray_Nonzero(PyArrayObject *self)
 {
-    int n = self->nd, j;
+    int n = PyArray_NDIM(self), j;
     intp count = 0, i, size;
     NpyArrayIterObject *it = NULL;
     PyObject *ret = NULL, *item;
     intp *dptr[MAX_DIMS];
 
-    it = NpyArray_IterNew(self);
+    it = NpyArray_IterNew(PyArray_ARRAY(self));
     if (it == NULL) {
         return NULL;
     }
     size = it->size;
     for (i = 0; i < size; i++) {
-        if (self->descr->f->nonzero(it->dataptr, self)) {
+        if (PyArray_DESCR(self)->f->nonzero(it->dataptr, self)) {
             count++;
         }
         NpyArray_ITER_NEXT(it);
@@ -527,7 +536,7 @@ PyArray_Nonzero(PyArrayObject *self)
     }
     if (n == 1) {
         for (i = 0; i < size; i++) {
-            if (self->descr->f->nonzero(it->dataptr, self)) {
+            if (PyArray_DESCR(self)->f->nonzero(it->dataptr, self)) {
                 *(dptr[0])++ = i;
             }
             NpyArray_ITER_NEXT(it);
@@ -537,7 +546,7 @@ PyArray_Nonzero(PyArrayObject *self)
         /* reset contiguous so that coordinates gets updated */
         it->contiguous = 0;
         for (i = 0; i < size; i++) {
-            if (self->descr->f->nonzero(it->dataptr, self)) {
+            if (PyArray_DESCR(self)->f->nonzero(it->dataptr, self)) {
                 for (j = 0; j < n; j++) {
                     *(dptr[j])++ = it->coordinates[j];
                 }

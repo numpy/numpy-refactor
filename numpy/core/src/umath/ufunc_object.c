@@ -1833,6 +1833,7 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
         if (self->core_strides) {
             _pya_free(self->core_strides);
         }
+        self->iter->numiter = self->ufunc->nargs;
         _Npy_DECREF(self->iter);
         if (self->buffer[0]) {
             PyDataMem_FREE(self->buffer[0]);

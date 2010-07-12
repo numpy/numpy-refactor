@@ -23,11 +23,11 @@ struct _NpyObject {
 };
 
 #define _Npy_INCREF(a)                          \
-       (((_NpyObject*)(a))->nob_refcnt++)
+       ((a)->nob_refcnt++)
 
 #define _Npy_DECREF(a)                                          \
-        if (--((_NpyObject*)(a))->nob_refcnt == 0)               \
-            ((_NpyObject*)(a))->nob_type->ntp_dealloc((_NpyObject*)a)
+        if (--(a)->nob_refcnt == 0)               \
+            (a)->nob_type->ntp_dealloc((_NpyObject*)a)
 
 #define _Npy_XINCREF(a) if ((a) == NULL) ; else _Npy_INCREF(a)
 #define _Npy_XDECREF(a) if ((a) == NULL) ; else _Npy_DECREF(a)
