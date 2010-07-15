@@ -520,7 +520,6 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     if (ret == NULL) {
         return NULL;
     }
-    /* XXX: We will need to move _flat_copyinto. */
     if (_flat_copyinto(ret, a, order) < 0) {
         Npy_DECREF(ret);
         return NULL;
