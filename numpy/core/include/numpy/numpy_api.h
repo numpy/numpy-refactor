@@ -34,6 +34,7 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
+#define NpyDataType_ISOBJECT(obj) PyDataType_ISOBJECT(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
 #define NpyArray_Check(op) PyArray_Check(op)
 
@@ -110,6 +111,8 @@ void NpyArray_dealloc(NpyArray *self);
 #define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c) 
 int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
+NpyArray_Descr *
+NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
 
 
 /* npy_convert.c */
@@ -125,6 +128,8 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 #define NpyArray_EnsureAnyArray(op)  (NpyArray *)PyArray_EnsureAnyArray(op)
 size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
                            int inflag, int *objflags);
+NpyArray_Descr *
+NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 
 NPY_NO_EXPORT void
 byte_swap_vector(void *p, npy_intp n, int size);
@@ -411,8 +416,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /*
  * TMP
  */
-#define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
-
 extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
                                          npy_intp instrides, npy_intp N, int elsize);

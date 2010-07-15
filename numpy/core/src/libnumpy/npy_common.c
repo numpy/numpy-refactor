@@ -10,6 +10,10 @@
 #include "numpy/numpy_api.h"
 
 
+/* TODO: We should be getting this from an include. */
+#ifndef MAX
+#define MAX(a,b) ((a > b) ? (a) : (b))
+#endif
 
 int 
 Npy_IsAligned(NpyArray *ap)
@@ -80,4 +84,76 @@ Npy_IsWriteable(NpyArray *ap)
         return NPY_FALSE;
     }
     return NPY_TRUE;
+}
+
+/*
+ * new reference
+ * doesn't alter refcount of chktype or mintype ---
+ * unless one of them is returned
+ * TODO: Come up with a name that means something. 
+ */
+NpyArray_Descr *
+NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
+{
+    NpyArray_Descr *outtype;
+    int outtype_num, save_num;
+
+    if (NpyArray_EquivTypes(chktype, mintype)) {
+        Npy_INCREF(mintype);
+        return mintype;
+    }
+
+
+    if (chktype->type_num > mintype->type_num) {
+        outtype_num = chktype->type_num;
+    }
+    else {
+        if (NpyDataType_ISOBJECT(chktype) &&
+            NpyDataType_ISSTRING(mintype)) {
+            return NpyArray_DescrFromType(NPY_OBJECT);
+        }
+        else {
+            outtype_num = mintype->type_num;
+        }
+    }
+
+    save_num = outtype_num;
+    while (outtype_num < NPY_NTYPES &&
+          !(NpyArray_CanCastSafely(chktype->type_num, outtype_num)
+            && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
+        outtype_num++;
+    }
+    if (outtype_num == PyArray_NTYPES) {
+        outtype = NpyArray_DescrFromType(save_num);
+    }
+    else {
+        outtype = NpyArray_DescrFromType(outtype_num);
+    }
+    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
+        int testsize = outtype->elsize;
+        int chksize, minsize;
+        chksize = chktype->elsize;
+        minsize = mintype->elsize;
+        /*
+         * Handle string->unicode case separately
+         * because string itemsize is 4* as large
+         */
+        if (outtype->type_num == NPY_UNICODE &&
+            mintype->type_num == NPY_STRING) {
+            testsize = MAX(chksize, 4*minsize);
+        }
+        else if (chktype->type_num == NPY_STRING &&
+                 mintype->type_num == NPY_UNICODE) {
+            testsize = MAX(chksize*4, minsize);
+        }
+        else {
+            testsize = MAX(chksize, minsize);
+        }
+        if (testsize != outtype->elsize) {
+            NpyArray_DESCR_REPLACE(outtype);
+            outtype->elsize = testsize;
+            NpyArray_DescrDeallocNamesAndFields(outtype);
+        }
+    }
+    return outtype;
 }

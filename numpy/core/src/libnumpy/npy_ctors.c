@@ -1434,3 +1434,15 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_i
     return ret;
 }
 
+NpyArray_Descr *
+NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype)
+{
+    NpyArray_Descr *result;
+    if (mintype == NULL) {
+        result = array->descr;
+        Npy_INCREF(result);
+    } else {
+        result = NpyArray_SmallType(array->descr, mintype);
+    }
+    return result;
+}
