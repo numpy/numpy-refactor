@@ -319,6 +319,7 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
     return (PyObject *)ret;
 }
 
+
 /*NUMPY_API
  * View
  * steals a reference to type -- accepts NULL
@@ -326,39 +327,9 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
-    PyArrayObject *new = NULL;
-    PyTypeObject *subtype;
 
-    if (pytype) {
-        subtype = pytype;
-    }
-    else {
-        subtype = Py_TYPE(self);
-    }
-    Py_INCREF(PyArray_DESCR(self));
-    new = (PyArrayObject* )PyArray_NewFromDescr(subtype,
-                                                PyArray_DESCR(self),
-                                                PyArray_NDIM(self), PyArray_DIMS(self),
-                                                PyArray_STRIDES(self),
-                                                PyArray_BYTES(self),
-                                                PyArray_FLAGS(self), (PyObject *)self);
-    if (new == NULL) {
-        return NULL;
-    }
-    
-    /* TODO: Unwrap array structure, increment NpyArray, not PyArrayObject refcnt. */
-    PyArray_BASE_ARRAY(new) = PyArray_ARRAY(self);
-    Npy_INCREF(PyArray_BASE_ARRAY(new));
-    assert(NULL == PyArray_BASE_ARRAY(new) || NULL == PyArray_BASE(new));
-
-    if (type != NULL) {
-        if (PyObject_SetAttrString((PyObject *)new, "dtype",
-                                   (PyObject *)type) < 0) {
-            Py_DECREF(new);
-            Py_DECREF(type);
-            return NULL;
-        }
-        Py_DECREF(type);
-    }
-    return (PyObject *)new;
+    NpyArray *view = NpyArray_View(PyArray_ARRAY(self), type,
+                                   pytype);
+    /* TODO: Unwrap object. */
+    return (PyObject *)view;
 }

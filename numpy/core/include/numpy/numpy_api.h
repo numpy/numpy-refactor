@@ -112,6 +112,11 @@ int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
 
 
+/* npy_convert.c */
+NpyArray *
+NpyArray_View(NpyArray *self, PyArray_Descr *type, void *pytype);
+int 
+NpyArray_SetDescr(NpyArray *self, PyArray_Descr *newtype);
 
 
 /* ctors.c */
@@ -404,7 +409,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /*
  * TMP
  */
-#define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 

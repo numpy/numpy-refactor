@@ -413,109 +413,13 @@ static int
 array_descr_set(PyArrayObject *self, PyObject *arg)
 {
     PyArray_Descr *newtype = NULL;
-    intp newdim;
-    int index;
-    char *msg = "new type not compatible with array.";
 
     if (!(PyArray_DescrConverter(arg, &newtype)) ||
         newtype == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
-    if (PyDataType_FLAGCHK(newtype, NPY_ITEM_HASOBJECT) ||
-        PyDataType_FLAGCHK(newtype, NPY_ITEM_IS_POINTER) ||
-        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_HASOBJECT) ||
-        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_IS_POINTER)) {
-        PyErr_SetString(PyExc_TypeError,                      \
-                        "Cannot change data-type for object " \
-                        "array.");
-        Py_DECREF(newtype);
-        return -1;
-    }
-
-    if (newtype->elsize == 0) {
-        PyErr_SetString(PyExc_TypeError,
-                        "data-type must not be 0-sized");
-        Py_DECREF(newtype);
-        return -1;
-    }
-
-
-    if ((newtype->elsize != PyArray_ITEMSIZE(self)) &&
-        (PyArray_NDIM(self) == 0 || !PyArray_ISONESEGMENT(self) ||
-         newtype->subarray)) {
-        goto fail;
-    }
-    if (PyArray_ISCONTIGUOUS(self)) {
-        index = PyArray_NDIM(self) - 1;
-    }
-    else {
-        index = 0;
-    }
-    if (newtype->elsize < PyArray_ITEMSIZE(self)) {
-        /*
-         * if it is compatible increase the size of the
-         * dimension at end (or at the front for FORTRAN)
-         */
-        if (PyArray_ITEMSIZE(self) % newtype->elsize != 0) {
-            goto fail;
-        }
-        newdim = PyArray_ITEMSIZE(self) / newtype->elsize;
-        PyArray_DIM(self, index) *= newdim;
-        PyArray_STRIDE(self, index) = newtype->elsize;
-    }
-    else if (newtype->elsize > PyArray_ITEMSIZE(self)) {
-        /*
-         * Determine if last (or first if FORTRAN) dimension
-         * is compatible
-         */
-        newdim = PyArray_DIM(self, index) * PyArray_ITEMSIZE(self);
-        if ((newdim % newtype->elsize) != 0) {
-            goto fail;
-        }
-        PyArray_DIM(self, index) = newdim / newtype->elsize;
-        PyArray_STRIDE(self, index) = newtype->elsize;
-    }
-
-    /* fall through -- adjust type*/
-    Py_DECREF(PyArray_DESCR(self));
-    if (newtype->subarray) {
-        /*
-         * create new array object from data and update
-         * dimensions, strides and descr from it
-         */
-        PyArrayObject *temp;
-        /*
-         * We would decref newtype here.
-         * temp will steal a reference to it
-         */
-        temp = (PyArrayObject *)
-            PyArray_NewFromDescr(&PyArray_Type, newtype, PyArray_NDIM(self),
-                                 PyArray_DIMS(self), PyArray_STRIDES(self),
-                                 PyArray_BYTES(self), PyArray_FLAGS(self), NULL);
-        if (temp == NULL) {
-            return -1;
-        }
-        PyDimMem_FREE(PyArray_DIMS(self));
-        PyArray_DIMS(self) = PyArray_DIMS(temp);
-        PyArray_NDIM(self) = PyArray_NDIM(temp);
-        PyArray_STRIDES(self) = PyArray_STRIDES(temp);
-        newtype = PyArray_DESCR(temp);
-        Py_INCREF(PyArray_DESCR(temp));
-        /* Fool deallocator not to delete these*/
-        PyArray_NDIM(temp) = 0;
-        PyArray_DIMS(temp) = NULL;
-        Py_DECREF(temp);
-    }
-
-    PyArray_DESCR(self) = newtype;
-    PyArray_UpdateFlags(self, UPDATE_ALL);
-    return 0;
-
- fail:
-    PyErr_SetString(PyExc_ValueError, msg);
-    Py_DECREF(newtype);
-    return -1;
+    return NpyArray_SetDescr(PyArray_ARRAY(self), newtype);
 }
 
 static PyObject *
