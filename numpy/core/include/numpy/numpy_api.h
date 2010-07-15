@@ -117,6 +117,8 @@ NpyArray *
 NpyArray_View(NpyArray *self, PyArray_Descr *type, void *pytype);
 int 
 NpyArray_SetDescr(NpyArray *self, PyArray_Descr *newtype);
+NpyArray *
+NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
@@ -409,7 +411,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /*
  * TMP
  */
-#define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
 #define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
 extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);

@@ -154,6 +154,34 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
 }
 
 
+/*
+  Copy an array.
+*/
+NpyArray *
+NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
+{
+    NpyArray *ret;
+    if (fortran == NPY_ANYORDER)
+        fortran = NpyArray_ISFORTRAN(m1);
+
+    Npy_INCREF(NpyArray_DESCR(m1));
+    ret = NpyArray_NewFromDescr(PyArray_DESCR(m1),
+                                PyArray_NDIM(m1),
+                                PyArray_DIMS(m1),
+                                NULL, NULL,
+                                fortran,
+                                NPY_FALSE, NULL,
+                                m1);
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (NpyArray_CopyInto(ret, m1) == -1) {
+        Npy_DECREF(ret);
+        return NULL;
+    }
+
+    return ret;
+}
 
 
 int 

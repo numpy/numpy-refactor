@@ -296,27 +296,9 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
 NPY_NO_EXPORT PyObject *
 PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 {
-    PyArrayObject *ret;
-    if (fortran == PyArray_ANYORDER)
-        fortran = PyArray_ISFORTRAN(m1);
-
-    Py_INCREF(PyArray_DESCR(m1));
-    ret = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(m1),
-                                                PyArray_DESCR(m1),
-                                                PyArray_NDIM(m1),
-                                                PyArray_DIMS(m1),
-                                                NULL, NULL,
-                                                fortran,
-                                                (PyObject *)m1);
-    if (ret == NULL) {
-        return NULL;
-    }
-    if (PyArray_CopyInto(ret, m1) == -1) {
-        Py_DECREF(ret);
-        return NULL;
-    }
-
-    return (PyObject *)ret;
+    NpyArray* arr = NpyArray_NewCopy(PyArray_ARRAY(m1), fortran);
+    /* TODO: Unwrap array. */
+    return (PyObject *)arr;
 }
 
 
