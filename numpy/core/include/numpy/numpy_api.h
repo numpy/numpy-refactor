@@ -113,6 +113,8 @@ int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
 NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
+char *
+NpyArray_Index2Ptr(NpyArray *self, npy_intp i);
 
 
 /* npy_convert.c */
@@ -205,6 +207,7 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 NpyArrayMapIterObject *NpyArray_MapIterNew(void);
 void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
 void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
+NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
 
 
 /* multiarraymodule.c */

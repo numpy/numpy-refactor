@@ -70,33 +70,8 @@ array_length(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 array_big_item(PyArrayObject *self, intp i)
 {
-    char *item;
-    PyArrayObject *r;
-
-    if(PyArray_NDIM(self) == 0) {
-        PyErr_SetString(PyExc_IndexError,
-                        "0-d arrays can't be indexed");
-        return NULL;
-    }
-    if ((item = index2ptr(self, i)) == NULL) {
-        return NULL;
-    }
-    Py_INCREF(PyArray_DESCR(self));
-    r = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(self),
-                                              PyArray_DESCR(self),
-                                              PyArray_NDIM(self)-1,
-                                              PyArray_DIMS(self)+1,
-                                              PyArray_STRIDES(self)+1, item,
-                                              PyArray_FLAGS(self),
-                                              (PyObject *)self);
-    if (r == NULL) {
-        return NULL;
-    }
-    PyArray_BASE_ARRAY(r) = PyArray_ARRAY(self);
-    Npy_INCREF(PyArray_BASE_ARRAY(r)); 
-    ASSERT_ONE_BASE(r);
-    PyArray_UpdateFlags(r, CONTIGUOUS | FORTRAN);
-    return (PyObject *)r;
+    /* TODO: Wrap the result. */
+    return (PyObject*) NpyArray_ArrayItem(PyArray_ARRAY(self), i);
 }
 
 NPY_NO_EXPORT int

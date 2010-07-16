@@ -165,3 +165,37 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
     return;
 }
 
+/*
+ * Indexes the first dimenstion of the array and returns the
+ * item as an array. 
+ */
+NpyArray *
+NpyArray_ArrayItem(NpyArray *self, npy_intp i)
+{
+    char *item;
+    NpyArray *r;
+
+    if(NpyArray_NDIM(self) == 0) {
+        NpyErr_SetString(NpyExc_IndexError,
+                        "0-d arrays can't be indexed");
+        return NULL;
+    }
+    if ((item = NpyArray_Index2Ptr(self, i)) == NULL) {
+        return NULL;
+    }
+    Npy_INCREF(NpyArray_DESCR(self));
+    r = NpyArray_NewFromDescr(PyArray_DESCR(self),
+                              PyArray_NDIM(self)-1,
+                              PyArray_DIMS(self)+1,
+                              PyArray_STRIDES(self)+1, item,
+                              PyArray_FLAGS(self),
+                              NPY_FALSE, NULL, self);
+    if (r == NULL) {
+        return NULL;
+    }
+    NpyArray_BASE_ARRAY(r) = self;
+    Npy_INCREF(self); 
+    assert(r->base_obj == NULL);
+    NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
+    return r;
+}

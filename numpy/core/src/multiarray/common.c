@@ -434,24 +434,7 @@ _array_typedescr_fromstr(char *str)
 NPY_NO_EXPORT char *
 index2ptr(PyArrayObject *mp, intp i)
 {
-    intp dim0;
-
-    if (PyArray_NDIM(mp) == 0) {
-        PyErr_SetString(PyExc_IndexError, "0-d arrays can't be indexed");
-        return NULL;
-    }
-    dim0 = PyArray_DIM(mp, 0);
-    if (i < 0) {
-        i += dim0;
-    }
-    if (i == 0 && dim0 > 0) {
-        return PyArray_BYTES(mp);
-    }
-    if (i > 0 && i < dim0) {
-        return PyArray_BYTES(mp)+i*PyArray_STRIDE(mp, 0);
-    }
-    PyErr_SetString(PyExc_IndexError,"index out of bounds");
-    return NULL;
+    return NpyArray_Index2Ptr(PyArray_ARRAY(mp), i);
 }
 
 NPY_NO_EXPORT int

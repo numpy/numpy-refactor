@@ -157,3 +157,26 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
     }
     return outtype;
 }
+
+char *
+NpyArray_Index2Ptr(NpyArray *mp, npy_intp i)
+{
+    npy_intp dim0;
+
+    if (NpyArray_NDIM(mp) == 0) {
+        NpyErr_SetString(NpyExc_IndexError, "0-d arrays can't be indexed");
+        return NULL;
+    }
+    dim0 = NpyArray_DIM(mp, 0);
+    if (i < 0) {
+        i += dim0;
+    }
+    if (i == 0 && dim0 > 0) {
+        return NpyArray_BYTES(mp);
+    }
+    if (i > 0 && i < dim0) {
+        return NpyArray_BYTES(mp)+i*NpyArray_STRIDE(mp, 0);
+    }
+    NpyErr_SetString(NpyExc_IndexError,"index out of bounds");
+    return NULL;
+}
