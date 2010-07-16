@@ -459,31 +459,11 @@ _zerofill(PyArrayObject *ret)
 NPY_NO_EXPORT int
 _IsAligned(PyArrayObject *ap)
 {
-    int i, alignment, aligned = 1;
-    intp ptr;
-
-    /* The special casing for STRING and VOID types was removed
-     * in accordance with http://projects.scipy.org/numpy/ticket/1227
-     * It used to be that IsAligned always returned True for these
-     * types, which is indeed the case when they are created using
-     * PyArray_DescrConverter(), but not necessarily when using
-     * PyArray_DescrAlignConverter(). */
-
-    alignment = PyArray_DESCR(ap)->alignment;
-    if (alignment == 1) {
-        return 1;
-    }
-    ptr = (intp) PyArray_BYTES(ap);
-    aligned = (ptr % alignment) == 0;
-    for (i = 0; i < PyArray_NDIM(ap); i++) {
-        aligned &= ((PyArray_STRIDE(ap, i) % alignment) == 0);
-    }
-    return aligned != 0;
+    return Npy_IsAligned(PyArray_ARRAY(ap));
 }
 
 NPY_NO_EXPORT Bool
 _IsWriteable(PyArrayObject *ap)
 {
-    /* TODO: Unwrap array object */
     return Npy_IsWriteable(PyArray_ARRAY(ap));
 }
