@@ -30,17 +30,17 @@ maintainer email:  oliphant.travis@ieee.org
 
 NpyArray_Descr **npy_userdescrs=NULL;
 
-static PyArray_CastFuncsItem* 
+static NpyArray_CastFuncsItem* 
 castfuncs_new(void)
 {
-    PyArray_CastFuncsItem* result = 
-        (PyArray_CastFuncsItem *) malloc(sizeof(PyArray_CastFuncsItem));
+    NpyArray_CastFuncsItem* result = 
+        (NpyArray_CastFuncsItem *) malloc(sizeof(NpyArray_CastFuncsItem));
     result[0].totype = NPY_NOTYPE;
     return result;
 }
 
-static PyArray_CastFuncsItem* 
-castfuncs_append(PyArray_CastFuncsItem* items,
+static NpyArray_CastFuncsItem* 
+castfuncs_append(NpyArray_CastFuncsItem* items,
                  int totype, NpyArray_VectorUnaryFunc* func)
 {
     int n = 0;
@@ -48,8 +48,8 @@ castfuncs_append(PyArray_CastFuncsItem* items,
     while (items[n].totype != NPY_NOTYPE) {
         n++;
     }
-    items = (PyArray_CastFuncsItem *)
-        realloc(items, (n + 2)*sizeof(PyArray_CastFuncsItem));
+    items = (NpyArray_CastFuncsItem *)
+        realloc(items, (n + 2)*sizeof(NpyArray_CastFuncsItem));
     items[n].totype = totype;
     items[n].castfunc = func;
     items[n+1].totype = NPY_NOTYPE;

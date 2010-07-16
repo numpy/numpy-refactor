@@ -19,7 +19,7 @@
  * 0-strided arrays are not contiguous (even if dimension == 1)
  */
 static int
-_IsContiguous(PyArrayObject *ap)
+_IsContiguous(NpyArray *ap)
 {
     npy_intp sd;
     npy_intp dim;
@@ -49,7 +49,7 @@ _IsContiguous(PyArrayObject *ap)
 
 /* 0-strided arrays are not contiguous (even if dimension == 1) */
 static int
-_IsFortranContiguous(PyArrayObject *ap)
+_IsFortranContiguous(NpyArray *ap)
 {
     npy_intp sd;
     npy_intp dim;

@@ -1111,14 +1111,13 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             if ((flags & NPY_ENSUREARRAY)) {
                 ensureArray = NPY_TRUE;
             }
-            ret = (PyArrayObject *)
-            NpyArray_NewFromDescr(newtype,
-                                  arr->nd,
-                                  arr->dimensions,
-                                  NULL, NULL,
-                                  flags & NPY_FORTRAN,
-                                  ensureArray, NULL,
-                                  (PyObject *)arr);
+            ret = NpyArray_NewFromDescr(newtype,
+                                        arr->nd,
+                                        arr->dimensions,
+                                        NULL, NULL,
+                                        flags & NPY_FORTRAN,
+                                        ensureArray, NULL,
+                                        arr);
             if (ret == NULL) {
                 return NULL;
             }

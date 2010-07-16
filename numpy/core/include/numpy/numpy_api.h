@@ -17,6 +17,7 @@ typedef PyArray_SortFunc NpyArray_SortFunc;
 typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
 typedef PyArray_DateTimeInfo NpyArray_DateTimeInfo;
+typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
 
 typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
 

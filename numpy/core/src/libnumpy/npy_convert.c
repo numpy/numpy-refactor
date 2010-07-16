@@ -15,7 +15,7 @@
 NpyArray *
 NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 {
-    PyArrayObject *new = NULL;
+    NpyArray *new = NULL;
 
     Npy_INCREF(NpyArray_DESCR(self));
     new = NpyArray_NewFromDescr(NpyArray_DESCR(self),
@@ -29,7 +29,6 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
         return NULL;
     }
     
-    /* TODO: Unwrap array structure, increment NpyArray, not PyArrayObject refcnt. */
     new->base_arr = self;
     Npy_INCREF(self);
     assert(NULL == new->base_obj);

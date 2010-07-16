@@ -184,7 +184,7 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         castfunc = descr->f->cast[type_num];
     } else {
         /* Check castfuncs for casts to user defined types. */
-        PyArray_CastFuncsItem* pitem = descr->f->castfuncs;
+        NpyArray_CastFuncsItem* pitem = descr->f->castfuncs;
         if (pitem != NULL) {
             while (pitem->totype != NPY_NOTYPE) {
                 if (pitem->totype == type_num) {
