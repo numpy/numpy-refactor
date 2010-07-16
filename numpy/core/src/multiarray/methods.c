@@ -734,14 +734,9 @@ array_wraparray(PyArrayObject *self, PyObject *args)
         if (ret == NULL) {
             return NULL;
         }
-        if (PyArray_Check(arr)) {
-            PyArray_BASE_ARRAY(arr) = PyArray_ARRAY(arr);
-            Npy_INCREF(PyArray_BASE_ARRAY(arr));
-        } else {
-            PyArray_BASE(ret) = arr;
-            Py_INCREF(PyArray_BASE(ret));
-        }
-        ASSERT_ONE_BASE(ret);
+        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
+        Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        assert(PyArray_BASE(ret) == NULL);
         return (PyObject *)ret;
     } else {
         /*The type was set in __array_prepare__*/
