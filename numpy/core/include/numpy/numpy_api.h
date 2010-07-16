@@ -27,8 +27,6 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 
 #define NpyArray_UCS4 npy_ucs4
 
-#define Npy_TYPE(a) Py_TYPE(a)
-
 #define NpyDataType_FLAGCHK(dtype, flag)                                   \
         (((dtype)->flags & (flag)) == (flag))
 
@@ -312,9 +310,9 @@ NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                 npy_intp *dims, npy_intp *strides, void *data,
                                 int flags, int ensureArray, void *subtype, 
                                 void *interfaceData);
-NpyArray *NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
+NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
-                       NpyObject *obj);
+                       void *obj);
 int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck, NPY_ORDER fortran);

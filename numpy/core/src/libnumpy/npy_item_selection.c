@@ -759,9 +759,9 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
     NpyArray_ArgSortFunc *argsort;
     NPY_BEGIN_THREADS_DEF;
 
-    ret = NpyArray_New(Npy_TYPE(op), op->nd,
-                          op->dimensions, NPY_INTP,
-                          NULL, NULL, 0, 0, (NpyObject *)op);
+    ret = NpyArray_New(NULL, op->nd,
+                       op->dimensions, NPY_INTP,
+                       NULL, NULL, 0, 0, op);
     if (ret == NULL) {
         return NULL;
     }
@@ -1000,11 +1000,11 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
 
     n = op->nd;
     if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
-        ret = NpyArray_New(Npy_TYPE(op), op->nd,
+        ret = NpyArray_New(NULL, op->nd,
                            op->dimensions,
                            NPY_INTP,
                            NULL, NULL, 0, 0,
-                           (NpyObject *)op);
+                           op);
         if (ret == NULL) {
             return NULL;
         }
@@ -1038,9 +1038,9 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     if (op == NULL) {
         return NULL;
     }
-    ret = NpyArray_New(Npy_TYPE(op), op->nd,
+    ret = NpyArray_New(NULL, op->nd,
                        op->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, (NpyObject *)op);
+                       NULL, NULL, 0, 0, op);
     if (ret == NULL) {
         goto fail;
     }
@@ -1139,7 +1139,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     nd = mps[0]->nd;
     if ((nd == 0) || (NpyArray_SIZE(mps[0]) == 1)) {
         /* single element case */
-        ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
+        ret = NpyArray_New(NULL, mps[0]->nd,
                            mps[0]->dimensions,
                            NPY_INTP,
                            NULL, NULL, 0, 0, NULL);
@@ -1160,7 +1160,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     }
 
     /* Now do the sorting */
-    ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
+    ret = NpyArray_New(NULL, mps[0]->nd,
                        mps[0]->dimensions, NPY_INTP,
                        NULL, NULL, 0, 0, NULL);
     if (ret == NULL) {
@@ -1383,9 +1383,9 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
         goto fail;
     }
     /* ret is a contiguous array of intp type to hold returned indices */
-    ret = NpyArray_New(Npy_TYPE(ap2), ap2->nd,
+    ret = NpyArray_New(NULL, ap2->nd,
                        ap2->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, (NpyObject *)ap2);
+                       NULL, NULL, 0, 0, ap2);
     if (ret == NULL) {
         goto fail;
     }

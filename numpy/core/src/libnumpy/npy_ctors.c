@@ -1020,9 +1020,9 @@ fail:
  * Generic new array creation routine.
  */
 NpyArray *
-NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
+NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
              npy_intp *strides, void *data, int itemsize, int flags,
-             NpyObject *obj)
+             void *obj)
 {
     NpyArray_Descr *descr;
     NpyArray *new;

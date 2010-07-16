@@ -320,12 +320,10 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
                   int nd, npy_intp dimensions[], int typenum)
 {
     NpyArray *ret;
-    NpyTypeObject *subtype;
     double prior1, prior2;
     
     /*
      * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
      */
     if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
         /* TODO: We can't get priority from the core object.
@@ -333,14 +331,12 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
            funciton to the interface layer. */
         prior2 = PyArray_GetPriority((PyObject*)ap2, 0.0);
         prior1 = PyArray_GetPriority((PyObject*)ap1, 0.0);
-        subtype = (prior2 > prior1 ? Py_TYPE(ap2) : Py_TYPE(ap1));
     }
     else {
         prior1 = prior2 = 0.0;
-        subtype = Py_TYPE(ap1);
     }
     
-    ret = NpyArray_New(subtype, nd, dimensions,
+    ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
                        (NpyObject *)(prior2 > prior1 ? ap2 : ap1));
     return ret;

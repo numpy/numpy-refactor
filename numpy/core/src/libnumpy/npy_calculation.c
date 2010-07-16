@@ -72,9 +72,9 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     }
     
     if (!out) {
-        rp = NpyArray_New(Npy_TYPE(ap), ap->nd-1,
+        rp = NpyArray_New(NULL, ap->nd-1,
                           ap->dimensions, NPY_INTP,
-                          NULL, NULL, 0, 0, (NpyObject *)ap);
+                          NULL, NULL, 0, 0, ap);
         if (rp == NULL) {
             goto fail;
         }
