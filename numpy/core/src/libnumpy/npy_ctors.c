@@ -701,7 +701,7 @@ NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
  * steals a reference to descr -- accepts NULL
  */
 NpyArray *
-NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
+NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
 {
     NpyArray *obj;
 
@@ -725,7 +725,7 @@ NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires)
     if ((requires & NPY_ELEMENTSTRIDES) &&
         !NpyArray_ElementStrides(obj)) {
         NpyArray *new;
-        new = NpyArray_NewCopy(obj, PyArray_ANYORDER);
+        new = NpyArray_NewCopy(obj, NPY_ANYORDER);
         Npy_DECREF(obj);
         obj = new;
     }
@@ -871,7 +871,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         
         if (dim == 0) {
             /*
-             * Compare to PyArray_OverflowMultiplyList that
+             * Compare to NpyArray_OverflowMultiplyList that
              * returns 0 in this case.
              */
             continue;
@@ -1291,7 +1291,7 @@ NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 }
 
 
-static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp num, size_t *nread)
+static NpyArray *array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype, npy_intp num, size_t *nread)
 {
     NpyArray *r;
     npy_intp start, numbytes;
@@ -1339,7 +1339,7 @@ static NpyArray *array_fromfile_binary(FILE *fp, PyArray_Descr *dtype, npy_intp 
 
 
 NpyArray *
-NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
+NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 {
     NpyArray *ret;
     size_t nread = 0;
@@ -1381,13 +1381,13 @@ NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num)
 
 
 NpyArray *
-NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num)
+NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype, npy_intp num)
 {
     int itemsize;
     NpyArray *ret;
     
     if (dtype == NULL) {
-        dtype=NpyArray_DescrFromType(PyArray_DEFAULT);
+        dtype=NpyArray_DescrFromType(NPY_DEFAULT);
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,

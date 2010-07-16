@@ -41,7 +41,7 @@ castfuncs_new(void)
 
 static PyArray_CastFuncsItem* 
 castfuncs_append(PyArray_CastFuncsItem* items,
-                 int totype, PyArray_VectorUnaryFunc* func)
+                 int totype, NpyArray_VectorUnaryFunc* func)
 {
     int n = 0;
 

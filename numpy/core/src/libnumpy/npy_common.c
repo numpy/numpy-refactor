@@ -25,8 +25,8 @@ Npy_IsAligned(NpyArray *ap)
      * in accordance with http://projects.scipy.org/numpy/ticket/1227
      * It used to be that IsAligned always returned True for these
      * types, which is indeed the case when they are created using
-     * PyArray_DescrConverter(), but not necessarily when using
-     * PyArray_DescrAlignConverter(). */
+     * NpyArray_DescrConverter(), but not necessarily when using
+     * NpyArray_DescrAlignConverter(). */
     
     alignment = ap->descr->alignment;
     if (alignment == 1) {
@@ -123,7 +123,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
             && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
         outtype_num++;
     }
-    if (outtype_num == PyArray_NTYPES) {
+    if (outtype_num == NPY_NTYPES) {
         outtype = NpyArray_DescrFromType(save_num);
     }
     else {

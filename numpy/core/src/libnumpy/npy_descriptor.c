@@ -38,13 +38,13 @@ NpyArray_DescrNewFromType(int type_num)
 /** Array Descr Objects for dynamic types **/
 
 /*
- * There are some statically-defined PyArray_Descr objects corresponding
+ * There are some statically-defined NpyArray_Descr objects corresponding
  * to the basic built-in types.
  * These can and should be DECREF'd and INCREF'd as appropriate, anyway.
  * If a mistake is made in reference counting, deallocation on these
  * builtins will be attempted leading to problems.
  *
- * This let's us deal with all PyArray_Descr objects using reference
+ * This let's us deal with all NpyArray_Descr objects using reference
  * counting (regardless of whether they are statically or dynamically
  * allocated).
  */
@@ -78,8 +78,8 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     Npy_Interface_XINCREF(new->typeobj);
 
     if (new->dtinfo) {
-        new->dtinfo = NpyArray_malloc(sizeof(PyArray_DateTimeInfo));
-        memcpy(new->dtinfo, base->dtinfo, sizeof(PyArray_DateTimeInfo));
+        new->dtinfo = NpyArray_malloc(sizeof(NpyArray_DateTimeInfo));
+        memcpy(new->dtinfo, base->dtinfo, sizeof(NpyArray_DateTimeInfo));
     }
     
     return new;

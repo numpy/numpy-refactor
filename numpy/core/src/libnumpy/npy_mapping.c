@@ -143,7 +143,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
                 it = mit->iters[i];
                 NpyArray_ITER_NEXT(it);
                 j = mit->iteraxes[i];
-                copyswap(coord+j,it->dataptr, !PyArray_ISNOTSWAPPED(it->ao),
+                copyswap(coord+j,it->dataptr, !NpyArray_ISNOTSWAPPED(it->ao),
                          it->ao);
             }
             NpyArray_ITER_GOTO(mit->ait, coord);
@@ -156,7 +156,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
             it = mit->iters[i];
             NpyArray_ITER_NEXT(it);
             copyswap(coord+i,it->dataptr,
-                     !PyArray_ISNOTSWAPPED(it->ao),
+                     !NpyArray_ISNOTSWAPPED(it->ao),
                      it->ao);
         }
         NpyArray_ITER_GOTO(mit->ait, coord);
@@ -184,11 +184,11 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
         return NULL;
     }
     Npy_INCREF(NpyArray_DESCR(self));
-    r = NpyArray_NewFromDescr(PyArray_DESCR(self),
-                              PyArray_NDIM(self)-1,
-                              PyArray_DIMS(self)+1,
-                              PyArray_STRIDES(self)+1, item,
-                              PyArray_FLAGS(self),
+    r = NpyArray_NewFromDescr(NpyArray_DESCR(self),
+                              NpyArray_NDIM(self)-1,
+                              NpyArray_DIMS(self)+1,
+                              NpyArray_STRIDES(self)+1, item,
+                              NpyArray_FLAGS(self),
                               NPY_FALSE, NULL, self);
     if (r == NULL) {
         return NULL;

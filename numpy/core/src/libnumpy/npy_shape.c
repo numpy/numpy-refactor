@@ -156,7 +156,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
     int flags;
 
     if (fortran == NPY_ANYORDER) {
-        fortran = PyArray_ISFORTRAN(self);
+        fortran = NpyArray_ISFORTRAN(self);
     }
     /*  Quick check to make sure anything actually needs to be done */
     if (n == self->nd) {
@@ -192,7 +192,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
          * we are really re-shaping not just adding ones to the shape somewhere
          * fix any -1 dimensions and check new-dimensions against old size
          */
-        if (_fix_unknown_dimension(newdims, PyArray_SIZE(self)) < 0) {
+        if (_fix_unknown_dimension(newdims, NpyArray_SIZE(self)) < 0) {
             return NULL;
         }
         /*
@@ -331,7 +331,7 @@ NpyArray_Squeeze(NpyArray *self)
     if (ret == NULL) {
         return NULL;
     }
-    PyArray_FLAGS(ret) &= ~NPY_OWNDATA;
+    NpyArray_FLAGS(ret) &= ~NPY_OWNDATA;
     ret->base_arr = self;
     Npy_INCREF(self);
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
@@ -467,7 +467,7 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
         ret->dimensions[i] = ap->dimensions[permutation[i]];
         ret->strides[i] = ap->strides[permutation[i]];
     }
-    PyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
+    NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
     return ret;
 }
 
@@ -486,10 +486,10 @@ NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran)
     }
     newdim.ptr = val;
     if (!fortran && NpyArray_ISCONTIGUOUS(a)) {
-        return NpyArray_Newshape(a, &newdim, PyArray_CORDER);
+        return NpyArray_Newshape(a, &newdim, NPY_CORDER);
     }
-    else if (fortran && PyArray_ISFORTRAN(a)) {
-        return NpyArray_Newshape(a, &newdim, PyArray_FORTRANORDER);
+    else if (fortran && NpyArray_ISFORTRAN(a)) {
+        return NpyArray_Newshape(a, &newdim, NPY_FORTRANORDER);
     }
     else {
         return NpyArray_Flatten(a, fortran);

@@ -62,7 +62,7 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
 
 static int 
 _broadcast_cast(NpyArray *out, NpyArray *in,
-                PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
+                NpyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
 {
     int delsize, selsize, maxaxis, i, N;
     NpyArrayMultiIterObject *multi;
@@ -99,7 +99,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
     else {
         maxdim = multi->dimensions[maxaxis];
-        N = (int) (NPY_MIN(maxdim, PyArray_BUFSIZE));
+        N = (int) (NPY_MIN(maxdim, NPY_BUFSIZE));
         ostrides = multi->iters[0]->strides[maxaxis];
         istrides = multi->iters[1]->strides[maxaxis];
         
@@ -224,8 +224,8 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 
 /*
  * Must be broadcastable.
- * This code is very similar to PyArray_CopyInto/PyArray_MoveInto
- * except casting is done --- PyArray_BUFSIZE is used
+ * This code is very similar to NpyArray_CopyInto/NpyArray_MoveInto
+ * except casting is done --- NPY_BUFSIZE is used
  * as the size of the casting buffer.
  */
 
@@ -542,7 +542,7 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     }
     from = NpyArray_DescrFromType(fromtype);
     /*
-     * cancastto is a PyArray_NOTYPE terminated C-int-array of types that
+     * cancastto is a NPY_NOTYPE terminated C-int-array of types that
      * the data-type can be cast to safely.
      */
     if (from->f->cancastto) {

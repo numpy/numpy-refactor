@@ -185,7 +185,7 @@ _equivalent_fields(NpyDict *field1, NpyDict *field2)
  * or 0 if not
  */
 static int
-_equivalent_units(PyArray_DateTimeInfo *info1, PyArray_DateTimeInfo *info2)
+_equivalent_units(PyArray_DateTimeInfo *info1, NpyArray_DateTimeInfo *info2)
 {
     /* Same meta object */
     return ((info1 == info2)

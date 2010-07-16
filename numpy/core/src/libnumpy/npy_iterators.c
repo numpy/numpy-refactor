@@ -723,7 +723,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
             /* New reference in returned value of _set_constant if array
              * object */
-            assert(PyArray_EquivArrTypes(x->ao, fill) == NPY_TRUE);
+            assert(NpyArray_EquivArrTypes(x->ao, fill) == NPY_TRUE);
             ret->constant = _set_constant(ret, fill);
             if (ret->constant == NULL) {
                 goto clean_x;
@@ -773,7 +773,7 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 
     if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
         /* TODO: fix when we split the array object.*/
-        if (PyArray_ISOBJECT(iter->_internal_iter->ao)) {
+        if (NpyArray_ISOBJECT(iter->_internal_iter->ao)) {
             Py_DECREF(*(PyObject**)iter->constant);
         }
     }

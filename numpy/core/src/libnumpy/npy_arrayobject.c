@@ -48,7 +48,7 @@ NpyArray_ElementStrides(NpyArray *arr)
 {
     int itemsize = NpyArray_ITEMSIZE(arr);
     int i, N = NpyArray_NDIM(arr);
-    npy_intp *strides = PyArray_STRIDES(arr);
+    npy_intp *strides = NpyArray_STRIDES(arr);
 
     for (i = 0; i < N; i++) {
         if ((strides[i] % itemsize) != 0) {

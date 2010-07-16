@@ -13,11 +13,11 @@
 
 
 NpyArray *
-NpyArray_View(NpyArray *self, PyArray_Descr *type, void *subtype)
+NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 {
     PyArrayObject *new = NULL;
 
-    Npy_INCREF(PyArray_DESCR(self));
+    Npy_INCREF(NpyArray_DESCR(self));
     new = NpyArray_NewFromDescr(NpyArray_DESCR(self),
                                 NpyArray_NDIM(self), NpyArray_DIMS(self),
                                 NpyArray_STRIDES(self),
@@ -135,7 +135,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
         NpyArray_DIMS(self) = NpyArray_DIMS(temp);
         NpyArray_NDIM(self) = NpyArray_NDIM(temp);
         NpyArray_STRIDES(self) = NpyArray_STRIDES(temp);
-        newtype = PyArray_DESCR(temp);
+        newtype = NpyArray_DESCR(temp);
         Npy_INCREF(newtype);
         /* Fool deallocator not to delete these*/
         NpyArray_NDIM(temp) = 0;
@@ -165,9 +165,9 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
         fortran = NpyArray_ISFORTRAN(m1);
 
     Npy_INCREF(NpyArray_DESCR(m1));
-    ret = NpyArray_NewFromDescr(PyArray_DESCR(m1),
-                                PyArray_NDIM(m1),
-                                PyArray_DIMS(m1),
+    ret = NpyArray_NewFromDescr(NpyArray_DESCR(m1),
+                                NpyArray_NDIM(m1),
+                                NpyArray_DIMS(m1),
                                 NULL, NULL,
                                 fortran,
                                 NPY_FALSE, NULL,
