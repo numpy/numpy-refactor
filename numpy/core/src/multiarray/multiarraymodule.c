@@ -454,6 +454,7 @@ new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
 NPY_NO_EXPORT PyObject *
 PyArray_InnerProduct(PyObject *op1, PyObject *op2)
 {
+    /* TODO: wrap return value. */
     PyArrayObject *ap1, *ap2, *ret = NULL;
     int typenum;
     PyArray_Descr *typec;
@@ -481,8 +482,13 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    return (PyObject *)NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
-                                             PyArray_ARRAY(ap2), typenum);
+    /* TODO: Wrap return value. */
+    ret = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
+                                PyArray_ARRAY(ap2), typenum);
+    Py_DECREF(ap1);
+    Py_DECREF(ap2);
+
+    return (PyObject *)ret;
     
  fail:
     Py_XDECREF(ap1);

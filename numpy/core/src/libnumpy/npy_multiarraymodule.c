@@ -364,7 +364,7 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     l = ap1->dimensions[ap1->nd - 1];
     if (ap2->dimensions[ap2->nd - 1] != l) {
         NpyErr_SetString(NpyExc_ValueError, "matrices are not aligned");
-        goto fail;
+        return NULL;
     }
     
     nd = ap1->nd + ap2->nd - 2;
@@ -383,7 +383,7 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
      */
     ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
     if (ret == NULL) {
-        goto fail;
+        return ret;
     }
     dot = (ret->descr->f->dotfunc);
     if (dot == NULL) {
@@ -417,14 +417,10 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     if (NpyErr_Occurred()) {
         goto fail;
     }
-    Npy_DECREF(ap1);
-    Npy_DECREF(ap2);
     return ret;
-    
-fail:
-    Npy_XDECREF(ap1);
-    Npy_XDECREF(ap2);
-    Npy_XDECREF(ret);
+
+ fail:
+    Py_XDECREF(ret);
     return NULL;
 }
 
