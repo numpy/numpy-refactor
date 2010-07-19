@@ -297,6 +297,10 @@ typedef struct {
 
 } NpyArrayMapIterObject;
 
+/*
+ * TODO: We should have both PY and NPY level modes since the
+ * NPY level doesn't support 0 and 1.
+ */
 enum {
     NPY_NEIGHBORHOOD_ITER_ZERO_PADDING,
     NPY_NEIGHBORHOOD_ITER_ONE_PADDING,
@@ -346,6 +350,7 @@ typedef struct {
      * for constant padding
      */
     char* constant;
+    npy_free_func constant_free;
 
     int mode;
 } NpyArrayNeighborhoodIterObject;
@@ -359,7 +364,7 @@ extern _NpyTypeObject NpyArrayNeighborhoodIter_Type;
 
 NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
-                             int mode, struct PyArrayObject *fill);
+                             int mode, void *fill,  npy_free_func fillfree);
 
 /* General: those work for any mode */
 static NPY_INLINE int

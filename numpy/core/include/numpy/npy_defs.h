@@ -152,4 +152,6 @@ enum NPY_TYPES {    NPY_BOOL=0,
 #define NpyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
 #define NpyArray_IsNativeByteOrder NpyArray_ISNBO
 
+typedef void (*npy_free_func)(void*);
+
 #endif

@@ -879,30 +879,19 @@ typedef struct {
     NpyArrayNeighborhoodIterObject* iter;
 } PyArrayNeighborhoodIterObject;
 
-#if 0
 /*
  * Neighborhood iterator API
  */
 
-/* General: those work for any mode */
-static NPY_INLINE int
-PyArrayNeighborhoodIter_Reset(PyArrayNeighborhoodIterObject* iter);
-static NPY_INLINE int
-PyArrayNeighborhoodIter_Next(PyArrayNeighborhoodIterObject* iter);
-#if 0
-static NPY_INLINE int
-PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
-#endif
-
-/*
- * Include inline implementations - functions defined there are not
- * considered public API
- */
 #define _NPY_INCLUDE_NEIGHBORHOOD_IMP
 #include "_neighborhood_iterator_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
 
-#endif
+#define PyArrayNeighborhoodIter_Reset(iter) \
+    NpyArrayNeighborhoodIter_Reset((iter)->iter)
+
+#define PyArrayNeighborhoodIter_Next(iter) \
+    NpyArrayNeighborhoodIter_Next((iter)->iter)
 
 /* The default array type */
 #define NPY_DEFAULT_TYPE NPY_DOUBLE

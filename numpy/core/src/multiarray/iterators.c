@@ -1628,6 +1628,37 @@ NPY_NO_EXPORT PyTypeObject PyArrayMultiIter_Type = {
 
 /*========================= Neighborhood iterator ======================*/
 
+static char* _set_constant(NpyArray* ao, NpyArray *fill)
+{
+    char *ret;
+    int storeflags, st;
+    
+    ret = (char *)PyDataMem_NEW(ao->descr->elsize);
+    if (ret == NULL) {
+        PyErr_SetNone(PyExc_MemoryError);
+        return NULL;
+    }
+    
+    if (NpyArray_ISOBJECT(ao)) {                /* TODO: Double check this case, memcpy of a pointer? Is ISOBJECT still correct? */
+        memcpy(ret, fill->data, sizeof(PyObject*));
+        Py_INCREF(*(PyObject**)ret);     /* TODO: What are the possible object types for ret? */
+    } else {
+        /* Non-object types */
+        storeflags = ao->flags;
+        ao->flags |= NPY_BEHAVED;
+        st = ao->descr->f->setitem((PyObject*)fill, ret, ao);
+        ao->flags = storeflags;
+        
+        if (st < 0) {
+            PyDataMem_FREE(ret);
+            return NULL;
+        }
+    }
+    
+    return ret;
+}
+
+
 /*
  * fill and x->ao should have equivalent types
  */
@@ -1639,9 +1670,33 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
                             int mode, PyArrayObject* fill)
 {
     NpyArrayNeighborhoodIterObject *coreRet;
+    void *fillptr = NULL;
+    npy_free_func freefill = NULL;
 
+    switch (mode) {
+        case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
+            fillptr = PyArray_Zero(x->iter->ao);
+            freefill = free;
+            mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
+            fillptr = PyArray_One(x->iter->ao);
+            freefill = free;
+            mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
+            fillptr = _set_constant(x->iter->ao, PyArray_ARRAY(fill));
+            freefill = free;
+            break;
+        case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
+        case NPY_NEIGHBORHOOD_ITER_CIRCULAR_PADDING:
+            break;
+        default:
+            PyErr_SetString(PyExc_ValueError, "Unsupported padding mode");
+            return NULL;
+    }
     coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode, 
-                                           PyArray_ARRAY(fill));
+                                           fillptr, freefill);
     if (NULL == coreRet) {
         return NULL;        
     }

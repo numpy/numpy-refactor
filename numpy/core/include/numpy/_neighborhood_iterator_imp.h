@@ -1,6 +1,10 @@
 #ifndef _NPY_INCLUDE_NEIGHBORHOOD_IMP
 #error You should not include this header directly
 #endif
+
+#ifndef _NEIGHBORHOOD_ITERATOR_IMP_H_
+#define _NEIGHBORHOOD_ITERATOR_IMP_H_
+
 /*
  * Private API (here for inline)
  */
@@ -88,3 +92,5 @@ NpyArrayNeighborhoodIter_Reset(NpyArrayNeighborhoodIterObject* iter)
 
     return 0;
 }
+
+#endif
