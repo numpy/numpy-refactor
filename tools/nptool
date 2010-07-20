@@ -1,0 +1,11 @@
+#!/usr/bin/env python
+#
+# This tool helps with various tasks that arise in numpy development and
+# testing. 
+
+import nptool
+import sys
+
+tool = nptool.nptool()
+
+tool.cmd( sys.argv[1:] )
