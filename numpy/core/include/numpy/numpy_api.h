@@ -18,8 +18,7 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
 typedef PyArray_DateTimeInfo NpyArray_DateTimeInfo;
 typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
-
-typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
+typedef PyArray_DotFunc NpyArray_DotFunc;
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
@@ -196,7 +195,7 @@ void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
 /* methods.c */
 NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
-int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyObject *val);
+int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyArray *val);
 NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
 unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
@@ -360,9 +359,9 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /* These operate on the elements IN the array, not the array itself. */
 /* TODO: Would love to rename these, easy to misread NpyArray_XX and Npy_XX */
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
-#define NpyArray_INCREF(a) PyArray_INCREF(a)
-#define NpyArray_DECREF(a) PyArray_DECREF(a)
-#define NpyArray_XDECREF(a) PyArray_XDECREF(a)
+#define NpyArray_INCREF(a) PyArray_INCREF(Npy_INTERFACE(a))
+#define NpyArray_DECREF(a) PyArray_DECREF(Npy_INTERFACE(a))
+#define NpyArray_XDECREF(a) PyArray_XDECREF( a ? Npy_INTERFACE(a) : NULL)
 
 #define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
 #define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)

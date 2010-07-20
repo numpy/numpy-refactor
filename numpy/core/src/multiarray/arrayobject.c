@@ -57,7 +57,7 @@ maintainer email:  oliphant.travis@ieee.org
 NPY_NO_EXPORT intp
 PyArray_Size(PyObject *op)
 {
-    return PyArray_Check(op) ? NpyArray_Size((NpyArray*)op) : 0;
+    return PyArray_Check(op) ? NpyArray_Size(PyArray_ARRAY(op)) : 0;
 }
 
 /*NUMPY_API*/
@@ -169,8 +169,8 @@ array_dealloc(PyArrayObject *self) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
     
-    /* TODO: Unwrap self into the array */
     NpyArray_dealloc(PyArray_ARRAY(self));
+    (*self->ob_type->tp_free)(self);
 }
 
 static int
@@ -188,7 +188,7 @@ dump_data(char **string, int *n, int *max_n, char *data, int nd,
     }} while (0)
 
     if (nd == 0) {
-        if ((op = descr->f->getitem(data, self)) == NULL) {
+        if ((op = descr->f->getitem(data, PyArray_ARRAY(self))) == NULL) {
             return -1;
         }
         sp = PyObject_Repr(op);
@@ -1007,7 +1007,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
 NPY_NO_EXPORT int
 PyArray_ElementStrides(PyObject *arr)
 {
-    return NpyArray_ElementStrides((NpyArray*)arr);
+    return NpyArray_ElementStrides(PyArray_ARRAY(arr));
 }
 
 /*
@@ -1167,8 +1167,8 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         
         /* TODO: This will be an issue.  Probably need to split buffer.base or we have to unwrap it. */
         if (PyArray_Check(buffer.base)) {
-            PyArray_BASE_ARRAY(ret) = (NpyArray *)buffer.base;
-            Npy_INCREF(PyArray_BASE_ARRAY(ret));
+            PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(buffer.base);
+            _Npy_INCREF(PyArray_BASE_ARRAY(ret));
         } else {
             PyArray_BASE(ret) = buffer.base;
             Py_INCREF(buffer.base);

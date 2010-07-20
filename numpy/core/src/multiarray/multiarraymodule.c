@@ -102,7 +102,6 @@ PyArray_OverflowMultiplyList(intp *l1, int n)
 NPY_NO_EXPORT void *
 PyArray_GetPtr(PyArrayObject *obj, intp* ind)
 {
-    /* TODO: Unwrap array object. */
     return NpyArray_GetPtr(PyArray_ARRAY(obj), ind);
 }
 
@@ -161,7 +160,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
        a leak or I just need more coffee. */
     Py_INCREF(typedescr);
     oldAp = ap;
-    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr);
+    result = NpyArray_AsCArray(&PyArray_LARRAY(ap), ptr, dims, nd, typedescr);
     Py_DECREF(oldAp);
     *op = (PyObject *) ap;
     return result;
@@ -220,7 +219,6 @@ PyArray_As2D(PyObject **op, char ***ptr, int *d1, int *d2, int typecode)
 NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
-    /* TODO: Needs to free both pieces, core array and Py object. */
     return NpyArray_Free((NpyArray *)op, ptr);
 }
 
@@ -399,8 +397,11 @@ PyArray_Concatenate(PyObject *op, int axis)
 NPY_NO_EXPORT NPY_SCALARKIND
 PyArray_ScalarKind(int typenum, PyArrayObject **arr)
 {
-    /* TODO: Unwrap array objects. */
-    return NpyArray_ScalarKind(typenum, arr);
+    if (arr != NULL) {
+        return NpyArray_ScalarKind(typenum, &PyArray_LARRAY(*arr));
+    } else {
+        return NpyArray_ScalarKind(typenum, NULL);
+    }
 }
 
 
@@ -455,7 +456,8 @@ NPY_NO_EXPORT PyObject *
 PyArray_InnerProduct(PyObject *op1, PyObject *op2)
 {
     /* TODO: wrap return value. */
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2, *ret;
+    NpyArray *prod = NULL;
     int typenum;
     PyArray_Descr *typec;
 
@@ -482,18 +484,22 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    /* TODO: Wrap return value. */
-    ret = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
-                                PyArray_ARRAY(ap2), typenum);
+    prod = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
+                                 PyArray_ARRAY(ap2), typenum);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
+
+    /* Get the interface object and move the reference. */
+    ret = Npy_INTERFACE(prod);
+    Py_INCREF(ret);
+    _Npy_DECREF(prod);
 
     return (PyObject *)ret;
     
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);
-    Py_XDECREF(ret);
+    _Npy_XDECREF(prod);
     return NULL;
 }
 
@@ -600,7 +606,7 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
     while (1) {
         while (NpyArray_ITER_NOTDONE(it2)) {
             dot(NpyArray_ITER_DATA(it1), is1, NpyArray_ITER_DATA(it2), is2, 
-                op, l, ret);
+                op, l, PyArray_ARRAY(ret));
             op += os;
             NpyArray_ITER_NEXT(it2);
         }
@@ -771,19 +777,19 @@ _pyarray_correlate(PyArrayObject *ap1, PyArrayObject *ap2, int typenum,
     ip2 = PyArray_BYTES(ap2) + n_left*is2;
     n = n - n_left;
     for (i = 0; i < n_left; i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
+        dot(ip1, is1, ip2, is2, op, n, PyArray_ARRAY(ret));
         n++;
         ip2 -= is2;
         op += os;
     }
     for (i = 0; i < (n1 - n2 + 1); i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
+        dot(ip1, is1, ip2, is2, op, n, PyArray_ARRAY(ret));
         ip1 += is1;
         op += os;
     }
     for (i = 0; i < n_right; i++) {
         n--;
-        dot(ip1, is1, ip2, is2, op, n, ret);
+        dot(ip1, is1, ip2, is2, op, n, PyArray_ARRAY(ret));
         ip1 += is1;
         op += os;
     }
@@ -2156,7 +2162,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), 
+                            PyArray_ARRAY(item_result))) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                     "result array type does not match underlying function");
@@ -2227,7 +2234,8 @@ _vec_string_no_args(PyArrayObject* char_array,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), 
+                            PyArray_ARRAY(item_result))) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                 "result array type does not match underlying function");

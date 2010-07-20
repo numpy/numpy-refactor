@@ -318,7 +318,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
           ((mpd->elsize == at->elsize) || (at->elsize==0)))) &&
         NpyArray_ISBEHAVED_RO(mp)) {
         Npy_DECREF(at);
-        Npy_INCREF(mp);
+        _Npy_INCREF(mp);
         return mp;
     }
     
@@ -354,7 +354,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
         return out;
     }
     
-    Npy_DECREF(out);
+    _Npy_DECREF(out);
     return NULL;
 }
 

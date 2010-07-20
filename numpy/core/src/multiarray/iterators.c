@@ -585,7 +585,7 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
             return NULL;
         }
         NpyArray_ITER_GOTO1D(self, num);
-        copyswap(optr, self->dataptr, swap, r);
+        copyswap(optr, self->dataptr, swap, PyArray_ARRAY(r));
         optr += itemsize;
         NpyArray_ITER_NEXT(ind_it);
     }
@@ -688,7 +688,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         dptr = PyArray_DATA(r);
         copyswap = PyArray_DESCR(r)->f->copyswap;
         while (n_steps--) {
-            copyswap(dptr, self->dataptr, 0, r);
+            copyswap(dptr, self->dataptr, 0, PyArray_ARRAY(r));
             start += step_size;
             NpyArray_ITER_GOTO1D(self, start)
                 dptr += size;
@@ -948,13 +948,15 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
         NpyArray_ITER_GOTO1D(self, start);
         if (n_steps == SingleIndex) {
             /* Integer */
-            copyswap(self->dataptr, PyArray_DATA(arrval), swap, arrval);
+            copyswap(self->dataptr, PyArray_DATA(arrval), swap, 
+                     PyArray_ARRAY(arrval));
             NpyArray_ITER_RESET(self);
             retval = 0;
             goto finish;
         }
         while (n_steps--) {
-            copyswap(self->dataptr, val_it->dataptr, swap, arrval);
+            copyswap(self->dataptr, val_it->dataptr, swap, 
+                     PyArray_ARRAY(arrval));
             start += step_size;
             NpyArray_ITER_GOTO1D(self, start);
             NpyArray_ITER_NEXT(val_it);
@@ -1079,7 +1081,7 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
         PyArray_FLAGS(r) |= UPDATEIFCOPY;
         it->ao->flags &= ~WRITEABLE;
     }
-    Npy_INCREF(it->ao);
+    _Npy_INCREF(it->ao);
     PyArray_BASE_ARRAY(r) = it->ao;
     assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r));
     
@@ -1675,12 +1677,12 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
 
     switch (mode) {
         case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
-            fillptr = PyArray_Zero(x->iter->ao);
+            fillptr = PyArray_Zero(Npy_INTERFACE(x->iter->ao));
             freefill = free;
             mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
             break;
         case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
-            fillptr = PyArray_One(x->iter->ao);
+            fillptr = PyArray_One(Npy_INTERFACE(x->iter->ao));
             freefill = free;
             mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
             break;

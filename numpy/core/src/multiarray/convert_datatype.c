@@ -180,7 +180,7 @@ PyArray_Zero(PyArrayObject *arr)
     }
     storeflags = PyArray_FLAGS(arr);
     PyArray_FLAGS(arr) |= BEHAVED;
-    ret = PyArray_DESCR(arr)->f->setitem(obj, zeroval, arr);
+    ret = PyArray_DESCR(arr)->f->setitem(obj, zeroval, PyArray_ARRAY(arr));
     PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {
@@ -218,7 +218,7 @@ PyArray_One(PyArrayObject *arr)
 
     storeflags = PyArray_FLAGS(arr);
     PyArray_FLAGS(arr) |= BEHAVED;
-    ret = PyArray_DESCR(arr)->f->setitem(obj, oneval, arr);
+    ret = PyArray_DESCR(arr)->f->setitem(obj, oneval, PyArray_ARRAY(arr));
     PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {

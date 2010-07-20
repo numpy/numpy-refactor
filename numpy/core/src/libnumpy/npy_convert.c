@@ -30,12 +30,12 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
     }
     
     new->base_arr = self;
-    Npy_INCREF(self);
+    _Npy_INCREF(self);
     assert(NULL == new->base_obj);
 
     if (type != NULL) {
         if (NpyArray_SetDescr(new, type) < 0) {
-            Npy_DECREF(new);
+            _Npy_DECREF(new);
             Npy_DECREF(type);
             return NULL;
         }
@@ -139,7 +139,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
         /* Fool deallocator not to delete these*/
         NpyArray_NDIM(temp) = 0;
         NpyArray_DIMS(temp) = NULL;
-        Npy_DECREF(temp);
+        _Npy_DECREF(temp);
     }
 
     NpyArray_DESCR(self) = newtype;
@@ -175,7 +175,7 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
         return NULL;
     }
     if (NpyArray_CopyInto(ret, m1) == -1) {
-        Npy_DECREF(ret);
+        _Npy_DECREF(ret);
         return NULL;
     }
 

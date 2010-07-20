@@ -336,7 +336,7 @@ array_data_set(PyArrayObject *self, PyObject *op)
             PyArray_BASE_ARRAY(self)->flags |= WRITEABLE;
             PyArray_FLAGS(self) &= ~UPDATEIFCOPY;
         }
-        Npy_DECREF(PyArray_BASE_ARRAY(self));
+        _Npy_DECREF(PyArray_BASE_ARRAY(self));
         PyArray_BASE_ARRAY(self) = NULL;
     } 
     if (NULL != PyArray_BASE(self)) {
@@ -346,7 +346,7 @@ array_data_set(PyArrayObject *self, PyObject *op)
     
     if (PyArray_Check(op)) {
         PyArray_BASE_ARRAY(self) = PyArray_ARRAY(op);
-        Npy_INCREF(PyArray_BASE_ARRAY(self));
+        _Npy_INCREF(PyArray_BASE_ARRAY(self));
     } else {
         PyArray_BASE(self) = op;        
         Py_INCREF(PyArray_BASE(self));
@@ -481,7 +481,7 @@ static PyObject *
 array_base_get(PyArrayObject *self)
 {
     if (NULL != PyArray_BASE_ARRAY(self)) {
-        Npy_INCREF(PyArray_BASE_ARRAY(self));
+        _Npy_INCREF(PyArray_BASE_ARRAY(self));
         /* TODO: Wrap array with PyArrayObject */
         return (PyObject *) PyArray_BASE_ARRAY(self);
     } else if (NULL != PyArray_BASE(self)) {
@@ -529,7 +529,7 @@ _get_part(PyArrayObject *self, int imag)
     PyArray_FLAGS(ret) &= ~CONTIGUOUS;
     PyArray_FLAGS(ret) &= ~FORTRAN;
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(self);
-    Npy_INCREF(PyArray_BASE_ARRAY(ret));
+    _Npy_INCREF(PyArray_BASE_ARRAY(ret));
     return ret;
 }
 
@@ -686,7 +686,8 @@ array_flat_set(PyArrayObject *self, PyObject *val)
             PyArray_Item_INCREF(arrit->dataptr, PyArray_DESCR(arr));
             memmove(selfit->dataptr, arrit->dataptr, sizeof(PyObject **));
             if (swap) {
-                copyswap(selfit->dataptr, NULL, swap, self);
+                copyswap(selfit->dataptr, NULL, swap, 
+                         PyArray_ARRAY(self));
             }
             NpyArray_ITER_NEXT(selfit);
             NpyArray_ITER_NEXT(arrit);
@@ -701,7 +702,7 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     while(selfit->index < selfit->size) {
         memmove(selfit->dataptr, arrit->dataptr, PyArray_ITEMSIZE(self));
         if (swap) {
-            copyswap(selfit->dataptr, NULL, swap, self);
+            copyswap(selfit->dataptr, NULL, swap, PyArray_ARRAY(self));
         }
         NpyArray_ITER_NEXT(selfit);
         NpyArray_ITER_NEXT(arrit);

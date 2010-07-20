@@ -292,14 +292,14 @@ typedef enum {
 struct _PyArray_Descr;
 
 /* These must deal with unaligned and swapped data if necessary */
-typedef PyObject * (PyArray_GetItemFunc) (void *, void *);
-typedef int (PyArray_SetItemFunc)(PyObject *, void *, void *);
+typedef PyObject * (PyArray_GetItemFunc) (void *, NpyArray *);
+typedef int (PyArray_SetItemFunc)(PyObject *, void *, NpyArray *);
 
 typedef void (PyArray_CopySwapNFunc)(void *, npy_intp, void *, npy_intp,
-                                     npy_intp, int, void *);
+                                     npy_intp, int, NpyArray *);
 
-typedef void (PyArray_CopySwapFunc)(void *, void *, int, void *);
-typedef npy_bool (PyArray_NonzeroFunc)(void *, void *);
+typedef void (PyArray_CopySwapFunc)(void *, void *, int, NpyArray *);
+typedef npy_bool (PyArray_NonzeroFunc)(void *, NpyArray *);
 
 
 /*
@@ -307,14 +307,14 @@ typedef npy_bool (PyArray_NonzeroFunc)(void *, void *);
  * before or contiguous data will be obtained
  */
 
-typedef int (PyArray_CompareFunc)(const void *, const void *, void *);
-typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, void *);
+typedef int (PyArray_CompareFunc)(const void *, const void *, NpyArray *);
+typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, NpyArray *);
 
 typedef void (PyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
-                               npy_intp, void *);
+                               npy_intp, NpyArray *);
 
-typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, void *,
-                                       void *);
+typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, NpyArray *,
+                                       NpyArray *);
 
 /*
  * XXX the ignore argument should be removed next time the API version
@@ -325,14 +325,14 @@ typedef int (PyArray_ScanFunc)(FILE *fp, void *dptr,
 typedef int (PyArray_FromStrFunc)(char *s, void *dptr, char **endptr,
                                   struct _PyArray_Descr *);
 
-typedef int (PyArray_FillFunc)(void *, npy_intp, void *);
+typedef int (PyArray_FillFunc)(void *, npy_intp, NpyArray *);
 
-typedef int (PyArray_SortFunc)(void *, npy_intp, void *);
-typedef int (PyArray_ArgSortFunc)(void *, npy_intp *, npy_intp, void *);
+typedef int (PyArray_SortFunc)(void *, npy_intp, NpyArray *);
+typedef int (PyArray_ArgSortFunc)(void *, npy_intp *, npy_intp, NpyArray *);
 
-typedef int (PyArray_FillWithScalarFunc)(void *, npy_intp, void *, void *);
+typedef int (PyArray_FillWithScalarFunc)(void *, npy_intp, void *, NpyArray *);
 
-typedef int (PyArray_ScalarKindFunc)(void *);
+typedef int (PyArray_ScalarKindFunc)(NpyArray *);
 
 typedef void (PyArray_FastClipFunc)(void *in, npy_intp n_in, void *min,
                                     void *max, void *out);
@@ -583,22 +583,11 @@ typedef struct _arr_descr {
  */
 
 typedef struct PyArrayObject {
-        PyObject_HEAD
-        int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
-        void *nob_interface;        /* Interface-specific wrapper, may be NULL */
-        char *data;             /* pointer to raw data buffer */
-        int nd;                 /* number of dimensions, also called ndim */
-        npy_intp *dimensions;   /* size in each dimension */
-        npy_intp *strides;      /*
-                                 * bytes to jump to get to the
-                                 * next element in each dimension
-                                 */
-        struct PyArrayObject *base_arr; /* Base when it's specifically an array object */
-        void *base_obj;         /* Base when it's an opaque interface object */
-    
-        PyArray_Descr *descr;   /* Pointer to type structure */
-        int flags;              /* Flags describing array -- see below */
-        PyObject *weakreflist;  /* For weakreferences */
+    PyObject_HEAD
+    int magic_offset;
+    int magic_number;
+    struct _NpyArray *array;
+    PyObject *weakreflist;  /* For weakreferences */
 } PyArrayObject;
 
 #define NPY_AO PyArrayObject
@@ -755,7 +744,9 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
  * here.
  */
 
-#define PyArray_ARRAY(m) ((m) ? assert(PyArray_Check(m)),((PyArrayObject *)(m)) : NULL)
+#define PyArray_ARRAY(m) ((m) ? assert(PyArray_Check(m)),(((PyArrayObject *)(m))->array) : NULL)
+#define PyArray_LARRAY(m) (((PyArrayObject *)(m))->array)
+
 #define PAA(m) PyArray_ARRAY(m)
 
 #define PyArray_CHKFLAGS(m, FLAGS) NpyArray_CHKFLAGS(PAA(m), FLAGS)

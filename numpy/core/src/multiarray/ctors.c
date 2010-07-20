@@ -47,7 +47,7 @@ PyCapsule_GetPointer(void *ptr, void *notused)
     do {                                                \
         if (PyArray_Check(b)) {                         \
             PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
-            Npy_INCREF(PyArray_BASE_ARRAY(a));          \
+            _Npy_INCREF(PyArray_BASE_ARRAY(a));          \
         } else {                                        \
             PyArray_BASE(a) = (PyObject*) b;            \
             Py_INCREF(b);                               \
@@ -391,7 +391,8 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, intp offset)
             res = setArrayFromSequence(a, o, dim+1, offset);
         }
         else {
-            res = PyArray_DESCR(a)->f->setitem(o, (PyArray_BYTES(a) + offset), a);
+            res = PyArray_DESCR(a)->f->setitem(o, (PyArray_BYTES(a) + offset), 
+                                               PyArray_ARRAY(a));
         }
         Py_DECREF(o);
         if (res < 0) {
@@ -463,7 +464,7 @@ Array_FromPyScalar(PyObject *op, PyArray_Descr *typecode)
         return NULL;
     }
 
-    PyArray_DESCR(ret)->f->setitem(op, PyArray_BYTES(ret), ret);
+    PyArray_DESCR(ret)->f->setitem(op, PyArray_BYTES(ret), PyArray_ARRAY(ret));
     if (PyErr_Occurred()) {
         Py_DECREF(ret);
         return NULL;
@@ -807,10 +808,18 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
                      intp *dims, intp *strides, void *data,
                      int flags, PyObject *obj)
 {
-    // TODO: Returns NpyArray, needs to be wrapped into PyObject.
-    return (PyObject *) 
+    NpyArray *core_array;
+    PyArrayObject *ret;
+
+    core_array = 
         NpyArray_NewFromDescr(descr, nd, dims, strides, 
                               data, flags, NPY_FALSE, subtype, obj);
+    ret = Npy_INTERFACE(core_array);
+    ret->weakreflist = NULL;
+    Py_INCREF(ret);
+    _Npy_DECREF(core_array);
+    
+    return (PyObject *)ret;
 }
 
 
@@ -1815,7 +1824,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
      * if length > 2, then call the inner loop, otherwise stop
      */
     obj = PyFloat_FromDouble(start);
-    ret = funcs->setitem(obj, PyArray_BYTES(range), (PyArrayObject *)range);
+    ret = funcs->setitem(obj, PyArray_BYTES(range), PyArray_ARRAY(range));
     Py_DECREF(obj);
     if (ret < 0) {
         goto fail;
@@ -1825,7 +1834,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
     }
     obj = PyFloat_FromDouble(start + step);
     ret = funcs->setitem(obj, PyArray_BYTES(range)+PyArray_ITEMSIZE(range),
-                         (PyArrayObject *)range);
+                         PyArray_ARRAY(range));
     Py_DECREF(obj);
     if (ret < 0) {
         goto fail;
@@ -1838,7 +1847,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
         Py_DECREF(range);
         return NULL;
     }
-    funcs->fill(PyArray_BYTES(range), length, (PyArrayObject *)range);
+    funcs->fill(PyArray_BYTES(range), length, PyArray_ARRAY(range));
     if (PyErr_Occurred()) {
         goto fail;
     }
@@ -2015,14 +2024,14 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
      */
     funcs = PyArray_DESCR(range)->f;
     if (funcs->setitem(
-                start, PyArray_BYTES(range), (PyArrayObject *)range) < 0) {
+           start, PyArray_BYTES(range), PyArray_ARRAY(range)) < 0) {
         goto fail;
     }
     if (length == 1) {
         goto finish;
     }
     if (funcs->setitem(next, PyArray_BYTES(range)+PyArray_ITEMSIZE(range),
-                       (PyArrayObject *)range) < 0) {
+                       PyArray_ARRAY(range)) < 0) {
         goto fail;
     }
     if (length == 2) {
@@ -2033,7 +2042,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr
         Py_DECREF(range);
         goto fail;
     }
-    funcs->fill(PyArray_BYTES(range), length, (PyArrayObject *)range);
+    funcs->fill(PyArray_BYTES(range), length, PyArray_ARRAY(range));
     if (PyErr_Occurred()) {
         goto fail;
     }
@@ -2498,7 +2507,8 @@ PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
         PyArray_DIM(ret, 0) = i + 1;
 
         if (((item = index2ptr(ret, i)) == NULL)
-            || (PyArray_DESCR(ret)->f->setitem(value, item, ret) == -1)) {
+            || (PyArray_DESCR(ret)->f->setitem(value, item, 
+                                               PyArray_ARRAY(ret)) == -1)) {
             Py_DECREF(value);
             goto done;
         }

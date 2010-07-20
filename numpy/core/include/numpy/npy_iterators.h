@@ -22,7 +22,7 @@ struct NpyArrayIterObject {
         npy_intp          strides[NPY_MAXDIMS];    /* ao->strides or fake */
         npy_intp          backstrides[NPY_MAXDIMS];/* how far to jump back */
         npy_intp          factors[NPY_MAXDIMS];     /* shape factors */
-        struct PyArrayObject          *ao;
+        NpyArray          *ao;
         char              *dataptr;        /* pointer to current item*/
         npy_bool          contiguous;
 
@@ -39,13 +39,13 @@ extern _NpyTypeObject NpyArrayIter_Type;
 
 
 NpyArrayIterObject *
-NpyArray_IterNew(struct PyArrayObject *ao);
+NpyArray_IterNew(NpyArray *ao);
 
 NpyArrayIterObject *
-NpyArray_IterAllButAxis(struct PyArrayObject* obj, int *inaxis);
+NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis);
 
 NpyArrayIterObject *
-NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
+NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd);
 
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
@@ -199,7 +199,7 @@ typedef struct NpyArrayMultiIterObject {
 extern _NpyTypeObject NpyArrayMultiIter_Type;
 
 NpyArrayMultiIterObject *
-NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
+NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...);
 
 NpyArrayMultiIterObject *
 NpyArray_MultiIterNew(void);
@@ -323,7 +323,7 @@ typedef struct {
     npy_intp          strides[NPY_MAXDIMS];    /* ao->strides or fake */
     npy_intp          backstrides[NPY_MAXDIMS];/* how far to jump back */
     npy_intp          factors[NPY_MAXDIMS];     /* shape factors */
-    struct PyArrayObject          *ao;
+    NpyArray          *ao;
     char              *dataptr;        /* pointer to current item*/
     npy_bool          contiguous;
 

@@ -487,7 +487,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     NPY_END_THREADS;
     
     if (src != orig_src) {
-        Npy_DECREF(src);
+        _Npy_DECREF(src);
     }
     _Npy_DECREF(it);
     return 0;
@@ -726,7 +726,7 @@ NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
         !NpyArray_ElementStrides(obj)) {
         NpyArray *new;
         new = NpyArray_NewCopy(obj, NPY_ANYORDER);
-        Npy_DECREF(obj);
+        _Npy_DECREF(obj);
         obj = new;
     }
     return obj;
@@ -752,7 +752,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
         }
         else {
             temp1 = arr;
-            Npy_INCREF(temp1);
+            _Npy_INCREF(temp1);
             *axis = 0;
         }
         if (!flags && *axis == 0) {
@@ -761,11 +761,11 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
     }
     else {
         temp1 = arr;
-        Npy_INCREF(temp1);
+        _Npy_INCREF(temp1);
     }
     if (flags) {
         temp2 = NpyArray_CheckFromArray(temp1, NULL, flags);
-        Npy_DECREF(temp1);
+        _Npy_DECREF(temp1);
         if (temp2 == NULL) {
             return NULL;
         }
@@ -780,7 +780,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
     if ((*axis < 0) || (*axis >= n)) {
         NpyErr_Format(NpyExc_ValueError,
                      "axis(=%d) out of bounds", *axis);
-        Npy_DECREF(temp2);
+        _Npy_DECREF(temp2);
         return NULL;
     }
     return temp2;
@@ -934,7 +934,6 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     self->descr = descr;
     self->base_arr = NULL;
     self->base_obj = NULL;
-    self->weakreflist = (PyObject *)NULL;   // TODO: Check this type
     
     if (nd > 0) {
         self->dimensions = NpyDimMem_NEW(2*nd);
@@ -1003,13 +1002,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                                   (NULL != strides), 
                                                   subtype, interfaceData, &self->nob_interface)) {
         Npy_INTERFACE(self) = NULL;
-        Npy_DECREF(self);
+        _Npy_DECREF(self);
         return NULL;
     }
     return self;
     
 fail:
-    Npy_DECREF(self);
+    _Npy_DECREF(self);
     return NULL;
 }
 
@@ -1122,7 +1121,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 return NULL;
             }
             if (NpyArray_CopyInto(ret, arr) == -1) {
-                Npy_DECREF(ret);
+                _Npy_DECREF(ret);
                 return NULL;
             }
             if (flags & NPY_UPDATEIFCOPY)  {
@@ -1130,7 +1129,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 ret->base_arr = arr;
                 assert(NULL == ret->base_arr || NULL == ret->base_obj);
                 NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
-                Npy_INCREF(arr);
+                _Npy_INCREF(arr);
             }
         }
         /*
@@ -1158,7 +1157,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             else {
                 ret = arr;
             }
-            Npy_INCREF(arr);
+            _Npy_INCREF(arr);
         }
     }
     
@@ -1186,14 +1185,14 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             return NULL;
         }
         if (NpyArray_CastTo(ret, arr) < 0) {
-            Npy_DECREF(ret);
+            _Npy_DECREF(ret);
             return NULL;
         }
         if (flags & NPY_UPDATEIFCOPY)  {
             ret->flags |= NPY_UPDATEIFCOPY;
             ret->base_arr = arr;
             NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
-            Npy_INCREF(arr);
+            _Npy_INCREF(arr);
         }
     }
     return ret;
@@ -1367,7 +1366,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
         char *tmp;
         
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
-            Npy_DECREF(ret);
+            _Npy_DECREF(ret);
             NpyErr_NoMemory();
             return NULL;
         }

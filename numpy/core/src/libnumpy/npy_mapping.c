@@ -194,7 +194,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
         return NULL;
     }
     NpyArray_BASE_ARRAY(r) = self;
-    Npy_INCREF(self); 
+    _Npy_INCREF(self); 
     assert(r->base_obj == NULL);
     NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
     return r;

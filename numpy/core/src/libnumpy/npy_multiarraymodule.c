@@ -189,7 +189,7 @@ NpyArray_Free(NpyArray *ap, void *ptr)
     if (ap->nd >= 2) {
         NpyArray_free(ptr);     /* TODO: Notice lower case 'f' - points to define that translate to free or something. */
     }
-    Npy_DECREF(ap);
+    _Npy_DECREF(ap);
     return 0;
 }
 

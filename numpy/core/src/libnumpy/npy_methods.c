@@ -38,7 +38,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
     if (ret == NULL) {
         return NULL;
     }
-    Npy_INCREF(self);
+    _Npy_INCREF(self);
     ret->base_arr = self;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
     
@@ -54,7 +54,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
  */
 int 
 NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
-                  int offset, NpyObject *val)
+                  int offset, NpyArray *val)
 {
     NpyArray *ret = NULL;
     int retval = 0;
@@ -73,13 +73,13 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
     if (ret == NULL) {
         return -1;
     }
-    Npy_INCREF(self);
+    _Npy_INCREF(self);
     ret->base_arr = self;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
     
     NpyArray_UpdateFlags(ret, NPY_UPDATE_ALL);
-    retval = NpyArray_CopyObject(ret, val);
-    Npy_DECREF(ret);
+    retval = NpyArray_MoveInto(ret, val);
+    _Npy_DECREF(ret);
     return retval;
 }
 
@@ -123,7 +123,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
             _Npy_DECREF(it);
         }
         
-        Npy_INCREF(self);
+        _Npy_INCREF(self);
         return self;
     }
     else {
@@ -132,7 +132,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
             return NULL;
         }
         new = NpyArray_Byteswap(ret, NPY_TRUE);
-        Npy_DECREF(new);
+        _Npy_DECREF(new);
         return ret;
     }
 }
