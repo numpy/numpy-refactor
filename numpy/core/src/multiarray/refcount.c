@@ -227,7 +227,7 @@ NPY_NO_EXPORT void
 PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj)
 {
     intp i,n;
-    n = PyArray_SIZE(arr);
+    n = PyArray_Size(arr);
     if (PyArray_TYPE(arr) == PyArray_OBJECT) {
         PyObject **optr;
         optr = (PyObject **)(PyArray_BYTES(arr));

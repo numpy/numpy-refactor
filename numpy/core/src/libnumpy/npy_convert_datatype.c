@@ -344,7 +344,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
                                 mp->dimensions,
                                 NULL, NULL,
                                 fortran, NPY_FALSE,
-                                NULL, mp);
+                                NULL, Npy_INTERFACE(mp));
     
     if (out == NULL) {
         return NULL;

@@ -905,8 +905,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     } else {
         subtypeHack = &PyArray_Type;
     }
-    self = (NpyArray *)subtypeHack->tp_alloc(subtypeHack, 0);
-    //self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
+    self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
     
     
     if (self == NULL) {
@@ -1116,7 +1115,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                                         NULL, NULL,
                                         flags & NPY_FORTRAN,
                                         ensureArray, NULL,
-                                        arr);
+                                        Npy_INTERFACE(arr));
             if (ret == NULL) {
                 return NULL;
             }
@@ -1180,7 +1179,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                               arr->nd, arr->dimensions,
                               NULL, NULL,
                               flags & NPY_FORTRAN,
-                              ensureArray, NULL, arr);
+                              ensureArray, NULL, Npy_INTERFACE(arr));
         if (ret == NULL) {
             return NULL;
         }

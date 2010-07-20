@@ -24,7 +24,7 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
                                 NpyArray_BYTES(self),
                                 NpyArray_FLAGS(self), 
                                 NPY_FALSE,
-                                subtype, self);
+                                subtype, Npy_INTERFACE(self));
     if (new == NULL) {
         return NULL;
     }
@@ -170,7 +170,7 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
                                 NULL, NULL,
                                 fortran,
                                 NPY_FALSE, NULL,
-                                m1);
+                                Npy_INTERFACE(m1));
     if (ret == NULL) {
         return NULL;
     }

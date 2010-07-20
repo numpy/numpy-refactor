@@ -189,7 +189,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
                               NpyArray_DIMS(self)+1,
                               NpyArray_STRIDES(self)+1, item,
                               NpyArray_FLAGS(self),
-                              NPY_FALSE, NULL, self);
+                              NPY_FALSE, NULL, Npy_INTERFACE(self));
     if (r == NULL) {
         return NULL;
     }

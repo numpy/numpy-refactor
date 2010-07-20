@@ -49,7 +49,8 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
         ret = NpyArray_NewFromDescr(self->descr,
                                     nd, shape,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, self);
+                                    NPY_FALSE, NULL, 
+                                    Npy_INTERFACE(self));
 
         if (ret == NULL) {
             goto fail;
@@ -508,7 +509,8 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
                                 aop->nd,
                                 aop->dimensions,
                                 NULL, NULL, 0,
-                                NPY_FALSE, NULL, aop);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(aop));
     aop->dimensions[axis] = n;
     if (ret == NULL) {
         goto fail;
@@ -580,7 +582,8 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                                     multi->nd,
                                     multi->dimensions,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, ap);
+                                    NPY_FALSE, NULL, 
+                                    Npy_INTERFACE(ap));
     }
     else {
         NpyArray *obj;

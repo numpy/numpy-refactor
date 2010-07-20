@@ -157,6 +157,5 @@ NpyArray_dealloc(NpyArray *self) {
     Npy_DECREF(self->descr);
     self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */
 
-    /* TODO: Free allocation here, does the interface override this function or do we leave this to the interface */
-    Py_TYPE(self)->tp_free(self);
+    /*Py_TYPE(self)->tp_free(self);*/
 }

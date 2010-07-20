@@ -67,7 +67,7 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
                                  (obj))
 
 
-#define NpyArray_SIZE(m) NpyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))
+#define NpyArray_SIZE(m) NpyArray_MultiplyList(NpyArray_DIMS(m), NpyArray_NDIM(m))
 #define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
 
 #define NpyArray_SAMESHAPE(a1,a2) ((NpyArray_NDIM(a1) == NpyArray_NDIM(a2)) && \

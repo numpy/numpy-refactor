@@ -34,7 +34,8 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
                                 self->nd, self->dimensions,
                                 self->strides,
                                 self->data + offset,
-                                self->flags, NPY_FALSE, NULL, self);
+                                self->flags, NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
     if (ret == NULL) {
         return NULL;
     }
@@ -69,7 +70,8 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
     }
     ret = NpyArray_NewFromDescr(dtype, self->nd, self->dimensions,
                                 self->strides, self->data + offset,
-                                self->flags, NPY_FALSE, NULL, self);
+                                self->flags, NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
     if (ret == NULL) {
         return -1;
     }

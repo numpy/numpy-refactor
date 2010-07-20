@@ -35,7 +35,7 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
 {
     intp newsize, oldsize;
 
-    oldsize = NpyArray_SIZE(self);
+    oldsize = PyArray_SIZE(self);
     newsize = NpyArray_MultiplyList(newshape->ptr, newshape->len);
     if (newsize != oldsize) {
         /* XXX: We will need a reference check here once we have separated the objects. . */
