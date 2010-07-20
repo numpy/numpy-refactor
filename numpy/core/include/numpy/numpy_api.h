@@ -21,7 +21,6 @@ typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
 typedef PyArray_DotFunc NpyArray_DotFunc;
 
 #define NpyTypeObject PyTypeObject
-#define NpyArray_Type PyArray_Type
 #define NpyArrayDescr_Type PyArrayDescr_Type
 
 #define NpyArray_UCS4 npy_ucs4

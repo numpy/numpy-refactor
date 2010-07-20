@@ -193,7 +193,7 @@ PyArray_XDECREF(PyArrayObject *mp)
     }
 
     if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)PyArray_BYTES(PyArray_ARRAY(mp));
+        data = (PyObject **)PyArray_BYTES(mp);
         n = PyArray_SIZE(mp);
         if (PyArray_ISALIGNED(mp)) {
             for (i = 0; i < n; i++, data++) Py_XDECREF(*data);
@@ -227,7 +227,7 @@ NPY_NO_EXPORT void
 PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj)
 {
     intp i,n;
-    n = PyArray_Size(arr);
+    n = PyArray_SIZE(arr);
     if (PyArray_TYPE(arr) == PyArray_OBJECT) {
         PyObject **optr;
         optr = (PyObject **)(PyArray_BYTES(arr));

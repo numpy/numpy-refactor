@@ -159,3 +159,7 @@ NpyArray_dealloc(NpyArray *self) {
 
     /*Py_TYPE(self)->tp_free(self);*/
 }
+
+_NpyTypeObject NpyArray_Type = {
+    (npy_destructor)NpyArray_dealloc,
+};
