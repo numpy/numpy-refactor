@@ -157,7 +157,7 @@ NpyArray_dealloc(NpyArray *self) {
     Npy_DECREF(self->descr);
     self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */
 
-    /*Py_TYPE(self)->tp_free(self);*/
+    NpyArray_free(self);
 }
 
 _NpyTypeObject NpyArray_Type = {
