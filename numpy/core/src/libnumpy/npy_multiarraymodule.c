@@ -571,3 +571,159 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     NPY_END_ALLOW_THREADS;
     return ret;
 }
+
+
+/*
+ * Implementation which is common between
+ * NpyArray_Correlate and NpyArray_Correlate2
+ *
+ * inverted is set to 1 if computed correlate(ap2, ap1), 0 otherwise
+ */
+static NpyArray *
+_npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
+                    int typenum, int mode, int *inverted)
+{
+    NpyArray *ret;
+    npy_intp length, i, n1, n2, n, n_left, n_right, is1, is2, os;
+    char *ip1, *ip2, *op;
+    NpyArray_DotFunc *dot;
+    NPY_BEGIN_THREADS_DEF;
+
+    n1 = NpyArray_DIM(ap1, 0);
+    n2 = NpyArray_DIM(ap2, 0);
+    if (n1 < n2) {
+        ret = ap1;
+        ap1 = ap2;
+        ap2 = ret;
+        ret = NULL;
+        i = n1;
+        n1 = n2;
+        n2 = i;
+        *inverted = 1;
+    } else {
+        *inverted = 0;
+    }
+
+    length = n1;
+    n = n2;
+    switch(mode) {
+    case 0:
+        length = length - n + 1;
+        n_left = n_right = 0;
+        break;
+    case 1:
+        n_left = (npy_intp)(n / 2);
+        n_right = n - n_left - 1;
+        break;
+    case 2:
+        n_right = n - 1;
+        n_left = n - 1;
+        length = length + n - 1;
+        break;
+    default:
+        NpyErr_SetString(NpyExc_ValueError, "mode must be 0, 1, or 2");
+        return NULL;
+    }
+
+    /*
+     * Need to choose an output array that can hold a sum
+     * -- use priority to determine which subtype.
+     */
+    ret = new_array_for_sum(ap1, ap2, 1, &length, typenum);
+    if (ret == NULL) {
+        return NULL;
+    }
+    dot = PyArray_DESCR(ret)->f->dotfunc;
+    if (dot == NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "function not available for this data type");
+        goto clean_ret;
+    }
+
+    NPY_BEGIN_THREADS_DESCR(NpyArray_DESCR(ret));
+    is1 = NpyArray_STRIDE(ap1, 0);
+    is2 = NpyArray_STRIDE(ap2, 0);
+    op = NpyArray_BYTES(ret);
+    os = NpyArray_ITEMSIZE(ret);
+    ip1 = NpyArray_BYTES(ap1);
+    ip2 = NpyArray_BYTES(ap2) + n_left * is2;
+    n -= n_left;
+    for (i = 0; i < n_left; i++) {
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        n++;
+        ip2 -= is2;
+        op += os;
+    }
+    for (i = 0; i < (n1 - n2 + 1); i++) {
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        ip1 += is1;
+        op += os;
+    }
+    for (i = 0; i < n_right; i++) {
+        n--;
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        ip1 += is1;
+        op += os;
+    }
+
+    NPY_END_THREADS_DESCR(NpyArray_DESCR(ret));
+    if (PyErr_Occurred()) {
+        goto clean_ret;
+    }
+
+    return ret;
+
+clean_ret:
+    Npy_DECREF(ret);
+    return NULL;
+}
+
+
+/*
+ * Revert a one dimensional array in-place
+ *
+ * Return 0 on success, other value on failure
+ */
+static int
+_npyarray_revert(NpyArray *ret)
+{
+    npy_intp length, i, os;
+    NpyArray_CopySwapFunc *copyswap;
+    char *tmp = NULL, *sw1, *sw2,  *op;
+
+    length = NpyArray_DIM(ret, 0);
+    copyswap = NpyArray_DESCR(ret)->f->copyswap;
+
+    tmp = NpyArray_malloc(NpyArray_ITEMSIZE(ret));
+    if (tmp == NULL) {
+        return -1;
+    }
+
+    os = NpyArray_ITEMSIZE(ret);
+    op = NpyArray_BYTES(ret);
+    sw1 = op;
+    sw2 = op + (length - 1) * os;
+    if (NpyArray_ISFLEXIBLE(ret) || NpyArray_ISOBJECT(ret)) {
+        for(i = 0; i < length / 2; i++) {
+            memmove(tmp, sw1, os);
+            copyswap(tmp, NULL, 0, NULL);
+            memmove(sw1, sw2, os);
+            copyswap(sw1, NULL, 0, NULL);
+            memmove(sw2, tmp, os);
+            copyswap(sw2, NULL, 0, NULL);
+            sw1 += os;
+            sw2 -= os;
+        }
+    } else {
+        for(i = 0; i < length / 2; i++) {
+            memcpy(tmp, sw1, os);
+            memcpy(sw1, sw2, os);
+            memcpy(sw2, tmp, os);
+            sw1 += os;
+            sw2 -= os;
+        }
+    }
+
+    NpyArray_free(tmp);
+    return 0;
+}
