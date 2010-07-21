@@ -608,110 +608,6 @@ fail_clean_ap1:
 }
 
 
-static PyArrayObject*
-_pyarray_correlate(PyArrayObject *ap1, PyArrayObject *ap2, int typenum,
-                   int mode, int *inverted)
-{
-    PyArrayObject *ret;
-    intp length;
-    intp i, n1, n2, n, n_left, n_right;
-    intp is1, is2, os;
-    char *ip1, *ip2, *op;
-    PyArray_DotFunc *dot;
-
-    NPY_BEGIN_THREADS_DEF;
-
-    n1 = ap1->dimensions[0];
-    n2 = ap2->dimensions[0];
-    if (n1 < n2) {
-        ret = ap1;
-        ap1 = ap2;
-        ap2 = ret;
-        ret = NULL;
-        i = n1;
-        n1 = n2;
-        n2 = i;
-        *inverted = 1;
-    } else {
-        *inverted = 0;
-    }
-
-    length = n1;
-    n = n2;
-    switch(mode) {
-    case 0:
-        length = length - n + 1;
-        n_left = n_right = 0;
-        break;
-    case 1:
-        n_left = (intp)(n/2);
-        n_right = n - n_left - 1;
-        break;
-    case 2:
-        n_right = n - 1;
-        n_left = n - 1;
-        length = length + n - 1;
-        break;
-    default:
-        PyErr_SetString(PyExc_ValueError, "mode must be 0, 1, or 2");
-        return NULL;
-    }
-
-    /*
-     * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
-     */
-    ret = new_array_for_sum(ap1, ap2, 1, &length, typenum);
-    if (ret == NULL) {
-        return NULL;
-    }
-    dot = ret->descr->f->dotfunc;
-    if (dot == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "function not available for this data type");
-        goto clean_ret;
-    }
-
-    NPY_BEGIN_THREADS_DESCR(ret->descr);
-    is1 = ap1->strides[0];
-    is2 = ap2->strides[0];
-    op = ret->data;
-    os = ret->descr->elsize;
-    ip1 = ap1->data;
-    ip2 = ap2->data + n_left*is2;
-    n = n - n_left;
-    for (i = 0; i < n_left; i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        n++;
-        ip2 -= is2;
-        op += os;
-    }
-    for (i = 0; i < (n1 - n2 + 1); i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        ip1 += is1;
-        op += os;
-    }
-    for (i = 0; i < n_right; i++) {
-        n--;
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        ip1 += is1;
-        op += os;
-    }
-
-    NPY_END_THREADS_DESCR(ret->descr);
-    if (PyErr_Occurred()) {
-        goto clean_ret;
-    }
-
-    return ret;
-
-clean_ret:
-    Py_DECREF(ret);
-    return NULL;
-}
-
-
-
 /*NUMPY_API
  * Numeric.correlate(a1,a2,mode)
  */
@@ -720,12 +616,10 @@ PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
 {
     PyArrayObject *ap1, *ap2, *ret = NULL;
     int typenum;
-    int unused;
     PyArray_Descr *typec;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
-
     typec = PyArray_DescrFromType(typenum);
     Py_INCREF(typec);
     ap1 = (PyArrayObject *)PyArray_FromAny(op1, typec, 1, 1, DEFAULT, NULL);
@@ -735,13 +629,12 @@ PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
     }
     ap2 = (PyArrayObject *)PyArray_FromAny(op2, typec, 1, 1, DEFAULT, NULL);
     if (ap2 == NULL) {
+        Py_DECREF(typec);
         goto fail;
     }
 
-    ret = _pyarray_correlate(ap1, ap2, typenum, mode, &unused);
-    if(ret == NULL) {
-        goto fail;
-    }
+    ret = NpyArray_Correlate(PyArray_ARRAY(ap1),
+                             PyArray_ARRAY(ap2), typenum, mode);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return (PyObject *)ret;

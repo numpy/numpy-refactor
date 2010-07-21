@@ -730,7 +730,7 @@ _npyarray_revert(NpyArray *ret)
 
 
 /*NUMPY_API
- * correlate(a1,a2,mode)
+ * correlate(a1, a2 ,typenum, mode)
  *
  * This function computes the usual correlation (correlate(a1, a2) !=
  * correlate(a2, a1), and conjugate the second argument for complex inputs
@@ -765,6 +765,23 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
             Py_DECREF(ret);
             return NULL;
         }
+    }
+    return ret;
+}
+
+
+/*NUMPY_API
+ * Numeric.correlate(a1, a2 ,typenum, mode)
+ */
+NpyArray *
+NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
+{
+    NpyArray *ret = NULL;
+    int unused;
+
+    ret = _npyarray_correlate(ap1, ap2, typenum, mode, &unused);
+    if (ret == NULL) {
+        return NULL;
     }
     return ret;
 }

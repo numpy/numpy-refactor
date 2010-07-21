@@ -227,6 +227,8 @@ NpyArray *NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
 NpyArray *NpyArray_CopyAndTranspose(NpyArray *arr);
 NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
                               int typenum, int mode);
+NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
+                             int typenum, int mode);
 
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
