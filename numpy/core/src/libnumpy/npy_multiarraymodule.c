@@ -537,11 +537,9 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     nd = NpyArray_NDIM(arr);
     if (nd == 1) {
         /* we will give in to old behavior */
-        Npy_DECREF(arr);
         return arr;
     }
     else if (nd != 2) {
-        Npy_DECREF(arr);
         NpyErr_SetString(NpyExc_ValueError, "only 2-d arrays are allowed");
         return NULL;
     }
@@ -550,11 +548,10 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     dims[0] = NpyArray_DIM(arr, 1);
     dims[1] = NpyArray_DIM(arr, 0);
     eltsize = NpyArray_ITEMSIZE(arr);
-    Npy_INCREF(arr);
+    Npy_INCREF(NpyArray_DESCR(arr));
     ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
                                 NULL, NULL, 0, NPY_FALSE, NULL, arr);
     if (ret == NULL) {
-        Npy_DECREF(arr);
         return NULL;
     }
 
@@ -572,7 +569,5 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
         }
     }
     NPY_END_ALLOW_THREADS;
-    Npy_DECREF(arr);
-
     return ret;
 }
