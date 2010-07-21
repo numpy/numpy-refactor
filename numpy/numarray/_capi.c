@@ -1085,7 +1085,7 @@ NA_OutputArray(PyObject *a, NumarrayType t, int requires)
         return (PyArrayObject *)a;
     }
     if (t == tAny) {
-        dtype = PyArray_DESCR(a);
+        dtype = PyArray_Descr_WRAP(PyArray_DESCR(a));
         Py_INCREF(dtype);
     }
     else {
@@ -2534,7 +2534,7 @@ NA_typeObjectToTypeNo(PyObject *typeObj)
     PyArray_Descr *dtype;
     int i;
     if (PyArray_DescrConverter(typeObj, &dtype) == NPY_FAIL) i=-1;
-    else i=dtype->type_num;
+    else i=dtype->descr->type_num;
     return i;
 }
 
@@ -2829,8 +2829,11 @@ NA_NewAllFromBuffer(int ndim, maybelong *shape, NumarrayType type,
     }
 
     if (bufferObject == Py_None || bufferObject == NULL) {
-        self = (PyArrayObject *)        \
-               NpyArray_NewFromDescr(dtype,
+        NpyArray_Descr *descr = dtype->descr;
+        _Npy_INCREF(descr);
+        Py_DECREF(dtype);
+        
+        self = NpyArray_NewFromDescr(descr,
                        ndim, shape, NULL, NULL,
                        0, NPY_TRUE, NULL, NULL);
     }
@@ -3155,8 +3158,13 @@ NA_IeeeMask64( Float64 f, Int32 mask)
 static PyArrayObject *
 NA_FromDimsStridesDescrAndData(int nd, maybelong *d, maybelong *s, PyArray_Descr *descr, char *data)
 {
+    NpyArray_Descr *descrCore = descr->descr;
+    
+    _Npy_INCREF(descrCore);
+    Py_DECREF(descr);
+    
     return (PyArrayObject *)\
-        NpyArray_NewFromDescr(descr, nd, d,
+        NpyArray_NewFromDescr(descrCore, nd, d,
                 s, data, 0, NPY_TRUE, NULL, NULL);
 }
 

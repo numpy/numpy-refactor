@@ -23,8 +23,9 @@
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "numpy/numpy_api.h"
-
 #include "numpy/npy_math.h"
+
+#include "numpy/npy_descriptor.h"
 
 #include "npy_config.h"
 
@@ -159,9 +160,9 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
        converted to an array and *op is overwritten with the new array object but the original object
        is not decref'd.  This is how it was so I left it alone.  Either the caller must decref or it's
        a leak or I just need more coffee. */
-    Py_INCREF(typedescr);
+    _Npy_INCREF(typedescr->descr);
     oldAp = ap;
-    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr);
+    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr->descr);
     Py_DECREF(oldAp);
     *op = (PyObject *) ap;
     return result;
@@ -358,12 +359,11 @@ PyArray_Concatenate(PyObject *op, int axis)
     }
     tmp = PyArray_DIM(mps[0], 0);
     PyArray_DIM(mps[0], 0) = new_dim;
-    Py_INCREF(PyArray_DESCR(mps[0]));
-    ret = (PyArrayObject *)PyArray_NewFromDescr(subtype,
-                                                PyArray_DESCR(mps[0]), nd,
-                                                PyArray_DIMS(mps[0]),
-                                                NULL, NULL, 0,
-                                                (PyObject *)ret);
+    _Npy_INCREF(PyArray_DESCR(mps[0]));
+    ret = NpyArray_NewFromDescr(PyArray_DESCR(mps[0]), nd,
+                                PyArray_DIMS(mps[0]),
+                                NULL, NULL, 0,
+                                NPY_FALSE, subtype, ret);
     PyArray_DIM(mps[0], 0) = tmp;
 
     if (ret == NULL) {
@@ -659,11 +659,10 @@ PyArray_CopyAndTranspose(PyObject *op)
     dims[0] = PyArray_DIM(arr,1);
     dims[1] = PyArray_DIM(arr,0);
     elsize = PyArray_ITEMSIZE(arr);
-    Py_INCREF(PyArray_DESCR(arr));
-    ret = PyArray_NewFromDescr(Py_TYPE(arr),
-                               PyArray_DESCR(arr),
-                               2, dims,
-                               NULL, NULL, 0, arr);
+    _Npy_INCREF(PyArray_DESCR(arr));
+    ret = NpyArray_NewFromDescr(PyArray_DESCR(arr),     /* TODO: Wrap array result */
+                                2, dims,
+                                NULL, NULL, 0, NPY_FALSE, NULL, arr);
     if (ret == NULL) {
         Py_DECREF(arr);
         return NULL;
@@ -1087,8 +1086,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 {
-    /* TODO: Unwrap array descr objects */
-    return NpyArray_EquivTypes(typ1, typ2);
+    return NpyArray_EquivTypes(typ1->descr, typ2->descr);
 }
 
 
@@ -1097,14 +1095,14 @@ PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypenums(int typenum1, int typenum2)
 {
-    PyArray_Descr *d1, *d2;
+    NpyArray_Descr *d1, *d2;
     Bool ret;
 
-    d1 = PyArray_DescrFromType(typenum1);
-    d2 = PyArray_DescrFromType(typenum2);
-    ret = PyArray_EquivTypes(d1, d2);
-    Py_DECREF(d1);
-    Py_DECREF(d2);
+    d1 = NpyArray_DescrFromType(typenum1);
+    d2 = NpyArray_DescrFromType(typenum2);
+    ret = NpyArray_EquivTypes(d1, d2);
+    _Npy_DECREF(d1);
+    _Npy_DECREF(d2);
     return ret;
 }
 
@@ -1128,11 +1126,10 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newdims[i] = PyArray_DIM(arr, k);
         newstrides[i] = PyArray_STRIDE(arr, k);
     }
-    Py_INCREF(PyArray_DESCR(arr));
-    ret = (PyArrayObject *) 
-        PyArray_NewFromDescr(Py_TYPE(arr), PyArray_DESCR(arr), ndmin,
+    _Npy_INCREF(PyArray_DESCR(arr));
+    ret = NpyArray_NewFromDescr(PyArray_DESCR(arr), ndmin,
             newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr), 
-            (PyObject *)arr);
+            NPY_FALSE, NULL, arr);
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
     /*TODO: Npy_INCREF(PyArray_ARRAY(arr));
       Py_DECREF(arr); */
@@ -1159,7 +1156,7 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
     Bool copy = TRUE;
     int ndmin = 0, nd;
     PyArray_Descr *type = NULL;
-    PyArray_Descr *oldtype = NULL;
+    NpyArray_Descr *oldtype = NULL;
     NPY_ORDER order=PyArray_ANYORDER;
     int flags = 0;
 
@@ -1198,8 +1195,8 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
             }
         }
         /* One more chance */
-        oldtype = PyArray_DESCR(op);
-        if (PyArray_EquivTypes(oldtype, type)) {
+        oldtype = PyArray_DESCR((PyArrayObject *)op);
+        if (NpyArray_EquivTypes(oldtype, type->descr)) {
             if (!copy && STRIDING_OK(op, order)) {
                 Py_INCREF(op);
                 ret = op;
@@ -1207,11 +1204,11 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
             }
             else {
                 ret = PyArray_NewCopy((PyArrayObject*)op, order);
-                if (oldtype == type) {
+                if (oldtype == type->descr) {
                     goto finish;
                 }
-                Py_INCREF(oldtype);
-                Py_DECREF(PyArray_DESCR(ret));
+                _Npy_INCREF(oldtype);
+                _Npy_DECREF(PyArray_DESCR(ret));
                 PyArray_DESCR(ret) = oldtype;
                 goto finish;
             }
@@ -1306,7 +1303,7 @@ array_scalar(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
                 &PyArrayDescr_Type, &typecode, &obj)) {
         return NULL;
     }
-    if (typecode->elsize == 0) {
+    if (typecode->descr->elsize == 0) {
         PyErr_SetString(PyExc_ValueError,
                 "itemsize cannot be zero");
         return NULL;
@@ -1320,11 +1317,11 @@ array_scalar(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
     }
     else {
         if (obj == NULL) {
-            dptr = _pya_malloc(typecode->elsize);
+            dptr = _pya_malloc(typecode->descr->elsize);
             if (dptr == NULL) {
                 return PyErr_NoMemory();
             }
-            memset(dptr, '\0', typecode->elsize);
+            memset(dptr, '\0', typecode->descr->elsize);
             alloc = 1;
         }
         else {
@@ -1333,7 +1330,7 @@ array_scalar(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kwds)
                         "initializing object must be a string");
                 return NULL;
             }
-            if (PyString_GET_SIZE(obj) < typecode->elsize) {
+            if (PyString_GET_SIZE(obj) < typecode->descr->elsize) {
                 PyErr_SetString(PyExc_ValueError,
                         "initialization string is too small");
                 return NULL;

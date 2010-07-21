@@ -67,12 +67,11 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     }
 
     PyArray_DIM(self, 0) = ihigh-ilow;
-    Py_INCREF(PyArray_DESCR(self));
-    r = (PyArrayObject *)
-        PyArray_NewFromDescr(Py_TYPE(self), PyArray_DESCR(self),
-                             PyArray_NDIM(self), PyArray_DIMS(self),
-                             PyArray_STRIDES(self), data,
-                             PyArray_FLAGS(self), (PyObject *)self);
+    _Npy_INCREF(PyArray_DESCR(self));
+    r = NpyArray_NewFromDescr(PyArray_DESCR(self),
+                              PyArray_NDIM(self), PyArray_DIMS(self),
+                              PyArray_STRIDES(self), data,
+                              PyArray_FLAGS(self), NPY_FALSE, NULL, self);
     PyArray_DIM(self, 0) = l;
     if (r == NULL) {
         return NULL;

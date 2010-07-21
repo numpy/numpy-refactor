@@ -42,7 +42,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         for (i = axis; i < ap->nd - 1; i++) dims[i] = i + 1;
         dims[ap->nd - 1] = axis;
         op = NpyArray_Transpose(ap, &newaxes);
-        Py_DECREF(ap);
+        Npy_DECREF(ap);
         if (op == NULL) {
             return NULL;
         }
@@ -83,7 +83,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     else {
         if (NpyArray_SIZE(out) !=
             NpyArray_MultiplyList(ap->dimensions, ap->nd - 1)) {
-            PyErr_SetString(NpyExc_TypeError,
+            NpyErr_SetString(NpyExc_TypeError,
                             "invalid shape for output array.");
         }
         rp = NpyArray_FromArray(out,

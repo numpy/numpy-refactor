@@ -181,10 +181,11 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
                          " is missing.");
         return -1;
     }
-    if (descr->typeobj == NULL) {
+    /* TODO: Can't check typeobj down here in the core.  Do we need a callback or check on the way in? */
+ /*   if (descr->typeobj == NULL) {
         NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
         return -1;
-    }
+    } */
     npy_userdescrs = realloc(npy_userdescrs,
                              (NPY_NUMUSERTYPES+1)*sizeof(void *));
     if (npy_userdescrs == NULL) {
@@ -237,7 +238,7 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
          * -- they become part of the data-type
          */
         if (descr->f->cancastto == NULL) {
-            descr->f->cancastto = (int *)malloc(1*sizeof(int));
+            descr->f->cancastto = (int *)NpyArray_malloc(1*sizeof(int));
             descr->f->cancastto[0] = NPY_NOTYPE;
         }
         descr->f->cancastto = _append_new(descr->f->cancastto,
@@ -248,14 +249,14 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
         if (descr->f->cancastscalarkindto == NULL) {
             int i;
             descr->f->cancastscalarkindto =
-                (int **)malloc(NPY_NSCALARKINDS* sizeof(int*));
+                (int **)NpyArray_malloc(NPY_NSCALARKINDS* sizeof(int*));
             for (i = 0; i < NPY_NSCALARKINDS; i++) {
                 descr->f->cancastscalarkindto[i] = NULL;
             }
         }
         if (descr->f->cancastscalarkindto[scalar] == NULL) {
             descr->f->cancastscalarkindto[scalar] =
-                (int *)malloc(1*sizeof(int));
+                (int *)NpyArray_malloc(1*sizeof(int));
             descr->f->cancastscalarkindto[scalar][0] =
                 NPY_NOTYPE;
         }
@@ -265,21 +266,6 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
     return 0;
 }
 
-int
-NpyArray_TypeNumFromTypeObj(void* typeobj)
-{
-    int i;
-    NpyArray_Descr *descr;
-
-    /* TODO: This looks at the python type and needs to change. */
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
-        descr = npy_userdescrs[i];
-        if (descr->typeobj == typeobj) {
-            return descr->type_num;
-        }
-    }
-    return NPY_NOTYPE;
-}
 
 NpyArray_Descr*
 NpyArray_UserDescrFromTypeNum(int typenum)

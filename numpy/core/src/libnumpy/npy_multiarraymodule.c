@@ -128,7 +128,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
-        Npy_XDECREF(typedescr);
+        _Npy_XDECREF(typedescr);
         return -1;
     }
     if ((ap = NpyArray_FromArray(*apIn, typedescr, NPY_CARRAY)) == NULL) {
@@ -254,7 +254,7 @@ NpyArray_ScalarKind(int typenum, NpyArray **arr)
         else {
             retval = NPY_NOSCALAR;
         }
-        Npy_DECREF(descr);
+        _Npy_DECREF(descr);
         return retval;
     }
     return NPY_OBJECT_SCALAR;
@@ -276,12 +276,12 @@ NpyArray_CanCoerceScalar(int thistype, int neededtype,
         && (castlist = from->f->cancastscalarkindto[scalar])) {
         while (*castlist != NPY_NOTYPE) {
             if (*castlist++ == neededtype) {
-                Npy_DECREF(from);
+                _Npy_DECREF(from);
                 return 1;
             }
         }
     }
-    Npy_DECREF(from);
+    _Npy_DECREF(from);
     
     switch(scalar) {
         case NPY_BOOL_SCALAR:

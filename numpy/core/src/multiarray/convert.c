@@ -14,6 +14,7 @@
 
 #include "arrayobject.h"
 #include "mapping.h"
+#include "ctors.h"
 
 #include "convert.h"
 
@@ -235,7 +236,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     PyObject *newarr;
     int itemsize, swap;
     void *fromptr;
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     intp size;
     PyArray_CopySwapFunc *copyswap;
 
@@ -247,8 +248,8 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     }
     else {
         descr = PyArray_DESCR(arr);
-        Py_INCREF(descr);
-        newarr = PyArray_FromAny(obj, descr, 0,0, ALIGNED, NULL);
+        _Npy_INCREF(descr);
+        newarr = PyArray_FromAnyUnwrap(obj, descr, 0,0, ALIGNED, NULL);
         if (newarr == NULL) {
             return -1;
         }
@@ -300,14 +301,13 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
     if (fortran == PyArray_ANYORDER)
         fortran = PyArray_ISFORTRAN(m1);
 
-    Py_INCREF(PyArray_DESCR(m1));
-    ret = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(m1),
-                                                PyArray_DESCR(m1),
-                                                PyArray_NDIM(m1),
-                                                PyArray_DIMS(m1),
-                                                NULL, NULL,
-                                                fortran,
-                                                (PyObject *)m1);
+    _Npy_INCREF(PyArray_DESCR(m1));
+    ret = NpyArray_NewFromDescr(PyArray_DESCR(m1),
+                                PyArray_NDIM(m1),
+                                PyArray_DIMS(m1),
+                                NULL, NULL,
+                                fortran, NPY_FALSE,
+                                Py_TYPE(m1), m1);
     if (ret == NULL) {
         return NULL;
     }
@@ -335,13 +335,12 @@ PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
     else {
         subtype = Py_TYPE(self);
     }
-    Py_INCREF(PyArray_DESCR(self));
-    new = (PyArrayObject* )PyArray_NewFromDescr(subtype,
-                                                PyArray_DESCR(self),
-                                                PyArray_NDIM(self), PyArray_DIMS(self),
-                                                PyArray_STRIDES(self),
-                                                PyArray_BYTES(self),
-                                                PyArray_FLAGS(self), (PyObject *)self);
+    _Npy_INCREF(PyArray_DESCR(self));
+    new = (PyArrayObject* )NpyArray_NewFromDescr(PyArray_DESCR(self),
+                                                 PyArray_NDIM(self), PyArray_DIMS(self),
+                                                 PyArray_STRIDES(self),
+                                                 PyArray_BYTES(self),
+                                                 PyArray_FLAGS(self), NPY_FALSE, subtype, self);
     if (new == NULL) {
         return NULL;
     }

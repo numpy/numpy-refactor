@@ -20,6 +20,11 @@
 #define PyAO PyArrayObject
 #define _check_axis PyArray_CheckAxis
 
+
+NPY_NO_EXPORT NpyArray_Descr *
+PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype);
+
+
 /*NUMPY_API
  * Take
  */
@@ -77,9 +82,8 @@ PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
         values = (PyArrayObject *) values0;
         Py_INCREF(values);
     } else {
-        Py_INCREF(PyArray_DESCR(self));
-        values = (PyArrayObject*) 
-            PyArray_FromAny(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
+        _Npy_INCREF(PyArray_DESCR(self));
+        values = PyArray_FromAnyUnwrap(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             goto fail;
         }
@@ -117,9 +121,8 @@ PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
         values = (PyArrayObject*) values0;
         Py_INCREF(values);
     } else {
-        Py_INCREF(PyArray_DESCR(self));
-        values = (PyArrayObject*) 
-            PyArray_FromAny(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
+        _Npy_INCREF(PyArray_DESCR(self));
+        values = PyArray_FromAnyUnwrap(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             return NULL;
         }
@@ -304,14 +307,14 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
         ap2 = (PyArrayObject*)op2;
         Py_INCREF(ap2);
     } else {
-        PyArray_Descr* dtype;
+        NpyArray_Descr* dtype;
 
-        dtype = PyArray_DescrFromObject((PyObject *)op2, PyArray_DESCR(op1));
+        dtype = PyArray_DescrFromObjectUnwrap((PyObject *)op2, PyArray_DESCR(op1));
         /* need ap2 as contiguous array and of right type */
-        ap2 = (PyArrayObject*)PyArray_FromAny(op2, dtype,
-                                              0, 0, NPY_DEFAULT, NULL);
+        ap2 = PyArray_FromAnyUnwrap(op2, dtype,
+                                    0, 0, NPY_DEFAULT, NULL);
         if (ap2 == NULL) {
-            Py_DECREF(dtype);
+            _Npy_DECREF(dtype);
             goto finish;
         }
     }
@@ -422,7 +425,7 @@ PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
         PyObject *mydiagonal = NULL, *new = NULL, *ret = NULL, *sel = NULL;
         intp i, n1;
         int res;
-        PyArray_Descr *typecode;
+        NpyArray_Descr *typecode;
 
         typecode = PyArray_DESCR(self);
         mydiagonal = PyList_New(0);
@@ -456,8 +459,8 @@ PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
             }
         }
         Py_DECREF(self);
-        Py_INCREF(typecode);
-        ret =  PyArray_FromAny(mydiagonal, typecode, 0, 0, 0, NULL);
+        _Npy_INCREF(typecode);
+        ret =  PyArray_FromAnyUnwrap(mydiagonal, typecode, 0, 0, 0, NULL);
         Py_DECREF(mydiagonal);
         return ret;
     }

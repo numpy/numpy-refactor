@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "scalartypes.h"
+#include "ctors.h"
 #include "descriptor.h"
 #include "getset.h"
 
@@ -167,14 +168,15 @@ array_priority_get(PyArrayObject *self)
 static PyObject *
 array_typestr_get(PyArrayObject *self)
 {
-    return arraydescr_protocol_typestr_get(PyArray_DESCR(self));
+    return npy_arraydescr_protocol_typestr_get(PyArray_DESCR(self));
 }
 
 static PyObject *
 array_descr_get(PyArrayObject *self)
 {
-    Py_INCREF(PyArray_DESCR(self));
-    return (PyObject *)PyArray_DESCR(self);
+    PyArray_Descr *descr = PyArray_Descr_WRAP( PyArray_DESCR(self) );
+    Py_INCREF(descr);
+    return (PyObject *)descr;
 }
 
 static PyObject *
@@ -183,7 +185,7 @@ array_protocol_descr_get(PyArrayObject *self)
     PyObject *res;
     PyObject *dobj;
 
-    res = arraydescr_protocol_descr_get(PyArray_DESCR(self));
+    res = npy_arraydescr_protocol_descr_get(PyArray_DESCR(self));
     if (res) {
         return res;
     }
@@ -265,7 +267,7 @@ array_interface_get(PyArrayObject *self)
     PyDict_SetItemString(dict, "descr", obj);
     Py_DECREF(obj);
 
-    obj = arraydescr_protocol_typestr_get(PyArray_DESCR(self));
+    obj = arraydescr_protocol_typestr_get(Npy_INTERFACE(PyArray_DESCR(self)));
     PyDict_SetItemString(dict, "typestr", obj);
     Py_DECREF(obj);
 
@@ -412,31 +414,39 @@ array_nbytes_get(PyArrayObject *self)
 static int
 array_descr_set(PyArrayObject *self, PyObject *arg)
 {
-    PyArray_Descr *newtype = NULL;
+    NpyArray_Descr *newtype = NULL;
     intp newdim;
     int index;
     char *msg = "new type not compatible with array.";
-
-    if (!(PyArray_DescrConverter(arg, &newtype)) ||
+    PyArray_Descr *newtypeInterface = NULL;
+    
+    if (!(PyArray_DescrConverter(arg, &newtypeInterface)) ||
         newtype == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
-    if (PyDataType_FLAGCHK(newtype, NPY_ITEM_HASOBJECT) ||
-        PyDataType_FLAGCHK(newtype, NPY_ITEM_IS_POINTER) ||
-        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_HASOBJECT) ||
-        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_IS_POINTER)) {
+    
+    /* Now we want the core object so move the reference there. */
+    newtype = newtypeInterface->descr;
+    _Npy_INCREF(newtype);
+    Py_DECREF(newtypeInterface);
+    newtypeInterface = NULL;
+    
+    if (NpyDataType_FLAGCHK(newtype, NPY_ITEM_HASOBJECT) ||
+        NpyDataType_FLAGCHK(newtype, NPY_ITEM_IS_POINTER) ||
+        NpyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_HASOBJECT) ||
+        NpyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_IS_POINTER)) {
         PyErr_SetString(PyExc_TypeError,                      \
                         "Cannot change data-type for object " \
                         "array.");
-        Py_DECREF(newtype);
+        _Npy_DECREF(newtype);
         return -1;
     }
 
     if (newtype->elsize == 0) {
         PyErr_SetString(PyExc_TypeError,
                         "data-type must not be 0-sized");
-        Py_DECREF(newtype);
+        _Npy_DECREF(newtype);
         return -1;
     }
 
@@ -478,7 +488,7 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
     }
 
     /* fall through -- adjust type*/
-    Py_DECREF(PyArray_DESCR(self));
+    _Npy_DECREF(PyArray_DESCR(self));
     if (newtype->subarray) {
         /*
          * create new array object from data and update
@@ -489,10 +499,10 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
          * We would decref newtype here.
          * temp will steal a reference to it
          */
-        temp = (PyArrayObject *)
-            PyArray_NewFromDescr(&PyArray_Type, newtype, PyArray_NDIM(self),
-                                 PyArray_DIMS(self), PyArray_STRIDES(self),
-                                 PyArray_BYTES(self), PyArray_FLAGS(self), NULL);
+        temp = NpyArray_NewFromDescr(newtype, PyArray_NDIM(self),
+                                     PyArray_DIMS(self), PyArray_STRIDES(self),
+                                     PyArray_BYTES(self), PyArray_FLAGS(self), 
+                                     NPY_TRUE, NULL, NULL);
         if (temp == NULL) {
             return -1;
         }
@@ -500,8 +510,8 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
         PyArray_DIMS(self) = PyArray_DIMS(temp);
         PyArray_NDIM(self) = PyArray_NDIM(temp);
         PyArray_STRIDES(self) = PyArray_STRIDES(temp);
-        newtype = PyArray_DESCR(temp);
-        Py_INCREF(PyArray_DESCR(temp));
+        newtype = Npy_INTERFACE( PyArray_DESCR(temp) );
+        _Npy_INCREF(newtype);
         /* Fool deallocator not to delete these*/
         PyArray_NDIM(temp) = 0;
         PyArray_DIMS(temp) = NULL;
@@ -514,7 +524,7 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
 
  fail:
     PyErr_SetString(PyExc_ValueError, msg);
-    Py_DECREF(newtype);
+    _Npy_DECREF(newtype);
     return -1;
 }
 
@@ -556,13 +566,14 @@ array_struct_get(PyArrayObject *self)
     }
     PyArray_BYTES(inter) = PyArray_BYTES(self);
     if (PyArray_DESCR(self)->names) {
-        PyArray_DESCR(inter) = 
-            (PyArray_Descr *)arraydescr_protocol_descr_get(PyArray_DESCR(self));
-        if (PyArray_DESCR(inter) == NULL) {
-            PyErr_Clear();
-        }
-        else {
+        PyArray_Descr *wrap = (PyArray_Descr *)npy_arraydescr_protocol_descr_get(PyArray_DESCR(self));
+        if (NULL != wrap) {
+            PyArray_DESCR(inter) = wrap->descr;
+            _Npy_INCREF(wrap->descr);
+            Py_DECREF(wrap);
             PyArray_FLAGS(inter) &= ARR_HAS_DESCR;
+        } else {
+            PyArray_DESCR(inter) = NULL;
         }
     }
     else {
@@ -596,29 +607,28 @@ array_base_get(PyArrayObject *self)
 static PyArrayObject *
 _get_part(PyArrayObject *self, int imag)
 {
-    PyArray_Descr *type;
+    NpyArray_Descr *type;
     PyArrayObject *ret;
     int offset;
 
-    type = PyArray_DescrFromType(PyArray_TYPE(self) -
-                                 PyArray_NUM_FLOATTYPE);
+    type = NpyArray_DescrFromType(PyArray_TYPE(self) -
+                                  PyArray_NUM_FLOATTYPE);
     offset = (imag ? type->elsize : 0);
 
     if (!NpyArray_ISNBO(PyArray_DESCR(self)->byteorder)) {
-        PyArray_Descr *new;
-        new = PyArray_DescrNew(type);
+        NpyArray_Descr *new;
+        new = NpyArray_DescrNew(type);
         new->byteorder = PyArray_DESCR(self)->byteorder;
-        Py_DECREF(type);
+        _Npy_DECREF(type);
         type = new;
     }
-    ret = (PyArrayObject *)
-        PyArray_NewFromDescr(Py_TYPE(self),
-                             type,
-                             PyArray_NDIM(self),
-                             PyArray_DIMS(self),
-                             PyArray_STRIDES(self),
-                             PyArray_BYTES(self) + offset,
-                             PyArray_FLAGS(self), (PyObject *)self);
+    ret = NpyArray_NewFromDescr(type,
+                                PyArray_NDIM(self),
+                                PyArray_DIMS(self),
+                                PyArray_STRIDES(self),
+                                PyArray_BYTES(self) + offset,
+                                PyArray_FLAGS(self), 
+                                NPY_FALSE, Py_TYPE(self), self);
     if (ret == NULL) {
         return NULL;
     }
@@ -691,14 +701,13 @@ array_imag_get(PyArrayObject *self)
         ret = _get_part(self, 1);
     }
     else {
-        Py_INCREF(PyArray_DESCR(self));
-        ret = (PyArrayObject *)PyArray_NewFromDescr(Py_TYPE(self),
-                                                    PyArray_DESCR(self),
-                                                    PyArray_NDIM(self),
-                                                    PyArray_DIMS(self),
-                                                    NULL, NULL,
-                                                    PyArray_ISFORTRAN(self),
-                                                    (PyObject *)self);
+        _Npy_INCREF(PyArray_DESCR(self));
+        ret = NpyArray_NewFromDescr(PyArray_DESCR(self),
+                                    PyArray_NDIM(self),
+                                    PyArray_DIMS(self),
+                                    NULL, NULL,
+                                    PyArray_ISFORTRAN(self),
+                                    NPY_FALSE, Py_TYPE(self), self);
         if (ret == NULL) {
             return NULL;
         }
@@ -751,14 +760,14 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     PyObject *arr = NULL;
     int retval = -1;
     NpyArrayIterObject *selfit = NULL, *arrit = NULL;
-    PyArray_Descr *typecode;
+    NpyArray_Descr *typecode;
     int swap;
     PyArray_CopySwapFunc *copyswap;
 
     typecode = PyArray_DESCR(self);
-    Py_INCREF(typecode);
-    arr = PyArray_FromAny(val, typecode,
-                          0, 0, FORCECAST | FORTRAN_IF(self), NULL);
+    _Npy_INCREF(typecode);
+    arr = PyArray_FromAnyUnwrap(val, typecode,
+                                0, 0, FORCECAST | FORTRAN_IF(self), NULL);
     if (arr == NULL) {
         return -1;
     }
@@ -776,10 +785,11 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     }
     swap = PyArray_ISNOTSWAPPED(self) != PyArray_ISNOTSWAPPED(arr);
     copyswap = PyArray_DESCR(self)->f->copyswap;
-    if (PyDataType_REFCHK(PyArray_DESCR(self))) {
+    if (NpyDataType_REFCHK(PyArray_DESCR(self))) {
         while (selfit->index < selfit->size) {
-            PyArray_Item_XDECREF(selfit->dataptr, PyArray_DESCR(self));
-            PyArray_Item_INCREF(arrit->dataptr, PyArray_DESCR(arr));
+            /* TODO: Fix this for garbage collected environments, new pointers will be written back. */
+            NpyArray_Item_XDECREF(selfit->dataptr, PyArray_DESCR(self));
+            NpyArray_Item_INCREF(arrit->dataptr, PyArray_DESCR(arr));
             memmove(selfit->dataptr, arrit->dataptr, sizeof(PyObject **));
             if (swap) {
                 copyswap(selfit->dataptr, NULL, swap, self);

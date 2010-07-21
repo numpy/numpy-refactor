@@ -49,8 +49,26 @@ PyArray_InitArrFuncs(PyArray_ArrFuncs *f)
     NpyArray_InitArrFuncs(f);
 }
 
+
+int
+PyArray_TypeNumFromTypeObj(PyTypeObject *typeobj)
+{
+    int i;
+    NpyArray_Descr *descr;
+    
+    /* TODO: This looks at the python type and needs to change. */
+    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+        descr = npy_userdescrs[i];
+        if (PyArray_Descr_WRAP(descr)->typeobj == typeobj) {
+            return descr->type_num;
+        }
+    }
+    return NPY_NOTYPE;
+}
+
+
 /*
-  returns typenum to associate with this type >=PyArray_USERDEF.
+ returns typenum to associate with this type >=PyArray_USERDEF.
   needs the userdecrs table and PyArray_NUMUSER variables
   defined in arraytypes.inc
 */

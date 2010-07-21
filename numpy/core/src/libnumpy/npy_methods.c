@@ -27,7 +27,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
                       "Need 0 <= offset <= %d for requested type "  \
                       "but received offset = %d",
                       self->descr->elsize-typed->elsize, offset);
-        Npy_DECREF(typed);
+        _Npy_DECREF(typed);
         return NULL;
     }
     ret = NpyArray_NewFromDescr(typed,
@@ -51,6 +51,8 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 
 /*NUMPY_API
  Set a subset of bytes from each element of the array
+ *
+ * Steals a reference to dtype.
  */
 int 
 NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
@@ -64,7 +66,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
                       "Need 0 <= offset <= %d for requested type "  \
                       "but received offset = %d",
                       self->descr->elsize-dtype->elsize, offset);
-        Npy_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return -1;
     }
     ret = NpyArray_NewFromDescr(dtype, self->nd, self->dimensions,
@@ -185,7 +187,7 @@ _equivalent_fields(NpyDict *field1, NpyDict *field2)
  * or 0 if not
  */
 static int
-_equivalent_units(PyArray_DateTimeInfo *info1, PyArray_DateTimeInfo *info2)
+_equivalent_units(NpyArray_DateTimeInfo *info1, NpyArray_DateTimeInfo *info2)
 {
     /* Same meta object */
     return ((info1 == info2)

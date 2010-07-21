@@ -14,19 +14,24 @@
 #include "common.h"
 #include "buffer.h"
 
+
+NPY_NO_EXPORT NpyArray_Descr *
+PyArray_DescrFromScalarUnwrap(PyObject *sc);
+
+
 /*
  * new reference
  * doesn't alter refcount of chktype or mintype ---
  * unless one of them is returned
  */
-NPY_NO_EXPORT PyArray_Descr *
-_array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
+NPY_NO_EXPORT NpyArray_Descr *
+_array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype)
 {
-    PyArray_Descr *outtype;
+    NpyArray_Descr *outtype;
     int outtype_num, save_num;
 
-    if (PyArray_EquivTypes(chktype, mintype)) {
-        Py_INCREF(mintype);
+    if (NpyArray_EquivTypes(chktype, mintype)) {
+        _Npy_INCREF(mintype);
         return mintype;
     }
 
@@ -37,7 +42,7 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
     else {
         if (PyDataType_ISOBJECT(chktype) &&
             PyDataType_ISSTRING(mintype)) {
-            return PyArray_DescrFromType(NPY_OBJECT);
+            return NpyArray_DescrFromType(NPY_OBJECT);
         }
         else {
             outtype_num = mintype->type_num;
@@ -46,15 +51,15 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
 
     save_num = outtype_num;
     while (outtype_num < PyArray_NTYPES &&
-          !(PyArray_CanCastSafely(chktype->type_num, outtype_num)
-            && PyArray_CanCastSafely(mintype->type_num, outtype_num))) {
+          !(NpyArray_CanCastSafely(chktype->type_num, outtype_num)
+            && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
         outtype_num++;
     }
     if (outtype_num == PyArray_NTYPES) {
-        outtype = PyArray_DescrFromType(save_num);
+        outtype = NpyArray_DescrFromType(save_num);
     }
     else {
-        outtype = PyArray_DescrFromType(outtype_num);
+        outtype = NpyArray_DescrFromType(outtype_num);
     }
     if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
         int testsize = outtype->elsize;
@@ -77,7 +82,7 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
             testsize = MAX(chksize, minsize);
         }
         if (testsize != outtype->elsize) {
-            PyArray_DESCR_REPLACE(outtype);
+            NpyArray_DESCR_REPLACE(outtype);
             outtype->elsize = testsize;
             NpyArray_DescrDeallocNamesAndFields(outtype);
         }
@@ -85,45 +90,45 @@ _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
     return outtype;
 }
 
-NPY_NO_EXPORT PyArray_Descr *
+NPY_NO_EXPORT NpyArray_Descr *
 _array_find_python_scalar_type(PyObject *op)
 {
     if (PyFloat_Check(op)) {
-        return PyArray_DescrFromType(PyArray_DOUBLE);
+        return NpyArray_DescrFromType(PyArray_DOUBLE);
     }
     else if (PyComplex_Check(op)) {
-        return PyArray_DescrFromType(PyArray_CDOUBLE);
+        return NpyArray_DescrFromType(PyArray_CDOUBLE);
     }
     else if (PyInt_Check(op)) {
         /* bools are a subclass of int */
         if (PyBool_Check(op)) {
-            return PyArray_DescrFromType(PyArray_BOOL);
+            return NpyArray_DescrFromType(PyArray_BOOL);
         }
         else {
-            return  PyArray_DescrFromType(PyArray_LONG);
+            return NpyArray_DescrFromType(PyArray_LONG);
         }
     }
     else if (PyLong_Check(op)) {
         /* if integer can fit into a longlong then return that*/
         if ((PyLong_AsLongLong(op) == -1) && PyErr_Occurred()) {
             PyErr_Clear();
-            return PyArray_DescrFromType(PyArray_OBJECT);
+            return NpyArray_DescrFromType(PyArray_OBJECT);
         }
-        return PyArray_DescrFromType(PyArray_LONGLONG);
+        return NpyArray_DescrFromType(PyArray_LONGLONG);
     }
     return NULL;
 }
 
-static PyArray_Descr *
+static NpyArray_Descr *
 _use_default_type(PyObject *op)
 {
     int typenum;
 
-    typenum = NpyArray_TypeNumFromTypeObj(Py_TYPE(op));
+    typenum = PyArray_TypeNumFromTypeObj(Py_TYPE(op));
     if (typenum == NPY_NOTYPE) {
         typenum = PyArray_OBJECT;
     }
-    return PyArray_DescrFromType(typenum);
+    return NpyArray_DescrFromType(typenum);
 }
 
 
@@ -135,13 +140,13 @@ _use_default_type(PyObject *op)
  * max is the maximum number of dimensions -- used for recursive call
  * to avoid infinite recursion...
  */
-NPY_NO_EXPORT PyArray_Descr *
-_array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
+NPY_NO_EXPORT NpyArray_Descr *
+_array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
 {
     int l;
     PyObject *ip;
-    PyArray_Descr *chktype = NULL;
-    PyArray_Descr *outtype;
+    NpyArray_Descr *chktype = NULL;
+    NpyArray_Descr *outtype;
 #if PY_VERSION_HEX >= 0x02060000
     Py_buffer buffer_view;
 #endif
@@ -153,28 +158,28 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
      */
     if (PyArray_Check(op)) {
         chktype = PyArray_DESCR(op);
-        Py_INCREF(chktype);
+        _Npy_INCREF(chktype);
         if (minitype == NULL) {
             return chktype;
         }
-        Py_INCREF(minitype);
+        _Npy_INCREF(minitype);
         goto finish;
     }
 
     if (PyArray_IsScalar(op, Generic)) {
-        chktype = PyArray_DescrFromScalar(op);
+        chktype = PyArray_DescrFromScalarUnwrap(op);
         if (minitype == NULL) {
             return chktype;
         }
-        Py_INCREF(minitype);
+        _Npy_INCREF(minitype);
         goto finish;
     }
 
     if (minitype == NULL) {
-        minitype = PyArray_DescrFromType(PyArray_BOOL);
+        minitype = NpyArray_DescrFromType(PyArray_BOOL);
     }
     else {
-        Py_INCREF(minitype);
+        _Npy_INCREF(minitype);
     }
     if (max < 0) {
         goto deflt;
@@ -185,13 +190,13 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
     }
 
     if (PyBytes_Check(op)) {
-        chktype = PyArray_DescrNewFromType(PyArray_STRING);
+        chktype = NpyArray_DescrNewFromType(PyArray_STRING);
         chktype->elsize = PyString_GET_SIZE(op);
         goto finish;
     }
 
     if (PyUnicode_Check(op)) {
-        chktype = PyArray_DescrNewFromType(PyArray_UNICODE);
+        chktype = NpyArray_DescrNewFromType(PyArray_UNICODE);
         chktype->elsize = PyUnicode_GET_DATA_SIZE(op);
 #ifndef Py_UNICODE_WIDE
         chktype->elsize <<= 1;
@@ -216,7 +221,7 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
              PyObject_GetBuffer(op, &buffer_view, PyBUF_SIMPLE) == 0) {
 
         PyErr_Clear();
-        chktype = PyArray_DescrNewFromType(PyArray_VOID);
+        chktype = NpyArray_DescrNewFromType(PyArray_VOID);
         chktype->elsize = buffer_view.itemsize;
         PyBuffer_Release(&buffer_view);
         goto finish;
@@ -265,7 +270,7 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
 
 #if !defined(NPY_PY3K)
     if (PyBuffer_Check(op)) {
-        chktype = PyArray_DescrNewFromType(PyArray_VOID);
+        chktype = NpyArray_DescrNewFromType(PyArray_VOID);
         chktype->elsize = Py_TYPE(op)->tp_as_sequence->sq_length(op);
         PyErr_Clear();
         goto finish;
@@ -276,7 +281,7 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
         ip = PyObject_CallMethod(op, "__array__", NULL);
         if(ip && PyArray_Check(ip)) {
             chktype = PyArray_DESCR(ip);
-            Py_INCREF(chktype);
+            _Npy_INCREF(chktype);
             Py_DECREF(ip);
             goto finish;
         }
@@ -298,11 +303,11 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
             goto deflt;
         }
         if (l == 0 && minitype->type_num == PyArray_BOOL) {
-            Py_DECREF(minitype);
-            minitype = PyArray_DescrFromType(PyArray_DEFAULT);
+            _Npy_DECREF(minitype);
+            minitype = NpyArray_DescrFromType(PyArray_DEFAULT);
         }
         while (--l >= 0) {
-            PyArray_Descr *newtype;
+            NpyArray_Descr *newtype;
             ip = PySequence_GetItem(op, l);
             if (ip==NULL) {
                 PyErr_Clear();
@@ -310,13 +315,13 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
             }
             chktype = _array_find_type(ip, minitype, max-1);
             newtype = _array_small_type(chktype, minitype);
-            Py_DECREF(minitype);
+            _Npy_DECREF(minitype);
             minitype = newtype;
-            Py_DECREF(chktype);
+            _Npy_DECREF(chktype);
             Py_DECREF(ip);
         }
         chktype = minitype;
-        Py_INCREF(minitype);
+        _Npy_INCREF(minitype);
         goto finish;
     }
 
@@ -326,25 +331,25 @@ _array_find_type(PyObject *op, PyArray_Descr *minitype, int max)
 
  finish:
     outtype = _array_small_type(chktype, minitype);
-    Py_DECREF(chktype);
-    Py_DECREF(minitype);
+    _Npy_DECREF(chktype);
+    _Npy_DECREF(minitype);
     /*
      * VOID Arrays should not occur by "default"
      * unless input was already a VOID
      */
     if (outtype->type_num == PyArray_VOID &&
         minitype->type_num != PyArray_VOID) {
-        Py_DECREF(outtype);
-        return PyArray_DescrFromType(PyArray_OBJECT);
+        _Npy_DECREF(outtype);
+        return NpyArray_DescrFromType(PyArray_OBJECT);
     }
     return outtype;
 }
 
 /* new reference */
-NPY_NO_EXPORT PyArray_Descr *
+NPY_NO_EXPORT NpyArray_Descr *
 _array_typedescr_fromstr(char *str)
 {
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     int type_num;
     char typechar;
     int size;
@@ -469,14 +474,14 @@ _array_typedescr_fromstr(char *str)
         return NULL;
     }
 
-    descr = PyArray_DescrFromType(type_num);
+    descr = NpyArray_DescrFromType(type_num);
     if (descr == NULL) {
         return NULL;
     }
     swap = !NpyArray_ISNBO(swapchar);
     if (descr->elsize == 0 || swap) {
         /* Need to make a new PyArray_Descr */
-        PyArray_DESCR_REPLACE(descr);
+        NpyArray_DESCR_REPLACE(descr);
         if (descr==NULL) {
             return NULL;
         }
@@ -516,7 +521,7 @@ index2ptr(PyArrayObject *mp, intp i)
 NPY_NO_EXPORT int
 _zerofill(PyArrayObject *ret)
 {
-    if (PyDataType_REFCHK(PyArray_DESCR(ret))) {
+    if (NpyDataType_REFCHK(PyArray_DESCR(ret))) {
         PyObject *zero = PyInt_FromLong(0);
         PyArray_FillObjectArray(ret, zero);
         Py_DECREF(zero);

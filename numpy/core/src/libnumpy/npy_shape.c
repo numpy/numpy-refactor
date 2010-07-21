@@ -267,7 +267,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
         }
     }
 
-    Npy_INCREF(self->descr);
+    _Npy_INCREF(self->descr);
     ret = NpyArray_NewFromDescr(self->descr,
                                 n, dimensions,
                                 strides,
@@ -322,7 +322,7 @@ NpyArray_Squeeze(NpyArray *self)
         }
     }
 
-    Npy_INCREF(self->descr);
+    _Npy_INCREF(self->descr);
     ret = NpyArray_NewFromDescr(self->descr,
                                 newnd, dimensions,
                                 strides, self->data,
@@ -449,7 +449,7 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
      * this allocates memory for dimensions and strides (but fills them
      * incorrectly), sets up descr, and points data at ap->data.
      */
-    Npy_INCREF(ap->descr);
+    _Npy_INCREF(ap->descr);
     ret = NpyArray_NewFromDescr(ap->descr,
                                 n, ap->dimensions,
                                 NULL, ap->data, ap->flags,
@@ -508,7 +508,7 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     if (order == NPY_ANYORDER) {
         order = NpyArray_ISFORTRAN(a);
     }
-    Npy_INCREF(a->descr);
+    _Npy_INCREF(a->descr);
     size = NpyArray_SIZE(a);
     ret = NpyArray_NewFromDescr(a->descr,
                                 1, &size,

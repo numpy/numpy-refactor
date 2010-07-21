@@ -12,6 +12,7 @@
 #include "npy_3kcompat.h"
 
 #include "common.h"
+#include "ctors.h"
 #include "arraytypes.h"
 
 #include "conversion_utils.h"
@@ -19,6 +20,10 @@
 /****************************************************************
 * Useful function for conversion when used with PyArg_ParseTuple
 ****************************************************************/
+
+NPY_NO_EXPORT PyObject *
+PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode);
+
 
 /*NUMPY_API
  *
@@ -360,7 +365,7 @@ PyArray_PyIntAsInt(PyObject *o)
     PyObject *obj;
     static char *msg = "an integer is required";
     PyObject *arr;
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     int ret;
 
 
@@ -383,12 +388,12 @@ PyArray_PyIntAsInt(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        Py_INCREF(descr);
-        arr = PyArray_CastToType((PyArrayObject *)o, descr, 0);
+        _Npy_INCREF(descr);
+        arr = NpyArray_CastToType((PyArrayObject *)o, descr, 0);
     }
     if (PyArray_IsScalar(o, Integer)) {
-        Py_INCREF(descr);
-        arr = PyArray_FromScalar(o, descr);
+        _Npy_INCREF(descr);
+        arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((int *)PyArray_DATA(arr));
@@ -449,7 +454,7 @@ PyArray_PyIntAsIntp(PyObject *o)
     PyObject *obj;
     static char *msg = "an integer is required";
     PyObject *arr;
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     intp ret;
 
     if (!o) {
@@ -478,12 +483,12 @@ PyArray_PyIntAsIntp(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        Py_INCREF(descr);
-        arr = PyArray_CastToType((PyArrayObject *)o, descr, 0);
+        _Npy_INCREF(descr);
+        arr = NpyArray_CastToType((PyArrayObject *)o, descr, 0);
     }
     else if (PyArray_IsScalar(o, Integer)) {
         Py_INCREF(descr);
-        arr = PyArray_FromScalar(o, descr);
+        arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((intp *)PyArray_DATA(arr));

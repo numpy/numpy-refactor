@@ -28,9 +28,10 @@
 
 
 #include "Python.h"
+#include "numpy/ndarraytypes.h"
 #include "numpy/noprefix.h"
 #include "numpy/npy_math.h"
-
+#include "numpy/numpy_api.h"
 #include "npy_config.h"
 
 #define NOT_USED NPY_UNUSED(unused)
@@ -665,7 +666,7 @@ static int
 @TYPE@_quicksort(@type@ *start, npy_intp num, PyArrayObject *arr)
 {
     const size_t len = PyArray_ITEMSIZE(arr)/sizeof(@type@);
-    @type@ *vp = malloc(PyArray_ITEMSIZE(arr));
+    @type@ *vp = (@type@ *)malloc(PyArray_ITEMSIZE(arr));
     @type@ *pl = start;
     @type@ *pr = start + (num - 1)*len;
     @type@ *stack[PYA_QS_STACK], **sptr = stack, *pm, *pi, *pj, *pk;
@@ -960,7 +961,7 @@ static int
 static void
 add_sortfuncs(void)
 {
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
 
     /**begin repeat
      *
@@ -968,7 +969,7 @@ add_sortfuncs(void)
      *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
      *         CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE#
      */
-    descr = PyArray_DescrFromType(PyArray_@TYPE@);
+    descr = NpyArray_DescrFromType(PyArray_@TYPE@);
     descr->f->sort[PyArray_QUICKSORT] =
         (PyArray_SortFunc *)@TYPE@_quicksort;
     descr->f->argsort[PyArray_QUICKSORT] =

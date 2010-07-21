@@ -22,6 +22,11 @@
 #include "common.h"
 #include "scalartypes.h"
 
+
+NPY_NO_EXPORT NpyArray_Descr *
+PyArray_DescrFromScalarUnwrap(PyObject *sc);
+
+
 NPY_NO_EXPORT PyBoolScalarObject _PyArrayScalar_BoolValues[] = {
     {PyObject_HEAD_INIT(&PyBoolArrType_Type) 0},
     {PyObject_HEAD_INIT(&PyBoolArrType_Type) 1},
@@ -794,9 +799,9 @@ gentype_itemsize_get(PyObject *self)
     int elsize;
 
     typecode = PyArray_DescrFromScalar(self);
-    elsize = typecode->elsize;
+    elsize = typecode->descr->elsize;
 #ifndef Py_UNICODE_WIDE
-    if (typecode->type_num == NPY_UNICODE) {
+    if (typecode->descr->type_num == NPY_UNICODE) {
         elsize >>= 1;
     }
 #endif
@@ -966,7 +971,7 @@ gentype_imag_get(PyObject *self)
         char *ptr;
         typecode = _realdescr_fromcomplexscalar(self, &typenum);
         ptr = (char *)scalar_value(self, NULL);
-        ret = PyArray_Scalar(ptr + typecode->elsize, typecode, NULL);
+        ret = PyArray_Scalar(ptr + typecode->descr->elsize, typecode, NULL);
     }
     else if (PyArray_IsScalar(self, Object)) {
         PyObject *obj = ((PyObjectScalarObject *)self)->obval;
@@ -985,7 +990,7 @@ gentype_imag_get(PyObject *self)
         char *temp;
         int elsize;
         typecode = PyArray_DescrFromScalar(self);
-        elsize = typecode->elsize;
+        elsize = typecode->descr->elsize;
         temp = PyDataMem_NEW(elsize);
         memset(temp, '\0', elsize);
         ret = PyArray_Scalar(temp, typecode, NULL);
@@ -1147,7 +1152,7 @@ gentype_wraparray(PyObject *NPY_UNUSED(scalar), PyObject *args)
         return NULL;
     }
 
-    return PyArray_Scalar(PyArray_DATA(arr), PyArray_DESCR(arr), arr);
+    return PyArray_Scalar(PyArray_DATA(arr), Npy_INTERFACE( PyArray_DESCR(arr) ), arr);
 }
 
 /*
@@ -1204,23 +1209,23 @@ gentype_byteswap(PyObject *self, PyObject *args)
         /* get the data, copyswap it and pass it to a new Array scalar */
         char *data;
         int numbytes;
-        PyArray_Descr *descr;
+        NpyArray_Descr *descr;
         PyObject *new;
         char *newmem;
 
         numbytes = gentype_getreadbuf(self, 0, (void **)&data);
-        descr = PyArray_DescrFromScalar(self);
+        descr = PyArray_DescrFromScalarUnwrap(self);
         newmem = _pya_malloc(descr->elsize);
         if (newmem == NULL) {
-            Py_DECREF(descr);
+            _Npy_DECREF(descr);
             return PyErr_NoMemory();
         }
         else {
             descr->f->copyswap(newmem, data, 1, NULL);
         }
-        new = PyArray_Scalar(newmem, descr, NULL);
+        new = PyArray_Scalar(newmem, Npy_INTERFACE(descr), NULL);
         _pya_free(newmem);
-        Py_DECREF(descr);
+        _Npy_DECREF(descr);
         return new;
     }
 }
@@ -1260,13 +1265,13 @@ voidtype_getfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
     }
     if (PyArray_IsScalar(ret, Generic) &&   \
             (!PyArray_IsScalar(ret, Void))) {
-        PyArray_Descr *new;
+        NpyArray_Descr *new;
         void *ptr;
-        if (!NpyArray_ISNBO(self->descr->byteorder)) {
-            new = PyArray_DescrFromScalar(ret);
+        if (!NpyArray_ISNBO(self->descr->descr->byteorder)) {
+            new = PyArray_DescrFromScalarUnwrap(ret);
             ptr = scalar_value(ret, new);
             byte_swap_vector(ptr, 1, new->elsize);
-            Py_DECREF(new);
+            _Npy_DECREF(new);
         }
     }
     return ret;
@@ -1304,18 +1309,18 @@ voidtype_setfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
 
     mysize = Py_SIZE(self);
 
-    if (offset < 0 || (offset + typecode->elsize) > mysize) {
+    if (offset < 0 || (offset + typecode->descr->elsize) > mysize) {
         PyErr_Format(PyExc_ValueError,
                 "Need 0 <= offset <= %d for requested type "  \
                 "but received offset = %d",
-                mysize-typecode->elsize, offset);
+                mysize-typecode->descr->elsize, offset);
         Py_DECREF(typecode);
         return NULL;
     }
 
     dptr = self->obval + offset;
 
-    if (typecode->type_num == PyArray_OBJECT) {
+    if (typecode->descr->type_num == PyArray_OBJECT) {
         PyObject *temp;
         Py_INCREF(value);
         NPY_COPY_PYOBJECT_PTR(&temp, dptr);
@@ -1329,8 +1334,8 @@ voidtype_setfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
         if (src == NULL) {
             return NULL;
         }
-        typecode->f->copyswap(dptr, PyArray_DATA(src),
-                !NpyArray_ISNBO(self->descr->byteorder),
+        typecode->descr->f->copyswap(dptr, PyArray_DATA(src),
+                !NpyArray_ISNBO(self->descr->descr->byteorder),
                 src);
         Py_DECREF(src);
     }
@@ -1693,13 +1698,13 @@ static PyMethodDef voidtype_methods[] = {
 static Py_ssize_t
 voidtype_length(PyVoidScalarObject *self)
 {
-    if (!self->descr->names) {
+    if (!self->descr->descr->names) {
         return 0;
     }
     else { /* return the number of fields */
         int i;
         
-        for (i=0; NULL != self->descr->names[i]; i++) ;
+        for (i=0; NULL != self->descr->descr->names[i]; i++) ;
         return i;
     }
 }
@@ -1709,10 +1714,12 @@ voidtype_length(PyVoidScalarObject *self)
 /* Convert an NpyArray_Descr and offset to a 2-tuple for use in calling Python methods. */
 static PyObject *voidtype_npydescr_to_tuple(NpyArray_Descr *descr, int offset)
 {
+    PyArray_Descr *descrWrap = Npy_INTERFACE(descr);
     PyObject *tup = PyTuple_New(2);
-    Py_INCREF(descr);
+    
+    Py_INCREF(descrWrap);
     /* TODO: Wrap descriptor */
-    PyTuple_SET_ITEM(tup, 0, (PyObject *)descr); 
+    PyTuple_SET_ITEM(tup, 0, (PyObject *)descrWrap); 
     PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(offset));
     return tup;
 }
@@ -1731,7 +1738,7 @@ voidtype_item(PyVoidScalarObject *self, Py_ssize_t n)
         return NULL;
     }
     
-    for (m=0; NULL != self->descr->names[m]; m++) ;
+    for (m=0; NULL != self->descr->descr->names[m]; m++) ;
     if (n < 0) {
         n += m;
     }
@@ -1739,7 +1746,7 @@ voidtype_item(PyVoidScalarObject *self, Py_ssize_t n)
         PyErr_Format(PyExc_IndexError, "invalid index (%d)", (int) n);
         return NULL;
     }
-    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, self->descr->names[n]);
+    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->descr->fields, self->descr->descr->names[n]);
     tup = voidtype_npydescr_to_tuple(value->descr, value->offset);
     ret = voidtype_getfield(self, tup, NULL);
     Py_DECREF(tup);
@@ -1768,7 +1775,7 @@ voidtype_subscript(PyVoidScalarObject *self, PyObject *ind)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, PyString_AsString(ind));
+        value = (NpyArray_DescrField *)NpyDict_Get(self->descr->descr->fields, PyString_AsString(ind));
         if (NULL == value) {
             goto fail;
         }
@@ -1804,15 +1811,15 @@ voidtype_ass_item(PyVoidScalarObject *self, Py_ssize_t n, PyObject *val)
         return -1;
     }
 
-    for (m = 0; NULL != self->descr->names[m]; m++) ;
+    for (m = 0; NULL != self->descr->descr->names[m]; m++) ;
     if (n < 0) {
         n += m;
     }
     if (n < 0 || n >= m) {
         goto fail;
     }
-    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->fields, self->descr->names[n]);
-    newtup = Py_BuildValue("(OOO)", val, value->descr,      /* TODO: Wrap descr */
+    value = (NpyArray_DescrField *)NpyDict_Get(self->descr->descr->fields, self->descr->descr->names[n]);
+    newtup = Py_BuildValue("(OOO)", val, Npy_INTERFACE(value->descr),  
                            PyInt_FromLong(value->offset));
     res = voidtype_setfield(self, newtup, NULL);
     Py_DECREF(newtup);
@@ -1848,11 +1855,11 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        value = NpyDict_Get(self->descr->fields, PyString_AsString(ind));
+        value = NpyDict_Get(self->descr->descr->fields, PyString_AsString(ind));
         if (NULL == value) {
             goto fail;
         }
-        newtup = Py_BuildValue("(OOO)", val, value->descr,          /* TODO: wrap descriptor */
+        newtup = Py_BuildValue("(OOO)", val, Npy_INTERFACE(value->descr),
                                PyInt_FromLong(value->offset));
         res = voidtype_setfield(self, newtup, NULL);
         Py_DECREF(newtup);
@@ -1913,7 +1920,7 @@ static Py_ssize_t
 gentype_getreadbuf(PyObject *self, Py_ssize_t segment, void **ptrptr)
 {
     int numbytes;
-    PyArray_Descr *outcode;
+    NpyArray_Descr *outcode;
 
     if (segment != 0) {
         PyErr_SetString(PyExc_SystemError,
@@ -1921,7 +1928,7 @@ gentype_getreadbuf(PyObject *self, Py_ssize_t segment, void **ptrptr)
         return -1;
     }
 
-    outcode = PyArray_DescrFromScalar(self);
+    outcode = PyArray_DescrFromScalarUnwrap(self);
     numbytes = outcode->elsize;
     *ptrptr = (void *)scalar_value(self, outcode);
 
@@ -1930,16 +1937,16 @@ gentype_getreadbuf(PyObject *self, Py_ssize_t segment, void **ptrptr)
         numbytes >>= 1;
     }
 #endif
-    Py_DECREF(outcode);
+    _Npy_DECREF(outcode);
     return numbytes;
 }
 
 static Py_ssize_t
 gentype_getsegcount(PyObject *self, Py_ssize_t *lenp)
 {
-    PyArray_Descr *outcode;
+    NpyArray_Descr *outcode;
 
-    outcode = PyArray_DescrFromScalar(self);
+    outcode = PyArray_DescrFromScalarUnwrap(self);
     if (lenp) {
         *lenp = outcode->elsize;
 #ifndef Py_UNICODE_WIDE
@@ -1948,7 +1955,7 @@ gentype_getsegcount(PyObject *self, Py_ssize_t *lenp)
         }
 #endif
     }
-    Py_DECREF(outcode);
+    _Npy_DECREF(outcode);
     return 1;
 }
 
@@ -2136,7 +2143,8 @@ static PyObject *
     PyObject *obj = NULL;
     PyObject *robj;
     PyObject *arr;
-    PyArray_Descr *typecode = NULL;
+    NpyArray_Descr *typecode = NULL;
+    PyArray_Descr *typecodeWrap = NULL;
 #if !(@default@ == 2)
     int itemsize;
     void *dest, *src;
@@ -2151,7 +2159,7 @@ static PyObject *
     if (!PyArg_ParseTuple(args, "|O", &obj)) {
         return NULL;
     }
-    typecode = PyArray_DescrFromType(PyArray_@TYPE@);
+    typecode = NpyArray_DescrFromType(PyArray_@TYPE@);
     /*
      * typecode is new reference and stolen by
      * PyArray_FromAny but not PyArray_Scalar
@@ -2161,23 +2169,28 @@ static PyObject *
         char *mem = malloc(sizeof(@name@));
 
         memset(mem, 0, sizeof(@name@));
-        robj = PyArray_Scalar(mem, typecode, NULL);
+        robj = PyArray_Scalar(mem, Npy_INTERFACE(typecode), NULL);
         free(mem);
 #elif @default@ == 1
-        robj = PyArray_Scalar(NULL, typecode, NULL);
+        robj = PyArray_Scalar(NULL, Npy_INTERFACE(typecode), NULL);
 #elif @default@ == 2
         Py_INCREF(Py_None);
         robj = Py_None;
 #endif
-        Py_DECREF(typecode);
+        _Npy_DECREF(typecode);
         goto finish;
     }
 
+    /* Move reference to the interface object. */
+    typecodeWrap = PyArray_Descr_WRAP(typecode);
+    Py_INCREF(typecodeWrap);
+    _Npy_DECREF(typecode);
+    
     /*
      * It is expected at this point that robj is a PyArrayScalar
      * (even for Object Data Type)
      */
-    arr = PyArray_FromAny(obj, typecode, 0, 0, FORCECAST, NULL);
+    arr = PyArray_FromAnyUnwrap(obj, typecode, 0, 0, FORCECAST, NULL);
     if ((arr == NULL) || (PyArray_NDIM(arr) > 0)) {
         return arr;
     }
@@ -2218,10 +2231,10 @@ finish:
         return NULL;
     }
     /* typecode will be NULL */
-    typecode = PyArray_DescrFromType(PyArray_@TYPE@);
+    typecode = NpyArray_DescrFromType(PyArray_@TYPE@);
     dest = scalar_value(obj, typecode);
     src = scalar_value(robj, typecode);
-    Py_DECREF(typecode);
+    _Npy_DECREF(typecode);
 #if @default@ == 0
     *((npy_@name@ *)dest) = *((npy_@name@ *)src);
 #elif @default@ == 1 /* unicode and strings */
@@ -2444,7 +2457,7 @@ void_arrtype_new(PyTypeObject *type, PyObject *args, PyObject *NPY_UNUSED(kwds))
         Py_SIZE((PyVoidScalarObject *)ret) = (int) memu;
         ((PyVoidScalarObject *)ret)->descr =
             PyArray_DescrNewFromType(PyArray_VOID);
-        ((PyVoidScalarObject *)ret)->descr->elsize = (int) memu;
+        ((PyVoidScalarObject *)ret)->descr->descr->elsize = (int) memu;
         ((PyVoidScalarObject *)ret)->flags = BEHAVED | OWNDATA;
         ((PyVoidScalarObject *)ret)->base = NULL;
         memset(destptr, '\0', (size_t) memu);
@@ -3445,7 +3458,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
         return typenum;
     }
     /* Search any registered types */
-    utypenum = NpyArray_TypeNumFromTypeObj(type);
+    utypenum = PyArray_TypeNumFromTypeObj(type);
     if (utypenum != NPY_NOTYPE) {
         typenum = utypenum;
     }

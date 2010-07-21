@@ -62,7 +62,7 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
 
 static int 
 _broadcast_cast(NpyArray *out, NpyArray *in,
-                PyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
+                NpyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
 {
     int delsize, selsize, maxaxis, i, N;
     NpyArrayMultiIterObject *multi;
@@ -184,7 +184,7 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         castfunc = descr->f->cast[type_num];
     } else {
         /* Check castfuncs for casts to user defined types. */
-        PyArray_CastFuncsItem* pitem = descr->f->castfuncs;
+        NpyArray_CastFuncsItem* pitem = descr->f->castfuncs;
         if (pitem != NULL) {
             while (pitem->totype != NPY_NOTYPE) {
                 if (pitem->totype == type_num) {
@@ -317,7 +317,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
           NpyArray_EquivByteorders(mpd->byteorder, at->byteorder) &&
           ((mpd->elsize == at->elsize) || (at->elsize==0)))) &&
         NpyArray_ISBEHAVED_RO(mp)) {
-        Npy_DECREF(at);
+        _Npy_DECREF(at);
         Npy_INCREF(mp);
         return mp;
     }
@@ -344,8 +344,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
                                 mp->dimensions,
                                 NULL, NULL,
                                 fortran, NPY_FALSE,
-                                Py_TYPE(mp),
-                                (PyObject *)mp);
+                                NULL, mp);
     
     if (out == NULL) {
         return NULL;
@@ -560,8 +559,8 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     to = NpyArray_DescrFromType(totype);
     telsize = to->elsize;
     felsize = from->elsize;
-    Npy_DECREF(from);
-    Npy_DECREF(to);
+    _Npy_DECREF(from);
+    _Npy_DECREF(to);
     
     switch(fromtype) {
         case NPY_BYTE:
@@ -698,7 +697,7 @@ NpyArray_ValidType(int type)
     if (descr == NULL) {
         res = NPY_FALSE;
     }
-    Npy_DECREF(descr);
+    _Npy_DECREF(descr);
     return res;
 }
 

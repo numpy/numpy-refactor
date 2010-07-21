@@ -16,28 +16,42 @@ typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
 typedef PyArray_SortFunc NpyArray_SortFunc;
 typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
+typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
+typedef PyArray_GetItemFunc NpyArray_GetItemFunc;
+typedef PyArray_SetItemFunc NpyArray_SetItemFunc;
+typedef PyArray_ScanFunc NpyArray_ScanFunc;
+typedef PyArray_FromStrFunc NpyArray_FromStrFunc;
+typedef PyArray_NonzeroFunc NpyArray_NonzeroFunc;
+typedef PyArray_FillFunc NpyArray_FillFunc;
+typedef PyArray_FillWithScalarFunc NpyArray_FillWithScalarFunc;
+typedef PyArray_ScalarKindFunc NpyArray_ScalarKindFunc;
+typedef PyArray_FastClipFunc NpyArray_FastClipFunc;
 
 typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
 
 #define NpyTypeObject PyTypeObject
 #define NpyArray_Type PyArray_Type
-#define NpyArrayDescr_Type PyArrayDescr_Type
 
 #define NpyArray_UCS4 npy_ucs4
 
 #define Npy_TYPE(a) Py_TYPE(a)
 
-#define NpyDataType_FLAGCHK(dtype, flag)                                   \
+#define NpyDataType_FLAGCHK(dtype, flag)                              \
         (((dtype)->flags & (flag)) == (flag))
 
-#define NpyArray_DESCR_REPLACE(descr) PyArray_DESCR_REPLACE(descr)
+#define NpyArray_DESCR_REPLACE(descr)                                 \
+        do {                                                          \
+            NpyArray_Descr *_new_;                                    \
+            _new_ = NpyArray_DescrNew(descr);                         \
+            _Npy_XDECREF(descr);                                      \
+            descr = _new_;                                            \
+        } while(0)
+
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
 
 #define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
 #define NpyArray_Check(op) PyArray_Check(op)
-
-#define NpyDataType_REFCHK(a) PyDataType_REFCHK(a)
 
 
 typedef struct NpyDict_KVPair_struct {
@@ -65,17 +79,11 @@ typedef struct {
 
 
 
-/* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
-typedef struct {
-    NpyArray_Descr *descr;
-    int offset;
-    char *title;                /* String owned/managed by each instance */
-} NpyArray_DescrField;
-
+struct NpyArray_Descr;
 
 /* Really internal to the core, but required for now by PyArray_TypeNumFromString */
 /* TODO: Refactor and add an accessor for npy_userdescrs */
-extern NpyArray_Descr **npy_userdescrs;
+extern struct NpyArray_Descr **npy_userdescrs;
 
 
 /*
@@ -83,12 +91,14 @@ extern NpyArray_Descr **npy_userdescrs;
  */
 void NpyInterface_Incref(void *);
 void NpyInterface_Decref(void *);
+void NpyInterface_XDecref(void *);
 int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, 
                                  void *subtype, void *interfaceData, void **interfaceRet);
 int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
 int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
 int NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter, void **interfaceRet);
 int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet);
+int NpyInterface_DescrNewWrapper(struct NpyArray_Descr *descr, void **interfaceRet);
 
 
 
@@ -98,9 +108,6 @@ int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interface
 
 /* arraytypes.c.src */
 #define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interface layer */
-
-#define NpyArray_DescrFromType(type) \
-        PyArray_DescrFromType(type)
 
 void NpyArray_dealloc(NpyArray *self);
 
@@ -125,21 +132,8 @@ byte_swap_vector(void *p, npy_intp n, int size);
 
 
 /* descriptor.c */
-NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
-NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
-void NpyArray_DescrDestroy(NpyArray_Descr *);
-char **NpyArray_DescrAllocNames(int n);
-NpyDict *NpyArray_DescrAllocFields(void);
-NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
-void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
-void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
-NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
-void NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
-                            int offset, const char *title);
-NpyDict *NpyArray_DescrFieldsCopy(NpyDict *fields);
-char **NpyArray_DescrNamesCopy(char **names);
-int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
-void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+#include <numpy/npy_descriptor.h>
+
 
 /* npy_dict.c */
 NpyDict *NpyDict_CreateTable(long numOfBuckets);
@@ -215,6 +209,14 @@ NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
         PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
 
 
+/* refcount.c */
+NPY_NO_EXPORT void
+NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr);
+NPY_NO_EXPORT void
+NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
+
+
+
 /* Already exists as a macro */
 #define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)             \
         PyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
@@ -242,9 +244,9 @@ npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
                                npy_intp offset,
                                npy_intp *dims, npy_intp *newstrides);
 NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
-NpyArray *NpyArray_FromBinaryFile(FILE *fp, PyArray_Descr *dtype, npy_intp num);
-NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, PyArray_Descr *dtype, npy_intp num);
-NpyArray *NpyArray_CheckFromArray(NpyArray *arr, PyArray_Descr *descr, int requires);
+NpyArray *NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num);
+NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype, npy_intp num);
+NpyArray *NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires);
 int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
@@ -266,6 +268,7 @@ int NpyArray_CanCastSafely(int fromtype, int totype);
 npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
 npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
 int NpyArray_ValidType(int type);
+NPY_NO_EXPORT NpyArray_Descr *NpyArray_DescrFromType(int type);
 
 NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
                             NpyArray *ret, NPY_CLIPMODE clipmode);
@@ -288,7 +291,6 @@ int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
 int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
                              NPY_SCALARKIND scalar);
 int NpyArray_TypeNumFromName(char *str);
-int NpyArray_TypeNumFromTypeObj(void* typeobj);
 NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
 NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
@@ -350,8 +352,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyArray_XDECREF(a) PyArray_XDECREF(a)
 
 #define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
-#define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
-#define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 
 #define NpyObject_New(a, b) PyObject_New(a, b)
 
@@ -413,7 +413,6 @@ extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *s
                                          npy_intp instrides, npy_intp N, int elsize);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
-//extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
 
 #endif
 

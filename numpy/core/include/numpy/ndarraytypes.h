@@ -499,82 +499,29 @@ typedef struct {
                                 NPY_ITEM_IS_POINTER | NPY_ITEM_REFCOUNT | \
                                 NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
 
-#define PyDataType_FLAGCHK(dtype, flag)                                   \
-        (((dtype)->flags & (flag)) == (flag))
+#define PyDataType_FLAGCHK(dtype, flag) NpyDataType_FLAGCHK(dtype->descr, flag)
 
-#define PyDataType_REFCHK(dtype)                                          \
-        PyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
+#define PyDataType_REFCHK(dtype)  NpyDataType_REFCHK(dtype->descr)        \
 
 
 struct NpyDict_struct;     /* TODO: From numpy_api.h, needed until PyArray_Descr is split into
                               CPython and core parts */
 
-typedef struct {
-        NPY_DATETIMEUNIT base;
-        int num;
-        int den;      /*
-                       * Converted to 1 on input for now -- an
-                       * input-only mechanism
-                       */
-        int events;
-} PyArray_DateTimeInfo;	
 
 typedef struct _PyArray_Descr {
         PyObject_HEAD
-        void *typeobj;          /* Opaque pointer provided by interface layer to describe the
-                                 * scalar type. For CPython this is a PyTypeObject. */
         int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
                                    NPY_INVALID_MAGIC on dealloc */
-        char kind;              /* kind for this type */
-        char type;              /* unique-character representing this type */
-        char byteorder;         /*
-                                 * '>' (big), '<' (little), '|'
-                                 * (not-applicable), or '=' (native).
+        PyTypeObject *typeobj;  /*
+                                 * the type object representing an
+                                 * instance of this type -- should not
+                                 * be two type_numbers with the same type
+                                 * object.
                                  */
-        char unused;
-        int flags;              /* flag describing data type */
-        int type_num;           /* number representing this type */
-        int elsize;             /* element size for this type */
-        int alignment;          /* alignment needed for this type */
-
-        struct _arr_descr				\
-        *subarray;              /*
-                                 * Non-NULL if this type is
-                                 * is an array (C-contiguous)
-                                 * of some other type
-                                 */
-        struct NpyDict_struct 
-            *fields;            /* The fields dictionary for this type
-                                 * For statically defined descr this
-                                 * is always NULL.
-                                 */
-
-        char **names;           /* Array of char *, NULL indicates end of array. 
-                                 * char* lifetime is exactly lifetime of array itself. */
-
-        PyArray_ArrFuncs *f;     /*
-                                  * a table of functions specific for each
-                                  * basic data descriptor
-                                  */
-
-
-	PyArray_DateTimeInfo  \
-	*dtinfo;		/*
-				 * Non-NULL if this type is array of 
-				 DATETIME or TIMEDELTA */
-
-        
+    
+        struct NpyArray_Descr *descr;   /* Core object */
 } PyArray_Descr;
 
-	
-
-typedef struct _arr_descr {
-    PyArray_Descr *base;
-    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
-    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
-                                /* allocated array of ints; shape_dims == NULL iff */
-                                /* shape_num_dims == 1 */
-} PyArray_ArrayDescr;
 
 /*
  * The main array object structure. It is recommended to use the macros
@@ -596,7 +543,7 @@ typedef struct PyArrayObject {
         struct PyArrayObject *base_arr; /* Base when it's specifically an array object */
         void *base_obj;         /* Base when it's an opaque interface object */
     
-        PyArray_Descr *descr;   /* Pointer to type structure */
+        struct NpyArray_Descr *descr;  /* Pointer to type structure */
         int flags;              /* Flags describing array -- see below */
         PyObject *weakreflist;  /* For weakreferences */
 } PyArrayObject;
@@ -755,7 +702,7 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
  * here.
  */
 
-#define PyArray_ARRAY(m) ((m) ? assert(PyArray_Check(m)),((PyArrayObject *)(m)) : NULL)
+#define PyArray_ARRAY(m) (assert(NULL != m && PyArray_Check((PyObject *)m)), (PyArrayObject *)(m))
 #define PAA(m) PyArray_ARRAY(m)
 
 #define PyArray_CHKFLAGS(m, FLAGS) NpyArray_CHKFLAGS(PAA(m), FLAGS)
@@ -773,11 +720,11 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 #define NPY_END_THREADS   do {if (_save) PyEval_RestoreThread(_save);} while (0);
 
 #define NPY_BEGIN_THREADS_DESCR(dtype)                          \
-        do {if (!(PyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
+        do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
                 NPY_BEGIN_THREADS;} while (0);
 
 #define NPY_END_THREADS_DESCR(dtype)                            \
-        do {if (!(PyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
+        do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
                 NPY_END_THREADS; } while (0);
 
 #define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
@@ -908,6 +855,17 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
 #define NPY_DEFAULT_TYPE NPY_DOUBLE
 #define PyArray_DEFAULT NPY_DEFAULT_TYPE
 
+
+/* Useful macros for getting PyObject back from interface pointer returned from the core. */
+#define PyArray_Descr_WRAP(ptr) \
+    ((assert( (ptr) != NULL && PyArray_DescrCheck((PyObject *)Npy_INTERFACE(ptr)))), \
+    (PyArray_Descr *)Npy_INTERFACE(ptr))
+
+#define PyArray_WRAP(ptr) \
+    ((assert( (ptr) != NULL && PyArray_Check((PyObject *)Npy_INTERFACE(ptr)))), \
+    (PyArrayObject *)Npy_INTERFACE(ptr))
+
+
 /*
  * All sorts of useful ways to look into a PyArrayObject.  These are
  * the recommended over casting to PyArrayObject and accessing the
@@ -925,7 +883,7 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
 #define PyArray_STRIDES(obj) NpyArray_STRIDES(PAA(obj))
 #define PyArray_DIM(obj,n) NpyArray_DIM(PAA(obj),n)
 #define PyArray_STRIDE(obj,n) NpyArray_STRIDE(PAA(obj),n)
-#define PyArray_DESCR(obj) NpyArray_DESCR(PAA(obj))
+#define PyArray_DESCR(obj) (PAA(obj))->descr
 #define PyArray_FLAGS(obj) NpyArray_FLAGS(PAA(obj))
 #define PyArray_ITEMSIZE(obj) NpyArray_ITEMSIZE(PAA(obj))
 #define PyArray_TYPE(obj) NpyArray_TYPE(PAA(obj))
@@ -935,22 +893,22 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
 #define PyArray_GETITEM(obj,itemptr) NpyArray_GETITEM(PAA(obj),itemptr)
 #define PyArray_SETITEM(obj,itemptr,v) NpyArray_SETITEM(PAA(obj),itemptr,v)
 
-
-#define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADt(obj))
-#define PyDataType_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISSIGNED(obj) NpyTypeNum_ISSIGNED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISINTEGER(obj) NpyTypeNum_ISINTEGER(((PyArray_Descr*)(obj))->type_num )
-#define PyDataType_ISFLOAT(obj) NpyTypeNum_ISFLOAT(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISNUMBER(obj) NpyTypeNum_ISNUMBER(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISCOMPLEX(obj) NpyTypeNum_ISCOMPLEX(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISPYTHON(obj) NpyTypeNum_ISPYTHON(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISFLEXIBLE(obj) NpyTypeNum_ISFLEXIBLE(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISDATETIME(obj) NpyTypeNum_ISDATETIME(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_ISOBJECT(obj) NpyTypeNum_ISOBJECT(((PyArray_Descr*)(obj))->type_num)
-#define PyDataType_HASFIELDS(obj) (((PyArray_Descr *)(obj))->names != NULL)
+#define _PyADT(obj) (assert(NULL != obj && PyArray_DescrCheck(obj)),((PyArrayObject *)(obj))->descr->type_num)
+#define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADT(obj))
+#define PyDataType_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(_PyADT(obj))
+#define PyDataType_ISSIGNED(obj) NpyTypeNum_ISSIGNED(_PyADT(obj))
+#define PyDataType_ISINTEGER(obj) NpyTypeNum_ISINTEGER(_PyADT(obj))
+#define PyDataType_ISFLOAT(obj) NpyTypeNum_ISFLOAT(_PyADT(obj))
+#define PyDataType_ISNUMBER(obj) NpyTypeNum_ISNUMBER(_PyADT(obj))
+#define PyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(_PyADT(obj))
+#define PyDataType_ISCOMPLEX(obj) NpyTypeNum_ISCOMPLEX(_PyADT(obj))
+#define PyDataType_ISPYTHON(obj) NpyTypeNum_ISPYTHON(_PyADT(obj))
+#define PyDataType_ISFLEXIBLE(obj) NpyTypeNum_ISFLEXIBLE(_PyADT(obj))
+#define PyDataType_ISDATETIME(obj) NpyTypeNum_ISDATETIME(_PyADT(obj))
+#define PyDataType_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(_PyADT(obj))
+#define PyDataType_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(_PyADT(obj))
+#define PyDataType_ISOBJECT(obj) NpyTypeNum_ISOBJECT(_PyADT(obj))
+#define PyDataType_HASFIELDS(obj) ((obj)->descr->names != NULL)
 
 #define PyArray_ISBOOL(obj) NpyTypeNum_ISBOOL(PyArray_TYPE(obj))
 #define PyArray_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(PyArray_TYPE(obj))

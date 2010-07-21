@@ -1,6 +1,9 @@
 #ifndef _NPY_ARRAYSCALARS_H_
 #define _NPY_ARRAYSCALARS_H_
 
+#include <numpy/numpy_api.h>
+#include <numpy/npy_descriptor.h>
+
 #ifndef _MULTIARRAYMODULE
 typedef struct {
         PyObject_HEAD
@@ -113,13 +116,13 @@ typedef struct {
 typedef struct {
         PyObject_HEAD
         npy_datetime obval;
-        PyArray_DateTimeInfo obdtinfo;
+        NpyArray_DateTimeInfo obdtinfo;
 } PyDatetimeScalarObject;
 
 typedef struct {
         PyObject_HEAD
         npy_timedelta obval;
-        PyArray_DateTimeInfo obdtinfo;
+        NpyArray_DateTimeInfo obdtinfo;
 } PyTimedeltaScalarObject;
 
 
