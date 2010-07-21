@@ -223,6 +223,8 @@ int NpyArray_Free(NpyArray *ap, void *ptr);
 NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
 int NpyArray_CanCoerceScalar(int thistype, int neededtype, NPY_SCALARKIND scalar);
 NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
+NpyArray *NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
+NpyArray *NpyArray_CopyAndTranspose(NpyArray *arr);
 
 
 /* number.c */

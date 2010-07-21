@@ -553,63 +553,21 @@ NPY_NO_EXPORT PyObject *
 PyArray_CopyAndTranspose(PyObject *op)
 {
     PyObject *ret, *arr;
-    int nd;
-    intp dims[2];
-    intp i,j;
-    int elsize, str2;
-    char *iptr;
-    char *optr;
 
     /* make sure it is well-behaved */
     arr = PyArray_FromAny(op, NULL, 0, 0, CARRAY, NULL);
     if (arr == NULL) {
         return NULL;
     }
-    nd = PyArray_NDIM(arr);
-    if (nd == 1) {
-        /* we will give in to old behavior */
-        ret = PyArray_Copy((PyArrayObject *)arr);
-        Py_DECREF(arr);
-        return ret;
-    }
-    else if (nd != 2) {
-        Py_DECREF(arr);
-        PyErr_SetString(PyExc_ValueError,
-                        "only 2-d arrays are allowed");
-        return NULL;
-    }
 
-    /* Now construct output array */
-    dims[0] = PyArray_DIM(arr,1);
-    dims[1] = PyArray_DIM(arr,0);
-    elsize = PyArray_ITEMSIZE(arr);
-    Py_INCREF(PyArray_DESCR(arr));
-    ret = PyArray_NewFromDescr(Py_TYPE(arr),
-                               PyArray_DESCR(arr),
-                               2, dims,
-                               NULL, NULL, 0, arr);
+    ret = NpyArray_CopyAndTranspose(PyArray_ARRAY(arr));
     if (ret == NULL) {
         Py_DECREF(arr);
         return NULL;
     }
-
-    /* do 2-d loop */
-    NPY_BEGIN_ALLOW_THREADS;
-    optr = PyArray_DATA(ret);
-    str2 = elsize*dims[0];
-    for (i = 0; i < dims[0]; i++) {
-        iptr = PyArray_BYTES(arr) + i*elsize;
-        for (j = 0; j < dims[1]; j++) {
-            /* optr[i,j] = iptr[j,i] */
-            memcpy(optr, iptr, elsize);
-            optr += elsize;
-            iptr += str2;
-        }
-    }
-    NPY_END_ALLOW_THREADS;
-    Py_DECREF(arr);
     return ret;
 }
+
 
 /*
  * Implementation which is common between PyArray_Correlate and PyArray_Correlate2

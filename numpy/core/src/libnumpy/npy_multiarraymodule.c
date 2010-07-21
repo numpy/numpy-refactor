@@ -518,3 +518,65 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     Py_XDECREF(ret);
     return NULL;
 }
+
+
+/*NUMPY_API
+ * Fast Copy and Transpose
+ */
+NpyArray *
+NpyArray_CopyAndTranspose(NpyArray *arr)
+{
+    NpyArray *ret;
+    int nd;
+    npy_intp dims[2];
+    npy_intp i, j;
+    int elsize, str2;
+    char *iptr;
+    char *optr;
+
+    /* make sure it is well-behaved */
+    arr = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
+    if (arr == NULL) {
+        return NULL;
+    }
+    nd = NpyArray_NDIM(arr);
+    if (nd == 1) {
+        /* we will give in to old behavior */
+        return arr;
+    }
+    else if (nd != 2) {
+        Py_DECREF(arr);
+        NpyErr_SetString(NpyExc_ValueError,
+                        "only 2-d arrays are allowed");
+        return NULL;
+    }
+
+    /* Now construct output array */
+    dims[0] = NpyArray_DIM(arr, 1);
+    dims[1] = NpyArray_DIM(arr, 0);
+    elsize = NpyArray_ITEMSIZE(arr);
+    Npy_INCREF(arr);
+    ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
+                                NULL, NULL, 0, NPY_FALSE, NULL, arr);
+    if (ret == NULL) {
+        Py_DECREF(arr);
+        return NULL;
+    }
+
+    /* do 2-d loop */
+    NPY_BEGIN_ALLOW_THREADS;
+    optr = NpyArray_DATA(ret);
+    str2 = elsize * dims[0];
+    for (i = 0; i < dims[0]; i++) {
+        iptr = PyArray_BYTES(arr) + i * elsize;
+        for (j = 0; j < dims[1]; j++) {
+            /* optr[i,j] = iptr[j,i] */
+            memcpy(optr, iptr, elsize);
+            optr += elsize;
+            iptr += str2;
+        }
+    }
+    NPY_END_ALLOW_THREADS;
+    Npy_DECREF(arr);
+    return ret;
+}
