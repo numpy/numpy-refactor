@@ -1146,8 +1146,8 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
             newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr), 
             (PyObject *)arr);
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-    /*TODO: Npy_INCREF(PyArray_ARRAY(arr));
-      Py_DECREF(arr); */
+    _Npy_INCREF(PyArray_ARRAY(arr));
+    Py_DECREF(arr);
     assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
     return (PyObject *)ret;
 }

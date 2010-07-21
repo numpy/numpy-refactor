@@ -20,6 +20,8 @@
 
 #include "buffer.h"
 
+#include "arrayobject.h"
+
 #include "numpymemoryview.h"
 
 
@@ -1033,9 +1035,9 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
                              nd, shape, strides, view->buf,
                              flags, NULL);
     if (PyArray_Check(memoryview)) {
-        /* TODO: Unwrap array object if we can ever get here. 
-           Think about ref cnt of wrapper vs. core array */        
         PyArray_BASE_ARRAY(r) = PyArray_ARRAY(memoryview);
+        _Npy_INCREF(PyArray_ARRAY(memoryview));
+        Py_DECREF(memoryview);
     } else {
         PyArray_BASE(r) = memoryview;
     }
@@ -2467,16 +2469,8 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
 
     binary = ((sep == NULL) || (strlen(sep) == 0));
     if (binary) {
-        /* TODO: Wrap result. */
-        NpyArray* arr;
-        arr = NpyArray_FromBinaryString(data, slen, dtype, num);
-        if (arr == NULL) {
-            ret = NULL;
-        } else {
-            ret = Npy_INTERFACE(arr);
-            Py_INCREF(ret);
-            _Npy_DECREF(arr);
-        }
+        ASSIGN_TO_PYARRAY(ret,
+                          NpyArray_FromBinaryString(data, slen, dtype, num));
     } else {
         /* read from character-based string */
         size_t nread = 0;

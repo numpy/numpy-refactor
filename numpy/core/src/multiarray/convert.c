@@ -297,9 +297,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
 NPY_NO_EXPORT PyObject *
 PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 {
-    NpyArray* arr = NpyArray_NewCopy(PyArray_ARRAY(m1), fortran);
-    /* TODO: Unwrap array. */
-    return (PyObject *)arr;
+    RETURN_PYARRAY(NpyArray_NewCopy(PyArray_ARRAY(m1), fortran));
 }
 
 
@@ -311,8 +309,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
 
-    NpyArray *view = NpyArray_View(PyArray_ARRAY(self), type,
-                                   pytype);
-    /* TODO: Unwrap object. */
-    return (PyObject *)view;
+    
+    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), type,
+                                 pytype));
 }

@@ -337,7 +337,7 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
             goto finish;
         }
     }
-    /* TODO: Wrap object. */
+
     ASSIGN_TO_PYARRAY(ret, 
                       NpyArray_SearchSorted(PyArray_ARRAY(op1), 
                                             PyArray_ARRAY(ap2), side));

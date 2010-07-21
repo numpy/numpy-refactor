@@ -234,8 +234,7 @@ PyArray_GetMap(PyArrayMapIterObject *pyMit)
     /* This relies on the map iterator object telling us the shape
        of the new array in nd and dimensions.
     */
-    /* TODO: We need to wrap this object. */
-    temp = (PyArrayObject*) mit->ait->ao;
+    temp = Npy_INTERFACE(mit->ait->ao);
     Py_INCREF(PyArray_DESCR(temp));
     ret = (PyArrayObject *)
         PyArray_NewFromDescr(Py_TYPE(temp),
@@ -558,10 +557,9 @@ array_subscript(PyArrayObject *self, PyObject *op)
             value = NpyDict_Get(PyArray_DESCR(self)->fields, PyString_AsString(op));
             if (NULL != value) {
                 Py_INCREF(value->descr);  /* NpyArray_GetField steal ref. */
-                /* TODO: Wrap returned array object */
-                return (PyObject *) 
+                RETURN_PYARRAY(
                     NpyArray_GetField(PyArray_ARRAY(self), 
-                                      value->descr, value->offset);
+                                      value->descr, value->offset));
 
             }
         }
@@ -1243,7 +1241,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     if (sub == NULL) {
         goto fail;
     }
-    mit->subspace = NpyArray_IterNew(PyArray_ARRAY(sub));      /* TODO: Unwrap array */
+    mit->subspace = NpyArray_IterNew(PyArray_ARRAY(sub));
     Py_DECREF(sub);
     if (mit->subspace == NULL) {
         goto fail;

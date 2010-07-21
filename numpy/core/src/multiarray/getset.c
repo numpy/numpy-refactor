@@ -16,6 +16,7 @@
 #include "common.h"
 #include "scalartypes.h"
 #include "descriptor.h"
+#include "arrayobject.h"
 #include "getset.h"
 
 #define ASSERT_ONE_BASE(r) \
@@ -482,8 +483,7 @@ array_base_get(PyArrayObject *self)
 {
     if (NULL != PyArray_BASE_ARRAY(self)) {
         _Npy_INCREF(PyArray_BASE_ARRAY(self));
-        /* TODO: Wrap array with PyArrayObject */
-        return (PyObject *) PyArray_BASE_ARRAY(self);
+        RETURN_PYARRAY(PyArray_BASE_ARRAY(self));
     } else if (NULL != PyArray_BASE(self)) {
         Py_INCREF(PyArray_BASE(self));
         return PyArray_BASE(self);

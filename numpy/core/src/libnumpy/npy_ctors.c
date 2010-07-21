@@ -572,7 +572,6 @@ _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
     old = *des;
     *des = old->subarray->base;
     
-    /* TODO: NpyArray, NpyArray_Descr use Python tuples and other object types. Still needs to be refactored. */
     mydim = newdims + oldnd;
     numnew = old->subarray->shape_num_dims;
         

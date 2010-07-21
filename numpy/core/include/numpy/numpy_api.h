@@ -96,8 +96,6 @@ int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interface
  */
 
 /* arraytypes.c.src */
-#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interface layer */
-
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
 
@@ -208,8 +206,6 @@ NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
 
 
 /* multiarraymodule.c */
-#define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
-
 int NpyArray_MultiplyIntList(int *l1, int n);
 npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
 void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);

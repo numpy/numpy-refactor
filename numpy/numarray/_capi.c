@@ -1094,7 +1094,6 @@ NA_OutputArray(PyObject *a, NumarrayType t, int requires)
     ret = (PyArrayObject *)PyArray_Empty(PyArray_NDIM(a), PyArray_DIMS(a),
             dtype, 0);
     PyArray_FLAGS(ret) |= NPY_UPDATEIFCOPY;
-    /* TODO: Unwrap array object */
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(a);
     _Npy_INCREF(PyArray_ARRAY(a));
     PyArray_FLAGS(a) &= ~NPY_WRITEABLE;
