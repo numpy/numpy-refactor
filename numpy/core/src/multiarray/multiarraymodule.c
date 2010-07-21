@@ -506,15 +506,8 @@ NPY_NO_EXPORT PyObject *
 PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 {
     PyArrayObject *ap1, *ap2, *ret = NULL;
-    NpyArrayIterObject *it1, *it2;
-    intp i, j, l;
-    int typenum, nd, axis, matchDim;
-    intp is1, is2, os;
-    char *op;
-    intp dimensions[MAX_DIMS];
-    PyArray_DotFunc *dot;
+    int typenum;
     PyArray_Descr *typec;
-    NPY_BEGIN_THREADS_DEF;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
@@ -537,88 +530,13 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
         Py_DECREF(ap2);
         return (PyObject *)ret;
     }
-    l = PyArray_DIM(ap1, PyArray_NDIM(ap1) - 1);
-    if (PyArray_NDIM(ap2) > 1) {
-        matchDim = PyArray_NDIM(ap2) - 2;
-    }
-    else {
-        matchDim = 0;
-    }
-    if (PyArray_DIM(ap2, matchDim) != l) {
-        PyErr_SetString(PyExc_ValueError, "objects are not aligned");
-        goto fail;
-    }
-    nd = PyArray_NDIM(ap1) + PyArray_NDIM(ap2) - 2;
-    if (nd > NPY_MAXDIMS) {
-        PyErr_SetString(PyExc_ValueError, "dot: too many dimensions in result");
-        goto fail;
-    }
-    j = 0;
-    for (i = 0; i < PyArray_NDIM(ap1) - 1; i++) {
-        dimensions[j++] = PyArray_DIM(ap1, i);
-    }
-    for (i = 0; i < PyArray_NDIM(ap2) - 2; i++) {
-        dimensions[j++] = PyArray_DIM(ap2, i);
-    }
-    if(PyArray_NDIM(ap2) > 1) {
-        dimensions[j++] = PyArray_DIM(ap2, PyArray_NDIM(ap2)-1);
-    }
-    /*
-      fprintf(stderr, "nd=%d dimensions=", nd);
-      for(i=0; i<j; i++)
-      fprintf(stderr, "%d ", dimensions[i]);
-      fprintf(stderr, "\n");
-    */
 
-    is1 = PyArray_STRIDE(ap1, PyArray_NDIM(ap1)-1); is2 = PyArray_STRIDE(ap2, matchDim);
-    /* Choose which subtype to return */
-    ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
-    if (ret == NULL) {
-        goto fail;
-    }
-    /* Ensure that multiarray.dot(<Nx0>,<0xM>) -> zeros((N,M)) */
-    if (PyArray_SIZE(ap1) == 0 && PyArray_SIZE(ap2) == 0) {
-        memset(PyArray_DATA(ret), 0, PyArray_NBYTES(ret));
-    }
-    else {
-        /* Ensure that multiarray.dot([],[]) -> 0 */
-        memset(PyArray_DATA(ret), 0, PyArray_ITEMSIZE(ret));
-    }
-
-    dot = PyArray_DESCR(ret)->f->dotfunc;
-    if (dot == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "dot not available for this type");
-        goto fail;
-    }
-
-    op = PyArray_BYTES(ret); os = PyArray_ITEMSIZE(ret);
-    axis = PyArray_NDIM(ap1)-1;
-    it1 = NpyArray_IterAllButAxis(PyArray_ARRAY(ap1), &axis);
-    it2 = NpyArray_IterAllButAxis(PyArray_ARRAY(ap2), &matchDim);
-    NPY_BEGIN_THREADS_DESCR(PyArray_DESCR(ap2));
-    while (1) {
-        while (NpyArray_ITER_NOTDONE(it2)) {
-            dot(NpyArray_ITER_DATA(it1), is1, NpyArray_ITER_DATA(it2), is2, 
-                op, l, ret);
-            op += os;
-            NpyArray_ITER_NEXT(it2);
-        }
-        NpyArray_ITER_NEXT(it1);
-        if (it1->index >= it1->size) {
-            break;
-        }
-        NpyArray_ITER_RESET(it2);
-    }
-    NPY_END_THREADS_DESCR(PyArray_DESCR(ap2));
-    _Npy_DECREF(it1);
-    _Npy_DECREF(it2);
-    if (PyErr_Occurred()) {
-        /* only for OBJECT arrays */
-        goto fail;
-    }
+    /* TODO: Wrap return value. */
+    ret = NpyArray_MatrixProduct(PyArray_ARRAY(ap1), 
+                                 PyArray_ARRAY(ap2), typenum);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
+
     return (PyObject *)ret;
 
  fail:
