@@ -431,11 +431,9 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 {
     NpyArray *ret = NULL;
     NpyArrayIterObject *it1, *it2;
-    npy_intp i, j, l;
+    npy_intp i, j, l, is1, is2, os, dimensions[NPY_MAXDIMS];
     int nd, axis, matchDim;
-    npy_intp is1, is2, os;
     char *op;
-    npy_intp dimensions[NPY_MAXDIMS];
     NpyArray_DotFunc *dot;
     NPY_BEGIN_THREADS_DEF;
 
@@ -514,7 +512,7 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     }
     return ret;
 
- fail:
+fail:
     Py_XDECREF(ret);
     return NULL;
 }
@@ -527,12 +525,9 @@ NpyArray *
 NpyArray_CopyAndTranspose(NpyArray *arr)
 {
     NpyArray *ret;
-    int nd;
-    npy_intp dims[2];
-    npy_intp i, j;
-    int elsize, str2;
-    char *iptr;
-    char *optr;
+    int nd, elsize, str2;
+    npy_intp dims[2], i, j;
+    char *iptr, *optr;
 
     /* make sure it is well-behaved */
     arr = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
@@ -542,12 +537,12 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     nd = NpyArray_NDIM(arr);
     if (nd == 1) {
         /* we will give in to old behavior */
+        Npy_DECREF(arr);
         return arr;
     }
     else if (nd != 2) {
-        Py_DECREF(arr);
-        NpyErr_SetString(NpyExc_ValueError,
-                        "only 2-d arrays are allowed");
+        Npy_DECREF(arr);
+        NpyErr_SetString(NpyExc_ValueError, "only 2-d arrays are allowed");
         return NULL;
     }
 
@@ -559,7 +554,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
                                 NULL, NULL, 0, NPY_FALSE, NULL, arr);
     if (ret == NULL) {
-        Py_DECREF(arr);
+        Npy_DECREF(arr);
         return NULL;
     }
 
@@ -578,5 +573,6 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     }
     NPY_END_ALLOW_THREADS;
     Npy_DECREF(arr);
+
     return ret;
 }

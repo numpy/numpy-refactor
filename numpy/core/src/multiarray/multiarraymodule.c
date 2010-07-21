@@ -552,7 +552,7 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 NPY_NO_EXPORT PyObject *
 PyArray_CopyAndTranspose(PyObject *op)
 {
-    PyObject *ret, *arr;
+    PyArrayObject *ret, *arr;
 
     /* make sure it is well-behaved */
     arr = PyArray_FromAny(op, NULL, 0, 0, CARRAY, NULL);
@@ -561,11 +561,11 @@ PyArray_CopyAndTranspose(PyObject *op)
     }
 
     ret = NpyArray_CopyAndTranspose(PyArray_ARRAY(arr));
+    Py_DECREF(arr);
     if (ret == NULL) {
-        Py_DECREF(arr);
         return NULL;
     }
-    return ret;
+    return (PyObject *)ret;
 }
 
 
