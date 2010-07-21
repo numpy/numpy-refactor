@@ -536,7 +536,6 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
                                  PyArray_ARRAY(ap2), typenum);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
-
     return (PyObject *)ret;
 
  fail:

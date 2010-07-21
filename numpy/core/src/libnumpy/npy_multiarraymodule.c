@@ -525,7 +525,7 @@ NpyArray *
 NpyArray_CopyAndTranspose(NpyArray *arr)
 {
     NpyArray *ret;
-    int nd, elsize, str2;
+    int nd, eltsize, stride2;
     npy_intp dims[2], i, j;
     char *iptr, *optr;
 
@@ -549,7 +549,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     /* Now construct output array */
     dims[0] = NpyArray_DIM(arr, 1);
     dims[1] = NpyArray_DIM(arr, 0);
-    elsize = NpyArray_ITEMSIZE(arr);
+    eltsize = NpyArray_ITEMSIZE(arr);
     Npy_INCREF(arr);
     ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
                                 NULL, NULL, 0, NPY_FALSE, NULL, arr);
@@ -561,14 +561,14 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     /* do 2-d loop */
     NPY_BEGIN_ALLOW_THREADS;
     optr = NpyArray_DATA(ret);
-    str2 = elsize * dims[0];
+    stride2 = eltsize * dims[0];
     for (i = 0; i < dims[0]; i++) {
-        iptr = PyArray_BYTES(arr) + i * elsize;
+        iptr = PyArray_BYTES(arr) + i * eltsize;
         for (j = 0; j < dims[1]; j++) {
             /* optr[i,j] = iptr[j,i] */
-            memcpy(optr, iptr, elsize);
-            optr += elsize;
-            iptr += str2;
+            memcpy(optr, iptr, eltsize);
+            optr += eltsize;
+            iptr += stride2;
         }
     }
     NPY_END_ALLOW_THREADS;
