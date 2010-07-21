@@ -122,38 +122,3 @@ fail:
 }
 
 
-
-
-NpyArray *
-NpyArray_ArgMin(NpyArray *ap, int axis, NpyArray *out)
-{
-    PyObject *obj;
-    NpyArray *new, *ret;
-    
-    /* TODO: Code still uses PyInt_FromLong and PyNumber_Subtract.  
-       Either need to move this function to the interface layer or 
-       find a solution for these. */
-    if (NpyArray_ISFLEXIBLE(ap)) {
-        NpyErr_SetString(NpyExc_TypeError,
-                         "argmax is unsupported for this type");
-        return NULL;
-    }
-    else if (NpyArray_ISUNSIGNED(ap)) {
-        obj = PyInt_FromLong((long) -1);
-    }
-    else if (NpyArray_TYPE(ap) == NPY_BOOL) {
-        obj = PyInt_FromLong((long) 1);
-    }
-    else {
-        obj = PyInt_FromLong((long) 0);
-    }
-    new = NpyArray_EnsureAnyArray(PyNumber_Subtract(obj, (PyObject *)ap));
-    Npy_Interface_DECREF(obj);
-    if (new == NULL) {
-        return NULL;
-    }
-    ret = NpyArray_ArgMax(new, axis, out);
-    _Npy_DECREF(new);
-    return ret;
-}
-

@@ -219,7 +219,7 @@ PyArray_As2D(PyObject **op, char ***ptr, int *d1, int *d2, int typecode)
 NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
-    return NpyArray_Free((NpyArray *)op, ptr);
+    return NpyArray_Free(PyArray_ARRAY(op), ptr);
 }
 
 

@@ -311,7 +311,8 @@ PyArray_SetMap(PyArrayMapIterObject *pyMit, PyObject *op)
     /* Be sure values array is "broadcastable"
        to shape of mit->dimensions, mit->nd */
 
-    if ((it = NpyArray_BroadcastToShape((NpyArray *)arr, mit->dimensions, mit->nd))==NULL) {    /* TODO: Unwrap arr */
+    if ((it = NpyArray_BroadcastToShape(PyArray_ARRAY(arr), mit->dimensions, 
+                                        mit->nd))==NULL) { 
         Py_DECREF(arr);
         return -1;
     }
@@ -1147,7 +1148,7 @@ _convert_obj(PyObject *obj, NpyArrayIterObject **iter)
         if (arr == NULL) {
             return -1;
         }
-        *iter = NpyArray_IterNew((NpyArray *)arr); /* TODO: Unwrap array */
+        *iter = NpyArray_IterNew(PyArray_ARRAY(arr));
         Py_DECREF(arr);
         if (*iter == NULL) {
             return -1;

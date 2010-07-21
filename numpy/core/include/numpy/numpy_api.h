@@ -125,7 +125,6 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-#define NpyArray_EnsureAnyArray(op)  (NpyArray *)PyArray_EnsureAnyArray(op)
 size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
                            int inflag, int *objflags);
 NpyArray_Descr *
@@ -233,9 +232,9 @@ NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
         PyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
         max_depth, NPY_DEFAULT, NULL)
 
-#define NpyArray_ContiguousFromArray(op, type)                          \
-    ((NpyArray*) NpyArray_FromArray(op, NpyArray_DescrFromType(type),   \
-                                    NPY_DEFAULT))
+#define NpyArray_ContiguousFromArray(op, type)                  \
+    NpyArray_FromArray(op, NpyArray_DescrFromType(type),        \
+                       NPY_DEFAULT)
 
 #define NpyArray_EquivArrTypes(a1, a2)                                         \
         NpyArray_EquivTypes(NpyArray_DESCR(a1), NpyArray_DESCR(a2))
@@ -246,7 +245,6 @@ NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
  */
 npy_intp NpyArray_Size(NpyArray *op);
 NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
-NpyArray *NpyArray_ArgMin(NpyArray *op, int axis, NpyArray *out);
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);

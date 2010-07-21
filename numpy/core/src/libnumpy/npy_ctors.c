@@ -1175,12 +1175,11 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         if ((flags & NPY_ENSUREARRAY)) {
             ensureArray = NPY_TRUE;
         }
-        ret = (NpyArray *)
-        NpyArray_NewFromDescr(newtype,
-                              arr->nd, arr->dimensions,
-                              NULL, NULL,
-                              flags & NPY_FORTRAN,
-                              ensureArray, NULL, Npy_INTERFACE(arr));
+        ret = NpyArray_NewFromDescr(newtype,
+                                    arr->nd, arr->dimensions,
+                                    NULL, NULL,
+                                    flags & NPY_FORTRAN,
+                                    ensureArray, NULL, Npy_INTERFACE(arr));
         if (ret == NULL) {
             return NULL;
         }
@@ -1320,10 +1319,10 @@ static NpyArray *array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype, npy_intp
         }
         num = numbytes / dtype->elsize;
     }
-    r = (NpyArray *)NpyArray_NewFromDescr(dtype,
-                                          1, &num,
-                                          NULL, NULL,
-                                          0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_NewFromDescr(dtype,
+                              1, &num,
+                              NULL, NULL,
+                              0, NPY_TRUE, NULL, NULL);
     if (r == NULL) {
         return NULL;
     }

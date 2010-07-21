@@ -713,7 +713,9 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
     /* Broad-cast the arrays to a common shape */
-    mit = NpyArray_MultiIterFromArrays(NULL, 0, 2, self, other);
+    mit = NpyArray_MultiIterFromArrays(NULL, 0, 2, 
+                                       PyArray_ARRAY(self), 
+                                       PyArray_ARRAY(other));
     Py_DECREF(self);
     Py_DECREF(other);
     if (mit == NULL) {

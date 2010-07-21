@@ -400,7 +400,7 @@ PyArray_IterAllButAxis(PyObject *obj, int *inaxis)
         PyErr_BadInternalCall();
         return NULL;
     }
-    iter = NpyArray_IterAllButAxis((NpyArray*) obj, inaxis);
+    iter = NpyArray_IterAllButAxis(PyArray_ARRAY(obj), inaxis);
     
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
@@ -1073,7 +1073,7 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
         if (r == NULL) {
             return NULL;
         }
-        if (_flat_copyinto((NpyArray*)r, (NpyArray *)it->ao,
+        if (_flat_copyinto(PyArray_ARRAY(r), it->ao,
                            PyArray_CORDER) < 0) {
             Py_DECREF(r);
             return NULL;
@@ -1288,10 +1288,16 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
         }
         else {
             if (i < n) {
-                arrays[i] = (NpyArray*) PyArray_FROM_O(mps[i]);
+                PyObject *tmp = PyArray_FROM_O(mps[i]);
+                arrays[i] = PyArray_ARRAY(tmp);
+                _Npy_INCREF(arrays[i]);
+                Py_DECREF(tmp);
             } else {
                 PyObject* arg = va_arg(va, PyObject*);
-                arrays[i] = (NpyArray*) PyArray_FROM_O(arg);
+                PyObject *tmp = PyArray_FROM_O(arg);
+                arrays[i] = PyArray_ARRAY(tmp);
+                _Npy_INCREF(arrays[i]);
+                Py_DECREF(tmp);
             }
             if (arrays[i] == NULL) {
                 err = 1;
@@ -1316,7 +1322,7 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
 
   finish:
     for (i=0; i<ntot; i++) {
-        Py_XDECREF(arrays[i]);
+        _Npy_XDECREF(arrays[i]);
     }
     return (PyObject*) result;
 }
