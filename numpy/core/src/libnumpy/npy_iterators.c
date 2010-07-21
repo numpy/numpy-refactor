@@ -433,10 +433,6 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         }
         else {
             current = va_arg(va, NpyArray *);
-            if (!PyArray_Check(current)) {
-                err = 1;
-                break;
-            }
         }
         multi->iters[i] = NpyArray_IterNew(current);
     }

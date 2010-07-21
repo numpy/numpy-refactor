@@ -413,7 +413,7 @@ STRING_getitem(char *ip, NpyArray *ap)
 {
     /* Will eliminate NULLs at the end */
     char *ptr;
-    int size = PyArray_ITEMSIZE(ap);
+    int size = NpyArray_ITEMSIZE(ap);
 
     ptr = ip + size - 1;
     while (*ptr-- == '\0' && size > 0) {
