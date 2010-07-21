@@ -317,7 +317,7 @@ PyArray_SetMap(PyArrayMapIterObject *pyMit, PyObject *op)
     }
 
     index = mit->size;
-    swap = (PyArray_ISNOTSWAPPED(mit->ait->ao) !=
+    swap = (NpyArray_ISNOTSWAPPED(mit->ait->ao) !=
             (PyArray_ISNOTSWAPPED(arr)));
     copyswap = PyArray_DESCR(arr)->f->copyswap;
     NpyArray_MapIterReset(mit);

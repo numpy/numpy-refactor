@@ -115,8 +115,8 @@ array_strides_set(PyArrayObject *self, PyObject *obj)
         goto fail;
     }
     new = PyArray_BASE_ARRAY(self);
-    while(NULL != PyArray_BASE_ARRAY(new)) {
-        new = PyArray_BASE_ARRAY(new);
+    while(NULL != NpyArray_BASE_ARRAY(new)) {
+        new = NpyArray_BASE_ARRAY(new);
     }
     /*
      * Get the available memory through the buffer interface on

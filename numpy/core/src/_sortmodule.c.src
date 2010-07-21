@@ -631,9 +631,9 @@ static void
 }
 
 static int
-@TYPE@_mergesort(@type@ *start, npy_intp num, PyArrayObject *arr)
+@TYPE@_mergesort(@type@ *start, npy_intp num, NpyArray *arr)
 {
-    const size_t elsize = PyArray_ITEMSIZE(arr);
+    const size_t elsize = NpyArray_ITEMSIZE(arr);
     const size_t len = elsize / sizeof(@type@);
     @type@ *pl, *pr, *pw, *vp;
     int err = 0;
@@ -662,10 +662,10 @@ fail_0:
 }
 
 static int
-@TYPE@_quicksort(@type@ *start, npy_intp num, PyArrayObject *arr)
+@TYPE@_quicksort(@type@ *start, npy_intp num, NpyArray *arr)
 {
-    const size_t len = PyArray_ITEMSIZE(arr)/sizeof(@type@);
-    @type@ *vp = malloc(PyArray_ITEMSIZE(arr));
+    const size_t len = NpyArray_ITEMSIZE(arr)/sizeof(@type@);
+    @type@ *vp = malloc(NpyArray_ITEMSIZE(arr));
     @type@ *pl = start;
     @type@ *pr = start + (num - 1)*len;
     @type@ *stack[PYA_QS_STACK], **sptr = stack, *pm, *pi, *pj, *pk;
@@ -729,10 +729,10 @@ static int
 
 
 static int
-@TYPE@_heapsort(@type@ *start, npy_intp n, PyArrayObject *arr)
+@TYPE@_heapsort(@type@ *start, npy_intp n, NpyArray *arr)
 {
-    size_t len = PyArray_ITEMSIZE(arr)/sizeof(@type@);
-    @type@ *tmp = malloc(PyArray_ITEMSIZE(arr));
+    size_t len = NpyArray_ITEMSIZE(arr)/sizeof(@type@);
+    @type@ *tmp = malloc(NpyArray_ITEMSIZE(arr));
     @type@ *a = start - len;
     npy_intp i,j,l;
 
@@ -778,9 +778,9 @@ static int
 
 
 static int
-@TYPE@_aheapsort(@type@ *v, npy_intp *tosort, npy_intp n, PyArrayObject *arr)
+@TYPE@_aheapsort(@type@ *v, npy_intp *tosort, npy_intp n, NpyArray *arr)
 {
-    size_t len = PyArray_ITEMSIZE(arr)/sizeof(@type@);
+    size_t len = NpyArray_ITEMSIZE(arr)/sizeof(@type@);
     npy_intp *a, i,j,l, tmp;
 
     /* The array needs to be offset by one for heapsort indexing */
@@ -827,9 +827,9 @@ static int
 
 
 static int
-@TYPE@_aquicksort(@type@ *v, npy_intp* tosort, npy_intp num, PyArrayObject *arr)
+@TYPE@_aquicksort(@type@ *v, npy_intp* tosort, npy_intp num, NpyArray *arr)
 {
-    size_t len = PyArray_ITEMSIZE(arr)/sizeof(@type@);
+    size_t len = NpyArray_ITEMSIZE(arr)/sizeof(@type@);
     @type@ *vp;
     npy_intp *pl = tosort;
     npy_intp *pr = tosort + num - 1;
@@ -937,9 +937,9 @@ static void
 
 
 static int
-@TYPE@_amergesort(@type@ *v, npy_intp *tosort, npy_intp num, PyArrayObject *arr)
+@TYPE@_amergesort(@type@ *v, npy_intp *tosort, npy_intp num, NpyArray *arr)
 {
-    const size_t elsize = PyArray_ITEMSIZE(arr);
+    const size_t elsize = NpyArray_ITEMSIZE(arr);
     const size_t len = elsize / sizeof(@type@);
     npy_intp *pl, *pr, *pw;
 

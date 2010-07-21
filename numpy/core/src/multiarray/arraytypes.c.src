@@ -473,13 +473,13 @@ STRING_setitem(PyObject *op, char *ov, NpyArray *ap)
         Py_DECREF(temp);
         return -1;
     }
-    memcpy(ov, ptr, MIN(PyArray_ITEMSIZE(ap),len));
+    memcpy(ov, ptr, MIN(NpyArray_ITEMSIZE(ap),len));
     /*
      * If string lenth is smaller than room in array
      * Then fill the rest of the element size with NULL
      */
-    if (PyArray_ITEMSIZE(ap) > len) {
-        memset(ov + len, 0, (PyArray_ITEMSIZE(ap) - len));
+    if (NpyArray_ITEMSIZE(ap) > len) {
+        memset(ov + len, 0, (NpyArray_ITEMSIZE(ap) - len));
     }
     Py_DECREF(temp);
     return 0;
@@ -493,7 +493,7 @@ PyObject *
 OBJECT_getitem(char *ip, NpyArray *ap)
 {
     /* TODO: We might be able to get away with just the "else" clause now */
-    if (!ap || PyArray_ISALIGNED(ap)) {
+    if (!ap || NpyArray_ISALIGNED(ap)) {
         if (*(PyObject **)ip == NULL) {
             Py_INCREF(Py_None);
             return Py_None;
@@ -523,7 +523,7 @@ OBJECT_setitem(PyObject *op, char *ov, NpyArray *ap)
 {
     Py_INCREF(op);
     /* TODO: We might be able to get away with just the "else" clause now */
-    if (!ap || PyArray_ISALIGNED(ap)) {
+    if (!ap || NpyArray_ISALIGNED(ap)) {
         Py_XDECREF(*(PyObject **)ov);
         *(PyObject **)ov = op;
     }
@@ -545,7 +545,7 @@ VOID_getitem(char *ip, NpyArray *ap)
     PyArray_Descr* descr;
     int itemsize;
 
-    descr = PyArray_DESCR(ap);
+    descr = NpyArray_DESCR(ap);
     if (NULL != descr->names) {
         char **names;
         int i, n;
@@ -561,27 +561,27 @@ VOID_getitem(char *ip, NpyArray *ap)
         for (n=0; NULL != names[n]; n++) ;
         
         ret = PyTuple_New(n);
-        savedflags = PyArray_FLAGS(ap);
+        savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
             value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
             if (NULL == value) {
                 Py_DECREF(ret);
-                PyArray_DESCR(ap) = descr;
+                NpyArray_DESCR(ap) = descr;
                 return NULL;
             }
-            PyArray_DESCR(ap) = value->descr;
+            NpyArray_DESCR(ap) = value->descr;
             /* update alignment based on offset */
             if ((value->descr->alignment > 1)
                     && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
-                PyArray_FLAGS(ap) &= ~ALIGNED;
+                NpyArray_FLAGS(ap) &= ~ALIGNED;
             }
             else {
-                PyArray_FLAGS(ap) |= ALIGNED;
+                NpyArray_FLAGS(ap) |= ALIGNED;
             }
             PyTuple_SET_ITEM(ret, i, value->descr->f->getitem(ip +  value->offset, ap));
-            PyArray_FLAGS(ap) = savedflags;
+            NpyArray_FLAGS(ap) = savedflags;
         }
-        PyArray_DESCR(ap) = descr;
+        NpyArray_DESCR(ap) = descr;
         return ret;
     }
 
@@ -593,12 +593,12 @@ VOID_getitem(char *ip, NpyArray *ap)
         ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
                 descr->subarray->base, descr->subarray->shape_num_dims, 
                 descr->subarray->shape_dims,
-                NULL, ip, PyArray_FLAGS(ap), NULL);
+                NULL, ip, NpyArray_FLAGS(ap), NULL);
         if (!ret) {
             return NULL;
         }
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(ap);
-        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        PyArray_BASE_ARRAY(ret) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags(ret, UPDATE_ALL);
         return (PyObject *)ret;
@@ -611,7 +611,7 @@ finish:
                 "tried to get void-array with object members as buffer.");
         return NULL;
     }
-    itemsize = PyArray_ITEMSIZE(ap);
+    itemsize = NpyArray_ITEMSIZE(ap);
 #if defined(NPY_PY3K)
     /*
      * Return a byte array; there are no plain buffer objects on Py3
@@ -624,10 +624,10 @@ finish:
         descr = PyArray_DescrNewFromType(PyArray_BYTE);
         u = PyArray_NewFromDescr(&PyArray_Type, descr, 1, dims, strides,
                                  ip,
-                                 PyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
+                                 NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
                                  NULL);
-        PyArray_BASE_ARRAY(u) = PyArray_ARRAY(ap);
-        _Npy_INCREF(PyArray_BASE_ARRAY(u));
+        PyArray_BASE_ARRAY(u) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(u) || NULL == PyArray_BASE(u));
     }
 #else
@@ -635,7 +635,7 @@ finish:
      * default is to return buffer object pointing to
      * current item a view of it
      */
-    if (PyArray_ISWRITEABLE(ap)) {
+    if (NpyArray_ISWRITEABLE(ap)) {
         u = PyBuffer_FromReadWriteMemory(ip, itemsize);
     }
     else {
@@ -658,10 +658,10 @@ int
 VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
 {
     PyArray_Descr* descr;
-    int itemsize=PyArray_ITEMSIZE(ap);
+    int itemsize=NpyArray_ITEMSIZE(ap);
     int res;
 
-    descr = PyArray_DESCR(ap);
+    descr = NpyArray_DESCR(ap);
     if (descr->names && PyTuple_Check(op)) {
         char **names;
         int i, n;
@@ -677,25 +677,25 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
                     "size of tuple must match number of fields.");
             return -1;
         }
-        savedflags = PyArray_FLAGS(ap);
+        savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
             value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
-            PyArray_DESCR(ap) = value->descr;
+            NpyArray_DESCR(ap) = value->descr;
             /* remember to update alignment flags */
             if ((value->descr->alignment > 1)
                     && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
-                PyArray_FLAGS(ap) &= ~ALIGNED;
+                NpyArray_FLAGS(ap) &= ~ALIGNED;
             }
             else {
-                PyArray_FLAGS(ap) |= ALIGNED;
+                NpyArray_FLAGS(ap) |= ALIGNED;
             }
             res = value->descr->f->setitem(PyTuple_GET_ITEM(op, i), ip+value->offset, ap);
-            PyArray_FLAGS(ap) = savedflags;
+            NpyArray_FLAGS(ap) = savedflags;
             if (res < 0) {
                 break;
             }
         }
-        PyArray_DESCR(ap) = descr;
+        NpyArray_DESCR(ap) = descr;
         return res;
     }
 
@@ -706,12 +706,12 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
         ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
                 descr->subarray->base, descr->subarray->shape_num_dims, 
                 descr->subarray->shape_dims,
-                NULL, ip, PyArray_FLAGS(ap), NULL);
+                NULL, ip, NpyArray_FLAGS(ap), NULL);
         if (!ret) {
             return -1;
         }
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(ap);
-        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        PyArray_BASE_ARRAY(ret) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
         res = PyArray_CopyObject((PyArrayObject *)ret, op);
@@ -1061,13 +1061,13 @@ PyObject *
 DATETIME_getitem(char *ip, NpyArray *ap) {
     datetime t1;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((datetime *)ip);
-        return PyDateTime_FromInt64((datetime)t1, PyArray_DESCR(ap));
+        return PyDateTime_FromInt64((datetime)t1, NpyArray_DESCR(ap));
     }
     else {
-        PyArray_DESCR(ap)->f->copyswap(&t1, ip, !PyArray_ISNOTSWAPPED(ap), ap);
-        return PyDateTime_FromInt64((datetime)t1, PyArray_DESCR(ap));
+        NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
+        return PyDateTime_FromInt64((datetime)t1, NpyArray_DESCR(ap));
     }
 }
 
@@ -1076,13 +1076,13 @@ PyObject *
 TIMEDELTA_getitem(char *ip, NpyArray *ap) {
     timedelta t1;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((timedelta *)ip);
-        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_DESCR(ap));
+        return PyTimeDelta_FromInt64((timedelta)t1, NpyArray_DESCR(ap));
     }
     else {
-        PyArray_DESCR(ap)->f->copyswap(&t1, ip, !PyArray_ISNOTSWAPPED(ap), ap);
-        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_DESCR(ap));
+        NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
+        return PyTimeDelta_FromInt64((timedelta)t1, NpyArray_DESCR(ap));
     }
 }
 
@@ -1123,7 +1123,7 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
         res = PyObject_CallMethod(module, "datetime_from_string", "O", op);
         Py_DECREF(module);
         if (res == NULL) { return -1; }
-        temp = PyDateTime_AsInt64(res, PyArray_DESCR(ap));
+        temp = PyDateTime_AsInt64(res, NpyArray_DESCR(ap));
         Py_DECREF(res);
         if (PyErr_Occurred()) return -1;
     }
@@ -1134,7 +1134,7 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyDateTime_AsInt64(op, PyArray_DESCR(ap));
+        temp = PyDateTime_AsInt64(op, NpyArray_DESCR(ap));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1143,10 +1143,10 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
         }
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap))
+    if (ap == NULL || NpyArray_ISBEHAVED(ap))
         *((datetime *)ov)=temp;
     else {
-        PyArray_DESCR(ap)->f->copyswap(ov, &temp, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(ov, &temp, !NpyArray_ISNOTSWAPPED(ap), ap);
     }
     return 0;
 }
@@ -1174,7 +1174,7 @@ TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyTimeDelta_AsInt64(op, PyArray_DESCR(ap));
+        temp = PyTimeDelta_AsInt64(op, NpyArray_DESCR(ap));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1183,10 +1183,10 @@ TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap) {
         }
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap))
+    if (ap == NULL || NpyArray_ISBEHAVED(ap))
         *((timedelta *)ov)=temp;
     else {
-        PyArray_DESCR(ap)->f->copyswap(ov, &temp, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(ov, &temp, !NpyArray_ISNOTSWAPPED(ap), ap);
     }
     return 0;
 }

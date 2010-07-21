@@ -356,7 +356,13 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyArray_DECREF(a) PyArray_DECREF(Npy_INTERFACE(a))
 #define NpyArray_XDECREF(a) PyArray_XDECREF( a ? Npy_INTERFACE(a) : NULL)
 
-#define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
+#define NpyArray_XDECREF_ERR(obj) \
+        if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {                 \
+            NpyArray_FLAGS(NpyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
+            NpyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                    \
+        }                                                                     \
+        _Npy_XDECREF(obj)
+
 #define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
 #define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 

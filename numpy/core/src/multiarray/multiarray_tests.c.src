@@ -62,7 +62,7 @@ static int copy_object(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *
     npy_intp odims[NPY_MAXDIMS];
     PyArrayObject *aout;
     PyArray_CopySwapFunc *copyswap = itx->ao->descr->f->copyswap;
-    npy_int itemsize = PyArray_ITEMSIZE(itx->ao);
+    npy_int itemsize = NpyArray_ITEMSIZE(itx->ao);
 
     /*
      * For each point in itx, copy the current neighborhood into an array which

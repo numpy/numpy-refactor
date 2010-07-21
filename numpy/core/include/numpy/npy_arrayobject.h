@@ -43,7 +43,7 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_ISFORTRAN(m) (NpyArray_CHKFLAGS(m, NPY_FORTRAN) &&     \
                                (NpyArray_NDIM(m) > 1))
 
-#define NpyArray_FORTRAN_IF(m) ((PyArray_CHKFLAGS(m, NPY_FORTRAN) ?     \
+#define NpyArray_FORTRAN_IF(m) ((NpyArray_CHKFLAGS(m, NPY_FORTRAN) ?     \
                                  NPY_FORTRAN : 0))
 
 #define NpyArray_DATA(obj) ((void *)((obj)->data))
