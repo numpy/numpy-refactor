@@ -44,6 +44,7 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 #include "scalartypes.h"
 #include "numpymemoryview.h"
 
+
 /*NUMPY_API
  * Get Priority from object
  */
@@ -68,6 +69,7 @@ PyArray_GetPriority(PyObject *obj, double default_)
     return priority;
 }
 
+
 /*NUMPY_API
  * Multiply a List of ints
  */
@@ -76,6 +78,7 @@ PyArray_MultiplyIntList(int *l1, int n)
 {
     return NpyArray_MultiplyIntList(l1, n);
 }
+
 
 /*NUMPY_API
  * Multiply a List
@@ -96,6 +99,7 @@ PyArray_OverflowMultiplyList(intp *l1, int n)
     return NpyArray_OverflowMultiplyList(l1, n);
 }
 
+
 /*NUMPY_API
  * Produce a pointer into array
  */
@@ -105,6 +109,7 @@ PyArray_GetPtr(PyArrayObject *obj, intp* ind)
     /* TODO: Unwrap array object. */
     return NpyArray_GetPtr(PyArray_ARRAY(obj), ind);
 }
+
 
 /*NUMPY_API
  * Compare Lists
@@ -190,6 +195,7 @@ PyArray_As1D(PyObject **op, char **ptr, int *d1, int typecode)
     return 0;
 }
 
+
 /*NUMPY_API
  * Convert to a 2D C-array
  */
@@ -263,6 +269,7 @@ _swap_and_concat(PyObject *op, int axis, int n)
     Py_DECREF(newtup);
     return NULL;
 }
+
 
 /*NUMPY_API
  * Concatenate
@@ -545,6 +552,7 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
     return NULL;
 }
 
+
 /*NUMPY_API
  * Fast Copy and Transpose
  */
@@ -569,7 +577,7 @@ PyArray_CopyAndTranspose(PyObject *op)
 
 
 /*NUMPY_API
- * correlate(a1,a2,mode)
+ * correlate(a1, a2, mode)
  *
  * This function computes the usual correlation (correlate(a1, a2) !=
  * correlate(a2, a1), and conjugate the second argument for complex inputs
@@ -609,7 +617,7 @@ fail_clean_ap1:
 
 
 /*NUMPY_API
- * Numeric.correlate(a1,a2,mode)
+ * Numeric.correlate(a1, a2, mode)
  */
 NPY_NO_EXPORT PyObject *
 PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
@@ -662,6 +670,7 @@ array_putmask(PyObject *NPY_UNUSED(module), PyObject *args, PyObject *kwds)
     return PyArray_PutMask((PyArrayObject *)array, values, mask);
 }
 
+
 /*NUMPY_API
  * Convert an object to FORTRAN / C / ANY
  */
@@ -704,13 +713,13 @@ PyArray_OrderConverter(PyObject *object, NPY_ORDER *val)
             *val = PyArray_ANYORDER;
         }
         else {
-            PyErr_SetString(PyExc_TypeError,
-                            "order not understood");
+            PyErr_SetString(PyExc_TypeError, "order not understood");
             return PY_FAIL;
         }
     }
     return PY_SUCCEED;
 }
+
 
 /*NUMPY_API
  * Convert an object to NPY_RAISE / NPY_CLIP / NPY_WRAP
@@ -734,8 +743,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
             *val = NPY_RAISE;
         }
         else {
-            PyErr_SetString(PyExc_TypeError,
-                            "clipmode not understood");
+            PyErr_SetString(PyExc_TypeError, "clipmode not understood");
             return PY_FAIL;
         }
     }
@@ -752,8 +760,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
         if (number == -1 && PyErr_Occurred()) {
             goto fail;
         }
-        if (number <= (int) NPY_RAISE
-                && number >= (int) NPY_CLIP) {
+        if (number <= (int) NPY_RAISE && number >= (int) NPY_CLIP) {
             *val = (NPY_CLIPMODE) number;
         }
         else {
@@ -763,8 +770,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
     return PY_SUCCEED;
 
  fail:
-    PyErr_SetString(PyExc_TypeError,
-                    "clipmode not understood");
+    PyErr_SetString(PyExc_TypeError, "clipmode not understood");
     return PY_FAIL;
 }
 
@@ -782,7 +788,6 @@ PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 }
 
 
-
 /*NUMPY_API*/
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypenums(int typenum1, int typenum2)
@@ -798,7 +803,7 @@ PyArray_EquivTypenums(int typenum1, int typenum2)
     return ret;
 }
 
-/*** END C-API FUNCTIONS **/
+/*** END C-API FUNCTIONS (actually not quite, there are a few more below) ***/
 
 static PyObject *
 _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
@@ -1300,6 +1305,7 @@ array__get_ndarray_c_version(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObje
     return PyInt_FromLong( (long) PyArray_GetNDArrayCVersion() );
 }
 
+
 /*NUMPY_API
 */
 NPY_NO_EXPORT int
@@ -1320,6 +1326,7 @@ PyArray_GetEndianness(void)
         return NPY_CPU_UNKNOWN_ENDIAN;
     }
 }
+
 
 static PyObject *
 array__reconstruct(PyObject *NPY_UNUSED(dummy), PyObject *args)
@@ -1463,7 +1470,6 @@ PyArray_Where(PyObject *condition, PyObject *x, PyObject *y)
                 "either both or neither of x and y should be given");
         return NULL;
     }
-
 
     zero = PyInt_FromLong((long) 0);
     obj = PyArray_EnsureAnyArray(PyArray_GenericBinaryFunction(arr, zero,
@@ -2001,6 +2007,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
 
 SIGJMP_BUF _NPY_SIGINT_BUF;
 
+
 /*NUMPY_API
  */
 NPY_NO_EXPORT void
@@ -2009,6 +2016,7 @@ _PyArray_SigintHandler(int signum)
     PyOS_setsig(signum, SIG_IGN);
     SIGLONGJMP(_NPY_SIGINT_BUF, signum);
 }
+
 
 /*NUMPY_API
  */

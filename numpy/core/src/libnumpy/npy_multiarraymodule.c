@@ -12,8 +12,6 @@
 
 
 
-
-
 /*NUMPY_API
  * Multiply a List of ints
  */

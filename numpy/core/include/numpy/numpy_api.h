@@ -230,6 +230,7 @@ NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
 NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
                              int typenum, int mode);
 
+
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
         PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
