@@ -225,7 +225,8 @@ int NpyArray_CanCoerceScalar(int thistype, int neededtype, NPY_SCALARKIND scalar
 NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
 NpyArray *NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
 NpyArray *NpyArray_CopyAndTranspose(NpyArray *arr);
-
+NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
+                              int typenum, int mode);
 
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \

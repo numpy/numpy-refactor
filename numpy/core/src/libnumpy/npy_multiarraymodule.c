@@ -727,3 +727,44 @@ _npyarray_revert(NpyArray *ret)
     NpyArray_free(tmp);
     return 0;
 }
+
+
+/*NUMPY_API
+ * correlate(a1,a2,mode)
+ *
+ * This function computes the usual correlation (correlate(a1, a2) !=
+ * correlate(a2, a1), and conjugate the second argument for complex inputs
+ */
+NpyArray *
+NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
+{
+    NpyArray *ret = NULL;
+    int inverted, status;
+
+    if (NpyArray_ISCOMPLEX(ap2)) {
+        /* FIXME: PyArray_Conjugate need to be replaced by NpyArray_Conjugate,
+                  once NpyArray_Conjugate is created, which can be done once
+                  the ufunc stuff is in the core.
+         */
+        ap2 = (NpyArray *)PyArray_Conjugate(ap2, NULL);
+        if (ap2 == NULL) {
+            return NULL;
+        }
+    }
+
+    ret = _npyarray_correlate(ap1, ap2, typenum, mode, &inverted);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    /* If we inverted input orders, we need to reverse the output array (i.e.
+       ret = ret[::-1]) */
+    if (inverted) {
+        status = _npyarray_revert(ret);
+        if(status) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+    }
+    return ret;
+}
