@@ -872,8 +872,10 @@ NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStri
     }
     
     
-    /* TODO: Do we support C subtypes? */
-    wrapper = (PyArrayObject *)PyObject_New(PyArrayObject, &PyArray_Type);
+    wrapper = (PyArrayObject *) subtype->tp_alloc(subtype, 0);
+    if (wrapper == NULL) {
+        goto fail;
+    }
     wrapper->magic_number = NPY_VALID_MAGIC;
     wrapper->weakreflist = NULL;
     wrapper->array = newArray;
