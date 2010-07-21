@@ -13,6 +13,7 @@
 
 #include "common.h"
 #include "number.h"
+#include "arrayobject.h"
 
 #include "calculation.h"
 
@@ -43,7 +44,8 @@ power_of_ten(int n)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 {
-    return (PyObject *)NpyArray_ArgMax( (NpyArray *)op, axis, (NpyArray *)out );
+    RETURN_PYARRAY(NpyArray_ArgMax(PyArray_ARRAY(op), axis, 
+                                   PyArray_ARRAY(out)));
 }
 
 /*NUMPY_API
@@ -52,8 +54,8 @@ PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMin(PyArrayObject *ap, int axis, PyArrayObject *out)
 {
-    return (PyObject *) NpyArray_ArgMin(PyArray_ARRAY(ap), axis, 
-                                        PyArray_ARRAY(out));
+    RETURN_PYARRAY(NpyArray_ArgMin(PyArray_ARRAY(ap), axis, 
+                                   PyArray_ARRAY(out)));
 }
 
 

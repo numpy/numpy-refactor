@@ -338,7 +338,7 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
     
     ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
-                       (NpyObject *)(prior2 > prior1 ? ap2 : ap1));
+                       Npy_INTERFACE(prior2 > prior1 ? ap2 : ap1));
     return ret;
 }
 

@@ -28,10 +28,11 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op);
         NpyArray* a_ = (arr);                   \
         if (a_ == NULL) {                       \
             pya = NULL;                         \
+        } else {                                \
+            pya = Npy_INTERFACE(a_);            \
+            Py_INCREF(pya);                     \
+            _Npy_DECREF(a_);                    \
         }                                       \
-        pya = Npy_INTERFACE(a_);                \
-        Py_INCREF(pya);                         \
-        _Npy_DECREF(a_);                        \
     } while (0)
 
 

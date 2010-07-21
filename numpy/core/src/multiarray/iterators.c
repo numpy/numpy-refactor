@@ -1094,8 +1094,7 @@ iter_copy(PyArrayIterObject *it, PyObject *args)
     if (!PyArg_ParseTuple(args, "")) {
         return NULL;
     }
-    /* TODO: Wrap object. */
-    return (PyObject *)NpyArray_Flatten(it->iter->ao, 0);
+    RETURN_PYARRAY(NpyArray_Flatten(it->iter->ao, 0));
 }
 
 static PyMethodDef iter_methods[] = {

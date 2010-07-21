@@ -41,10 +41,11 @@ PyArray_TakeFrom(PyArrayObject *self0, PyObject *indices0, int axis,
             return NULL;
         }
     }
-    result = (PyObject*) NpyArray_TakeFrom(PyArray_ARRAY(self0), 
-                                           PyArray_ARRAY(indices), 
-                                           axis, PyArray_ARRAY(ret), 
-                                           clipmode);
+    ASSIGN_TO_PYARRAY(result, 
+                      NpyArray_TakeFrom(PyArray_ARRAY(self0), 
+                                        PyArray_ARRAY(indices), 
+                                        axis, PyArray_ARRAY(ret), 
+                                        clipmode));
     Py_DECREF(indices);
     return result;
 }
@@ -171,8 +172,9 @@ PyArray_Repeat(PyArrayObject *aop, PyObject *op, int axis)
             goto finish;
         }
     }
-    result = (PyObject*) NpyArray_Repeat(PyArray_ARRAY(aop), 
-                                         PyArray_ARRAY(repeats), axis);
+    ASSIGN_TO_PYARRAY(result,
+                      NpyArray_Repeat(PyArray_ARRAY(aop), 
+                                      PyArray_ARRAY(repeats), axis));
   finish:
     Py_XDECREF(repeats);
     return result;
@@ -207,9 +209,10 @@ PyArray_Choose(PyArrayObject *ip, PyObject *op, PyArrayObject *ret,
     for (i = 0; i < n; i++) {
         nmps[i] = PyArray_ARRAY(mps[i]);
     }
-    result =  (PyObject*) NpyArray_Choose(PyArray_ARRAY(ip), nmps, n, 
-                                          PyArray_ARRAY(ret), 
-                                          clipmode);
+    ASSIGN_TO_PYARRAY(result,
+                      NpyArray_Choose(PyArray_ARRAY(ip), nmps, n, 
+                                      PyArray_ARRAY(ret), 
+                                      clipmode));
     PyDataMem_FREE(nmps);
 
   finish:
@@ -237,7 +240,7 @@ PyArray_Sort(PyArrayObject *op, int axis, NPY_SORTKIND which)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgSort(PyArrayObject *op, int axis, NPY_SORTKIND which)
 {
-    return (PyObject*) NpyArray_ArgSort(PyArray_ARRAY(op), axis, which);
+    RETURN_PYARRAY(NpyArray_ArgSort(PyArray_ARRAY(op), axis, which));
 }
 
 

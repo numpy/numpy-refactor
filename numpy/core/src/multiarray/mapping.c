@@ -14,6 +14,7 @@
 
 #include "common.h"
 #include "iterators.h"
+#include "arrayobject.h"
 #include "mapping.h"
 
 #define SOBJ_NOTFANCY 0
@@ -70,8 +71,7 @@ array_length(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 array_big_item(PyArrayObject *self, intp i)
 {
-    /* TODO: Wrap the result. */
-    return (PyObject*) NpyArray_ArrayItem(PyArray_ARRAY(self), i);
+    RETURN_PYARRAY(NpyArray_ArrayItem(PyArray_ARRAY(self), i));
 }
 
 NPY_NO_EXPORT int

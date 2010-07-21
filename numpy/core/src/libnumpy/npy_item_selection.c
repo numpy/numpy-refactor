@@ -764,7 +764,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
 
     ret = NpyArray_New(NULL, op->nd,
                        op->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, op);
+                       NULL, NULL, 0, 0, Npy_INTERFACE(op));
     if (ret == NULL) {
         return NULL;
     }
@@ -1007,7 +1007,7 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
                            op->dimensions,
                            NPY_INTP,
                            NULL, NULL, 0, 0,
-                           op);
+                           Npy_INTERFACE(op));
         if (ret == NULL) {
             return NULL;
         }
@@ -1043,7 +1043,7 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     }
     ret = NpyArray_New(NULL, op->nd,
                        op->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, op);
+                       NULL, NULL, 0, 0, Npy_INTERFACE(op));
     if (ret == NULL) {
         goto fail;
     }
@@ -1388,7 +1388,7 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
     /* ret is a contiguous array of intp type to hold returned indices */
     ret = NpyArray_New(NULL, ap2->nd,
                        ap2->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, ap2);
+                       NULL, NULL, 0, 0, Npy_INTERFACE(ap2));
     if (ret == NULL) {
         goto fail;
     }

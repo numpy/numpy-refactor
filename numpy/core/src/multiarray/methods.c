@@ -17,6 +17,7 @@
 #include "ctors.h"
 #include "calculation.h"
 #include "descriptor.h"
+#include "arrayobject.h"
 
 #include "methods.h"
 
@@ -305,8 +306,7 @@ array_swapaxes(PyArrayObject *self, PyObject *args)
 NPY_NO_EXPORT PyObject *
 PyArray_GetField(PyArrayObject *self, PyArray_Descr *typed, int offset)
 {
-    /* TODO: Unwrap self, wrap return object. */
-    return (PyObject *) NpyArray_GetField(PyArray_ARRAY(self), typed, offset);
+    RETURN_PYARRAY(NpyArray_GetField(PyArray_ARRAY(self), typed, offset));
 }
 
 static PyObject *
@@ -411,8 +411,7 @@ array_setfield(PyArrayObject *self, PyObject *args, PyObject *kwds)
 NPY_NO_EXPORT PyObject *
 PyArray_Byteswap(PyArrayObject *self, Bool inplace)
 {
-    /* TODO: Wrap returned array with PyObject */
-    return (PyObject *)NpyArray_Byteswap(PyArray_ARRAY(self), inplace);
+    RETURN_PYARRAY(NpyArray_Byteswap(PyArray_ARRAY(self), inplace));
 }
 
 
