@@ -966,6 +966,7 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
     Py_ssize_t d;
     npy_intp shape[NPY_MAXDIMS], strides[NPY_MAXDIMS];
 
+    fprintf(stderr, "%s\n", obj->ob_type->tp_name);
     memoryview = PyMemoryView_FromObject(obj);
     if (memoryview == NULL) {
         PyErr_Clear();

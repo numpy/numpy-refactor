@@ -16,6 +16,7 @@
 
 #include "common.h"
 #include "ctors.h"
+#include "arrayobject.h"
 
 #define PyAO PyArrayObject
 #define _check_axis PyArray_CheckAxis
@@ -334,7 +335,9 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
         }
     }
     /* TODO: Wrap object. */
-    ret = (PyArrayObject *) NpyArray_SearchSorted(PyArray_ARRAY(op1), PyArray_ARRAY(ap2), side);
+    ASSIGN_TO_PYARRAY(ret, 
+                      NpyArray_SearchSorted(PyArray_ARRAY(op1), 
+                                            PyArray_ARRAY(ap2), side));
   finish:
     Py_XDECREF(ap2);
     return (PyObject *) ret;

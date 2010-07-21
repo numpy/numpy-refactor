@@ -15,6 +15,7 @@
 #include "common.h"
 #include "scalartypes.h"
 #include "mapping.h"
+#include "arrayobject.h"
 
 #include "convert_datatype.h"
 
@@ -27,8 +28,7 @@
 NPY_NO_EXPORT PyObject *
 PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 {
-    /* TODO: Wrap array return in PyObject */
-    return (PyObject *)NpyArray_CastToType(PyArray_ARRAY(mp), at, fortran);
+    RETURN_PYARRAY(NpyArray_CastToType(PyArray_ARRAY(mp), at, fortran));
 }
 
 

@@ -15,6 +15,7 @@
 #include "npy_3kcompat.h"
 
 #include "ctors.h"
+#include "arrayobject.h"
 
 #include "shape.h"
 
@@ -83,7 +84,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_Newshape(PyArrayObject *self, PyArray_Dims *newdims,
                  NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Newshape(PyArray_ARRAY(self), newdims, fortran);
+    RETURN_PYARRAY(NpyArray_Newshape(PyArray_ARRAY(self), newdims, fortran));
 }
 
 
@@ -145,7 +146,7 @@ _putzero(char *optr, PyObject *zero, PyArray_Descr *dtype)
 NPY_NO_EXPORT PyObject *
 PyArray_Squeeze(PyArrayObject *self)
 {
-    return (PyObject*) NpyArray_Squeeze(PyArray_ARRAY(self));
+    RETURN_PYARRAY(NpyArray_Squeeze(PyArray_ARRAY(self)));
 }
 
 /*NUMPY_API
@@ -154,7 +155,7 @@ PyArray_Squeeze(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 {
-    return (PyObject*) NpyArray_SwapAxes(PyArray_ARRAY(ap), a1, a2);
+    RETURN_PYARRAY(NpyArray_SwapAxes(PyArray_ARRAY(ap), a1, a2));
 }
 
 /*NUMPY_API
@@ -163,7 +164,7 @@ PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 NPY_NO_EXPORT PyObject *
 PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 {
-    return (PyObject*) NpyArray_Transpose(PyArray_ARRAY(ap), permute);
+    RETURN_PYARRAY(NpyArray_Transpose(PyArray_ARRAY(ap), permute));
 }
 
 /*NUMPY_API
@@ -173,7 +174,7 @@ PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 NPY_NO_EXPORT PyObject *
 PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Ravel(PyArray_ARRAY(a), fortran);
+    RETURN_PYARRAY(NpyArray_Ravel(PyArray_ARRAY(a), fortran));
 }
 
 /*NUMPY_API
@@ -182,5 +183,5 @@ PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_Flatten(PyArrayObject *a, NPY_ORDER order)
 {
-    return (PyObject*) NpyArray_Flatten(PyArray_ARRAY(a), order);
+    RETURN_PYARRAY(NpyArray_Flatten(PyArray_ARRAY(a), order));
 }
