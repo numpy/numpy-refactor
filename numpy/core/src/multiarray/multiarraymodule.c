@@ -135,7 +135,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
 {
     PyArrayObject *ap, *oldAp;
     intp result;
-    
+
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
@@ -147,15 +147,15 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
     if (ap == NULL) {
         return -1;
     }
-    
+
     /* TODO: LOTS of potential bugs here, code is ugly.  Above PyArray_FromAny steals a reference to
        typedescr, and so does NpyArray_AsCArray.  However, they steal references to _difference_ objects,
        first one is an interface object, second is a core object.
-     
+
        Also, PyArray_FromAny creates a new Python object that gets thrown away - probably want to refactor
        PyArray_FromAny to return a core-only object.
-     
-       Lastly, I think this function leaks a reference. op comes in pointing to an object which gets 
+
+       Lastly, I think this function leaks a reference. op comes in pointing to an object which gets
        converted to an array and *op is overwritten with the new array object but the original object
        is not decref'd.  This is how it was so I left it alone.  Either the caller must decref or it's
        a leak or I just need more coffee. */
@@ -483,13 +483,13 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
     }
 
     /* TODO: Wrap return value. */
-    ret = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
+    ret = NpyArray_InnerProduct(PyArray_ARRAY(ap1),
                                 PyArray_ARRAY(ap2), typenum);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
 
     return (PyObject *)ret;
-    
+
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);
@@ -532,7 +532,7 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
     }
 
     /* TODO: Wrap return value. */
-    ret = NpyArray_MatrixProduct(PyArray_ARRAY(ap1), 
+    ret = NpyArray_MatrixProduct(PyArray_ARRAY(ap1),
                                  PyArray_ARRAY(ap2), typenum);
     Py_DECREF(ap1);
     Py_DECREF(ap2);
@@ -1011,9 +1011,9 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newstrides[i] = PyArray_STRIDE(arr, k);
     }
     Py_INCREF(PyArray_DESCR(arr));
-    ret = (PyArrayObject *) 
+    ret = (PyArrayObject *)
         PyArray_NewFromDescr(Py_TYPE(arr), PyArray_DESCR(arr), ndmin,
-            newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr), 
+            newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr),
             (PyObject *)arr);
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
     /*TODO: Npy_INCREF(PyArray_ARRAY(arr));
@@ -2091,7 +2091,7 @@ _vec_string_no_args(PyArrayObject* char_array,
 
     while (NpyArray_ITER_NOTDONE(in_iter)) {
         PyObject* item_result;
-        PyObject* item = PyArray_ToScalar(in_iter->dataptr, 
+        PyObject* item = PyArray_ToScalar(in_iter->dataptr,
                                           in_iter->ao);
         if (item == NULL) {
             goto err;

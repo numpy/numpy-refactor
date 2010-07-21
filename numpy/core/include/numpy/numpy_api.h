@@ -80,11 +80,11 @@ extern NpyArray_Descr **npy_userdescrs;
 
 
 /*
- * External interface-provided functions 
+ * External interface-provided functions
  */
 void NpyInterface_Incref(void *);
 void NpyInterface_Decref(void *);
-int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, 
+int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides,
                                  void *subtype, void *interfaceData, void **interfaceRet);
 int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
 int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
@@ -108,7 +108,7 @@ void NpyArray_dealloc(NpyArray *self);
 
 /* common.c */
 #define NpyString_Check(a) PyString_Check(a)        /* TODO: Npy_IsWriteable() need callback to interface for base of string, buffer */
-#define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c) 
+#define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c)
 int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
 NpyArray_Descr *
@@ -120,7 +120,7 @@ NpyArray_Index2Ptr(NpyArray *self, npy_intp i);
 /* npy_convert.c */
 NpyArray *
 NpyArray_View(NpyArray *self, PyArray_Descr *type, void *pytype);
-int 
+int
 NpyArray_SetDescr(NpyArray *self, PyArray_Descr *newtype);
 NpyArray *
 NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
@@ -310,7 +310,7 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
 NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                 npy_intp *dims, npy_intp *strides, void *data,
-                                int flags, int ensureArray, void *subtype, 
+                                int flags, int ensureArray, void *subtype,
                                 void *interfaceData);
 NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
@@ -373,7 +373,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyObject_New(a, b) PyObject_New(a, b)
 
 /*
- * Object model. 
+ * Object model.
  */
 #define NpyObject_Init(object, type) PyObject_Init(object, type)
 
@@ -411,7 +411,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyErr_Print() PyErr_Print()
 
 #if PY_VERSION_HEX >= 0x02050000
-#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 
+#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
 #else
 #define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
 #endif
