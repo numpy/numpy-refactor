@@ -2149,7 +2149,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
 
         for (i = 0; i < n; i++) {
             NpyArrayIterObject* it = in_iter->iter->iters[i];
-            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), it->ao);
+            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), 
+                                             Npy_INTERFACE(it->ao));
             if (arg == NULL) {
                 goto err;
             }
@@ -2163,7 +2164,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
         }
 
         if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), 
-                            PyArray_ARRAY(item_result))) {
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                     "result array type does not match underlying function");
@@ -2223,7 +2224,7 @@ _vec_string_no_args(PyArrayObject* char_array,
     while (NpyArray_ITER_NOTDONE(in_iter)) {
         PyObject* item_result;
         PyObject* item = PyArray_ToScalar(in_iter->dataptr, 
-                                          in_iter->ao);
+                                          Npy_INTERFACE(in_iter->ao));
         if (item == NULL) {
             goto err;
         }
@@ -2235,7 +2236,7 @@ _vec_string_no_args(PyArrayObject* char_array,
         }
 
         if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), 
-                            PyArray_ARRAY(item_result))) {
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                 "result array type does not match underlying function");

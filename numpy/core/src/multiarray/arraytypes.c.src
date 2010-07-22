@@ -1294,7 +1294,7 @@ void
 {
     intp i;
     PyObject *temp = NULL;
-    int skip = PyArray_ITEMSIZE(aip);
+    int skip = NpyArray_ITEMSIZE(aip);
     int oskip = @oskip@;
 
     for (i = 0; i < n; i++, ip+=skip, op+=oskip) {
@@ -1348,7 +1348,7 @@ void
     intp i;
     PyObject *temp = NULL;
     int skip = 1;
-    int oskip = PyArray_ITEMSIZE(aop);
+    int oskip = NpyArray_ITEMSIZE(aop);
     for (i = 0; i < n; i++, ip += skip, op += oskip) {
         temp = @from@_getitem((char *)ip, aip);
         if (temp == NULL) {

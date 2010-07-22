@@ -3542,6 +3542,7 @@ ufunc_generic_call(PyUFuncObject *self, PyObject *args, PyObject *kwds)
             return NULL;
         }
     }
+
     for (i = 0; i < self->nin; i++) {
         Py_DECREF(mps[i]);
     }
@@ -3574,7 +3575,7 @@ ufunc_generic_call(PyUFuncObject *self, PyObject *args, PyObject *kwds)
          */
         if (PyArray_FLAGS(mps[j]) & UPDATEIFCOPY) {
             PyArrayObject *old;
-            old = Npy_INTERFACE(PyArray_BASE_ARRAY(mps[i]));
+            old = Npy_INTERFACE(PyArray_BASE_ARRAY(mps[j]));
             /* we want to hang on to this */
             Py_INCREF(old);
             /* should trigger the copyback into old */
