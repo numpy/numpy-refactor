@@ -1378,7 +1378,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
     /* This is the core iterator object - not a Python object. */
     mit = NpyArray_MapIterNew();
     if (NULL == mit) {
-        Py_DECREF(mit);
+        _Npy_DECREF(mit);
         return NULL;
     }
     pyMit = Npy_INTERFACE(mit);

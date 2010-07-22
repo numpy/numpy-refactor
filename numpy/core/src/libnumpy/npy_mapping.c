@@ -60,6 +60,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     assert(0 == mit->nob_refcnt);
     
     Npy_INTERFACE(mit) = NULL;
+    Py_XDECREF(mit->indexobj);
     _Npy_XDECREF(mit->ait);
     _Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {
