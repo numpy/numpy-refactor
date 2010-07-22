@@ -34,6 +34,7 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
     assert(NULL == new->base_obj);
 
     if (type != NULL) {
+        /* TODO: unwrap type. */
         if (NpyArray_SetDescr(new, type) < 0) {
             _Npy_DECREF(new);
             Npy_DECREF(type);

@@ -414,13 +414,17 @@ static int
 array_descr_set(PyArrayObject *self, PyObject *arg)
 {
     PyArray_Descr *newtype = NULL;
+    int result;
 
     if (!(PyArray_DescrConverter(arg, &newtype)) ||
         newtype == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
-    return NpyArray_SetDescr(PyArray_ARRAY(self), newtype);
+    /* TODO: Unwrap newtype. */
+    result = NpyArray_SetDescr(PyArray_ARRAY(self), newtype);
+    Npy_DECREF(newtype);
+    return result;
 }
 
 static PyObject *
