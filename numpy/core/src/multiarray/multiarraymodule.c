@@ -1303,20 +1303,7 @@ array__get_ndarray_c_version(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObje
 NPY_NO_EXPORT int
 PyArray_GetEndianness(void)
 {
-    const union {
-        npy_uint32 i;
-        char c[4];
-    } bint = {0x01020304};
-
-    if (bint.c[0] == 1) {
-        return NPY_CPU_BIG;
-    }
-    else if (bint.c[0] == 4) {
-        return NPY_CPU_LITTLE;
-    }
-    else {
-        return NPY_CPU_UNKNOWN_ENDIAN;
-    }
+    return NpyArray_GetEndianness();
 }
 
 
