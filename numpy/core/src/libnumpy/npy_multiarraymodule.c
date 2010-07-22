@@ -901,3 +901,25 @@ NpyArray_EquivTypenums(int typenum1, int typenum2)
     Py_DECREF(d2);
     return ret;
 }
+
+
+/*NUMPY_API
+*/
+int
+NpyArray_GetEndianness(void)
+{
+    const union {
+        npy_uint32 i;
+        char c[4];
+    } bint = {0x01020304};
+
+    if (bint.c[0] == 1) {
+        return NPY_CPU_BIG;
+    }
+    else if (bint.c[0] == 4) {
+        return NPY_CPU_LITTLE;
+    }
+    else {
+        return NPY_CPU_UNKNOWN_ENDIAN;
+    }
+}

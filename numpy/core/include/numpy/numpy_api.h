@@ -5,6 +5,16 @@
 #include "npy_3kcompat.h"
 #include "assert.h"
 
+/* FIXME: we need to add this later */
+#if 0
+/* enums for detected endianness */
+enum {
+    NPY_CPU_UNKNOWN_ENDIAN,
+    NPY_CPU_LITTLE,
+    NPY_CPU_BIG
+};
+#endif
+
 
 typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
 typedef PyArray_CopySwapNFunc NpyArray_CopySwapNFunc;
