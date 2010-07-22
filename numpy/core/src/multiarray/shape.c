@@ -39,8 +39,14 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
     oldsize = PyArray_SIZE(self);
     newsize = NpyArray_MultiplyList(newshape->ptr, newshape->len);
     if (newsize != oldsize) {
-        /* XXX: We will need a reference check here once we have separated the objects. . */
-        if (self->weakreflist != NULL) {
+        int refcnt;
+        if (refcheck) {
+            refcnt = Py_REFCNT(self);
+        } else {
+            refcnt = 1;
+        }
+            
+        if (refcnt > 2 || self->weakreflist != NULL) {
             PyErr_SetString(PyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
                     "by another array in this way.  Use the resize function");

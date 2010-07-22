@@ -73,13 +73,16 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
             return -1;
         }
 
+        /* TODO: This isn't right for usage from C.  I think we
+           need to revisit the refcounts so we don't have counts
+           of 0. */
         if (refcheck) {
             refcnt = NpyArray_REFCOUNT(self);
         }
         else {
-            refcnt = 1;
+            refcnt = 0;
         }
-        if ((refcnt > 2)
+        if ((refcnt > 0)
             || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
