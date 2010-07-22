@@ -1230,22 +1230,15 @@ class TestNeighborhoodIter(TestCase):
              np.array([[4, 4, 4], [0, 1, 4]], dtype=dt), 
              np.array([[4, 0, 1], [4, 2, 3]], dtype=dt), 
              np.array([[0, 1, 4], [2, 3, 4]], dtype=dt)]
-        #l = test_neighborhood_iterator(x, [-1, 0, -1, 1], 4, NEIGH_MODE['constant'])
-        # This cast (is that what you call this in Python?) renders the 4 as
-        # an NPY_INT in the code.  This will be promoted in the case where x
-        # is something bigger than an int.  But if we don't cast this down to
-        # an int32, then the 4 winds up on the C side of the code as an
-        # NPY_LONG, and then when dtype == int, the arrays don't come out
-        # equal.  The l array seems scrogged.  Apparently the array collector
-        # is botching the elements.  I think this implicates
-        # PyArray_FromObject when x (and dtype) are int32 (NPY_INT), but
-        # typenum (driven by the uncasted '4') is NPY_LONG.
+        # We keep the literal 4 short (well, 32 bits) so that the type of x
+        # (which will be dt) drives the type promotion calculus in the C
+        # code.
         l = test_neighborhood_iterator(x, [-1, 0, -1, 1], np.int32(4), NEIGH_MODE['constant'])
+        assert_array_equal(l, r)
 
-        # The following line works whenever dtype is >= the type of 4 (which
-        # is NPY_LONG in the C code).  But if dtype = np.int32, the result
-        # array comes back scrogged.
-        #l = test_neighborhood_iterator(x, [-1, 0, -1, 1], 4, NEIGH_MODE['constant'])
+        # Here we use a literal 4, which will be an NPY_LONG on the C side,
+        # which causes different type promotion scenarios in the C code.
+        l = test_neighborhood_iterator(x, [-1, 0, -1, 1], 4, NEIGH_MODE['constant'])
         assert_array_equal(l, r)
 
     def test_simple2d(self):
