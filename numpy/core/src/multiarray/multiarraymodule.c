@@ -792,15 +792,7 @@ PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypenums(int typenum1, int typenum2)
 {
-    PyArray_Descr *d1, *d2;
-    Bool ret;
-
-    d1 = PyArray_DescrFromType(typenum1);
-    d2 = PyArray_DescrFromType(typenum2);
-    ret = PyArray_EquivTypes(d1, d2);
-    Py_DECREF(d1);
-    Py_DECREF(d2);
-    return ret;
+    return NpyArray_EquivTypenums(typenum1, typenum2)
 }
 
 /*** END C-API FUNCTIONS (actually not quite, there are a few more below) ***/

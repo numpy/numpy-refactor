@@ -840,7 +840,7 @@ _equivalent_units(NpyArray_DateTimeInfo *info1, NpyArray_DateTimeInfo *info2)
  * This function returns true if the two typecodes are
  * equivalent (same basic kind and same itemsize).
  */
-NPY_NO_EXPORT unsigned char
+unsigned char
 NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
 {
     int typenum1 = typ1->type_num;
@@ -867,4 +867,20 @@ NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
                 && _equivalent_units(typ1->dtinfo, typ2->dtinfo));
     }
     return typ1->kind == typ2->kind;
+}
+
+
+/*NUMPY_API*/
+unsigned char
+NpyArray_EquivTypenums(int typenum1, int typenum2)
+{
+    NpyArray_Descr *d1, *d2;
+    Bool ret;
+
+    d1 = NpyArray_DescrFromType(typenum1);
+    d2 = NpyArray_DescrFromType(typenum2);
+    ret = NpyArray_EquivTypes(d1, d2);
+    Py_DECREF(d1);
+    Py_DECREF(d2);
+    return ret;
 }
