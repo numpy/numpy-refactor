@@ -1,6 +1,6 @@
 /*
- *  npy_multiarraymodule.c - 
- *  
+ *  npy_multiarraymodule.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -17,11 +17,11 @@
 /*NUMPY_API
  * Multiply a List of ints
  */
-int 
+int
 NpyArray_MultiplyIntList(int *l1, int n)
 {
     int s = 1;
-    
+
     while (n--) {
         s *= (*l1++);
     }
@@ -32,11 +32,11 @@ NpyArray_MultiplyIntList(int *l1, int n)
 /*NUMPY_API
  * Multiply a List
  */
-npy_intp 
+npy_intp
 NpyArray_MultiplyList(npy_intp *l1, int n)
 {
     npy_intp s = 1;
-    
+
     while (n--) {
         s *= (*l1++);
     }
@@ -47,16 +47,16 @@ NpyArray_MultiplyList(npy_intp *l1, int n)
 /*NUMPY_API
  * Multiply a List of Non-negative numbers with over-flow detection.
  */
-npy_intp 
+npy_intp
 NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
 {
     npy_intp prod = 1;
     npy_intp imax = NPY_MAX_INTP;
     int i;
-    
+
     for (i = 0; i < n; i++) {
         npy_intp dim = l1[i];
-        
+
         if (dim == 0) {
             return 0;
         }
@@ -78,7 +78,7 @@ NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
     int n = obj->nd;
     npy_intp *strides = obj->strides;
     char *dptr = obj->data;
-    
+
     while (n--) {
         dptr += (*strides++) * (*ind++);
     }
@@ -89,11 +89,11 @@ NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
 /*NUMPY_API
  * Compare Lists
  */
-int 
+int
 NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
 {
     int i;
-    
+
     for (i = 0; i < n; i++) {
         if (l1[i] != l2[i]) {
             return 0;
@@ -116,7 +116,7 @@ NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
  * Simulate a C-array
  * steals a reference to typedescr -- can be NULL
  */
-int 
+int
 NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
                   NpyArray_Descr* typedescr)
 {
@@ -124,7 +124,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     npy_intp n, m, i, j;
     char **ptr2;
     char ***ptr3;
-    
+
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
@@ -167,7 +167,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     memcpy(dims, ap->dimensions, nd*sizeof(npy_intp));
     *apIn = ap;
     return 0;
-    
+
 fail:
     NpyErr_SetString(NpyExc_MemoryError, "no memory");
     return -1;
@@ -180,7 +180,7 @@ fail:
 /*NUMPY_API
  * Free pointers created if As2D is called
  */
-int 
+int
 NpyArray_Free(NpyArray *ap, void *ptr)
 {
     if ((ap->nd < 1) || (ap->nd > 3)) {
@@ -196,14 +196,14 @@ NpyArray_Free(NpyArray *ap, void *ptr)
 
 
 
-static int 
+static int
 _signbit_set(NpyArray *arr)
 {
     static char bitmask = (char) 0x80;
     char *ptr;  /* points to the byte to test */
     char byteorder;
     int elsize;
-    
+
     elsize = arr->descr->elsize;
     byteorder = arr->descr->byteorder;
     ptr = arr->data;
@@ -220,7 +220,7 @@ _signbit_set(NpyArray *arr)
 /*NUMPY_API
  * ScalarKind
  */
-NPY_SCALARKIND 
+NPY_SCALARKIND
 NpyArray_ScalarKind(int typenum, NpyArray **arr)
 {
     if (NpyTypeNum_ISSIGNED(typenum)) {
@@ -243,11 +243,11 @@ NpyArray_ScalarKind(int typenum, NpyArray **arr)
     if (NpyTypeNum_ISBOOL(typenum)) {
         return NPY_BOOL_SCALAR;
     }
-    
+
     if (NpyTypeNum_ISUSERDEF(typenum)) {
         NPY_SCALARKIND retval;
         NpyArray_Descr* descr = NpyArray_DescrFromType(typenum);
-        
+
         if (descr->f->scalarkind) {
             retval = descr->f->scalarkind((arr ? *arr : NULL));
         }
@@ -261,13 +261,13 @@ NpyArray_ScalarKind(int typenum, NpyArray **arr)
 }
 
 /*NUMPY_API*/
-int 
+int
 NpyArray_CanCoerceScalar(int thistype, int neededtype,
                          NPY_SCALARKIND scalar)
 {
     NpyArray_Descr* from;
     int *castlist;
-    
+
     if (scalar == NPY_NOSCALAR) {
         return NpyArray_CanCastSafely(thistype, neededtype);
     }
@@ -282,7 +282,7 @@ NpyArray_CanCoerceScalar(int thistype, int neededtype,
         }
     }
     Npy_DECREF(from);
-    
+
     switch(scalar) {
         case NPY_BOOL_SCALAR:
         case NPY_OBJECT_SCALAR:
@@ -321,7 +321,7 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
 {
     NpyArray *ret;
     double prior1, prior2;
-    
+
     /*
      * Need to choose an output array that can hold a sum
      */
@@ -335,13 +335,12 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
     else {
         prior1 = prior2 = 0.0;
     }
-    
+
     ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
                        (NpyObject *)(prior2 > prior1 ? ap2 : ap1));
     return ret;
 }
-
 
 
 /*NUMPY_API
@@ -358,15 +357,14 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     char *op;
     npy_intp dimensions[NPY_MAXDIMS];
     NpyArray_DotFunc *dot;
-    NPY_BEGIN_THREADS_DEF;    
-    
-    
+    NPY_BEGIN_THREADS_DEF;
+
     l = ap1->dimensions[ap1->nd - 1];
     if (ap2->dimensions[ap2->nd - 1] != l) {
         NpyErr_SetString(NpyExc_ValueError, "matrices are not aligned");
         return NULL;
     }
-    
+
     nd = ap1->nd + ap2->nd - 2;
     j = 0;
     for (i = 0; i < ap1->nd - 1; i++) {
@@ -376,24 +374,23 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
         dimensions[j++] = ap2->dimensions[i];
     }
 
-    
     /*
      * Need to choose an output array that can hold a sum
      * -- use priority to determine which subtype.
      */
     ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
     if (ret == NULL) {
-        return ret;
+        return NULL;
     }
-    dot = (ret->descr->f->dotfunc);
+    dot = ret->descr->f->dotfunc;
     if (dot == NULL) {
-        NpyErr_SetString(NpyExc_ValueError,
-                         "dot not available for this type");
+        NpyErr_SetString(NpyExc_ValueError, "dot not available for this type");
         goto fail;
     }
     is1 = ap1->strides[ap1->nd - 1];
     is2 = ap2->strides[ap2->nd - 1];
-    op = ret->data; os = ret->descr->elsize;
+    op = ret->data;
+    os = ret->descr->elsize;
     axis = ap1->nd - 1;
     it1 = NpyArray_IterAllButAxis(ap1, &axis);
     axis = ap2->nd - 1;
@@ -424,3 +421,367 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     return NULL;
 }
 
+
+/*NUMPY_API
+ *Numeric.matrixproduct(a,v)
+ * just like inner product but does the swapaxes stuff on the fly
+ */
+NpyArray *
+NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
+{
+    NpyArray *ret = NULL;
+    NpyArrayIterObject *it1, *it2;
+    npy_intp i, j, l, is1, is2, os, dimensions[NPY_MAXDIMS];
+    int nd, axis, matchDim;
+    char *op;
+    NpyArray_DotFunc *dot;
+    NPY_BEGIN_THREADS_DEF;
+
+    if (ap2->nd > 1) {
+        matchDim = ap2->nd - 2;
+    }
+    else {
+        matchDim = 0;
+    }
+    l = ap1->dimensions[ap1->nd - 1];
+    if (ap2->dimensions[matchDim] != l) {
+        NpyErr_SetString(NpyExc_ValueError, "objects are not aligned");
+        return NULL;
+    }
+    nd = ap1->nd + ap2->nd - 2;
+    if (nd > NPY_MAXDIMS) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "dot: too many dimensions in result");
+        return NULL;
+    }
+    j = 0;
+    for (i = 0; i < ap1->nd - 1; i++) {
+        dimensions[j++] = ap1->dimensions[i];
+    }
+    for (i = 0; i < ap2->nd - 2; i++) {
+        dimensions[j++] = ap2->dimensions[i];
+    }
+    if(ap2->nd > 1) {
+        dimensions[j++] = ap2->dimensions[ap2->nd - 1];
+    }
+    is1 = ap1->strides[ap1->nd - 1];
+    is2 = ap2->strides[matchDim];
+    /* Choose which subtype to return */
+    ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
+    if (ret == NULL) {
+        return NULL;
+    }
+    /* Ensure that multiarray.dot(<Nx0>,<0xM>) -> zeros((N,M)) */
+    if (NpyArray_SIZE(ap1) == 0 && NpyArray_SIZE(ap2) == 0) {
+        memset(NpyArray_DATA(ret), 0, NpyArray_NBYTES(ret));
+    }
+    else {
+        /* Ensure that multiarray.dot([],[]) -> 0 */
+        memset(NpyArray_DATA(ret), 0, NpyArray_ITEMSIZE(ret));
+    }
+
+    dot = ret->descr->f->dotfunc;
+    if (dot == NULL) {
+        NpyErr_SetString(NpyExc_ValueError, "dot not available for this type");
+        goto fail;
+    }
+
+    op = NpyArray_BYTES(ret);
+    os = NpyArray_ITEMSIZE(ret);
+    axis = ap1->nd - 1;
+    it1 = NpyArray_IterAllButAxis(ap1, &axis);
+    it2 = NpyArray_IterAllButAxis(ap2, &matchDim);
+    NPY_BEGIN_THREADS_DESCR(ap2->descr);
+    while (1) {
+        while (it2->index < it2->size) {
+            dot(it1->dataptr, is1, it2->dataptr, is2, op, l, ret);
+            op += os;
+            NpyArray_ITER_NEXT(it2);
+        }
+        NpyArray_ITER_NEXT(it1);
+        if (it1->index >= it1->size) {
+            break;
+        }
+        NpyArray_ITER_RESET(it2);
+    }
+    NPY_END_THREADS_DESCR(ap2->descr);
+    _Npy_DECREF(it1);
+    _Npy_DECREF(it2);
+    if (PyErr_Occurred()) {
+        goto fail;
+    }
+    return ret;
+
+fail:
+    Py_XDECREF(ret);
+    return NULL;
+}
+
+
+/*NUMPY_API
+ * Fast Copy and Transpose
+ */
+NpyArray *
+NpyArray_CopyAndTranspose(NpyArray *arr)
+{
+    NpyArray *ret;
+    int nd, eltsize, stride2;
+    npy_intp dims[2], i, j;
+    char *iptr, *optr;
+
+    /* make sure it is well-behaved */
+    arr = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
+    if (arr == NULL) {
+        return NULL;
+    }
+    nd = NpyArray_NDIM(arr);
+    if (nd == 1) {
+        /* we will give in to old behavior */
+        return arr;
+    }
+    else if (nd != 2) {
+        NpyErr_SetString(NpyExc_ValueError, "only 2-d arrays are allowed");
+        return NULL;
+    }
+
+    /* Now construct output array */
+    dims[0] = NpyArray_DIM(arr, 1);
+    dims[1] = NpyArray_DIM(arr, 0);
+    eltsize = NpyArray_ITEMSIZE(arr);
+    Npy_INCREF(NpyArray_DESCR(arr));
+    ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
+                                NULL, NULL, 0, NPY_FALSE, NULL, arr);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    /* do 2-d loop */
+    NPY_BEGIN_ALLOW_THREADS;
+    optr = NpyArray_DATA(ret);
+    stride2 = eltsize * dims[0];
+    for (i = 0; i < dims[0]; i++) {
+        iptr = PyArray_BYTES(arr) + i * eltsize;
+        for (j = 0; j < dims[1]; j++) {
+            /* optr[i,j] = iptr[j,i] */
+            memcpy(optr, iptr, eltsize);
+            optr += eltsize;
+            iptr += stride2;
+        }
+    }
+    NPY_END_ALLOW_THREADS;
+    return ret;
+}
+
+
+/*
+ * Implementation which is common between
+ * NpyArray_Correlate and NpyArray_Correlate2
+ *
+ * inverted is set to 1 if computed correlate(ap2, ap1), 0 otherwise
+ */
+static NpyArray *
+_npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
+                    int typenum, int mode, int *inverted)
+{
+    NpyArray *ret;
+    npy_intp length, i, n1, n2, n, n_left, n_right, is1, is2, os;
+    char *ip1, *ip2, *op;
+    NpyArray_DotFunc *dot;
+    NPY_BEGIN_THREADS_DEF;
+
+    n1 = NpyArray_DIM(ap1, 0);
+    n2 = NpyArray_DIM(ap2, 0);
+    if (n1 < n2) {
+        ret = ap1;
+        ap1 = ap2;
+        ap2 = ret;
+        ret = NULL;
+        i = n1;
+        n1 = n2;
+        n2 = i;
+        *inverted = 1;
+    } else {
+        *inverted = 0;
+    }
+
+    length = n1;
+    n = n2;
+    switch(mode) {
+    case 0:
+        length = length - n + 1;
+        n_left = n_right = 0;
+        break;
+    case 1:
+        n_left = (npy_intp)(n / 2);
+        n_right = n - n_left - 1;
+        break;
+    case 2:
+        n_right = n - 1;
+        n_left = n - 1;
+        length = length + n - 1;
+        break;
+    default:
+        NpyErr_SetString(NpyExc_ValueError, "mode must be 0, 1, or 2");
+        return NULL;
+    }
+
+    /*
+     * Need to choose an output array that can hold a sum
+     * -- use priority to determine which subtype.
+     */
+    ret = new_array_for_sum(ap1, ap2, 1, &length, typenum);
+    if (ret == NULL) {
+        return NULL;
+    }
+    dot = PyArray_DESCR(ret)->f->dotfunc;
+    if (dot == NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "function not available for this data type");
+        goto clean_ret;
+    }
+
+    NPY_BEGIN_THREADS_DESCR(NpyArray_DESCR(ret));
+    is1 = NpyArray_STRIDE(ap1, 0);
+    is2 = NpyArray_STRIDE(ap2, 0);
+    op = NpyArray_BYTES(ret);
+    os = NpyArray_ITEMSIZE(ret);
+    ip1 = NpyArray_BYTES(ap1);
+    ip2 = NpyArray_BYTES(ap2) + n_left * is2;
+    n -= n_left;
+    for (i = 0; i < n_left; i++) {
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        n++;
+        ip2 -= is2;
+        op += os;
+    }
+    for (i = 0; i < (n1 - n2 + 1); i++) {
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        ip1 += is1;
+        op += os;
+    }
+    for (i = 0; i < n_right; i++) {
+        n--;
+        dot(ip1, is1, ip2, is2, op, n, ret);
+        ip1 += is1;
+        op += os;
+    }
+
+    NPY_END_THREADS_DESCR(NpyArray_DESCR(ret));
+    if (PyErr_Occurred()) {
+        goto clean_ret;
+    }
+
+    return ret;
+
+clean_ret:
+    Npy_DECREF(ret);
+    return NULL;
+}
+
+
+/*
+ * Revert a one dimensional array in-place
+ *
+ * Return 0 on success, other value on failure
+ */
+static int
+_npyarray_revert(NpyArray *ret)
+{
+    npy_intp length, i, os;
+    NpyArray_CopySwapFunc *copyswap;
+    char *tmp = NULL, *sw1, *sw2,  *op;
+
+    length = NpyArray_DIM(ret, 0);
+    copyswap = NpyArray_DESCR(ret)->f->copyswap;
+
+    tmp = NpyArray_malloc(NpyArray_ITEMSIZE(ret));
+    if (tmp == NULL) {
+        return -1;
+    }
+
+    os = NpyArray_ITEMSIZE(ret);
+    op = NpyArray_BYTES(ret);
+    sw1 = op;
+    sw2 = op + (length - 1) * os;
+    if (NpyArray_ISFLEXIBLE(ret) || NpyArray_ISOBJECT(ret)) {
+        for(i = 0; i < length / 2; i++) {
+            memmove(tmp, sw1, os);
+            copyswap(tmp, NULL, 0, NULL);
+            memmove(sw1, sw2, os);
+            copyswap(sw1, NULL, 0, NULL);
+            memmove(sw2, tmp, os);
+            copyswap(sw2, NULL, 0, NULL);
+            sw1 += os;
+            sw2 -= os;
+        }
+    } else {
+        for(i = 0; i < length / 2; i++) {
+            memcpy(tmp, sw1, os);
+            memcpy(sw1, sw2, os);
+            memcpy(sw2, tmp, os);
+            sw1 += os;
+            sw2 -= os;
+        }
+    }
+
+    NpyArray_free(tmp);
+    return 0;
+}
+
+
+/*NUMPY_API
+ * correlate(a1, a2 ,typenum, mode)
+ *
+ * This function computes the usual correlation (correlate(a1, a2) !=
+ * correlate(a2, a1), and conjugate the second argument for complex inputs
+ */
+NpyArray *
+NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
+{
+    NpyArray *ret = NULL;
+    int inverted, status;
+
+    if (NpyArray_ISCOMPLEX(ap2)) {
+        /* FIXME: PyArray_Conjugate need to be replaced by NpyArray_Conjugate,
+                  once NpyArray_Conjugate is created, which can be done once
+                  the ufunc stuff is in the core.
+         */
+        ap2 = (NpyArray *)PyArray_Conjugate(ap2, NULL);
+        if (ap2 == NULL) {
+            return NULL;
+        }
+    }
+
+    ret = _npyarray_correlate(ap1, ap2, typenum, mode, &inverted);
+    if (ret == NULL) {
+        return NULL;
+    }
+
+    /* If we inverted input orders, we need to reverse the output array (i.e.
+       ret = ret[::-1]) */
+    if (inverted) {
+        status = _npyarray_revert(ret);
+        if(status) {
+            Py_DECREF(ret);
+            return NULL;
+        }
+    }
+    return ret;
+}
+
+
+/*NUMPY_API
+ * Numeric.correlate(a1, a2 ,typenum, mode)
+ */
+NpyArray *
+NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
+{
+    NpyArray *ret = NULL;
+    int unused;
+
+    ret = _npyarray_correlate(ap1, ap2, typenum, mode, &unused);
+    if (ret == NULL) {
+        return NULL;
+    }
+    return ret;
+}
