@@ -4,14 +4,17 @@
 
 #include "npy_3kcompat.h"
 
+/* We need a single-word token for the type corresponding to NPY_LONGLONG. */
+typedef long long longlong;
+
 /*
  * TODO:
  *  - Handle mode
  */
 
 /**begin repeat
- * #type = double, int#
- * #typenum = NPY_DOUBLE, NPY_INT#
+ * #type = double, int, long, longlong#
+ * #typenum = NPY_DOUBLE, NPY_INT, NPY_LONG, NPY_LONGLONG#
  */
 static int copy_@type@(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *niterx,
         npy_intp *bounds,
@@ -99,6 +102,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     PyArrayObject *ax, *afill;
     PyArrayIterObject *itx;
     int i, typenum, mode, st;
+//    int xtn, ftn;
     npy_intp bounds[NPY_MAXDIMS*2];
     PyArrayNeighborhoodIterObject *niterx;
 
@@ -111,7 +115,13 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     typenum = PyArray_ObjectType(x, 0);
+//    xtn = typenum;
+//    ftn = PyArray_ObjectType(fill, 0);
     typenum = PyArray_ObjectType(fill, typenum);
+
+//    fprintf( stderr,
+//             "xtn=%d ftn=%d typenum =%d %d %d %d\n",
+//             xtn, ftn, typenum, NPY_OBJECT, NPY_INT, NPY_DOUBLE );
 
     ax = (PyArrayObject*)PyArray_FromObject(x, typenum, 1, 10);
     if (ax == NULL) {
@@ -170,6 +180,12 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
             break;
         case NPY_INT:
             st = copy_int(itx->iter, niterx->iter, bounds, &out);
+            break;
+        case NPY_LONG:
+            st = copy_long(itx->iter, niterx->iter, bounds, &out);
+            break;
+        case NPY_LONGLONG:
+            st = copy_longlong(itx->iter, niterx->iter, bounds, &out);
             break;
         case NPY_DOUBLE:
             st = copy_double(itx->iter, niterx->iter, bounds, &out);
