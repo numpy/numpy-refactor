@@ -778,3 +778,93 @@ NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 
     return _npyarray_correlate(ap1, ap2, typenum, mode, &unused);
 }
+
+
+/*
+ * compare the field dictionary for two types
+ * return 1 if the same or 0 if not
+ */
+static int
+_equivalent_fields(NpyDict *field1, NpyDict *field2)
+{
+    NpyDict_Iter pos;
+    NpyArray_DescrField *value1, *value2;
+    const char *key;
+    int same=1;
+
+    if (field1 == field2) {
+        return 1;
+    }
+    if (field1 == NULL || field2 == NULL) {
+        return 0;
+    }
+    if (NpyDict_Size(field1) != NpyDict_Size(field2)) {
+        same = 0;
+    }
+
+    NpyDict_IterInit(&pos);
+    while (same && NpyDict_IterNext(field1, &pos, (void **)&key,
+                                    (void **)&value1)) {
+        value2 = NpyDict_Get(field2, key);
+        if (NULL == value2 || value1->offset != value2->offset ||
+            ((NULL == value1->title && NULL != value2->title) ||
+             (NULL != value1->title && NULL == value2->title) ||
+             (NULL != value1->title && NULL != value2->title &&
+              strcmp(value1->title, value2->title)))) {
+            same = 0;
+        } else if (!NpyArray_EquivTypes(value1->descr, value2->descr)) {
+            same = 0;
+        }
+    }
+    return same;
+}
+
+
+/* compare the metadata for two date-times
+ * return 1 if they are the same, or 0 if not
+ */
+static int
+_equivalent_units(NpyArray_DateTimeInfo *info1, NpyArray_DateTimeInfo *info2)
+{
+    /* Same meta object */
+    return ((info1 == info2)
+            || ((info1->base == info2->base)
+            && (info1->num == info2->num)
+            && (info1->den == info2->den)
+            && (info1->events == info2->events)));
+}
+
+
+/*NUMPY_API
+ *
+ * This function returns true if the two typecodes are
+ * equivalent (same basic kind and same itemsize).
+ */
+NPY_NO_EXPORT unsigned char
+NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
+{
+    int typenum1 = typ1->type_num;
+    int typenum2 = typ2->type_num;
+    int size1 = typ1->elsize;
+    int size2 = typ2->elsize;
+
+    if (size1 != size2) {
+        return NPY_FALSE;
+    }
+    if (NpyArray_ISNBO(typ1->byteorder) != NpyArray_ISNBO(typ2->byteorder)) {
+        return NPY_FALSE;
+    }
+    if (typenum1 == NPY_VOID
+        || typenum2 == NPY_VOID) {
+        return ((typenum1 == typenum2)
+                && _equivalent_fields(typ1->fields, typ2->fields));
+    }
+    if (typenum1 == NPY_DATETIME
+        || typenum1 == NPY_DATETIME
+        || typenum2 == NPY_TIMEDELTA
+        || typenum2 == NPY_TIMEDELTA) {
+        return ((typenum1 == typenum2)
+                && _equivalent_units(typ1->dtinfo, typ2->dtinfo));
+    }
+    return typ1->kind == typ2->kind;
+}
