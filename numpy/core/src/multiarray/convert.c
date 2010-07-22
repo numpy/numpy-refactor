@@ -31,7 +31,8 @@ PyArray_ToList(PyArrayObject *self)
         return (PyObject *)self;
     }
     if (PyArray_NDIM(self) == 0) {
-        return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self),self);
+        return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self),
+                                               PyArray_ARRAY(self));
     }
 
     sz = PyArray_DIM(self, 0);
@@ -64,7 +65,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
     n3 = (sep ? strlen((const char *)sep) : 0);
     n4 = (format ? strlen((const char *)format) : 0);
     while (it->index < it->size) {
-        obj = PyArray_DESCR(self)->f->getitem(it->dataptr, self);
+        obj = PyArray_DESCR(self)->f->getitem(it->dataptr, PyArray_ARRAY(self));
         if (obj == NULL) {
             _Npy_DECREF(it);
             return -1;
@@ -262,12 +263,12 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
         PyArray_FillWithScalarFunc* fillwithscalar =
             PyArray_DESCR(arr)->f->fillwithscalar;
         if (fillwithscalar && PyArray_ISALIGNED(arr)) {
-            copyswap(fromptr, NULL, swap, newarr);
-            fillwithscalar(toptr, size, fromptr, arr);
+            copyswap(fromptr, NULL, swap, PyArray_ARRAY(newarr));
+            fillwithscalar(toptr, size, fromptr, PyArray_ARRAY(arr));
         }
         else {
             while (size--) {
-                copyswap(toptr, fromptr, swap, arr);
+                copyswap(toptr, fromptr, swap, PyArray_ARRAY(arr));
                 toptr += itemsize;
             }
         }
@@ -281,7 +282,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
             return -1;
         }
         while (size--) {
-            copyswap(iter->dataptr, fromptr, swap, arr);
+            copyswap(iter->dataptr, fromptr, swap, PyArray_ARRAY(arr));
             NpyArray_ITER_NEXT(iter);
         }
         _Npy_DECREF(iter);
@@ -296,9 +297,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
 NPY_NO_EXPORT PyObject *
 PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 {
-    NpyArray* arr = NpyArray_NewCopy(PyArray_ARRAY(m1), fortran);
-    /* TODO: Unwrap array. */
-    return (PyObject *)arr;
+    RETURN_PYARRAY(NpyArray_NewCopy(PyArray_ARRAY(m1), fortran));
 }
 
 
@@ -310,8 +309,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
 
-    NpyArray *view = NpyArray_View(PyArray_ARRAY(self), type,
-                                   pytype);
-    /* TODO: Unwrap object. */
-    return (PyObject *)view;
+    
+    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), type,
+                                 pytype));
 }

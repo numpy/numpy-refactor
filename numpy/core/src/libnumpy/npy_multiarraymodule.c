@@ -187,7 +187,7 @@ NpyArray_Free(NpyArray *ap, void *ptr)
     if (ap->nd >= 2) {
         NpyArray_free(ptr);     /* TODO: Notice lower case 'f' - points to define that translate to free or something. */
     }
-    Npy_DECREF(ap);
+    _Npy_DECREF(ap);
     return 0;
 }
 
@@ -327,8 +327,8 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
         /* TODO: We can't get priority from the core object.
            We need to refactor this and probably move this
            funciton to the interface layer. */
-        prior2 = PyArray_GetPriority((PyObject*)ap2, 0.0);
-        prior1 = PyArray_GetPriority((PyObject*)ap1, 0.0);
+        prior2 = PyArray_GetPriority(Npy_INTERFACE(ap2), 0.0);
+        prior1 = PyArray_GetPriority(Npy_INTERFACE(ap1), 0.0);
     }
     else {
         prior1 = prior2 = 0.0;
@@ -336,7 +336,7 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
 
     ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
-                       (NpyObject *)(prior2 > prior1 ? ap2 : ap1));
+                       Npy_INTERFACE(prior2 > prior1 ? ap2 : ap1));
     return ret;
 }
 
@@ -522,22 +522,26 @@ fail:
 NpyArray *
 NpyArray_CopyAndTranspose(NpyArray *arr)
 {
-    NpyArray *ret;
+    NpyArray *ret, *tmp;
     int nd, eltsize, stride2;
     npy_intp dims[2], i, j;
     char *iptr, *optr;
 
     /* make sure it is well-behaved */
-    arr = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
-    if (arr == NULL) {
+    tmp = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
+    if (tmp == NULL) {
         return NULL;
-    }
+    }    
+    arr = tmp;
+
     nd = NpyArray_NDIM(arr);
     if (nd == 1) {
         /* we will give in to old behavior */
+        _Npy_DECREF(tmp);
         return arr;
     }
     else if (nd != 2) {
+        _Npy_DECREF(tmp);
         NpyErr_SetString(NpyExc_ValueError, "only 2-d arrays are allowed");
         return NULL;
     }
@@ -548,8 +552,9 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     eltsize = NpyArray_ITEMSIZE(arr);
     Npy_INCREF(NpyArray_DESCR(arr));
     ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
-                                NULL, NULL, 0, NPY_FALSE, NULL, arr);
+                                NULL, NULL, 0, NPY_FALSE, NULL, NULL);
     if (ret == NULL) {
+        _Npy_DECREF(tmp);
         return NULL;
     }
 
@@ -558,7 +563,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     optr = NpyArray_DATA(ret);
     stride2 = eltsize * dims[0];
     for (i = 0; i < dims[0]; i++) {
-        iptr = PyArray_BYTES(arr) + i * eltsize;
+        iptr = NpyArray_BYTES(arr) + i * eltsize;
         for (j = 0; j < dims[1]; j++) {
             /* optr[i,j] = iptr[j,i] */
             memcpy(optr, iptr, eltsize);
@@ -567,6 +572,8 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
         }
     }
     NPY_END_ALLOW_THREADS;
+
+    _Npy_DECREF(tmp);
     return ret;
 }
 
@@ -631,7 +638,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     if (ret == NULL) {
         return NULL;
     }
-    dot = PyArray_DESCR(ret)->f->dotfunc;
+    dot = NpyArray_DESCR(ret)->f->dotfunc;
     if (dot == NULL) {
         NpyErr_SetString(NpyExc_ValueError,
                          "function not available for this data type");
@@ -672,7 +679,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     return ret;
 
 clean_ret:
-    Npy_DECREF(ret);
+    _Npy_DECREF(ret);
     return NULL;
 }
 
@@ -737,6 +744,7 @@ NpyArray *
 NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 {
     NpyArray *ret = NULL;
+    NpyArray *cap2 = NULL;
     int inverted, status;
 
     if (NpyArray_ISCOMPLEX(ap2)) {
@@ -744,15 +752,21 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
                   once NpyArray_Conjugate is created, which can be done once
                   the ufunc stuff is in the core.
          */
-        ap2 = (NpyArray *)PyArray_Conjugate(ap2, NULL);
-        if (ap2 == NULL) {
+        PyObject* iap2 = PyArray_Conjugate(Npy_INTERFACE(ap2), NULL);
+        if (iap2 == NULL) {
             return NULL;
         }
+        /* Move the reference. */
+        cap2 = PyArray_ARRAY(iap2);
+        _Npy_INCREF(cap2);
+        Py_DECREF(iap2);
+        /* Change ap2. */
+        ap2 = cap2;
     }
 
     ret = _npyarray_correlate(ap1, ap2, typenum, mode, &inverted);
     if (ret == NULL) {
-        return NULL;
+        goto done;
     }
 
     /* If we inverted input orders, we need to reverse the output array (i.e.
@@ -761,9 +775,12 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
         status = _npyarray_revert(ret);
         if(status) {
             Py_DECREF(ret);
-            return NULL;
+            ret = NULL;
+            goto done;
         }
     }
+ done:
+    _Npy_XDECREF(cap2);
     return ret;
 }
 
@@ -875,7 +892,7 @@ unsigned char
 NpyArray_EquivTypenums(int typenum1, int typenum2)
 {
     NpyArray_Descr *d1, *d2;
-    Bool ret;
+    npy_bool ret;
 
     d1 = NpyArray_DescrFromType(typenum1);
     d2 = NpyArray_DescrFromType(typenum2);

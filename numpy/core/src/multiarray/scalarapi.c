@@ -27,7 +27,7 @@
     do {                                                \
         if (PyArray_Check(b)) {                         \
             PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
-            Npy_INCREF(PyArray_BASE_ARRAY(a));         \
+            _Npy_INCREF(PyArray_BASE_ARRAY(a));          \
         } else {                                        \
             PyArray_BASE(a) = (PyObject*) b;            \
             Py_INCREF(b);                               \
@@ -240,7 +240,8 @@ PyArray_CastScalarToCtype(PyObject *scalar, void *ctypeptr,
             Py_DECREF(ain);
             return -1;
         }
-        castfunc(PyArray_BYTES(ain), PyArray_BYTES(aout), 1, ain, aout);
+        castfunc(PyArray_BYTES(ain), PyArray_BYTES(aout), 1, 
+                 PyArray_ARRAY(ain), PyArray_ARRAY(aout));
         Py_DECREF(ain);
         Py_DECREF(aout);
     }
@@ -315,7 +316,8 @@ PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
         return NULL;
     }
     if (PyDataType_FLAGCHK(typecode, NPY_USE_SETITEM)) {
-        if (typecode->f->setitem(scalar, PyArray_DATA(r), r) < 0) {
+        if (typecode->f->setitem(scalar, PyArray_DATA(r), 
+                                 PyArray_ARRAY(r)) < 0) {
             Py_XDECREF(outcode); Py_DECREF(r);
             return NULL;
         }
@@ -652,7 +654,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
         PyArrayScalar_RETURN_BOOL_FROM_LONG(*(Bool*)data);
     }
     else if (PyDataType_FLAGCHK(descr, NPY_USE_GETITEM)) {
-        return descr->f->getitem(data, base);
+        return descr->f->getitem(data, PyArray_ARRAY(base));
     }
     itemsize = descr->elsize;
     copyswap = descr->f->copyswap;
@@ -796,7 +798,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
         destptr = scalar_value(obj, descr);
     }
     /* copyswap for OBJECT increments the reference count */
-    copyswap(destptr, data, swap, base);
+    copyswap(destptr, data, swap, PyArray_ARRAY(base));
     return obj;
 }
 

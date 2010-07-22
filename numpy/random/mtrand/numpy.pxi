@@ -76,14 +76,15 @@ cdef extern from "numpy/arrayobject.h":
         cdef char type, kind, byteorder, flags
         cdef object fields, typeobj
 
+    ctypedef struct NpyArray:
+        char *data
+        int nd
+        npy_intp *dimensions
+        npy_intp *strides
+        int flags
+
     ctypedef extern class numpy.ndarray [object PyArrayObject]:
-        cdef char *data
-        cdef int nd
-        cdef npy_intp *dimensions
-        cdef npy_intp *strides
-        cdef object base
-        cdef dtype descr
-        cdef int flags
+        cdef NpyArray *array
 
     ctypedef struct NpyArrayIterObject:
         int  nd_m1

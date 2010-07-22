@@ -4,6 +4,24 @@
 #include "npy_object.h"
 #include "npy_defs.h"
 
+struct _NpyArray {
+    NpyObject_HEAD
+    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+    char *data;             /* pointer to raw data buffer */
+    int nd;                 /* number of dimensions, also called ndim */
+    npy_intp *dimensions;   /* size in each dimension */
+    npy_intp *strides;      /*
+                             * bytes to jump to get to the
+                             * next element in each dimension
+                             */
+    struct _NpyArray *base_arr; /* Base when it's specifically an array object */
+    void *base_obj;         /* Base when it's an opaque interface object */
+    
+    struct _PyArray_Descr *descr;   /* Pointer to type structure */
+    int flags;              /* Flags describing array -- see below */
+};
+
+extern _NpyTypeObject NpyArray_Type;
 
 npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
 int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
@@ -25,7 +43,7 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_ISFORTRAN(m) (NpyArray_CHKFLAGS(m, NPY_FORTRAN) &&     \
                                (NpyArray_NDIM(m) > 1))
 
-#define NpyArray_FORTRAN_IF(m) ((PyArray_CHKFLAGS(m, NPY_FORTRAN) ?     \
+#define NpyArray_FORTRAN_IF(m) ((NpyArray_CHKFLAGS(m, NPY_FORTRAN) ?     \
                                  NPY_FORTRAN : 0))
 
 #define NpyArray_DATA(obj) ((void *)((obj)->data))
@@ -48,10 +66,10 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_SETITEM(obj,itemptr,v)                         \
         (obj)->descr->f->setitem((PyObject *)(v),               \
                                  (char *)(itemptr),             \
-                                 (PyArrayObject *)(obj))
+                                 (obj))
 
 
-#define NpyArray_SIZE(m) NpyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))
+#define NpyArray_SIZE(m) NpyArray_MultiplyList(NpyArray_DIMS(m), NpyArray_NDIM(m))
 #define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
 
 #define NpyArray_SAMESHAPE(a1,a2) ((NpyArray_NDIM(a1) == NpyArray_NDIM(a2)) && \

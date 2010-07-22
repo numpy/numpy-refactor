@@ -193,7 +193,7 @@ PyArray_XDECREF(PyArrayObject *mp)
     }
 
     if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)PyArray_BYTES(PyArray_ARRAY(mp));
+        data = (PyObject **)PyArray_BYTES(mp);
         n = PyArray_SIZE(mp);
         if (PyArray_ISALIGNED(mp)) {
             for (i = 0; i < n; i++, data++) Py_XDECREF(*data);
@@ -268,7 +268,7 @@ _fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype)
                                        0, NULL, NULL, NULL,
                                        0, NULL);
             if (arr!=NULL) {
-                dtype->f->setitem(obj, optr, arr);
+                dtype->f->setitem(obj, optr, PyArray_ARRAY(arr));
             }
             Py_XDECREF(arr);
         }

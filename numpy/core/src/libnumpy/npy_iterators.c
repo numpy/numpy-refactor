@@ -48,7 +48,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
     else {
         it->contiguous = 0;
     }
-    Npy_INCREF(ao);
+    _Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_SIZE(ao);
     it->nd_m1 = nd - 1;
@@ -78,7 +78,7 @@ static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
     Npy_INTERFACE(it) = NULL;
-    Npy_XDECREF(it->ao);
+    _Npy_XDECREF(it->ao);
     it->magic_number = NPY_INVALID_MAGIC;
 }
 
@@ -151,7 +151,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     else {
         it->contiguous = 0;
     }
-    Npy_INCREF(ao);
+    _Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_MultiplyList(dims, nd);
     it->nd_m1 = nd - 1;
@@ -433,10 +433,6 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         }
         else {
             current = va_arg(va, NpyArray *);
-            if (!PyArray_Check(current)) {
-                err = 1;
-                break;
-            }
         }
         multi->iters[i] = NpyArray_IterNew(current);
     }

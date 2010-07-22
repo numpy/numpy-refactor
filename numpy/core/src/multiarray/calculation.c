@@ -13,6 +13,7 @@
 
 #include "common.h"
 #include "number.h"
+#include "arrayobject.h"
 
 #include "calculation.h"
 
@@ -43,7 +44,8 @@ power_of_ten(int n)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 {
-    return (PyObject *)NpyArray_ArgMax( (NpyArray *)op, axis, (NpyArray *)out );
+    RETURN_PYARRAY(NpyArray_ArgMax(PyArray_ARRAY(op), axis, 
+                                   PyArray_ARRAY(out)));
 }
 
 /*NUMPY_API
@@ -52,10 +54,31 @@ PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMin(PyArrayObject *ap, int axis, PyArrayObject *out)
 {
-    return (PyObject *) NpyArray_ArgMin(PyArray_ARRAY(ap), axis, 
-                                        PyArray_ARRAY(out));
-}
+    PyObject *obj, *new, *ret;
 
+    if (PyArray_ISFLEXIBLE(ap)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "argmax is unsupported for this type");
+        return NULL;
+    }
+    else if (PyArray_ISUNSIGNED(ap)) {
+        obj = PyInt_FromLong((long) -1);
+    }
+    else if (PyArray_TYPE(ap) == PyArray_BOOL) {
+        obj = PyInt_FromLong((long) 1);
+    }
+    else {
+        obj = PyInt_FromLong((long) 0);
+    }
+    new = PyArray_EnsureAnyArray(PyNumber_Subtract(obj, (PyObject *)ap));
+    Py_DECREF(obj);
+    if (new == NULL) {
+        return NULL;
+    }
+    ret = PyArray_ArgMax((PyArrayObject *)new, axis, out);
+    Py_DECREF(new);
+    return ret;
+}
 
 
 /*NUMPY_API

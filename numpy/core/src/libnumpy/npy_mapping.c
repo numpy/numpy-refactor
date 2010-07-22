@@ -60,6 +60,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     assert(0 == mit->nob_refcnt);
     
     Npy_INTERFACE(mit) = NULL;
+    Py_XDECREF(mit->indexobj);
     _Npy_XDECREF(mit->ait);
     _Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {
@@ -189,12 +190,12 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
                               NpyArray_DIMS(self)+1,
                               NpyArray_STRIDES(self)+1, item,
                               NpyArray_FLAGS(self),
-                              NPY_FALSE, NULL, self);
+                              NPY_FALSE, NULL, Npy_INTERFACE(self));
     if (r == NULL) {
         return NULL;
     }
     NpyArray_BASE_ARRAY(r) = self;
-    Npy_INCREF(self); 
+    _Npy_INCREF(self); 
     assert(r->base_obj == NULL);
     NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
     return r;

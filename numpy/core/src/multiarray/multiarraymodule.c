@@ -106,7 +106,6 @@ PyArray_OverflowMultiplyList(intp *l1, int n)
 NPY_NO_EXPORT void *
 PyArray_GetPtr(PyArrayObject *obj, intp* ind)
 {
-    /* TODO: Unwrap array object. */
     return NpyArray_GetPtr(PyArray_ARRAY(obj), ind);
 }
 
@@ -166,7 +165,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
        a leak or I just need more coffee. */
     Py_INCREF(typedescr);
     oldAp = ap;
-    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr);
+    result = NpyArray_AsCArray(&PyArray_LARRAY(ap), ptr, dims, nd, typedescr);
     Py_DECREF(oldAp);
     *op = (PyObject *) ap;
     return result;
@@ -226,8 +225,7 @@ PyArray_As2D(PyObject **op, char ***ptr, int *d1, int *d2, int typecode)
 NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
-    /* TODO: Needs to free both pieces, core array and Py object. */
-    return NpyArray_Free((NpyArray *)op, ptr);
+    return NpyArray_Free(PyArray_ARRAY(op), ptr);
 }
 
 
@@ -406,8 +404,11 @@ PyArray_Concatenate(PyObject *op, int axis)
 NPY_NO_EXPORT NPY_SCALARKIND
 PyArray_ScalarKind(int typenum, PyArrayObject **arr)
 {
-    /* TODO: Unwrap array objects. */
-    return NpyArray_ScalarKind(typenum, arr);
+    if (arr != NULL) {
+        return NpyArray_ScalarKind(typenum, &PyArray_LARRAY(*arr));
+    } else {
+        return NpyArray_ScalarKind(typenum, NULL);
+    }
 }
 
 
@@ -419,40 +420,6 @@ PyArray_CanCoerceScalar(int thistype, int neededtype,
     return NpyArray_CanCoerceScalar(thistype, neededtype, scalar);
 }
 
-
-
-/*
- * Make a new empty array, of the passed size, of a type that takes the
- * priority of ap1 and ap2 into account.
- */
-static PyArrayObject *
-new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
-                  int nd, intp dimensions[], int typenum)
-{
-    PyArrayObject *ret;
-    PyTypeObject *subtype;
-    double prior1, prior2;
-    /*
-     * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
-     */
-    if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
-        prior2 = PyArray_GetPriority((PyObject *)ap2, 0.0);
-        prior1 = PyArray_GetPriority((PyObject *)ap1, 0.0);
-        subtype = (prior2 > prior1 ? Py_TYPE(ap2) : Py_TYPE(ap1));
-    }
-    else {
-        prior1 = prior2 = 0.0;
-        subtype = Py_TYPE(ap1);
-    }
-
-    ret = (PyArrayObject *)PyArray_New(subtype, nd, dimensions,
-                                       typenum, NULL, NULL, 0, 0,
-                                       (PyObject *)
-                                       (prior2 > prior1 ? ap2 : ap1));
-    return ret;
-}
-
 /* Could perhaps be redone to not make contiguous arrays */
 
 /*NUMPY_API
@@ -462,7 +429,8 @@ NPY_NO_EXPORT PyObject *
 PyArray_InnerProduct(PyObject *op1, PyObject *op2)
 {
     /* TODO: wrap return value. */
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2, *ret;
+    NpyArray *prod = NULL;
     int typenum;
     PyArray_Descr *typec;
 
@@ -489,18 +457,23 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    /* TODO: Wrap return value. */
-    ret = NpyArray_InnerProduct(PyArray_ARRAY(ap1),
-                                PyArray_ARRAY(ap2), typenum);
+    prod = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
+                                 PyArray_ARRAY(ap2), typenum);
+
     Py_DECREF(ap1);
     Py_DECREF(ap2);
+
+    /* Get the interface object and move the reference. */
+    ret = Npy_INTERFACE(prod);
+    Py_INCREF(ret);
+    _Npy_DECREF(prod);
 
     return (PyObject *)ret;
 
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);
-    Py_XDECREF(ret);
+    _Npy_XDECREF(prod);
     return NULL;
 }
 
@@ -539,8 +512,9 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
     }
 
     /* TODO: Wrap return value. */
-    ret = NpyArray_MatrixProduct(PyArray_ARRAY(ap1),
-                                 PyArray_ARRAY(ap2), typenum);
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_MatrixProduct(PyArray_ARRAY(ap1),
+                                             PyArray_ARRAY(ap2), typenum));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return (PyObject *)ret;
@@ -567,7 +541,8 @@ PyArray_CopyAndTranspose(PyObject *op)
         return NULL;
     }
 
-    ret = NpyArray_CopyAndTranspose(PyArray_ARRAY(arr));
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_CopyAndTranspose(PyArray_ARRAY(arr)));
     Py_DECREF(arr);
     if (ret == NULL) {
         return NULL;
@@ -585,7 +560,8 @@ PyArray_CopyAndTranspose(PyObject *op)
 NPY_NO_EXPORT PyObject *
 PyArray_Correlate2(PyObject *op1, PyObject *op2, int mode)
 {
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2;
+    PyObject *ret = NULL;
     int typenum;
     PyArray_Descr *typec;
 
@@ -603,12 +579,12 @@ PyArray_Correlate2(PyObject *op1, PyObject *op2, int mode)
         goto fail_clean_ap1;
     }
 
-    /* TODO: Wrap return value. */
-    ret = NpyArray_Correlate2(PyArray_ARRAY(ap1),
-                              PyArray_ARRAY(ap2), typenum, mode);
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_Correlate2(PyArray_ARRAY(ap1),
+                                          PyArray_ARRAY(ap2), typenum, mode));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
-    return (PyObject *)ret;
+    return ret;
 
 fail_clean_ap1:
     Py_DECREF(ap1);
@@ -622,7 +598,8 @@ fail_clean_ap1:
 NPY_NO_EXPORT PyObject *
 PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
 {
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2;
+    PyObject *ret = NULL;
     int typenum;
     PyArray_Descr *typec;
 
@@ -641,8 +618,9 @@ PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
         goto fail;
     }
 
-    ret = NpyArray_Correlate(PyArray_ARRAY(ap1),
-                             PyArray_ARRAY(ap2), typenum, mode);
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_Correlate(PyArray_ARRAY(ap1),
+                                         PyArray_ARRAY(ap2), typenum, mode));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return (PyObject *)ret;
@@ -792,7 +770,7 @@ PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypenums(int typenum1, int typenum2)
 {
-    return NpyArray_EquivTypenums(typenum1, typenum2)
+    return NpyArray_EquivTypenums(typenum1, typenum2);
 }
 
 /*** END C-API FUNCTIONS (actually not quite, there are a few more below) ***/
@@ -821,8 +799,8 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
             newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr),
             (PyObject *)arr);
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-    /*TODO: Npy_INCREF(PyArray_ARRAY(arr));
-      Py_DECREF(arr); */
+    _Npy_INCREF(PyArray_ARRAY(arr));
+    Py_DECREF(arr);
     assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
     return (PyObject *)ret;
 }
@@ -1825,7 +1803,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
 
         for (i = 0; i < n; i++) {
             NpyArrayIterObject* it = in_iter->iter->iters[i];
-            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), it->ao);
+            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), 
+                                             Npy_INTERFACE(it->ao));
             if (arg == NULL) {
                 goto err;
             }
@@ -1838,7 +1817,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), 
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                     "result array type does not match underlying function");
@@ -1897,8 +1877,8 @@ _vec_string_no_args(PyArrayObject* char_array,
 
     while (NpyArray_ITER_NOTDONE(in_iter)) {
         PyObject* item_result;
-        PyObject* item = PyArray_ToScalar(in_iter->dataptr,
-                                          in_iter->ao);
+        PyObject* item = PyArray_ToScalar(in_iter->dataptr, 
+                                          Npy_INTERFACE(in_iter->ao));
         if (item == NULL) {
             goto err;
         }
@@ -1909,7 +1889,8 @@ _vec_string_no_args(PyArrayObject* char_array,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), 
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                 "result array type does not match underlying function");

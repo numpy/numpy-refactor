@@ -18,11 +18,9 @@ typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
 typedef PyArray_CompareFunc NpyArray_CompareFunc;
 typedef PyArray_DateTimeInfo NpyArray_DateTimeInfo;
 typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
-
-typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, void *);
+typedef PyArray_DotFunc NpyArray_DotFunc;
 
 #define NpyTypeObject PyTypeObject
-#define NpyArray_Type PyArray_Type
 #define NpyArrayDescr_Type PyArrayDescr_Type
 
 #define NpyArray_UCS4 npy_ucs4
@@ -80,11 +78,11 @@ extern NpyArray_Descr **npy_userdescrs;
 
 
 /*
- * External interface-provided functions
+ * External interface-provided functions 
  */
 void NpyInterface_Incref(void *);
 void NpyInterface_Decref(void *);
-int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides,
+int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, 
                                  void *subtype, void *interfaceData, void **interfaceRet);
 int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
 int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
@@ -98,8 +96,6 @@ int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interface
  */
 
 /* arraytypes.c.src */
-#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)  /* TODO: Needs to call back to interface layer */
-
 #define NpyArray_DescrFromType(type) \
         PyArray_DescrFromType(type)
 
@@ -108,7 +104,7 @@ void NpyArray_dealloc(NpyArray *self);
 
 /* common.c */
 #define NpyString_Check(a) PyString_Check(a)        /* TODO: Npy_IsWriteable() need callback to interface for base of string, buffer */
-#define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c)
+#define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c) 
 int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
 NpyArray_Descr *
@@ -120,14 +116,13 @@ NpyArray_Index2Ptr(NpyArray *self, npy_intp i);
 /* npy_convert.c */
 NpyArray *
 NpyArray_View(NpyArray *self, PyArray_Descr *type, void *pytype);
-int
+int 
 NpyArray_SetDescr(NpyArray *self, PyArray_Descr *newtype);
 NpyArray *
 NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-#define NpyArray_EnsureAnyArray(op)  (NpyArray *)PyArray_EnsureAnyArray(op)
 size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
                            int inflag, int *objflags);
 NpyArray_Descr *
@@ -196,7 +191,7 @@ void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
 /* methods.c */
 NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
-int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyObject *val);
+int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset, NpyArray *val);
 NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
 unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
@@ -211,8 +206,6 @@ NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
 
 
 /* multiarraymodule.c */
-#define NpyArray_GetPriority(obj, def) PyArray_GetPriority(obj, def);       /* TODO: Needs to be callback to interface layer */
-
 int NpyArray_MultiplyIntList(int *l1, int n);
 npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
 void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
@@ -229,6 +222,8 @@ NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
                               int typenum, int mode);
 NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
                              int typenum, int mode);
+unsigned char NpyArray_EquivTypenums(int typenum1, int typenum2);
+
 
 
 /* number.c */
@@ -241,9 +236,9 @@ NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
         PyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
         max_depth, NPY_DEFAULT, NULL)
 
-#define NpyArray_ContiguousFromArray(op, type)                          \
-    ((NpyArray*) NpyArray_FromArray(op, NpyArray_DescrFromType(type),   \
-                                    NPY_DEFAULT))
+#define NpyArray_ContiguousFromArray(op, type)                  \
+    NpyArray_FromArray(op, NpyArray_DescrFromType(type),        \
+                       NPY_DEFAULT)
 
 #define NpyArray_EquivArrTypes(a1, a2)                                         \
         NpyArray_EquivTypes(NpyArray_DESCR(a1), NpyArray_DESCR(a2))
@@ -254,7 +249,6 @@ NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
  */
 npy_intp NpyArray_Size(NpyArray *op);
 NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
-NpyArray *NpyArray_ArgMin(NpyArray *op, int axis, NpyArray *out);
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);
@@ -314,7 +308,7 @@ NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
 NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                 npy_intp *dims, npy_intp *strides, void *data,
-                                int flags, int ensureArray, void *subtype,
+                                int flags, int ensureArray, void *subtype, 
                                 void *interfaceData);
 NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
@@ -366,18 +360,24 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /* These operate on the elements IN the array, not the array itself. */
 /* TODO: Would love to rename these, easy to misread NpyArray_XX and Npy_XX */
 #define NpyArray_REFCOUNT(a) PyArray_REFCOUNT(a)
-#define NpyArray_INCREF(a) PyArray_INCREF(a)
-#define NpyArray_DECREF(a) PyArray_DECREF(a)
-#define NpyArray_XDECREF(a) PyArray_XDECREF(a)
+#define NpyArray_INCREF(a) PyArray_INCREF(Npy_INTERFACE(a))
+#define NpyArray_DECREF(a) PyArray_DECREF(Npy_INTERFACE(a))
+#define NpyArray_XDECREF(a) PyArray_XDECREF( a ? Npy_INTERFACE(a) : NULL)
 
-#define NpyArray_XDECREF_ERR(a) PyArray_XDECREF_ERR(a)
+#define NpyArray_XDECREF_ERR(obj) \
+        if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {                 \
+            NpyArray_FLAGS(NpyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
+            NpyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                    \
+        }                                                                     \
+        _Npy_XDECREF(obj)
+
 #define NpyArray_Item_INCREF(a, descr) PyArray_Item_INCREF(a, descr)
 #define NpyArray_Item_XDECREF(a, descr) PyArray_Item_XDECREF(a, descr)
 
 #define NpyObject_New(a, b) PyObject_New(a, b)
 
 /*
- * Object model.
+ * Object model. 
  */
 #define NpyObject_Init(object, type) PyObject_Init(object, type)
 
@@ -415,7 +415,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyErr_Print() PyErr_Print()
 
 #if PY_VERSION_HEX >= 0x02050000
-#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
+#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 
 #else
 #define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
 #endif
@@ -433,4 +433,5 @@ extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 //extern NpyArray_Descr * _array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
 
 #endif
+
 

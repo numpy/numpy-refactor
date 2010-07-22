@@ -73,13 +73,16 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
             return -1;
         }
 
+        /* TODO: This isn't right for usage from C.  I think we
+           need to revisit the refcounts so we don't have counts
+           of 0. */
         if (refcheck) {
             refcnt = NpyArray_REFCOUNT(self);
         }
         else {
-            refcnt = 1;
+            refcnt = 0;
         }
-        if ((refcnt > 2)
+        if ((refcnt > 0)
             || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
@@ -272,13 +275,14 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
                                 n, dimensions,
                                 strides,
                                 self->data,
-                                flags, NPY_FALSE, NULL, self);
+                                flags, NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
 
     if (ret == NULL) {
         goto fail;
     }
     if (incref) {
-        Npy_INCREF(self);
+        _Npy_INCREF(self);
     }
     ret->base_arr = self;
     NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
@@ -287,7 +291,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
 
  fail:
     if (!incref) {
-        Npy_DECREF(self);
+        _Npy_DECREF(self);
     }
     return NULL;
 }
@@ -309,7 +313,7 @@ NpyArray_Squeeze(NpyArray *self)
     NpyArray *ret;
 
     if (nd == 0) {
-        Npy_INCREF(self);
+        _Npy_INCREF(self);
         return self;
     }
     for (j = 0, i = 0; i < nd; i++) {
@@ -327,13 +331,14 @@ NpyArray_Squeeze(NpyArray *self)
                                 newnd, dimensions,
                                 strides, self->data,
                                 self->flags,
-                                NPY_FALSE, NULL, self);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
     if (ret == NULL) {
         return NULL;
     }
     NpyArray_FLAGS(ret) &= ~NPY_OWNDATA;
     ret->base_arr = self;
-    Npy_INCREF(self);
+    _Npy_INCREF(self);
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
     return ret;
 }
@@ -350,13 +355,13 @@ NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
     NpyArray *ret;
 
     if (a1 == a2) {
-        Npy_INCREF(ap);
+        _Npy_INCREF(ap);
         return ap;
     }
 
     n = ap->nd;
     if (n <= 1) {
-        Npy_INCREF(ap);
+        _Npy_INCREF(ap);
         return ap;
     }
 
@@ -453,14 +458,15 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
     ret = NpyArray_NewFromDescr(ap->descr,
                                 n, ap->dimensions,
                                 NULL, ap->data, ap->flags,
-                                NPY_FALSE, NULL, ap);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(ap));
     if (ret == NULL) {
         return NULL;
     }
     /* point at true owner of memory: */
     ret->base_arr = ap;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    Npy_INCREF(ap);
+    _Npy_INCREF(ap);
 
     /* fix the dimensions and strides of the return-array */
     for (i = 0; i < n; i++) {
@@ -515,13 +521,14 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
                                 NULL,
                                 NULL,
                                 0, 
-                                NPY_FALSE, NULL, a);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(a));
 
     if (ret == NULL) {
         return NULL;
     }
     if (_flat_copyinto(ret, a, order) < 0) {
-        Npy_DECREF(ret);
+        _Npy_DECREF(ret);
         return NULL;
     }
     return ret;

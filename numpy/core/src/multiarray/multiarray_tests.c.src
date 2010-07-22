@@ -40,7 +40,7 @@ static int copy_@type@(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *
             return -1;
         }
 
-        ptr = (@type@*)aout->data;
+        ptr = (@type@*)PyArray_BYTES(aout);
 
         for (j = 0; j < niterx->size; ++j) {
             *ptr = *((@type@*)niterx->dataptr);
@@ -65,7 +65,7 @@ static int copy_object(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *
     npy_intp odims[NPY_MAXDIMS];
     PyArrayObject *aout;
     PyArray_CopySwapFunc *copyswap = itx->ao->descr->f->copyswap;
-    npy_int itemsize = PyArray_ITEMSIZE(itx->ao);
+    npy_int itemsize = NpyArray_ITEMSIZE(itx->ao);
 
     /*
      * For each point in itx, copy the current neighborhood into an array which
@@ -83,7 +83,7 @@ static int copy_object(NpyArrayIterObject *itx, NpyArrayNeighborhoodIterObject *
         }
 
         for (j = 0; j < niterx->size; ++j) {
-            copyswap(aout->data + j * itemsize, niterx->dataptr, 0, NULL);
+            copyswap(PyArray_BYTES(aout) + j * itemsize, niterx->dataptr, 0, NULL);
             NpyArrayNeighborhoodIter_Next(niterx);
         }
 
@@ -127,7 +127,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     if (ax == NULL) {
         return NULL;
     }
-    if (PySequence_Size(b) != 2 * ax->nd) {
+    if (PySequence_Size(b) != 2 * PyArray_NDIM(ax)) {
         PyErr_SetString(PyExc_ValueError,
                 "bounds sequence size not compatible with x input");
         goto clean_ax;
@@ -144,7 +144,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     /* Compute boundaries for the neighborhood iterator */
-    for (i = 0; i < 2 * ax->nd; ++i) {
+    for (i = 0; i < 2 * PyArray_NDIM(ax); ++i) {
         PyObject* bound;
         bound = PySequence_GetItem(b, i);
         if (bounds == NULL) {
@@ -245,7 +245,7 @@ copy_double_double(NpyArrayNeighborhoodIterObject *itx,
             return -1;
         }
 
-        ptr = (double*)aout->data;
+        ptr = (double*)PyArray_BYTES(aout);
 
         NpyArrayNeighborhoodIter_Reset(niterx);
         for (j = 0; j < niterx->size; ++j) {
@@ -284,12 +284,12 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
     if (ax == NULL) {
         return NULL;
     }
-    if (PySequence_Size(b1) != 2 * ax->nd) {
+    if (PySequence_Size(b1) != 2 * PyArray_NDIM(ax)) {
         PyErr_SetString(PyExc_ValueError,
                 "bounds sequence 1 size not compatible with x input");
         goto clean_ax;
     }
-    if (PySequence_Size(b2) != 2 * ax->nd) {
+    if (PySequence_Size(b2) != 2 * PyArray_NDIM(ax)) {
         PyErr_SetString(PyExc_ValueError,
                 "bounds sequence 2 size not compatible with x input");
         goto clean_ax;
@@ -306,7 +306,7 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     /* Compute boundaries for the neighborhood iterator */
-    for (i = 0; i < 2 * ax->nd; ++i) {
+    for (i = 0; i < 2 * PyArray_NDIM(ax); ++i) {
         PyObject* bound;
         bound = PySequence_GetItem(b1, i);
         if (bounds == NULL) {
@@ -330,7 +330,7 @@ test_neighborhood_iterator_oob(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_out;
     }
 
-    for (i = 0; i < 2 * ax->nd; ++i) {
+    for (i = 0; i < 2 * PyArray_NDIM(ax); ++i) {
         PyObject* bound;
         bound = PySequence_GetItem(b2, i);
         if (bounds == NULL) {

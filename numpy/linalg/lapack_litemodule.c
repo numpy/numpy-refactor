@@ -105,18 +105,18 @@ check_object(PyObject *ob, int t, char *obname,
                      "Expected an array for parameter %s in lapack_lite.%s",
                      obname, funname);
         return 0;
-    } else if (!(((PyArrayObject *)ob)->flags & CONTIGUOUS)) {
+    } else if (!(PyArray_FLAGS(ob) & CONTIGUOUS)) {
         PyErr_Format(LapackError,
                      "Parameter %s is not contiguous in lapack_lite.%s",
                      obname, funname);
         return 0;
-    } else if (!(((PyArrayObject *)ob)->descr->type_num == t)) {
+    } else if (!(PyArray_TYPE(ob) == t)) {
         PyErr_Format(LapackError,
                      "Parameter %s is not of type %s in lapack_lite.%s",
                      obname, tname, funname);
         return 0;
-    } else if (((PyArrayObject *)ob)->descr->byteorder != '=' &&
-               ((PyArrayObject *)ob)->descr->byteorder != '|') {
+    } else if (PyArray_DESCR(ob)->byteorder != '=' &&
+               PyArray_DESCR(ob)->byteorder != '|') {
         PyErr_Format(LapackError,
                      "Parameter %s has non-native byte order in lapack_lite.%s",
                      obname, funname);
@@ -126,13 +126,13 @@ check_object(PyObject *ob, int t, char *obname,
     }
 }
 
-#define CHDATA(p) ((char *) (((PyArrayObject *)p)->data))
-#define SHDATA(p) ((short int *) (((PyArrayObject *)p)->data))
-#define DDATA(p) ((double *) (((PyArrayObject *)p)->data))
-#define FDATA(p) ((float *) (((PyArrayObject *)p)->data))
-#define CDATA(p) ((f2c_complex *) (((PyArrayObject *)p)->data))
-#define ZDATA(p) ((f2c_doublecomplex *) (((PyArrayObject *)p)->data))
-#define IDATA(p) ((int *) (((PyArrayObject *)p)->data))
+#define CHDATA(p) ((char *) PyArray_BYTES(p))
+#define SHDATA(p) ((short int *) PyArray_BYTES(p))
+#define DDATA(p) ((double *) PyArray_BYTES(p))
+#define FDATA(p) ((float *) PyArray_BYTES(p))
+#define CDATA(p) ((f2c_complex *) PyArray_BYTES(p))
+#define ZDATA(p) ((f2c_doublecomplex *) PyArray_BYTES(p))
+#define IDATA(p) ((int *) PyArray_BYTES(p))
 
 static PyObject *
 lapack_lite_dgeev(PyObject *NPY_UNUSED(self), PyObject *args)
