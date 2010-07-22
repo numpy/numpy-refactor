@@ -102,7 +102,6 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     PyArrayObject *ax, *afill;
     PyArrayIterObject *itx;
     int i, typenum, mode, st;
-//    int xtn, ftn;
     npy_intp bounds[NPY_MAXDIMS*2];
     PyArrayNeighborhoodIterObject *niterx;
 
@@ -115,13 +114,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
     }
 
     typenum = PyArray_ObjectType(x, 0);
-//    xtn = typenum;
-//    ftn = PyArray_ObjectType(fill, 0);
     typenum = PyArray_ObjectType(fill, typenum);
-
-//    fprintf( stderr,
-//             "xtn=%d ftn=%d typenum =%d %d %d %d\n",
-//             xtn, ftn, typenum, NPY_OBJECT, NPY_INT, NPY_DOUBLE );
 
     ax = (PyArrayObject*)PyArray_FromObject(x, typenum, 1, 10);
     if (ax == NULL) {
