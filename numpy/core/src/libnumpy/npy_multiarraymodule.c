@@ -774,12 +774,7 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 NpyArray *
 NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 {
-    NpyArray *ret = NULL;
     int unused;
 
-    ret = _npyarray_correlate(ap1, ap2, typenum, mode, &unused);
-    if (ret == NULL) {
-        return NULL;
-    }
-    return ret;
+    return _npyarray_correlate(ap1, ap2, typenum, mode, &unused);
 }
