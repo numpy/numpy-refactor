@@ -42,7 +42,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         for (i = axis; i < ap->nd - 1; i++) dims[i] = i + 1;
         dims[ap->nd - 1] = axis;
         op = NpyArray_Transpose(ap, &newaxes);
-        Py_DECREF(ap);
+        _Npy_DECREF(ap);
         if (op == NULL) {
             return NULL;
         }
