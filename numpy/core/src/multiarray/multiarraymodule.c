@@ -1921,6 +1921,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
                 PyArray_Converter, &char_array,
                 PyArray_DescrConverter, &type,
                 &method_name, &args_seq)) {
+        Py_XDECREF(type);
         goto err;
     }
 
@@ -1933,9 +1934,11 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
     else {
         PyErr_SetString(PyExc_TypeError,
                 "string operation on non-string array");
+        Py_DECREF(type);
         goto err;
     }
     if (method == NULL) {
+        Py_DECREF(type);
         goto err;
     }
 
