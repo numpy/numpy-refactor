@@ -116,12 +116,12 @@ extern "C" CONFUSE_EMACS
                                 PyArray_DescrFromType(type), 0, 0, 0, NULL);
 
 #define PyArray_FROM_OTF(m, type, flags)                                      \
-        PyArray_FromAnyUnwrap(m, NpyArray_DescrFromType(type), 0, 0,                 \
+        PyArray_FromAny(m, PyArray_DescrFromType(type), 0, 0,                 \
                         (((flags) & NPY_ENSURECOPY) ?                         \
                          ((flags) | NPY_DEFAULT) : (flags)), NULL)
 
 #define PyArray_FROMANY(m, type, min, max, flags)                             \
-        PyArray_FromAnyUnwrap(m, NpyArray_DescrFromType(type), min, max,             \
+        PyArray_FromAny(m, PyArray_DescrFromType(type), min, max,             \
                         (((flags) & NPY_ENSURECOPY) ?                         \
                          (flags) | NPY_DEFAULT : (flags)), NULL)
 

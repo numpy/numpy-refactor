@@ -720,7 +720,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     }
     _Npy_DECREF(newdescr);
 
-    if (!NpyArray_ISNBO(indescr)) {
+    if (!NpyArray_ISNBO(indescr->byteorder)) {
         NpyArray_Descr *descr2;
         descr2 = NpyArray_DescrNewByteorder(indescr, '=');
         _Npy_DECREF(indescr);
