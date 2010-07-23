@@ -322,6 +322,7 @@ if config.CheckCBLAS():
     build_blasdot = 1
 else:
     build_blasdot = 0
+build_blasdot = 1
 
 config.config_h_text += """
 #ifndef _NPY_NPY_CONFIG_H_

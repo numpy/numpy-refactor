@@ -1152,7 +1152,7 @@ iter_coords_get(PyArrayIterObject *pself)
 static PyObject *
 iter_base_get(PyArrayIterObject* self)
 {
-    Py_INCREF(self->iter->ao);
+    _Npy_INCREF(self->iter->ao);
     return (PyObject *)self->iter->ao;
 }
 

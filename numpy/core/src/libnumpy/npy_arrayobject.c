@@ -128,6 +128,10 @@ NpyArray_dealloc(NpyArray *self) {
              * Don't need to DECREF -- because we are deleting
              *self already...
              */
+#ifdef Py_REF_DEBUG
+            /* Decrement the total refcnt for debugging. */
+            _Py_DEC_REFTOTAL;
+#endif
         }
         /*
          * In any case base is pointing to something that we need
@@ -143,12 +147,16 @@ NpyArray_dealloc(NpyArray *self) {
     if ((self->flags & NPY_OWNDATA) && self->data) {
         /* Free internal references if an Object array */
         if (NpyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
-            _Npy_INCREF(self); /*hold on to self */
+            _Npy_INCREF(self); /* hold on to self in next call */
             NpyArray_XDECREF(self);
             /*
              * Don't need to DECREF -- because we are deleting
              * self already...
              */
+#ifdef Py_REF_DEBUG
+            /* Decrement the total refcnt for debugging. */
+            _Py_DEC_REFTOTAL;
+#endif
         }
         NpyDataMem_FREE(self->data);
     }

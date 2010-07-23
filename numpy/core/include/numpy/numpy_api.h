@@ -233,6 +233,7 @@ NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
 NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
                              int typenum, int mode);
 unsigned char NpyArray_EquivTypenums(int typenum1, int typenum2);
+int NpyArray_GetEndianness(void);
 
 
 

@@ -257,8 +257,10 @@ _convert_from_tuple(PyObject *obj)
         newdescr->flags = type->flags;
         NpyArray_DescrDeallocNamesAndFields(newdescr);
         type = newdescr;
-        assert(0 == newdescr->subarray->shape_num_dims && NULL == newdescr->subarray->shape_dims || 
-               0 < newdescr->subarray->shape_num_dims && NULL != newdescr->subarray->shape_dims);
+        assert((0 == newdescr->subarray->shape_num_dims && 
+                NULL == newdescr->subarray->shape_dims) || 
+               (0 < newdescr->subarray->shape_num_dims && 
+                NULL != newdescr->subarray->shape_dims));
     }
     return type;
 
@@ -2320,8 +2322,10 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
             return PY_FAIL;
         }
         self->subarray->shape_num_dims = len;
-        assert(0 == self->subarray->shape_num_dims && NULL == self->subarray->shape_dims || 
-               0 < self->subarray->shape_num_dims && NULL != self->subarray->shape_dims);
+        assert((0 == self->subarray->shape_num_dims && 
+                NULL == self->subarray->shape_dims) || 
+               (0 < self->subarray->shape_num_dims && 
+                NULL != self->subarray->shape_dims));
     }
 
     if (fields != Py_None) {
