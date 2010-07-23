@@ -1200,7 +1200,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     char *type;
     int check_num = PyArray_NOTYPE + 10;
     int len;
-    PyObject *item;
+    PyObject *item = NULL;
     int elsize = 0;
     char endian = '=';
 
@@ -1445,6 +1445,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     return PY_SUCCEED;
 
  fail:
+    Py_XDECREF(item);
     PyErr_SetString(PyExc_TypeError, "data type not understood");
     *at = NULL;
     return PY_FAIL;
@@ -1988,7 +1989,7 @@ static PyObject *
 arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds)
 {
     PyObject *odescr=NULL;
-    PyArray_Descr *descr, *conv;
+    PyArray_Descr *descr, *conv = NULL;
     Bool align = FALSE;
     Bool copy = FALSE;
     Bool copied = FALSE;
@@ -1997,15 +1998,18 @@ arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&O&", kwlist,
                 &odescr, PyArray_BoolConverter, &align,
 		PyArray_BoolConverter, &copy )) {
+        Py_XDECREF(odescr);
         return NULL;
     }
 
     if (align) {
         if (!PyArray_DescrAlignConverter(odescr, &conv)) {
+            Py_XDECREF(conv);
             return NULL;
         }
     }
     else if (!PyArray_DescrConverter(odescr, &conv)) {
+        Py_XDECREF(conv);
         return NULL;
     }
     /* Get a new copy of it unless it's already a copy */

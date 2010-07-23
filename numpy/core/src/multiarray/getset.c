@@ -416,8 +416,8 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
     PyArray_Descr *newtype = NULL;
     int result;
 
-    if (!(PyArray_DescrConverter(arg, &newtype)) ||
-        newtype == NULL) {
+    if (!(PyArray_DescrConverter(arg, &newtype)) || newtype == NULL) {
+        Py_XDECREF(newtype);
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
