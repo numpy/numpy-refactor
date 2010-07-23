@@ -1,8 +1,10 @@
 
+
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "npy_config.h"
+#include "numpy/npy_object.h"
 #include "numpy/numpy_api.h"
 
 static int
@@ -77,7 +79,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
            need to revisit the refcounts so we don't have counts
            of 0. */
         if (refcheck) {
-            refcnt = NpyArray_REFCOUNT(self);
+            refcnt = self->nob_refcnt;
         }
         else {
             refcnt = 0;
