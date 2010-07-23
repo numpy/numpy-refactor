@@ -8,6 +8,24 @@ import os
 import re
 import shutil
 from subprocess import *
+from np_suppressions import suppressions
+
+def is_suppressed( file, func ):
+    "Check to see if file:func matches a registered suppression."
+
+    # Iterate through all file/func pairs in our suppressions list.
+    for sfile, sfunc in suppressions:
+
+        # Match each suppression file against the current file.
+        m = re.match( sfile, file )
+        if m:
+            # The file was matched by this regexp.  Now check the function.
+            m = re.match( sfunc, func )
+            if m:
+                # The function also matched, so this is suppressed.
+                return True
+
+    return False
 
 class nptool:
 
@@ -40,6 +58,7 @@ class nptool:
             self.run_gcov()
 
         else:
+            print suppressions
             self.usage()
 
     def build( self ):
@@ -241,10 +260,12 @@ numpy.test()
                       ( func, self.data[file][func]['covpct'],
                         self.data[file][func]['lines'] )
 
-                if self.data[file][func]['covpct'] == 0.:
+                if self.data[file][func]['covpct'] == 0. \
+                   and not is_suppressed( file, func ):
                     untested_funcs.append( func )
 
-            untested[ file ] = untested_funcs
+            if len( untested_funcs ):
+                untested[ file ] = untested_funcs
 
         print
         print "Untested functions:"
