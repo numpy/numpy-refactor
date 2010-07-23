@@ -1750,6 +1750,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     if (nargs == -1 || nargs > NPY_MAXARGS) {
         PyErr_Format(PyExc_ValueError,
                 "len(args) must be < %d", NPY_MAXARGS - 1);
+        Py_DECREF(type);
         goto err;
     }
 
@@ -1757,6 +1758,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     for (i = 1; i < nargs; i++) {
         PyObject* item = PySequence_GetItem(args, i-1);
         if (item == NULL) {
+            Py_DECREF(type);
             goto err;
         }
         broadcast_args[i] = item;
@@ -1765,6 +1767,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     in_iter = (PyArrayMultiIterObject*)PyArray_MultiIterFromObjects
         (broadcast_args, nargs, 0);
     if (in_iter == NULL) {
+        Py_DECREF(type);
         goto err;
     }
     n = in_iter->iter->numiter;
@@ -1848,6 +1851,7 @@ _vec_string_no_args(PyArrayObject* char_array,
 
     in_iter = NpyArray_IterNew(PyArray_ARRAY(char_array));
     if (in_iter == NULL) {
+        Py_DECREF(type);
         goto err;
     }
 
