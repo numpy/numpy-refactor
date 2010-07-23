@@ -135,22 +135,22 @@ dotblas_restoredot(PyObject *NPY_UNUSED(dummy), PyObject *args)
         descr = NpyArray_DescrFromType(PyArray_FLOAT);
         descr->f->dotfunc = oldFunctions[PyArray_FLOAT];
         oldFunctions[PyArray_FLOAT] = NULL;
-        Py_XDECREF(descr);
+        _Npy_XDECREF(descr);
 
         descr = NpyArray_DescrFromType(PyArray_DOUBLE);
         descr->f->dotfunc = oldFunctions[PyArray_DOUBLE];
         oldFunctions[PyArray_DOUBLE] = NULL;
-        Py_XDECREF(descr);
+        _Npy_XDECREF(descr);
 
         descr = NpyArray_DescrFromType(PyArray_CFLOAT);
         descr->f->dotfunc = oldFunctions[PyArray_CFLOAT];
         oldFunctions[PyArray_CFLOAT] = NULL;
-        Py_XDECREF(descr);
+        _Npy_XDECREF(descr);
 
         descr = NpyArray_DescrFromType(PyArray_CDOUBLE);
         descr->f->dotfunc = oldFunctions[PyArray_CDOUBLE];
         oldFunctions[PyArray_CDOUBLE] = NULL;
-        Py_XDECREF(descr);
+        _Npy_XDECREF(descr);
 
         altered = NPY_FALSE;
     }

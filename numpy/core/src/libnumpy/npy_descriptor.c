@@ -8,7 +8,12 @@
 #include <Python.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_object.h"
 
+
+#if !defined(MAX)
+#define MAX(x,y) (((x)>=(y)) ? (x) : (y))
+#endif
 
 
 /* Local functions */
@@ -17,6 +22,15 @@ static void *npy_copy_fields_key(void *key);
 static void npy_dealloc_fields_key(void *key);
 static void *npy_copy_fields_value(void *value);
 static void npy_dealloc_fields_value(void *value);
+
+void 
+NpyArray_DescrDestroy(NpyArray_Descr *self);
+
+
+_NpyTypeObject NpyArrayDescr_Type = {
+    (npy_destructor)NpyArray_DescrDestroy,
+};
+
 
 
 
@@ -55,7 +69,11 @@ NpyArray_DescrNewFromType(int type_num)
 NpyArray_Descr *
 NpyArray_DescrNew(NpyArray_Descr *base)
 {
-    NpyArray_Descr *new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
+    NpyArray_Descr *new;
+    
+    assert(NULL != base && NPY_VALID_MAGIC == base->magic_number);
+
+    new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
     if (new == NULL) {
         return NULL;
     }
@@ -82,14 +100,136 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     }
 
     /* Allocate the interface wrapper object. */
-    if (NPY_FALSE == NpyInterface_DescrNewWrapper(new, &new->nob_interface)) {
+    if (NPY_FALSE == NpyInterface_DescrNewFromWrapper(Npy_INTERFACE(base), new, &new->nob_interface)) {
         Npy_INTERFACE(new) = NULL;
         _Npy_DECREF(new);
         return NULL;
     }
+    
+    /* Note on reference counts: At this point if there is an inteface object, it's refcnt should
+       be == 1 because the refcnt on the core object == 1. That is, the core object is holding a
+       single reference to the interface object. */
     return new;
 }
 
+
+
+/*
+ * new reference
+ * doesn't alter refcount of chktype or mintype ---
+ * unless one of them is returned
+ */
+NPY_NO_EXPORT NpyArray_Descr *
+NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
+{
+    NpyArray_Descr *outtype;
+    int outtype_num, save_num;
+    
+    assert(NULL != chktype && NULL != mintype &&
+           NPY_VALID_MAGIC == chktype->magic_number && 
+           NPY_VALID_MAGIC == mintype->magic_number);
+
+    if (NpyArray_EquivTypes(chktype, mintype)) {
+        _Npy_INCREF(mintype);
+        return mintype;
+    }
+    
+    
+    if (chktype->type_num > mintype->type_num) {
+        outtype_num = chktype->type_num;
+    }
+    else {
+        if (NpyTypeNum_ISOBJECT(chktype->type_num) &&
+            NpyDataType_ISSTRING(mintype)) {
+            return NpyArray_DescrFromType(NPY_OBJECT);
+        }
+        else {
+            outtype_num = mintype->type_num;
+        }
+    }
+    
+    save_num = outtype_num;
+    while (outtype_num < NPY_NTYPES &&
+           !(NpyArray_CanCastSafely(chktype->type_num, outtype_num)
+             && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
+               outtype_num++;
+           }
+    if (outtype_num == NPY_NTYPES) {
+        outtype = NpyArray_DescrFromType(save_num);
+    }
+    else {
+        outtype = NpyArray_DescrFromType(outtype_num);
+    }
+    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
+        int testsize = outtype->elsize;
+        int chksize, minsize;
+        chksize = chktype->elsize;
+        minsize = mintype->elsize;
+        /*
+         * Handle string->unicode case separately
+         * because string itemsize is 4* as large
+         */
+        if (outtype->type_num == NPY_UNICODE &&
+            mintype->type_num == NPY_STRING) {
+            testsize = MAX(chksize, 4*minsize);
+        }
+        else if (chktype->type_num == NPY_STRING &&
+                 mintype->type_num == NPY_UNICODE) {
+            testsize = MAX(chksize*4, minsize);
+        }
+        else {
+            testsize = MAX(chksize, minsize);
+        }
+        if (testsize != outtype->elsize) {
+            NpyArray_DESCR_REPLACE(outtype);
+            outtype->elsize = testsize;
+            NpyArray_DescrDeallocNamesAndFields(outtype);
+        }
+    }
+    return outtype;
+}
+
+
+
+/*
+ * op is an object to be converted to an ndarray.
+ *
+ * minitype is the minimum type-descriptor needed.
+ *
+ * returns new reference
+ */
+NpyArray_Descr *
+NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
+{
+    NpyArray_Descr *chktype = NULL;
+    NpyArray_Descr *outtype = NULL;
+    
+    assert(NULL != ap && 
+           NPY_VALID_MAGIC == ap->magic_number && 
+           (NULL == mintype || NPY_VALID_MAGIC == mintype->magic_number));
+    
+    chktype = PyArray_DESCR(ap);
+    _Npy_INCREF(chktype);
+    if (mintype == NULL) {
+        return chktype;
+    }
+    _Npy_INCREF(mintype);
+    
+    outtype = NpyArray_SmallType(chktype, mintype);
+    _Npy_DECREF(chktype);
+    _Npy_DECREF(mintype);
+    
+    /*
+     * VOID Arrays should not occur by "default"
+     * unless input was already a VOID
+     */
+    if (outtype->type_num == NPY_VOID &&
+        mintype->type_num != NPY_VOID) {
+        _Npy_DECREF(outtype);
+        outtype = NpyArray_DescrFromType(PyArray_OBJECT);
+    }
+    return outtype;
+}
 
 
 

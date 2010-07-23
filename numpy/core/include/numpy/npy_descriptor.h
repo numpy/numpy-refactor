@@ -114,12 +114,18 @@ NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
 void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
 void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
 NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
-void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key, NpyArray_Descr *descr,
+void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key, 
+                            NpyArray_Descr *descr,
                             int offset, const char *title);
 struct NpyDict_struct *NpyArray_DescrFieldsCopy(struct NpyDict_struct *fields);
 char **NpyArray_DescrNamesCopy(char **names);
 int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
 void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+
+NpyArray_Descr *
+NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
+NpyArray_Descr *
+NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype);
 
 
 #endif

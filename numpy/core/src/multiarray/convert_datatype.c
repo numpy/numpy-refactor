@@ -341,7 +341,7 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
         if (!PyArray_CanCoerceScalar(stype->type_num,
                                      intype->type_num,
                                      scalarkind)) {
-            newtype = _array_small_type(intype, stype);
+            newtype = NpyArray_SmallType(intype, stype);
             _Npy_XDECREF(intype);
             intype = newtype;
         }

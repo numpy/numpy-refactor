@@ -305,12 +305,13 @@ array_swapaxes(PyArrayObject *self, PyObject *args)
 NPY_NO_EXPORT PyObject *
 PyArray_GetField(PyArrayObject *self, PyArray_Descr *typed, int offset)
 {
+    NpyArray_Descr *typedWrap;
+    
     /* Move reference to the core object. */
-    _Npy_INCREF(typed->descr);
-    Py_DECREF(typed);
+    PyArray_Descr_REF_TO_CORE(typed, typedWrap);
     
     /* TODO: wrap return object. */
-    return (PyObject *) NpyArray_GetField(PyArray_ARRAY(self), typed->descr, offset);
+    return (PyObject *) NpyArray_GetField(PyArray_ARRAY(self), typedWrap, offset);
 }
 
 static PyObject *
@@ -341,12 +342,13 @@ NPY_NO_EXPORT int
 PyArray_SetField(PyArrayObject *self, PyArray_Descr *dtype,
                  int offset, PyObject *val)
 {
+    NpyArray_Descr *dtypeWrap;
+    
     /* Move the reference to the core object. */
-    _Npy_INCREF(dtype->descr);
-    Py_DECREF(dtype);
+    PyArray_Descr_REF_TO_CORE(dtype, dtypeWrap);
     
     /* TODO: Unwrap array from PyObject */
-    return NpyArray_SetField(PyArray_ARRAY(self), dtype->descr, offset, val);
+    return NpyArray_SetField(PyArray_ARRAY(self), dtypeWrap, offset, val);
 }
 
 static PyObject *
@@ -1645,7 +1647,7 @@ array_mean(PyArrayObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    num = _get_type_num_double(PyArray_DESCR(self), dtype->descr);
+    num = _get_type_num_double(PyArray_DESCR(self), (NULL != dtype) ? dtype->descr : NULL);
     Py_XDECREF(dtype);
     return PyArray_Mean(self, axis, num, out);
 }
@@ -1827,7 +1829,7 @@ array_stddev(PyArrayObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    num = _get_type_num_double(PyArray_DESCR(self), dtype->descr);
+    num = _get_type_num_double(PyArray_DESCR(self), (NULL != dtype) ? dtype->descr : NULL);
     Py_XDECREF(dtype);
     return __New_PyArray_Std(self, axis, num, out, 0, ddof);
 }
@@ -1853,7 +1855,7 @@ array_variance(PyArrayObject *self, PyObject *args, PyObject *kwds)
         return NULL;
     }
 
-    num = _get_type_num_double(PyArray_DESCR(self), dtype->descr);
+    num = _get_type_num_double(PyArray_DESCR(self), (NULL != dtype) ? dtype->descr : NULL);
     Py_XDECREF(dtype);
     return __New_PyArray_Std(self, axis, num, out, 1, ddof);
 }

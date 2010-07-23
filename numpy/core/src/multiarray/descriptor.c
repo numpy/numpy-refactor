@@ -26,29 +26,6 @@ static PyArray_Descr *
 _use_inherit(PyArray_Descr *type, PyObject *newobj, int *errflag);
 
 
-/* Allocates a PyArrayDescrObject wrapper for the core descriptor object passed
-   in as 'descr'. */
-NPY_NO_EXPORT int
-NpyInterface_DescrNewWrapper(NpyArray_Descr *descr, void **interfaceRet)
-{
-    PyArray_Descr *result;
-    
-    result = _pya_malloc(sizeof(*result));
-    if (result == NULL) {
-        *interfaceRet = NULL;
-        return NPY_FALSE;
-    }
-    
-    PyObject_Init((PyObject *)result, &PyArrayDescr_Type);
-    result->magic_number = NPY_VALID_MAGIC;
-    result->descr = descr;
-    result->typeobj = NULL;
-    
-    *interfaceRet = result;
-    return NPY_TRUE;
-}
-
-
 /* Returns new reference */
 NPY_NO_EXPORT PyArray_Descr *
 _arraydescr_fromobj(PyObject *obj)
@@ -291,7 +268,7 @@ _convert_from_tuple(PyObject *obj)
                0 < newdescr->subarray->shape_num_dims && NULL != newdescr->subarray->shape_dims);
 
         /* Move reference to newdescr to interface object for return. */
-        type = Npy_INTERFACE(newdescr);
+        type = PyArray_Descr_WRAP(newdescr);
         Py_INCREF(type);
         _Npy_DECREF(newdescr);
     }
@@ -1553,7 +1530,7 @@ arraydescr_subdescr_get(PyArray_Descr *self)
     }
     
     shape = PyArray_IntTupleFromIntp(self->descr->subarray->shape_num_dims, self->descr->subarray->shape_dims);
-    ret = Py_BuildValue("OO", (PyObject *)Npy_INTERFACE(self->descr->subarray->base), shape);
+    ret = Py_BuildValue("OO", (PyObject *)PyArray_Descr_WRAP(self->descr->subarray->base), shape);
     Py_DECREF(shape);
     return ret;
 }
@@ -2676,7 +2653,7 @@ arraydescr_str(PyArray_Descr *self)
         PyUString_ConcatAndDel(&t, PyUString_FromString(")"));
         sub = t;
     }
-    else if (PyDataType_ISFLEXIBLE(self) || !NpyArray_ISNBO(self->descr->byteorder)) {
+    else if (NpyTypeNum_ISFLEXIBLE(self->descr->type_num) || !NpyArray_ISNBO(self->descr->byteorder)) {
         sub = npy_arraydescr_protocol_typestr_get(self->descr);
     }
     else {

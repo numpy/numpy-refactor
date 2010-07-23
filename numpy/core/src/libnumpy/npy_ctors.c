@@ -705,6 +705,9 @@ NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
 {
     NpyArray *obj;
 
+    assert(NULL != arr && NPY_VALID_MAGIC == arr->magic_number && NPY_VALID_MAGIC == arr->descr->magic_number &&
+           (NULL == descr || NPY_VALID_MAGIC == descr->magic_number));
+    
     if (requires & NPY_NOTSWAPPED) {
         if (!descr && NpyArray_Check(arr) &&
             !NpyArray_ISNBO(NpyArray_DESCR(arr)->byteorder)) {
@@ -815,6 +818,8 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     npy_intp size;
     PyTypeObject *subtypeHack = NULL;
     
+    assert(NULL != descr && NPY_VALID_MAGIC == descr->magic_number);
+
     if (descr->subarray) {
         NpyArray *ret;
         npy_intp newdims[2*NPY_MAXDIMS];
@@ -1007,6 +1012,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         Npy_DECREF(self);
         return NULL;
     }
+    assert(NULL != self && NPY_VALID_MAGIC == self->magic_number && NPY_VALID_MAGIC == self->descr->magic_number);
     return self;
     
 fail:
@@ -1044,6 +1050,7 @@ NpyArray_New(NpyTypeObject *subtype, int nd, npy_intp *dims, int type_num,
     }
     new = NpyArray_NewFromDescr(descr, nd, dims, strides,
                                 data, flags, NPY_FALSE, subtype, obj);
+    assert(NULL != new && NPY_VALID_MAGIC == new->magic_number && NPY_VALID_MAGIC == new->descr->magic_number);
     return new;
 }
 
@@ -1063,6 +1070,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     NpyArray_Descr *oldtype;
     char *msg = "cannot copy back to a read-only array";
     int ensureArray = NPY_FALSE;
+    
+    assert(NULL != arr && NPY_VALID_MAGIC == arr->magic_number && NPY_VALID_MAGIC == arr->descr->magic_number);
+    assert(NULL == newtype || NPY_VALID_MAGIC == newtype->magic_number);
     
     oldtype = NpyArray_DESCR(arr);
     if (newtype == NULL) {
@@ -1195,6 +1205,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             Npy_INCREF(arr);
         }
     }
+    assert(NULL != ret && NPY_VALID_MAGIC == ret->magic_number && NPY_VALID_MAGIC == ret->descr->magic_number);
     return ret;
 }
 

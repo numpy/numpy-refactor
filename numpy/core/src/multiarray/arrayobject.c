@@ -60,11 +60,10 @@ NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromType(int type)
 {
     NpyArray_Descr *result = NpyArray_DescrFromType(type);
+    PyArray_Descr *resultWrap = NULL;
     
-    Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
-    
-    return PyArray_Descr_WRAP(result);
+    PyArray_Descr_REF_FROM_CORE(result, resultWrap);
+    return resultWrap;
 }
 
 
@@ -898,8 +897,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool
-                ((PyObject *)Npy_INTERFACE( PyArray_DESCR(self) ),
-                 (PyObject *)Npy_INTERFACE( PyArray_DESCR(array_other) ),
+                (PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                 PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                  Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
@@ -963,8 +962,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool(
-                    (PyObject *)Npy_INTERFACE( PyArray_DESCR(self) ),
-                    (PyObject *)Npy_INTERFACE( PyArray_DESCR(array_other) ),
+                    PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                    PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                     Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);

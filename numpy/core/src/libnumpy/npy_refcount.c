@@ -6,6 +6,7 @@
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
 
+#define Py_USING_UNICODE
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
@@ -26,7 +27,7 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
         Npy_Interface_XINCREF(temp);
         /* TODO: Fix for garbage collected environments - needs to store possibly new pointer */
     }
-    else if (NpyDescr_HASFIELDS(descr)) {
+    else if (NpyDataType_HASFIELDS(descr)) {
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;
@@ -56,7 +57,7 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
         NPY_COPY_VOID_PTR(&temp, data);
         NpyInterface_XDecref(temp);
     }
-    else if (NpyDescr_HASFIELDS(descr)) {
+    else if (NpyDataType_HASFIELDS(descr)) {
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;

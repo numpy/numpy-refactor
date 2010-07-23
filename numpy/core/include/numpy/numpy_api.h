@@ -49,7 +49,7 @@ typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_
 
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
 
-#define NpyDataType_ISSTRING(obj) PyDataType_ISSTRING(obj)
+#define NpyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(obj->type_num)
 #define NpyArray_CheckExact(op) PyArray_CheckExact(op)
 #define NpyArray_Check(op) PyArray_Check(op)
 
@@ -98,7 +98,8 @@ int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
 int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
 int NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter, void **interfaceRet);
 int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet);
-int NpyInterface_DescrNewWrapper(struct NpyArray_Descr *descr, void **interfaceRet);
+int NpyInterface_DescrNewFromType(int type, struct NpyArray_Descr *descr, void **interfaceRet);
+int NpyInterface_DescrNewFromWrapper(void *base, struct NpyArray_Descr *descr, void **interfaceRet);
 
 
 
@@ -218,10 +219,6 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
 
 
 /* Already exists as a macro */
-#define NpyArray_ContiguousFromAny(op, type, min_depth, max_depth)             \
-        PyArray_FromAny(op, NpyArray_DescrFromType(type), min_depth,           \
-        max_depth, NPY_DEFAULT, NULL)
-
 #define NpyArray_ContiguousFromArray(op, type)                          \
     ((NpyArray*) NpyArray_FromArray(op, NpyArray_DescrFromType(type),   \
                                     NPY_DEFAULT))
@@ -268,7 +265,7 @@ int NpyArray_CanCastSafely(int fromtype, int totype);
 npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
 npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
 int NpyArray_ValidType(int type);
-NPY_NO_EXPORT NpyArray_Descr *NpyArray_DescrFromType(int type);
+NpyArray_Descr *NpyArray_DescrFromType(int type);
 
 NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
                             NpyArray *ret, NPY_CLIPMODE clipmode);
@@ -406,7 +403,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
  */
 #define NpyArray_View(a, b, c) ((NpyArray*) PyArray_View(a,b,c))
 #define NpyArray_NewCopy(a, order) ((NpyArray*) PyArray_NewCopy(a, order))
-#define NpyArray_DescrFromArray(a, dtype) PyArray_DescrFromObject((PyObject*)(a), dtype)
 
 extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,

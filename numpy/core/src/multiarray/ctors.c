@@ -810,13 +810,14 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
                      intp *dims, intp *strides, void *data,
                      int flags, PyObject *obj)
 {
+    NpyArray_Descr *descrCore;
+    
     /* Move stolen reference to core about. */
-    _Npy_INCREF(descr->descr);
-    Py_DECREF(descr);
+    PyArray_Descr_REF_TO_CORE(descr, descrCore);
 
     // TODO: Returns NpyArray, needs to be wrapped into PyObject.
     return (PyObject *) 
-        NpyArray_NewFromDescr(descr->descr, nd, dims, strides, 
+        NpyArray_NewFromDescr(descrCore, nd, dims, strides, 
                               data, flags, NPY_FALSE, subtype, obj);
 }
 
@@ -895,7 +896,7 @@ NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStri
                 }
             }
         }
-        else Npy_Interface_XDECREF(func);
+        else Py_XDECREF(func);
     }
     *interfaceRet = wrapper;
     return NPY_TRUE;
@@ -1037,11 +1038,12 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 int max_depth, int flags, PyObject *context)
 {
-    /* Move reference to the core descr which is what really gets stolen. */
-    _Npy_INCREF(newtype->descr);
-    Py_DECREF(newtype);
+    NpyArray_Descr *newtypeCore;
     
-    return PyArray_FromAnyUnwrap(op, newtype->descr, min_depth,
+    /* Move stolen reference to core about. */
+    PyArray_Descr_REF_TO_CORE(newtype, newtypeCore);
+    
+    return PyArray_FromAnyUnwrap(op, newtypeCore, min_depth,
                                  max_depth, flags, context);
 }
 
@@ -1049,7 +1051,7 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
 /* Does not check for ENSURECOPY and NOTSWAPPED in flags
  * Steals a reference to newtype --- which can be NULL
  */
-PyObject *
+NPY_NO_EXPORT PyObject *
 PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
                       int max_depth, int flags, PyObject *context)
 {
@@ -1269,11 +1271,12 @@ NPY_NO_EXPORT PyObject *
 PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
                      int max_depth, int requires, PyObject *context)
 {
-    /* Move reference to core object. */
-    _Npy_INCREF(descr->descr);
-    Py_DECREF(descr);
+    NpyArray_Descr *descrCore;
     
-    return PyArray_CheckFromAnyUnwrap(op, descr->descr, min_depth,
+    /* Move stolen reference to core about. */
+    PyArray_Descr_REF_TO_CORE(descr, descrCore);
+    
+    return PyArray_CheckFromAnyUnwrap(op, descrCore, min_depth,
                                       max_depth, requires, context);
 }
 
@@ -1284,12 +1287,13 @@ PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
 NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags)
 {
-    /* Move stolen reference from interface to core. */
-    _Npy_INCREF(newtype->descr);
-    Py_DECREF(newtype);
+    NpyArray_Descr *newtypeCore;
+    
+    /* Move stolen reference to core about. */
+    PyArray_Descr_REF_TO_CORE(newtype, newtypeCore);
     
     /* TODO: Wrap returned NpyArray in PyObject, fix conversion of arr to NpyArray. */
-    return (PyObject *) NpyArray_FromArray(arr, newtype->descr, flags);
+    return (PyObject *) NpyArray_FromArray(arr, newtypeCore, flags);
 }
 
 
@@ -1324,7 +1328,8 @@ PyArray_FromStructInterface(PyObject *input)
 
     if (inter->flags & ARR_HAS_DESCR) {
         PyArray_Descr *thetypeWrapper = NULL;
-        if (PyArray_DescrConverter( Npy_INTERFACE( PyArray_DESCR(inter) ), &thetypeWrapper) == PY_FAIL) {
+        if (PyArray_DescrConverter((PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(inter) ), 
+                                   &thetypeWrapper) == PY_FAIL) {
             thetype = NULL;
             PyErr_Clear();
         } else {
@@ -1605,7 +1610,7 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
 NPY_NO_EXPORT PyObject *
 PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode, PyObject *context)
 {
-    return PyArray_FromArrayAttr(op, Npy_INTERFACE(typecode), context);
+    return PyArray_FromArrayAttr(op, (NULL != typecode) ? PyArray_Descr_WRAP(typecode) : NULL, context);
 }
 
 
@@ -1624,11 +1629,10 @@ PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype)
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromObject(PyObject *op, PyArray_Descr *mintype)
 {
-    PyArray_Descr *result = PyArray_Descr_WRAP(PyArray_DescrFromObjectUnwrap(op, (NULL != mintype) ? mintype->descr : NULL));
+    NpyArray_Descr *resultCore = PyArray_DescrFromObjectUnwrap(op, (NULL != mintype) ? mintype->descr : NULL);
+    PyArray_Descr *result;
     
-    /* Move the reference from core to interface. */
-    Py_INCREF(result);
-    _Npy_DECREF(result->descr);
+    PyArray_Descr_REF_FROM_CORE(resultCore, result);
     return result;
 }
                                               
@@ -2116,8 +2120,8 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArra
         PyObject *new;
         new = PyArray_Byteswap((PyArrayObject *)range, 1);
         Py_DECREF(new);
-        Py_DECREF(PyArray_DESCR(range));
-        PyArray_DESCR(range) = dtype;  /* steals the reference */
+        _Npy_DECREF(PyArray_DESCR(range));
+        PyArray_DESCR(range) = dtype;  /* reference alloc'd earlier in this func */
     }
     Py_DECREF(start);
     Py_DECREF(step);
@@ -2140,7 +2144,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArra
 NPY_NO_EXPORT PyObject *
 PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step, PyArray_Descr *dtype)
 {
-    return PyArray_ArangeObjUnwrap(start, stop, step, dtype->descr);
+    return PyArray_ArangeObjUnwrap(start, stop, step, (NULL != dtype) ? dtype->descr : NULL);
 }    
 
 /*
@@ -2643,9 +2647,10 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
 NPY_NO_EXPORT PyObject *
 PyArray_FromIter(PyObject *obj, PyArray_Descr *dtype, intp count)
 {
-    /* Move reference to the core object, which *Unwrap steals. */
-    _Npy_INCREF(dtype->descr);
-    Py_DECREF(dtype);
+    NpyArray_Descr *dtypeCore;
     
-    return PyArray_FromIterUnwrap(obj, dtype->descr, count);
+    /* Move stolen reference to core about. */
+    PyArray_Descr_REF_TO_CORE(dtype, dtypeCore);
+    
+    return PyArray_FromIterUnwrap(obj, dtypeCore, count);
 }

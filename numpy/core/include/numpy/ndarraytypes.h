@@ -702,7 +702,7 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
  * here.
  */
 
-#define PyArray_ARRAY(m) (assert(NULL != m && PyArray_Check((PyObject *)m)), (PyArrayObject *)(m))
+#define PyArray_ARRAY(m) (assert(NULL == m || PyArray_Check((PyObject *)m)), (PyArrayObject *)(m))
 #define PAA(m) PyArray_ARRAY(m)
 
 #define PyArray_CHKFLAGS(m, FLAGS) NpyArray_CHKFLAGS(PAA(m), FLAGS)
@@ -893,7 +893,7 @@ PyArrayNeighborhoodIter_Next2D(PyArrayNeighborhoodIterObject* iter);
 #define PyArray_GETITEM(obj,itemptr) NpyArray_GETITEM(PAA(obj),itemptr)
 #define PyArray_SETITEM(obj,itemptr,v) NpyArray_SETITEM(PAA(obj),itemptr,v)
 
-#define _PyADT(obj) (assert(NULL != obj && PyArray_DescrCheck(obj)),((PyArrayObject *)(obj))->descr->type_num)
+#define _PyADT(obj) (assert(NULL != obj && PyArray_DescrCheck(obj)),((PyArray_Descr *)(obj))->descr->type_num)
 #define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADT(obj))
 #define PyDataType_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(_PyADT(obj))
 #define PyDataType_ISSIGNED(obj) NpyTypeNum_ISSIGNED(_PyADT(obj))

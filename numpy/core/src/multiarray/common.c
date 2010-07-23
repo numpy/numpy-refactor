@@ -19,76 +19,6 @@ NPY_NO_EXPORT NpyArray_Descr *
 PyArray_DescrFromScalarUnwrap(PyObject *sc);
 
 
-/*
- * new reference
- * doesn't alter refcount of chktype or mintype ---
- * unless one of them is returned
- */
-NPY_NO_EXPORT NpyArray_Descr *
-_array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype)
-{
-    NpyArray_Descr *outtype;
-    int outtype_num, save_num;
-
-    if (NpyArray_EquivTypes(chktype, mintype)) {
-        _Npy_INCREF(mintype);
-        return mintype;
-    }
-
-
-    if (chktype->type_num > mintype->type_num) {
-        outtype_num = chktype->type_num;
-    }
-    else {
-        if (PyDataType_ISOBJECT(chktype) &&
-            PyDataType_ISSTRING(mintype)) {
-            return NpyArray_DescrFromType(NPY_OBJECT);
-        }
-        else {
-            outtype_num = mintype->type_num;
-        }
-    }
-
-    save_num = outtype_num;
-    while (outtype_num < PyArray_NTYPES &&
-          !(NpyArray_CanCastSafely(chktype->type_num, outtype_num)
-            && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
-        outtype_num++;
-    }
-    if (outtype_num == PyArray_NTYPES) {
-        outtype = NpyArray_DescrFromType(save_num);
-    }
-    else {
-        outtype = NpyArray_DescrFromType(outtype_num);
-    }
-    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
-        int testsize = outtype->elsize;
-        int chksize, minsize;
-        chksize = chktype->elsize;
-        minsize = mintype->elsize;
-        /*
-         * Handle string->unicode case separately
-         * because string itemsize is 4* as large
-         */
-        if (outtype->type_num == PyArray_UNICODE &&
-            mintype->type_num == PyArray_STRING) {
-            testsize = MAX(chksize, 4*minsize);
-        }
-        else if (chktype->type_num == PyArray_STRING &&
-                 mintype->type_num == PyArray_UNICODE) {
-            testsize = MAX(chksize*4, minsize);
-        }
-        else {
-            testsize = MAX(chksize, minsize);
-        }
-        if (testsize != outtype->elsize) {
-            NpyArray_DESCR_REPLACE(outtype);
-            outtype->elsize = testsize;
-            NpyArray_DescrDeallocNamesAndFields(outtype);
-        }
-    }
-    return outtype;
-}
 
 NPY_NO_EXPORT NpyArray_Descr *
 _array_find_python_scalar_type(PyObject *op)
@@ -314,7 +244,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
                 goto deflt;
             }
             chktype = _array_find_type(ip, minitype, max-1);
-            newtype = _array_small_type(chktype, minitype);
+            newtype = NpyArray_SmallType(chktype, minitype);
             _Npy_DECREF(minitype);
             minitype = newtype;
             _Npy_DECREF(chktype);
@@ -330,7 +260,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
     chktype = _use_default_type(op);
 
  finish:
-    outtype = _array_small_type(chktype, minitype);
+    outtype = NpyArray_SmallType(chktype, minitype);
     _Npy_DECREF(chktype);
     _Npy_DECREF(minitype);
     /*

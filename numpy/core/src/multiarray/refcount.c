@@ -40,7 +40,7 @@ NpyInterface_Decref(void *objtmp)
 }
 
 void
-NpyInterface_XDcref(void *objtmp)
+NpyInterface_XDecref(void *objtmp)
 {
     PyObject *obj = (PyObject *)objtmp;
     Py_XDECREF(obj);

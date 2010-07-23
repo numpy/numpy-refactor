@@ -26,6 +26,30 @@ extern "C" CONFUSE_EMACS
 #include "__multiarray_api.h"
 
 
+/* Macros for moving reference counts between core and interface. */
+#define PyArray_Descr_REF_TO_CORE(interface, core)      \
+    if (NULL == (interface)) (core) = NULL;             \
+    else {                                          \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (interface)->descr->magic_number); \
+        (core) = (interface)->descr;                    \
+        _Npy_INCREF(core);                          \
+        Py_DECREF(interface);                       \
+    }                                               
+
+
+#define PyArray_Descr_REF_FROM_CORE(core, interface)    \
+    if (NULL == (core)) (interface) = NULL;             \
+    else {                                          \
+        interface = PyArray_Descr_WRAP(core);       \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+        Py_INCREF(interface);                       \
+        _Npy_DECREF(core);                          \
+    }                                               
+
+
+#define PyArray_ISVALID(a) (NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number && NPY_VALID_MAGIC == (a)->descr->magic_number)
+
+
 /* C-API that requries previous API to be defined */
 
 #define PyArray_DescrCheck(op) (((PyObject*)(op))->ob_type==&PyArrayDescr_Type)
@@ -92,12 +116,12 @@ extern "C" CONFUSE_EMACS
                                 PyArray_DescrFromType(type), 0, 0, 0, NULL);
 
 #define PyArray_FROM_OTF(m, type, flags)                                      \
-        PyArray_FromAny(m, PyArray_DescrFromType(type), 0, 0,                 \
+        PyArray_FromAnyUnwrap(m, NpyArray_DescrFromType(type), 0, 0,                 \
                         (((flags) & NPY_ENSURECOPY) ?                         \
                          ((flags) | NPY_DEFAULT) : (flags)), NULL)
 
 #define PyArray_FROMANY(m, type, min, max, flags)                             \
-        PyArray_FromAny(m, PyArray_DescrFromType(type), min, max,             \
+        PyArray_FromAnyUnwrap(m, NpyArray_DescrFromType(type), min, max,             \
                         (((flags) & NPY_ENSURECOPY) ?                         \
                          (flags) | NPY_DEFAULT : (flags)), NULL)
 

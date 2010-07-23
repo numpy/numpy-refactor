@@ -628,7 +628,7 @@ finish:
         dims[0] = itemsize;
         strides[0] = 1;
         descr = NpyArray_DescrNewFromType(PyArray_BYTE);
-        u = PyArray_NewFromDescr(&PyArray_Type, Npy_INTERFACE(descr), 1, dims, strides,
+        u = PyArray_NewFromDescr(&PyArray_Type, PyArray_Descr_WRAP(descr), 1, dims, strides,
                                  ip,
                                  PyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
                                  NULL);
@@ -708,12 +708,12 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
     if (descr->subarray) {
         /* copy into an array of the same basic type */
         PyArrayObject *ret;
+        
         _Npy_INCREF(descr->subarray->base);
-        ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
-                Npy_INTERFACE(descr->subarray->base), 
+        ret = NpyArray_NewFromDescr(descr->subarray->base, 
                 descr->subarray->shape_num_dims, 
                 descr->subarray->shape_dims,
-                NULL, ip, PyArray_FLAGS(ap), NULL);
+                NULL, ip, PyArray_FLAGS(ap), NPY_TRUE, NULL, NULL);
         if (!ret) {
             return -1;
         }

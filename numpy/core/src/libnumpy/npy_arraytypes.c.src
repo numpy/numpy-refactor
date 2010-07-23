@@ -2081,7 +2081,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-static NpyArray_Descr @from@_Descr = {
+NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
     _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
@@ -2264,7 +2264,7 @@ static void _init_builtin_descr_wrappers()
         
         for (type=0; type < NPY_NTYPES; type++) {
             assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) ); /* Should only ever be called once. */
-            NpyInterface_DescrNewWrapper(_builtin_descrs[type], &_builtin_descrs[type]->nob_interface);
+            NpyInterface_DescrNewFromType(type, _builtin_descrs[type], &_builtin_descrs[type]->nob_interface);
         }
     }
 }
@@ -2273,7 +2273,7 @@ static void _init_builtin_descr_wrappers()
 
 /* Get the NpyArray_Descr structure for a type.
  */
-NPY_NO_EXPORT NpyArray_Descr *
+NpyArray_Descr *
 NpyArray_DescrFromType(int type)
 {
     NpyArray_Descr *ret = NULL;

@@ -267,7 +267,7 @@ array_interface_get(PyArrayObject *self)
     PyDict_SetItemString(dict, "descr", obj);
     Py_DECREF(obj);
 
-    obj = arraydescr_protocol_typestr_get(Npy_INTERFACE(PyArray_DESCR(self)));
+    obj = npy_arraydescr_protocol_typestr_get(PyArray_DESCR(self));
     PyDict_SetItemString(dict, "typestr", obj);
     Py_DECREF(obj);
 
@@ -421,15 +421,13 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
     PyArray_Descr *newtypeInterface = NULL;
     
     if (!(PyArray_DescrConverter(arg, &newtypeInterface)) ||
-        newtype == NULL) {
+        newtypeInterface == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
     
     /* Now we want the core object so move the reference there. */
-    newtype = newtypeInterface->descr;
-    _Npy_INCREF(newtype);
-    Py_DECREF(newtypeInterface);
+    PyArray_Descr_REF_TO_CORE(newtypeInterface, newtype);
     newtypeInterface = NULL;
     
     if (NpyDataType_FLAGCHK(newtype, NPY_ITEM_HASOBJECT) ||
@@ -510,7 +508,7 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
         PyArray_DIMS(self) = PyArray_DIMS(temp);
         PyArray_NDIM(self) = PyArray_NDIM(temp);
         PyArray_STRIDES(self) = PyArray_STRIDES(temp);
-        newtype = Npy_INTERFACE( PyArray_DESCR(temp) );
+        newtype = PyArray_DESCR(temp);
         _Npy_INCREF(newtype);
         /* Fool deallocator not to delete these*/
         PyArray_NDIM(temp) = 0;

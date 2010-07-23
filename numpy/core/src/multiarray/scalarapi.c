@@ -376,11 +376,12 @@ finish:
 NPY_NO_EXPORT PyObject *
 PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
 {
-    /* Move reference to core object. */
-    _Npy_INCREF(outcode->descr);
-    Py_DECREF(outcode);
+    NpyArray_Descr *outcodeCore;
     
-    return PyArray_FromScalarUnwrap(scalar, outcode->descr);
+    /* Move reference to core object. */
+    PyArray_Descr_REF_TO_CORE(outcode, outcodeCore);
+    
+    return PyArray_FromScalarUnwrap(scalar, outcodeCore);
 }
 
 
@@ -507,9 +508,7 @@ PyArray_DescrFromTypeObjectUnwrap(PyObject *type)
             NpyDict_Iter pos;
             
             /* Move reference to the core object. */
-            conv = convWrap->descr;
-            _Npy_INCREF(conv);
-            Py_DECREF(convWrap);
+            PyArray_Descr_REF_TO_CORE(convWrap, conv);
             
             NpyArray_DescrDeallocNamesAndFields(new);
             for (n=0; NULL != conv->names[n]; n++) ;
@@ -548,11 +547,11 @@ NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromTypeObject(PyObject *type)
 {
     NpyArray_Descr *result = PyArray_DescrFromTypeObjectUnwrap(type);
+    PyArray_Descr *resultWrap;
     
     /* Move reference to the interface object */
-    Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
-    return Npy_INTERFACE(result);
+    PyArray_Descr_REF_FROM_CORE(result, resultWrap);
+    return resultWrap;
 }
 
 
@@ -669,12 +668,11 @@ NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromScalar(PyObject *sc)
 {
     NpyArray_Descr *result = PyArray_DescrFromScalarUnwrap(sc);
+    PyArray_Descr *resultWrap;
     
     /* Move reference to interface object. */
-    Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
-    
-    return Npy_INTERFACE(result);
+    PyArray_Descr_REF_FROM_CORE(result, resultWrap);
+    return resultWrap;
 }
 
 

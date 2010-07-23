@@ -1223,7 +1223,7 @@ gentype_byteswap(PyObject *self, PyObject *args)
         else {
             descr->f->copyswap(newmem, data, 1, NULL);
         }
-        new = PyArray_Scalar(newmem, Npy_INTERFACE(descr), NULL);
+        new = PyArray_Scalar(newmem, PyArray_Descr_WRAP(descr), NULL);
         _pya_free(newmem);
         _Npy_DECREF(descr);
         return new;
@@ -2169,10 +2169,10 @@ static PyObject *
         char *mem = malloc(sizeof(@name@));
 
         memset(mem, 0, sizeof(@name@));
-        robj = PyArray_Scalar(mem, Npy_INTERFACE(typecode), NULL);
+        robj = PyArray_Scalar(mem, PyArray_Descr_WRAP(typecode), NULL);
         free(mem);
 #elif @default@ == 1
-        robj = PyArray_Scalar(NULL, Npy_INTERFACE(typecode), NULL);
+        robj = PyArray_Scalar(NULL, PyArray_Descr_WRAP(typecode), NULL);
 #elif @default@ == 2
         Py_INCREF(Py_None);
         robj = Py_None;
@@ -3412,7 +3412,8 @@ initialize_numeric_types(void)
 }
 
 
-/* the order of this table is important */
+/* the order of this table is important.  Index is the value of 'type' used for
+   built-in types. */
 static PyTypeObject *typeobjects[] = {
     &PyBoolArrType_Type,
     &PyByteArrType_Type,
@@ -3458,10 +3459,62 @@ _typenum_fromtypeobj(PyObject *type, int user)
         return typenum;
     }
     /* Search any registered types */
-    utypenum = PyArray_TypeNumFromTypeObj(type);
+    utypenum = PyArray_TypeNumFromTypeObj((PyArray_Descr *)type);
     if (utypenum != NPY_NOTYPE) {
         typenum = utypenum;
     }
 
     return typenum;
 }
+    
+    
+/* Allocates a PyArrayDescrObject wrapper for the core descriptor object passed
+ in as 'descr'. */
+NPY_NO_EXPORT int
+NpyInterface_DescrNewFromType(int type, NpyArray_Descr *descr, void **interfaceRet)
+{
+    PyArray_Descr *result;
+    
+    result = _pya_malloc(sizeof(*result));
+    if (result == NULL) {
+        *interfaceRet = NULL;
+        return NPY_FALSE;
+    }
+    
+    PyObject_Init((PyObject *)result, &PyArrayDescr_Type);
+    result->magic_number = NPY_VALID_MAGIC;
+    result->descr = descr;
+    result->typeobj = typeobjects[type];
+    
+    *interfaceRet = result;
+    return NPY_TRUE;
+}
+
+    
+    
+/* Allocates a PyArrayDescrObject wrapper for the core descriptor object passed
+ in as 'descr'. */
+NPY_NO_EXPORT int
+NpyInterface_DescrNewFromWrapper(void *baseTmp, NpyArray_Descr *descr, void **interfaceRet)
+{
+    PyArray_Descr *base = (PyArray_Descr *)baseTmp;
+    PyArray_Descr *result;
+    
+    result = _pya_malloc(sizeof(*result));
+    if (result == NULL) {
+        *interfaceRet = NULL;
+        return NPY_FALSE;
+    }
+    
+    PyObject_Init((PyObject *)result, &PyArrayDescr_Type);
+    result->magic_number = NPY_VALID_MAGIC;
+    result->descr = descr;
+    result->typeobj = base->typeobj;
+    Py_XINCREF(result->typeobj);
+    
+    *interfaceRet = result;
+    return NPY_TRUE;
+}
+    
+
+    

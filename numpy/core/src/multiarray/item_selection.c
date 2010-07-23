@@ -47,7 +47,7 @@ PyArray_TakeFrom(PyArrayObject *self0, PyObject *indices0, int axis,
     }
     result = (PyObject*) NpyArray_TakeFrom(PyArray_ARRAY(self0), 
                                            PyArray_ARRAY(indices), 
-                                           axis, PyArray_ARRAY(ret), 
+                                           axis, (NULL != ret) ? PyArray_ARRAY(ret) : NULL, 
                                            clipmode);
     Py_DECREF(indices);
     return result;

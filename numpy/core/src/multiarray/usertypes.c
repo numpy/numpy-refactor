@@ -79,7 +79,7 @@ PyArray_TypeNumFromTypeObj(PyTypeObject *typeobj)
 NPY_NO_EXPORT int
 PyArray_RegisterDataType(PyArray_Descr *descr)
 {
-    return NpyArray_RegisterDataType(descr);
+    return NpyArray_RegisterDataType(descr->descr);
 }
 
 /*NUMPY_API
@@ -90,7 +90,7 @@ NPY_NO_EXPORT int
 PyArray_RegisterCastFunc(PyArray_Descr *descr, int totype,
                          PyArray_VectorUnaryFunc *castfunc)
 {
-    return NpyArray_RegisterCastFunc(descr, totype, castfunc);
+    return NpyArray_RegisterCastFunc(descr->descr, totype, castfunc);
 }
 
 /*NUMPY_API
@@ -101,6 +101,6 @@ NPY_NO_EXPORT int
 PyArray_RegisterCanCast(PyArray_Descr *descr, int totype,
                         NPY_SCALARKIND scalar)
 {
-    return NpyArray_RegisterCanCast(descr, totype, scalar);
+    return NpyArray_RegisterCanCast(descr->descr, totype, scalar);
 }
 

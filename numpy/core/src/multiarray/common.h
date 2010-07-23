@@ -8,9 +8,6 @@ NPY_NO_EXPORT NpyArray_Descr *
 _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max);
 
 NPY_NO_EXPORT NpyArray_Descr *
-_array_small_type(NpyArray_Descr *chktype, NpyArray_Descr* mintype);
-
-NPY_NO_EXPORT NpyArray_Descr *
 _array_find_python_scalar_type(PyObject *op);
 
 NPY_NO_EXPORT NpyArray_Descr *

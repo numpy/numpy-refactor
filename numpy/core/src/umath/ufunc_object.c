@@ -46,9 +46,6 @@
 
 /* ---------------------------------------------------------------- */
 
-NPY_NO_EXPORT PyObject *
-PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
-                      int max_depth, int flags, PyObject *context);
 
 static int
 _does_loop_use_arrays(void *data);
@@ -831,9 +828,13 @@ _create_copies(PyUFuncLoopObject *loop, int *arg_types, PyArrayObject **mps)
         if (size < loop->bufsize || loop->ufunc->core_enabled) {
             if (!(PyArray_ISBEHAVED_RO(mps[i]))
                 || PyArray_TYPE(mps[i]) != arg_types[i]) {
+                PyArray_Descr *ntypeWrap;
                 ntype = NpyArray_DescrFromType(arg_types[i]);
-                new = PyArray_FromAnyUnwrap((PyObject *)mps[i],
-                                      ntype, 0, 0,
+                
+                /* Move reference to interface. */
+                PyArray_Descr_REF_FROM_CORE(ntype, ntypeWrap);
+                new = PyArray_FromAny((PyObject *)mps[i],
+                                      ntypeWrap, 0, 0,
                                       FORCECAST | ALIGNED, NULL);
                 if (new == NULL) {
                         return -1;
@@ -1421,14 +1422,18 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
             if (mps[i]->descr->type_num != arg_types[i]
                 || !PyArray_ISBEHAVED_RO(mps[i])) {
                 if (loop->iter->size < loop->bufsize || self->core_enabled) {
+                    PyArray_Descr *ntypeWrap;
                     PyObject *new;
                     /*
                      * Copy the array to a temporary copy
                      * and set the UPDATEIFCOPY flag
                      */
                     ntype = NpyArray_DescrFromType(arg_types[i]);
-                    new = PyArray_FromAnyUnwrap((PyObject *)mps[i],
-                                          ntype, 0, 0,
+                    
+                    /* Move reference to interface. */
+                    PyArray_Descr_REF_FROM_CORE(ntype, ntypeWrap);
+                    new = PyArray_FromAny((PyObject *)mps[i],
+                                          ntypeWrap, 0, 0,
                                           FORCECAST | ALIGNED |
                                           UPDATEIFCOPY, NULL);
                     if (new == NULL) {
@@ -1728,12 +1733,12 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                     scntcast += descr->elsize;
                 }
                 if (i < self->nin) {
-                    loop->cast[i] = PyArray_GetCastFunc( Npy_INTERFACE(mps[i]->descr),
+                    loop->cast[i] = PyArray_GetCastFunc( PyArray_Descr_WRAP(mps[i]->descr),
                                             arg_types[i]);
                 }
                 else {
                     loop->cast[i] = PyArray_GetCastFunc \
-                        ( Npy_INTERFACE(descr), mps[i]->descr->type_num);
+                        ( PyArray_Descr_WRAP(descr), mps[i]->descr->type_num);
                 }
                 _Npy_DECREF(descr);
                 if (!loop->cast[i]) {
@@ -2361,6 +2366,7 @@ static PyArrayObject *
 _getidentity(PyUFuncObject *self, int otype, char *str)
 {
     PyObject *obj, *arr;
+    PyArray_Descr *typecodeWrap = NULL;
     NpyArray_Descr *typecode;
 
     if (self->identity == PyUFunc_None) {
@@ -2376,7 +2382,10 @@ _getidentity(PyUFuncObject *self, int otype, char *str)
     }
 
     typecode = NpyArray_DescrFromType(otype);
-    arr = PyArray_FromAnyUnwrap(obj, typecode, 0, 0, CARRAY, NULL);
+    
+    /* Move reference to interface. */
+    PyArray_Descr_REF_FROM_CORE(typecode, typecodeWrap);
+    arr = PyArray_FromAny(obj, typecodeWrap, 0, 0, CARRAY, NULL);
     Py_DECREF(obj);
     return (PyArrayObject *)arr;
 }
@@ -2393,9 +2402,14 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
     if (maxsize < loop->bufsize) {
         if (!(PyArray_ISBEHAVED_RO(*arr))
             || PyArray_TYPE(*arr) != rtype) {
+            PyArray_Descr *ntypeWrap;
+            
             ntype = NpyArray_DescrFromType(rtype);
-            new = PyArray_FromAnyUnwrap((PyObject *)(*arr),
-                                  ntype, 0, 0,
+            
+            /* Move reference to interface. */
+            PyArray_Descr_REF_FROM_CORE(ntype, ntypeWrap);
+            new = PyArray_FromAny((PyObject *)(*arr),
+                                  ntypeWrap, 0, 0,
                                   FORCECAST | ALIGNED, NULL);
             if (new == NULL) {
                 return -1;
@@ -2718,6 +2732,8 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
     char *dptr;
     NPY_BEGIN_THREADS_DEF;
 
+    assert(NULL == arr || NPY_VALID_MAGIC == arr->magic_number && NPY_VALID_MAGIC == arr->descr->magic_number);
+    
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype, UFUNC_REDUCE, 0,
             "reduce");
@@ -3264,6 +3280,7 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
             Py_XDECREF(otype);
             return NULL;
         }
+        
         indices = (PyArrayObject *)PyArray_FromAny(obj_ind, indtype,
                                                    1, 1, CARRAY, NULL);
         if (indices == NULL) {
@@ -3289,11 +3306,14 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
     else {
         context = NULL;
     }
+    
     mp = (PyArrayObject *)PyArray_FromAny(op, NULL, 0, 0, 0, context);
     Py_XDECREF(context);
     if (mp == NULL) {
         return NULL;
     }
+    assert( PyArray_ISVALID(mp) );
+    
     /* Check to see if input is zero-dimensional */
     if (mp->nd == 0) {
         PyErr_Format(PyExc_TypeError, "cannot %s on a scalar",
@@ -3327,7 +3347,7 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
       * unless otype already specified.
       */
     if (otype == NULL && out != NULL) {
-        otype = out->descr;
+        otype = PyArray_Descr_WRAP(out->descr);
         Py_INCREF(otype);
     }
     if (otype == NULL) {

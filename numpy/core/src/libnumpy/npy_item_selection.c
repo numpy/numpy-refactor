@@ -1355,6 +1355,8 @@ local_search_right(NpyArray *arr, NpyArray *key, NpyArray *ret)
 }
 
 
+
+
 /*
  * Numeric.searchsorted(a,v)
  */
