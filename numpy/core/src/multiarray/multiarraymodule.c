@@ -1950,6 +1950,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
         result = _vec_string_with_args(char_array, type, method, args_seq);
     }
     else {
+        Py_DECREF(type);
         PyErr_SetString(PyExc_TypeError,
                 "'args' must be a sequence of arguments");
         goto err;
