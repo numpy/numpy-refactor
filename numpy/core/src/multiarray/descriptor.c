@@ -1200,7 +1200,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     char *type;
     int check_num = PyArray_NOTYPE + 10;
     int len;
-    PyObject *item = NULL;
+    PyObject *item;
     int elsize = 0;
     char endian = '=';
 
@@ -1445,7 +1445,6 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
     return PY_SUCCEED;
 
  fail:
-    Py_XDECREF(item);
     PyErr_SetString(PyExc_TypeError, "data type not understood");
     *at = NULL;
     return PY_FAIL;
