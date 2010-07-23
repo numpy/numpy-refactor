@@ -143,7 +143,6 @@ NpyArray_dealloc(NpyArray *self) {
     if ((self->flags & NPY_OWNDATA) && self->data) {
         /* Free internal references if an Object array */
         if (NpyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
-            _Npy_INCREF(self); /*hold on to self */
             NpyArray_XDECREF(self);
             /*
              * Don't need to DECREF -- because we are deleting
