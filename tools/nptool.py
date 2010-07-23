@@ -58,7 +58,6 @@ class nptool:
             self.run_gcov()
 
         else:
-            print suppressions
             self.usage()
 
     def build( self ):
