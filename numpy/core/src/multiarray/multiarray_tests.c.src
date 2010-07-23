@@ -131,7 +131,7 @@ test_neighborhood_iterator(PyObject* NPY_UNUSED(self), PyObject* args)
         goto clean_ax;
     }
 
-    itx = (PyArrayIterObject *)PyArray_IterNew(ax);
+    itx = (PyArrayIterObject *)PyArray_IterNew((PyObject *)ax);
     if (itx == NULL) {
         goto clean_out;
     }
