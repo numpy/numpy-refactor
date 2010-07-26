@@ -195,6 +195,30 @@ class TestTypes(TestCase):
             # So there's not really so much we can check here, beyond simply
             # that the code executes without throwing exceptions.
 
+    def test_type_oct(self, level=1):
+        # list of types
+        for k, atype in enumerate(types):
+            vala = atype(3)
+            val1 = np.array([3],dtype=atype)
+
+            try:
+                val = oct(vala)
+                valo = oct(val1)
+
+            except:
+                #print "Can't hexify ", k
+                pass
+
+            #assert val.dtype.num == valo.dtype.num and \
+            #       val.dtype.char == valo.dtype.char, \
+            #       "error with (%d)" % (k)
+
+            # We can't demand equivalent repr's either.
+            #assert val == valo, "Trouble with hex (%d)" % k
+
+            # So there's not really so much we can check here, beyond simply
+            # that the code executes without throwing exceptions.
+
     def test_type_float(self, level=1):
         # list of types
         for k, atype in enumerate(types):
