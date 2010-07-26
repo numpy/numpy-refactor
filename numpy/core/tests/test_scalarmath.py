@@ -217,6 +217,47 @@ class TestTypes(TestCase):
 
             assert val == 3 and valo == 3, "Trouble with float (%d)" % k
 
+    def test_misc_niggles(self, level=1):
+
+        # Verify the nonzero method on longdouble and clongdouble types.
+        # This is done essentially by evaluating an apprpriately typed
+        # (number) object as a condition.  I guess that's probably done
+        # elsewhere in the test suite for the other interesting data types.
+
+        x = np.longdouble( 4.4 )
+        y = np.nonzero( x )
+
+        assert x, "Trouble with longdouble_nonzero"
+
+        z = np.clongdouble( 4 + 5j )
+
+        assert z, "Trouble with clongdouble_nonzero"
+
+        from operator import itruediv
+        itruediv( z, x )
+
+        q = int(z)
+
+        divmod( x, 1.1 )
+
+        r = np.nonzero( z )
+
+        s = np.longlong( 99 )
+        t = int(s)
+
+    def xtest_scalarmath_module_methods( self, level=1 ):
+        # Rename to test_* when ready.
+
+        # The purpose of this method is to actually exercise the scalarmath
+        # mdoule's module-methods, whose names are:
+        #    use_scalarmath
+        #    use_pythonmath
+        #    alter_pyscalars
+        #    restore_pyscalars
+        # Those module methods need to be exercised.
+
+        pass
+
     def test_type_create(self, level=1):
         for k, atype in enumerate(types):
             a = np.array([1,2,3],atype)
