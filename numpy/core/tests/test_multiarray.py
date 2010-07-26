@@ -388,6 +388,47 @@ class TestMethods(TestCase):
         #assert_equal(d, c, "test sort with axis=None")
 
 
+    def test_sort_bool( self ):
+        a = np.array( [ True, False, True, False ] )
+        b = a[:-1].copy()
+        for k in ['q', 'm', 'h'] :
+            c = a.copy()
+            c.sort( kind=k )
+            assert_equal( c, [False, False, True, True] )
+
+            c = a.copy()
+            # Sort, then index the original (unosrted) array via that
+            # resulting arg index array.   The result should be sorted.
+            assert_equal( a[c.argsort( kind=k )], [False, False, True, True] )
+
+            # We do it this way rather than asserting the result is a certain
+            # integer idex array, because there are multiple index orderings
+            # that are valid, and Python sorting doesn't seem to support a
+            # stability imperative like certain other languages.
+
+        # Note, comments above indicate that we should be using a much larger
+        # array here, in order to guarantee the more interesting sort code is
+        # actually executed for the bool case.
+
+    def test_sort_other( self ):
+
+        a = np.arange( 5, dtype=np.clongdouble )
+
+        aj = a * 1j
+
+        for k in ['q', 'm', 'h'] :
+            b = a[::-1].copy()
+            b.sort( kind=k )
+            assert_equal( b, a )
+
+            bj = aj[::-1].copy()
+            bj.sort( kind=k )
+            assert_equal( bj, aj )
+
+            b = a[::-1].copy()
+            bidx = b.argsort( kind=k )
+            assert_equal( b[bidx], a )
+
     def test_sort_order(self):
         # Test sorting an array with fields
         x1=np.array([21,32,14])
@@ -739,6 +780,7 @@ class TestClip(TestCase):
         for inplace in [False, True]:
             self._clip_type('float',1024,-12.8,100.2, inplace=inplace)
             self._clip_type('float',1024,0,0, inplace=inplace)
+            self._clip_type('complex',1024,0,0, inplace=inplace)
 
             self._clip_type('int',1024,-120,100.5, inplace=inplace)
             self._clip_type('int',1024,0,0, inplace=inplace)
