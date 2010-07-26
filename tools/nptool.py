@@ -99,7 +99,7 @@ numpy.test()
             f.close()
 
         # Run the unit tests.
-        p = Popen( "cd ../runtests; python t.py |& tee test.log", shell=True )
+        p = Popen( "cd ../runtests; python t.py 2>&1 | tee test.log", shell=True )
         status = os.waitpid( p.pid, 0 )[1]
 
         if status:
