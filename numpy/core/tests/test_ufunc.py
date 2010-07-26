@@ -448,6 +448,7 @@ class TestUfunc(TestCase):
     def test_matrix_multiply(self):
         self.compare_matrix_multiply_results(np.long)
         self.compare_matrix_multiply_results(np.double)
+        self.compare_matrix_multiply_results(np.float32)
 
     def compare_matrix_multiply_results(self, tp):
         d1 = np.array(rand(2,3,4), dtype=tp)
