@@ -1060,6 +1060,7 @@ _convert_from_dict(PyObject *obj, int align)
                 goto fail;
             }
             offset = PyInt_AsLong(off);
+            Py_DECREF(off);
             if (offset < totalsize) {
                 PyErr_SetString(PyExc_ValueError,
                         "invalid offset (must be ordered)");
