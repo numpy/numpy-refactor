@@ -3,6 +3,11 @@ from numpy.testing import *
 import numpy as np
 #from datetime import timedelta
 
+types = [np.bool_, np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc,
+         np.int_, np.uint, np.longlong, np.ulonglong,
+         np.single, np.double, np.longdouble, np.csingle,
+         np.cdouble, np.clongdouble]
+
 class TestArrayTypes(TestCase):
 
     def test_argmax( self ):
@@ -46,11 +51,74 @@ class TestArrayTypes(TestCase):
 
         pass
 
-    def test_copy( self ):
+    def test_copyswap( self ):
 
-        a = np.arange( 5, dtype=np.cdouble )
-        b = a.copy()
-        #assert b, "xxx"
+        for k,t in enumerate(types):
+
+            # np.bool_ causes some trouble with this test.
+            #if k == 0 or k == 10: continue
+            if k == 0: continue
+
+            x = np.arange( 10, dtype=t )
+            # This should exeercise <typoe>_copyswap
+            x[::2] = 2
+
+            assert_equal( x, [2,1,2,3,2,5,2,7,2,9] )
+
+        # NOTE: For some reason, LONGDOUBLE_copyswap is not called.
+
+    def test_copyswap_misc( self ):
+
+        x = np.array( [ u'a', u'b', u'c' ] )
+        x[::2] = u'd'
+        assert_equal( x, [u'd', u'b', u'd'] )
+
+        # NOTE: For some reason, UNICODE_copyswap is not called.
+
+    def test_compare( self ):
+
+        for k,t in enumerate(types):
+
+            if k == 0: continue
+
+            try:
+                a = np.arange( 10, dtype=t )
+                keys = a[::2]
+                b = a.searchsorted( keys )
+                c = a.copy()
+                np.insert( c, b, b.astype( t ) )
+                c.sort()
+                assert_equal( c, a )
+
+            except TypeError, e:
+                print "Trouble with type %d:" % k, e
+
+    def test_copyswapn( self ):
+
+        for k,t in enumerate(types):
+
+            # Skip troublesome types.
+            if k == 0 or k == 10: continue
+
+            x = np.arange( 10, dtype=t )
+            y = x.byteswap()
+            z = y.byteswap()
+
+            assert_equal( z, x )
+
+    def test_copyswapn_misctypes( self ):
+
+        x = np.arange( 10, dtype=np.timedelta64 )
+        y = x.byteswap()
+        z = y.byteswap()
+
+        assert_equal( z, x )
+
+        x = np.array( [ u'aaa', u'bbb' ] )
+        y = x.byteswap()
+        z = y.byteswap()
+
+        assert_equal( z, x )
 
     def test_fill( self ):
 
@@ -76,6 +144,12 @@ class TestArrayTypes(TestCase):
         a = np.arange( 5, dtype=np.cfloat )
         b = a.astype( bool )
         c = a.astype( np.bool )
+
+    def test_take( self ):
+        a = np.arange( 10, dtype=np.timedelta64 )
+        idx = np.arange(5) * 2
+        c = np.take( a, idx )
+        assert_equal( c, a[::2] )
 
 if __name__ == "__main__":
     run_module_suite()
