@@ -1023,7 +1023,7 @@ _convert_from_dict(PyObject *obj, int align)
         PyObject *descr, *index, *item, *name, *off;
         long offset = 0;
         int len, ret, _align = 1;
-        PyArray_Descr *newdescr;
+        PyArray_Descr *newdescr = NULL;
 
         /* Build item to insert (descr, offset, [title])*/
         len = 2;
@@ -1048,6 +1048,7 @@ _convert_from_dict(PyObject *obj, int align)
         Py_DECREF(descr);
         if (ret == PY_FAIL) {
             Py_DECREF(index);
+            Py_XDECREF(newdescr);
             goto fail;
         }
         if (align) {
@@ -1056,7 +1057,9 @@ _convert_from_dict(PyObject *obj, int align)
         }
         if (offsets) {
             off = PyObject_GetItem(offsets, index);
-            if (!off) {
+            if (off == NULL) {
+                Py_DECREF(index);
+                Py_XDECREF(newdescr);
                 goto fail;
             }
             offset = PyInt_AsLong(off);
@@ -1077,7 +1080,9 @@ _convert_from_dict(PyObject *obj, int align)
             offset = totalsize;
         }
         name = PyObject_GetItem(names, index);
-        if (!name) {
+        if (name == NULL) {
+            Py_DECREF(index);
+            Py_XDECREF(newdescr);
             goto fail;
         }
         Py_DECREF(index);
@@ -1447,6 +1452,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
 
  fail:
     PyErr_SetString(PyExc_TypeError, "data type not understood");
+    Py_XDECREF(*at);
     *at = NULL;
     return PY_FAIL;
 }
