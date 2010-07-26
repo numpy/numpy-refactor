@@ -49,10 +49,10 @@ count_new_axes_0d(PyObject *tuple);
  */
 NPY_NO_EXPORT void
 PyArray_MapIterReset(PyArrayMapIterObject *mit);
-
+#if 0
 NPY_NO_EXPORT void
 PyArray_MapIterNext(PyArrayMapIterObject *mit);
-
+#endif
 NPY_NO_EXPORT void
 PyArray_MapIterBind(PyArrayMapIterObject *, PyArrayObject *);
 
