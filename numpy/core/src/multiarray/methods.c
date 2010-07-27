@@ -867,7 +867,7 @@ array_getarray(PyArrayObject *self, PyObject *args)
         }
 
         _Npy_INCREF(PyArray_DESCR(self));
-        ASSIGN_TO_PYARRAY(ret,
+        ASSIGN_TO_PYARRAY(new,
             NpyArray_NewFromDescr(PyArray_DESCR(self),
                                   PyArray_NDIM(self),
                                   PyArray_DIMS(self),
