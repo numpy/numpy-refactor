@@ -18,7 +18,7 @@
 #include "npy_3kcompat.h"
 
 static void
-_fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype);
+_fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype);
 
 
 /*
@@ -39,6 +39,12 @@ NpyInterface_Decref(void *objtmp)
     Py_DECREF(obj);
 }
 
+void
+NpyInterface_XDecref(void *objtmp)
+{
+    PyObject *obj = (PyObject *)objtmp;
+    Py_XDECREF(obj);
+}
 
 
 
@@ -48,28 +54,7 @@ NpyInterface_Decref(void *objtmp)
 NPY_NO_EXPORT void
 PyArray_Item_INCREF(char *data, PyArray_Descr *descr)
 {
-    PyObject *temp;
-
-    if (!PyDataType_REFCHK(descr)) {
-        return;
-    }
-    if (descr->type_num == PyArray_OBJECT) {
-        NPY_COPY_PYOBJECT_PTR(&temp, data);
-        Py_XINCREF(temp);
-    }
-    else if (PyDescr_HASFIELDS(descr)) {
-        const char *key;
-        NpyArray_DescrField *value;
-        NpyDict_Iter pos;
-
-        NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
-            if (NULL != value->title && !strcmp(value->title, key)) {
-                continue;
-            }
-            NpyArray_Item_INCREF(data + value->offset, value->descr);
-        }
-    }
+    NpyArray_Item_INCREF(data, descr->descr);
     return;
 }
 
@@ -79,29 +64,7 @@ PyArray_Item_INCREF(char *data, PyArray_Descr *descr)
 NPY_NO_EXPORT void
 PyArray_Item_XDECREF(char *data, PyArray_Descr *descr)
 {
-    PyObject *temp;
-
-    if (!PyDataType_REFCHK(descr)) {
-        return;
-    }
-
-    if (descr->type_num == PyArray_OBJECT) {
-        NPY_COPY_PYOBJECT_PTR(&temp, data);
-        Py_XDECREF(temp);
-    }
-    else if PyDescr_HASFIELDS(descr) {
-        const char *key;
-        NpyArray_DescrField *value;
-        NpyDict_Iter pos;
-        
-        NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
-            if (NULL != value->title && !strcmp(value->title, key)) {
-                continue;
-            }
-            NpyArray_Item_XDECREF(data + value->offset, value->descr);
-        }
-    }
+    NpyArray_Item_XDECREF(data, descr->descr);
     return;
 }
 
@@ -118,7 +81,7 @@ PyArray_INCREF(PyArrayObject *mp)
     PyObject *temp;
     NpyArrayIterObject *it;
 
-    if (!PyDataType_REFCHK(PyArray_DESCR(mp))) {
+    if (!NpyDataType_REFCHK(PyArray_DESCR(mp))) {
         return 0;
     }
     if (PyArray_TYPE(mp) != PyArray_OBJECT) {
@@ -127,7 +90,7 @@ PyArray_INCREF(PyArrayObject *mp)
             return -1;
         }
         while(it->index < it->size) {
-            PyArray_Item_INCREF(it->dataptr, PyArray_DESCR(mp));
+            NpyArray_Item_INCREF(it->dataptr, PyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
@@ -176,7 +139,7 @@ PyArray_XDECREF(PyArrayObject *mp)
     PyObject *temp;
     NpyArrayIterObject *it;
 
-    if (!PyDataType_REFCHK(PyArray_DESCR(mp))) {
+    if (!NpyDataType_REFCHK(PyArray_DESCR(mp))) {
         return 0;
     }
     if (PyArray_TYPE(mp) != PyArray_OBJECT) {
@@ -185,7 +148,7 @@ PyArray_XDECREF(PyArrayObject *mp)
             return -1;
         }
         while(it->index < it->size) {
-            PyArray_Item_XDECREF(it->dataptr, PyArray_DESCR(mp));
+            NpyArray_Item_XDECREF(it->dataptr, PyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
@@ -255,25 +218,25 @@ PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj)
 }
 
 static void
-_fillobject(char *optr, PyObject *obj, PyArray_Descr *dtype)
+_fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
 {
-    if (!PyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)) {
+    if (!NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)) {
         if ((obj == Py_None) || (PyInt_Check(obj) && PyInt_AsLong(obj)==0)) {
             return;
         }
         else {
-            PyObject *arr;
-            Py_INCREF(dtype);
-            arr = PyArray_NewFromDescr(&PyArray_Type, dtype,
+            NpyArray *arr;
+            _Npy_INCREF(dtype);
+            arr = NpyArray_NewFromDescr(dtype,
                                        0, NULL, NULL, NULL,
-                                       0, NULL);
+                                       0, NPY_TRUE, NULL, NULL);
             if (arr!=NULL) {
-                dtype->f->setitem(obj, optr, PyArray_ARRAY(arr));
+                dtype->f->setitem(obj, optr, arr);
             }
-            Py_XDECREF(arr);
+            _Npy_DECREF(arr);
         }
     }
-    else if (PyDescr_HASFIELDS(dtype)) {
+    else if (NpyDataType_HASFIELDS(dtype)) {
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;

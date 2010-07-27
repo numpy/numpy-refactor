@@ -22,7 +22,7 @@
 #define PyAO PyArrayObject
 
 static void
-_putzero(char *optr, PyObject *zero, PyArray_Descr *dtype);
+_putzero(char *optr, PyObject *zero, NpyArray_Descr *dtype);
 
 /*NUMPY_API
  * Resize (reallocate data).  Only works if nothing else is referencing this
@@ -57,7 +57,7 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
         return NULL;
     }
     if (newsize > oldsize && 
-        PyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_REFCOUNT)) {
+        NpyDataType_FLAGCHK(PyArray_DESCR(self), NPY_ITEM_REFCOUNT)) {
         /* Fill with zeros. */
         int n, k;
         char *optr;
@@ -115,12 +115,12 @@ PyArray_Reshape(PyArrayObject *self, PyObject *shape)
 
 
 static void
-_putzero(char *optr, PyObject *zero, PyArray_Descr *dtype)
+_putzero(char *optr, PyObject *zero, NpyArray_Descr *dtype)
 {
-    if (!PyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)) {
+    if (!NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)) {
         memset(optr, 0, dtype->elsize);
     }
-    else if (PyDescr_HASFIELDS(dtype)) {
+    else if (NpyDataType_HASFIELDS(dtype)) {
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;

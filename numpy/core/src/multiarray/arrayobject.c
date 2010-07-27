@@ -29,6 +29,7 @@ maintainer email:  oliphant.travis@ieee.org
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "numpy/ndarraytypes.h"
 #include "numpy/numpy_api.h"
 
 #include "npy_config.h"
@@ -50,6 +51,21 @@ maintainer email:  oliphant.travis@ieee.org
 #include "getset.h"
 #include "sequence.h"
 #include "buffer.h"
+
+
+/*NUMPY_API
+ * Get the NpyArray_Descr structure for a type.
+ */
+NPY_NO_EXPORT PyArray_Descr *
+PyArray_DescrFromType(int type)
+{
+    NpyArray_Descr *result = NpyArray_DescrFromType(type);
+    PyArray_Descr *resultWrap = NULL;
+    
+    PyArray_Descr_REF_FROM_CORE(result, resultWrap);
+    return resultWrap;
+}
+
 
 /*NUMPY_API
   Compute the size of an array (in number of items)
@@ -99,13 +115,14 @@ PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
         src = (PyArrayObject *)r;
     }
     else {
-        PyArray_Descr* dtype;
-        dtype = PyArray_DESCR(dest);
-        Py_INCREF(dtype);
-        src = (PyArrayObject *)PyArray_FromAny(src_object, dtype, 0,
-                                               PyArray_NDIM(dest),
-                                               FORTRAN_IF(dest),
-                                               NULL);
+        /* TODO: Once array is split we can probably drop the PyObject wrapper here */
+        NpyArray_Descr* dtype;
+        dtype = PyArray_ARRAY(dest)->descr;
+        _Npy_INCREF(dtype);
+        src = (PyArrayObject *)PyArray_FromAnyUnwrap(src_object, dtype, 0,
+                                    PyArray_NDIM(dest),
+                                    FORTRAN_IF(dest),
+                                    NULL);
     }
     if (src == NULL) {
         return -1;
@@ -146,7 +163,7 @@ PyArray_TypeNumFromName(char *str)
     
     for (i = 0; i < NPY_NUMUSERTYPES; i++) {
         descr = npy_userdescrs[i];
-        type = (PyTypeObject *)descr->typeobj;
+        type = PyArray_Descr_WRAP(descr)->typeobj;
         if (strcmp(type->tp_name, str) == 0) {
             return descr->type_num;
         }
@@ -177,7 +194,7 @@ static int
 dump_data(char **string, int *n, int *max_n, char *data, int nd,
           intp *dimensions, intp *strides, PyArrayObject* self)
 {
-    PyArray_Descr *descr=PyArray_DESCR(self);
+    NpyArray_Descr *descr = PyArray_ARRAY(self)->descr;       
     PyObject *op, *sp;
     char *ostring;
     intp i, N;
@@ -677,9 +694,9 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
         PyObject *new;
         if (PyArray_TYPE(self) == PyArray_STRING &&
             PyArray_TYPE(other) == PyArray_UNICODE) {
-            PyArray_Descr* unicode = PyArray_DescrNew(PyArray_DESCR(other));
+            NpyArray_Descr* unicode = NpyArray_DescrNew(PyArray_DESCR(other));
             unicode->elsize = PyArray_ITEMSIZE(self) << 2;
-            new = PyArray_FromAny((PyObject *)self, unicode,
+            new = PyArray_FromAnyUnwrap((PyObject *)self, unicode,
                                   0, 0, 0, NULL);
             if (new == NULL) {
                 return NULL;
@@ -689,9 +706,9 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
         }
         else if (PyArray_TYPE(self) == PyArray_UNICODE &&
                  PyArray_TYPE(other) == PyArray_STRING) {
-            PyArray_Descr* unicode = PyArray_DescrNew(PyArray_DESCR(self));
+            NpyArray_Descr* unicode = NpyArray_DescrNew(PyArray_DESCR(self));
             unicode->elsize = PyArray_ITEMSIZE(other) << 2;
-            new = PyArray_FromAny((PyObject *)other, unicode,
+            new = PyArray_FromAnyUnwrap((PyObject *)other, unicode,
                                   0, 0, 0, NULL);
             if (new == NULL) {
                 return NULL;
@@ -766,7 +783,7 @@ _void_compare(PyArrayObject *self, PyArrayObject *other, int cmp_op)
                 "Void-arrays can only be compared for equality.");
         return NULL;
     }
-    if (PyArray_HASFIELDS(self)) {
+    if (NpyArray_HASFIELDS(PyArray_ARRAY(self))) {
         const char *key;
         NpyArray_DescrField *value;
         PyObject *res = NULL, *temp, *a, *b;
@@ -821,13 +838,12 @@ _void_compare(PyArrayObject *self, PyArrayObject *other, int cmp_op)
         }
         return res;
     }
-    else {
-        /*
-         * compare as a string. Assumes self and
-         * other have same descr->type
-         */
-        return _strings_richcompare(self, other, cmp_op, 0);
-    }
+    
+    /*
+     * compare as a string. Assumes self and
+     * other have same descr->type
+     */
+    return _strings_richcompare(self, other, cmp_op, 0);
 }
 
 NPY_NO_EXPORT PyObject *
@@ -883,9 +899,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool
-                ((PyObject *)PyArray_DESCR(self),
-                 (PyObject *)\
-                 PyArray_DESCR(array_other),
+                ((PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                 (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                  Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
@@ -949,9 +964,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool(
-                    (PyObject *)PyArray_DESCR(self),
-                    (PyObject *)
-                    PyArray_DESCR(array_other),
+                    (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                    (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                     Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
@@ -1044,7 +1058,7 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"shape", "dtype", "buffer", "offset", "strides",
                              "order", NULL};
-    PyArray_Descr *descr = NULL;
+    PyArray_Descr *descrWrap = NULL;
     int itemsize;
     PyArray_Dims dims = {NULL, 0};
     PyArray_Dims strides = {NULL, 0};
@@ -1064,7 +1078,7 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
                                      kwlist, PyArray_IntpConverter,
                                      &dims,
                                      PyArray_DescrConverter,
-                                     &descr,
+                                     &descrWrap,
                                      PyArray_BufferConverter,
                                      &buffer,
                                      &offset,
@@ -1077,11 +1091,11 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
     if (order == PyArray_FORTRANORDER) {
         fortran = 1;
     }
-    if (descr == NULL) {
-        descr = PyArray_DescrFromType(PyArray_DEFAULT);
+    if (descrWrap == NULL) {
+        descrWrap = PyArray_DescrFromType(PyArray_DEFAULT);
     }
 
-    itemsize = descr->elsize;
+    itemsize = descrWrap->descr->elsize;
     if (itemsize == 0) {
         PyErr_SetString(PyExc_ValueError,
                         "data-type with unspecified variable length");
@@ -1120,19 +1134,19 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
 
     if (buffer.ptr == NULL) {
         ret = (PyArrayObject *)
-            PyArray_NewFromDescr(subtype, descr,
+            PyArray_NewFromDescr(subtype, descrWrap,
                                  (int)dims.len,
                                  dims.ptr,
                                  strides.ptr, NULL, fortran, NULL);
         if (ret == NULL) {
-            descr = NULL;
+            descrWrap = NULL;
             goto fail;
         }
-        if (PyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)) {
+        if (PyDataType_FLAGCHK(descrWrap, NPY_ITEM_HASOBJECT)) {
             /* place Py_None in object positions */
             PyArray_FillObjectArray(ret, Py_None);
             if (PyErr_Occurred()) {
-                descr = NULL;
+                descrWrap = NULL;
                 goto fail;
             }
         }
@@ -1156,13 +1170,13 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
             buffer.flags |= FORTRAN;
         }
         ret = (PyArrayObject *)\
-            PyArray_NewFromDescr(subtype, descr,
+            PyArray_NewFromDescr(subtype, descrWrap,
                                  dims.len, dims.ptr,
                                  strides.ptr,
                                  offset + (char *)buffer.ptr,
                                  buffer.flags, NULL);
         if (ret == NULL) {
-            descr = NULL;
+            descrWrap = NULL;
             goto fail;
         }
         PyArray_UpdateFlags(ret, UPDATE_ALL);
@@ -1185,7 +1199,7 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
     return (PyObject *)ret;
 
  fail:
-    Py_XDECREF(descr);
+    Py_XDECREF(descrWrap);
     if (dims.ptr) {
         PyDimMem_FREE(dims.ptr);
     }

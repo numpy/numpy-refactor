@@ -17,7 +17,7 @@ struct _NpyArray {
     struct _NpyArray *base_arr; /* Base when it's specifically an array object */
     void *base_obj;         /* Base when it's an opaque interface object */
     
-    struct _PyArray_Descr *descr;   /* Pointer to type structure */
+    struct NpyArray_Descr *descr;   /* Pointer to type structure */
     int flags;              /* Flags describing array -- see below */
 };
 

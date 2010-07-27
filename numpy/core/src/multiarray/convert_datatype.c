@@ -15,9 +15,16 @@
 #include "common.h"
 #include "scalartypes.h"
 #include "mapping.h"
+#include "ctors.h"
 #include "arrayobject.h"
 
+
 #include "convert_datatype.h"
+
+
+NPY_NO_EXPORT NpyArray_Descr *
+PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype);
+
 
 /*NUMPY_API
  * For backward compatibility
@@ -28,7 +35,10 @@
 NPY_NO_EXPORT PyObject *
 PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 {
-    RETURN_PYARRAY(NpyArray_CastToType(PyArray_ARRAY(mp), at, fortran));
+    NpyArray_Descr *atCore;    
+    PyArray_Descr_REF_TO_CORE(at, atCore);
+    
+    RETURN_PYARRAY(NpyArray_CastToType(PyArray_ARRAY(mp), atCore, fortran));
 }
 
 
@@ -41,7 +51,7 @@ PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 NPY_NO_EXPORT PyArray_VectorUnaryFunc *
 PyArray_GetCastFunc(PyArray_Descr *descr, int type_num)
 {
-    return (PyArray_VectorUnaryFunc *)NpyArray_GetCastFunc(descr, type_num);
+    return (PyArray_VectorUnaryFunc *)NpyArray_GetCastFunc(descr->descr, type_num);
 }
 
 
@@ -92,8 +102,7 @@ PyArray_CanCastSafely(int fromtype, int totype)
 NPY_NO_EXPORT Bool
 PyArray_CanCastTo(PyArray_Descr *from, PyArray_Descr *to)
 {
-    /* TODO: Fix access of descr objects from, and to. */
-    return NpyArray_CanCastTo(from, to);
+    return NpyArray_CanCastTo(from->descr, to->descr);
 }
 
 
@@ -144,9 +153,9 @@ The memory for the ptr still must be freed in any case;
 */
 
 static int
-_check_object_rec(PyArray_Descr *descr)
+_check_object_rec(NpyArray_Descr *descr)
 {
-    if (PyDataType_HASFIELDS(descr) && PyDataType_REFCHK(descr)) {
+    if (NpyDataType_HASFIELDS(descr) && NpyDataType_REFCHK(descr)) {
         PyErr_SetString(PyExc_TypeError, "Not supported for this data-type.");
         return -1;
     }
@@ -236,18 +245,18 @@ PyArray_One(PyArrayObject *arr)
 NPY_NO_EXPORT int
 PyArray_ObjectType(PyObject *op, int minimum_type)
 {
-    PyArray_Descr *intype;
-    PyArray_Descr *outtype;
+    NpyArray_Descr *intype;
+    NpyArray_Descr *outtype;
     int ret;
 
-    intype = PyArray_DescrFromType(minimum_type);
+    intype = NpyArray_DescrFromType(minimum_type);
     if (intype == NULL) {
         PyErr_Clear();
     }
     outtype = _array_find_type(op, intype, MAX_DIMS);
     ret = outtype->type_num;
-    Py_DECREF(outtype);
-    Py_XDECREF(intype);
+    _Npy_DECREF(outtype);
+    _Npy_XDECREF(intype);
     return ret;
 }
 
@@ -260,8 +269,8 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
     int i, n, allscalars = 0;
     PyArrayObject **mps = NULL;
     PyObject *otmp;
-    PyArray_Descr *intype = NULL, *stype = NULL;
-    PyArray_Descr *newtype = NULL;
+    NpyArray_Descr *intype = NULL, *stype = NULL;
+    NpyArray_Descr *newtype = NULL;
     NPY_SCALARKIND scalarkind = NPY_NOSCALAR, intypekind = NPY_NOSCALAR;
 
     *retn = n = PySequence_Length(op);
@@ -296,15 +305,15 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
     for (i = 0; i < n; i++) {
         otmp = PySequence_GetItem(op, i);
         if (!PyArray_CheckAnyScalar(otmp)) {
-            newtype = PyArray_DescrFromObject(otmp, intype);
-            Py_XDECREF(intype);
+            newtype = PyArray_DescrFromObjectUnwrap(otmp, intype);
+            _Npy_XDECREF(intype);
             intype = newtype;
             mps[i] = NULL;
             intypekind = PyArray_ScalarKind(intype->type_num, NULL);
         }
         else {
-            newtype = PyArray_DescrFromObject(otmp, stype);
-            Py_XDECREF(stype);
+            newtype = PyArray_DescrFromObjectUnwrap(otmp, stype);
+            _Npy_XDECREF(stype);
             stype = newtype;
             scalarkind = PyArray_ScalarKind(newtype->type_num, NULL);
             mps[i] = (PyArrayObject *)Py_None;
@@ -316,7 +325,7 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
         /* all scalars */
         allscalars = 1;
         intype = stype;
-        Py_INCREF(intype);
+        _Npy_INCREF(intype);
         for (i = 0; i < n; i++) {
             Py_XDECREF(mps[i]);
             mps[i] = NULL;
@@ -331,8 +340,8 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
         if (!PyArray_CanCoerceScalar(stype->type_num,
                                      intype->type_num,
                                      scalarkind)) {
-            newtype = _array_small_type(intype, stype);
-            Py_XDECREF(intype);
+            newtype = NpyArray_SmallType(intype, stype);
+            _Npy_XDECREF(intype);
             intype = newtype;
         }
         for (i = 0; i < n; i++) {
@@ -354,21 +363,21 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
             flags |= FORCECAST;
             Py_DECREF(Py_None);
         }
-        Py_INCREF(intype);
+        _Npy_INCREF(intype);
         mps[i] = (PyArrayObject*)
-            PyArray_FromAny(otmp, intype, 0, 0, flags, NULL);
+            PyArray_FromAnyUnwrap(otmp, intype, 0, 0, flags, NULL);
         Py_DECREF(otmp);
         if (mps[i] == NULL) {
             goto fail;
         }
     }
-    Py_DECREF(intype);
-    Py_XDECREF(stype);
+    _Npy_DECREF(intype);
+    _Npy_XDECREF(stype);
     return mps;
 
  fail:
-    Py_XDECREF(intype);
-    Py_XDECREF(stype);
+    _Npy_XDECREF(intype);
+    _Npy_XDECREF(stype);
     *retn = 0;
     for (i = 0; i < n; i++) {
         Py_XDECREF(mps[i]);

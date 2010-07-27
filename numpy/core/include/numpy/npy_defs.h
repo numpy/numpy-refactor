@@ -4,8 +4,8 @@
 /* TODO: This needs to be fixed so we are not dependent on Python. */
 #include <Python.h>
 
-#include "npy_common.h"
-#include "npy_endian.h"
+#include <numpy/npy_common.h>
+#include <numpy/npy_endian.h>
 
 
 /* 
@@ -47,20 +47,21 @@ typedef Py_uintptr_t npy_uintp;
 
 /* Temporary forward structure declarations.  These will be removed as objects
  are refactored into two layers */
-struct PyArrayObject;
+//struct PyArrayObject;
 struct PyArrayFlagsObject;
-struct _PyArray_Descr;
-struct _arr_descr;
-struct PyArray_DatetimeMetaData;
+//struct _PyArray_Descr;
+struct NpyArray_Descr;
+//struct PyArray_DatetimeMetaData;
 struct PyArray_Dims;
 
 
-typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
+//typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
 typedef struct _NpyArray NpyArray;
-typedef struct _PyArray_Descr NpyArray_Descr;
-typedef struct _arr_descr NpyArray_ArrayDescr;
+typedef struct NpyArray_ArrayDescr NpyArray_ArrayDescr;
 typedef struct PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
-
+typedef struct NpyArray_DescrField NpyArray_DescrField;
+typedef struct NpyArray_Descr NpyArray_Descr;
+typedef struct NpyArray_DateTimeInfo NpyArray_DateTimeInfo;
 typedef struct PyArray_Dims NpyArray_Dims;
 
 

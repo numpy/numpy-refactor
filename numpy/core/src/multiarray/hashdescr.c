@@ -26,15 +26,15 @@
  *
  */
 
-static int _is_array_descr_builtin(PyArray_Descr* descr);
-static int _array_descr_walk(PyArray_Descr* descr, PyObject *l);
+static int _is_array_descr_builtin(NpyArray_Descr* descr);
+static int _array_descr_walk(NpyArray_Descr* descr, PyObject *l);
 static int _array_descr_walk_fields(NpyDict *fields, PyObject* l);
-static int _array_descr_builtin(PyArray_Descr* descr, PyObject *l);
+static int _array_descr_builtin(NpyArray_Descr* descr, PyObject *l);
 
 /*
  * Return true if descr is a builtin type
  */
-static int _is_array_descr_builtin(PyArray_Descr* descr)
+static int _is_array_descr_builtin(NpyArray_Descr* descr)
 {
         if (NULL != descr->fields) {
                 return 0;
@@ -48,7 +48,7 @@ static int _is_array_descr_builtin(PyArray_Descr* descr)
 /*
  * Add to l all the items which uniquely define a builtin type
  */
-static int _array_descr_builtin(PyArray_Descr* descr, PyObject *l)
+static int _array_descr_builtin(NpyArray_Descr* descr, PyObject *l)
 {
     Py_ssize_t i;
     PyObject *t, *item;
@@ -101,7 +101,6 @@ static int _array_descr_walk_fields(NpyDict *fields, PyObject* l)
 
         PyList_Append(l, PyString_FromString(key));
 
-        /* TODO: Wrap, then unwrap descr */
         st = _array_descr_walk(value->descr, l);
         if (st) {
             return -1;
@@ -118,7 +117,7 @@ static int _array_descr_walk_fields(NpyDict *fields, PyObject* l)
  *
  * Return 0 on success
  */
-static int _array_descr_walk_subarray(PyArray_ArrayDescr* adescr, PyObject *l)
+static int _array_descr_walk_subarray(NpyArray_ArrayDescr* adescr, PyObject *l)
 {
     Py_ssize_t i;
     int st;
@@ -130,9 +129,9 @@ static int _array_descr_walk_subarray(PyArray_ArrayDescr* adescr, PyObject *l)
         PyList_Append(l, PyInt_FromLong(adescr->shape_dims[i]));
     }
 
-    Py_INCREF(adescr->base);
+    _Npy_INCREF(adescr->base);
     st = _array_descr_walk(adescr->base, l);
-    Py_DECREF(adescr->base);
+    _Npy_DECREF(adescr->base);
 
     return st;
 }
@@ -140,7 +139,7 @@ static int _array_descr_walk_subarray(PyArray_ArrayDescr* adescr, PyObject *l)
 /*
  * 'Root' function to walk into a dtype. May be called recursively
  */
-static int _array_descr_walk(PyArray_Descr* descr, PyObject *l)
+static int _array_descr_walk(NpyArray_Descr* descr, PyObject *l)
 {
     int st;
 
@@ -167,7 +166,7 @@ static int _array_descr_walk(PyArray_Descr* descr, PyObject *l)
 /*
  * Return 0 if successfull
  */
-static int _PyArray_DescrHashImp(PyArray_Descr *descr, long *hash)
+static int _PyArray_DescrHashImp(NpyArray_Descr *descr, long *hash)
 {
     PyObject *l, *tl, *item;
     Py_ssize_t i;
@@ -234,7 +233,7 @@ PyArray_DescrHash(PyObject* odescr)
     }
     descr = (PyArray_Descr*)odescr;
 
-    st = _PyArray_DescrHashImp(descr, &hash);
+    st = _PyArray_DescrHashImp(descr->descr, &hash);
     if (st) {
         return -1;
     }

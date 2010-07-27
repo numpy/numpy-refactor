@@ -317,7 +317,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
           NpyArray_EquivByteorders(mpd->byteorder, at->byteorder) &&
           ((mpd->elsize == at->elsize) || (at->elsize==0)))) &&
         NpyArray_ISBEHAVED_RO(mp)) {
-        Npy_DECREF(at);
+        _Npy_DECREF(at);
         _Npy_INCREF(mp);
         return mp;
     }
@@ -559,8 +559,8 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     to = NpyArray_DescrFromType(totype);
     telsize = to->elsize;
     felsize = from->elsize;
-    Npy_DECREF(from);
-    Npy_DECREF(to);
+    _Npy_DECREF(from);
+    _Npy_DECREF(to);
     
     switch(fromtype) {
         case NPY_BYTE:
@@ -697,7 +697,7 @@ NpyArray_ValidType(int type)
     if (descr == NULL) {
         res = NPY_FALSE;
     }
-    Npy_DECREF(descr);
+    _Npy_DECREF(descr);
     return res;
 }
 

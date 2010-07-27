@@ -184,7 +184,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
     if ((item = NpyArray_Index2Ptr(self, i)) == NULL) {
         return NULL;
     }
-    Npy_INCREF(NpyArray_DESCR(self));
+    _Npy_INCREF(NpyArray_DESCR(self));
     r = NpyArray_NewFromDescr(NpyArray_DESCR(self),
                               NpyArray_NDIM(self)-1,
                               NpyArray_DIMS(self)+1,

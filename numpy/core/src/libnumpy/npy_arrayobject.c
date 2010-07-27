@@ -162,7 +162,7 @@ NpyArray_dealloc(NpyArray *self) {
     }
     
     NpyDimMem_FREE(self->dimensions);
-    Npy_DECREF(self->descr);
+    _Npy_DECREF(self->descr);
     self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */
 
     NpyArray_free(self);

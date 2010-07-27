@@ -82,7 +82,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     else {
         if (NpyArray_SIZE(out) !=
             NpyArray_MultiplyList(ap->dimensions, ap->nd - 1)) {
-            PyErr_SetString(NpyExc_TypeError,
+            NpyErr_SetString(NpyExc_TypeError,
                             "invalid shape for output array.");
         }
         rp = NpyArray_FromArray(out,

@@ -1,4 +1,5 @@
 import tempfile
+import warnings
 import sys
 import os
 import numpy as np
@@ -1529,9 +1530,10 @@ class TestStackedNeighborhoodIter(TestCase):
         assert_array_equal(l, r)
 
 class TestWarnings(object):
-    def test_complex_warning(self):
-        import warnings
+    def setUp(self):
+        warnings.resetwarnings()
 
+    def test_complex_warning(self):
         x = np.array([1,2])
         y = np.array([1-2j,1+2j])
 

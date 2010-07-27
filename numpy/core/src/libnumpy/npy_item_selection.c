@@ -44,7 +44,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
             }
         }
     }
-    Npy_INCREF(self->descr);
+    _Npy_INCREF(self->descr);
     if (!ret) {
         ret = NpyArray_NewFromDescr(self->descr,
                                     nd, shape,
@@ -65,7 +65,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
             NpyErr_SetString(NpyExc_ValueError,
                              "bad shape in output array");
             ret = NULL;
-            Npy_DECREF(self->descr);
+            _Npy_DECREF(self->descr);
             goto fail;
         }
 
@@ -77,8 +77,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
              */
             flags |= NPY_ENSURECOPY;
         }
-        obj = NpyArray_FromArray(ret, self->descr,
-                                 flags);
+        obj = NpyArray_FromArray(ret, self->descr, flags);
         if (obj != ret) {
             copyret = 1;
         }
@@ -202,7 +201,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
         if (clipmode == NPY_RAISE) {
             flags |= NPY_ENSURECOPY;
         }
-        Npy_INCREF(self->descr);
+        _Npy_INCREF(self->descr);
         obj = NpyArray_FromArray(self, self->descr, flags);
         if (obj != self) {
             copied = 1;
@@ -217,7 +216,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
         goto fail;
     }
     ni = NpyArray_SIZE(indices);
-    Npy_INCREF(self->descr);
+    _Npy_INCREF(self->descr);
     values = NpyArray_FromArray(values0, self->descr, NPY_DEFAULT | NPY_FORCECAST);
     if (values == NULL) {
         goto fail;
@@ -369,7 +368,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
         NpyArray *obj;
         int flags = NPY_CARRAY | NPY_UPDATEIFCOPY;
 
-        Npy_INCREF(self->descr);
+        _Npy_INCREF(self->descr);
         obj = NpyArray_FromArray(self, self->descr, flags);
         if (obj != self) {
             copied = 1;
@@ -392,7 +391,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
                         "the same size");
         goto fail;
     }
-    Npy_INCREF(self->descr);
+    _Npy_INCREF(self->descr);
     values = NpyArray_FromArray(values0, self->descr, NPY_CARRAY);
     if (values == NULL) {
         goto fail;
@@ -504,7 +503,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
 
     /* Construct new array */
     aop->dimensions[axis] = total;
-    Npy_INCREF(aop->descr);
+    _Npy_INCREF(aop->descr);
     ret = NpyArray_NewFromDescr(aop->descr,
                                 aop->nd,
                                 aop->dimensions,
@@ -577,7 +576,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     }
     /* Set-up return array */
     if (!ret) {
-        Npy_INCREF(mps[0]->descr);
+        _Npy_INCREF(mps[0]->descr);
         ret = NpyArray_NewFromDescr(mps[0]->descr,
                                     multi->nd,
                                     multi->dimensions,
@@ -605,7 +604,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
              */
             flags |= NPY_ENSURECOPY;
         }
-        Npy_INCREF(mps[0]->descr);
+        _Npy_INCREF(mps[0]->descr);
         obj = NpyArray_FromArray(ret, mps[0]->descr, flags);
         if (obj != ret) {
             copyret = 1;
@@ -1359,6 +1358,8 @@ local_search_right(NpyArray *arr, NpyArray *key, NpyArray *ret)
 }
 
 
+
+
 /*
  * Numeric.searchsorted(a,v)
  */
@@ -1373,10 +1374,10 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
 
     dtype = NpyArray_DescrFromArray(op2, op1->descr);
     /* need ap1 as contiguous array and of right type */
-    Py_INCREF(dtype);
+    _Npy_INCREF(dtype);
     ap1 = NpyArray_FromArray(op1, dtype, NPY_DEFAULT);
     if (ap1 == NULL) {
-        Py_DECREF(dtype);
+        _Npy_DECREF(dtype);
         return NULL;
     }
 

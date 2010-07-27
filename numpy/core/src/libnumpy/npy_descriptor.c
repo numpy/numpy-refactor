@@ -8,7 +8,12 @@
 #include <Python.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_object.h"
 
+
+#if !defined(MAX)
+#define MAX(x,y) (((x)>=(y)) ? (x) : (y))
+#endif
 
 
 /* Local functions */
@@ -17,6 +22,15 @@ static void *npy_copy_fields_key(void *key);
 static void npy_dealloc_fields_key(void *key);
 static void *npy_copy_fields_value(void *value);
 static void npy_dealloc_fields_value(void *value);
+
+void 
+NpyArray_DescrDestroy(NpyArray_Descr *self);
+
+
+_NpyTypeObject NpyArrayDescr_Type = {
+    (npy_destructor)NpyArray_DescrDestroy,
+};
+
 
 
 
@@ -29,7 +43,7 @@ NpyArray_DescrNewFromType(int type_num)
     
     old = NpyArray_DescrFromType(type_num);
     new = NpyArray_DescrNew(old);
-    Npy_DECREF(old);
+    _Npy_DECREF(old);
     return new;
 }
 
@@ -55,17 +69,21 @@ NpyArray_DescrNewFromType(int type_num)
 NpyArray_Descr *
 NpyArray_DescrNew(NpyArray_Descr *base)
 {
-    NpyArray_Descr *new = PyObject_New(NpyArray_Descr, &NpyArrayDescr_Type);
+    NpyArray_Descr *new;
+    
+    assert(NULL != base && NPY_VALID_MAGIC == base->magic_number);
+
+    new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
     if (new == NULL) {
         return NULL;
     }
+    _NpyObject_Init(new, &NpyArrayDescr_Type);
     new->magic_number = NPY_VALID_MAGIC;
     
-    /* Don't copy PyObject_HEAD part */
-    /* TODO: Fix memory allocation once PyObject head structure is removed. */
-    memcpy((char *)new + sizeof(PyObject),
-           (char *)base + sizeof(PyObject),
-           sizeof(NpyArray_Descr) - sizeof(PyObject));
+    /* Don't copy NpyObject_HEAD part */
+    memcpy((char *)new + sizeof(struct _NpyObject),
+           (char *)base + sizeof(struct _NpyObject),
+           sizeof(NpyArray_Descr) - sizeof(struct _NpyObject));
     
     assert((NULL == new->fields && NULL == new->names) || (NULL != new->fields && NULL != new->names));
     if (NULL != new->fields) {
@@ -75,16 +93,143 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     if (new->subarray) {
         new->subarray = NpyArray_DupSubarray(base->subarray);
     }
-    Npy_Interface_XINCREF(new->typeobj);
 
     if (new->dtinfo) {
         new->dtinfo = NpyArray_malloc(sizeof(NpyArray_DateTimeInfo));
         memcpy(new->dtinfo, base->dtinfo, sizeof(NpyArray_DateTimeInfo));
     }
+
+    /* Allocate the interface wrapper object. */
+    if (NPY_FALSE == NpyInterface_DescrNewFromWrapper(Npy_INTERFACE(base), new, &new->nob_interface)) {
+        Npy_INTERFACE(new) = NULL;
+        _Npy_DECREF(new);
+        return NULL;
+    }
     
+    /* Note on reference counts: At this point if there is an inteface object, it's refcnt should
+       be == 1 because the refcnt on the core object == 1. That is, the core object is holding a
+       single reference to the interface object. */
     return new;
 }
 
+
+
+/*
+ * new reference
+ * doesn't alter refcount of chktype or mintype ---
+ * unless one of them is returned
+ */
+NPY_NO_EXPORT NpyArray_Descr *
+NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
+{
+    NpyArray_Descr *outtype;
+    int outtype_num, save_num;
+    
+    assert(NULL != chktype && NULL != mintype &&
+           NPY_VALID_MAGIC == chktype->magic_number && 
+           NPY_VALID_MAGIC == mintype->magic_number);
+
+    if (NpyArray_EquivTypes(chktype, mintype)) {
+        _Npy_INCREF(mintype);
+        return mintype;
+    }
+    
+    
+    if (chktype->type_num > mintype->type_num) {
+        outtype_num = chktype->type_num;
+    }
+    else {
+        if (NpyTypeNum_ISOBJECT(chktype->type_num) &&
+            NpyDataType_ISSTRING(mintype)) {
+            return NpyArray_DescrFromType(NPY_OBJECT);
+        }
+        else {
+            outtype_num = mintype->type_num;
+        }
+    }
+    
+    save_num = outtype_num;
+    while (outtype_num < NPY_NTYPES &&
+           !(NpyArray_CanCastSafely(chktype->type_num, outtype_num)
+             && NpyArray_CanCastSafely(mintype->type_num, outtype_num))) {
+               outtype_num++;
+           }
+    if (outtype_num == NPY_NTYPES) {
+        outtype = NpyArray_DescrFromType(save_num);
+    }
+    else {
+        outtype = NpyArray_DescrFromType(outtype_num);
+    }
+    if (NpyTypeNum_ISEXTENDED(outtype->type_num)) {
+        int testsize = outtype->elsize;
+        int chksize, minsize;
+        chksize = chktype->elsize;
+        minsize = mintype->elsize;
+        /*
+         * Handle string->unicode case separately
+         * because string itemsize is 4* as large
+         */
+        if (outtype->type_num == NPY_UNICODE &&
+            mintype->type_num == NPY_STRING) {
+            testsize = MAX(chksize, 4*minsize);
+        }
+        else if (chktype->type_num == NPY_STRING &&
+                 mintype->type_num == NPY_UNICODE) {
+            testsize = MAX(chksize*4, minsize);
+        }
+        else {
+            testsize = MAX(chksize, minsize);
+        }
+        if (testsize != outtype->elsize) {
+            NpyArray_DESCR_REPLACE(outtype);
+            outtype->elsize = testsize;
+            NpyArray_DescrDeallocNamesAndFields(outtype);
+        }
+    }
+    return outtype;
+}
+
+
+
+/*
+ * op is an object to be converted to an ndarray.
+ *
+ * minitype is the minimum type-descriptor needed.
+ *
+ * returns new reference
+ */
+NpyArray_Descr *
+NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
+{
+    NpyArray_Descr *chktype = NULL;
+    NpyArray_Descr *outtype = NULL;
+    
+    assert(NULL != ap && 
+           NPY_VALID_MAGIC == ap->magic_number && 
+           (NULL == mintype || NPY_VALID_MAGIC == mintype->magic_number));
+    
+    chktype = NpyArray_DESCR(ap);
+    _Npy_INCREF(chktype);
+    if (mintype == NULL) {
+        return chktype;
+    }
+    _Npy_INCREF(mintype);
+    
+    outtype = NpyArray_SmallType(chktype, mintype);
+    _Npy_DECREF(chktype);
+    _Npy_DECREF(mintype);
+    
+    /*
+     * VOID Arrays should not occur by "default"
+     * unless input was already a VOID
+     */
+    if (outtype->type_num == NPY_VOID &&
+        mintype->type_num != NPY_VOID) {
+        _Npy_DECREF(outtype);
+        outtype = NpyArray_DescrFromType(PyArray_OBJECT);
+    }
+    return outtype;
+}
 
 
 
@@ -97,7 +242,7 @@ NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
     assert((0 == src->shape_num_dims && NULL == src->shape_dims) || (0 < src->shape_num_dims && NULL != src->shape_dims));
     
     dest->base = src->base;
-    Npy_INCREF(dest->base);
+    _Npy_INCREF(dest->base);
     
     dest->shape_num_dims = src->shape_num_dims;
     if (0 < dest->shape_num_dims) {
@@ -120,25 +265,24 @@ NpyArray_DescrDestroy(NpyArray_Descr *self)
 
     NpyArray_DescrDeallocNamesAndFields(self);
     
-    Npy_Interface_XDECREF(self->typeobj);
     if (self->subarray) {
         NpyArray_DestroySubarray(self->subarray);
         self->subarray = NULL;
     }
     if (self->dtinfo) {
-      NpyArray_free(self->dtinfo);
+        NpyArray_free(self->dtinfo);
     }
 
     self->magic_number = NPY_INVALID_MAGIC;
     
-    /* free(self); */       /* TODO: Revisit free(), depends on memory allocation scheme we pick */
+    free(self);
 }
 
 
 void 
 NpyArray_DestroySubarray(NpyArray_ArrayDescr *self)
 {
-    Npy_DECREF(self->base);
+    _Npy_DECREF(self->base);
     if (0 < self->shape_num_dims) {
         NpyArray_free(self->shape_dims);
     }
@@ -201,17 +345,17 @@ NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
             }
             newdescr = NpyArray_DescrNewByteorder(value->descr, newendian);
             if (newdescr == NULL) {
-                Npy_DECREF(new);
+                _Npy_DECREF(new);
                 return NULL;
             }
-            Npy_DECREF(value->descr);
+            _Npy_DECREF(value->descr);
             value->descr = newdescr;
         }
     }
     if (NULL != new->subarray) {
         NpyArray_Descr *old = new->subarray->base;
         new->subarray->base = NpyArray_DescrNewByteorder(self->subarray->base, newendian);
-        Py_DECREF(old);
+        _Npy_DECREF(old);
     }
     return new;
 }
@@ -412,7 +556,7 @@ static void *npy_copy_fields_value(void *value_tmp)
     NpyArray_DescrField *copy = (NpyArray_DescrField *)malloc(sizeof(NpyArray_DescrField));
     
     copy->descr = value->descr;
-    Npy_XINCREF(copy->descr);
+    _Npy_XINCREF(copy->descr);
     copy->offset = value->offset;
     copy->title = (NULL == value->title) ? NULL : strdup(value->title);
     
@@ -423,7 +567,7 @@ static void npy_dealloc_fields_value(void *value_tmp)
 {
     NpyArray_DescrField *value = (NpyArray_DescrField *)value_tmp;
 
-    Npy_XDECREF(value->descr);
+    _Npy_XDECREF(value->descr);
     if (NULL != value->title) free(value->title);
     free(value);
 }

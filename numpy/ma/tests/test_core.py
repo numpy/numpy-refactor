@@ -1133,7 +1133,7 @@ class TestMaskedArrayArithmetic(TestCase):
 
 
     def test_ne_on_structured(self):
-        "Test the equality of structured arrays"
+        "Test the inequality of structured arrays"
         ndtype = [('A', int), ('B', int)]
         a = array([(1, 1), (2, 2)], mask=[(0, 1), (0, 0)], dtype=ndtype)
         test = (a != a)

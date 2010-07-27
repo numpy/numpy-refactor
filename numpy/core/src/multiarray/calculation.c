@@ -13,6 +13,7 @@
 
 #include "common.h"
 #include "number.h"
+#include "ctors.h"
 #include "arrayobject.h"
 
 #include "calculation.h"
@@ -20,6 +21,11 @@
 /* FIXME: just remove _check_axis ? */
 #define _check_axis PyArray_CheckAxis
 #define PyAO PyArrayObject
+
+
+NPY_NO_EXPORT NpyArray_Descr *
+PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype);
+
 
 static double
 power_of_ten(int n)
@@ -393,7 +399,7 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
 {
     PyObject *f, *ret = NULL, *tmp, *op1, *op2;
     int ret_int=0;
-    PyArray_Descr *my_descr;
+
     if (out && (PyArray_SIZE(out) != PyArray_SIZE(a))) {
         PyErr_SetString(PyExc_ValueError,
                         "invalid output shape");
@@ -489,17 +495,25 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
         decimals = -decimals;
     }
     if (!out) {
+        NpyArray_Descr *my_descr;
+        PyArray_Descr *my_descr_wrap;
+        
         if (PyArray_ISINTEGER(a)) {
             ret_int = 1;
-            my_descr = PyArray_DescrFromType(NPY_DOUBLE);
+            my_descr = NpyArray_DescrFromType(NPY_DOUBLE);
         }
         else {
-            Py_INCREF(PyArray_DESCR(a));
             my_descr = PyArray_DESCR(a);
+            _Npy_INCREF(my_descr);
         }
+        
+        /* TODO: Ugly.  Refactor PyArray_Empty into core once zero fill is refactored. */
+        my_descr_wrap = PyArray_Descr_WRAP(my_descr);
+        Py_INCREF(my_descr_wrap);
+        _Npy_DECREF(my_descr);
         out = (PyArrayObject *)PyArray_Empty(PyArray_NDIM(a), PyArray_DIMS(a),
-                                             my_descr,
-                                             PyArray_ISFORTRAN(a));
+                                              my_descr_wrap,
+                                              PyArray_ISFORTRAN(a));
         if (out == NULL) {
             return NULL;
         }
@@ -534,9 +548,9 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
     Py_DECREF(f);
     Py_DECREF(out);
     if (ret_int) {
-        Py_INCREF(PyArray_DESCR(a));
-        tmp = PyArray_CastToType((PyArrayObject *)ret,
-                                 PyArray_DESCR(a), PyArray_ISFORTRAN(a));
+        _Npy_INCREF(PyArray_DESCR(a));
+        tmp = Npy_INTERFACE( NpyArray_CastToType(PyArray_ARRAY(ret),
+                                                 PyArray_DESCR(a), PyArray_ISFORTRAN(a)) );
         Py_DECREF(ret);
         return tmp;
     }
@@ -672,7 +686,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     PyArrayObject *maxa = NULL;
     PyArrayObject *mina = NULL;
     PyArrayObject *newout = NULL, *newin = NULL;
-    PyArray_Descr *indescr, *newdescr;
+    NpyArray_Descr *indescr, *newdescr;
     char *max_data, *min_data;
     PyObject *zero;
 
@@ -692,14 +706,14 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     /* First we need to figure out the correct type */
     indescr = NULL;
     if (min != NULL) {
-        indescr = PyArray_DescrFromObject(min, NULL);
+        indescr = PyArray_DescrFromObjectUnwrap(min, NULL);
         if (indescr == NULL) {
             return NULL;
         }
     }
     if (max != NULL) {
-        newdescr = PyArray_DescrFromObject(max, indescr);
-        Py_XDECREF(indescr);
+        newdescr = PyArray_DescrFromObjectUnwrap(max, indescr);
+        _Npy_XDECREF(indescr);
         if (newdescr == NULL) {
             return NULL;
         }
@@ -717,7 +731,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
      */
     if (PyArray_ScalarKind(newdescr->type_num, NULL) >
         PyArray_ScalarKind(PyArray_TYPE(self), NULL)) {
-        indescr = _array_small_type(newdescr, PyArray_DESCR(self));
+        indescr = NpyArray_SmallType(newdescr, PyArray_DESCR(self));
         func = indescr->f->fastclip;
         if (func == NULL) {
             return _slow_array_clip(self, min, max, out);
@@ -725,14 +739,14 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     }
     else {
         indescr = PyArray_DESCR(self);
-        Py_INCREF(indescr);
+        _Npy_INCREF(indescr);
     }
-    Py_DECREF(newdescr);
+    _Npy_DECREF(newdescr);
 
-    if (!PyDataType_ISNOTSWAPPED(indescr)) {
-        PyArray_Descr *descr2;
-        descr2 = PyArray_DescrNewByteorder(indescr, '=');
-        Py_DECREF(indescr);
+    if (!NpyArray_ISNBO(indescr->byteorder)) {
+        NpyArray_Descr *descr2;
+        descr2 = NpyArray_DescrNewByteorder(indescr, '=');
+        _Npy_DECREF(indescr);
         if (descr2 == NULL) {
             goto fail;
         }
@@ -741,15 +755,15 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
 
     /* Convert max to an array */
     if (max != NULL) {
-        maxa = (NPY_AO *)PyArray_FromAny(max, indescr, 0, 0,
-                                         NPY_DEFAULT, NULL);
+        maxa = (NPY_AO *)PyArray_FromAnyUnwrap(max, indescr, 0, 0,
+                                               NPY_DEFAULT, NULL);
         if (maxa == NULL) {
             return NULL;
         }
     }
     else {
         /* Side-effect of PyArray_FromAny */
-        Py_DECREF(indescr);
+        _Npy_DECREF(indescr);
     }
 
     /*
@@ -782,9 +796,9 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
         }
 
         /* Convert min to an array */
-        Py_INCREF(indescr);
-        mina = (NPY_AO *)PyArray_FromAny(min, indescr, 0, 0,
-                                         NPY_DEFAULT, NULL);
+        _Npy_INCREF(indescr);
+        mina = (NPY_AO *)PyArray_FromAnyUnwrap(min, indescr, 0, 0,
+                                               NPY_DEFAULT, NULL);
         Py_DECREF(min);
         if (mina == NULL) {
             goto fail;
@@ -809,8 +823,9 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
         else {
             flags = NPY_CARRAY;
         }
-        Py_INCREF(indescr);
-        newin = (NPY_AO *)PyArray_FromArray(self, indescr, flags);
+        _Npy_INCREF(indescr);
+        ASSIGN_TO_PYARRAY(newin, 
+                          NpyArray_FromArray(PyArray_ARRAY(self), indescr, flags));
         if (newin == NULL) {
             goto fail;
         }
@@ -842,13 +857,13 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
      * and usable
      */
     if (out == NULL) {
-        Py_INCREF(indescr);
-        out = (NPY_AO*)PyArray_NewFromDescr(Py_TYPE(self),
-                                            indescr, PyArray_NDIM(self),
-                                            PyArray_DIMS(self),
-                                            NULL, NULL,
-                                            PyArray_ISFORTRAN(self),
-                                            (PyObject *)self);
+        _Npy_INCREF(indescr);
+        ASSIGN_TO_PYARRAY(out, 
+            NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
+                                  PyArray_DIMS(self),
+                                  NULL, NULL,
+                                  PyArray_ISFORTRAN(self),
+                                  NPY_FALSE, Py_TYPE(self), self));
         if (out == NULL) {
             goto fail;
         }
@@ -861,7 +876,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     }
     if (!outgood && PyArray_ISONESEGMENT(out) &&
         PyArray_CHKFLAGS(out, ALIGNED) && PyArray_ISNOTSWAPPED(out) &&
-        PyArray_EquivTypes(PyArray_DESCR(out), indescr)) {
+        NpyArray_EquivTypes(PyArray_DESCR(out), indescr)) {
         outgood = 1;
     }
 
@@ -876,8 +891,9 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
         else
             oflags = NPY_CARRAY;
         oflags |= NPY_UPDATEIFCOPY | NPY_FORCECAST;
-        Py_INCREF(indescr);
-        newout = (NPY_AO*)PyArray_FromArray(out, indescr, oflags);
+        _Npy_INCREF(indescr);
+        ASSIGN_TO_PYARRAY(newout,
+                          NpyArray_FromArray(PyArray_ARRAY(out), indescr, oflags));
         if (newout == NULL) {
             goto fail;
         }

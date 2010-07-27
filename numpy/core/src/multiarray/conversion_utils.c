@@ -12,6 +12,7 @@
 #include "npy_3kcompat.h"
 
 #include "common.h"
+#include "ctors.h"
 #include "arraytypes.h"
 
 #include "conversion_utils.h"
@@ -19,6 +20,10 @@
 /****************************************************************
 * Useful function for conversion when used with PyArg_ParseTuple
 ****************************************************************/
+
+NPY_NO_EXPORT NpyArray *
+PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode);
+
 
 /*NUMPY_API
  *
@@ -359,8 +364,8 @@ PyArray_PyIntAsInt(PyObject *o)
     long long_value = -1;
     PyObject *obj;
     static char *msg = "an integer is required";
-    PyObject *arr;
-    PyArray_Descr *descr;
+    NpyArray *arr;
+    NpyArray_Descr *descr;
     int ret;
 
 
@@ -383,16 +388,16 @@ PyArray_PyIntAsInt(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        Py_INCREF(descr);
-        arr = PyArray_CastToType((PyArrayObject *)o, descr, 0);
+        _Npy_INCREF(descr);
+        arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     if (PyArray_IsScalar(o, Integer)) {
-        Py_INCREF(descr);
-        arr = PyArray_FromScalar(o, descr);
+        _Npy_INCREF(descr);
+        arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
-        ret = *((int *)PyArray_DATA(arr));
-        Py_DECREF(arr);
+        ret = *((int *)NpyArray_DATA(arr));
+        _Npy_DECREF(arr);
         return ret;
     }
 #if (PY_VERSION_HEX >= 0x02050000)
@@ -448,8 +453,8 @@ PyArray_PyIntAsIntp(PyObject *o)
     longlong long_value = -1;
     PyObject *obj;
     static char *msg = "an integer is required";
-    PyObject *arr;
-    PyArray_Descr *descr;
+    NpyArray *arr;
+    NpyArray_Descr *descr;
     intp ret;
 
     if (!o) {
@@ -478,16 +483,16 @@ PyArray_PyIntAsIntp(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        Py_INCREF(descr);
-        arr = PyArray_CastToType((PyArrayObject *)o, descr, 0);
+        _Npy_INCREF(descr);
+        arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     else if (PyArray_IsScalar(o, Integer)) {
-        Py_INCREF(descr);
-        arr = PyArray_FromScalar(o, descr);
+        _Npy_INCREF(descr);
+        arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
-        ret = *((intp *)PyArray_DATA(arr));
-        Py_DECREF(arr);
+        ret = *((intp *)NpyArray_DATA(arr));
+        _Npy_DECREF(arr);
         return ret;
     }
 

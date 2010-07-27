@@ -4,7 +4,6 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
-#include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "numpy/numpy_api.h"
 
@@ -14,6 +13,7 @@
 
 #include "common.h"
 #include "mapping.h"
+#include "arrayobject.h"
 
 #include "sequence.h"
 
@@ -67,12 +67,12 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     }
 
     PyArray_DIM(self, 0) = ihigh-ilow;
-    Py_INCREF(PyArray_DESCR(self));
-    r = (PyArrayObject *)
-        PyArray_NewFromDescr(Py_TYPE(self), PyArray_DESCR(self),
-                             PyArray_NDIM(self), PyArray_DIMS(self),
-                             PyArray_STRIDES(self), data,
-                             PyArray_FLAGS(self), (PyObject *)self);
+    _Npy_INCREF(PyArray_DESCR(self));
+    ASSIGN_TO_PYARRAY(r,
+                      NpyArray_NewFromDescr(PyArray_DESCR(self),
+                                            PyArray_NDIM(self), PyArray_DIMS(self),
+                                            PyArray_STRIDES(self), data,
+                                            PyArray_FLAGS(self), NPY_FALSE, NULL, self));
     PyArray_DIM(self, 0) = l;
     if (r == NULL) {
         return NULL;

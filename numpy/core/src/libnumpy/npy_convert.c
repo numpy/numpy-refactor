@@ -17,7 +17,7 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 {
     NpyArray *new = NULL;
 
-    Npy_INCREF(NpyArray_DESCR(self));
+    _Npy_INCREF(NpyArray_DESCR(self));
     new = NpyArray_NewFromDescr(NpyArray_DESCR(self),
                                 NpyArray_NDIM(self), NpyArray_DIMS(self),
                                 NpyArray_STRIDES(self),
@@ -37,10 +37,10 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
         /* TODO: unwrap type. */
         if (NpyArray_SetDescr(new, type) < 0) {
             _Npy_DECREF(new);
-            Npy_DECREF(type);
+            _Npy_DECREF(type);
             return NULL;
         }
-        Npy_DECREF(type);
+        _Npy_DECREF(type);
     }
     return new;
 }
@@ -53,7 +53,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
     int index;
     char *msg = "new type not compatible with array.";
 
-    Npy_INCREF(newtype);
+    _Npy_INCREF(newtype);
 
     if (NpyDataType_FLAGCHK(newtype, NPY_ITEM_HASOBJECT) ||
         NpyDataType_FLAGCHK(newtype, NPY_ITEM_IS_POINTER) ||
@@ -62,14 +62,14 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
         NpyErr_SetString(NpyExc_TypeError,                      \
                         "Cannot change data-type for object " \
                         "array.");
-        Npy_DECREF(newtype);
+        _Npy_DECREF(newtype);
         return -1;
     }
 
     if (newtype->elsize == 0) {
         NpyErr_SetString(NpyExc_TypeError,
                         "data-type must not be 0-sized");
-        Npy_DECREF(newtype);
+        _Npy_DECREF(newtype);
         return -1;
     }
 
@@ -111,7 +111,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
     }
 
     /* fall through -- adjust type*/
-    Npy_DECREF(NpyArray_DESCR(self));
+    _Npy_DECREF(NpyArray_DESCR(self));
     if (newtype->subarray) {
         /*
          * create new array object from data and update
@@ -136,7 +136,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
         NpyArray_NDIM(self) = NpyArray_NDIM(temp);
         NpyArray_STRIDES(self) = NpyArray_STRIDES(temp);
         newtype = NpyArray_DESCR(temp);
-        Npy_INCREF(newtype);
+        _Npy_INCREF(newtype);
         /* Fool deallocator not to delete these*/
         NpyArray_NDIM(temp) = 0;
         NpyArray_DIMS(temp) = NULL;
@@ -149,7 +149,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
 
  fail:
     NpyErr_SetString(NpyExc_ValueError, msg);
-    Npy_DECREF(newtype);
+    _Npy_DECREF(newtype);
     return -1;
 }
 
@@ -164,7 +164,7 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
     if (fortran == NPY_ANYORDER)
         fortran = NpyArray_ISFORTRAN(m1);
 
-    Npy_INCREF(NpyArray_DESCR(m1));
+    _Npy_INCREF(NpyArray_DESCR(m1));
     ret = NpyArray_NewFromDescr(NpyArray_DESCR(m1),
                                 NpyArray_NDIM(m1),
                                 NpyArray_DIMS(m1),

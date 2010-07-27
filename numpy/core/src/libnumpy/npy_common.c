@@ -47,7 +47,7 @@ Npy_IsWriteable(NpyArray *ap)
     NpyArray *base_arr = ap->base_arr;
     void *base_obj = ap->base_obj;
     void *dummy;
-    Py_ssize_t n;
+    size_t n;
     
     /* If we own our own data, then no-problem */
     if ((base_arr == NULL && NULL == base_obj) || (ap->flags & NPY_OWNDATA)) {
@@ -92,6 +92,8 @@ Npy_IsWriteable(NpyArray *ap)
  * unless one of them is returned
  * TODO: Come up with a name that means something. 
  */
+#if 0
+/* TODO: Dead code, duplicate in npy_common.c */
 NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
 {
@@ -99,7 +101,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
     int outtype_num, save_num;
 
     if (NpyArray_EquivTypes(chktype, mintype)) {
-        Npy_INCREF(mintype);
+        _Npy_INCREF(mintype);
         return mintype;
     }
 
@@ -157,6 +159,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
     }
     return outtype;
 }
+#endif
 
 char *
 NpyArray_Index2Ptr(NpyArray *mp, npy_intp i)

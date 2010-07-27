@@ -149,7 +149,7 @@ _append_str(_tmp_string_t *s, char *c)
  * AND, the array data is positioned to alignment granularity.
  */
 static int
-_is_natively_aligned_at(PyArray_Descr *descr,
+_is_natively_aligned_at(NpyArray_Descr *descr,
                         PyArrayObject *arr, Py_ssize_t offset)
 {
     int k;
@@ -178,7 +178,7 @@ _is_natively_aligned_at(PyArray_Descr *descr,
 }
 
 static int
-_buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
+_buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
                       PyArrayObject* arr, Py_ssize_t *offset,
                       char *active_byteorder)
 {
@@ -215,7 +215,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
         *offset = old_offset + (*offset - old_offset) * total_count;
         return ret;
     }
-    else if (PyDataType_HASFIELDS(descr)) {
+    else if (NpyDataType_HASFIELDS(descr)) {
         int n;
         
         _append_str(str, "T{");
@@ -223,7 +223,7 @@ _buffer_format_string(PyArray_Descr *descr, _tmp_string_t *str,
         for (k = 0; k < n; ++k) {
             const char *name;
             NpyArray_DescrField *item = NULL;
-            PyArray_Descr *child;
+            NpyArray_Descr *child;
             const char *p;
             int new_offset;
 
@@ -697,7 +697,7 @@ NPY_NO_EXPORT PyBufferProcs array_as_buffer = {
  */
 #if PY_VERSION_HEX >= 0x02060000
 
-NPY_NO_EXPORT PyArray_Descr*
+NPY_NO_EXPORT NpyArray_Descr*
 _descriptor_from_pep3118_format(char *s)
 {
     char *buf, *p;
@@ -707,7 +707,7 @@ _descriptor_from_pep3118_format(char *s)
     PyObject *_numpy_internal;
 
     if (s == NULL) {
-        return PyArray_DescrNewFromType(PyArray_BYTE);
+        return NpyArray_DescrNewFromType(PyArray_BYTE);
     }
 
     /* Strip whitespace, except from field names */
@@ -747,12 +747,12 @@ _descriptor_from_pep3118_format(char *s)
                      "did not return a valid dtype, got %s", buf);
         return NULL;
     }
-    return (PyArray_Descr*)descr;
+    return ((PyArray_Descr*)descr)->descr;
 }
 
 #else
 
-NPY_NO_EXPORT PyArray_Descr*
+NPY_NO_EXPORT NpyArray_Descr*
 _descriptor_from_pep3118_format(char *s)
 {
     PyErr_SetString(PyExc_RuntimeError,

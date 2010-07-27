@@ -11,6 +11,7 @@
 
 #ifndef Py_ARRAYOBJECT_H
 #define Py_ARRAYOBJECT_H
+#include "ndarraytypes.h"
 #include "ndarrayobject.h"
 #ifdef NPY_NO_PREFIX
 #include "noprefix.h"

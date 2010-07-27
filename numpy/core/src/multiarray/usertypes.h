@@ -15,4 +15,7 @@ NPY_NO_EXPORT int
 PyArray_RegisterCastFunc(PyArray_Descr *descr, int totype,
                          PyArray_VectorUnaryFunc *castfunc);
 
+NPY_NO_EXPORT int
+PyArray_TypeNumFromTypeObj(PyTypeObject* typeobj);
+
 #endif

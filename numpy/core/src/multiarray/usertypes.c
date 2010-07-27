@@ -49,8 +49,26 @@ PyArray_InitArrFuncs(PyArray_ArrFuncs *f)
     NpyArray_InitArrFuncs(f);
 }
 
+
+int
+PyArray_TypeNumFromTypeObj(PyTypeObject *typeobj)
+{
+    int i;
+    NpyArray_Descr *descr;
+    
+    /* TODO: This looks at the python type and needs to change. */
+    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+        descr = npy_userdescrs[i];
+        if (PyArray_Descr_WRAP(descr)->typeobj == typeobj) {
+            return descr->type_num;
+        }
+    }
+    return NPY_NOTYPE;
+}
+
+
 /*
-  returns typenum to associate with this type >=PyArray_USERDEF.
+ returns typenum to associate with this type >=PyArray_USERDEF.
   needs the userdecrs table and PyArray_NUMUSER variables
   defined in arraytypes.inc
 */
@@ -61,7 +79,7 @@ PyArray_InitArrFuncs(PyArray_ArrFuncs *f)
 NPY_NO_EXPORT int
 PyArray_RegisterDataType(PyArray_Descr *descr)
 {
-    return NpyArray_RegisterDataType(descr);
+    return NpyArray_RegisterDataType(descr->descr);
 }
 
 /*NUMPY_API
@@ -72,7 +90,7 @@ NPY_NO_EXPORT int
 PyArray_RegisterCastFunc(PyArray_Descr *descr, int totype,
                          PyArray_VectorUnaryFunc *castfunc)
 {
-    return NpyArray_RegisterCastFunc(descr, totype, castfunc);
+    return NpyArray_RegisterCastFunc(descr->descr, totype, castfunc);
 }
 
 /*NUMPY_API
@@ -83,6 +101,6 @@ NPY_NO_EXPORT int
 PyArray_RegisterCanCast(PyArray_Descr *descr, int totype,
                         NPY_SCALARKIND scalar)
 {
-    return NpyArray_RegisterCanCast(descr, totype, scalar);
+    return NpyArray_RegisterCanCast(descr->descr, totype, scalar);
 }
 

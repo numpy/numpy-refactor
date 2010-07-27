@@ -14,8 +14,20 @@ PyArray_FromAny(PyObject *op, PyArray_Descr *newtype, int min_depth,
                 int max_depth, int flags, PyObject *context);
 
 NPY_NO_EXPORT PyObject *
+PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
+                int max_depth, int flags, PyObject *context);
+
+NPY_NO_EXPORT PyObject *
 PyArray_CheckFromAny(PyObject *op, PyArray_Descr *descr, int min_depth,
                      int max_depth, int requires, PyObject *context);
+
+NPY_NO_EXPORT PyObject *
+PyArray_CheckFromAnyUnwrap(PyObject *op, NpyArray_Descr *descr, int min_depth,
+                           int max_depth, int requires, PyObject *context);
+
+NPY_NO_EXPORT PyObject *
+PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
+                   intp count, intp offset);
 
 NPY_NO_EXPORT PyObject *
 PyArray_FromArray(PyArrayObject *arr, PyArray_Descr *newtype, int flags);
@@ -29,6 +41,10 @@ PyArray_FromInterface(PyObject *input);
 NPY_NO_EXPORT PyObject *
 PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode,
                       PyObject *context);
+
+NPY_NO_EXPORT PyObject *
+PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode,
+                            PyObject *context);
 
 NPY_NO_EXPORT PyObject *
 PyArray_EnsureArray(PyObject *op);

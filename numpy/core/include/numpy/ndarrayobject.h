@@ -26,6 +26,46 @@ extern "C" CONFUSE_EMACS
 #include "__multiarray_api.h"
 
 
+/* Macros for moving reference counts between core and interface. */
+#define PyArray_Descr_REF_TO_CORE(interface, core)      \
+    if (NULL == (interface)) (core) = NULL;             \
+    else {                                          \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (interface)->descr->magic_number); \
+        (core) = (interface)->descr;                    \
+        _Npy_INCREF(core);                          \
+        Py_DECREF(interface);                       \
+    }                                               
+
+
+#define PyArray_Descr_REF_FROM_CORE(core, interface)    \
+    if (NULL == (core)) (interface) = NULL;             \
+    else {                                          \
+        interface = PyArray_Descr_WRAP(core);       \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+        Py_INCREF(interface);                       \
+        _Npy_DECREF(core);                          \
+    }                                               
+
+
+/* Takes a core NpyArray_Descr object and moves the reference to the interface object, 
+   returning the interface wrapper object. */
+#define PyArray_Descr_RETURN(core)                      \
+    do {                                                \
+        PyArray_Descr *wrapper = NULL;                  \
+        if (NULL == (core)) wrapper = NULL;             \
+        else {                                          \
+            wrapper = PyArray_Descr_WRAP(core);         \
+            assert(NPY_VALID_MAGIC == (wrapper)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+            Py_INCREF(wrapper);                         \
+            _Npy_DECREF(core);                          \
+        }                                               \
+        return wrapper;                                 \
+    } while(0); 
+
+
+#define PyArray_ISVALID(a) (NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number && NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->magic_number)
+
+
 /* C-API that requries previous API to be defined */
 
 #define PyArray_DescrCheck(op) (((PyObject*)(op))->ob_type==&PyArrayDescr_Type)
@@ -38,6 +78,12 @@ extern "C" CONFUSE_EMACS
          (((out)=PyArray_FromInterface(op)) != Py_NotImplemented) ||          \
          (((out)=PyArray_FromArrayAttr(op, type, context)) !=                 \
           Py_NotImplemented))
+
+#define PyArray_HasArrayInterfaceTypeUnwrap(op, type, context, out)           \
+        ((((out)=PyArray_FromStructInterface(op)) != Py_NotImplemented) ||    \
+        (((out)=PyArray_FromInterface(op)) != Py_NotImplemented) ||           \
+        (((out)=PyArray_FromArrayAttrUnwrap(op, type, context)) !=            \
+        Py_NotImplemented))
 
 #define PyArray_HasArrayInterface(op, out)                                    \
         PyArray_HasArrayInterfaceType(op, NULL, NULL, out)
@@ -130,7 +176,7 @@ extern "C" CONFUSE_EMACS
                              NULL, NULL, 0, NULL)
 
 #define PyArray_ToScalar(data, arr)                                           \
-        PyArray_Scalar(data, PyArray_DESCR(arr), (PyObject *)arr)
+        PyArray_Scalar(data, PyArray_Descr_WRAP(PyArray_DESCR(arr)), (PyObject *)arr)
 
 
 /* These might be faster without the dereferencing of obj
@@ -169,6 +215,8 @@ extern "C" CONFUSE_EMACS
                 Py_XDECREF(descr);                                            \
                 descr = _new_;                                                \
         } while(0)
+
+
 
 /* Copy should always return contiguous array */
 #define PyArray_Copy(obj) PyArray_NewCopy(obj, NPY_CORDER)

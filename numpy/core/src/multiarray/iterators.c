@@ -492,11 +492,12 @@ iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
         dptr += strides;
     }
     itemsize = self->ao->descr->elsize;
-    Py_INCREF(self->ao->descr);
-    r = PyArray_NewFromDescr(Py_TYPE(Npy_INTERFACE(self->ao)),
-                             self->ao->descr, 1, &count,
-                             NULL, NULL,
-                             0, Npy_INTERFACE(self->ao));
+    _Npy_INCREF(self->ao->descr);
+    ASSIGN_TO_PYARRAY(r, 
+                      NpyArray_NewFromDescr(self->ao->descr, 1, &count,
+                                            NULL, NULL,
+                                            0, NPY_FALSE, NULL, 
+                                            Npy_INTERFACE(self->ao)));
     if (r == NULL) {
         return NULL;
     }
@@ -552,11 +553,11 @@ iter_subscript_int(NpyArrayIterObject *self, PyArrayObject *ind)
         return r;
     }
 
-    Py_INCREF(self->ao->descr);
-    r = PyArray_NewFromDescr(Py_TYPE(Npy_INTERFACE(self->ao)), self->ao->descr,
-                             PyArray_NDIM(ind), PyArray_DIMS(ind),
-                             NULL, NULL,
-                             0, Npy_INTERFACE(self->ao));
+    _Npy_INCREF(self->ao->descr);
+    ASSIGN_TO_PYARRAY(r, NpyArray_NewFromDescr(self->ao->descr,
+                              PyArray_NDIM(ind), PyArray_DIMS(ind),
+                              NULL, NULL,
+                              0, NPY_FALSE, NULL, Npy_INTERFACE(self->ao)));
     if (r == NULL) {
         return NULL;
     }
@@ -606,7 +607,7 @@ iter_subscript(PyArrayIterObject *self, PyObject *ind)
 NPY_NO_EXPORT PyObject*
 npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
 {
-    PyArray_Descr *indtype = NULL;
+    NpyArray_Descr *indtype = NULL;
     intp start, step_size;
     intp n_steps;
     PyObject *r;
@@ -647,12 +648,12 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         }
         else { /* empty array */
             intp ii = 0;
-            Py_INCREF(self->ao->descr);
-            r = PyArray_NewFromDescr(Py_TYPE(Npy_INTERFACE(self->ao)),
-                                     self->ao->descr,
-                                     1, &ii,
-                                     NULL, NULL, 0,
-                                     Npy_INTERFACE(self->ao));
+            _Npy_INCREF(self->ao->descr);
+            ASSIGN_TO_PYARRAY(r, NpyArray_NewFromDescr(self->ao->descr,      /* TODO: Wrap array return */
+                                      1, &ii,
+                                      NULL, NULL, 0,
+                                      NPY_FALSE, NULL,
+                                      Npy_INTERFACE(self->ao)));
             return r;
         }
     }
@@ -676,12 +677,12 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
                 return r;
             }
         size = self->ao->descr->elsize;
-        Py_INCREF(self->ao->descr);
-        r = PyArray_NewFromDescr(Py_TYPE(Npy_INTERFACE(self->ao)),
-                                 self->ao->descr,
-                                 1, &n_steps,
-                                 NULL, NULL,
-                                 0, Npy_INTERFACE(self->ao));
+        _Npy_INCREF(self->ao->descr);
+        ASSIGN_TO_PYARRAY(r, NpyArray_NewFromDescr(self->ao->descr,
+                                  1, &n_steps,
+                                  NULL, NULL,
+                                  0, NPY_FALSE, 
+                                  NULL, Npy_INTERFACE(self->ao)));
         if (r == NULL) {
             goto fail;
         }
@@ -698,10 +699,10 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
     }
 
     /* convert to INTP array if Integer array scalar or List */
-    indtype = PyArray_DescrFromType(PyArray_INTP);
+    indtype = NpyArray_DescrFromType(PyArray_INTP);
     if (PyArray_IsScalar(ind, Integer) || PyList_Check(ind)) {
-        Py_INCREF(indtype);
-        obj = PyArray_FromAny(ind, indtype, 0, 0, FORCECAST, NULL);
+        _Npy_INCREF(indtype);
+        obj = PyArray_FromAnyUnwrap(ind, indtype, 0, 0, FORCECAST, NULL);
         if (obj == NULL) {
             goto fail;
         }
@@ -715,13 +716,13 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         /* Check for Boolean object */
         if (PyArray_TYPE(obj)==PyArray_BOOL) {
             r = iter_subscript_Bool(self, (PyArrayObject *)obj);
-            Py_DECREF(indtype);
+            _Npy_DECREF(indtype);
         }
         /* Check for integer array */
         else if (PyArray_ISINTEGER(obj)) {
             PyObject *new;
-            new = PyArray_FromAny(obj, indtype, 0, 0,
-                                  FORCECAST | ALIGNED, NULL);
+            new = PyArray_FromAnyUnwrap(obj, indtype, 0, 0,
+                                        FORCECAST | ALIGNED, NULL);
             if (new == NULL) {
                 goto fail;
             }
@@ -736,7 +737,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         return r;
     }
     else {
-        Py_DECREF(indtype);
+        _Npy_DECREF(indtype);
     }
 
 
@@ -744,7 +745,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
     if (!PyErr_Occurred()) {
         PyErr_SetString(PyExc_IndexError, "unsupported iterator index");
     }
-    Py_XDECREF(indtype);
+    _Npy_XDECREF(indtype);
     Py_XDECREF(obj);
     return NULL;
 
@@ -796,7 +797,7 @@ static int
 iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
                  NpyArrayIterObject *val, int swap)
 {
-    PyArray_Descr *typecode;
+    NpyArray_Descr *typecode;
     intp num;
     NpyArrayIterObject *ind_it;
     intp index;
@@ -852,8 +853,8 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
 {
     PyArrayObject *arrval = NULL;
     NpyArrayIterObject *val_it = NULL;
-    PyArray_Descr *type;
-    PyArray_Descr *indtype = NULL;
+    NpyArray_Descr *type;
+    NpyArray_Descr *indtype = NULL;
     int swap, retval = -1;
     intp start, step_size;
     intp n_steps;
@@ -917,8 +918,8 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     }
 
  skip:
-    Py_INCREF(type);
-    arrval = (PyArrayObject*) PyArray_FromAny(val, type, 0, 0, 0, NULL);
+    _Npy_INCREF(type);
+    arrval = (PyArrayObject *)PyArray_FromAnyUnwrap(val, type, 0, 0, 0, NULL);
     if (arrval == NULL) {
         return -1;
     }
@@ -970,10 +971,10 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     }
 
     /* convert to INTP array if Integer array scalar or List */
-    indtype = PyArray_DescrFromType(PyArray_INTP);
+    indtype = NpyArray_DescrFromType(PyArray_INTP);
     if (PyList_Check(ind)) {
-        Py_INCREF(indtype);
-        obj = PyArray_FromAny(ind, indtype, 0, 0, FORCECAST, NULL);
+        _Npy_INCREF(indtype);
+        obj = PyArray_FromAnyUnwrap(ind, indtype, 0, 0, FORCECAST, NULL);
     }
     else {
         Py_INCREF(ind);
@@ -992,9 +993,9 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
         /* Check for integer array */
         else if (PyArray_ISINTEGER(obj)) {
             PyObject *new;
-            Py_INCREF(indtype);
-            new = PyArray_CheckFromAny(obj, indtype, 0, 0,
-                                       FORCECAST | BEHAVED_NS, NULL);
+            _Npy_INCREF(indtype);
+            new = PyArray_CheckFromAnyUnwrap(obj, indtype, 0, 0,
+                                             FORCECAST | BEHAVED_NS, NULL);
             Py_DECREF(obj);
             obj = new;
             if (new == NULL) {
@@ -1012,7 +1013,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     if (!PyErr_Occurred() && retval < 0) {
         PyErr_SetString(PyExc_IndexError, "unsupported iterator index");
     }
-    Py_XDECREF(indtype);
+    _Npy_XDECREF(indtype);
     Py_XDECREF(obj);
     _Npy_XDECREF(val_it);
     Py_XDECREF(arrval);
@@ -1037,7 +1038,8 @@ static PyObject *
 iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
 {
     NpyArrayIterObject *it = pit->iter;
-    PyArrayObject *r;
+    NpyArray *r;
+    PyArrayObject *result = NULL;
     intp size;
 
     /* Any argument ignored */
@@ -1050,42 +1052,39 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
      * to copy back to the old array
      */
     size = NpyArray_SIZE(it->ao);
-    Py_INCREF(it->ao->descr);
+    _Npy_INCREF(it->ao->descr);
     if (NpyArray_ISCONTIGUOUS(it->ao)) {
-        r = (PyArrayObject *)
-            PyArray_NewFromDescr(&PyArray_Type,
-                                 it->ao->descr,
-                                 1, &size,
-                                 NULL, it->ao->data,
-                                 it->ao->flags,
-                                 Npy_INTERFACE(it->ao));
+        r = NpyArray_NewFromDescr(it->ao->descr,
+                                  1, &size,
+                                  NULL, it->ao->data,
+                                  it->ao->flags,
+                                  NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
         if (r == NULL) {
             return NULL;
         }
     }
     else {
-        r = (PyArrayObject *)
-            PyArray_NewFromDescr(&PyArray_Type,
-                                 it->ao->descr,
-                                 1, &size,
-                                 NULL, NULL,
-                                 0, Npy_INTERFACE(it->ao));
+        r = NpyArray_NewFromDescr(it->ao->descr,
+                                  1, &size,
+                                  NULL, NULL,
+                                  0, NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
         if (r == NULL) {
             return NULL;
         }
-        if (_flat_copyinto(PyArray_ARRAY(r), it->ao,
+        if (_flat_copyinto(r, it->ao,
                            PyArray_CORDER) < 0) {
-            Py_DECREF(r);
+            _Npy_DECREF(r);
             return NULL;
         }
-        PyArray_FLAGS(r) |= UPDATEIFCOPY;
+        NpyArray_FLAGS(r) |= UPDATEIFCOPY;
         it->ao->flags &= ~WRITEABLE;
     }
     _Npy_INCREF(it->ao);
-    PyArray_BASE_ARRAY(r) = it->ao;
-    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r));
+    NpyArray_BASE_ARRAY(r) = it->ao;
+    assert(NULL == NpyArray_BASE_ARRAY(r) || NULL == NpyArray_BASE(r));
     
-    return (PyObject *)r;
+    ASSIGN_TO_PYARRAY(result, r);
+    return (PyObject *)result;
 }
 
 static PyObject *
@@ -1636,6 +1635,7 @@ NPY_NO_EXPORT PyTypeObject PyArrayMultiIter_Type = {
 
 /*========================= Neighborhood iterator ======================*/
 
+/* TODO: Duplicate of code in npy_iterator.c - need to refactor */
 static char* _set_constant(NpyArray* ao, NpyArray *fill)
 {
     char *ret;
@@ -1667,6 +1667,12 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
 }
 
 
+static void decref_and_free(void* p)
+{
+    Py_DECREF(*(PyObject **)p);
+    free(p);
+}
+
 /*
  * fill and x->ao should have equivalent types
  */
@@ -1694,7 +1700,11 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
             break;
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
             fillptr = _set_constant(x->iter->ao, PyArray_ARRAY(fill));
-            freefill = free;
+            if (!NpyArray_ISOBJECT(x->iter->ao)) {
+                freefill = free;
+            } else {
+                freefill = decref_and_free;
+            }
             break;
         case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
         case NPY_NEIGHBORHOOD_ITER_CIRCULAR_PADDING:

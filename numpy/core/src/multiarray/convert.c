@@ -14,6 +14,7 @@
 
 #include "arrayobject.h"
 #include "mapping.h"
+#include "ctors.h"
 
 #include "convert.h"
 
@@ -236,7 +237,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     PyObject *newarr;
     int itemsize, swap;
     void *fromptr;
-    PyArray_Descr *descr;
+    NpyArray_Descr *descr;
     intp size;
     PyArray_CopySwapFunc *copyswap;
 
@@ -248,8 +249,8 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     }
     else {
         descr = PyArray_DESCR(arr);
-        Py_INCREF(descr);
-        newarr = PyArray_FromAny(obj, descr, 0,0, ALIGNED, NULL);
+        _Npy_INCREF(descr);
+        newarr = PyArray_FromAnyUnwrap(obj, descr, 0,0, ALIGNED, NULL);
         if (newarr == NULL) {
             return -1;
         }
@@ -308,8 +309,6 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
-
-    
-    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), type,
+    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), (NULL != type) ? type->descr : NULL,
                                  pytype));
 }

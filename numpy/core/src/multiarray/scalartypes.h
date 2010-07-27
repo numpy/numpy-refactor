@@ -19,6 +19,6 @@ NPY_NO_EXPORT int
 _typenum_fromtypeobj(PyObject *type, int user);
 
 NPY_NO_EXPORT void *
-scalar_value(PyObject *scalar, PyArray_Descr *descr);
+scalar_value(PyObject *scalar, NpyArray_Descr *descr);
 
 #endif

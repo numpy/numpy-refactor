@@ -17,10 +17,17 @@
 #include "common.h"
 #include "ctors.h"
 #include "usertypes.h"
+#include "arrayobject.h"
 #include "npy_config.h"
 #include "_datetime.h"
 
 #include "numpyos.h"
+
+
+/* Defined in core */
+extern char _npy_letter_to_num[];
+
+#define _ALIGN(type) offsetof(struct {char c; type v;}, v)
 
 
 NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNew \
@@ -240,7 +247,7 @@ int
 PyObject *
 LONGDOUBLE_getitem(char *ip, NpyArray *ap)
 {
-    return PyArray_Scalar(ip, NpyArray_DESCR(ap), NULL);
+    return PyArray_Scalar(ip, PyArray_Descr_WRAP(NpyArray_DESCR(ap)), NULL);
 }
 
 int
@@ -270,7 +277,7 @@ LONGDOUBLE_setitem(PyObject *op, char *ov, NpyArray *ap) {
 PyObject *
 CLONGDOUBLE_getitem(char *ip, NpyArray *ap)
 {
-    return PyArray_Scalar(ip, NpyArray_DESCR(ap), NULL);
+    return PyArray_Scalar(ip, PyArray_Descr_WRAP(NpyArray_DESCR(ap)), NULL);
 }
 
 /* UNICODE */
@@ -542,7 +549,7 @@ PyObject *
 VOID_getitem(char *ip, NpyArray *ap)
 {
     PyObject *u = NULL;
-    PyArray_Descr* descr;
+    NpyArray_Descr* descr;
     int itemsize;
 
     descr = NpyArray_DESCR(ap);
@@ -589,11 +596,12 @@ VOID_getitem(char *ip, NpyArray *ap)
         /* return an array of the basic type */
         PyArrayObject *ret;
 
-        Py_INCREF(descr->subarray->base);
-        ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
-                descr->subarray->base, descr->subarray->shape_num_dims, 
-                descr->subarray->shape_dims,
-                NULL, ip, NpyArray_FLAGS(ap), NULL);
+        _Npy_INCREF(descr->subarray->base);
+        ASSIGN_TO_PYARRAY(ret,
+                          NpyArray_NewFromDescr(
+                                descr->subarray->base, descr->subarray->shape_num_dims, 
+                                descr->subarray->shape_dims,
+                                NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
             return NULL;
         }
@@ -605,8 +613,8 @@ VOID_getitem(char *ip, NpyArray *ap)
     }
 
 finish:
-    if (PyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)
-            || PyDataType_FLAGCHK(descr, NPY_ITEM_IS_POINTER)) {
+    if (NpyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)
+            || NpyDataType_FLAGCHK(descr, NPY_ITEM_IS_POINTER)) {
         PyErr_SetString(PyExc_ValueError,
                 "tried to get void-array with object members as buffer.");
         return NULL;
@@ -618,14 +626,14 @@ finish:
      */
     {
         intp dims[1], strides[1];
-        PyArray_Descr *descr;
+        NpyArray_Descr *descr;
         dims[0] = itemsize;
         strides[0] = 1;
-        descr = PyArray_DescrNewFromType(PyArray_BYTE);
-        u = PyArray_NewFromDescr(&PyArray_Type, descr, 1, dims, strides,
+        descr = NpyArray_DescrNewFromType(PyArray_BYTE);
+        u = RETURN_PYARRAY( NpyArray_NewFromDescr(descr, 1, dims, strides,
                                  ip,
                                  NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
-                                 NULL);
+                                 NPY_TRUE, NULL, NULL) );
         PyArray_BASE_ARRAY(u) = ap;
         _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(u) || NULL == PyArray_BASE(u));
@@ -657,7 +665,7 @@ NPY_NO_EXPORT int PyArray_CopyObject(PyArrayObject *, PyObject *);
 int
 VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
 {
-    PyArray_Descr* descr;
+    NpyArray_Descr* descr;
     int itemsize=NpyArray_ITEMSIZE(ap);
     int res;
 
@@ -702,11 +710,13 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
     if (descr->subarray) {
         /* copy into an array of the same basic type */
         PyArrayObject *ret;
-        Py_INCREF(descr->subarray->base);
-        ret = (PyArrayObject *)PyArray_NewFromDescr(&PyArray_Type,
-                descr->subarray->base, descr->subarray->shape_num_dims, 
-                descr->subarray->shape_dims,
-                NULL, ip, NpyArray_FLAGS(ap), NULL);
+        
+        _Npy_INCREF(descr->subarray->base);
+        ASSIGN_TO_PYARRAY(ret, 
+                          NpyArray_NewFromDescr(descr->subarray->base, 
+                                    descr->subarray->shape_num_dims, 
+                                    descr->subarray->shape_dims,
+                                    NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
             return -1;
         }
@@ -723,8 +733,8 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
     {
         const void *buffer;
         Py_ssize_t buflen;
-        if (PyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)
-                || PyDataType_FLAGCHK(descr, NPY_ITEM_IS_POINTER)) {
+        if (NpyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)
+                || NpyDataType_FLAGCHK(descr, NPY_ITEM_IS_POINTER)) {
             PyErr_SetString(PyExc_ValueError,
                     "Setting void-array with object members using buffer.");
             return -1;
@@ -802,8 +812,10 @@ PyTimeDelta_FromNormalized(npy_timedelta val, NPY_DATETIMEUNIT base)
 
 
 NPY_NO_EXPORT PyObject *
-PyDateTime_FromInt64(datetime val, PyArray_Descr *descr)
+PyDateTime_FromInt64(datetime val, PyArray_Descr *descrTmp)
 {
+    NpyArray_Descr *descr = descrTmp->descr;
+    
     if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "datetime info data not set for descriptor");
@@ -821,7 +833,7 @@ PyDateTime_FromInt64(datetime val, PyArray_Descr *descr)
         PyTuple_SET_ITEM(obj, 1, PyInt_FromLong(rem));
         /* This resets descr->dtinfo->events for recursive call */
         descr->dtinfo->events = 1;
-        PyTuple_SET_ITEM(obj, 0, PyDateTime_FromInt64(div, descr));
+        PyTuple_SET_ITEM(obj, 0, PyDateTime_FromInt64(div, descrTmp));
         descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             Py_DECREF(obj);
@@ -845,8 +857,10 @@ PyDateTime_FromInt64(datetime val, PyArray_Descr *descr)
 
 
 NPY_NO_EXPORT PyObject *
-PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descr)
+PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descrTmp)
 {
+  NpyArray_Descr *descr = descrTmp->descr;
+  
   if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "timedelta info data not set for descriptor");
@@ -864,7 +878,7 @@ PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descr)
         PyTuple_SET_ITEM(obj, 1, PyInt_FromLong(rem));
         /* This resets descr->dtinfo->events for recursive call */
         descr->dtinfo->events = 1;
-        PyTuple_SET_ITEM(obj, 0, PyTimeDelta_FromInt64(div, descr));
+        PyTuple_SET_ITEM(obj, 0, PyTimeDelta_FromInt64(div, descrTmp));
         descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             Py_DECREF(obj);
@@ -947,8 +961,9 @@ PyTimeDelta_AsNormalized(PyObject *obj, NPY_DATETIMEUNIT base)
  */
 
 NPY_NO_EXPORT npy_datetime
-PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
+PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descrTmp)
 {
+    NpyArray_Descr *descr = descrTmp->descr;
     npy_datetime res;
 
     if (descr->dtinfo == NULL) {
@@ -971,7 +986,7 @@ PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
         /* FIXME:  not thread safe */
         events = descr->dtinfo->events;
         descr->dtinfo->events = 1;
-        tmp = PyDateTime_AsInt64(PyTuple_GET_ITEM(obj, 0), descr);
+        tmp = PyDateTime_AsInt64(PyTuple_GET_ITEM(obj, 0), descrTmp);
         descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             return -1;
@@ -991,8 +1006,9 @@ PyDateTime_AsInt64(PyObject *obj, PyArray_Descr *descr)
 
 
 NPY_NO_EXPORT timedelta
-PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descr)
+PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descrTmp)
 {
+    NpyArray_Descr *descr = descrTmp->descr;
     npy_timedelta res;
 
      if (descr->dtinfo == NULL) {
@@ -1013,7 +1029,7 @@ PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descr)
         /* Alter the dictionary and call again (not thread safe) */
         events = descr->dtinfo->events;
         descr->dtinfo->events = 1;
-        tmp = PyTimeDelta_AsInt64(PyTuple_GET_ITEM(obj, 0), descr);
+        tmp = PyTimeDelta_AsInt64(PyTuple_GET_ITEM(obj, 0), descrTmp);
         descr->dtinfo->events = events;
         if (PyErr_Occurred()) {
             return -1;
@@ -1063,11 +1079,11 @@ DATETIME_getitem(char *ip, NpyArray *ap) {
 
     if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((datetime *)ip);
-        return PyDateTime_FromInt64((datetime)t1, NpyArray_DESCR(ap));
+        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(PyArray_DESCR(ap)));
     }
     else {
         NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
-        return PyDateTime_FromInt64((datetime)t1, NpyArray_DESCR(ap));
+        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
 }
 
@@ -1078,11 +1094,11 @@ TIMEDELTA_getitem(char *ip, NpyArray *ap) {
 
     if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((timedelta *)ip);
-        return PyTimeDelta_FromInt64((timedelta)t1, NpyArray_DESCR(ap));
+        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     else {
         NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
-        return PyTimeDelta_FromInt64((timedelta)t1, NpyArray_DESCR(ap));
+        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
 }
 
@@ -1123,7 +1139,7 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
         res = PyObject_CallMethod(module, "datetime_from_string", "O", op);
         Py_DECREF(module);
         if (res == NULL) { return -1; }
-        temp = PyDateTime_AsInt64(res, NpyArray_DESCR(ap));
+        temp = PyDateTime_AsInt64(res, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
         Py_DECREF(res);
         if (PyErr_Occurred()) return -1;
     }
@@ -1134,7 +1150,7 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyDateTime_AsInt64(op, NpyArray_DESCR(ap));
+        temp = PyDateTime_AsInt64(op, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1174,7 +1190,7 @@ TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyTimeDelta_AsInt64(op, NpyArray_DESCR(ap));
+        temp = PyTimeDelta_AsInt64(op, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1663,6 +1679,27 @@ OBJECT_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
     Py_XDECREF(tmp2);
 }
 
+    
+Bool
+OBJECT_nonzero (PyObject **ip, NpyArray *ap)
+{
+    
+    if (NpyArray_ISALIGNED(ap)) {
+        if (*ip == NULL) {
+            return FALSE;
+        }
+        return (Bool) PyObject_IsTrue(*ip);
+    }
+    else {
+        PyObject *obj;
+        NPY_COPY_PYOBJECT_PTR(&obj, ip);
+        if (obj == NULL) {
+            return FALSE;
+        }
+        return (Bool) PyObject_IsTrue(obj);
+    }
+}
+    
 
 /*
  *****************************************************************************
@@ -1719,5 +1756,223 @@ OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *NP
     }
 }
 
+
+    
+    
+/*
+ *****************************************************************************
+ **                             SETUP TYPE INFO                             **
+ *****************************************************************************
+ */
+
+#define _MAX_LETTER 128
+
+/**begin repeat
+ *
+ * #name = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, INTP, UINTP,
+ *         LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+ *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
+ *         DATETIME,TIMEDELTA#
+ */
+
+extern NpyArray_Descr @name@_Descr;
+/**end repeat**/
+
+
+NPY_NO_EXPORT int
+set_typeinfo(PyObject *dict)
+{
+    PyObject *infodict, *s;
+    int i;
+
+    for (i = 0; i < _MAX_LETTER; i++) {
+        _npy_letter_to_num[i] = PyArray_NTYPES;
+    }
+
+/**begin repeat
+ *
+ * #name = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, INTP, UINTP,
+ *         LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+ *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
+ *         DATETIME,TIMEDELTA#
+ */
+    _npy_letter_to_num[PyArray_@name@LTR] = PyArray_@name@;
+/**end repeat**/
+    _npy_letter_to_num[PyArray_STRINGLTR2] = PyArray_STRING;
+
+/**begin repeat
+  * #name = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT,
+  *         LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+  *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
+  *         DATETIME, TIMEDELTA#
+*/
+    @name@_Descr.fields = NULL;
+/**end repeat**/
+
+    /* Set a dictionary with type information */
+    infodict = PyDict_New();
+    if (infodict == NULL) return -1;
+
+#define BITSOF_INTP CHAR_BIT*SIZEOF_PY_INTPTR_T
+#define BITSOF_BYTE CHAR_BIT
+
+/**begin repeat
+ *
+ * #name = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, INTP, UINTP,
+ *         LONG, ULONG, LONGLONG, ULONGLONG#
+ * #uname = BOOL, BYTE*2, SHORT*2, INT*2, INTP*2, LONG*2, LONGLONG*2#
+ * #Name = Bool, Byte, UByte, Short, UShort, Int, UInt, Intp, UIntp,
+ *         Long, ULong, LongLong, ULongLong#
+ * #type = Bool, byte, ubyte, short, ushort, int, uint, intp, uintp,
+ *         long, ulong, longlong, ulonglong#
+ * #max= 1, MAX_BYTE, MAX_UBYTE, MAX_SHORT, MAX_USHORT, MAX_INT,
+ *       PyLong_FromUnsignedLong(MAX_UINT), PyLong_FromLongLong((longlong) MAX_INTP),
+ *       PyLong_FromUnsignedLongLong((ulonglong) MAX_UINTP), MAX_LONG,
+ *       PyLong_FromUnsignedLong((unsigned long) MAX_ULONG),
+ *       PyLong_FromLongLong((longlong) MAX_LONGLONG),
+ *       PyLong_FromUnsignedLongLong((ulonglong) MAX_ULONGLONG)#
+ * #min = 0, MIN_BYTE, 0, MIN_SHORT, 0, MIN_INT, 0,
+ *        PyLong_FromLongLong((longlong) MIN_INTP), 0, MIN_LONG, 0,
+ *        PyLong_FromLongLong((longlong) MIN_LONGLONG),0#
+ * #cx = i*6, N, N, N, l, N, N, N#
+ * #cn = i*7, N, i, l, i, N, i#
+*/
+    PyDict_SetItemString(infodict, "@name@",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("Ciii@cx@@cn@O",
+#else
+            s = Py_BuildValue("ciii@cx@@cn@O",
+#endif
+                PyArray_@name@LTR,
+                PyArray_@name@,
+                BITSOF_@uname@,
+                _ALIGN(@type@),
+                @max@,
+                @min@,
+                (PyObject *) &Py@Name@ArrType_Type));
+    Py_DECREF(s);
+/**end repeat**/
+
+#define BITSOF_CFLOAT 2*BITSOF_FLOAT
+#define BITSOF_CDOUBLE 2*BITSOF_DOUBLE
+#define BITSOF_CLONGDOUBLE 2*BITSOF_LONGDOUBLE
+
+/**begin repeat
+ *
+ * #type = float, double, longdouble, cfloat, cdouble, clongdouble#
+ * #name = FLOAT, DOUBLE, LONGDOUBLE, CFLOAT, CDOUBLE, CLONGDOUBLE#
+ * #Name = Float, Double, LongDouble, CFloat, CDouble, CLongDouble#
+ */
+    PyDict_SetItemString(infodict, "@name@",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiO", PyArray_@name@LTR,
+#else
+            s = Py_BuildValue("ciiiO", PyArray_@name@LTR,
+#endif
+                PyArray_@name@,
+                BITSOF_@name@,
+                _ALIGN(@type@),
+                (PyObject *) &Py@Name@ArrType_Type));
+    Py_DECREF(s);
+/**end repeat**/
+
+    PyDict_SetItemString(infodict, "OBJECT",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiO", PyArray_OBJECTLTR,
+#else
+            s = Py_BuildValue("ciiiO", PyArray_OBJECTLTR,
+#endif
+                PyArray_OBJECT,
+                sizeof(PyObject *) * CHAR_BIT,
+                _ALIGN(PyObject *),
+                (PyObject *) &PyObjectArrType_Type));
+    Py_DECREF(s);
+    PyDict_SetItemString(infodict, "STRING",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiO", PyArray_STRINGLTR,
+#else
+            s = Py_BuildValue("ciiiO", PyArray_STRINGLTR,
+#endif
+                PyArray_STRING,
+                0,
+                _ALIGN(char),
+                (PyObject *) &PyStringArrType_Type));
+    Py_DECREF(s);
+    PyDict_SetItemString(infodict, "UNICODE",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiO", PyArray_UNICODELTR,
+#else
+            s = Py_BuildValue("ciiiO", PyArray_UNICODELTR,
+#endif
+                PyArray_UNICODE,
+                0,
+                _ALIGN(PyArray_UCS4),
+                (PyObject *) &PyUnicodeArrType_Type));
+    Py_DECREF(s);
+    PyDict_SetItemString(infodict, "VOID",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiO", PyArray_VOIDLTR,
+#else
+            s = Py_BuildValue("ciiiO", PyArray_VOIDLTR,
+#endif
+                PyArray_VOID,
+                0,
+                _ALIGN(char),
+                (PyObject *) &PyVoidArrType_Type));
+    Py_DECREF(s);
+    PyDict_SetItemString(infodict, "DATETIME",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiNNO", PyArray_DATETIMELTR,
+#else
+            s = Py_BuildValue("ciiiNNO", PyArray_DATETIMELTR,
+#endif
+                PyArray_DATETIME,
+                sizeof(npy_datetime) * CHAR_BIT,
+                _ALIGN(npy_datetime),
+                MyPyLong_FromInt64(MAX_DATETIME),
+                MyPyLong_FromInt64(MIN_DATETIME),
+                (PyObject *) &PyDatetimeArrType_Type));
+    Py_DECREF(s);
+    PyDict_SetItemString(infodict, "TIMEDELTA",
+#if defined(NPY_PY3K)
+            s = Py_BuildValue("CiiiNNO", PyArray_TIMEDELTALTR,
+#else
+            s = Py_BuildValue("ciiiNNO",PyArray_TIMEDELTALTR,
+#endif
+                PyArray_TIMEDELTA,
+                sizeof(npy_timedelta) * CHAR_BIT,
+                _ALIGN(npy_timedelta),
+                MyPyLong_FromInt64(MAX_TIMEDELTA),
+                MyPyLong_FromInt64(MIN_TIMEDELTA),
+                (PyObject *)&PyTimedeltaArrType_Type));
+    Py_DECREF(s);
+
+#define SETTYPE(name)                           \
+    Py_INCREF(&Py##name##ArrType_Type);         \
+    PyDict_SetItemString(infodict, #name,       \
+            (PyObject *)&Py##name##ArrType_Type)
+
+    SETTYPE(Generic);
+    SETTYPE(Number);
+    SETTYPE(Integer);
+    SETTYPE(Inexact);
+    SETTYPE(SignedInteger);
+    SETTYPE(TimeInteger);
+    SETTYPE(UnsignedInteger);
+    SETTYPE(Floating);
+    SETTYPE(ComplexFloating);
+    SETTYPE(Flexible);
+    SETTYPE(Character);
+
+#undef SETTYPE
+
+    PyDict_SetItemString(dict, "typeinfo", infodict);
+    Py_DECREF(infodict);
+    return 0;
+}
+
+
+
+#undef _MAX_LETTER
 
 

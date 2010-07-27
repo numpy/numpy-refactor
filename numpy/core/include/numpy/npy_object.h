@@ -54,11 +54,12 @@ struct _NpyObject {
 
 #define _NpyObject_Init(a, t)                   \
     do {                                        \
-        (a)->nob_type = t;                      \
         (a)->nob_refcnt = 1;                    \
+        (a)->nob_type = t;                      \
         (a)->nob_interface = NULL;              \
     } while (0)
 
+#define _NpyObject_HEAD_INIT(t)                 1, t, NULL,
 
 #define NpyObject_Wrapper(a) ((a)->interface)
 
