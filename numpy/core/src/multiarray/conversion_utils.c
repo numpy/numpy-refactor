@@ -21,7 +21,7 @@
 * Useful function for conversion when used with PyArg_ParseTuple
 ****************************************************************/
 
-NPY_NO_EXPORT PyObject *
+NPY_NO_EXPORT NpyArray *
 PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode);
 
 
@@ -364,7 +364,7 @@ PyArray_PyIntAsInt(PyObject *o)
     long long_value = -1;
     PyObject *obj;
     static char *msg = "an integer is required";
-    PyObject *arr;
+    NpyArray *arr;
     NpyArray_Descr *descr;
     int ret;
 
@@ -389,15 +389,15 @@ PyArray_PyIntAsInt(PyObject *o)
             return -1;
         }
         _Npy_INCREF(descr);
-        arr = NpyArray_CastToType((PyArrayObject *)o, descr, 0);
+        arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     if (PyArray_IsScalar(o, Integer)) {
         _Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
-        ret = *((int *)PyArray_DATA(arr));
-        Py_DECREF(arr);
+        ret = *((int *)NpyArray_DATA(arr));
+        _Npy_DECREF(arr);
         return ret;
     }
 #if (PY_VERSION_HEX >= 0x02050000)
@@ -453,7 +453,7 @@ PyArray_PyIntAsIntp(PyObject *o)
     longlong long_value = -1;
     PyObject *obj;
     static char *msg = "an integer is required";
-    PyObject *arr;
+    NpyArray *arr;
     NpyArray_Descr *descr;
     intp ret;
 
@@ -484,15 +484,15 @@ PyArray_PyIntAsIntp(PyObject *o)
             return -1;
         }
         _Npy_INCREF(descr);
-        arr = NpyArray_CastToType((PyArrayObject *)o, descr, 0);
+        arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     else if (PyArray_IsScalar(o, Integer)) {
-        Py_INCREF(descr);
+        _Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
-        ret = *((intp *)PyArray_DATA(arr));
-        Py_DECREF(arr);
+        ret = *((intp *)NpyArray_DATA(arr));
+        _Npy_DECREF(arr);
         return ret;
     }
 

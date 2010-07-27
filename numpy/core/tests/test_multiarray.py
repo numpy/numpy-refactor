@@ -1230,11 +1230,21 @@ class TestNeighborhoodIter(TestCase):
              np.array([[4, 4, 4], [0, 1, 4]], dtype=dt), 
              np.array([[4, 0, 1], [4, 2, 3]], dtype=dt), 
              np.array([[0, 1, 4], [2, 3, 4]], dtype=dt)]
+        # We keep the literal 4 short (well, 32 bits) so that the type of x
+        # (which will be dt) drives the type promotion calculus in the C
+        # code.
+        l = test_neighborhood_iterator(x, [-1, 0, -1, 1], np.int32(4), NEIGH_MODE['constant'])
+        assert_array_equal(l, r)
+
+        # Here we use a literal 4, which will be an NPY_LONG on the C side,
+        # which causes different type promotion scenarios in the C code.
         l = test_neighborhood_iterator(x, [-1, 0, -1, 1], 4, NEIGH_MODE['constant'])
         assert_array_equal(l, r)
 
     def test_simple2d(self):
         self._test_simple2d(np.float)
+        self._test_simple2d(np.long)
+        self._test_simple2d(np.int32)
 
     @dec.skipif(not can_use_decimal(),
             "Skip neighborhood iterator tests for decimal objects " \

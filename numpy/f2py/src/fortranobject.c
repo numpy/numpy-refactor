@@ -754,8 +754,9 @@ PyArrayObject* array_from_pyobj(const int type_num,
 
     {
         F2PY_REPORT_ON_ARRAY_COPY_FROMANY;
+        PyArray_Descr *d = PyArray_DescrFromType(type_num);
         arr = (PyArrayObject *) \
-            PyArray_FromAny(obj,PyArray_DescrFromType(type_num), 0,0,
+            PyArray_FromAny(obj, d, 0,0,
                             ((intent & F2PY_INTENT_C)?NPY_CARRAY:NPY_FARRAY) \
                             | NPY_FORCECAST, NULL);
         if (arr==NULL)

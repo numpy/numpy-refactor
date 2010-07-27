@@ -22,7 +22,7 @@ struct NpyArrayIterObject {
         npy_intp          strides[NPY_MAXDIMS];    /* ao->strides or fake */
         npy_intp          backstrides[NPY_MAXDIMS];/* how far to jump back */
         npy_intp          factors[NPY_MAXDIMS];     /* shape factors */
-        struct PyArrayObject          *ao;
+        struct _NpyArray  *ao;
         char              *dataptr;        /* pointer to current item*/
         npy_bool          contiguous;
 
@@ -39,13 +39,13 @@ extern _NpyTypeObject NpyArrayIter_Type;
 
 
 NpyArrayIterObject *
-NpyArray_IterNew(struct PyArrayObject *ao);
+NpyArray_IterNew(struct _NpyArray *ao);
 
 NpyArrayIterObject *
-NpyArray_IterAllButAxis(struct PyArrayObject* obj, int *inaxis);
+NpyArray_IterAllButAxis(struct _NpyArray* obj, int *inaxis);
 
 NpyArrayIterObject *
-NpyArray_BroadcastToShape(struct PyArrayObject *ao, npy_intp *dims, int nd);
+NpyArray_BroadcastToShape(struct _NpyArray *ao, npy_intp *dims, int nd);
 
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
@@ -199,7 +199,7 @@ typedef struct NpyArrayMultiIterObject {
 extern _NpyTypeObject NpyArrayMultiIter_Type;
 
 NpyArrayMultiIterObject *
-NpyArray_MultiIterFromArrays(struct PyArrayObject **mps, int n, int nadd, ...);
+NpyArray_MultiIterFromArrays(struct _NpyArray **mps, int n, int nadd, ...);
 
 NpyArrayMultiIterObject *
 NpyArray_MultiIterNew(void);
@@ -297,6 +297,10 @@ typedef struct {
 
 } NpyArrayMapIterObject;
 
+/*
+ * TODO: We should have both PY and NPY level modes since the
+ * NPY level doesn't support 0 and 1.
+ */
 enum {
     NPY_NEIGHBORHOOD_ITER_ZERO_PADDING,
     NPY_NEIGHBORHOOD_ITER_ONE_PADDING,
@@ -319,7 +323,7 @@ typedef struct {
     npy_intp          strides[NPY_MAXDIMS];    /* ao->strides or fake */
     npy_intp          backstrides[NPY_MAXDIMS];/* how far to jump back */
     npy_intp          factors[NPY_MAXDIMS];     /* shape factors */
-    struct PyArrayObject          *ao;
+    struct _NpyArray  *ao;
     char              *dataptr;        /* pointer to current item*/
     npy_bool          contiguous;
 
@@ -346,6 +350,7 @@ typedef struct {
      * for constant padding
      */
     char* constant;
+    npy_free_func constant_free;
 
     int mode;
 } NpyArrayNeighborhoodIterObject;
@@ -359,7 +364,7 @@ extern _NpyTypeObject NpyArrayNeighborhoodIter_Type;
 
 NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
-                             int mode, struct PyArrayObject *fill);
+                             int mode, void *fill,  npy_free_func fillfree);
 
 /* General: those work for any mode */
 static NPY_INLINE int

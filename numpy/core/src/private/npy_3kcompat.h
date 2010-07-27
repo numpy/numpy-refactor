@@ -292,11 +292,14 @@ PyCapsule_Check(PyObject *ptr)
     return PyCObject_Check(ptr);
 }
 
+#if 0
+/* Not called anywhere in numpy. */
 static void
 simple_capsule_dtor(void *ptr)
 {
     PyArray_free(ptr);
 }
+#endif
 
 #endif
 

@@ -17,6 +17,7 @@
 #include "common.h"
 #include "ctors.h"
 #include "usertypes.h"
+#include "arrayobject.h"
 #include "npy_config.h"
 #include "_datetime.h"
 
@@ -122,21 +123,21 @@ static char * _SEQUENCE_MESSAGE = "error setting an array element with a sequenc
  *         LongLong, ULongLong, Float, Double#
 */
 PyObject *
-@TYPE@_getitem(char *ip, PyArrayObject *ap) {
+@TYPE@_getitem(char *ip, NpyArray *ap) {
     @type@ t1;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((@type@ *)ip);
         return @func1@((@type1@)t1);
     }
     else {
-        PyArray_DESCR(ap)->f->copyswap(&t1, ip, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
         return @func1@((@type1@)t1);
     }
 }
 
 int
-@TYPE@_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
+@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap) {
     @type@ temp;  /* ensures alignment */
 
     if (PyArray_IsScalar(op, @kind@)) {
@@ -153,10 +154,10 @@ int
         }
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap))
+    if (ap == NULL || NpyArray_ISBEHAVED(ap))
         *((@type@ *)ov)=temp;
     else {
-        PyArray_DESCR(ap)->f->copyswap(ov, &temp, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(ov, &temp, !NpyArray_ISNOTSWAPPED(ap), ap);
     }
     return 0;
 }
@@ -169,16 +170,16 @@ int
  * #type = float, double#
  */
 PyObject *
-@TYPE@_getitem(char *ip, PyArrayObject *ap) {
+@TYPE@_getitem(char *ip, NpyArray *ap) {
     @type@ t1, t2;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         return PyComplex_FromDoubles((double)((@type@ *)ip)[0],
                 (double)((@type@ *)ip)[1]);
     }
     else {
         int size = sizeof(@type@);
-        Bool swap = !PyArray_ISNOTSWAPPED(ap);
+        Bool swap = !NpyArray_ISNOTSWAPPED(ap);
         copy_and_swap(&t1, ip, size, 1, 0, swap);
         copy_and_swap(&t2, ip + size, size, 1, 0, swap);
         return PyComplex_FromDoubles((double)t1, (double)t2);
@@ -196,7 +197,7 @@ PyObject *
  * #kind = CFloat, CDouble, CLongDouble#
  */
 int
-@TYPE@_setitem(PyObject *op, char *ov, PyArrayObject *ap)
+@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap)
 {
     Py_complex oop;
     PyObject *op2;
@@ -206,7 +207,7 @@ int
     if (!(PyArray_IsScalar(op, @kind@))) {
         if (PyArray_Check(op) && (PyArray_NDIM(op) == 0)) {
             op2 = PyArray_DESCR(op)->f->getitem(
-                          PyArray_BYTES(op), (PyArrayObject *)op);
+                     PyArray_BYTES(op), PyArray_ARRAY(op));
         }
         else {
             op2 = op; Py_INCREF(op);
@@ -228,12 +229,12 @@ int
     else {
         temp = ((Py@kind@ScalarObject *)op)->obval;
     }
-    memcpy(ov, &temp, PyArray_ITEMSIZE(ap));
-    if (!PyArray_ISNOTSWAPPED(ap)) {
+    memcpy(ov, &temp, NpyArray_ITEMSIZE(ap));
+    if (!NpyArray_ISNOTSWAPPED(ap)) {
         byte_swap_vector(ov, 2, sizeof(@type@));
     }
     rsize = sizeof(@type@);
-    copy_and_swap(ov, &temp, rsize, 2, rsize, !PyArray_ISNOTSWAPPED(ap));
+    copy_and_swap(ov, &temp, rsize, 2, rsize, !NpyArray_ISNOTSWAPPED(ap));
     return 0;
 }
 
@@ -244,13 +245,13 @@ int
  */
 
 PyObject *
-LONGDOUBLE_getitem(char *ip, PyArrayObject *ap)
+LONGDOUBLE_getitem(char *ip, NpyArray *ap)
 {
-    return PyArray_Scalar(ip, Npy_INTERFACE( PyArray_DESCR(ap) ), NULL);
+    return PyArray_Scalar(ip, PyArray_Descr_WRAP(NpyArray_DESCR(ap)), NULL);
 }
 
 int
-LONGDOUBLE_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
+LONGDOUBLE_setitem(PyObject *op, char *ov, NpyArray *ap) {
     /* ensure alignment */
     longdouble temp;
 
@@ -263,34 +264,34 @@ LONGDOUBLE_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
     if (PyErr_Occurred()) {
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap)) {
+    if (ap == NULL || NpyArray_ISBEHAVED(ap)) {
         *((longdouble *)ov) = temp;
     }
     else {
-        copy_and_swap(ov, &temp, PyArray_ITEMSIZE(ap), 1, 0,
-                !PyArray_ISNOTSWAPPED(ap));
+        copy_and_swap(ov, &temp, NpyArray_ITEMSIZE(ap), 1, 0,
+                !NpyArray_ISNOTSWAPPED(ap));
     }
     return 0;
 }
 
 PyObject *
-CLONGDOUBLE_getitem(char *ip, PyArrayObject *ap)
+CLONGDOUBLE_getitem(char *ip, NpyArray *ap)
 {
-    return PyArray_Scalar(ip, Npy_INTERFACE( PyArray_DESCR(ap) ), NULL);
+    return PyArray_Scalar(ip, PyArray_Descr_WRAP(NpyArray_DESCR(ap)), NULL);
 }
 
 /* UNICODE */
 PyObject *
-UNICODE_getitem(char *ip, PyArrayObject *ap)
+UNICODE_getitem(char *ip, NpyArray *ap)
 {
-    intp elsize = PyArray_ITEMSIZE(ap);
+    intp elsize = NpyArray_ITEMSIZE(ap);
     intp mysize = elsize/sizeof(PyArray_UCS4);
     int alloc = 0;
     PyArray_UCS4 *buffer = NULL;
     PyUnicodeObject *obj;
     intp i;
 
-    if (!PyArray_ISBEHAVED_RO(ap)) {
+    if (!NpyArray_ISBEHAVED_RO(ap)) {
         buffer = malloc(elsize);
         if (buffer == NULL) {
             PyErr_NoMemory();
@@ -298,7 +299,7 @@ UNICODE_getitem(char *ip, PyArrayObject *ap)
         }
         alloc = 1;
         memcpy(buffer, ip, elsize);
-        if (!PyArray_ISNOTSWAPPED(ap)) {
+        if (!NpyArray_ISNOTSWAPPED(ap)) {
             byte_swap_vector(buffer, mysize, sizeof(PyArray_UCS4));
         }
     }
@@ -336,7 +337,7 @@ fail:
 }
 
 int
-UNICODE_setitem(PyObject *op, char *ov, PyArrayObject *ap)
+UNICODE_setitem(PyObject *op, char *ov, NpyArray *ap)
 {
     PyObject *temp;
     Py_UNICODE *ptr;
@@ -377,10 +378,10 @@ UNICODE_setitem(PyObject *op, char *ov, PyArrayObject *ap)
     datalen = PyUnicode_GET_DATA_SIZE(temp);
 
 #ifdef Py_UNICODE_WIDE
-    memcpy(ov, ptr, MIN(PyArray_ITEMSIZE(ap), datalen));
+    memcpy(ov, ptr, MIN(NpyArray_ITEMSIZE(ap), datalen));
 #else
-    if (!PyArray_ISALIGNED(ap)) {
-        buffer = _pya_malloc(PyArray_ITEMSIZE(ap));
+    if (!NpyArray_ISALIGNED(ap)) {
+        buffer = _pya_malloc(NpyArray_ITEMSIZE(ap));
         if (buffer == NULL) {
             Py_DECREF(temp);
             PyErr_NoMemory();
@@ -391,19 +392,19 @@ UNICODE_setitem(PyObject *op, char *ov, PyArrayObject *ap)
         buffer = ov;
     }
     datalen = PyUCS2Buffer_AsUCS4(ptr, (PyArray_UCS4 *)buffer,
-            datalen >> 1, PyArray_ITEMSIZE(ap) >> 2);
+            datalen >> 1, NpyArray_ITEMSIZE(ap) >> 2);
     datalen <<= 2;
-    if (!PyArray_ISALIGNED(ap)) {
+    if (!NpyArray_ISALIGNED(ap)) {
         memcpy(ov, buffer, datalen);
         _pya_free(buffer);
     }
 #endif
     /* Fill in the rest of the space with 0 */
-    if (PyArray_ITEMSIZE(ap) > datalen) {
-        memset(ov + datalen, 0, (PyArray_ITEMSIZE(ap) - datalen));
+    if (NpyArray_ITEMSIZE(ap) > datalen) {
+        memset(ov + datalen, 0, (NpyArray_ITEMSIZE(ap) - datalen));
     }
-    if (!PyArray_ISNOTSWAPPED(ap)) {
-        byte_swap_vector(ov, PyArray_ITEMSIZE(ap) >> 2, 4);
+    if (!NpyArray_ISNOTSWAPPED(ap)) {
+        byte_swap_vector(ov, NpyArray_ITEMSIZE(ap) >> 2, 4);
     }
     Py_DECREF(temp);
     return 0;
@@ -415,11 +416,11 @@ UNICODE_setitem(PyObject *op, char *ov, PyArrayObject *ap)
  * will truncate all ending NULLs in returned string.
  */
 PyObject *
-STRING_getitem(char *ip, PyArrayObject *ap)
+STRING_getitem(char *ip, NpyArray *ap)
 {
     /* Will eliminate NULLs at the end */
     char *ptr;
-    int size = PyArray_ITEMSIZE(ap);
+    int size = NpyArray_ITEMSIZE(ap);
 
     ptr = ip + size - 1;
     while (*ptr-- == '\0' && size > 0) {
@@ -429,7 +430,7 @@ STRING_getitem(char *ip, PyArrayObject *ap)
 }
 
 int
-STRING_setitem(PyObject *op, char *ov, PyArrayObject *ap)
+STRING_setitem(PyObject *op, char *ov, NpyArray *ap)
 {
     char *ptr;
     Py_ssize_t len;
@@ -479,13 +480,13 @@ STRING_setitem(PyObject *op, char *ov, PyArrayObject *ap)
         Py_DECREF(temp);
         return -1;
     }
-    memcpy(ov, ptr, MIN(PyArray_ITEMSIZE(ap),len));
+    memcpy(ov, ptr, MIN(NpyArray_ITEMSIZE(ap),len));
     /*
      * If string lenth is smaller than room in array
      * Then fill the rest of the element size with NULL
      */
-    if (PyArray_ITEMSIZE(ap) > len) {
-        memset(ov + len, 0, (PyArray_ITEMSIZE(ap) - len));
+    if (NpyArray_ITEMSIZE(ap) > len) {
+        memset(ov + len, 0, (NpyArray_ITEMSIZE(ap) - len));
     }
     Py_DECREF(temp);
     return 0;
@@ -496,10 +497,10 @@ STRING_setitem(PyObject *op, char *ov, PyArrayObject *ap)
 #define __ALIGNED(obj, sz) ((((size_t) obj) % (sz))==0)
 
 PyObject *
-OBJECT_getitem(char *ip, PyArrayObject *ap)
+OBJECT_getitem(char *ip, NpyArray *ap)
 {
     /* TODO: We might be able to get away with just the "else" clause now */
-    if (!ap || PyArray_ISALIGNED(ap)) {
+    if (!ap || NpyArray_ISALIGNED(ap)) {
         if (*(PyObject **)ip == NULL) {
             Py_INCREF(Py_None);
             return Py_None;
@@ -525,11 +526,11 @@ OBJECT_getitem(char *ip, PyArrayObject *ap)
 
 
 int
-OBJECT_setitem(PyObject *op, char *ov, PyArrayObject *ap)
+OBJECT_setitem(PyObject *op, char *ov, NpyArray *ap)
 {
     Py_INCREF(op);
     /* TODO: We might be able to get away with just the "else" clause now */
-    if (!ap || PyArray_ISALIGNED(ap)) {
+    if (!ap || NpyArray_ISALIGNED(ap)) {
         Py_XDECREF(*(PyObject **)ov);
         *(PyObject **)ov = op;
     }
@@ -545,13 +546,13 @@ OBJECT_setitem(PyObject *op, char *ov, PyArrayObject *ap)
 /* VOID */
 
 PyObject *
-VOID_getitem(char *ip, PyArrayObject *ap)
+VOID_getitem(char *ip, NpyArray *ap)
 {
     PyObject *u = NULL;
     NpyArray_Descr* descr;
     int itemsize;
 
-    descr = PyArray_DESCR(ap);
+    descr = NpyArray_DESCR(ap);
     if (NULL != descr->names) {
         char **names;
         int i, n;
@@ -567,27 +568,27 @@ VOID_getitem(char *ip, PyArrayObject *ap)
         for (n=0; NULL != names[n]; n++) ;
         
         ret = PyTuple_New(n);
-        savedflags = PyArray_FLAGS(ap);
+        savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
             value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
             if (NULL == value) {
                 Py_DECREF(ret);
-                PyArray_DESCR(ap) = descr;
+                NpyArray_DESCR(ap) = descr;
                 return NULL;
             }
-            PyArray_DESCR(ap) = value->descr;
+            NpyArray_DESCR(ap) = value->descr;
             /* update alignment based on offset */
             if ((value->descr->alignment > 1)
                     && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
-                PyArray_FLAGS(ap) &= ~ALIGNED;
+                NpyArray_FLAGS(ap) &= ~ALIGNED;
             }
             else {
-                PyArray_FLAGS(ap) |= ALIGNED;
+                NpyArray_FLAGS(ap) |= ALIGNED;
             }
             PyTuple_SET_ITEM(ret, i, value->descr->f->getitem(ip +  value->offset, ap));
-            PyArray_FLAGS(ap) = savedflags;
+            NpyArray_FLAGS(ap) = savedflags;
         }
-        PyArray_DESCR(ap) = descr;
+        NpyArray_DESCR(ap) = descr;
         return ret;
     }
 
@@ -596,15 +597,16 @@ VOID_getitem(char *ip, PyArrayObject *ap)
         PyArrayObject *ret;
 
         _Npy_INCREF(descr->subarray->base);
-        ret = (NpyArray *)NpyArray_NewFromDescr(
-                descr->subarray->base, descr->subarray->shape_num_dims, 
-                descr->subarray->shape_dims,
-                NULL, ip, PyArray_FLAGS(ap), NPY_TRUE, NULL, NULL);
+        ASSIGN_TO_PYARRAY(ret,
+                          NpyArray_NewFromDescr(
+                                descr->subarray->base, descr->subarray->shape_num_dims, 
+                                descr->subarray->shape_dims,
+                                NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
             return NULL;
         }
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(ap);
-        Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        PyArray_BASE_ARRAY(ret) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags(ret, UPDATE_ALL);
         return (PyObject *)ret;
@@ -617,7 +619,7 @@ finish:
                 "tried to get void-array with object members as buffer.");
         return NULL;
     }
-    itemsize = PyArray_ITEMSIZE(ap);
+    itemsize = NpyArray_ITEMSIZE(ap);
 #if defined(NPY_PY3K)
     /*
      * Return a byte array; there are no plain buffer objects on Py3
@@ -628,12 +630,12 @@ finish:
         dims[0] = itemsize;
         strides[0] = 1;
         descr = NpyArray_DescrNewFromType(PyArray_BYTE);
-        u = PyArray_NewFromDescr(&PyArray_Type, PyArray_Descr_WRAP(descr), 1, dims, strides,
+        u = RETURN_PYARRAY( NpyArray_NewFromDescr(descr, 1, dims, strides,
                                  ip,
-                                 PyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
-                                 NULL);
-        PyArray_BASE_ARRAY(u) = PyArray_ARRAY(ap);
-        _Npy_INCREF(PyArray_BASE_ARRAY(u));
+                                 NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
+                                 NPY_TRUE, NULL, NULL) );
+        PyArray_BASE_ARRAY(u) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(u) || NULL == PyArray_BASE(u));
     }
 #else
@@ -641,7 +643,7 @@ finish:
      * default is to return buffer object pointing to
      * current item a view of it
      */
-    if (PyArray_ISWRITEABLE(ap)) {
+    if (NpyArray_ISWRITEABLE(ap)) {
         u = PyBuffer_FromReadWriteMemory(ip, itemsize);
     }
     else {
@@ -661,13 +663,13 @@ fail:
 NPY_NO_EXPORT int PyArray_CopyObject(PyArrayObject *, PyObject *);
 
 int
-VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
+VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
 {
     NpyArray_Descr* descr;
-    int itemsize=PyArray_ITEMSIZE(ap);
+    int itemsize=NpyArray_ITEMSIZE(ap);
     int res;
 
-    descr = PyArray_DESCR(ap);
+    descr = NpyArray_DESCR(ap);
     if (descr->names && PyTuple_Check(op)) {
         char **names;
         int i, n;
@@ -683,25 +685,25 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
                     "size of tuple must match number of fields.");
             return -1;
         }
-        savedflags = PyArray_FLAGS(ap);
+        savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
             value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
-            PyArray_DESCR(ap) = value->descr;
+            NpyArray_DESCR(ap) = value->descr;
             /* remember to update alignment flags */
             if ((value->descr->alignment > 1)
                     && ((((intp)(ip+value->offset)) % value->descr->alignment) != 0)) {
-                PyArray_FLAGS(ap) &= ~ALIGNED;
+                NpyArray_FLAGS(ap) &= ~ALIGNED;
             }
             else {
-                PyArray_FLAGS(ap) |= ALIGNED;
+                NpyArray_FLAGS(ap) |= ALIGNED;
             }
             res = value->descr->f->setitem(PyTuple_GET_ITEM(op, i), ip+value->offset, ap);
-            PyArray_FLAGS(ap) = savedflags;
+            NpyArray_FLAGS(ap) = savedflags;
             if (res < 0) {
                 break;
             }
         }
-        PyArray_DESCR(ap) = descr;
+        NpyArray_DESCR(ap) = descr;
         return res;
     }
 
@@ -710,15 +712,16 @@ VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap)
         PyArrayObject *ret;
         
         _Npy_INCREF(descr->subarray->base);
-        ret = NpyArray_NewFromDescr(descr->subarray->base, 
-                descr->subarray->shape_num_dims, 
-                descr->subarray->shape_dims,
-                NULL, ip, PyArray_FLAGS(ap), NPY_TRUE, NULL, NULL);
+        ASSIGN_TO_PYARRAY(ret, 
+                          NpyArray_NewFromDescr(descr->subarray->base, 
+                                    descr->subarray->shape_num_dims, 
+                                    descr->subarray->shape_dims,
+                                    NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
             return -1;
         }
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(ap);
-        Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        PyArray_BASE_ARRAY(ret) = ap;
+        _Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
         res = PyArray_CopyObject((PyArrayObject *)ret, op);
@@ -1071,31 +1074,31 @@ PyTimeDelta_AsInt64(PyObject *obj, PyArray_Descr *descrTmp)
  */
 
 PyObject *
-DATETIME_getitem(char *ip, PyArrayObject *ap) {
+DATETIME_getitem(char *ip, NpyArray *ap) {
     datetime t1;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((datetime *)ip);
-        return PyDateTime_FromInt64((datetime)t1, Npy_INTERFACE(PyArray_DESCR(ap)));
+        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(PyArray_DESCR(ap)));
     }
     else {
-        PyArray_DESCR(ap)->f->copyswap(&t1, ip, !PyArray_ISNOTSWAPPED(ap), ap);
-        return PyDateTime_FromInt64((datetime)t1, Npy_INTERFACE(PyArray_DESCR(ap)));
+        NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
+        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
 }
 
 
 PyObject *
-TIMEDELTA_getitem(char *ip, PyArrayObject *ap) {
+TIMEDELTA_getitem(char *ip, NpyArray *ap) {
     timedelta t1;
 
-    if ((ap == NULL) || PyArray_ISBEHAVED_RO(ap)) {
+    if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((timedelta *)ip);
-        return PyTimeDelta_FromInt64((timedelta)t1, Npy_INTERFACE(PyArray_DESCR(ap)));
+        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     else {
-        PyArray_DESCR(ap)->f->copyswap(&t1, ip, !PyArray_ISNOTSWAPPED(ap), ap);
-        return PyTimeDelta_FromInt64((timedelta)t1, Npy_INTERFACE(PyArray_DESCR(ap)));
+        NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
+        return PyTimeDelta_FromInt64((timedelta)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
 }
 
@@ -1111,7 +1114,7 @@ TIMEDELTA_getitem(char *ip, PyArrayObject *ap) {
  */
 
 int
-DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
+DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
     /* ensure alignment */
     datetime temp;
 
@@ -1136,7 +1139,7 @@ DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
         res = PyObject_CallMethod(module, "datetime_from_string", "O", op);
         Py_DECREF(module);
         if (res == NULL) { return -1; }
-        temp = PyDateTime_AsInt64(res, Npy_INTERFACE(PyArray_DESCR(ap)));
+        temp = PyDateTime_AsInt64(res, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
         Py_DECREF(res);
         if (PyErr_Occurred()) return -1;
     }
@@ -1147,7 +1150,7 @@ DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyDateTime_AsInt64(op, Npy_INTERFACE(PyArray_DESCR(ap)));
+        temp = PyDateTime_AsInt64(op, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1156,10 +1159,10 @@ DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
         }
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap))
+    if (ap == NULL || NpyArray_ISBEHAVED(ap))
         *((datetime *)ov)=temp;
     else {
-        PyArray_DESCR(ap)->f->copyswap(ov, &temp, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(ov, &temp, !NpyArray_ISNOTSWAPPED(ap), ap);
     }
     return 0;
 }
@@ -1173,7 +1176,7 @@ DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
  */
 
 int
-TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
+TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap) {
     /* ensure alignment */
     timedelta temp;
 
@@ -1187,7 +1190,7 @@ TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
         temp = PyLong_AsLongLong(op);
     }
     else {
-        temp = PyTimeDelta_AsInt64(op, Npy_INTERFACE(PyArray_DESCR(ap)));
+        temp = PyTimeDelta_AsInt64(op, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     if (PyErr_Occurred()) {
         if (PySequence_Check(op)) {
@@ -1196,10 +1199,10 @@ TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
         }
         return -1;
     }
-    if (ap == NULL || PyArray_ISBEHAVED(ap))
+    if (ap == NULL || NpyArray_ISBEHAVED(ap))
         *((timedelta *)ov)=temp;
     else {
-        PyArray_DESCR(ap)->f->copyswap(ov, &temp, !PyArray_ISNOTSWAPPED(ap), ap);
+        NpyArray_DESCR(ap)->f->copyswap(ov, &temp, !NpyArray_ISNOTSWAPPED(ap), ap);
     }
     return 0;
 }
@@ -1225,8 +1228,8 @@ TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap) {
  * #skip = 1*17, aip->descr->elsize*3, 1*3#
  */
 void
-@FROMTYPE@_to_OBJECT(@fromtype@ *ip, PyObject **op, intp n, PyArrayObject *aip,
-                 PyArrayObject *NPY_UNUSED(aop))
+@FROMTYPE@_to_OBJECT(@fromtype@ *ip, PyObject **op, intp n, NpyArray *aip,
+                 NpyArray *NPY_UNUSED(aop))
 {
     intp i;
     int skip = @skip@;
@@ -1274,7 +1277,7 @@ void
  */
 void
 OBJECT_to_@TOTYPE@(PyObject **ip, @totype@ *op, intp n,
-        PyArrayObject *_NPY_UNUSED@TOTYPE@(aip), PyArrayObject *aop)
+        NpyArray *_NPY_UNUSED@TOTYPE@(aip), NpyArray *aop)
 {
     intp i;
     int skip = @skip@;
@@ -1302,12 +1305,12 @@ OBJECT_to_@TOTYPE@(PyObject **ip, @totype@ *op, intp n,
  * #convstr = (Int*9, Long*2, Float*3, Complex*3, Tuple*3, Long*2)*3#
  */
 void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, PyArrayObject *aip,
-             PyArrayObject *aop)
+@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
+             NpyArray *aop)
 {
     intp i;
     PyObject *temp = NULL;
-    int skip = PyArray_ITEMSIZE(aip);
+    int skip = NpyArray_ITEMSIZE(aip);
     int oskip = @oskip@;
 
     for (i = 0; i < n; i++, ip+=skip, op+=oskip) {
@@ -1355,13 +1358,13 @@ void
  *            cfloat, cdouble, clongdouble, datetime, timedelta)*3#
  */
 void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, PyArrayObject *aip,
-             PyArrayObject *aop)
+@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
+             NpyArray *aop)
 {
     intp i;
     PyObject *temp = NULL;
     int skip = 1;
-    int oskip = PyArray_ITEMSIZE(aop);
+    int oskip = NpyArray_ITEMSIZE(aop);
     for (i = 0; i < n; i++, ip += skip, op += oskip) {
         temp = @from@_getitem((char *)ip, aip);
         if (temp == NULL) {
@@ -1573,7 +1576,7 @@ OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap), void *NPY_
 
 
 int
-OBJECT_compare(PyObject **ip1, PyObject **ip2, PyArrayObject *NPY_UNUSED(ap))
+OBJECT_compare(PyObject **ip1, PyObject **ip2, NpyArray *NPY_UNUSED(ap))
 {
     /*
      * ALIGNMENT NOTE: It seems that PyArray_Sort is already handling
@@ -1607,7 +1610,7 @@ OBJECT_compare(PyObject **ip1, PyObject **ip2, PyArrayObject *NPY_UNUSED(ap))
 
 
 int
-OBJECT_argmax(PyObject **ip, intp n, intp *max_ind, PyArrayObject *NPY_UNUSED(aip))
+OBJECT_argmax(PyObject **ip, intp n, intp *max_ind, NpyArray *NPY_UNUSED(aip))
 {
     intp i;
     PyObject *mp = ip[0];

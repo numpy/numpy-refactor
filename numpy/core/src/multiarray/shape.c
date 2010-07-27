@@ -15,6 +15,7 @@
 #include "npy_3kcompat.h"
 
 #include "ctors.h"
+#include "arrayobject.h"
 
 #include "shape.h"
 
@@ -35,11 +36,17 @@ PyArray_Resize(PyArrayObject *self, PyArray_Dims *newshape, int refcheck,
 {
     intp newsize, oldsize;
 
-    oldsize = NpyArray_SIZE(self);
+    oldsize = PyArray_SIZE(self);
     newsize = NpyArray_MultiplyList(newshape->ptr, newshape->len);
     if (newsize != oldsize) {
-        /* XXX: We will need a reference check here once we have separated the objects. . */
-        if (self->weakreflist != NULL) {
+        int refcnt;
+        if (refcheck) {
+            refcnt = Py_REFCNT(self);
+        } else {
+            refcnt = 1;
+        }
+            
+        if (refcnt > 2 || self->weakreflist != NULL) {
             PyErr_SetString(PyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
                     "by another array in this way.  Use the resize function");
@@ -83,7 +90,7 @@ NPY_NO_EXPORT PyObject *
 PyArray_Newshape(PyArrayObject *self, PyArray_Dims *newdims,
                  NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Newshape(PyArray_ARRAY(self), newdims, fortran);
+    RETURN_PYARRAY(NpyArray_Newshape(PyArray_ARRAY(self), newdims, fortran));
 }
 
 
@@ -145,7 +152,7 @@ _putzero(char *optr, PyObject *zero, NpyArray_Descr *dtype)
 NPY_NO_EXPORT PyObject *
 PyArray_Squeeze(PyArrayObject *self)
 {
-    return (PyObject*) NpyArray_Squeeze(PyArray_ARRAY(self));
+    RETURN_PYARRAY(NpyArray_Squeeze(PyArray_ARRAY(self)));
 }
 
 /*NUMPY_API
@@ -154,7 +161,7 @@ PyArray_Squeeze(PyArrayObject *self)
 NPY_NO_EXPORT PyObject *
 PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 {
-    return (PyObject*) NpyArray_SwapAxes(PyArray_ARRAY(ap), a1, a2);
+    RETURN_PYARRAY(NpyArray_SwapAxes(PyArray_ARRAY(ap), a1, a2));
 }
 
 /*NUMPY_API
@@ -163,7 +170,7 @@ PyArray_SwapAxes(PyArrayObject *ap, int a1, int a2)
 NPY_NO_EXPORT PyObject *
 PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 {
-    return (PyObject*) NpyArray_Transpose(PyArray_ARRAY(ap), permute);
+    RETURN_PYARRAY(NpyArray_Transpose(PyArray_ARRAY(ap), permute));
 }
 
 /*NUMPY_API
@@ -173,7 +180,7 @@ PyArray_Transpose(PyArrayObject *ap, PyArray_Dims *permute)
 NPY_NO_EXPORT PyObject *
 PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 {
-    return (PyObject*) NpyArray_Ravel(PyArray_ARRAY(a), fortran);
+    RETURN_PYARRAY(NpyArray_Ravel(PyArray_ARRAY(a), fortran));
 }
 
 /*NUMPY_API
@@ -182,5 +189,5 @@ PyArray_Ravel(PyArrayObject *a, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_Flatten(PyArrayObject *a, NPY_ORDER order)
 {
-    return (PyObject*) NpyArray_Flatten(PyArray_ARRAY(a), order);
+    RETURN_PYARRAY(NpyArray_Flatten(PyArray_ARRAY(a), order));
 }

@@ -49,7 +49,8 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
         ret = NpyArray_NewFromDescr(self->descr,
                                     nd, shape,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, self);
+                                    NPY_FALSE, NULL, 
+                                    Npy_INTERFACE(self));
 
         if (ret == NULL) {
             goto fail;
@@ -161,21 +162,21 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     }
 
     NpyArray_INCREF(ret);
-    Npy_XDECREF(indices);
-    Npy_XDECREF(self);
+    _Npy_XDECREF(indices);
+    _Npy_XDECREF(self);
     if (copyret) {
         NpyArray *obj;
         obj = ret->base_arr;
-        Npy_INCREF(obj);
-        Npy_DECREF(ret);
+        _Npy_INCREF(obj);
+        _Npy_DECREF(ret);
         ret = obj;
     }
     return ret;
 
  fail:
     NpyArray_XDECREF_ERR(ret);
-    Npy_XDECREF(indices);
-    Npy_XDECREF(self);
+    _Npy_XDECREF(indices);
+    _Npy_XDECREF(self);
     return NULL;
 }
 
@@ -332,16 +333,16 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
     }
 
  finish:
-    Npy_XDECREF(values);
-    Npy_XDECREF(indices);
+    _Npy_XDECREF(values);
+    _Npy_XDECREF(indices);
     if (copied) {
-        Npy_DECREF(self);
+        _Npy_DECREF(self);
     }
     return 0;
 
  fail:
-    Npy_XDECREF(indices);
-    Npy_XDECREF(values);
+    _Npy_XDECREF(indices);
+    _Npy_XDECREF(values);
     if (copied) {
         NpyArray_XDECREF_ERR(self);
     }
@@ -397,8 +398,8 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
     }
     nv = NpyArray_SIZE(values); /* zero if null array */
     if (nv <= 0) {
-        Npy_XDECREF(values);
-        Npy_XDECREF(mask);
+        _Npy_XDECREF(values);
+        _Npy_XDECREF(mask);
         return 0;
     }
     if (NpyDataType_REFCHK(self->descr)) {
@@ -428,16 +429,16 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
         }
     }
 
-    Npy_XDECREF(values);
-    Npy_XDECREF(mask);
+    _Npy_XDECREF(values);
+    _Npy_XDECREF(mask);
     if (copied) {
-        Npy_DECREF(self);
+        _Npy_DECREF(self);
     }
     return 0;
 
  fail:
-    Npy_XDECREF(mask);
-    Npy_XDECREF(values);
+    _Npy_XDECREF(mask);
+    _Npy_XDECREF(values);
     if (copied) {
         NpyArray_XDECREF_ERR(self);
     }
@@ -467,7 +468,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
 
     aop = NpyArray_CheckAxis(aop, &axis, NPY_CARRAY);
     if (aop == NULL) {
-        Npy_DECREF(repeats);
+        _Npy_DECREF(repeats);
         return NULL;
     }
 
@@ -507,7 +508,8 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
                                 aop->nd,
                                 aop->dimensions,
                                 NULL, NULL, 0,
-                                NPY_FALSE, NULL, aop);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(aop));
     aop->dimensions[axis] = n;
     if (ret == NULL) {
         goto fail;
@@ -535,15 +537,15 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
         }
     }
 
-    Npy_DECREF(repeats);
+    _Npy_DECREF(repeats);
     NpyArray_INCREF(ret);
-    Npy_XDECREF(aop);
+    _Npy_XDECREF(aop);
     return ret;
 
  fail:
-    Npy_DECREF(repeats);
-    Npy_XDECREF(aop);
-    Npy_XDECREF(ret);
+    _Npy_DECREF(repeats);
+    _Npy_XDECREF(aop);
+    _Npy_XDECREF(ret);
     return NULL;
 }
 
@@ -579,7 +581,8 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                                     multi->nd,
                                     multi->dimensions,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, ap);
+                                    NPY_FALSE, NULL, 
+                                    Npy_INTERFACE(ap));
     }
     else {
         NpyArray *obj;
@@ -653,19 +656,19 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
 
     NpyArray_INCREF(ret);
     _Npy_DECREF(multi);
-    Npy_DECREF(ap);
+    _Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
         obj = ret->base_arr;
-        Npy_INCREF(obj);
-        Npy_DECREF(ret);
+        _Npy_INCREF(obj);
+        _Npy_DECREF(ret);
         ret = obj;
     }
     return ret;
 
  fail:
     _Npy_XDECREF(multi);
-    Npy_XDECREF(ap);
+    _Npy_XDECREF(ap);
     NpyArray_XDECREF_ERR(ret);
     return NULL;
 }
@@ -758,9 +761,9 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
     NpyArray_ArgSortFunc *argsort;
     NPY_BEGIN_THREADS_DEF;
 
-    ret = NpyArray_New(Npy_TYPE(op), op->nd,
-                          op->dimensions, NPY_INTP,
-                          NULL, NULL, 0, 0, (NpyObject *)op);
+    ret = NpyArray_New(NULL, op->nd,
+                       op->dimensions, NPY_INTP,
+                       NULL, NULL, 0, 0, Npy_INTERFACE(op));
     if (ret == NULL) {
         return NULL;
     }
@@ -831,7 +834,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
 
  fail:
     NPY_END_THREADS;
-    Npy_DECREF(ret);
+    _Npy_DECREF(ret);
     _Npy_XDECREF(it);
     _Npy_XDECREF(rit);
     return NULL;
@@ -857,7 +860,7 @@ qsortCompare (const void *a, const void *b)
         orign = (ap)->nd-1;                                     \
         if (axis != orign) {                                    \
             (op) = NpyArray_SwapAxes((ap), axis, orign);        \
-            Npy_DECREF((ap));                                   \
+            _Npy_DECREF((ap));                                   \
             if ((op) == NULL) return NULL;                      \
         }                                                       \
         else (op) = (ap);                                       \
@@ -871,7 +874,7 @@ qsortCompare (const void *a, const void *b)
 #define SWAPBACK(op, ap) {                                      \
         if (axis != orign) {                                    \
             (op) = NpyArray_SwapAxes((ap), axis, orign);        \
-            Npy_DECREF((ap));                                   \
+            _Npy_DECREF((ap));                                   \
             if ((op) == NULL) return NULL;                      \
         }                                                       \
         else (op) = (ap);                                       \
@@ -960,12 +963,12 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
     }
 
  finish:
-    Npy_DECREF(ap);  /* Should update op if needed */
+    _Npy_DECREF(ap);  /* Should update op if needed */
     SWAPBACK2(op);
     return 0;
 
  fail:
-    Npy_XDECREF(ap);
+    _Npy_XDECREF(ap);
     SWAPBACK2(op);
     return -1;
 }
@@ -999,11 +1002,11 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
 
     n = op->nd;
     if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
-        ret = NpyArray_New(Npy_TYPE(op), op->nd,
+        ret = NpyArray_New(NULL, op->nd,
                            op->dimensions,
                            NPY_INTP,
                            NULL, NULL, 0, 0,
-                           (NpyObject *)op);
+                           Npy_INTERFACE(op));
         if (ret == NULL) {
             return NULL;
         }
@@ -1018,14 +1021,14 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     /* Determine if we should use new algorithm or not */
     if (op2->descr->f->argsort[which] != NULL) {
         ret = _new_argsort(op2, axis, which);
-        Npy_DECREF(op2);
+        _Npy_DECREF(op2);
         return ret;
     }
 
     if ((which != NPY_QUICKSORT) || op2->descr->f->compare == NULL) {
         NpyErr_SetString(NpyExc_TypeError,
                         "requested sort not available for type");
-        Npy_DECREF(op2);
+        _Npy_DECREF(op2);
         op = NULL;
         goto fail;
     }
@@ -1033,13 +1036,13 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     /* ap will contain the reference to op2 */
     SWAPAXES(ap, op2);
     op = NpyArray_ContiguousFromArray(ap, NPY_NOTYPE);
-    Npy_DECREF(ap);
+    _Npy_DECREF(ap);
     if (op == NULL) {
         return NULL;
     }
-    ret = NpyArray_New(Npy_TYPE(op), op->nd,
+    ret = NpyArray_New(NULL, op->nd,
                        op->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, (NpyObject *)op);
+                       NULL, NULL, 0, 0, Npy_INTERFACE(op));
     if (ret == NULL) {
         goto fail;
     }
@@ -1064,13 +1067,13 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
     global_obj = store;
 
  finish:
-    Npy_DECREF(op);
+    _Npy_DECREF(op);
     SWAPBACK(op, ret);
     return op;
 
  fail:
-    Npy_XDECREF(op);
-    Npy_XDECREF(ret);
+    _Npy_XDECREF(op);
+    _Npy_XDECREF(ret);
     return NULL;
 
 }
@@ -1138,7 +1141,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     nd = mps[0]->nd;
     if ((nd == 0) || (NpyArray_SIZE(mps[0]) == 1)) {
         /* single element case */
-        ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
+        ret = NpyArray_New(NULL, mps[0]->nd,
                            mps[0]->dimensions,
                            NPY_INTP,
                            NULL, NULL, 0, 0, NULL);
@@ -1159,7 +1162,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     }
 
     /* Now do the sorting */
-    ret = NpyArray_New(&PyArray_Type, mps[0]->nd,
+    ret = NpyArray_New(NULL, mps[0]->nd,
                        mps[0]->dimensions, NPY_INTP,
                        NULL, NULL, 0, 0, NULL);
     if (ret == NULL) {
@@ -1260,7 +1263,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
  fail:
     NPY_END_THREADS;
     _Npy_XDECREF(rit);
-    Npy_XDECREF(ret);
+    _Npy_XDECREF(ret);
     for (i = 0; i < n; i++) {
         _Npy_XDECREF(its[i]);
     }
@@ -1384,9 +1387,9 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
         goto fail;
     }
     /* ret is a contiguous array of intp type to hold returned indices */
-    ret = NpyArray_New(Npy_TYPE(ap2), ap2->nd,          /* TODO: Need solution for Npy_TYPE(ap2) here - wants interface subtype I think. */
+    ret = NpyArray_New(NULL, ap2->nd,
                        ap2->dimensions, NPY_INTP,
-                       NULL, NULL, 0, 0, (NpyObject *)ap2);
+                       NULL, NULL, 0, 0, Npy_INTERFACE(ap2));
     if (ret == NULL) {
         goto fail;
     }
@@ -1407,14 +1410,14 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
         local_search_right(ap1, ap2, ret);
         NPY_END_THREADS_DESCR(ap2->descr);
     }
-    Npy_DECREF(ap1);
-    Npy_DECREF(ap2);
+    _Npy_DECREF(ap1);
+    _Npy_DECREF(ap2);
     return ret;
 
  fail:
-    Npy_XDECREF(ap1);
-    Npy_XDECREF(ap2);
-    Npy_XDECREF(ret);
+    _Npy_XDECREF(ap1);
+    _Npy_XDECREF(ap2);
+    _Npy_XDECREF(ret);
     return NULL;
 }
 

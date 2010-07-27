@@ -47,7 +47,23 @@ extern "C" CONFUSE_EMACS
     }                                               
 
 
-#define PyArray_ISVALID(a) (NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number && NPY_VALID_MAGIC == (a)->descr->magic_number)
+/* Takes a core NpyArray_Descr object and moves the reference to the interface object, 
+   returning the interface wrapper object. */
+#define PyArray_Descr_RETURN(core)                      \
+    do {                                                \
+        PyArray_Descr *wrapper = NULL;                  \
+        if (NULL == (core)) wrapper = NULL;             \
+        else {                                          \
+            wrapper = PyArray_Descr_WRAP(core);         \
+            assert(NPY_VALID_MAGIC == (wrapper)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+            Py_INCREF(wrapper);                         \
+            _Npy_DECREF(core);                          \
+        }                                               \
+        return wrapper;                                 \
+    } while(0); 
+
+
+#define PyArray_ISVALID(a) (NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number && NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->magic_number)
 
 
 /* C-API that requries previous API to be defined */
@@ -160,7 +176,7 @@ extern "C" CONFUSE_EMACS
                              NULL, NULL, 0, NULL)
 
 #define PyArray_ToScalar(data, arr)                                           \
-        PyArray_Scalar(data, Npy_INTERFACE(PyArray_DESCR(arr)), (PyObject *)arr)
+        PyArray_Scalar(data, PyArray_Descr_WRAP(PyArray_DESCR(arr)), (PyObject *)arr)
 
 
 /* These might be faster without the dereferencing of obj
@@ -188,7 +204,7 @@ extern "C" CONFUSE_EMACS
 
 #define PyArray_XDECREF_ERR(obj) \
         if (obj && (PyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {                 \
-            PyArray_FLAGS(PyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
+            NpyArray_FLAGS(PyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;   \
             PyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                    \
         }                                                                     \
         Py_XDECREF(obj)

@@ -233,6 +233,88 @@ class TestUfunc(TestCase):
         """
         pass
 
+    def test_array_shift( self ):
+
+        # tests array_left_shift
+        a = np.arange(5)
+        b = a << 1
+        assert_equal( b, a*2 )
+
+        # tests array_right_shift
+        c = b >> 1
+        assert_equal( c, a )
+
+    def test_array_bit_ops( self ):
+
+        # Test bitwise xor.
+        a = np.arange(5)
+        b = a ^ a
+        assert_equal( b, np.zeros( 5, int ) )
+
+        z = np.zeros( 5, np.int32 )
+        c = a ^ z
+        assert_equal( c, a )
+
+    def test_array_inplace_ops( self ):
+
+        # There are a few inplace ops that don't seem to be utilized
+        # elsewhere in the test framework:
+        #   array_inplace_bitwise_xor
+        #   array_inplace_remainder
+        #   array_inplace_right_shift
+        #   array_inplace_floor_divide
+        #   array_inplace_true_divide
+        #   array_inplace_bitwise_and
+        # In this test, we'll try to work off this list.
+
+        a = np.arange(5)
+        aref = np.arange(5)
+
+        # array_inplace_bitwise_xor
+        a ^= a
+        assert_equal( a, np.zeros( 5, int ) )
+
+        # array_inplace_bitwise_and
+        a = np.arange(5)
+        a &= 1
+        assert_equal( a, [0,1,0,1,0] )
+
+        a = np.arange(5)
+
+        # array_inplace_left_shift
+        a <<= 1
+        assert_equal( a, 2 * aref )
+
+        # array_inplace_right_shift
+        a >>= 1
+        assert_equal( a, aref )
+
+        # array_inplace_remainder
+        a = np.arange(5)
+        a += 2
+        a %= 2
+        assert_equal( a, [0,1,0,1,0] )
+
+        # array_inplace_floor_divide
+        a = np.arange(5)
+        a //= 2
+        assert_equal( a, [0,0,1,1,2] )
+
+        # # What does this do?  Apparently not inplace_true_divide...
+        # a = np.arange(5)
+        # a <<= 1
+        # a /= 2
+        # assert_equal( a, aref )
+
+        # Now handle inplace_true_divide, which requires some subtlety.
+        from operator import itruediv
+        a = np.arange(5)
+        itruediv( a, 2 )
+        assert_equal( a, [0,0,1,1,2] )
+        # NOTE:  This does seem a little wierd.  The whole point of true
+        # division is to make 1/2 ==> .5.  But it seems that with inplace
+        # true divide, we keep the type of the input operand.  Which seems a
+        # bit like implementing floor division and calling it "true divide".
 
     def test_signature(self):
         # the arguments to test_signature are: nin, nout, core_signature

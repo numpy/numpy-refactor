@@ -17,6 +17,7 @@
 #include "ctors.h"
 #include "calculation.h"
 #include "descriptor.h"
+#include "arrayobject.h"
 
 #include "methods.h"
 
@@ -310,8 +311,7 @@ PyArray_GetField(PyArrayObject *self, PyArray_Descr *typed, int offset)
     /* Move reference to the core object. */
     PyArray_Descr_REF_TO_CORE(typed, typedWrap);
     
-    /* TODO: wrap return object. */
-    return (PyObject *) NpyArray_GetField(PyArray_ARRAY(self), typedWrap, offset);
+    RETURN_PYARRAY(NpyArray_GetField(PyArray_ARRAY(self), typedWrap, offset));
 }
 
 static PyObject *
@@ -339,16 +339,58 @@ array_getfield(PyArrayObject *self, PyObject *args, PyObject *kwds)
  * Steals a reference to dtype.
 */
 NPY_NO_EXPORT int
-PyArray_SetField(PyArrayObject *self, PyArray_Descr *dtype,
+PyArray_SetField(PyArrayObject *self, PyArray_Descr *dtypeWrap,
                  int offset, PyObject *val)
 {
-    NpyArray_Descr *dtypeWrap;
+    NpyArray_Descr *dtype;
+    PyArrayObject *src;
+    int result;
     
+    /*
+     * Special code to mimic Numeric behavior for
+     * character arrays.
+     */
+    if (dtypeWrap->descr->type == PyArray_CHARLTR && PyArray_NDIM(self) > 0 \
+        && PyString_Check(val)) {
+        intp n_new, n_old;
+        char *new_string;
+        PyObject *tmp;
+
+        n_new = PyArray_DIM(self, PyArray_NDIM(self)-1);
+        n_old = PyString_Size(val);
+        if (n_new > n_old) {
+            new_string = (char *)malloc(n_new);
+            memmove(new_string, PyString_AS_STRING(val), n_old);
+            memset(new_string + n_old, ' ', n_new - n_old);
+            tmp = PyString_FromStringAndSize(new_string, n_new);
+            free(new_string);
+            val = tmp;
+        }
+    }
+
+    if (PyArray_Check(val)) {
+        src = (PyArrayObject *)val;
+        Py_INCREF(src);
+    }
+    else {
+        Py_INCREF(dtypeWrap);
+        src = (PyArrayObject *)PyArray_FromAny(val, dtypeWrap, 0,
+                                               PyArray_NDIM(self),
+                                               FORTRAN_IF(self),
+                                               NULL);
+    }
+    if (src == NULL) {
+        Py_DECREF(dtype);
+        return -1;
+    }
+
     /* Move the reference to the core object. */
-    PyArray_Descr_REF_TO_CORE(dtype, dtypeWrap);
+    PyArray_Descr_REF_TO_CORE(dtypeWrap, dtype);
     
-    /* TODO: Unwrap array from PyObject */
-    return NpyArray_SetField(PyArray_ARRAY(self), dtypeWrap, offset, val);
+    result = NpyArray_SetField(PyArray_ARRAY(self), dtype, offset, 
+                               PyArray_ARRAY(src));
+    Py_DECREF(src);
+    return result;
 }
 
 static PyObject *
@@ -380,8 +422,7 @@ array_setfield(PyArrayObject *self, PyObject *args, PyObject *kwds)
 NPY_NO_EXPORT PyObject *
 PyArray_Byteswap(PyArrayObject *self, Bool inplace)
 {
-    /* TODO: Wrap returned array with PyObject */
-    return (PyObject *)NpyArray_Byteswap(PyArray_ARRAY(self), inplace);
+    RETURN_PYARRAY(NpyArray_Byteswap(PyArray_ARRAY(self), inplace));
 }
 
 
@@ -488,7 +529,8 @@ array_toscalar(PyArrayObject *self, PyObject *args) {
 
     if (n == 0) {
         if (PyArray_NDIM(self) == 0 || PyArray_SIZE(self) == 1)
-            return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self), self);
+            return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self), 
+                                                   PyArray_ARRAY(self));
         else {
             PyErr_SetString(PyExc_ValueError,
                             "can only convert an array "    \
@@ -520,7 +562,7 @@ array_toscalar(PyArrayObject *self, PyObject *args) {
         if (PyArray_NDIM(self) == 1) {
             value *= PyArray_STRIDE(self, 0);
             return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self) + value,
-                                           self);
+                                                   PyArray_ARRAY(self));
         }
         nd = PyArray_NDIM(self);
         factor = 1;
@@ -536,7 +578,7 @@ array_toscalar(PyArrayObject *self, PyObject *args) {
         }
 
         return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self) + loc,
-                                       self);
+                                               PyArray_ARRAY(self));
 
     }
     else {
@@ -558,7 +600,8 @@ array_toscalar(PyArrayObject *self, PyObject *args) {
             }
             loc += PyArray_STRIDE(self, nd)*index[nd];
         }
-        return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self) + loc, self);
+        return PyArray_DESCR(self)->f->getitem(PyArray_BYTES(self) + loc, 
+                                               PyArray_ARRAY(self));
     }
 }
 
@@ -577,7 +620,8 @@ array_setscalar(PyArrayObject *self, PyObject *args) {
     obj = PyTuple_GET_ITEM(args, n);
     if (n == 0) {
         if (PyArray_NDIM(self) == 0 || PyArray_SIZE(self) == 1) {
-            ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self), self);
+            ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self), 
+                                                  PyArray_ARRAY(self));
         }
         else {
             PyErr_SetString(PyExc_ValueError,
@@ -630,7 +674,7 @@ array_setscalar(PyArrayObject *self, PyObject *args) {
         if (PyArray_NDIM(self) == 1) {
             value *= PyArray_STRIDE(self, 0);
             ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self) + value,
-                                          self);
+                                                  PyArray_ARRAY(self));
             goto finish;
         }
         nd = PyArray_NDIM(self);
@@ -646,7 +690,8 @@ array_setscalar(PyArrayObject *self, PyObject *args) {
             loc += PyArray_STRIDE(self, nd)*index;
         }
 
-        ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self) + loc, self);
+        ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self) + loc, 
+                                              PyArray_ARRAY(self));
     }
     else {
         intp loc, index[MAX_DIMS];
@@ -670,7 +715,8 @@ array_setscalar(PyArrayObject *self, PyObject *args) {
             }
             loc += PyArray_STRIDE(self, nd)*index[nd];
         }
-        ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self) + loc, self);
+        ret = PyArray_DESCR(self)->f->setitem(obj, PyArray_BYTES(self) + loc, 
+                                              PyArray_ARRAY(self));
     }
 
  finish:
@@ -736,23 +782,19 @@ array_wraparray(PyArrayObject *self, PyObject *args)
 
     if (Py_TYPE(self) != Py_TYPE(arr)){
         _Npy_INCREF(PyArray_DESCR(arr));
-        ret = NpyArray_NewFromDescr(PyArray_DESCR(arr),
-                                    PyArray_NDIM(arr),
-                                    PyArray_DIMS(arr),
-                                    PyArray_STRIDES(arr), PyArray_DATA(arr),
-                                    PyArray_FLAGS(arr), NPY_FALSE,
-                                    NULL, self);
+        ASSIGN_TO_PYARRAY(ret,
+                          NpyArray_NewFromDescr(PyArray_DESCR(arr),
+                                                PyArray_NDIM(arr),
+                                                PyArray_DIMS(arr),
+                                                PyArray_STRIDES(arr), PyArray_DATA(arr),
+                                                PyArray_FLAGS(arr), NPY_FALSE,
+                                                NULL, self));
         if (ret == NULL) {
             return NULL;
         }
-        if (PyArray_Check(arr)) {
-            PyArray_BASE_ARRAY(arr) = PyArray_ARRAY(arr);
-            Npy_INCREF(PyArray_BASE_ARRAY(arr));
-        } else {
-            PyArray_BASE(ret) = arr;
-            Py_INCREF(PyArray_BASE(ret));
-        }
-        ASSERT_ONE_BASE(ret);
+        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
+        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        assert(PyArray_BASE(ret) == NULL);
         return (PyObject *)ret;
     } else {
         /*The type was set in __array_prepare__*/
@@ -781,18 +823,19 @@ array_preparearray(PyArrayObject *self, PyObject *args)
     }
 
     _Npy_INCREF(PyArray_DESCR(arr));
-    ret = NpyArray_NewFromDescr(PyArray_DESCR(arr),
-                                PyArray_NDIM(arr),
-                                PyArray_DIMS(arr),
-                                PyArray_STRIDES(arr), PyArray_DATA(arr),
-                                PyArray_FLAGS(arr), NPY_FALSE,
-                                Py_TYPE(self), self);
+    ASSIGN_TO_PYARRAY(ret,
+        NpyArray_NewFromDescr(PyArray_DESCR(arr),
+                              PyArray_NDIM(arr),
+                              PyArray_DIMS(arr),
+                              PyArray_STRIDES(arr), PyArray_DATA(arr),
+                              PyArray_FLAGS(arr), NPY_FALSE,
+                              Py_TYPE(self), self));
     if (ret == NULL) {
         return NULL;
     }
     if (PyArray_Check(arr)) {
         PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-        Npy_INCREF(PyArray_BASE_ARRAY(ret));
+        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
     } else {
         PyArray_BASE(ret) = arr;
         Py_INCREF(PyArray_BASE(ret));
@@ -824,18 +867,19 @@ array_getarray(PyArrayObject *self, PyObject *args)
         }
 
         _Npy_INCREF(PyArray_DESCR(self));
-        new = NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                    PyArray_NDIM(self),
-                                    PyArray_DIMS(self),
-                                    PyArray_STRIDES(self),
-                                    PyArray_DATA(self),
-                                    PyArray_FLAGS(self), NPY_FALSE,
-                                    subtype, NULL);
+        ASSIGN_TO_PYARRAY(ret,
+            NpyArray_NewFromDescr(PyArray_DESCR(self),
+                                  PyArray_NDIM(self),
+                                  PyArray_DIMS(self),
+                                  PyArray_STRIDES(self),
+                                  PyArray_DATA(self),
+                                  PyArray_FLAGS(self), NPY_FALSE,
+                                  subtype, NULL));
         if (new == NULL) {
             return NULL;
         }
         PyArray_BASE_ARRAY(new) = PyArray_ARRAY(self);
-        Npy_INCREF(PyArray_BASE_ARRAY(new));
+        _Npy_INCREF(PyArray_BASE_ARRAY(new));
         /* TODO: Check if we are leaking new. */
         self = new;
         ASSERT_ONE_BASE(self);
@@ -1178,7 +1222,7 @@ _getlist_pkl(PyArrayObject *self)
         return NULL;
     }
     while (iter->index < iter->size) {
-        theobject = getitem(iter->dataptr, self);
+        theobject = getitem(iter->dataptr, PyArray_ARRAY(self));
         PyList_SET_ITEM(list, (int) iter->index, theobject);
         NpyArray_ITER_NEXT(iter);
     }
@@ -1200,7 +1244,7 @@ _setlist_pkl(PyArrayObject *self, PyObject *list)
     }
     while(iter->index < iter->size) {
         theobject = PyList_GET_ITEM(list, (int) iter->index);
-        setitem(theobject, iter->dataptr, self);
+        setitem(theobject, iter->dataptr, PyArray_ARRAY(self));
         NpyArray_ITER_NEXT(iter);
     }
     _Npy_XDECREF(iter);
@@ -1384,7 +1428,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
         }
         PyArray_FLAGS(self) &= ~OWNDATA;
     }
-    Npy_XDECREF(PyArray_BASE_ARRAY(self));
+    _Npy_XDECREF(PyArray_BASE_ARRAY(self));
     Py_XDECREF(PyArray_BASE(self));
     PyArray_BASE_ARRAY(self) = NULL;
     PyArray_BASE(self) = NULL;
@@ -1425,7 +1469,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
                 intp numels = num / PyArray_ITEMSIZE(self);
                 PyArray_DESCR(self)->f->copyswapn(PyArray_BYTES(self), PyArray_ITEMSIZE(self),
                                           datastr, PyArray_ITEMSIZE(self),
-                                          numels, 1, self);
+                                          numels, 1, PyArray_ARRAY(self));
                 if (!PyArray_ISEXTENDED(self)) {
                     PyArray_DESCR(self) = NpyArray_DescrFromType(PyArray_TYPE(self));
                 }
@@ -1452,7 +1496,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
                 /* TODO: Check for leak of rawdata. */
                 PyArray_BASE_ARRAY(self) = PyArray_ARRAY(rawdata);
                 if (incref_base) {
-                    Npy_INCREF(PyArray_BASE_ARRAY(self));
+                    _Npy_INCREF(PyArray_BASE_ARRAY(self));
                 }
             } else {
                 PyArray_BASE(self) = rawdata;
@@ -2046,7 +2090,7 @@ array_setflags(PyArrayObject *self, PyObject *args, PyObject *kwds)
             PyArray_FLAGS(self) &= ~UPDATEIFCOPY;
             Py_XDECREF(PyArray_BASE(self));
             PyArray_BASE(self) = NULL;
-            Npy_XDECREF(PyArray_BASE_ARRAY(self));
+            _Npy_XDECREF(PyArray_BASE_ARRAY(self));
             PyArray_BASE_ARRAY(self) = NULL;
         }
     }

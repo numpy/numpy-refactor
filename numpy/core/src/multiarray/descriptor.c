@@ -264,8 +264,8 @@ _convert_from_tuple(PyObject *obj)
         _Npy_INCREF(type->descr);
         Py_DECREF(type);
         
-        assert(0 == newdescr->subarray->shape_num_dims && NULL == newdescr->subarray->shape_dims || 
-               0 < newdescr->subarray->shape_num_dims && NULL != newdescr->subarray->shape_dims);
+        assert((0 == newdescr->subarray->shape_num_dims && NULL == newdescr->subarray->shape_dims) || 
+               (0 < newdescr->subarray->shape_num_dims && NULL != newdescr->subarray->shape_dims));
 
         /* Move reference to newdescr to interface object for return. */
         type = PyArray_Descr_WRAP(newdescr);

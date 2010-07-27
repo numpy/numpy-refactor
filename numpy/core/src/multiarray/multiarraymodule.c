@@ -45,6 +45,7 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 #include "scalartypes.h"
 #include "numpymemoryview.h"
 
+
 /*NUMPY_API
  * Get Priority from object
  */
@@ -69,6 +70,7 @@ PyArray_GetPriority(PyObject *obj, double default_)
     return priority;
 }
 
+
 /*NUMPY_API
  * Multiply a List of ints
  */
@@ -77,6 +79,7 @@ PyArray_MultiplyIntList(int *l1, int n)
 {
     return NpyArray_MultiplyIntList(l1, n);
 }
+
 
 /*NUMPY_API
  * Multiply a List
@@ -97,15 +100,16 @@ PyArray_OverflowMultiplyList(intp *l1, int n)
     return NpyArray_OverflowMultiplyList(l1, n);
 }
 
+
 /*NUMPY_API
  * Produce a pointer into array
  */
 NPY_NO_EXPORT void *
 PyArray_GetPtr(PyArrayObject *obj, intp* ind)
 {
-    /* TODO: Unwrap array object. */
     return NpyArray_GetPtr(PyArray_ARRAY(obj), ind);
 }
+
 
 /*NUMPY_API
  * Compare Lists
@@ -136,7 +140,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
 {
     PyArrayObject *ap, *oldAp;
     intp result;
-    
+
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
@@ -148,21 +152,21 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
     if (ap == NULL) {
         return -1;
     }
-    
+
     /* TODO: LOTS of potential bugs here, code is ugly.  Above PyArray_FromAny steals a reference to
        typedescr, and so does NpyArray_AsCArray.  However, they steal references to _difference_ objects,
        first one is an interface object, second is a core object.
-     
+
        Also, PyArray_FromAny creates a new Python object that gets thrown away - probably want to refactor
        PyArray_FromAny to return a core-only object.
-     
-       Lastly, I think this function leaks a reference. op comes in pointing to an object which gets 
+
+       Lastly, I think this function leaks a reference. op comes in pointing to an object which gets
        converted to an array and *op is overwritten with the new array object but the original object
        is not decref'd.  This is how it was so I left it alone.  Either the caller must decref or it's
        a leak or I just need more coffee. */
     _Npy_INCREF(typedescr->descr);
     oldAp = ap;
-    result = NpyArray_AsCArray(&ap, ptr, dims, nd, typedescr->descr);
+    result = NpyArray_AsCArray(&PyArray_LARRAY(ap), ptr, dims, nd, typedescr->descr);
     Py_DECREF(oldAp);
     *op = (PyObject *) ap;
     return result;
@@ -190,6 +194,7 @@ PyArray_As1D(PyObject **op, char **ptr, int *d1, int typecode)
     *d1 = (int) newd1;
     return 0;
 }
+
 
 /*NUMPY_API
  * Convert to a 2D C-array
@@ -221,8 +226,7 @@ PyArray_As2D(PyObject **op, char ***ptr, int *d1, int *d2, int typecode)
 NPY_NO_EXPORT int
 PyArray_Free(PyObject *op, void *ptr)
 {
-    /* TODO: Needs to free both pieces, core array and Py object. */
-    return NpyArray_Free((NpyArray *)op, ptr);
+    return NpyArray_Free(PyArray_ARRAY(op), ptr);
 }
 
 
@@ -264,6 +268,7 @@ _swap_and_concat(PyObject *op, int axis, int n)
     Py_DECREF(newtup);
     return NULL;
 }
+
 
 /*NUMPY_API
  * Concatenate
@@ -360,10 +365,10 @@ PyArray_Concatenate(PyObject *op, int axis)
     tmp = PyArray_DIM(mps[0], 0);
     PyArray_DIM(mps[0], 0) = new_dim;
     _Npy_INCREF(PyArray_DESCR(mps[0]));
-    ret = NpyArray_NewFromDescr(PyArray_DESCR(mps[0]), nd,
-                                PyArray_DIMS(mps[0]),
-                                NULL, NULL, 0,
-                                NPY_FALSE, subtype, ret);
+    ASSIGN_TO_PYARRAY(ret, NpyArray_NewFromDescr(PyArray_DESCR(mps[0]), nd,
+                                                 PyArray_DIMS(mps[0]),
+                                                 NULL, NULL, 0,
+                                                 NPY_FALSE, subtype, ret));
     PyArray_DIM(mps[0], 0) = tmp;
 
     if (ret == NULL) {
@@ -399,8 +404,11 @@ PyArray_Concatenate(PyObject *op, int axis)
 NPY_NO_EXPORT NPY_SCALARKIND
 PyArray_ScalarKind(int typenum, PyArrayObject **arr)
 {
-    /* TODO: Unwrap array objects. */
-    return NpyArray_ScalarKind(typenum, arr);
+    if (arr != NULL) {
+        return NpyArray_ScalarKind(typenum, &PyArray_LARRAY(*arr));
+    } else {
+        return NpyArray_ScalarKind(typenum, NULL);
+    }
 }
 
 
@@ -412,40 +420,6 @@ PyArray_CanCoerceScalar(int thistype, int neededtype,
     return NpyArray_CanCoerceScalar(thistype, neededtype, scalar);
 }
 
-
-
-/*
- * Make a new empty array, of the passed size, of a type that takes the
- * priority of ap1 and ap2 into account.
- */
-static PyArrayObject *
-new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
-                  int nd, intp dimensions[], int typenum)
-{
-    PyArrayObject *ret;
-    PyTypeObject *subtype;
-    double prior1, prior2;
-    /*
-     * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
-     */
-    if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
-        prior2 = PyArray_GetPriority((PyObject *)ap2, 0.0);
-        prior1 = PyArray_GetPriority((PyObject *)ap1, 0.0);
-        subtype = (prior2 > prior1 ? Py_TYPE(ap2) : Py_TYPE(ap1));
-    }
-    else {
-        prior1 = prior2 = 0.0;
-        subtype = Py_TYPE(ap1);
-    }
-
-    ret = (PyArrayObject *)PyArray_New(subtype, nd, dimensions,
-                                       typenum, NULL, NULL, 0, 0,
-                                       (PyObject *)
-                                       (prior2 > prior1 ? ap2 : ap1));
-    return ret;
-}
-
 /* Could perhaps be redone to not make contiguous arrays */
 
 /*NUMPY_API
@@ -454,7 +428,9 @@ new_array_for_sum(PyArrayObject *ap1, PyArrayObject *ap2,
 NPY_NO_EXPORT PyObject *
 PyArray_InnerProduct(PyObject *op1, PyObject *op2)
 {
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    /* TODO: wrap return value. */
+    PyArrayObject *ap1, *ap2, *ret;
+    NpyArray *prod = NULL;
     int typenum;
     PyArray_Descr *typec;
 
@@ -481,13 +457,23 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    return (PyObject *)NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
-                                             PyArray_ARRAY(ap2), typenum);
-    
+    prod = NpyArray_InnerProduct(PyArray_ARRAY(ap1), 
+                                 PyArray_ARRAY(ap2), typenum);
+
+    Py_DECREF(ap1);
+    Py_DECREF(ap2);
+
+    /* Get the interface object and move the reference. */
+    ret = Npy_INTERFACE(prod);
+    Py_INCREF(ret);
+    _Npy_DECREF(prod);
+
+    return (PyObject *)ret;
+
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);
-    Py_XDECREF(ret);
+    _Npy_XDECREF(prod);
     return NULL;
 }
 
@@ -500,15 +486,8 @@ NPY_NO_EXPORT PyObject *
 PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
 {
     PyArrayObject *ap1, *ap2, *ret = NULL;
-    NpyArrayIterObject *it1, *it2;
-    intp i, j, l;
-    int typenum, nd, axis, matchDim;
-    intp is1, is2, os;
-    char *op;
-    intp dimensions[MAX_DIMS];
-    PyArray_DotFunc *dot;
+    int typenum;
     PyArray_Descr *typec;
-    NPY_BEGIN_THREADS_DEF;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
@@ -531,86 +510,11 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
         Py_DECREF(ap2);
         return (PyObject *)ret;
     }
-    l = PyArray_DIM(ap1, PyArray_NDIM(ap1) - 1);
-    if (PyArray_NDIM(ap2) > 1) {
-        matchDim = PyArray_NDIM(ap2) - 2;
-    }
-    else {
-        matchDim = 0;
-    }
-    if (PyArray_DIM(ap2, matchDim) != l) {
-        PyErr_SetString(PyExc_ValueError, "objects are not aligned");
-        goto fail;
-    }
-    nd = PyArray_NDIM(ap1) + PyArray_NDIM(ap2) - 2;
-    if (nd > NPY_MAXDIMS) {
-        PyErr_SetString(PyExc_ValueError, "dot: too many dimensions in result");
-        goto fail;
-    }
-    j = 0;
-    for (i = 0; i < PyArray_NDIM(ap1) - 1; i++) {
-        dimensions[j++] = PyArray_DIM(ap1, i);
-    }
-    for (i = 0; i < PyArray_NDIM(ap2) - 2; i++) {
-        dimensions[j++] = PyArray_DIM(ap2, i);
-    }
-    if(PyArray_NDIM(ap2) > 1) {
-        dimensions[j++] = PyArray_DIM(ap2, PyArray_NDIM(ap2)-1);
-    }
-    /*
-      fprintf(stderr, "nd=%d dimensions=", nd);
-      for(i=0; i<j; i++)
-      fprintf(stderr, "%d ", dimensions[i]);
-      fprintf(stderr, "\n");
-    */
 
-    is1 = PyArray_STRIDE(ap1, PyArray_NDIM(ap1)-1); is2 = PyArray_STRIDE(ap2, matchDim);
-    /* Choose which subtype to return */
-    ret = new_array_for_sum(ap1, ap2, nd, dimensions, typenum);
-    if (ret == NULL) {
-        goto fail;
-    }
-    /* Ensure that multiarray.dot(<Nx0>,<0xM>) -> zeros((N,M)) */
-    if (PyArray_SIZE(ap1) == 0 && PyArray_SIZE(ap2) == 0) {
-        memset(PyArray_DATA(ret), 0, PyArray_NBYTES(ret));
-    }
-    else {
-        /* Ensure that multiarray.dot([],[]) -> 0 */
-        memset(PyArray_DATA(ret), 0, PyArray_ITEMSIZE(ret));
-    }
-
-    dot = PyArray_DESCR(ret)->f->dotfunc;
-    if (dot == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "dot not available for this type");
-        goto fail;
-    }
-
-    op = PyArray_BYTES(ret); os = PyArray_ITEMSIZE(ret);
-    axis = PyArray_NDIM(ap1)-1;
-    it1 = NpyArray_IterAllButAxis(PyArray_ARRAY(ap1), &axis);
-    it2 = NpyArray_IterAllButAxis(PyArray_ARRAY(ap2), &matchDim);
-    NPY_BEGIN_THREADS_DESCR(PyArray_DESCR(ap2));
-    while (1) {
-        while (NpyArray_ITER_NOTDONE(it2)) {
-            dot(NpyArray_ITER_DATA(it1), is1, NpyArray_ITER_DATA(it2), is2, 
-                op, l, ret);
-            op += os;
-            NpyArray_ITER_NEXT(it2);
-        }
-        NpyArray_ITER_NEXT(it1);
-        if (it1->index >= it1->size) {
-            break;
-        }
-        NpyArray_ITER_RESET(it2);
-    }
-    NPY_END_THREADS_DESCR(PyArray_DESCR(ap2));
-    _Npy_DECREF(it1);
-    _Npy_DECREF(it2);
-    if (PyErr_Occurred()) {
-        /* only for OBJECT arrays */
-        goto fail;
-    }
+    /* TODO: Wrap return value. */
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_MatrixProduct(PyArray_ARRAY(ap1),
+                                             PyArray_ARRAY(ap2), typenum));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return (PyObject *)ret;
@@ -622,231 +526,33 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
     return NULL;
 }
 
+
 /*NUMPY_API
  * Fast Copy and Transpose
  */
 NPY_NO_EXPORT PyObject *
 PyArray_CopyAndTranspose(PyObject *op)
 {
-    PyObject *ret, *arr;
-    int nd;
-    intp dims[2];
-    intp i,j;
-    int elsize, str2;
-    char *iptr;
-    char *optr;
+    PyArrayObject *ret, *arr;
 
     /* make sure it is well-behaved */
-    arr = PyArray_FromAny(op, NULL, 0, 0, CARRAY, NULL);
+    arr = (PyArrayObject *)PyArray_FromAny(op, NULL, 0, 0, CARRAY, NULL);
     if (arr == NULL) {
         return NULL;
     }
-    nd = PyArray_NDIM(arr);
-    if (nd == 1) {
-        /* we will give in to old behavior */
-        ret = PyArray_Copy((PyArrayObject *)arr);
-        Py_DECREF(arr);
-        return ret;
-    }
-    else if (nd != 2) {
-        Py_DECREF(arr);
-        PyErr_SetString(PyExc_ValueError,
-                        "only 2-d arrays are allowed");
-        return NULL;
-    }
 
-    /* Now construct output array */
-    dims[0] = PyArray_DIM(arr,1);
-    dims[1] = PyArray_DIM(arr,0);
-    elsize = PyArray_ITEMSIZE(arr);
-    _Npy_INCREF(PyArray_DESCR(arr));
-    ret = NpyArray_NewFromDescr(PyArray_DESCR(arr),     /* TODO: Wrap array result */
-                                2, dims,
-                                NULL, NULL, 0, NPY_FALSE, NULL, arr);
-    if (ret == NULL) {
-        Py_DECREF(arr);
-        return NULL;
-    }
-
-    /* do 2-d loop */
-    NPY_BEGIN_ALLOW_THREADS;
-    optr = PyArray_DATA(ret);
-    str2 = elsize*dims[0];
-    for (i = 0; i < dims[0]; i++) {
-        iptr = PyArray_BYTES(arr) + i*elsize;
-        for (j = 0; j < dims[1]; j++) {
-            /* optr[i,j] = iptr[j,i] */
-            memcpy(optr, iptr, elsize);
-            optr += elsize;
-            iptr += str2;
-        }
-    }
-    NPY_END_ALLOW_THREADS;
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_CopyAndTranspose(PyArray_ARRAY(arr)));
     Py_DECREF(arr);
-    return ret;
-}
-
-/*
- * Implementation which is common between PyArray_Correlate and PyArray_Correlate2
- *
- * inverted is set to 1 if computed correlate(ap2, ap1), 0 otherwise
- */
-static PyArrayObject*
-_pyarray_correlate(PyArrayObject *ap1, PyArrayObject *ap2, int typenum,
-                   int mode, int *inverted)
-{
-    PyArrayObject *ret;
-    intp length;
-    intp i, n1, n2, n, n_left, n_right;
-    intp is1, is2, os;
-    char *ip1, *ip2, *op;
-    PyArray_DotFunc *dot;
-
-    NPY_BEGIN_THREADS_DEF;
-
-    n1 = PyArray_DIM(ap1, 0);
-    n2 = PyArray_DIM(ap2, 0);
-    if (n1 < n2) {
-        ret = ap1;
-        ap1 = ap2;
-        ap2 = ret;
-        ret = NULL;
-        i = n1;
-        n1 = n2;
-        n2 = i;
-        *inverted = 1;
-    } else {
-        *inverted = 0;
-    }
-
-    length = n1;
-    n = n2;
-    switch(mode) {
-    case 0:
-        length = length - n + 1;
-        n_left = n_right = 0;
-        break;
-    case 1:
-        n_left = (intp)(n/2);
-        n_right = n - n_left - 1;
-        break;
-    case 2:
-        n_right = n - 1;
-        n_left = n - 1;
-        length = length + n - 1;
-        break;
-    default:
-        PyErr_SetString(PyExc_ValueError, "mode must be 0, 1, or 2");
-        return NULL;
-    }
-
-    /*
-     * Need to choose an output array that can hold a sum
-     * -- use priority to determine which subtype.
-     */
-    ret = new_array_for_sum(ap1, ap2, 1, &length, typenum);
     if (ret == NULL) {
         return NULL;
     }
-    dot = PyArray_DESCR(ret)->f->dotfunc;
-    if (dot == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "function not available for this data type");
-        goto clean_ret;
-    }
-
-    NPY_BEGIN_THREADS_DESCR(PyArray_DESCR(ret));
-    is1 = PyArray_STRIDE(ap1, 0);
-    is2 = PyArray_STRIDE(ap2, 0);
-    op = PyArray_BYTES(ret);
-    os = PyArray_ITEMSIZE(ret);
-    ip1 = PyArray_BYTES(ap1);
-    ip2 = PyArray_BYTES(ap2) + n_left*is2;
-    n = n - n_left;
-    for (i = 0; i < n_left; i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        n++;
-        ip2 -= is2;
-        op += os;
-    }
-    for (i = 0; i < (n1 - n2 + 1); i++) {
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        ip1 += is1;
-        op += os;
-    }
-    for (i = 0; i < n_right; i++) {
-        n--;
-        dot(ip1, is1, ip2, is2, op, n, ret);
-        ip1 += is1;
-        op += os;
-    }
-
-    NPY_END_THREADS_DESCR(PyArray_DESCR(ret));
-    if (PyErr_Occurred()) {
-        goto clean_ret;
-    }
-
-    return ret;
-
-clean_ret:
-    Py_DECREF(ret);
-    return NULL;
+    return (PyObject *)ret;
 }
 
-/*
- * Revert a one dimensional array in-place
- *
- * Return 0 on success, other value on failure
- */
-static int
-_pyarray_revert(PyArrayObject *ret)
-{
-    intp length;
-    intp i;
-    PyArray_CopySwapFunc *copyswap;
-    char *tmp = NULL, *sw1, *sw2;
-    intp os;
-    char *op;
-
-    length = PyArray_DIM(ret, 0);
-    copyswap = PyArray_DESCR(ret)->f->copyswap;
-
-    tmp = PyArray_malloc(PyArray_ITEMSIZE(ret));
-    if (tmp == NULL) {
-        return -1;
-    }
-
-    os = PyArray_ITEMSIZE(ret);
-    op = PyArray_BYTES(ret);
-    sw1 = op;
-    sw2 = op + (length - 1) * os;
-    if (PyArray_ISFLEXIBLE(ret) || PyArray_ISOBJECT(ret)) {
-        for(i = 0; i < length/2; ++i) {
-            memmove(tmp, sw1, os);
-            copyswap(tmp, NULL, 0, NULL);
-            memmove(sw1, sw2, os);
-            copyswap(sw1, NULL, 0, NULL);
-            memmove(sw2, tmp, os);
-            copyswap(sw2, NULL, 0, NULL);
-            sw1 += os;
-            sw2 -= os;
-        }
-    } else {
-        for(i = 0; i < length/2; ++i) {
-            memcpy(tmp, sw1, os);
-            memcpy(sw1, sw2, os);
-            memcpy(sw2, tmp, os);
-            sw1 += os;
-            sw2 -= os;
-        }
-    }
-
-    PyArray_free(tmp);
-    return 0;
-}
 
 /*NUMPY_API
- * correlate(a1,a2,mode)
+ * correlate(a1, a2, mode)
  *
  * This function computes the usual correlation (correlate(a1, a2) !=
  * correlate(a2, a1), and conjugate the second argument for complex inputs
@@ -854,15 +560,13 @@ _pyarray_revert(PyArrayObject *ret)
 NPY_NO_EXPORT PyObject *
 PyArray_Correlate2(PyObject *op1, PyObject *op2, int mode)
 {
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2;
+    PyObject *ret = NULL;
     int typenum;
     PyArray_Descr *typec;
-    int inverted;
-    int st;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
-
     typec = PyArray_DescrFromType(typenum);
     Py_INCREF(typec);
     ap1 = (PyArrayObject *)PyArray_FromAny(op1, typec, 1, 1, DEFAULT, NULL);
@@ -872,62 +576,35 @@ PyArray_Correlate2(PyObject *op1, PyObject *op2, int mode)
     }
     ap2 = (PyArrayObject *)PyArray_FromAny(op2, typec, 1, 1, DEFAULT, NULL);
     if (ap2 == NULL) {
-        goto clean_ap1;
+        goto fail_clean_ap1;
     }
 
-    if (PyArray_ISCOMPLEX(ap2)) {
-        PyArrayObject *cap2;
-        cap2 = (PyArrayObject *)PyArray_Conjugate(ap2, NULL);
-        if (cap2 == NULL) {
-            goto clean_ap2;
-        }
-        Py_DECREF(ap2);
-        ap2 = cap2;
-    }
-
-    ret = _pyarray_correlate(ap1, ap2, typenum, mode, &inverted);
-    if (ret == NULL) {
-        goto clean_ap2;
-    }
-
-    /*
-     * If we inverted input orders, we need to reverse the output array (i.e.
-     * ret = ret[::-1])
-     */
-    if (inverted) {
-        st = _pyarray_revert(ret);
-        if(st) {
-            goto clean_ret;
-        }
-    }
-
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_Correlate2(PyArray_ARRAY(ap1),
+                                          PyArray_ARRAY(ap2), typenum, mode));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
-    return (PyObject *)ret;
+    return ret;
 
-clean_ret:
-    Py_DECREF(ret);
-clean_ap2:
-    Py_DECREF(ap2);
-clean_ap1:
+fail_clean_ap1:
     Py_DECREF(ap1);
     return NULL;
 }
 
+
 /*NUMPY_API
- * Numeric.correlate(a1,a2,mode)
+ * Numeric.correlate(a1, a2, mode)
  */
 NPY_NO_EXPORT PyObject *
 PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
 {
-    PyArrayObject *ap1, *ap2, *ret = NULL;
+    PyArrayObject *ap1, *ap2;
+    PyObject *ret = NULL;
     int typenum;
-    int unused;
     PyArray_Descr *typec;
 
     typenum = PyArray_ObjectType(op1, 0);
     typenum = PyArray_ObjectType(op2, typenum);
-
     typec = PyArray_DescrFromType(typenum);
     Py_INCREF(typec);
     ap1 = (PyArrayObject *)PyArray_FromAny(op1, typec, 1, 1, DEFAULT, NULL);
@@ -937,13 +614,13 @@ PyArray_Correlate(PyObject *op1, PyObject *op2, int mode)
     }
     ap2 = (PyArrayObject *)PyArray_FromAny(op2, typec, 1, 1, DEFAULT, NULL);
     if (ap2 == NULL) {
+        Py_DECREF(typec);
         goto fail;
     }
 
-    ret = _pyarray_correlate(ap1, ap2, typenum, mode, &unused);
-    if(ret == NULL) {
-        goto fail;
-    }
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_Correlate(PyArray_ARRAY(ap1),
+                                         PyArray_ARRAY(ap2), typenum, mode));
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return (PyObject *)ret;
@@ -970,6 +647,7 @@ array_putmask(PyObject *NPY_UNUSED(module), PyObject *args, PyObject *kwds)
     }
     return PyArray_PutMask((PyArrayObject *)array, values, mask);
 }
+
 
 /*NUMPY_API
  * Convert an object to FORTRAN / C / ANY
@@ -1013,13 +691,13 @@ PyArray_OrderConverter(PyObject *object, NPY_ORDER *val)
             *val = PyArray_ANYORDER;
         }
         else {
-            PyErr_SetString(PyExc_TypeError,
-                            "order not understood");
+            PyErr_SetString(PyExc_TypeError, "order not understood");
             return PY_FAIL;
         }
     }
     return PY_SUCCEED;
 }
+
 
 /*NUMPY_API
  * Convert an object to NPY_RAISE / NPY_CLIP / NPY_WRAP
@@ -1043,8 +721,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
             *val = NPY_RAISE;
         }
         else {
-            PyErr_SetString(PyExc_TypeError,
-                            "clipmode not understood");
+            PyErr_SetString(PyExc_TypeError, "clipmode not understood");
             return PY_FAIL;
         }
     }
@@ -1061,8 +738,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
         if (number == -1 && PyErr_Occurred()) {
             goto fail;
         }
-        if (number <= (int) NPY_RAISE
-                && number >= (int) NPY_CLIP) {
+        if (number <= (int) NPY_RAISE && number >= (int) NPY_CLIP) {
             *val = (NPY_CLIPMODE) number;
         }
         else {
@@ -1072,8 +748,7 @@ PyArray_ClipmodeConverter(PyObject *object, NPY_CLIPMODE *val)
     return PY_SUCCEED;
 
  fail:
-    PyErr_SetString(PyExc_TypeError,
-                    "clipmode not understood");
+    PyErr_SetString(PyExc_TypeError, "clipmode not understood");
     return PY_FAIL;
 }
 
@@ -1090,23 +765,14 @@ PyArray_EquivTypes(PyArray_Descr *typ1, PyArray_Descr *typ2)
 }
 
 
-
 /*NUMPY_API*/
 NPY_NO_EXPORT unsigned char
 PyArray_EquivTypenums(int typenum1, int typenum2)
 {
-    NpyArray_Descr *d1, *d2;
-    Bool ret;
-
-    d1 = NpyArray_DescrFromType(typenum1);
-    d2 = NpyArray_DescrFromType(typenum2);
-    ret = NpyArray_EquivTypes(d1, d2);
-    _Npy_DECREF(d1);
-    _Npy_DECREF(d2);
-    return ret;
+    return NpyArray_EquivTypenums(typenum1, typenum2);
 }
 
-/*** END C-API FUNCTIONS **/
+/*** END C-API FUNCTIONS (actually not quite, there are a few more below) ***/
 
 static PyObject *
 _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
@@ -1127,12 +793,15 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newstrides[i] = PyArray_STRIDE(arr, k);
     }
     _Npy_INCREF(PyArray_DESCR(arr));
-    ret = NpyArray_NewFromDescr(PyArray_DESCR(arr), ndmin,
-            newdims, newstrides, PyArray_BYTES(arr), PyArray_FLAGS(arr), 
-            NPY_FALSE, NULL, arr);
+    ASSIGN_TO_PYARRAY(ret, 
+                      NpyArray_NewFromDescr(PyArray_DESCR(arr), ndmin,
+                                            newdims, newstrides, 
+                                            PyArray_BYTES(arr), 
+                                            PyArray_FLAGS(arr), 
+                                            NPY_FALSE, NULL, arr));
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-    /*TODO: Npy_INCREF(PyArray_ARRAY(arr));
-      Py_DECREF(arr); */
+    _Npy_INCREF(PyArray_ARRAY(arr));
+    Py_DECREF(arr);
     assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
     return (PyObject *)ret;
 }
@@ -1607,26 +1276,15 @@ array__get_ndarray_c_version(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObje
     return PyInt_FromLong( (long) PyArray_GetNDArrayCVersion() );
 }
 
+
 /*NUMPY_API
 */
 NPY_NO_EXPORT int
 PyArray_GetEndianness(void)
 {
-    const union {
-        npy_uint32 i;
-        char c[4];
-    } bint = {0x01020304};
-
-    if (bint.c[0] == 1) {
-        return NPY_CPU_BIG;
-    }
-    else if (bint.c[0] == 4) {
-        return NPY_CPU_LITTLE;
-    }
-    else {
-        return NPY_CPU_UNKNOWN_ENDIAN;
-    }
+    return NpyArray_GetEndianness();
 }
+
 
 static PyObject *
 array__reconstruct(PyObject *NPY_UNUSED(dummy), PyObject *args)
@@ -1770,7 +1428,6 @@ PyArray_Where(PyObject *condition, PyObject *x, PyObject *y)
                 "either both or neither of x and y should be given");
         return NULL;
     }
-
 
     zero = PyInt_FromLong((long) 0);
     obj = PyArray_EnsureAnyArray(PyArray_GenericBinaryFunction(arr, zero,
@@ -2094,6 +1751,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     if (nargs == -1 || nargs > NPY_MAXARGS) {
         PyErr_Format(PyExc_ValueError,
                 "len(args) must be < %d", NPY_MAXARGS - 1);
+        Py_DECREF(type);
         goto err;
     }
 
@@ -2101,6 +1759,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     for (i = 1; i < nargs; i++) {
         PyObject* item = PySequence_GetItem(args, i-1);
         if (item == NULL) {
+            Py_DECREF(type);
             goto err;
         }
         broadcast_args[i] = item;
@@ -2109,6 +1768,7 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
     in_iter = (PyArrayMultiIterObject*)PyArray_MultiIterFromObjects
         (broadcast_args, nargs, 0);
     if (in_iter == NULL) {
+        Py_DECREF(type);
         goto err;
     }
     n = in_iter->iter->numiter;
@@ -2134,7 +1794,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
 
         for (i = 0; i < n; i++) {
             NpyArrayIterObject* it = in_iter->iter->iters[i];
-            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), it->ao);
+            PyObject* arg = PyArray_ToScalar(NpyArray_ITER_DATA(it), 
+                                             Npy_INTERFACE(it->ao));
             if (arg == NULL) {
                 goto err;
             }
@@ -2147,7 +1808,8 @@ _vec_string_with_args(PyArrayObject* char_array, PyArray_Descr* type,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, PyArray_ITER_DATA(out_iter), 
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                     "result array type does not match underlying function");
@@ -2190,6 +1852,7 @@ _vec_string_no_args(PyArrayObject* char_array,
 
     in_iter = NpyArray_IterNew(PyArray_ARRAY(char_array));
     if (in_iter == NULL) {
+        Py_DECREF(type);
         goto err;
     }
 
@@ -2207,7 +1870,7 @@ _vec_string_no_args(PyArrayObject* char_array,
     while (NpyArray_ITER_NOTDONE(in_iter)) {
         PyObject* item_result;
         PyObject* item = PyArray_ToScalar(in_iter->dataptr, 
-                                          in_iter->ao);
+                                          Npy_INTERFACE(in_iter->ao));
         if (item == NULL) {
             goto err;
         }
@@ -2218,7 +1881,8 @@ _vec_string_no_args(PyArrayObject* char_array,
             goto err;
         }
 
-        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), item_result)) {
+        if (PyArray_SETITEM(result, NpyArray_ITER_DATA(out_iter), 
+                            item_result)) {
             Py_DECREF(item_result);
             PyErr_SetString( PyExc_TypeError,
                 "result array type does not match underlying function");
@@ -2258,6 +1922,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
                 PyArray_Converter, &char_array,
                 PyArray_DescrConverter, &type,
                 &method_name, &args_seq)) {
+        Py_XDECREF(type);
         goto err;
     }
 
@@ -2270,9 +1935,11 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
     else {
         PyErr_SetString(PyExc_TypeError,
                 "string operation on non-string array");
+        Py_DECREF(type);
         goto err;
     }
     if (method == NULL) {
+        Py_DECREF(type);
         goto err;
     }
 
@@ -2284,6 +1951,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
         result = _vec_string_with_args(char_array, type, method, args_seq);
     }
     else {
+        Py_DECREF(type);
         PyErr_SetString(PyExc_TypeError,
                 "'args' must be a sequence of arguments");
         goto err;
@@ -2308,6 +1976,7 @@ _vec_string(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *kwds)
 
 SIGJMP_BUF _NPY_SIGINT_BUF;
 
+
 /*NUMPY_API
  */
 NPY_NO_EXPORT void
@@ -2316,6 +1985,7 @@ _PyArray_SigintHandler(int signum)
     PyOS_setsig(signum, SIG_IGN);
     SIGLONGJMP(_NPY_SIGINT_BUF, signum);
 }
+
 
 /*NUMPY_API
  */

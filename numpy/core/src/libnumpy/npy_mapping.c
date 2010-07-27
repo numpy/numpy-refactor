@@ -60,6 +60,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     assert(0 == mit->nob_refcnt);
     
     Npy_INTERFACE(mit) = NULL;
+    Py_XDECREF(mit->indexobj);
     _Npy_XDECREF(mit->ait);
     _Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {
@@ -143,7 +144,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
                 it = mit->iters[i];
                 NpyArray_ITER_NEXT(it);
                 j = mit->iteraxes[i];
-                copyswap(coord+j,it->dataptr, !PyArray_ISNOTSWAPPED(it->ao),
+                copyswap(coord+j,it->dataptr, !NpyArray_ISNOTSWAPPED(it->ao),
                          it->ao);
             }
             NpyArray_ITER_GOTO(mit->ait, coord);
@@ -156,7 +157,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
             it = mit->iters[i];
             NpyArray_ITER_NEXT(it);
             copyswap(coord+i,it->dataptr,
-                     !PyArray_ISNOTSWAPPED(it->ao),
+                     !NpyArray_ISNOTSWAPPED(it->ao),
                      it->ao);
         }
         NpyArray_ITER_GOTO(mit->ait, coord);
@@ -165,3 +166,37 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
     return;
 }
 
+/*
+ * Indexes the first dimenstion of the array and returns the
+ * item as an array. 
+ */
+NpyArray *
+NpyArray_ArrayItem(NpyArray *self, npy_intp i)
+{
+    char *item;
+    NpyArray *r;
+
+    if(NpyArray_NDIM(self) == 0) {
+        NpyErr_SetString(NpyExc_IndexError,
+                        "0-d arrays can't be indexed");
+        return NULL;
+    }
+    if ((item = NpyArray_Index2Ptr(self, i)) == NULL) {
+        return NULL;
+    }
+    _Npy_INCREF(NpyArray_DESCR(self));
+    r = NpyArray_NewFromDescr(NpyArray_DESCR(self),
+                              NpyArray_NDIM(self)-1,
+                              NpyArray_DIMS(self)+1,
+                              NpyArray_STRIDES(self)+1, item,
+                              NpyArray_FLAGS(self),
+                              NPY_FALSE, NULL, Npy_INTERFACE(self));
+    if (r == NULL) {
+        return NULL;
+    }
+    NpyArray_BASE_ARRAY(r) = self;
+    _Npy_INCREF(self); 
+    assert(r->base_obj == NULL);
+    NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
+    return r;
+}

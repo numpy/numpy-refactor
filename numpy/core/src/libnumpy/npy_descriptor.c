@@ -52,13 +52,13 @@ NpyArray_DescrNewFromType(int type_num)
 /** Array Descr Objects for dynamic types **/
 
 /*
- * There are some statically-defined PyArray_Descr objects corresponding
+ * There are some statically-defined NpyArray_Descr objects corresponding
  * to the basic built-in types.
  * These can and should be DECREF'd and INCREF'd as appropriate, anyway.
  * If a mistake is made in reference counting, deallocation on these
  * builtins will be attempted leading to problems.
  *
- * This let's us deal with all PyArray_Descr objects using reference
+ * This let's us deal with all NpyArray_Descr objects using reference
  * counting (regardless of whether they are statically or dynamically
  * allocated).
  */
@@ -208,7 +208,7 @@ NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
            NPY_VALID_MAGIC == ap->magic_number && 
            (NULL == mintype || NPY_VALID_MAGIC == mintype->magic_number));
     
-    chktype = PyArray_DESCR(ap);
+    chktype = NpyArray_DESCR(ap);
     _Npy_INCREF(chktype);
     if (mintype == NULL) {
         return chktype;

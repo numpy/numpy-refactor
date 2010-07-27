@@ -16,6 +16,7 @@
 #include "scalartypes.h"
 #include "mapping.h"
 #include "ctors.h"
+#include "arrayobject.h"
 
 
 #include "convert_datatype.h"
@@ -34,12 +35,10 @@ PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype);
 NPY_NO_EXPORT PyObject *
 PyArray_CastToType(PyArrayObject *mp, PyArray_Descr *at, int fortran)
 {
-    /* Steal a refernce to the interface object and move it to the core since that's what will
-       be held. */
-    _Npy_INCREF(at->descr);
-    Py_DECREF(at);
+    NpyArray_Descr *atCore;    
+    PyArray_Descr_REF_TO_CORE(at, atCore);
     
-    return (PyObject *)NpyArray_CastToType(PyArray_ARRAY(mp), at->descr, fortran);
+    RETURN_PYARRAY(NpyArray_CastToType(PyArray_ARRAY(mp), atCore, fortran));
 }
 
 
@@ -190,7 +189,7 @@ PyArray_Zero(PyArrayObject *arr)
     }
     storeflags = PyArray_FLAGS(arr);
     PyArray_FLAGS(arr) |= BEHAVED;
-    ret = PyArray_DESCR(arr)->f->setitem(obj, zeroval, arr);
+    ret = PyArray_DESCR(arr)->f->setitem(obj, zeroval, PyArray_ARRAY(arr));
     PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {
@@ -228,7 +227,7 @@ PyArray_One(PyArrayObject *arr)
 
     storeflags = PyArray_FLAGS(arr);
     PyArray_FLAGS(arr) |= BEHAVED;
-    ret = PyArray_DESCR(arr)->f->setitem(obj, oneval, arr);
+    ret = PyArray_DESCR(arr)->f->setitem(obj, oneval, PyArray_ARRAY(arr));
     PyArray_FLAGS(arr) = storeflags;
     Py_DECREF(obj);
     if (ret < 0) {

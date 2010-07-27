@@ -1,8 +1,10 @@
 
+
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include "npy_config.h"
+#include "numpy/npy_object.h"
 #include "numpy/numpy_api.h"
 
 static int
@@ -73,13 +75,16 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
             return -1;
         }
 
+        /* TODO: This isn't right for usage from C.  I think we
+           need to revisit the refcounts so we don't have counts
+           of 0. */
         if (refcheck) {
-            refcnt = NpyArray_REFCOUNT(self);
+            refcnt = self->nob_refcnt;
         }
         else {
-            refcnt = 1;
+            refcnt = 0;
         }
-        if ((refcnt > 2)
+        if ((refcnt > 0)
             || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
                     "cannot resize an array references or is referenced\n"\
@@ -156,7 +161,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
     int flags;
 
     if (fortran == NPY_ANYORDER) {
-        fortran = PyArray_ISFORTRAN(self);
+        fortran = NpyArray_ISFORTRAN(self);
     }
     /*  Quick check to make sure anything actually needs to be done */
     if (n == self->nd) {
@@ -192,7 +197,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
          * we are really re-shaping not just adding ones to the shape somewhere
          * fix any -1 dimensions and check new-dimensions against old size
          */
-        if (_fix_unknown_dimension(newdims, PyArray_SIZE(self)) < 0) {
+        if (_fix_unknown_dimension(newdims, NpyArray_SIZE(self)) < 0) {
             return NULL;
         }
         /*
@@ -272,13 +277,14 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
                                 n, dimensions,
                                 strides,
                                 self->data,
-                                flags, NPY_FALSE, NULL, self);
+                                flags, NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
 
     if (ret == NULL) {
         goto fail;
     }
     if (incref) {
-        Npy_INCREF(self);
+        _Npy_INCREF(self);
     }
     ret->base_arr = self;
     NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
@@ -287,7 +293,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
 
  fail:
     if (!incref) {
-        Npy_DECREF(self);
+        _Npy_DECREF(self);
     }
     return NULL;
 }
@@ -309,7 +315,7 @@ NpyArray_Squeeze(NpyArray *self)
     NpyArray *ret;
 
     if (nd == 0) {
-        Npy_INCREF(self);
+        _Npy_INCREF(self);
         return self;
     }
     for (j = 0, i = 0; i < nd; i++) {
@@ -327,13 +333,14 @@ NpyArray_Squeeze(NpyArray *self)
                                 newnd, dimensions,
                                 strides, self->data,
                                 self->flags,
-                                NPY_FALSE, NULL, self);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(self));
     if (ret == NULL) {
         return NULL;
     }
-    PyArray_FLAGS(ret) &= ~NPY_OWNDATA;
+    NpyArray_FLAGS(ret) &= ~NPY_OWNDATA;
     ret->base_arr = self;
-    Npy_INCREF(self);
+    _Npy_INCREF(self);
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
     return ret;
 }
@@ -350,13 +357,13 @@ NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
     NpyArray *ret;
 
     if (a1 == a2) {
-        Npy_INCREF(ap);
+        _Npy_INCREF(ap);
         return ap;
     }
 
     n = ap->nd;
     if (n <= 1) {
-        Npy_INCREF(ap);
+        _Npy_INCREF(ap);
         return ap;
     }
 
@@ -453,21 +460,22 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
     ret = NpyArray_NewFromDescr(ap->descr,
                                 n, ap->dimensions,
                                 NULL, ap->data, ap->flags,
-                                NPY_FALSE, NULL, ap);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(ap));
     if (ret == NULL) {
         return NULL;
     }
     /* point at true owner of memory: */
     ret->base_arr = ap;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    Npy_INCREF(ap);
+    _Npy_INCREF(ap);
 
     /* fix the dimensions and strides of the return-array */
     for (i = 0; i < n; i++) {
         ret->dimensions[i] = ap->dimensions[permutation[i]];
         ret->strides[i] = ap->strides[permutation[i]];
     }
-    PyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
+    NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
     return ret;
 }
 
@@ -486,10 +494,10 @@ NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran)
     }
     newdim.ptr = val;
     if (!fortran && NpyArray_ISCONTIGUOUS(a)) {
-        return NpyArray_Newshape(a, &newdim, PyArray_CORDER);
+        return NpyArray_Newshape(a, &newdim, NPY_CORDER);
     }
-    else if (fortran && PyArray_ISFORTRAN(a)) {
-        return NpyArray_Newshape(a, &newdim, PyArray_FORTRANORDER);
+    else if (fortran && NpyArray_ISFORTRAN(a)) {
+        return NpyArray_Newshape(a, &newdim, NPY_FORTRANORDER);
     }
     else {
         return NpyArray_Flatten(a, fortran);
@@ -515,14 +523,14 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
                                 NULL,
                                 NULL,
                                 0, 
-                                NPY_FALSE, NULL, a);
+                                NPY_FALSE, NULL, 
+                                Npy_INTERFACE(a));
 
     if (ret == NULL) {
         return NULL;
     }
-    /* XXX: We will need to move _flat_copyinto. */
     if (_flat_copyinto(ret, a, order) < 0) {
-        Npy_DECREF(ret);
+        _Npy_DECREF(ret);
         return NULL;
     }
     return ret;

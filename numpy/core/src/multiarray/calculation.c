@@ -14,6 +14,7 @@
 #include "common.h"
 #include "number.h"
 #include "ctors.h"
+#include "arrayobject.h"
 
 #include "calculation.h"
 
@@ -49,7 +50,8 @@ power_of_ten(int n)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 {
-    return (PyObject *)NpyArray_ArgMax( (NpyArray *)op, axis, (NpyArray *)out );
+    RETURN_PYARRAY(NpyArray_ArgMax(PyArray_ARRAY(op), axis, 
+                                   PyArray_ARRAY(out)));
 }
 
 /*NUMPY_API
@@ -58,10 +60,31 @@ PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMin(PyArrayObject *ap, int axis, PyArrayObject *out)
 {
-    return (PyObject *) NpyArray_ArgMin(PyArray_ARRAY(ap), axis, 
-                                        PyArray_ARRAY(out));
-}
+    PyObject *obj, *new, *ret;
 
+    if (PyArray_ISFLEXIBLE(ap)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "argmax is unsupported for this type");
+        return NULL;
+    }
+    else if (PyArray_ISUNSIGNED(ap)) {
+        obj = PyInt_FromLong((long) -1);
+    }
+    else if (PyArray_TYPE(ap) == PyArray_BOOL) {
+        obj = PyInt_FromLong((long) 1);
+    }
+    else {
+        obj = PyInt_FromLong((long) 0);
+    }
+    new = PyArray_EnsureAnyArray(PyNumber_Subtract(obj, (PyObject *)ap));
+    Py_DECREF(obj);
+    if (new == NULL) {
+        return NULL;
+    }
+    ret = PyArray_ArgMax((PyArrayObject *)new, axis, out);
+    Py_DECREF(new);
+    return ret;
+}
 
 
 /*NUMPY_API
@@ -801,7 +824,8 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
             flags = NPY_CARRAY;
         }
         _Npy_INCREF(indescr);
-        newin = (NPY_AO *)NpyArray_FromArray(self, indescr, flags);
+        ASSIGN_TO_PYARRAY(newin, 
+                          NpyArray_FromArray(PyArray_ARRAY(self), indescr, flags));
         if (newin == NULL) {
             goto fail;
         }
@@ -834,11 +858,12 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
      */
     if (out == NULL) {
         _Npy_INCREF(indescr);
-        out = (NPY_AO*)NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
-                                             PyArray_DIMS(self),
-                                             NULL, NULL,
-                                             PyArray_ISFORTRAN(self),
-                                             NPY_FALSE, Py_TYPE(self), self);
+        ASSIGN_TO_PYARRAY(out, 
+            NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
+                                  PyArray_DIMS(self),
+                                  NULL, NULL,
+                                  PyArray_ISFORTRAN(self),
+                                  NPY_FALSE, Py_TYPE(self), self));
         if (out == NULL) {
             goto fail;
         }
@@ -867,7 +892,8 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
             oflags = NPY_CARRAY;
         oflags |= NPY_UPDATEIFCOPY | NPY_FORCECAST;
         _Npy_INCREF(indescr);
-        newout = (NPY_AO*)NpyArray_FromArray(out, indescr, oflags);
+        ASSIGN_TO_PYARRAY(newout,
+                          NpyArray_FromArray(PyArray_ARRAY(out), indescr, oflags));
         if (newout == NULL) {
             goto fail;
         }

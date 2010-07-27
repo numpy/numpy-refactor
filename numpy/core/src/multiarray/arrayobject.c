@@ -73,7 +73,7 @@ PyArray_DescrFromType(int type)
 NPY_NO_EXPORT intp
 PyArray_Size(PyObject *op)
 {
-    return PyArray_Check(op) ? NpyArray_Size((NpyArray*)op) : 0;
+    return PyArray_Check(op) ? NpyArray_Size(PyArray_ARRAY(op)) : 0;
 }
 
 /*NUMPY_API*/
@@ -117,9 +117,9 @@ PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
     else {
         /* TODO: Once array is split we can probably drop the PyObject wrapper here */
         NpyArray_Descr* dtype;
-        dtype = dest->descr;
+        dtype = PyArray_ARRAY(dest)->descr;
         _Npy_INCREF(dtype);
-        src = PyArray_FromAnyUnwrap(src_object, dtype, 0,       /* TODO: Wrap array return */
+        src = (PyArrayObject *)PyArray_FromAnyUnwrap(src_object, dtype, 0,
                                     PyArray_NDIM(dest),
                                     FORTRAN_IF(dest),
                                     NULL);
@@ -186,15 +186,15 @@ array_dealloc(PyArrayObject *self) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
     
-    /* TODO: Unwrap self into the array */
     NpyArray_dealloc(PyArray_ARRAY(self));
+    (*self->ob_type->tp_free)(self);
 }
 
 static int
 dump_data(char **string, int *n, int *max_n, char *data, int nd,
           intp *dimensions, intp *strides, PyArrayObject* self)
 {
-    NpyArray_Descr *descr=self->descr;       
+    NpyArray_Descr *descr = PyArray_ARRAY(self)->descr;       
     PyObject *op, *sp;
     char *ostring;
     intp i, N;
@@ -205,7 +205,7 @@ dump_data(char **string, int *n, int *max_n, char *data, int nd,
     }} while (0)
 
     if (nd == 0) {
-        if ((op = descr->f->getitem(data, self)) == NULL) {
+        if ((op = descr->f->getitem(data, PyArray_ARRAY(self))) == NULL) {
             return -1;
         }
         sp = PyObject_Repr(op);
@@ -730,7 +730,9 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
     /* Broad-cast the arrays to a common shape */
-    mit = NpyArray_MultiIterFromArrays(NULL, 0, 2, self, other);
+    mit = NpyArray_MultiIterFromArrays(NULL, 0, 2, 
+                                       PyArray_ARRAY(self), 
+                                       PyArray_ARRAY(other));
     Py_DECREF(self);
     Py_DECREF(other);
     if (mit == NULL) {
@@ -781,7 +783,7 @@ _void_compare(PyArrayObject *self, PyArrayObject *other, int cmp_op)
                 "Void-arrays can only be compared for equality.");
         return NULL;
     }
-    if (NpyArray_HASFIELDS(self)) {
+    if (NpyArray_HASFIELDS(PyArray_ARRAY(self))) {
         const char *key;
         NpyArray_DescrField *value;
         PyObject *res = NULL, *temp, *a, *b;
@@ -897,8 +899,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool
-                (PyArray_Descr_WRAP( PyArray_DESCR(self) ),
-                 PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
+                ((PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                 (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                  Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
@@ -962,8 +964,8 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
             int _res;
 
             _res = PyObject_RichCompareBool(
-                    PyArray_Descr_WRAP( PyArray_DESCR(self) ),
-                    PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
+                    (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(self) ),
+                    (PyObject *)PyArray_Descr_WRAP( PyArray_DESCR(array_other) ),
                     Py_EQ);
             if (_res < 0) {
                 Py_DECREF(result);
@@ -1021,7 +1023,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
 NPY_NO_EXPORT int
 PyArray_ElementStrides(PyObject *arr)
 {
-    return NpyArray_ElementStrides((NpyArray*)arr);
+    return NpyArray_ElementStrides(PyArray_ARRAY(arr));
 }
 
 /*
@@ -1181,8 +1183,8 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
         
         /* TODO: This will be an issue.  Probably need to split buffer.base or we have to unwrap it. */
         if (PyArray_Check(buffer.base)) {
-            PyArray_BASE_ARRAY(ret) = (NpyArray *)buffer.base;
-            Npy_INCREF(PyArray_BASE_ARRAY(ret));
+            PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(buffer.base);
+            _Npy_INCREF(PyArray_BASE_ARRAY(ret));
         } else {
             PyArray_BASE(ret) = buffer.base;
             Py_INCREF(buffer.base);

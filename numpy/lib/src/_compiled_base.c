@@ -294,7 +294,7 @@ arr_insert(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
         goto fail;
     }
     /* Cast an object array */
-    if (amask->descr->type_num == PyArray_OBJECT) {
+    if (PyArray_TYPE(amask) == PyArray_OBJECT) {
         tmp = (PyArrayObject *)PyArray_Cast(amask, PyArray_INTP);
         if (tmp == NULL) {
             goto fail;
@@ -304,16 +304,16 @@ arr_insert(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
     }
 
     sameshape = 1;
-    if (amask->nd == ainput->nd) {
-        for (k = 0; k < amask->nd; k++) {
-            if (amask->dimensions[k] != ainput->dimensions[k]) {
+    if (PyArray_NDIM(amask) == PyArray_NDIM(ainput)) {
+        for (k = 0; k < PyArray_NDIM(amask); k++) {
+            if (PyArray_DIM(amask, k) != PyArray_DIM(ainput, k)) {
                 sameshape = 0;
             }
         }
     }
     else {
         /* Test to see if amask is 1d */
-        if (amask->nd != 1) {
+        if (PyArray_NDIM(amask) != 1) {
             sameshape = 0;
         }
         else if ((PyArray_SIZE(ainput)) != PyArray_SIZE(amask)) {
@@ -326,22 +326,23 @@ arr_insert(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
         goto fail;
     }
 
-    avals = (PyArrayObject *)PyArray_FromObject(vals, ainput->descr->type_num, 0, 1);
+    avals = (PyArrayObject *)PyArray_FromObject(vals, PyArray_TYPE(ainput), 
+                                                0, 1);
     if (avals == NULL) {
         goto fail;
     }
     numvals = PyArray_SIZE(avals);
-    nd = ainput->nd;
-    input_data = ainput->data;
-    mptr = amask->data;
-    melsize = amask->descr->elsize;
-    vptr = avals->data;
-    delsize = avals->descr->elsize;
+    nd = PyArray_NDIM(ainput);
+    input_data = PyArray_BYTES(ainput);
+    mptr = PyArray_BYTES(amask);
+    melsize = PyArray_ITEMSIZE(amask);
+    vptr = PyArray_BYTES(avals);
+    delsize = PyArray_ITEMSIZE(avals);
     zero = PyArray_Zero(amask);
     if (zero == NULL) {
         goto fail;
     }
-    objarray = (ainput->descr->type_num == PyArray_OBJECT);
+    objarray = (PyArray_TYPE(ainput) == PyArray_OBJECT);
 
     /* Handle zero-dimensional case separately */
     if (nd == 0) {
@@ -367,8 +368,8 @@ arr_insert(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
      */
     totmask = (int) PyArray_SIZE(amask);
     copied = 0;
-    instrides = ainput->strides;
-    inshape = ainput->dimensions;
+    instrides = PyArray_STRIDES(ainput);
+    inshape = PyArray_DIMS(ainput);
     for (mindx = 0; mindx < totmask; mindx++) {
         if (memcmp(mptr,zero,melsize) != 0) {
             /* compute indx into input array */
@@ -389,7 +390,7 @@ arr_insert(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
             copied += 1;
             /* If we move past value data.  Reset */
             if (copied >= numvals) {
-                vptr = avals->data;
+                vptr = PyArray_BYTES(avals);
             }
         }
         mptr += melsize;
@@ -475,19 +476,20 @@ arr_interp(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwdict)
     if (ax == NULL) {
         goto fail;
     }
-    lenxp = axp->dimensions[0];
+    lenxp = PyArray_DIM(axp, 0);
     if (lenxp == 0) {
         PyErr_SetString(PyExc_ValueError,
                 "array of sample points is empty");
         goto fail;
     }
-    if (afp->dimensions[0] != lenxp) {
+    if (PyArray_DIM(afp, 0) != lenxp) {
         PyErr_SetString(PyExc_ValueError,
                 "fp and xp are not of the same length.");
         goto fail;
     }
 
-    af = (NPY_AO*)PyArray_SimpleNew(ax->nd, ax->dimensions, NPY_DOUBLE);
+    af = (NPY_AO*)PyArray_SimpleNew(PyArray_NDIM(ax), PyArray_DIMS(ax), 
+                                    NPY_DOUBLE);
     if (af == NULL) {
         goto fail;
     }

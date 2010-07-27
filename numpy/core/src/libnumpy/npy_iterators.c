@@ -48,7 +48,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
     else {
         it->contiguous = 0;
     }
-    Npy_INCREF(ao);
+    _Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_SIZE(ao);
     it->nd_m1 = nd - 1;
@@ -78,7 +78,7 @@ static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
     Npy_INTERFACE(it) = NULL;
-    Npy_XDECREF(it->ao);
+    _Npy_XDECREF(it->ao);
     it->magic_number = NPY_INVALID_MAGIC;
 }
 
@@ -151,7 +151,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     else {
         it->contiguous = 0;
     }
-    Npy_INCREF(ao);
+    _Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_MultiplyList(dims, nd);
     it->nd_m1 = nd - 1;
@@ -433,10 +433,6 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         }
         else {
             current = va_arg(va, NpyArray *);
-            if (!PyArray_Check(current)) {
-                err = 1;
-                break;
-            }
         }
         multi->iters[i] = NpyArray_IterNew(current);
     }
@@ -507,39 +503,6 @@ NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
 
 
 /*========================= Neighborhood iterator ======================*/
-
-static char* _set_constant(NpyArrayNeighborhoodIterObject* iter,
-                           NpyArray *fill)
-{
-    char *ret;
-    NpyArrayIterObject *ar = iter->_internal_iter;
-    int storeflags, st;
-    
-    ret = (char *)NpyArray_malloc(ar->ao->descr->elsize);
-    if (ret == NULL) {
-        NpyErr_SetNone(NpyExc_MemoryError);
-        return NULL;
-    }
-    
-    if (NpyArray_ISOBJECT(ar->ao)) {                /* TODO: Double check this case, memcpy of a pointer? Is ISOBJECT still correct? */
-        memcpy(ret, fill->data, sizeof(PyObject*));
-        Npy_Interface_INCREF(*(PyObject**)ret);     /* TODO: What are the possible object types for ret? */
-    } else {
-        /* Non-object types */
-        
-        storeflags = ar->ao->flags;
-        ar->ao->flags |= NPY_BEHAVED;
-        st = ar->ao->descr->f->setitem((PyObject*)fill, ret, ar->ao);
-        ar->ao->flags = storeflags;
-        
-        if (st < 0) {
-            NpyArray_free(ret);
-            return NULL;
-        }
-    }
-    
-    return ret;
-}
 
 #define _INF_SET_PTR(c) \
 bd = coordinates[c] + p->coordinates[c]; \
@@ -665,14 +628,14 @@ get_ptr_circular(NpyArrayIterObject* _iter, npy_intp *coordinates)
  */
 NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
-                             int mode, NpyArray *fill)
+                             int mode, void* fill, npy_free_func fillfree)
 {
     int i;
-    NpyArrayNeighborhoodIterObject *ret;
+    NpyArrayNeighborhoodIterObject *ret = NULL;
 
     ret = NpyArray_malloc(sizeof(*ret));
     if (ret == NULL) {
-        return NULL;
+        goto fail;
     }
     _NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
@@ -708,42 +671,26 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
         ret->dimensions[i] - 1;
         ret->limits_sizes[i] = (ret->limits[i][1] - ret->limits[i][0]) + 1;
     }
+
+    ret->constant = fill;
+    ret->constant_free = fillfree;
+    ret->mode = mode;
     
     switch (mode) {
-        case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
-            ret->constant = PyArray_Zero(x->ao);
-            ret->mode = mode;
-            ret->translate = &get_ptr_constant;
-            break;
-        case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
-            ret->constant = PyArray_One(x->ao);
-            ret->mode = mode;
-            ret->translate = &get_ptr_constant;
-            break;
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
-            /* New reference in returned value of _set_constant if array
-             * object */
-            assert(NpyArray_EquivArrTypes(x->ao, fill) == NPY_TRUE);
-            ret->constant = _set_constant(ret, fill);
-            if (ret->constant == NULL) {
-                goto clean_x;
-            }
-            ret->mode = mode;
             ret->translate = &get_ptr_constant;
             break;
         case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
-            ret->mode = mode;
-            ret->constant = NULL;
             ret->translate = &get_ptr_mirror;
             break;
         case NPY_NEIGHBORHOOD_ITER_CIRCULAR_PADDING:
-            ret->mode = mode;
-            ret->constant = NULL;
             ret->translate = &get_ptr_circular;
             break;
+        case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
+        case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
         default:
             NpyErr_SetString(NpyExc_ValueError, "Unsupported padding mode");
-            goto clean_x;
+            goto fail;
     }
     
     /*
@@ -754,6 +701,9 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     
     NpyArrayNeighborhoodIter_Reset(ret);
     if (NPY_FALSE == NpyInterface_NeighborhoodIterNewWrapper(ret, &ret->nob_interface)) {
+        if (fill && fillfree) {
+            (*fillfree)(fill);
+        }
         Npy_INTERFACE(ret) = NULL;
         _Npy_DECREF(ret);
         return NULL;
@@ -761,9 +711,14 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
 
     return ret;
     
-clean_x:
-    _Npy_DECREF(ret->_internal_iter);
-    /* TODO: Free ret here once we add a level of indirection */
+ fail:
+    if (fill && fillfree) {
+        (*fillfree)(fill);
+    }
+    if (ret) {
+        _Npy_DECREF(ret->_internal_iter);
+        /* TODO: Free ret here once we add a level of indirection */
+    }
     return NULL;
 }
 
@@ -773,14 +728,15 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 
     if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
         /* TODO: fix when we split the array object.*/
-        if (PyArray_ISOBJECT(iter->_internal_iter->ao)) {
+        if (NpyArray_ISOBJECT(iter->_internal_iter->ao)) {
             Py_DECREF(*(PyObject**)iter->constant);
         }
     }
-    if (iter->constant != NULL) {
-        PyDataMem_FREE(iter->constant);
-    }
     _Npy_DECREF(iter->_internal_iter);
+
+    if (iter->constant && iter->constant_free) {
+        (*iter->constant_free)(iter->constant);
+    }
 
     array_iter_base_dealloc((NpyArrayIterObject*)iter);
     NpyArray_free(iter);

@@ -1336,7 +1336,7 @@ voidtype_setfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
         }
         typecode->descr->f->copyswap(dptr, PyArray_DATA(src),
                 !NpyArray_ISNBO(self->descr->descr->byteorder),
-                src);
+                PyArray_ARRAY(src));
         Py_DECREF(src);
     }
     Py_INCREF(Py_None);
@@ -3459,7 +3459,7 @@ _typenum_fromtypeobj(PyObject *type, int user)
         return typenum;
     }
     /* Search any registered types */
-    utypenum = PyArray_TypeNumFromTypeObj((PyArray_Descr *)type);
+    utypenum = PyArray_TypeNumFromTypeObj((PyTypeObject *)type);
     if (utypenum != NPY_NOTYPE) {
         typenum = utypenum;
     }

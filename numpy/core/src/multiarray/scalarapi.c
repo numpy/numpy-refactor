@@ -4,7 +4,6 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
-#include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "numpy/numpy_api.h"
 
@@ -17,22 +16,13 @@
 #include "ctors.h"
 #include "descriptor.h"
 #include "scalartypes.h"
+#include "arrayobject.h"
 
 #include "common.h"
 
 #define ASSERT_ONE_BASE(r) \
     assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
 
-#define SET_BASE(a, b)                                  \
-    do {                                                \
-        if (PyArray_Check(b)) {                         \
-            PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
-            Npy_INCREF(PyArray_BASE_ARRAY(a));         \
-        } else {                                        \
-            PyArray_BASE(a) = (PyObject*) b;            \
-            Py_INCREF(b);                               \
-        }                                               \
-    } while(0)
 
 
 NPY_NO_EXPORT NpyArray_Descr *
@@ -247,7 +237,8 @@ PyArray_CastScalarToCtype(PyObject *scalar, void *ctypeptr,
             Py_DECREF(ain);
             return -1;
         }
-        castfunc(PyArray_BYTES(ain), PyArray_BYTES(aout), 1, ain, aout);
+        castfunc(PyArray_BYTES(ain), PyArray_BYTES(aout), 1, 
+                 PyArray_ARRAY(ain), PyArray_ARRAY(aout));
         Py_DECREF(ain);
         Py_DECREF(aout);
     }
@@ -285,13 +276,13 @@ PyArray_CastScalarDirect(PyObject *scalar, PyArray_Descr *indescr,
  *
  * steals reference to outcode
  */
-NPY_NO_EXPORT PyObject *
+NPY_NO_EXPORT NpyArray *
 PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
 {
     NpyArray_Descr *typecode;
-    PyArrayObject *r;
+    NpyArray *r;
+    NpyArray *ret = NULL;
     char *memptr;
-    PyObject *ret;
 
     /* convert to 0-dim array of scalar typecode */
     typecode = PyArray_DescrFromScalarUnwrap(scalar);
@@ -299,27 +290,34 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
     if ((typecode->type_num == NPY_VOID) &&
             !(((PyVoidScalarObject *)scalar)->flags & OWNDATA) &&
             outcode == NULL) {
-        r = NpyArray_NewFromDescr(typecode,            /* TODO: Wrap array return */
-                0, NULL, NULL,
-                ((PyVoidScalarObject *)scalar)->obval,
-                ((PyVoidScalarObject *)scalar)->flags,
-                NPY_TRUE, NULL, NULL);
+        r = NpyArray_NewFromDescr(typecode,
+                                  0, NULL, NULL,
+                                  ((PyVoidScalarObject *)scalar)->obval,
+                                  ((PyVoidScalarObject *)scalar)->flags,
+                                  NPY_TRUE, NULL, NULL);
 
-        SET_BASE(r, scalar);
-        ASSERT_ONE_BASE(r);
-        return (PyObject *)r;
+        if (PyArray_Check(scalar)) {
+            r->base_arr = PyArray_ARRAY(scalar);
+            _Npy_INCREF(PyArray_BASE_ARRAY(r->base_arr));
+        } else {
+            r->base_obj = scalar;
+            Py_INCREF(scalar);
+        }
+        assert(NULL == r->base_obj || NULL == r->base_arr);
+        return r;
     }
 
-    r = NpyArray_NewFromDescr(typecode,            /* TODO: Wrap array return */
-            0, NULL,
-            NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_NewFromDescr(typecode,
+                              0, NULL,
+                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
     if (r==NULL) {
         _Npy_XDECREF(outcode);
         return NULL;
     }
     if (NpyDataType_FLAGCHK(typecode, NPY_USE_SETITEM)) {
-        if (typecode->f->setitem(scalar, PyArray_DATA(r), r) < 0) {
-            _Npy_XDECREF(outcode); Py_DECREF(r);
+        if (typecode->f->setitem(scalar, NpyArray_DATA(r), r) < 0) {
+            _Npy_XDECREF(outcode); 
+            _Npy_DECREF(r);
             return NULL;
         }
         goto finish;
@@ -330,14 +328,14 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
 #ifndef Py_UNICODE_WIDE
     if (typecode->type_num == NPY_UNICODE) {
         PyUCS2Buffer_AsUCS4((Py_UNICODE *)memptr,
-                (PyArray_UCS4 *)PyArray_DATA(r),
+                (PyArray_UCS4 *)NpyArray_DATA(r),
                 PyUnicode_GET_SIZE(scalar),
-                PyArray_ITEMSIZE(r) >> 2);
+                NpyArray_ITEMSIZE(r) >> 2);
     }
     else
 #endif
     {
-        memcpy(PyArray_DATA(r), memptr, PyArray_ITEMSIZE(r));
+        memcpy(NpyArray_DATA(r), memptr, NpyArray_ITEMSIZE(r));
         if (NpyDataType_FLAGCHK(typecode, NPY_ITEM_HASOBJECT)) {
             /* Need to INCREF just the PyObject portion */
             NpyArray_Item_INCREF(memptr, typecode);
@@ -346,20 +344,20 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
 
 finish:
     if (outcode == NULL) {
-        return (PyObject *)r;
+        return r;
     }
     if (outcode->type_num == typecode->type_num) {
         if (!NpyTypeNum_ISEXTENDED(typecode->type_num)
                 || (outcode->elsize == typecode->elsize)) {
             _Npy_DECREF(outcode);
-            return (PyObject *)r;
+            return r;
         }
     }
 
     /* cast if necessary to desired output typecode */
-    ret = NpyArray_CastToType(PyArray_ARRAY(r), outcode, 0);
-    Py_DECREF(r);
-    return ret;
+    ret = NpyArray_CastToType(r, outcode, 0);
+    _Npy_DECREF(r);
+    return r;
 }
 
 
@@ -377,11 +375,13 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromScalar(PyObject *scalar, PyArray_Descr *outcode)
 {
     NpyArray_Descr *outcodeCore;
+    PyArrayObject *array;
     
     /* Move reference to core object. */
     PyArray_Descr_REF_TO_CORE(outcode, outcodeCore);
     
-    return PyArray_FromScalarUnwrap(scalar, outcodeCore);
+    ASSIGN_TO_PYARRAY(array, PyArray_FromScalarUnwrap(scalar, outcodeCore));
+    return (PyObject *)array;
 }
 
 
@@ -700,8 +700,8 @@ PyArray_TypeObjectFromType(int type)
 
 /* Does nothing with descr (cannot be NULL) */
 /*NUMPY_API
-  Get scalar-equivalent to a region of memory described by a descriptor.
-*/
+ * Get scalar-equivalent to a region of memory described by a descriptor.
+ */
 NPY_NO_EXPORT PyObject *
 PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
 {
@@ -718,7 +718,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
         PyArrayScalar_RETURN_BOOL_FROM_LONG(*(Bool*)data);
     }
     else if (PyDataType_FLAGCHK(descr, NPY_USE_GETITEM)) {
-        return descr->descr->f->getitem(data, base);
+        return descr->descr->f->getitem(data, PyArray_ARRAY(base));
     }
     itemsize = descr->descr->elsize;
     copyswap = descr->descr->f->copyswap;
@@ -862,10 +862,12 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
         destptr = scalar_value(obj, descr->descr);
     }
     /* copyswap for OBJECT increments the reference count */
-    copyswap(destptr, data, swap, base);
+    copyswap(destptr, data, swap, PyArray_ARRAY(base));
     return obj;
 }
 
+        
+        
 /* Return Array Scalar if 0-d array object is encountered */
 
 /*NUMPY_API

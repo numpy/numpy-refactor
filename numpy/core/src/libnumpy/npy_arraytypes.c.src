@@ -130,10 +130,10 @@ extern Bool OBJECT_nonzero (void **ip, NpyArray *ap);
  *         LongLong, ULongLong, Float, Double#
 */
 extern PyObject *
-@TYPE@_getitem(char *ip, PyArrayObject *ap);
+@TYPE@_getitem(char *ip, NpyArray *ap);
 
 extern int
-@TYPE@_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 /**end repeat**/
 
@@ -144,7 +144,7 @@ extern int
  * #type = float, double#
  */
 extern PyObject *
-@TYPE@_getitem(char *ip, PyArrayObject *ap);
+@TYPE@_getitem(char *ip, NpyArray *ap);
 
 /**end repeat**/
 
@@ -157,7 +157,7 @@ extern PyObject *
  * #kind = CFloat, CDouble, CLongDouble#
  */
 extern int
-@TYPE@_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 /**end repeat**/
 
@@ -166,52 +166,52 @@ extern int
  */
 
 extern PyObject *
-LONGDOUBLE_getitem(char *ip, PyArrayObject *ap);
+LONGDOUBLE_getitem(char *ip, NpyArray *ap);
 
 extern int
-LONGDOUBLE_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+LONGDOUBLE_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 extern PyObject *
-CLONGDOUBLE_getitem(char *ip, PyArrayObject *ap);
+CLONGDOUBLE_getitem(char *ip, NpyArray *ap);
 
 /* UNICODE */
 extern PyObject *
-UNICODE_getitem(char *ip, PyArrayObject *ap);
+UNICODE_getitem(char *ip, NpyArray *ap);
 
 extern int
-UNICODE_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+UNICODE_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 extern PyObject *
-STRING_getitem(char *ip, PyArrayObject *ap);
+STRING_getitem(char *ip, NpyArray *ap);
 
 extern int
-STRING_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+STRING_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 /* OBJECT */
 
 extern PyObject *
-OBJECT_getitem(char *ip, PyArrayObject *ap);
+OBJECT_getitem(char *ip, NpyArray *ap);
 
 extern int
-OBJECT_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+OBJECT_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 extern PyObject *
-VOID_getitem(char *ip, PyArrayObject *ap);
+VOID_getitem(char *ip, NpyArray *ap);
 
 extern int
-VOID_setitem(PyObject *op, char *ip, PyArrayObject *ap);
+VOID_setitem(PyObject *op, char *ip, NpyArray *ap);
 
 extern PyObject *
-DATETIME_getitem(char *ip, PyArrayObject *ap);
+DATETIME_getitem(char *ip, NpyArray *ap);
 
 extern PyObject *
-TIMEDELTA_getitem(char *ip, PyArrayObject *ap);
+TIMEDELTA_getitem(char *ip, NpyArray *ap);
 
 extern int
-DATETIME_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap);
 
 extern int
-TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap);
+TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap);
 
     
 /**begin repeat
@@ -227,8 +227,8 @@ TIMEDELTA_setitem(PyObject *op, char *ov, PyArrayObject *ap);
  * #skip = 1*17, aip->descr->elsize*3, 1*3#
  */
 extern void
-@FROMTYPE@_to_OBJECT(@fromtype@ *ip, PyObject **op, intp n, PyArrayObject *aip,
-                     PyArrayObject *NPY_UNUSED(aop));
+@FROMTYPE@_to_OBJECT(@fromtype@ *ip, PyObject **op, intp n, NpyArray *aip,
+                     NpyArray *NPY_UNUSED(aop));
 /**end repeat**/
 
 
@@ -246,7 +246,7 @@ extern void
  */
 extern void
 OBJECT_to_@TOTYPE@(void **ip, @totype@ *op, npy_intp n,
-                   NpyArray *_NPY_UNUSED@TOTYPE@(aip), NpyArray *aop);
+                   NpyArray *aip, NpyArray *aop);
 /**end repeat**/
 
 
@@ -261,8 +261,8 @@ OBJECT_to_@TOTYPE@(void **ip, @totype@ *op, npy_intp n,
  * #convstr = (Int*9, Long*2, Float*3, Complex*3, Tuple*3, Long*2)*3#
  */
 extern void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, PyArrayObject *aip,
-               PyArrayObject *aop);
+@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
+               NpyArray *aop);
 /**end repeat**/
 
 
@@ -278,8 +278,8 @@ extern void
  *            cfloat, cdouble, clongdouble, datetime, timedelta)*3#
  */
 extern void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, PyArrayObject *aip,
-               PyArrayObject *aop);
+@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
+               NpyArray *aop);
 
 /**end repeat**/
 
@@ -302,7 +302,7 @@ extern void
  * #format = "hd", "hu", "d", "u", "ld", "lu", LONGLONG_FMT, ULONGLONG_FMT#
  */
 extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignored));
+@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *NPY_UNUSED(ignored));
 /**end repeat**/
 
 /**begin repeat
@@ -310,7 +310,7 @@ extern int
  * #type = float, double, longdouble#
  */
 extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignored));
+@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *ignored);
 /**end repeat**/
 
 /**begin repeat
@@ -320,11 +320,11 @@ extern int
  * #format = "d", "u"#
  */
 extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignore2));
+@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *ignore2);
 /**end repeat**/
 
 extern int
-BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignore2));
+BOOL_scan(FILE *fp, Bool *ip, void *ignore, PyArray_Descr *ignore2);
 
 /**begin repeat
  * #fname = CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
@@ -343,7 +343,7 @@ BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSE
  * #btype = (long, ulong)*5, long, long#
  */
 extern int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *NPY_UNUSED(ignore));
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *ignore);
 /**end repeat**/
 
 /**begin repeat
@@ -352,7 +352,7 @@ extern int
  * #type=float,double,longdouble#
  */
 extern int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *NPY_UNUSED(ignore));
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *ignore);
 /**end repeat**/
 
 
@@ -367,23 +367,23 @@ extern int
 
 extern void
 OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
-                  intp n, int NPY_UNUSED(swap), void *NPY_UNUSED(arr));
+                  intp n, int swap, void *arr);
 
 extern void
-OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap), void *NPY_UNUSED(arr));
+OBJECT_copyswap(PyObject **dst, PyObject **src, int swap, void *arr);
 
 
 /* object type */
 
 extern int
-OBJECT_compare(PyObject **ip1, PyObject **ip2, PyArrayObject *NPY_UNUSED(ap));
+OBJECT_compare(PyObject **ip1, PyObject **ip2, NpyArray *ap);
 
 extern int
-OBJECT_argmax(PyObject **ip, intp n, intp *max_ind, PyArrayObject *NPY_UNUSED(aip));
+OBJECT_argmax(PyObject **ip, intp n, intp *max_ind, NpyArray *aip);
 
 extern void
 OBJECT_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
-           void *NPY_UNUSED(ignore));
+           void *ignore);
 
 
 
@@ -391,10 +391,10 @@ OBJECT_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
 
 /* this requires buffer to be filled with objects or NULL */
 extern void
-OBJECT_fill(PyObject **buffer, intp length, void *NPY_UNUSED(ignored));
+OBJECT_fill(PyObject **buffer, intp length, void *ignored);
 
 extern void
-OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *NPY_UNUSED(ignored));
+OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *ignored);
 
 
 
@@ -1198,6 +1198,30 @@ UNICODE_nonzero (npy_ucs4 *ip, NpyArray *ap)
     return nonz;
 }
 
+
+/* TODO: Dead code? Also in arraytypes.c.src */
+#if 0
+Bool
+OBJECT_nonzero (void **ip, NpyArray *ap)
+{
+
+    if (NpyArray_ISALIGNED(ap)) {
+        if (*ip == NULL) {
+            return FALSE;
+        }
+        return (Bool) PyObject_IsTrue(*(PyObject **)ip);
+    }
+    else {
+        PyObject *obj;
+        NPY_COPY_PYOBJECT_PTR(&obj, (PyObject **)ip);
+        if (obj == NULL) {
+            return FALSE;
+        }
+        return (Bool) PyObject_IsTrue(obj);
+    }
+}
+
+#endif
 
 /*
  * if we have fields, then nonzero only if all sub-fields are nonzero.

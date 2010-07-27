@@ -30,26 +30,26 @@ maintainer email:  oliphant.travis@ieee.org
 
 NpyArray_Descr **npy_userdescrs=NULL;
 
-static PyArray_CastFuncsItem* 
+static NpyArray_CastFuncsItem* 
 castfuncs_new(void)
 {
-    PyArray_CastFuncsItem* result = 
-        (PyArray_CastFuncsItem *) malloc(sizeof(PyArray_CastFuncsItem));
+    NpyArray_CastFuncsItem* result = 
+        (NpyArray_CastFuncsItem *) malloc(sizeof(NpyArray_CastFuncsItem));
     result[0].totype = NPY_NOTYPE;
     return result;
 }
 
-static PyArray_CastFuncsItem* 
-castfuncs_append(PyArray_CastFuncsItem* items,
-                 int totype, PyArray_VectorUnaryFunc* func)
+static NpyArray_CastFuncsItem* 
+castfuncs_append(NpyArray_CastFuncsItem* items,
+                 int totype, NpyArray_VectorUnaryFunc* func)
 {
     int n = 0;
 
     while (items[n].totype != NPY_NOTYPE) {
         n++;
     }
-    items = (PyArray_CastFuncsItem *)
-        realloc(items, (n + 2)*sizeof(PyArray_CastFuncsItem));
+    items = (NpyArray_CastFuncsItem *)
+        realloc(items, (n + 2)*sizeof(NpyArray_CastFuncsItem));
     items[n].totype = totype;
     items[n].castfunc = func;
     items[n+1].totype = NPY_NOTYPE;
@@ -73,9 +73,9 @@ _append_new(int *types, int insert)
 }
 
 static npy_bool
-_default_nonzero(void *ip, void *arr)
+_default_nonzero(void *ip, NpyArray *arr)
 {
-    int elsize = NpyArray_ITEMSIZE((NpyArray *)arr);
+    int elsize = NpyArray_ITEMSIZE(arr);
     char *ptr = ip;
     while (elsize--) {
         if (*ptr++ != 0) {
@@ -87,14 +87,14 @@ _default_nonzero(void *ip, void *arr)
 
 static void
 _default_copyswapn(void *dst, npy_intp dstride, void *src,
-                   npy_intp sstride, npy_intp n, int swap, void *arr)
+                   npy_intp sstride, npy_intp n, int swap, NpyArray *arr)
 {
     npy_intp i;
     NpyArray_CopySwapFunc *copyswap;
     char *dstptr = dst;
     char *srcptr = src;
 
-    copyswap = NpyArray_DESCR((NpyArray *)arr)->f->copyswap;
+    copyswap = NpyArray_DESCR(arr)->f->copyswap;
 
     for (i = 0; i < n; i++) {
         copyswap(dstptr, srcptr, swap, arr);

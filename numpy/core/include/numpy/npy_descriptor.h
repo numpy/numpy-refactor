@@ -13,10 +13,8 @@
     NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
 
 
-/* TODO: Ugly hack needed because mtrand.c can't include numpy_api.h due to it's use of npy_py3kcompat.h. */
-#ifndef _NUMPY_API_H_
-typedef PyArray_ArrFuncs NpyArray_ArrFuncs;
-#endif
+/* TODO: Delete this once headers are sorted out. */
+typedef struct PyArray_ArrFuncs NpyArray_ArrFuncs;
 
 
 struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
@@ -24,7 +22,7 @@ struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
 struct NpyArray_ArrayDescr;
 
 
-typedef struct {
+struct NpyArray_DateTimeInfo {
     NPY_DATETIMEUNIT base;
     int num;
     int den;      /*
@@ -32,10 +30,10 @@ typedef struct {
                    * input-only mechanism
                    */
     int events;
-} NpyArray_DateTimeInfo;	
+};	
 
 
-typedef struct NpyArray_Descr {
+struct NpyArray_Descr {
     NpyObject_HEAD
     
     int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
@@ -77,26 +75,26 @@ typedef struct NpyArray_Descr {
                              * DATETIME or TIMEDELTA 
                              */
     
-} NpyArray_Descr;
+};
 
 
 
-typedef struct NpyArray_ArrayDescr {
+struct NpyArray_ArrayDescr {
     NpyArray_Descr *base;
     npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
     npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
     /* allocated array of ints; shape_dims == NULL iff */
     /* shape_num_dims == 1 */
-} NpyArray_ArrayDescr;
+};
 
 
 
 /* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
-typedef struct {
+struct NpyArray_DescrField {
     NpyArray_Descr *descr;
     int offset;
     char *title;                /* String owned/managed by each instance */
-} NpyArray_DescrField;
+};
 
 
 
@@ -125,7 +123,7 @@ void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
 NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
 NpyArray_Descr *
-NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype);
+NpyArray_DescrFromArray(struct _NpyArray *ap, struct NpyArray_Descr *mintype);
 
 
 #endif

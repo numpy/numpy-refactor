@@ -156,7 +156,7 @@ PyArray_XDECREF(PyArrayObject *mp)
     }
 
     if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)PyArray_BYTES(PyArray_ARRAY(mp));
+        data = (PyObject **)PyArray_BYTES(mp);
         n = PyArray_SIZE(mp);
         if (PyArray_ISALIGNED(mp)) {
             for (i = 0; i < n; i++, data++) Py_XDECREF(*data);
@@ -225,7 +225,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
             return;
         }
         else {
-            PyObject *arr;
+            NpyArray *arr;
             _Npy_INCREF(dtype);
             arr = NpyArray_NewFromDescr(dtype,
                                        0, NULL, NULL, NULL,
@@ -233,7 +233,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
             if (arr!=NULL) {
                 dtype->f->setitem(obj, optr, arr);
             }
-            Py_XDECREF(arr);
+            _Npy_DECREF(arr);
         }
     }
     else if (NpyDataType_HASFIELDS(dtype)) {

@@ -88,14 +88,14 @@ typedef enum
 
 #define NA_PTR(ai)   ((char *) NA_OFFSETDATA((ai)))
 #define NA_PTR1(ai, i)       (NA_PTR(ai) +                                   \
-                              (i)*(ai)->strides[0])
+                              (i)*PyArray_STRIDE((ai), 0))
 #define NA_PTR2(ai, i, j)    (NA_PTR(ai) +                                   \
-                              (i)*(ai)->strides[0] +                         \
-                              (j)*(ai)->strides[1])
+                              (i)*PyArray_STRIDE((ai),0) +   \
+                              (j)*PyArray_STRIDE((ai),1))
 #define NA_PTR3(ai, i, j, k) (NA_PTR(ai) +                                   \
-                              (i)*(ai)->strides[0] +                         \
-                              (j)*(ai)->strides[1] +                         \
-                              (k)*(ai)->strides[2])
+                              (i)*PyArray_STRIDE((ai),0) +              \
+                              (j)*PyArray_STRIDE((ai),1) +              \
+                              (k)*PyArray_STRIDE((ai),2))
 
 #define NA_SET_TEMP(ai, type, v) (((type *) &__temp__)[0] = v)
 
@@ -329,7 +329,7 @@ _makeSetPa(Bool)
 /* ========================== 1D get/set ================================== */
 
 #define NA_GET1Db(ai, type, base, cnt, out)                                   \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                out[i] = NA_GETPb(ai, type, base);                             \
                base += stride;                                                \
@@ -337,7 +337,7 @@ _makeSetPa(Bool)
         } 
 
 #define NA_GET1Da(ai, type, base, cnt, out)                                   \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                out[i] = NA_GETPa(ai, type, base);                             \
                base += stride;                                                \
@@ -345,7 +345,7 @@ _makeSetPa(Bool)
         } 
 
 #define NA_GET1Df(ai, type, base, cnt, out)                                   \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                out[i] = NA_GETPf(ai, type, base);                             \
                base += stride;                                                \
@@ -362,7 +362,7 @@ _makeSetPa(Bool)
 	}
         
 #define NA_SET1Db(ai, type, base, cnt, in)                                    \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                NA_SETPb(ai, type, base, in[i]);                               \
                base += stride;                                                \
@@ -370,7 +370,7 @@ _makeSetPa(Bool)
         }
 
 #define NA_SET1Da(ai, type, base, cnt, in)                                    \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                NA_SETPa(ai, type, base, in[i]);                               \
                base += stride;                                                \
@@ -378,7 +378,7 @@ _makeSetPa(Bool)
         }
 
 #define NA_SET1Df(ai, type, base, cnt, in)                                    \
-        { int i, stride = ai->strides[ai->nd-1];                              \
+        { int i, stride = PyArray_STRIDE(ai, PyArray_NDIM(ai)-1);                              \
            for(i=0; i<cnt; i++) {                                             \
                NA_SETPf(ai, type, base, in[i]);                               \
                base += stride;                                                \
@@ -412,7 +412,7 @@ _makeSetPa(Bool)
 
 #define BOOLEAN_BITWISE_NOT(x) ((x) ^ 1)
 
-#define NA_NBYTES(a) (a->descr->elsize * NA_elements(a))
+#define NA_NBYTES(a) (PyArray_ITEMSIZE(a) * NA_elements(a))
 
 #if defined(NA_SMP)
 #define BEGIN_THREADS Py_BEGIN_ALLOW_THREADS
