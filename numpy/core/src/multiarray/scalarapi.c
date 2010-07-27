@@ -357,7 +357,7 @@ finish:
     /* cast if necessary to desired output typecode */
     ret = NpyArray_CastToType(r, outcode, 0);
     _Npy_DECREF(r);
-    return r;
+    return ret;
 }
 
 
