@@ -437,7 +437,6 @@ Assign_Array(PyArrayObject *self, PyObject *v)
 static PyObject *
 Array_FromPyScalar(PyObject *op, NpyArray_Descr *typecode)
 {
-    NpyArray *arr;
     PyArrayObject *ret;
     int itemsize;
     int type;
@@ -2309,12 +2308,11 @@ PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     
     /* Move reference from interface to core object. */
     _Npy_INCREF(dtype->descr);    
+    Py_DECREF(dtype);
     ret = array_from_text(dtype->descr, num, sep, &nread, fp,
                           (next_element) fromfile_next_element,
                           (skip_separator) fromfile_skip_separator, NULL);
-    Py_DECREF(dtype);   /* Safe before decref below because lifetime of two instances are identical */
     if (ret == NULL) {
-        _Npy_DECREF(dtype->descr);
         return NULL;
     }
     if (((intp) nread) < num) {
@@ -2381,20 +2379,6 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
         ret = (PyArrayObject* ) PyArray_FromTextFile(fp, dtype, num, sep);   
     }
     
-    if (NULL == sep || 0 == strlen(sep)) {
-        NpyArray *arr;
-
-        arr = NpyArray_FromBinaryFile(fp, dtype->descr, num);
-        if (arr == NULL) {
-            ret = NULL;
-        }
-        ret = Npy_INTERFACE(arr);
-        Py_INCREF(ret);
-        _Npy_DECREF(arr);
-    }
-    else
-        ret = (PyArrayObject *)PyArray_FromTextFile(fp, dtype, num, sep);
-
     return (PyObject *)ret;
 }
 
