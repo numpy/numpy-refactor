@@ -1520,7 +1520,7 @@ static void
 arraydescr_dealloc(PyArray_Descr *self)
 {
     NpyArray_DescrDestroy(self->descr);
-
+    Py_XDECREF(self->typeobj);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
