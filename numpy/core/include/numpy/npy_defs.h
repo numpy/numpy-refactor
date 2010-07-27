@@ -45,18 +45,7 @@ typedef Py_uintptr_t npy_uintp;
 
 /* Forward structure declarations */
 
-/* Temporary forward structure declarations.  These will be removed as objects
- are refactored into two layers */
-//struct PyArrayObject;
-struct PyArrayFlagsObject;
-//struct _PyArray_Descr;
-struct NpyArray_Descr;
-//struct PyArray_DatetimeMetaData;
-struct PyArray_Dims;
-
-
-//typedef PyObject NpyObject;                             /* An object opaque to core but understood by the interface layer */
-typedef struct _NpyArray NpyArray;
+typedef struct NpyArray NpyArray;
 typedef struct NpyArray_ArrayDescr NpyArray_ArrayDescr;
 typedef struct PyArray_DatetimeMetaData NpyArray_DatetimeMetaData;
 typedef struct NpyArray_DescrField NpyArray_DescrField;

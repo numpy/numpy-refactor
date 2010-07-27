@@ -123,7 +123,7 @@ void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
 NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
 NpyArray_Descr *
-NpyArray_DescrFromArray(struct _NpyArray *ap, struct NpyArray_Descr *mintype);
+NpyArray_DescrFromArray(struct NpyArray *ap, struct NpyArray_Descr *mintype);
 
 
 #endif

@@ -294,14 +294,14 @@ typedef enum {
 struct _PyArray_Descr;
 
 /* These must deal with unaligned and swapped data if necessary */
-typedef PyObject * (PyArray_GetItemFunc) (void *, struct _NpyArray *);
-typedef int (PyArray_SetItemFunc)(PyObject *, void *, struct _NpyArray *);
+typedef PyObject * (PyArray_GetItemFunc) (void *, struct NpyArray *);
+typedef int (PyArray_SetItemFunc)(PyObject *, void *, struct NpyArray *);
 
 typedef void (PyArray_CopySwapNFunc)(void *, npy_intp, void *, npy_intp,
-                                     npy_intp, int, struct _NpyArray *);
+                                     npy_intp, int, struct NpyArray *);
 
-typedef void (PyArray_CopySwapFunc)(void *, void *, int, struct _NpyArray *);
-typedef npy_bool (PyArray_NonzeroFunc)(void *, struct _NpyArray *);
+typedef void (PyArray_CopySwapFunc)(void *, void *, int, struct NpyArray *);
+typedef npy_bool (PyArray_NonzeroFunc)(void *, struct NpyArray *);
 
 
 /*
@@ -309,14 +309,14 @@ typedef npy_bool (PyArray_NonzeroFunc)(void *, struct _NpyArray *);
  * before or contiguous data will be obtained
  */
 
-typedef int (PyArray_CompareFunc)(const void *, const void *, struct _NpyArray *);
-typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, struct _NpyArray *);
+typedef int (PyArray_CompareFunc)(const void *, const void *, struct NpyArray *);
+typedef int (PyArray_ArgFunc)(void*, npy_intp, npy_intp*, struct NpyArray *);
 
 typedef void (PyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
-                               npy_intp, struct _NpyArray *);
+                               npy_intp, struct NpyArray *);
 
-typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, struct _NpyArray *,
-                                       struct _NpyArray *);
+typedef void (PyArray_VectorUnaryFunc)(void *, void *, npy_intp, struct NpyArray *,
+                                       struct NpyArray *);
 
 /*
  * XXX the ignore argument should be removed next time the API version
@@ -327,14 +327,14 @@ typedef int (PyArray_ScanFunc)(FILE *fp, void *dptr,
 typedef int (PyArray_FromStrFunc)(char *s, void *dptr, char **endptr,
                                   struct _PyArray_Descr *);
 
-typedef int (PyArray_FillFunc)(void *, npy_intp, struct _NpyArray *);
+typedef int (PyArray_FillFunc)(void *, npy_intp, struct NpyArray *);
 
-typedef int (PyArray_SortFunc)(void *, npy_intp, struct _NpyArray *);
-typedef int (PyArray_ArgSortFunc)(void *, npy_intp *, npy_intp, struct _NpyArray *);
+typedef int (PyArray_SortFunc)(void *, npy_intp, struct NpyArray *);
+typedef int (PyArray_ArgSortFunc)(void *, npy_intp *, npy_intp, struct NpyArray *);
 
-typedef int (PyArray_FillWithScalarFunc)(void *, npy_intp, void *, struct _NpyArray *);
+typedef int (PyArray_FillWithScalarFunc)(void *, npy_intp, void *, struct NpyArray *);
 
-typedef int (PyArray_ScalarKindFunc)(struct _NpyArray *);
+typedef int (PyArray_ScalarKindFunc)(struct NpyArray *);
 
 typedef void (PyArray_FastClipFunc)(void *in, npy_intp n_in, void *min,
                                     void *max, void *out);
@@ -535,7 +535,7 @@ typedef struct PyArrayObject {
     PyObject_HEAD
     int magic_offset;
     int magic_number;
-    struct _NpyArray *array;
+    struct NpyArray *array;
     PyObject *weakreflist;  /* For weakreferences */
 } PyArrayObject;
 

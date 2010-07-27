@@ -38,7 +38,7 @@ typedef PyArray_FillWithScalarFunc NpyArray_FillWithScalarFunc;
 typedef PyArray_ScalarKindFunc NpyArray_ScalarKindFunc;
 typedef PyArray_FastClipFunc NpyArray_FastClipFunc;
 
-typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, struct _NpyArray *);
+typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, struct NpyArray *);
 
 #define NpyArray_UCS4 npy_ucs4
 

@@ -4,7 +4,7 @@
 #include "npy_object.h"
 #include "npy_defs.h"
 
-struct _NpyArray {
+struct NpyArray {
     NpyObject_HEAD
     int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
     char *data;             /* pointer to raw data buffer */
@@ -14,7 +14,7 @@ struct _NpyArray {
                              * bytes to jump to get to the
                              * next element in each dimension
                              */
-    struct _NpyArray *base_arr; /* Base when it's specifically an array object */
+    struct NpyArray *base_arr; /* Base when it's specifically an array object */
     void *base_obj;         /* Base when it's an opaque interface object */
     
     struct NpyArray_Descr *descr;   /* Pointer to type structure */
