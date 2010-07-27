@@ -8,6 +8,7 @@ from numpy.testing import *
 
 class TestMemmap(TestCase):
     def setUp(self):
+        warnings.resetwarnings()
         self.tmpfp = NamedTemporaryFile(prefix='mmap')
         self.shape = (3,4)
         self.dtype = 'float32'

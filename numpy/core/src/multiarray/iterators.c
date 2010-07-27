@@ -1669,7 +1669,7 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
 
 static void decref_and_free(void* p)
 {
-    Py_DECREF((PyObject*)p);
+    Py_DECREF(*(PyObject **)p);
     free(p);
 }
 
