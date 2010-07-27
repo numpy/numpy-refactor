@@ -1661,9 +1661,12 @@ PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype)
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromObject(PyObject *op, PyArray_Descr *mintype)
 {
-    PyArray_Descr_RETURN( PyArray_DescrFromObjectUnwrap(op, (NULL != mintype) ? mintype->descr : NULL) );
+    NpyArray_Descr *result = 
+        PyArray_DescrFromObjectUnwrap(op, 
+                        (NULL != mintype) ? mintype->descr : NULL);
+    PyArray_Descr_RETURN( result );
 }
-                                              
+
 /* These are also old calls (should use PyArray_NewFromDescr) */
 
 /* They all zero-out the memory as previously done */

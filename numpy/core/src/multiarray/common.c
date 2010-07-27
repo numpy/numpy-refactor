@@ -22,7 +22,8 @@
 NPY_NO_EXPORT PyArray_Descr *
 _array_small_type(PyArray_Descr *chktype, PyArray_Descr* mintype)
 {
-    PyArray_Descr_RETURN( NpyArray_SmallType(chktype->descr, mintype->descr) );
+    NpyArray_Descr *result = NpyArray_SmallType(chktype->descr, mintype->descr);
+    PyArray_Descr_RETURN( result );
 }
 
 NPY_NO_EXPORT NpyArray_Descr *

@@ -59,7 +59,8 @@ maintainer email:  oliphant.travis@ieee.org
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromType(int type)
 {
-    PyArray_Descr_RETURN( NpyArray_DescrFromType(type) );
+    NpyArray_Descr *result = NpyArray_DescrFromType(type);
+    PyArray_Descr_RETURN( result );
 }
 
 
