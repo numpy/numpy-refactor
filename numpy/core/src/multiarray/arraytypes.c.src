@@ -1079,7 +1079,7 @@ DATETIME_getitem(char *ip, NpyArray *ap) {
 
     if ((ap == NULL) || NpyArray_ISBEHAVED_RO(ap)) {
         t1 = *((datetime *)ip);
-        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(PyArray_DESCR(ap)));
+        return PyDateTime_FromInt64((datetime)t1, PyArray_Descr_WRAP(NpyArray_DESCR(ap)));
     }
     else {
         NpyArray_DESCR(ap)->f->copyswap(&t1, ip, !NpyArray_ISNOTSWAPPED(ap), ap);
