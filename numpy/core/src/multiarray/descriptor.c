@@ -426,6 +426,7 @@ _convert_from_array_descr(PyObject *obj, int align)
             if (PyUString_Check(title) || PyUnicode_Check(title)) 
 #endif
             {
+                NpyArray_Descr *descr;
                 char *titleStr = PyString_AsString(title);
                 if (!strcmp(nameslist[i], titleStr) || NpyDict_ContainsKey(fields, titleStr)) {
                     PyErr_SetString(PyExc_ValueError,
@@ -433,12 +434,16 @@ _convert_from_array_descr(PyObject *obj, int align)
                     Py_DECREF(conv);
                     goto fail;
                 }
-                NpyArray_DescrSetField(fields, nameslist[i], conv->descr, offset, titleStr);
-                _Npy_INCREF(conv->descr);       /* First DescrSetField call steals the reference, need a second to steal. */
-                NpyArray_DescrSetField(fields, titleStr, conv->descr, offset, titleStr);
+                PyArray_Descr_REF_TO_CORE(conv, descr);
+                NpyArray_DescrSetField(fields, nameslist[i], descr, offset, titleStr);
+                _Npy_INCREF(descr);       /* First DescrSetField call steals the reference, need a second to steal. */
+                NpyArray_DescrSetField(fields, titleStr, descr, offset, titleStr);
             }
         } else {
-            NpyArray_DescrSetField(fields, nameslist[i], conv->descr, offset, NULL);
+            NpyArray_Descr *descr;
+
+            PyArray_Descr_REF_TO_CORE(conv, descr);
+            NpyArray_DescrSetField(fields, nameslist[i], descr, offset, NULL);
         }
         totalsize += conv->descr->elsize;
     }
@@ -519,6 +524,8 @@ _convert_from_list(PyObject *obj, int align)
     }
     
     for (i = 0; i < n; i++) {
+        NpyArray_Descr *descr;
+
         key = PyUString_FromFormat("f%d", i);
         ret = PyArray_DescrConverter(PyList_GET_ITEM(obj, i), &conv);
         if (ret == PY_FAIL) {
@@ -535,9 +542,8 @@ _convert_from_list(PyObject *obj, int align)
             }
             maxalign = MAX(maxalign, _align);
         }
-        NpyArray_DescrSetField(fields, PyString_AsString(key), conv->descr, totalsize, NULL);
-        _Npy_INCREF(conv->descr);           /* Move reference to core object since DescrSetField store the core */
-        Py_DECREF(conv);
+        PyArray_Descr_REF_TO_CORE(conv, descr);
+        NpyArray_DescrSetField(fields, PyString_AsString(key), descr, totalsize, NULL);
         nameslist[i] = strdup(PyString_AsString(key));
         totalsize += conv->descr->elsize;
         Py_DECREF(key);
@@ -1041,6 +1047,7 @@ _convert_from_dict(PyObject *obj, int align)
         long offset = 0;
         int len, ret, _align = 1;
         PyArray_Descr *newdescr = NULL;
+        NpyArray_Descr *coredescr;
 
         /* Build item to insert (descr, offset, [title])*/
         len = 2;
@@ -1122,7 +1129,8 @@ _convert_from_dict(PyObject *obj, int align)
                     "name already used as a name or title");
             ret = PY_FAIL;
         }
-        NpyArray_DescrSetField(fields, PyString_AsString(name), newdescr->descr, offset, (3 == len) ? PyString_AsString(item) : NULL);
+        PyArray_Descr_REF_TO_CORE(newdescr, coredescr);
+        NpyArray_DescrSetField(fields, PyString_AsString(name), coredescr, offset, (3 == len) ? PyString_AsString(item) : NULL);
         Py_DECREF(name);
         if (len == 3) {
 #if defined(NPY_PY3K)
@@ -1136,16 +1144,16 @@ _convert_from_dict(PyObject *obj, int align)
                             "title already used as a name or title.");
                     ret=PY_FAIL;
                 }
-                Py_INCREF(newdescr);           /* First DescrSetField stole the ref, need a second */
-                NpyArray_DescrSetField(fields, PyString_AsString(item), newdescr->descr, offset, PyString_AsString(item));
+                _Npy_INCREF(coredescr);           /* First DescrSetField stole the ref, need a second */
+                NpyArray_DescrSetField(fields, PyString_AsString(item), coredescr, offset, PyString_AsString(item));
             }
             Py_DECREF(item);
         }
-        if ((ret == PY_FAIL) || (newdescr->descr->elsize == 0)) {
+        if ((ret == PY_FAIL) || (coredescr->elsize == 0)) {
             goto fail;
         }
-        dtypeflags |= (newdescr->descr->flags & NPY_FROM_FIELDS);
-        totalsize += newdescr->descr->elsize;
+        dtypeflags |= (coredescr->flags & NPY_FROM_FIELDS);
+        totalsize += coredescr->elsize;
     }
 
     new = NpyArray_DescrNewFromType(PyArray_VOID);
