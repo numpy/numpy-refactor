@@ -2144,7 +2144,6 @@ static PyObject *
     PyObject *robj;
     PyObject *arr;
     NpyArray_Descr *typecode = NULL;
-    PyArray_Descr *typecodeWrap = NULL;
 #if !(@default@ == 2)
     int itemsize;
     void *dest, *src;
@@ -2181,11 +2180,6 @@ static PyObject *
         goto finish;
     }
 
-    /* Move reference to the interface object. */
-    typecodeWrap = PyArray_Descr_WRAP(typecode);
-    Py_INCREF(typecodeWrap);
-    _Npy_DECREF(typecode);
-    
     /*
      * It is expected at this point that robj is a PyArrayScalar
      * (even for Object Data Type)
