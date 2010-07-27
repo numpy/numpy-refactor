@@ -2381,8 +2381,7 @@ static PyArrayObject *
 _getidentity(PyUFuncObject *self, int otype, char *str)
 {
     PyObject *obj, *arr;
-    PyArray_Descr *typecodeWrap = NULL;
-    NpyArray_Descr *typecode;
+    PyArray_Descr *typecode = NULL;
 
     if (self->identity == PyUFunc_None) {
         PyErr_Format(PyExc_ValueError,
@@ -2396,11 +2395,9 @@ _getidentity(PyUFuncObject *self, int otype, char *str)
         obj = PyInt_FromLong((long) 0);
     }
 
-    typecode = NpyArray_DescrFromType(otype);
+    typecode = PyArray_DescrFromType(otype);
     
-    /* Move reference to interface. */
-    PyArray_Descr_REF_FROM_CORE(typecode, typecodeWrap);
-    arr = PyArray_FromAny(obj, typecodeWrap, 0, 0, CARRAY, NULL);
+    arr = PyArray_FromAny(obj, typecode, 0, 0, CARRAY, NULL);
     Py_DECREF(obj);
     return (PyArrayObject *)arr;
 }
@@ -2410,21 +2407,17 @@ _create_reduce_copy(PyUFuncReduceObject *loop, PyArrayObject **arr, int rtype)
 {
     intp maxsize;
     PyObject *new;
-    NpyArray_Descr *ntype;
+    PyArray_Descr *ntype;
 
     maxsize = PyArray_SIZE(*arr);
 
     if (maxsize < loop->bufsize) {
         if (!(PyArray_ISBEHAVED_RO(*arr))
             || PyArray_TYPE(*arr) != rtype) {
-            PyArray_Descr *ntypeWrap;
+            ntype = PyArray_DescrFromType(rtype);
             
-            ntype = NpyArray_DescrFromType(rtype);
-            
-            /* Move reference to interface. */
-            PyArray_Descr_REF_FROM_CORE(ntype, ntypeWrap);
             new = PyArray_FromAny((PyObject *)(*arr),
-                                  ntypeWrap, 0, 0,
+                                  ntype, 0, 0,
                                   FORCECAST | ALIGNED, NULL);
             if (new == NULL) {
                 return -1;

@@ -832,7 +832,7 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
     PyArray_Descr_REF_TO_CORE(descr, descrCore);
 
     ASSIGN_TO_PYARRAY(ret,
-        NpyArray_NewFromDescr(descr->descr, nd, dims, strides, 
+        NpyArray_NewFromDescr(descrCore, nd, dims, strides, 
                               data, flags, NPY_FALSE, subtype, obj));
     return (PyObject *)ret;
 }
@@ -1661,11 +1661,7 @@ PyArray_DescrFromObjectUnwrap(PyObject *op, NpyArray_Descr *mintype)
 NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromObject(PyObject *op, PyArray_Descr *mintype)
 {
-    NpyArray_Descr *resultCore = PyArray_DescrFromObjectUnwrap(op, (NULL != mintype) ? mintype->descr : NULL);
-    PyArray_Descr *result;
-    
-    PyArray_Descr_REF_FROM_CORE(resultCore, result);
-    return result;
+    PyArray_Descr_RETURN( PyArray_DescrFromObjectUnwrap(op, (NULL != mintype) ? mintype->descr : NULL) );
 }
                                               
 /* These are also old calls (should use PyArray_NewFromDescr) */
