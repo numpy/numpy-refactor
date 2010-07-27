@@ -380,7 +380,7 @@ PyArray_SetField(PyArrayObject *self, PyArray_Descr *dtypeWrap,
                                                NULL);
     }
     if (src == NULL) {
-        Py_DECREF(dtype);
+        Py_DECREF(dtypeWrap);
         return -1;
     }
 

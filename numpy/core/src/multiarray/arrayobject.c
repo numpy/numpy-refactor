@@ -60,10 +60,7 @@ NPY_NO_EXPORT PyArray_Descr *
 PyArray_DescrFromType(int type)
 {
     NpyArray_Descr *result = NpyArray_DescrFromType(type);
-    PyArray_Descr *resultWrap = NULL;
-    
-    PyArray_Descr_REF_FROM_CORE(result, resultWrap);
-    return resultWrap;
+    PyArray_Descr_RETURN( result );
 }
 
 
