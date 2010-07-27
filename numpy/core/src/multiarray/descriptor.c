@@ -1065,7 +1065,9 @@ _convert_from_dict(PyObject *obj, int align)
         }
 
         descr = PyObject_GetItem(descrs, index);
-        if (!descr) {
+        if (descr == NULL) {
+            Py_DECREF(index);
+            Py_XDECREF(newdescr);
             goto fail;
         }
         ret = PyArray_DescrConverter(descr, &newdescr);
