@@ -1684,7 +1684,7 @@ Bool
 OBJECT_nonzero (PyObject **ip, NpyArray *ap)
 {
     
-    if (PyArray_ISALIGNED(ap)) {
+    if (NpyArray_ISALIGNED(ap)) {
         if (*ip == NULL) {
             return FALSE;
         }

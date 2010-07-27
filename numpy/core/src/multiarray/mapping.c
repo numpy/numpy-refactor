@@ -807,10 +807,10 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
             
             value = NpyDict_Get(PyArray_DESCR(self)->fields, PyString_AsString(index));
             if (NULL != value) {
-                _Npy_INCREF(value->descr);
-                return NpyArray_SetField(PyArray_ARRAY(self), 
-                                         value->descr, 
-                                         value->offset, PyArray_ARRAY(op));
+                PyArray_Descr *descrWrap = PyArray_Descr_WRAP(value->descr);
+                Py_INCREF(descrWrap);
+                return PyArray_SetField(self, descrWrap, 
+                                        value->offset, op);
             }
         }
 
