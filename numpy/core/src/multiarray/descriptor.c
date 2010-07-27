@@ -1040,7 +1040,7 @@ _convert_from_dict(PyObject *obj, int align)
         PyObject *descr, *index, *item, *name, *off;
         long offset = 0;
         int len, ret, _align = 1;
-        PyArray_Descr *newdescr;
+        PyArray_Descr *newdescr = NULL;
 
         /* Build item to insert (descr, offset, [title])*/
         len = 2;
@@ -1065,6 +1065,7 @@ _convert_from_dict(PyObject *obj, int align)
         Py_DECREF(descr);
         if (ret == PY_FAIL) {
             Py_DECREF(index);
+            Py_XDECREF(newdescr);
             goto fail;
         }
         if (align) {
@@ -1073,10 +1074,13 @@ _convert_from_dict(PyObject *obj, int align)
         }
         if (offsets) {
             off = PyObject_GetItem(offsets, index);
-            if (!off) {
+            if (off == NULL) {
+                Py_DECREF(index);
+                Py_XDECREF(newdescr);
                 goto fail;
             }
             offset = PyInt_AsLong(off);
+            Py_DECREF(off);
             if (offset < totalsize) {
                 PyErr_SetString(PyExc_ValueError,
                         "invalid offset (must be ordered)");
@@ -1093,7 +1097,9 @@ _convert_from_dict(PyObject *obj, int align)
             offset = totalsize;
         }
         name = PyObject_GetItem(names, index);
-        if (!name) {
+        if (name == NULL) {
+            Py_DECREF(index);
+            Py_XDECREF(newdescr);
             goto fail;
         }
         Py_DECREF(index);
@@ -1470,6 +1476,7 @@ PyArray_DescrConverter(PyObject *obj, PyArray_Descr **at)
 
  fail:
     PyErr_SetString(PyExc_TypeError, "data type not understood");
+    Py_XDECREF(*at);
     *at = NULL;
     return PY_FAIL;
 }
@@ -2096,7 +2103,7 @@ static PyObject *
 arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds)
 {
     PyObject *odescr=NULL;
-    PyArray_Descr *descr, *conv;
+    PyArray_Descr *descr, *conv = NULL;
     Bool align = FALSE;
     Bool copy = FALSE;
     Bool copied = FALSE;
@@ -2105,15 +2112,18 @@ arraydescr_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *kwds
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|O&O&", kwlist,
                 &odescr, PyArray_BoolConverter, &align,
 		PyArray_BoolConverter, &copy )) {
+        Py_XDECREF(odescr);
         return NULL;
     }
 
     if (align) {
         if (!PyArray_DescrAlignConverter(odescr, &conv)) {
+            Py_XDECREF(conv);
             return NULL;
         }
     }
     else if (!PyArray_DescrConverter(odescr, &conv)) {
+        Py_XDECREF(conv);
         return NULL;
     }
     /* Get a new copy of it unless it's already a copy */

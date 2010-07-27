@@ -1165,6 +1165,10 @@ PyArray_MapIterReset(PyArrayMapIterObject *pyMit)
 {
     NpyArray_MapIterReset(pyMit->iter);
 }
+#if 0
+/* Not called from anywhere, and .h says it's not part of the C API.  So
+ * exclude it from the build.
+ */
 
 /*
  * This function needs to update the state of the map iterator
@@ -1175,7 +1179,7 @@ PyArray_MapIterNext(PyArrayMapIterObject *pyMit)
 {
     NpyArray_MapIterNext(pyMit->iter);
 }
-
+#endif
 /*
  * Bind a mapiteration to a particular array
  *

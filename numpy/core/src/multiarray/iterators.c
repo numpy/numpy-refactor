@@ -1667,6 +1667,12 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
 }
 
 
+static void decref_and_free(void* p)
+{
+    Py_DECREF((PyObject*)p);
+    free(p);
+}
+
 /*
  * fill and x->ao should have equivalent types
  */
@@ -1694,7 +1700,11 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
             break;
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
             fillptr = _set_constant(x->iter->ao, PyArray_ARRAY(fill));
-            freefill = free;
+            if (!PyArray_ISOBJECT(x->iter->ao)) {
+                freefill = free;
+            } else {
+                freefill = decref_and_free;
+            }
             break;
         case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
         case NPY_NEIGHBORHOOD_ITER_CIRCULAR_PADDING:

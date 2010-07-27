@@ -1037,9 +1037,12 @@ static PyObject *
 @name@_@oper@(PyObject *obj)
 {
     PyObject *pyint;
+    PyObject *result;
     pyint = @name@_@kind@(obj);
     if (pyint == NULL) return NULL;
-    return Py@cap@_Type.tp_as_number->nb_@oper@(pyint);
+    result = Py@cap@_Type.tp_as_number->nb_@oper@(pyint);
+    Py_DECREF(pyint);
+    return result;
 }
 /**end repeat**/
 

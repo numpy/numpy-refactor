@@ -311,6 +311,7 @@ array_power_is_scalar(PyObject *o2, double* exp)
             return 0;
         }
         val = PyInt_AsSsize_t(value);
+        Py_DECREF(value);
         if (val == -1 && PyErr_Occurred()) {
             PyErr_Clear();
             return 0;
@@ -709,11 +710,13 @@ array_hex(PyArrayObject *v)
     }
     pv = PyArray_DESCR(v)->f->getitem(PyArray_BYTES(v), PyArray_ARRAY(v));
     if (Py_TYPE(pv)->tp_as_number == 0) {
+        Py_DECREF(pv);
         PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "\
                         "scalar object is not a number");
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_hex == 0) {
+        Py_DECREF(pv);
         PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
                         "scalar number to hex");
         return NULL;

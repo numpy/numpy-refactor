@@ -726,12 +726,6 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 {
     assert(0 == iter->nob_refcnt);
 
-    if (iter->mode == NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING) {
-        /* TODO: fix when we split the array object.*/
-        if (NpyArray_ISOBJECT(iter->_internal_iter->ao)) {
-            Py_DECREF(*(PyObject**)iter->constant);
-        }
-    }
     _Npy_DECREF(iter->_internal_iter);
 
     if (iter->constant && iter->constant_free) {

@@ -421,6 +421,7 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
     
     if (!(PyArray_DescrConverter(arg, &newtypeInterface)) ||
         newtypeInterface == NULL) {
+        Py_XDECREF(newtypeInterface);
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
