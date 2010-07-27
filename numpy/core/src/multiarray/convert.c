@@ -309,8 +309,6 @@ PyArray_NewCopy(PyArrayObject *m1, NPY_ORDER fortran)
 NPY_NO_EXPORT PyObject *
 PyArray_View(PyArrayObject *self, PyArray_Descr *type, PyTypeObject *pytype)
 {
-
-    
-    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), type,
+    RETURN_PYARRAY(NpyArray_View(PyArray_ARRAY(self), (NULL != type) ? type->descr : NULL,
                                  pytype));
 }

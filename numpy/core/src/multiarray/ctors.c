@@ -1119,7 +1119,7 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
         /* PEP 3118 buffer -- but don't accept Bytes objects here */
         PyObject *new;
         if (newtype != NULL || flags != 0) {
-            ASSIGN_TO_PYARRAY(new, NpyArray_FromArray((NpyArray *)r, newtype, flags));
+            ASSIGN_TO_PYARRAY(new, NpyArray_FromArray(PyArray_ARRAY(r), newtype, flags));
             Py_DECREF(r);
             r = new;
         }

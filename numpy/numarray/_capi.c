@@ -18,6 +18,32 @@
 #include "numpy/fenv/fenv.c"
 #endif
 
+
+#define RETURN_PYARRAY(arr)                     \
+    do {                                        \
+        NpyArray* a_ = (arr);                    \
+        PyArrayObject* ret_;                     \
+        if (a_ == NULL) return NULL;             \
+        ret_ = Npy_INTERFACE(a_);                 \
+        Py_INCREF(ret_);                         \
+        _Npy_DECREF(a_);                         \
+        return ret_;                 \
+    } while (0)
+
+#define ASSIGN_TO_PYARRAY(pya, arr)             \
+    do {                                        \
+        NpyArray* a_ = (arr);                   \
+        if (a_ == NULL) {                       \
+            pya = NULL;                         \
+        } else {                                \
+            pya = Npy_INTERFACE(a_);            \
+            Py_INCREF(pya);                     \
+            _Npy_DECREF(a_);                    \
+        }                                       \
+    } while (0)
+
+
+
 static PyObject *pCfuncClass;
 static PyTypeObject CfuncType;
 static PyObject *pHandleErrorFunc;
