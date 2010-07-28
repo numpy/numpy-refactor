@@ -1842,6 +1842,7 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
     NpyArray_DescrField *value = NULL;
     PyObject *newtup;
     PyObject *res;
+    PyObject *offsetObj;
 
     if (!PyDescr_HASFIELDS(self->descr)) {
         PyErr_SetString(PyExc_IndexError,
@@ -1859,8 +1860,10 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
         if (NULL == value) {
             goto fail;
         }
+        offsetObj = PyInt_FromLong(value->offset);
         newtup = Py_BuildValue("(OOO)", val, Npy_INTERFACE(value->descr),
-                               PyInt_FromLong(value->offset));
+                               offsetObj);
+        Py_DECREF(offsetObj);
         res = voidtype_setfield(self, newtup, NULL);
         Py_DECREF(newtup);
         if (!res) {
