@@ -22,6 +22,10 @@ class TestArrayTypes(TestCase):
         # u'aaa' > u'aa' and u'bbb' > u'aaa'  Hence, argmax == 2.
         assert a.argmax() == 2, "Broken array.argmax on unicode data."
 
+        a = np.array( [ 'aaa', 'aa', 'bbb'] )
+        # 'aaa' > 'aa' and 'bbb' > 'aaa'  Hence, argmax == 2.
+        assert a.argmax() == 2, "Broken array.argmax on string data."
+
     def test_argmax_numeric( self ):
 
         # Skip the np.bool_ type as it lacks a fill function, hence can't use
@@ -70,11 +74,27 @@ class TestArrayTypes(TestCase):
         x[::2].fill( u'd' )
         assert_equal( x, [u'd', u'b', u'd'] )
 
+    def test_copyswapn( self ):
+
+        # bool lacks arange support.
+        for k,t in enumerate( alltypes[1:] ):
+
+            x = np.arange( 10, dtype=t )
+            y = x.byteswap()
+            z = y.byteswap()
+
+            assert_equal( z, x )
+
+    def test_copyswapn_misc( self ):
+        x = np.array( [ u'a', u'b', u'c' ] )
+        y = x.byteswap()
+        z = y.byteswap()
+
+        assert_equal( z, x )
+
     def test_compare( self ):
 
-        for k,t in enumerate(types):
-
-            if k == 0: continue
+        for k,t in enumerate( alltypes[1:] ):
 
             try:
                 a = np.arange( 10, dtype=t )
@@ -88,34 +108,15 @@ class TestArrayTypes(TestCase):
             except TypeError, e:
                 print "Trouble with type %d:" % k, e
 
-    def test_copyswapn( self ):
-
-        for k,t in enumerate(types):
-
-            # Skip troublesome types.
-            #if k == 0 or k == 10: continue
-            if k == 0: continue
-
-            x = np.arange( 10, dtype=t )
-            y = x.byteswap()
-            z = y.byteswap()
-
-            assert_equal( z, x )
-
-    def test_copyswapn_misctypes( self ):
-
-        x = np.arange( 10, dtype=np.timedelta64 )
-        y = x.byteswap()
-        z = y.byteswap()
-
-        assert_equal( z, x )
-
-        x = np.array( [ u'aaa', u'bbb' ] )
-        y = x.byteswap()
-        z = y.byteswap()
-
-        assert_equal( z, x )
-
+    def test_compare_bool( self ):
+        # bool can't handle numpy.arange(), so has to be coded separately.
+        a = np.array( [False, True], dtype=np.bool_ )
+        keys = a
+        b = a.searchsorted( keys )
+        c = a.copy()
+        np.insert( c, b, keys )
+        c.sort()
+        assert_equal( c, a )
 
     def test_dot( self ):
 
@@ -127,6 +128,14 @@ class TestArrayTypes(TestCase):
                    "Problem with dot product with array of type %s" % k
 
     def test_clip( self ):
+
+        for k,t in enumerate( alltypes[1:] ):
+            a = np.arange( 5, dtype=t )
+            b = a.clip( 2, 3 )
+            x = np.array( [2,2,2,3,3], dtype=t )
+            assert_equal( b, x )
+
+    def test_clip_bool( self ):
         a = np.array( [False, True], np.bool )
         assert_equal( a.clip(False,False), [False, False] )
 
@@ -160,6 +169,25 @@ class TestArrayTypes(TestCase):
             idx = np.arange(5) * 2
             c = np.take( a, idx )
             assert_equal( c, a[::2] )
+
+    def test_putmask( self ):
+
+        for k,t in enumerate( alltypes[1:] ):
+            a = np.arange( 5, dtype=t )
+            mask = np.zeros( 5, dtype=np.bool )
+            mask[::2] = True
+            np.putmask( a, mask, t(8) )
+
+            x = np.array( [8,1,8,3,8], dtype=t )
+
+            assert_equal( a, x )
+
+    def test_fillwithscalar( self ):
+
+        a = np.empty( 2, dtype=np.datetime64 )
+        a.fill( np.datetime64( 3 ) )
+        x = np.zeros( 2, dtype=np.datetime64 ) + 3
+        assert_equal( a, x )
 
 if __name__ == "__main__":
     run_module_suite()
