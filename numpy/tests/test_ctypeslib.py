@@ -96,5 +96,12 @@ class TestNdpointer(TestCase):
         self.assertRaises(TypeError, p.from_param, np.array([[1,2,3]]))
 
 
+if hasattr(sys, 'gettotalrefcount'):
+    # skip this test class test when Python was compiled using
+    # the --with-pydebug option.  This is necessary because, i.e.
+    #     type("foo", (object,), {})
+    # leaks references
+    del TestNdpointer
+
 if __name__ == "__main__":
     run_module_suite()
