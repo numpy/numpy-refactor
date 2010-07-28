@@ -358,7 +358,11 @@ class TestUfunc(TestCase):
         assert_equal(umt.inner1d.signature, "(i),(i)->()")
 
     def test_inner1d(self):
-        a = np.arange(6).reshape((2,3))
+        self.check_inner1d_t( np.int )
+        self.check_inner1d_t( np.double )
+
+    def check_inner1d_t( self, tp ):
+        a = np.arange( 6, dtype=tp ).reshape((2,3))
         assert_array_equal(umt.inner1d(a,a), np.sum(a*a,axis=-1))
 
     def test_broadcast(self):
@@ -435,20 +439,24 @@ class TestUfunc(TestCase):
         umt.inner1d(a,b,c[...,0])
         assert_array_equal(c[...,0], np.sum(a*b,axis=-1), err_msg=msg)
 
-    def test_innerwt(self):
-        a = np.arange(6).reshape((2,3))
-        b = np.arange(10,16).reshape((2,3))
-        w = np.arange(20,26).reshape((2,3))
+    def test_innerwt( self ):
+        self.check_innerwt_t( np.int )
+        self.check_innerwt_t( np.double )
+
+    def check_innerwt_t( self, tp ):
+        a = np.arange(6, dtype=tp).reshape((2,3))
+        b = np.arange(10,16, dtype=tp).reshape((2,3))
+        w = np.arange(20,26, dtype=tp).reshape((2,3))
         assert_array_equal(umt.innerwt(a,b,w), np.sum(a*b*w,axis=-1))
-        a = np.arange(100,124).reshape((2,3,4))
-        b = np.arange(200,224).reshape((2,3,4))
-        w = np.arange(300,324).reshape((2,3,4))
+        a = np.arange(100,124, dtype=tp).reshape((2,3,4))
+        b = np.arange(200,224, dtype=tp).reshape((2,3,4))
+        w = np.arange(300,324, dtype=tp).reshape((2,3,4))
         assert_array_equal(umt.innerwt(a,b,w), np.sum(a*b*w,axis=-1))
 
     def test_matrix_multiply(self):
-        self.compare_matrix_multiply_results(np.long)
-        self.compare_matrix_multiply_results(np.double)
-        self.compare_matrix_multiply_results(np.float32)
+        self.compare_matrix_multiply_results( np.int32 )
+        self.compare_matrix_multiply_results( np.double )
+        self.compare_matrix_multiply_results( np.float32 )
 
     def compare_matrix_multiply_results(self, tp):
         d1 = np.array(rand(2,3,4), dtype=tp)
