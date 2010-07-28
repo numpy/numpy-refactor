@@ -1,4 +1,5 @@
 import os
+import sys
 from tempfile import mkdtemp, mkstemp, NamedTemporaryFile
 from shutil import rmtree
 from urlparse import urlparse
