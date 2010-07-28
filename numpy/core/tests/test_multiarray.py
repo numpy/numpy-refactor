@@ -241,12 +241,14 @@ class TestScalarIndexing(TestCase):
         self.assertRaises(IndexError, subscript, a, (newaxis,)*50)
 
 
+# this class is only used in TestCreation.test_from_attribute below
+class X_array(object):
+    def __array__(self, dtype=None):
+        pass
+
 class TestCreation(TestCase):
     def test_from_attribute(self):
-        class x(object):
-            def __array__(self, dtype=None):
-                pass
-        self.assertRaises(ValueError, array, x())
+        self.assertRaises(ValueError, array, X_array())
 
     def test_from_string(self) :
         types = np.typecodes['AllInteger'] + np.typecodes['Float']
