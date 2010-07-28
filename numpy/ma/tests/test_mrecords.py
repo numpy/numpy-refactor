@@ -9,6 +9,8 @@ __revision__ = "$Revision: 3473 $"
 __date__     = '$Date: 2007-10-29 17:18:13 +0200 (Mon, 29 Oct 2007) $'
 
 import sys
+import warnings
+
 import numpy as np
 from numpy import recarray
 from numpy.core.records import fromrecords as recfromrecords, \
@@ -34,6 +36,7 @@ class TestMRecords(TestCase):
 
     def setup(self):
         "Generic setup"
+        warnings.resetwarnings()
         ilist = [1,2,3,4,5]
         flist = [1.1,2.2,3.3,4.4,5.5]
         slist = asbytes_nested(['one','two','three','four','five'])
@@ -136,7 +139,6 @@ class TestMRecords(TestCase):
         rdata = data.view(MaskedRecords)
         val = ma.array([10,20,30], mask=[1,0,0])
         #
-        import warnings
         warnings.simplefilter("ignore")
         rdata['num'] = val
         assert_equal(rdata.num, val)
