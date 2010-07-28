@@ -705,6 +705,7 @@ _descriptor_from_pep3118_format(char *s)
     PyObject *descr;
     PyObject *str;
     PyObject *_numpy_internal;
+    NpyArray_Descr *descrCore;
 
     if (s == NULL) {
         return NpyArray_DescrNewFromType(PyArray_BYTE);
@@ -735,6 +736,7 @@ _descriptor_from_pep3118_format(char *s)
     free(buf);
     descr = PyObject_CallMethod(
         _numpy_internal, "_dtype_from_pep3118", "O", str);
+    Py_DECREF(_numpy_internal);
     Py_DECREF(str);
     if (descr == NULL) {
         PyErr_Format(PyExc_ValueError,
@@ -747,7 +749,8 @@ _descriptor_from_pep3118_format(char *s)
                      "did not return a valid dtype, got %s", buf);
         return NULL;
     }
-    return ((PyArray_Descr*)descr)->descr;
+    PyArray_Descr_REF_TO_CORE((PyArray_Descr *)descr, descrCore);
+    return descrCore;
 }
 
 #else
