@@ -300,7 +300,7 @@ class TestMaskedArray(TestCase):
         self.assertTrue(allequal(x1, y1.raw_data()))
         #self.assertTrue( y1.mask is m)
         assert_equal(y1._mask.__array_interface__, m.__array_interface__)
-        warnings.simplefilter('default', DeprecationWarning)
+        warnings.resetwarnings()
 
         y1a = array(y1)
         #self.assertTrue( y1a.raw_data() is y1.raw_data())
@@ -432,7 +432,7 @@ class TestMaskedArray(TestCase):
         #
         warnings.simplefilter('ignore', UserWarning)
         assert np.isnan(float(array([1], mask=[1])))
-        warnings.simplefilter('default', UserWarning)
+        warnings.resetwarnings()
         #
         a = array([1, 2, 3], mask=[1, 0, 0])
         self.assertRaises(TypeError, lambda:float(a))
@@ -1628,7 +1628,7 @@ class TestMaskedArrayInPlaceArithmetics(TestCase):
         x += 1.
         assert (id1 == x.raw_data().ctypes._data)
         assert_equal(x, y + 1.)
-        warnings.simplefilter('default', DeprecationWarning)
+        warnings.resetwarnings()
 
     def test_inplace_addition_array(self):
         """Test of inplace additions"""
