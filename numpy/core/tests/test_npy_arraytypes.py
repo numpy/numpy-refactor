@@ -8,6 +8,10 @@ types = [np.bool_, np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc,
          np.single, np.double, np.longdouble, np.csingle,
          np.cdouble, np.clongdouble]
 
+alltypes = list( types )
+alltypes.append( np.datetime64 )
+alltypes.append( np.timedelta64 )
+
 class TestArrayTypes(TestCase):
 
     def test_argmax( self ):
@@ -25,13 +29,26 @@ class TestArrayTypes(TestCase):
         # u'aaa' > u'aa' and u'bbb' > u'aaa'  Hence, argmax == 2.
         assert a.argmax() == 2, "Broken array.argmax on unicode data."
 
-    def test_argmax_float( self ):
-        # Moved to a separate function since test_argmax() (above) asserts
-        # due to the broken argmas on unicode elements.
-        a = np.arange( 5, dtype=np.float32 )
-        assert a.argmax() == 4, "Broken array.argmax on float"
+    def test_argmax_numeric( self ):
 
-    def test_nonzero( self ):
+        for k,t in enumerate( alltypes ):
+
+            # No fill function for numpy.bool_, can't use arange().  I guess
+            # this means bool.argmax() isn't gonna be tested by this code...
+            if k == 0: continue
+
+            a = np.arange( 5, dtype=t )
+            assert a.argmax() == 4, "Broken array.argmax on type: " + t
+
+    def test_nonzero_numeric_types( self ):
+
+        for k,t in enumerate(types):
+
+            a = np.array( [ t(1) ] )
+
+            assert a, "Broken array.nonzero on type: " + t
+
+    def test_nonzero_string_types( self ):
 
         a = np.array( [ 'aaa' ] )
         assert a, "Broken array.nonzero on string elements."
@@ -61,19 +78,15 @@ class TestArrayTypes(TestCase):
 
             x = np.arange( 10, dtype=t )
             # This should exeercise <typoe>_copyswap
-            x[::2] = 2
+            x[::2].fill( t(2) )
 
             assert_equal( x, [2,1,2,3,2,5,2,7,2,9] )
-
-        # NOTE: For some reason, LONGDOUBLE_copyswap is not called.
 
     def test_copyswap_misc( self ):
 
         x = np.array( [ u'a', u'b', u'c' ] )
-        x[::2] = u'd'
+        x[::2].fill( u'd' )
         assert_equal( x, [u'd', u'b', u'd'] )
-
-        # NOTE: For some reason, UNICODE_copyswap is not called.
 
     def test_compare( self ):
 
@@ -141,9 +154,39 @@ class TestArrayTypes(TestCase):
 
     def test_array_casting( self ):
 
-        a = np.arange( 5, dtype=np.cfloat )
-        b = a.astype( bool )
-        c = a.astype( np.bool )
+        for k,t in enumerate( alltypes ):
+
+            a = np.array( [ t(1) ] )
+
+            for k2, t2 in enumerate( alltypes ):
+
+                b = a.astype( t2 )
+
+                if k2 < len(types):
+                    assert b[0] == 1, \
+                           "Busted array type casting: k=%d k2=%d" % (k,k2)
+
+                else:
+                    # Casting to datetime64 yields a 1/1/1970+... result,
+                    # which isn't so hot for checking against "1".  So, in
+                    # these cases, just cast back to the starting time, and
+                    # make sure we got back what we started with.
+                    c = b.astype( t )
+                    assert_equal( c, a )
+
+    def xtest_array_casting_special( self ):
+
+        a = np.array( [ np.datetime64(1) ] )
+        for k,t in enumerate( types ):
+            b = a.astype( t )
+
+            assert b[0] == 1, "Busted casting from datetime to %d" % k
+
+        a = np.array( [ np.timedelta64(1) ] )
+        for k,t in enumerate( types ):
+            b = a.astype( t )
+
+            assert b[0] == 1, "Busted casting from datetime to %d" % k
 
     def test_take( self ):
         a = np.arange( 10, dtype=np.timedelta64 )
