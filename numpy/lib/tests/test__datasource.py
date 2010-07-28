@@ -1,4 +1,5 @@
 import os
+import sys
 from tempfile import mkdtemp, mkstemp, NamedTemporaryFile
 from shutil import rmtree
 from urlparse import urlparse
@@ -313,6 +314,15 @@ class TestOpenFunc(TestCase):
         assert datasource.open(local_file, destpath=self.tmpdir)
         # Test case where default destpath is used
         assert datasource.open(local_file)
+
+
+if hasattr(sys, 'gettotalrefcount'):
+    # skip these, when Python was compiled using the --with-pydebug option
+    del TestDataSourceOpen
+    del TestDataSourceExists
+    del TestDataSourceAbspath
+    del TestRepositoryExists
+    del TestOpenFunc
 
 
 if __name__ == "__main__":
