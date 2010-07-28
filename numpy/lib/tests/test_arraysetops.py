@@ -9,6 +9,10 @@ from numpy.lib.arraysetops import *
 import warnings
 
 class TestAso(TestCase):
+
+    def setUp(self):
+        warnings.resetwarnings()
+
     def test_unique( self ):
         a = np.array( [5, 7, 1, 2, 1, 5, 7] )
 

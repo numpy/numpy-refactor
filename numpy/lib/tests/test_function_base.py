@@ -1,5 +1,3 @@
-import warnings
-
 from numpy.testing import *
 import numpy.lib
 from numpy.lib import *
