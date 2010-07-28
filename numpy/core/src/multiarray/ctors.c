@@ -2094,7 +2094,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArra
                           NpyTypeNum_ISCOMPLEX(dtype->type_num));
     err = PyErr_Occurred();
     if (err) {
-        Py_DECREF(dtype);
+        _Npy_DECREF(dtype);
         if (err && PyErr_GivenExceptionMatches(err, PyExc_OverflowError)) {
             PyErr_SetString(PyExc_ValueError, "Maximum allowed size exceeded");
         }
