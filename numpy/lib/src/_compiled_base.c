@@ -134,8 +134,8 @@ arr_bincount(PyObject *NPY_UNUSED(self), PyObject *args, PyObject *kwds)
         goto fail;
     }
     ans_size = numbers [mxi] + 1;
-    type = PyArray_DescrFromType(PyArray_INTP);
     if (weight == Py_None) {
+        type = PyArray_DescrFromType(PyArray_INTP);
         if (!(ans = PyArray_Zeros(1, &ans_size, type, 0))) {
             goto fail;
         }
