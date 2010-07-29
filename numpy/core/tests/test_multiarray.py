@@ -321,7 +321,7 @@ class TestMethods(TestCase):
             assert_equal(c, a, msg)
 
         # test complex sorts. These use the same code as the scalars
-        # but the compare fuction differs.
+        # but the compare function differs.
         ai = a*1j + 1
         bi = b*1j + 1
         for kind in ['q','m','h'] :
@@ -390,7 +390,6 @@ class TestMethods(TestCase):
         # d.sort(axis=None)
         #assert_equal(d, c, "test sort with axis=None")
 
-
     def test_sort_bool( self ):
         a = np.array( [ True, False, True, False ] )
         b = a[:-1].copy()
@@ -412,6 +411,32 @@ class TestMethods(TestCase):
         # Note, comments above indicate that we should be using a much larger
         # array here, in order to guarantee the more interesting sort code is
         # actually executed for the bool case.
+
+    def test_sort_redux( self ):
+
+        types = [ np.byte, np.ubyte,
+                  np.short, np.ushort,
+                  np.int32, np.uint32,
+                  np.longlong, np.ulonglong,
+                  np.float32, np.complex64,
+                  np.double, np.cdouble,
+                  np.longdouble, np.clongdouble ]
+
+        for k, t in enumerate( types ):
+            a = np.arange( 100, dtype=t )
+            b = a[::-1].copy()
+            for kind in ['q','m','h'] :
+                msg = "scalar sort, kind=%s" % kind
+                c = a.copy();
+                c.sort(kind=kind)
+                assert_equal(c, a, msg)
+                c = b.copy();
+                c.sort(kind=kind)
+                assert_equal(c, a, msg)
+
+                d = b.copy()
+                idx = d.argsort( kind=kind )
+                assert_equal( d[idx], a, "scalar argsort, kind=%s" % kind )
 
     def test_sort_other( self ):
 
