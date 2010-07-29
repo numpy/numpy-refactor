@@ -474,7 +474,8 @@ array_inplace_remainder(PyArrayObject *m1, PyObject *m2)
 }
 
 static PyObject *
-array_inplace_power(PyArrayObject *a1, PyObject *o2, PyObject *NPY_UNUSED(modulo))
+array_inplace_power(PyArrayObject *a1, PyObject *o2,
+                    PyObject *NPY_UNUSED(modulo))
 {
     /* modulo is ignored! */
     PyObject *value;
@@ -548,7 +549,7 @@ _array_nonzero(PyArrayObject *mp)
 
     n = PyArray_SIZE(mp);
     if (n == 1) {
-        return PyArray_DESCR(mp)->f->nonzero(PyArray_BYTES(mp), 
+        return PyArray_DESCR(mp)->f->nonzero(PyArray_BYTES(mp),
                                              PyArray_ARRAY(mp));
     }
     else if (n == 0) {
@@ -556,8 +557,8 @@ _array_nonzero(PyArrayObject *mp)
     }
     else {
         PyErr_SetString(PyExc_ValueError,
-                        "The truth value of an array " \
-                        "with more than one element is ambiguous. " \
+                        "The truth value of an array "
+                        "with more than one element is ambiguous. "
                         "Use a.any() or a.all()");
         return -1;
     }
@@ -591,7 +592,7 @@ array_int(PyArrayObject *v)
 {
     PyObject *pv, *pv2;
     if (PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can be"\
+        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can be"
                         " converted to Python scalars");
         return NULL;
     }
@@ -600,13 +601,13 @@ array_int(PyArrayObject *v)
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number == 0) {
-        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "\
+        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "
                         "scalar object is not a number");
         Py_DECREF(pv);
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_int == 0) {
-        PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
+        PyErr_SetString(PyExc_TypeError, "don't know how to convert "
                         "scalar number to int");
         Py_DECREF(pv);
         return NULL;
@@ -622,7 +623,7 @@ array_float(PyArrayObject *v)
 {
     PyObject *pv, *pv2;
     if (PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "\
+        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "
                         "be converted to Python scalars");
         return NULL;
     }
@@ -631,13 +632,13 @@ array_float(PyArrayObject *v)
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number == 0) {
-        PyErr_SetString(PyExc_TypeError, "cannot convert to a "\
+        PyErr_SetString(PyExc_TypeError, "cannot convert to a "
                         "float; scalar object is not a number");
         Py_DECREF(pv);
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_float == 0) {
-        PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
+        PyErr_SetString(PyExc_TypeError, "don't know how to convert "
                         "scalar number to float");
         Py_DECREF(pv);
         return NULL;
@@ -654,19 +655,19 @@ array_long(PyArrayObject *v)
 {
     PyObject *pv, *pv2;
     if (PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "\
+        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "
                         "be converted to Python scalars");
         return NULL;
     }
     pv = PyArray_DESCR(v)->f->getitem(PyArray_BYTES(v), PyArray_ARRAY(v));
     if (Py_TYPE(pv)->tp_as_number == 0) {
-        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "\
+        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "
                         "scalar object is not a number");
         Py_DECREF(pv);
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_long == 0) {
-        PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
+        PyErr_SetString(PyExc_TypeError, "don't know how to convert "
                         "scalar number to long");
         Py_DECREF(pv);
         return NULL;
@@ -681,19 +682,19 @@ array_oct(PyArrayObject *v)
 {
     PyObject *pv, *pv2;
     if (PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "\
+        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "
                         "be converted to Python scalars");
         return NULL;
     }
     pv = PyArray_DESCR(v)->f->getitem(PyArray_BYTES(v), PyArray_ARRAY(v));
     if (Py_TYPE(pv)->tp_as_number == 0) {
-        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "\
+        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "
                         "scalar object is not a number");
         Py_DECREF(pv);
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_oct == 0) {
-        PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
+        PyErr_SetString(PyExc_TypeError, "don't know how to convert "
                         "scalar number to oct");
         Py_DECREF(pv);
         return NULL;
@@ -708,20 +709,20 @@ array_hex(PyArrayObject *v)
 {
     PyObject *pv, *pv2;
     if (PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "\
+        PyErr_SetString(PyExc_TypeError, "only length-1 arrays can "
                         "be converted to Python scalars");
         return NULL;
     }
     pv = PyArray_DESCR(v)->f->getitem(PyArray_BYTES(v), PyArray_ARRAY(v));
     if (Py_TYPE(pv)->tp_as_number == 0) {
         Py_DECREF(pv);
-        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "\
+        PyErr_SetString(PyExc_TypeError, "cannot convert to an int; "
                         "scalar object is not a number");
         return NULL;
     }
     if (Py_TYPE(pv)->tp_as_number->nb_hex == 0) {
         Py_DECREF(pv);
-        PyErr_SetString(PyExc_TypeError, "don't know how to convert "\
+        PyErr_SetString(PyExc_TypeError, "don't know how to convert "
                         "scalar number to hex");
         return NULL;
     }
@@ -743,7 +744,7 @@ static PyObject *
 array_index(PyArrayObject *v)
 {
     if (!PyArray_ISINTEGER(v) || PyArray_SIZE(v) != 1) {
-        PyErr_SetString(PyExc_TypeError, "only integer arrays with "     \
+        PyErr_SetString(PyExc_TypeError, "only integer arrays with "
                         "one element can be converted to an index");
         return NULL;
     }

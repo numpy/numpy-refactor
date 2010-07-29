@@ -1859,7 +1859,7 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
         if (NULL == value) {
             goto fail;
         }
-        newtup = Py_BuildValue("(OOO)", val, Npy_INTERFACE(value->descr),
+        newtup = Py_BuildValue("(OON)", val, Npy_INTERFACE(value->descr),
                                PyInt_FromLong(value->offset));
         res = voidtype_setfield(self, newtup, NULL);
         Py_DECREF(newtup);
