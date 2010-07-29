@@ -257,6 +257,16 @@ class TestUfunc(TestCase):
 
     def test_array_inplace_ops( self ):
 
+        types = [ np.byte, np.ubyte,
+                  np.int16, np.uint16,
+                  np.int32, np.uint32,
+                  np.int64, np.uint64 ]
+
+        for t in types:
+            self.exercise_array_inplace_ops_t( t )
+
+    def exercise_array_inplace_ops_t( self, tp ):
+
         # There are a few inplace ops that don't seem to be utilized
         # elsewhere in the test framework:
         #   array_inplace_bitwise_xor
@@ -267,19 +277,24 @@ class TestUfunc(TestCase):
         #   array_inplace_bitwise_and
         # In this test, we'll try to work off this list.
 
-        a = np.arange(5)
-        aref = np.arange(5)
+        a = np.arange( 5, dtype=tp )
+        aref = np.arange( 5, dtype=tp )
 
         # array_inplace_bitwise_xor
         a ^= a
-        assert_equal( a, np.zeros( 5, int ) )
+        assert_equal( a, np.zeros( 5, tp ) )
+
+        # array_inplace_bitwise_or
+        a = np.zeros( 5, dtype=tp )
+        a |= 7
+        assert_equal( a, [7,7,7,7,7] )
 
         # array_inplace_bitwise_and
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a &= 1
         assert_equal( a, [0,1,0,1,0] )
 
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
 
         # array_inplace_left_shift
         a <<= 1
@@ -290,13 +305,13 @@ class TestUfunc(TestCase):
         assert_equal( a, aref )
 
         # array_inplace_remainder
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a += 2
         a %= 2
         assert_equal( a, [0,1,0,1,0] )
 
         # array_inplace_floor_divide
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a //= 2
         assert_equal( a, [0,0,1,1,2] )
 
@@ -308,7 +323,7 @@ class TestUfunc(TestCase):
 
         # Now handle inplace_true_divide, which requires some subtlety.
         from operator import itruediv
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         itruediv( a, 2 )
         assert_equal( a, [0,0,1,1,2] )
         # NOTE:  This does seem a little wierd.  The whole point of true
