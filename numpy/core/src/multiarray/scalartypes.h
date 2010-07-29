@@ -1,6 +1,8 @@
 #ifndef _NPY_SCALARTYPES_H_
 #define _NPY_SCALARTYPES_H_
 
+#include <numpy/noprefix.h>
+
 NPY_NO_EXPORT void
 initialize_numeric_types(void);
 

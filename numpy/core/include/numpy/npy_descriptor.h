@@ -1,7 +1,6 @@
 #ifndef _NPY_DESCRIPTOR_H_
 #define _NPY_DESCRIPTOR_H_
 
-#include "ndarraytypes.h"       /* TODO: Should go away, but defs need to be moved to npy_defs.h */
 #include "npy_defs.h"
 #include "npy_object.h"
 
@@ -13,14 +12,11 @@
     NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
 
 
-/* TODO: Delete this once headers are sorted out. */
-typedef struct PyArray_ArrFuncs NpyArray_ArrFuncs;
 
 
-struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
-
-struct NpyArray_ArrayDescr;
-
+/*
+ * Structure definitions
+ */
 
 struct NpyArray_DateTimeInfo {
     NPY_DATETIMEUNIT base;
@@ -64,7 +60,7 @@ struct NpyArray_Descr {
     char **names;           /* Array of char *, NULL indicates end of array. 
                              * char* lifetime is exactly lifetime of array itself. */
     
-    NpyArray_ArrFuncs *f;    /*
+    struct NpyArray_ArrFuncs *f; /*
                               * a table of functions specific for each
                               * basic data descriptor
                               */
@@ -77,6 +73,117 @@ struct NpyArray_Descr {
     
 };
 
+
+struct NpyArray_ArrFuncs {
+    /* The next four functions *cannot* be NULL */
+    
+    /*
+     * Functions to get and set items with standard Python types
+     * -- not array scalars
+     */
+    NpyArray_GetItemFunc *getitem;
+    NpyArray_SetItemFunc *setitem;
+    
+    /*
+     * Copy and/or swap data.  Memory areas may not overlap
+     * Use memmove first if they might
+     */
+    NpyArray_CopySwapNFunc *copyswapn;
+    NpyArray_CopySwapFunc *copyswap;
+    
+    /*
+     * Function to compare items
+     * Can be NULL
+     */
+    NpyArray_CompareFunc *compare;
+    
+    /*
+     * Function to select largest
+     * Can be NULL
+     */
+    NpyArray_ArgFunc *argmax;
+    
+    /*
+     * Function to compute dot product
+     * Can be NULL
+     */
+    NpyArray_DotFunc *dotfunc;
+    
+    /*
+     * Function to scan an ASCII file and
+     * place a single value plus possible separator
+     * Can be NULL
+     */
+    NpyArray_ScanFunc *scanfunc;
+    
+    /*
+     * Function to read a single value from a string
+     * and adjust the pointer; Can be NULL
+     */
+    NpyArray_FromStrFunc *fromstr;
+    
+    /*
+     * Function to determine if data is zero or not
+     * If NULL a default version is
+     * used at Registration time.
+     */
+    NpyArray_NonzeroFunc *nonzero;
+    
+    /*
+     * Used for arange.
+     * Can be NULL.
+     */
+    NpyArray_FillFunc *fill;
+    
+    /*
+     * Function to fill arrays with scalar values
+     * Can be NULL
+     */
+    NpyArray_FillWithScalarFunc *fillwithscalar;
+    
+    /*
+     * Sorting functions
+     * Can be NULL
+     */
+    NpyArray_SortFunc *sort[NPY_NSORTS];
+    NpyArray_ArgSortFunc *argsort[NPY_NSORTS];
+    
+    /*
+     * Array of PyArray_CastFuncsItem given cast functions to 
+     * user defined types. The array it terminated with PyArray_NOTYPE.
+     * Can be NULL.
+     */
+    struct NpyArray_CastFuncsItem* castfuncs;
+    
+    /*
+     * Functions useful for generalizing
+     * the casting rules.
+     * Can be NULL;
+     */
+    NpyArray_ScalarKindFunc *scalarkind;
+    int **cancastscalarkindto;
+    int *cancastto;
+    
+    NpyArray_FastClipFunc *fastclip;
+    NpyArray_FastPutmaskFunc *fastputmask;
+    NpyArray_FastTakeFunc *fasttake;
+    
+    /*
+     * A little room to grow --- should use generic function
+     * interface for most additions
+     */
+    void *pad1;
+    void *pad2;
+    void *pad3;
+    void *pad4;
+    
+    /*
+     * Functions to cast to all other standard types
+     * Can have some NULL entries
+     */
+    NpyArray_VectorUnaryFunc *cast[NPY_NTYPES];
+    
+};
 
 
 struct NpyArray_ArrayDescr {
@@ -94,6 +201,12 @@ struct NpyArray_DescrField {
     NpyArray_Descr *descr;
     int offset;
     char *title;                /* String owned/managed by each instance */
+};
+
+
+struct NpyArray_CastFuncsItem {
+    int totype;
+    NpyArray_VectorUnaryFunc* castfunc;
 };
 
 

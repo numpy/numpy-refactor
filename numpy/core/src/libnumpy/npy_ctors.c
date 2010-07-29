@@ -5,7 +5,6 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
-#include <Python.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
@@ -815,7 +814,6 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     size_t sd;
     npy_intp largest;
     npy_intp size;
-    PyTypeObject *subtypeHack = NULL;
     
     assert(NULL != descr && NPY_VALID_MAGIC == descr->magic_number);
 
@@ -898,21 +896,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     }
     
     
-    /* TODO: This code should go away as soon as we split the array object from the Python wrapper. */
-    if (NPY_TRUE == ensureArray) {
-        subtypeHack = &PyArray_Type;
-    } else if (NULL != subtype) {
-        subtypeHack = (PyTypeObject *)subtype;
-        assert(PyType_Check((PyObject *)subtypeHack));
-    } else if (NULL != interfaceData) {
-        assert(PyArray_Check(interfaceData));
-        subtypeHack = Py_TYPE((PyObject *)interfaceData);
-    } else {
-        subtypeHack = &PyArray_Type;
-    }
     self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
-    
-    
     if (self == NULL) {
         _Npy_DECREF(descr);
         return NULL;

@@ -6,6 +6,8 @@
 int int int;
 #endif
 
+#include <numpy/noprefix.h>
+
 NPY_NO_EXPORT int
 PyUCS2Buffer_FromUCS4(Py_UNICODE *ucs2, PyArray_UCS4 *ucs4, int ucs4length);
 

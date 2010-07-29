@@ -75,10 +75,6 @@ typedef unsigned char npy_bool;
         #define NPY_LONGDOUBLE_FMT "Lg"
 #endif
 
-#ifndef Py_USING_UNICODE
-#error Must use Python with unicode enabled.
-#endif
-
 
 typedef signed char npy_byte;
 typedef unsigned char npy_ubyte;

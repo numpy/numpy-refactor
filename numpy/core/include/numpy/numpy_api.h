@@ -3,7 +3,6 @@
 
 #include "npy_3kcompat.h"
 #include "assert.h"
-#include <numpy/arrayobject.h>
 #include <numpy/npy_defs.h>
 #include <numpy/npy_descriptor.h>
 
@@ -18,27 +17,6 @@ enum {
 #endif
 
 
-typedef PyArray_CopySwapFunc NpyArray_CopySwapFunc;
-typedef PyArray_CopySwapNFunc NpyArray_CopySwapNFunc;
-typedef PyArray_ArgFunc NpyArray_ArgFunc;
-typedef PyArray_VectorUnaryFunc NpyArray_VectorUnaryFunc;
-typedef PyArray_FastTakeFunc NpyArray_FastTakeFunc;
-typedef PyArray_FastPutmaskFunc NpyArray_FastPutmaskFunc;
-typedef PyArray_SortFunc NpyArray_SortFunc;
-typedef PyArray_ArgSortFunc NpyArray_ArgSortFunc;
-typedef PyArray_CompareFunc NpyArray_CompareFunc;
-typedef PyArray_CastFuncsItem NpyArray_CastFuncsItem;
-typedef PyArray_GetItemFunc NpyArray_GetItemFunc;
-typedef PyArray_SetItemFunc NpyArray_SetItemFunc;
-typedef PyArray_ScanFunc NpyArray_ScanFunc;
-typedef PyArray_FromStrFunc NpyArray_FromStrFunc;
-typedef PyArray_NonzeroFunc NpyArray_NonzeroFunc;
-typedef PyArray_FillFunc NpyArray_FillFunc;
-typedef PyArray_FillWithScalarFunc NpyArray_FillWithScalarFunc;
-typedef PyArray_ScalarKindFunc NpyArray_ScalarKindFunc;
-typedef PyArray_FastClipFunc NpyArray_FastClipFunc;
-
-typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *, npy_intp, struct NpyArray *);
 
 #define NpyArray_UCS4 npy_ucs4
 
@@ -86,7 +64,6 @@ typedef struct {
 
 
 
-struct NpyArray_Descr;
 
 /* Really internal to the core, but required for now by PyArray_TypeNumFromString */
 /* TODO: Refactor and add an accessor for npy_userdescrs */
