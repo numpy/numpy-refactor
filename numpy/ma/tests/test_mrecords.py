@@ -143,6 +143,7 @@ class TestMRecords(TestCase):
         rdata['num'] = val
         assert_equal(rdata.num, val)
         assert_equal(rdata.num.mask, [1,0,0])
+        warnings.resetwarnings()
 
     def test_set_fields_mask(self):
         "Tests setting the mask of a field."
