@@ -2353,6 +2353,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
                         }
                     }
                 }
+                /* Prevent doing the decref twice on an error. */
+                loop->objfunc = 0;
             }
             /* fixme -- probably not needed here*/
             UFUNC_CHECK_ERROR(loop);
@@ -2372,6 +2374,42 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 fail:
     NPY_LOOP_END_THREADS;
     if (loop) {
+        if (loop->objfunc) {
+            char **castbuf = loop->castbuf;
+            intp *steps = loop->steps;
+            int ninnerloops = loop->ninnerloops;
+            int j;
+
+            /*
+             * DECREF castbuf when underlying function used
+             * object arrays and casting was needed to get
+             * to object arrays
+             */
+            for (i = 0; i < self->nargs; i++) {
+                if (loop->cast[i]) {
+                    if (steps[i] == 0) {
+                        Py_XDECREF(*((PyObject **)castbuf[i]));
+                    }
+                    else {
+                        int size = loop->bufsize;
+
+                        PyObject **objptr = (PyObject **)castbuf[i];
+                        /*
+                         * size is loop->bufsize unless there
+                         * was only one loop
+                         */
+                        if (ninnerloops == 1) {
+                            size = loop->leftover;
+                        }
+                        for (j = 0; j < size; j++) {
+                            Py_XDECREF(*objptr);
+                            *objptr = NULL;
+                            objptr += 1;
+                        }
+                    }
+                }
+            }
+        }
         ufuncloop_dealloc(loop);
     }
     return -1;
