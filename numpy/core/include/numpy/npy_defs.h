@@ -1,6 +1,7 @@
 #ifndef _NPY_DEFS_H_
 #define _NPY_DEFS_H_
 
+#include <Python.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <numpy/npy_common.h>
@@ -23,8 +24,8 @@
  * this platform.  Py_intptr_t, Py_uintptr_t are defined in pyport.h.
  */
 /* TODO: Need a platform-dependent size for npy_intp */
-typedef intptr_t npy_intp;
-typedef uintptr_t npy_uintp;
+typedef Py_intptr_t npy_intp;
+typedef Py_uintptr_t npy_uintp;
 
 
 /*typedef Py_intptr_t npy_intp;
@@ -330,8 +331,8 @@ typedef int (NpyArray_ArgFunc)(void*, npy_intp, npy_intp*, struct NpyArray *);
 typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
                                 npy_intp, struct NpyArray *);
 
-typedef void (NpyArray_VectorUnaryFunc)(void *, void *, npy_intp, struct NpyArray *,
-                                        struct NpyArray *);
+typedef void (NpyArray_VectorUnaryFunc)(void *, void *, npy_intp, void *,
+                                        void *);
 
 /*
  * XXX the ignore argument should be removed next time the API version
