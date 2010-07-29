@@ -44,15 +44,17 @@ power_of_ten(int n)
     return ret;
 }
 
+
 /*NUMPY_API
  * ArgMax
  */
 NPY_NO_EXPORT PyObject *
 PyArray_ArgMax(PyArrayObject *op, int axis, PyArrayObject *out)
 {
-    RETURN_PYARRAY(NpyArray_ArgMax(PyArray_ARRAY(op), axis, 
+    RETURN_PYARRAY(NpyArray_ArgMax(PyArray_ARRAY(op), axis,
                                    PyArray_ARRAY(out)));
 }
+
 
 /*NUMPY_API
  * ArgMin
@@ -497,7 +499,7 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
     if (!out) {
         NpyArray_Descr *my_descr;
         PyArray_Descr *my_descr_wrap;
-        
+
         if (PyArray_ISINTEGER(a)) {
             ret_int = 1;
             my_descr = NpyArray_DescrFromType(NPY_DOUBLE);
@@ -506,8 +508,9 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
             my_descr = PyArray_DESCR(a);
             _Npy_INCREF(my_descr);
         }
-        
-        /* TODO: Ugly.  Refactor PyArray_Empty into core once zero fill is refactored. */
+
+        /* TODO: Ugly.
+           Refactor PyArray_Empty into core once zero fill is refactored. */
         my_descr_wrap = PyArray_Descr_WRAP(my_descr);
         Py_INCREF(my_descr_wrap);
         _Npy_DECREF(my_descr);
@@ -549,8 +552,9 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
     Py_DECREF(out);
     if (ret_int) {
         _Npy_INCREF(PyArray_DESCR(a));
-        tmp = Npy_INTERFACE( NpyArray_CastToType(PyArray_ARRAY(ret),
-                                                 PyArray_DESCR(a), PyArray_ISFORTRAN(a)) );
+        tmp = Npy_INTERFACE(NpyArray_CastToType(PyArray_ARRAY(ret),
+                                                PyArray_DESCR(a),
+                                                PyArray_ISFORTRAN(a)));
         Py_DECREF(ret);
         return tmp;
     }
@@ -679,7 +683,8 @@ _slow_array_clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObjec
  * Clip
  */
 NPY_NO_EXPORT PyObject *
-PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *out)
+PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
+             PyArrayObject *out)
 {
     PyArray_FastClipFunc *func;
     int outgood = 0, ingood = 0;
@@ -824,8 +829,9 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
             flags = NPY_CARRAY;
         }
         _Npy_INCREF(indescr);
-        ASSIGN_TO_PYARRAY(newin, 
-                          NpyArray_FromArray(PyArray_ARRAY(self), indescr, flags));
+        ASSIGN_TO_PYARRAY(newin,
+                          NpyArray_FromArray(PyArray_ARRAY(self),
+                                             indescr, flags));
         if (newin == NULL) {
             goto fail;
         }
@@ -858,7 +864,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
      */
     if (out == NULL) {
         _Npy_INCREF(indescr);
-        ASSIGN_TO_PYARRAY(out, 
+        ASSIGN_TO_PYARRAY(out,
             NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
                                   PyArray_DIMS(self),
                                   NULL, NULL,
@@ -910,7 +916,9 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
         goto fail;
     }
     if (PyArray_BYTES(newout) != PyArray_BYTES(newin)) {
-        memcpy(PyArray_BYTES(newout), PyArray_BYTES(newin), PyArray_NBYTES(newin));
+        memcpy(PyArray_BYTES(newout),
+               PyArray_BYTES(newin),
+               PyArray_NBYTES(newin));
     }
 
     /* Now we can call the fast-clip function */
@@ -921,7 +929,8 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObject *o
     if (maxa != NULL) {
         max_data = PyArray_BYTES(maxa);
     }
-    func(PyArray_BYTES(newin), PyArray_SIZE(newin), min_data, max_data, PyArray_BYTES(newout));
+    func(PyArray_BYTES(newin), PyArray_SIZE(newin),
+         min_data, max_data, PyArray_BYTES(newout));
 
     /* Clean up temporary variables */
     Py_XDECREF(mina);
@@ -973,6 +982,7 @@ PyArray_Conjugate(PyArrayObject *self, PyArrayObject *out)
     }
 }
 
+
 /*NUMPY_API
  * Trace
  */
@@ -986,7 +996,8 @@ PyArray_Trace(PyArrayObject *self, int offset, int axis1, int axis2,
     if (diag == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericReduceFunction((PyAO *)diag, n_ops.add, -1, rtype, out);
+    ret = PyArray_GenericReduceFunction((PyAO *)diag,
+                                        n_ops.add, -1, rtype, out);
     Py_DECREF(diag);
     return ret;
 }
