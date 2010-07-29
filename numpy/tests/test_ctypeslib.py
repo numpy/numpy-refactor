@@ -97,7 +97,7 @@ class TestNdpointer(TestCase):
 
 
 if hasattr(sys, 'gettotalrefcount'):
-    # skip this test class test when Python was compiled using
+    # skip this test class when Python was compiled using
     # the --with-pydebug option.  This is necessary because, i.e.
     #     type("foo", (object,), {})
     # leaks references

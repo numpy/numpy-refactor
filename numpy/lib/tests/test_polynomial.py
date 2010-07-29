@@ -82,11 +82,16 @@ poly1d([ 2.])
 (poly1d([ 1., -1.]), poly1d([ 0.]))
 """
 
+import sys
+
 from numpy.testing import *
 import numpy as np
 
 class TestDocs(TestCase):
     def test_doctests(self):
+        if hasattr(sys, 'gettotalrefcount'):
+            # skip this test when Python was compiled using --with-pydebug
+            return
         return rundocs()
 
     def test_roots(self):
