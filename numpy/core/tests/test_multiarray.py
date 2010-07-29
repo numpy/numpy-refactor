@@ -417,6 +417,7 @@ class TestMethods(TestCase):
         types = [ np.byte, np.ubyte,
                   np.short, np.ushort,
                   np.int32, np.uint32,
+                  np.int64, np.uint64,
                   np.longlong, np.ulonglong,
                   np.float32, np.complex64,
                   np.double, np.cdouble,
