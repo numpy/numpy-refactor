@@ -22,7 +22,7 @@ _zerofill(PyArrayObject *ret);
 NPY_NO_EXPORT int
 _IsAligned(PyArrayObject *ap);
 
-NPY_NO_EXPORT Bool
+NPY_NO_EXPORT npy_bool
 _IsWriteable(PyArrayObject *ap);
 
 #ifndef Py_UNICODE_WIDE

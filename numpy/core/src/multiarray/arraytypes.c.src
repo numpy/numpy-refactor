@@ -1400,7 +1400,7 @@ void
  * #format = "hd", "hu", "d", "u", "ld", "lu", LONGLONG_FMT, ULONGLONG_FMT#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignored))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
 {
     return fscanf(fp, "%"@format@, ip);
 }
@@ -1411,7 +1411,7 @@ int
  * #type = float, double, longdouble#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignored))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
 {
     double result;
     int ret;
@@ -1429,7 +1429,7 @@ int
  * #format = "d", "u"#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignore2))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
 {
     @btype@ temp;
     int num;
@@ -1441,7 +1441,7 @@ int
 /**end repeat**/
 
 int
-BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSED(ignore2))
+BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
 {
     int temp;
     int num;
@@ -1475,7 +1475,7 @@ BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), PyArray_Descr *NPY_UNUSE
  * #btype = (long, ulong)*5, long, long#
  */
 int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *NPY_UNUSED(ignore))
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
 {
     @btype@ result;
 
@@ -1491,7 +1491,7 @@ int
  * #type=float,double,longdouble#
  */
 int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *NPY_UNUSED(ignore))
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
 {
     double result;
 

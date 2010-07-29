@@ -19,8 +19,6 @@
  *****************************************************************************
  */
 
-typedef npy_intp intp;
-
 #define INIT_OUTER_LOOP_1       \
     intp dN = *dimensions++;    \
     intp N_;                    \

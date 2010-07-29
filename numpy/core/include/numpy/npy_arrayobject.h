@@ -21,6 +21,10 @@ struct NpyArray {
     int flags;              /* Flags describing array -- see below */
 };
 
+
+
+
+
 extern _NpyTypeObject NpyArray_Type;
 
 npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);

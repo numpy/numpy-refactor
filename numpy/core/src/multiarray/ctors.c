@@ -76,7 +76,7 @@ static int
 fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
                      const char *end)
 {
-    int r = dtype->f->fromstr(*s, dptr, s, PyArray_Descr_WRAP(dtype));
+    int r = dtype->f->fromstr(*s, dptr, s, dtype);
     if (end != NULL && *s > end) {
         return -1;
     }
@@ -88,7 +88,7 @@ fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
                       void *NPY_UNUSED(stream_data))
 {
     /* the NULL argument is for backwards-compatibility */
-    return dtype->f->scanfunc(*fp, dptr, NULL, PyArray_Descr_WRAP(dtype));
+    return dtype->f->scanfunc(*fp, dptr, NULL, dtype);
 }
 
 /*
@@ -1907,7 +1907,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
 {
     intp length;
     PyObject *range;
-    PyArray_ArrFuncs *funcs;
+    NpyArray_ArrFuncs *funcs;
     PyObject *obj;
     int ret;
 

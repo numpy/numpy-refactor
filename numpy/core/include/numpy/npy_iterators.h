@@ -291,7 +291,7 @@ typedef struct {
          */
         npy_intp              bscoord[NPY_MAXDIMS];
 
-        PyObject            *indexobj;               /* creating obj */     /* TODO: Refactor me: indexobj of map iterator */
+        void                  *indexobj;               /* creating obj */     /* TODO: Refactor me: indexobj of map iterator */
         int                   consec;
         char                  *dataptr;
 

@@ -6,7 +6,6 @@
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
 
-#define Py_USING_UNICODE
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
