@@ -153,8 +153,15 @@ NpyArray_dealloc(NpyArray *self) {
              * self already...
              */
 #ifdef Py_REF_DEBUG
-            /* Decrement the total refcnt for debugging. */
-            _Py_DEC_REFTOTAL;
+            /*
+             * Decrement the total refcnt for debugging.
+             * We don't do this if the refcnt is not 1 because
+             * this means an _Npy_DECREF would not result in
+             * a Py_DECREF.
+             */
+            if (self->nob_refcnt == 1) {
+                _Py_DEC_REFTOTAL;
+            }
 #endif
         }
         NpyDataMem_FREE(self->data);
