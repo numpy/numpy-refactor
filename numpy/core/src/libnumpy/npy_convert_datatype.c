@@ -147,7 +147,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     if (NpyDataType_REFCHK(in->descr)) {
         obptr = buffers[1];
         for (i = 0; i < N; i++, obptr+=selsize) {
-            NpyArray_Item_XDECREF(obptr, out->descr);
+            NpyArray_Item_XDECREF(obptr, in->descr);
         }
     }
     if (NpyDataType_REFCHK(out->descr)) {

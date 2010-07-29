@@ -257,6 +257,16 @@ class TestUfunc(TestCase):
 
     def test_array_inplace_ops( self ):
 
+        types = [ np.byte, np.ubyte,
+                  np.int16, np.uint16,
+                  np.int32, np.uint32,
+                  np.int64, np.uint64 ]
+
+        for t in types:
+            self.exercise_array_inplace_ops_t( t )
+
+    def exercise_array_inplace_ops_t( self, tp ):
+
         # There are a few inplace ops that don't seem to be utilized
         # elsewhere in the test framework:
         #   array_inplace_bitwise_xor
@@ -267,19 +277,24 @@ class TestUfunc(TestCase):
         #   array_inplace_bitwise_and
         # In this test, we'll try to work off this list.
 
-        a = np.arange(5)
-        aref = np.arange(5)
+        a = np.arange( 5, dtype=tp )
+        aref = np.arange( 5, dtype=tp )
 
         # array_inplace_bitwise_xor
         a ^= a
-        assert_equal( a, np.zeros( 5, int ) )
+        assert_equal( a, np.zeros( 5, tp ) )
+
+        # array_inplace_bitwise_or
+        a = np.zeros( 5, dtype=tp )
+        a |= 7
+        assert_equal( a, [7,7,7,7,7] )
 
         # array_inplace_bitwise_and
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a &= 1
         assert_equal( a, [0,1,0,1,0] )
 
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
 
         # array_inplace_left_shift
         a <<= 1
@@ -290,13 +305,13 @@ class TestUfunc(TestCase):
         assert_equal( a, aref )
 
         # array_inplace_remainder
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a += 2
         a %= 2
         assert_equal( a, [0,1,0,1,0] )
 
         # array_inplace_floor_divide
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         a //= 2
         assert_equal( a, [0,0,1,1,2] )
 
@@ -308,7 +323,7 @@ class TestUfunc(TestCase):
 
         # Now handle inplace_true_divide, which requires some subtlety.
         from operator import itruediv
-        a = np.arange(5)
+        a = np.arange( 5, dtype=tp )
         itruediv( a, 2 )
         assert_equal( a, [0,0,1,1,2] )
         # NOTE:  This does seem a little wierd.  The whole point of true
@@ -358,7 +373,11 @@ class TestUfunc(TestCase):
         assert_equal(umt.inner1d.signature, "(i),(i)->()")
 
     def test_inner1d(self):
-        a = np.arange(6).reshape((2,3))
+        self.check_inner1d_t( np.int )
+        self.check_inner1d_t( np.double )
+
+    def check_inner1d_t( self, tp ):
+        a = np.arange( 6, dtype=tp ).reshape((2,3))
         assert_array_equal(umt.inner1d(a,a), np.sum(a*a,axis=-1))
 
     def test_broadcast(self):
@@ -435,20 +454,24 @@ class TestUfunc(TestCase):
         umt.inner1d(a,b,c[...,0])
         assert_array_equal(c[...,0], np.sum(a*b,axis=-1), err_msg=msg)
 
-    def test_innerwt(self):
-        a = np.arange(6).reshape((2,3))
-        b = np.arange(10,16).reshape((2,3))
-        w = np.arange(20,26).reshape((2,3))
+    def test_innerwt( self ):
+        self.check_innerwt_t( np.int )
+        self.check_innerwt_t( np.double )
+
+    def check_innerwt_t( self, tp ):
+        a = np.arange(6, dtype=tp).reshape((2,3))
+        b = np.arange(10,16, dtype=tp).reshape((2,3))
+        w = np.arange(20,26, dtype=tp).reshape((2,3))
         assert_array_equal(umt.innerwt(a,b,w), np.sum(a*b*w,axis=-1))
-        a = np.arange(100,124).reshape((2,3,4))
-        b = np.arange(200,224).reshape((2,3,4))
-        w = np.arange(300,324).reshape((2,3,4))
+        a = np.arange(100,124, dtype=tp).reshape((2,3,4))
+        b = np.arange(200,224, dtype=tp).reshape((2,3,4))
+        w = np.arange(300,324, dtype=tp).reshape((2,3,4))
         assert_array_equal(umt.innerwt(a,b,w), np.sum(a*b*w,axis=-1))
 
     def test_matrix_multiply(self):
-        self.compare_matrix_multiply_results(np.long)
-        self.compare_matrix_multiply_results(np.double)
-        self.compare_matrix_multiply_results(np.float32)
+        self.compare_matrix_multiply_results( np.int32 )
+        self.compare_matrix_multiply_results( np.double )
+        self.compare_matrix_multiply_results( np.float32 )
 
     def compare_matrix_multiply_results(self, tp):
         d1 = np.array(rand(2,3,4), dtype=tp)

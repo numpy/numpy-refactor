@@ -1843,6 +1843,7 @@ PyArray_Zeros(int nd, intp *dims, PyArray_Descr *type, int fortran)
         return NULL;
     }
     if (_zerofill(ret) < 0) {
+        Py_DECREF(ret);
         return NULL;
     }
     return (PyObject *)ret;
