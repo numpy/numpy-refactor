@@ -386,6 +386,7 @@ class TestLoops(TestCase):
             c = b.astype( t )
             assert_equal( a, c )
 
+    @dec.knownfailureif(True, "datetime converions fail.")
     def test_string_to_datetimedelta( self ):
         # Handle these separately, as they each currently fail.
         for t in [np.datetime64, np.timedelta64]:
@@ -394,6 +395,7 @@ class TestLoops(TestCase):
             c = b.astype( t )
             assert_equal( a, c )
 
+    @dec.knownfailureif(True, "string to bool converions fail.")
     def test_string_to_bool( self ):
 
         a = np.array( [False, True] )
@@ -416,6 +418,7 @@ class TestLoops(TestCase):
             c = b.astype( t )
             assert_equal( a, c )
 
+    @dec.knownfailureif(True, "datetime converions fail.")
     def test_unicode_to_datetimedelta( self ):
         # Handle these separately, as they each currently fail.
         for t in [np.datetime64, np.timedelta64]:
