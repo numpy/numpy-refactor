@@ -1855,8 +1855,6 @@ static int
  * #endian = |, |, =#
 */
 static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
-//    (NpyArray_GetItemFunc*)@from@_getitem,
-//    (NpyArray_SetItemFunc*)@from@_setitem,
     NULL, NULL,
     (NpyArray_CopySwapNFunc*)@from@_copyswapn,
     (NpyArray_CopySwapFunc*)@from@_copyswap,
@@ -1933,8 +1931,6 @@ NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
  * #isobject= 0*19#
  */
 static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
-//    (NpyArray_GetItemFunc*)@from@_getitem,
-//    (NpyArray_SetItemFunc*)@from@_setitem,
     NULL, NULL,
     (NpyArray_CopySwapNFunc*)@from@_copyswapn,
     (NpyArray_CopySwapFunc*)@from@_copyswap,
@@ -1981,10 +1977,6 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
         (NpyArray_VectorUnaryFunc*)@from@_to_DATETIME,
         (NpyArray_VectorUnaryFunc*)@from@_to_TIMEDELTA,
         NULL, NULL, NULL, NULL
-        //(NpyArray_VectorUnaryFunc*)@from@_to_OBJECT,
-        //(NpyArray_VectorUnaryFunc*)@from@_to_STRING,
-        //(NpyArray_VectorUnaryFunc*)@from@_to_UNICODE,
-        //(NpyArray_VectorUnaryFunc*)@from@_to_VOID
     }
 };
 
@@ -2012,8 +2004,6 @@ NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
 /**end repeat**/
 
 static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
-    //    (NpyArray_GetItemFunc*)OBJECT_getitem,
-    //    (NpyArray_SetItemFunc*)OBJECT_setitem,
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL,
