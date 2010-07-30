@@ -9,6 +9,16 @@
 #include "numpy/numpy_api.h"
 
 
+/*
+ * Reading from a file or a string.
+ *
+ * As much as possible, we try to use the same code for both files and strings,
+ * so the semantics for fromstring and fromfile are the same, especially with
+ * regards to the handling of text representations.
+ */
+typedef int (*next_element)(void **, void *, NpyArray_Descr *, void *);
+typedef int (*skip_separator)(void **, const char *, void *);
+
 
 
 static void
@@ -1282,6 +1292,72 @@ NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 }
 
 
+static int
+fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
+                     const char *end)
+{
+    int r = dtype->f->fromstr(*s, dptr, s, dtype);
+    if (end != NULL && *s > end) {
+        return -1;
+    }
+    return r;
+}
+
+/*
+ * Assuming that the separator is the next bit in the string (file), skip it.
+ *
+ * Single spaces in the separator are matched to arbitrary-long sequences
+ * of whitespace in the input. If the separator consists only of spaces,
+ * it matches one or more whitespace characters.
+ *
+ * If we can't match the separator, return -2.
+ * If we hit the end of the string (file), return -1.
+ * Otherwise, return 0.
+ */
+static int
+fromstr_skip_separator(char **s, const char *sep, const char *end)
+{
+    char *string = *s;
+    int result = 0;
+    while (1) {
+        char c = *string;
+        if (c == '\0' || (end != NULL && string >= end)) {
+            result = -1;
+            break;
+        }
+        else if (*sep == '\0') {
+            if (string != *s) {
+                /* matched separator */
+                result = 0;
+                break;
+            }
+            else {
+                /* separator was whitespace wildcard that didn't match */
+                result = -2;
+                break;
+            }
+        }
+        else if (*sep == ' ') {
+            /* whitespace wildcard */
+            if (!isspace(c)) {
+                sep++;
+                continue;
+            }
+        }
+        else if (*sep != c) {
+            result = -2;
+            break;
+        }
+        else {
+            sep++;
+        }
+        string++;
+    }
+    *s = string;
+    return result;
+}
+
+
 /*
  * Remove multiple whitespace from the separator, and add a space to the
  * beginning and end. This simplifies the separator-skipping code below.
@@ -1395,8 +1471,8 @@ fromfile_skip_separator(FILE **fp, const char *sep,
 #define FROM_BUFFER_SIZE 4096
 static NpyArray *
 array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
-                void *stream, Npy_next_element next,
-                Npy_skip_separator skip_sep, void *stream_data)
+                void *stream, next_element next,
+                skip_separator skip_sep, void *stream_data)
 {
     NpyArray *r;
     npy_intp i, thisbuf = 0, size, bytes, totalbytes;
@@ -1498,8 +1574,8 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
     /* Move reference from interface to core object. */
     ret = array_from_text(dtype, num, sep, &nread, fp,
-                          (Npy_next_element) fromfile_next_element,
-                          (Npy_skip_separator) fromfile_skip_separator, NULL);
+                          (next_element) fromfile_next_element,
+                          (skip_separator) fromfile_skip_separator, NULL);
     if (ret == NULL) {
         return NULL;
     }
@@ -1510,10 +1586,74 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
         if ((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
             _Npy_DECREF(ret);
-            return NpyErr_NoMemory();
+            NpyErr_SetString(NpyErr_NoMemory(), "");
+            return NULL;
         }
         NpyArray_BYTES(ret) = tmp;
         NpyArray_DIM(ret,0) = nread;
+    }
+    return ret;
+}
+
+
+
+/*NUMPY_API
+ *
+ * Given a pointer to a string ``data``, a string length ``slen``, and
+ * a ``PyArray_Descr``, return an array corresponding to the data
+ * encoded in that string.
+ *
+ * If the dtype is NULL, the default array type is used (double).
+ * If non-null, the reference is stolen.
+ *
+ * If ``slen`` is < 0, then the end of string is used for text data.
+ * It is an error for ``slen`` to be < 0 for binary data (since embedded NULLs
+ * would be the norm).
+ *
+ * The number of elements to read is given as ``num``; if it is < 0, then
+ * then as many as possible are read.
+ *
+ * If ``sep`` is NULL or empty, then binary data is assumed, else
+ * text data, with ``sep`` as the separator between elements. Whitespace in
+ * the separator matches any length of whitespace in the text, and a match
+ * for whitespace around the separator is added.
+ */
+NpyArray *
+NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
+                    intp num, char *sep)
+{
+    NpyArray *ret;
+
+    if (dtype->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+
+    if ((sep == NULL) || (strlen(sep) == 0)) {
+        ret = NpyArray_FromBinaryString(data, slen, dtype, num);
+    } else {
+        /* read from character-based string */
+        size_t nread = 0;
+        char *end;
+
+        if (dtype->f->scanfunc == NULL) {
+            NpyErr_SetString(NpyExc_ValueError, "don't know how to read "
+                             "character strings with that array type");
+            _Npy_DECREF(dtype);
+            return NULL;
+        }
+        if (slen < 0) {
+            end = NULL;
+        }
+        else {
+            end = data + slen;
+        }
+        ret = array_from_text(dtype, num, sep, &nread,
+                              data,
+                              (next_element) fromstr_next_element,
+                              (skip_separator) fromstr_skip_separator,
+                              end);
     }
     return ret;
 }
