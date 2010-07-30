@@ -127,8 +127,12 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
-                           int inflag, int *objflags);
+size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
+                           size_t itemsize, int inflag, int *objflags);
+
+NpyArray *
+NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep);
+
 NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 

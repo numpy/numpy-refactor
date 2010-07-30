@@ -83,14 +83,6 @@ fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
     return r;
 }
 
-static int
-fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
-                      void *NPY_UNUSED(stream_data))
-{
-    /* the NULL argument is for backwards-compatibility */
-    return dtype->f->scanfunc(*fp, dptr, NULL, dtype);
-}
-
 /*
  * Remove multiple whitespace from the separator, and add a space to the
  * beginning and end. This simplifies the separator-skipping code below.
@@ -185,56 +177,6 @@ fromstr_skip_separator(char **s, const char *sep, const char *end)
         string++;
     }
     *s = string;
-    return result;
-}
-
-static int
-fromfile_skip_separator(FILE **fp, const char *sep,
-                        void *NPY_UNUSED(stream_data))
-{
-    int result = 0;
-    const char *sep_start = sep;
-
-    while (1) {
-        int c = fgetc(*fp);
-
-        if (c == EOF) {
-            result = -1;
-            break;
-        }
-        else if (*sep == '\0') {
-            ungetc(c, *fp);
-            if (sep != sep_start) {
-                /* matched separator */
-                result = 0;
-                break;
-            }
-            else {
-                /* separator was whitespace wildcard that didn't match */
-                result = -2;
-                break;
-            }
-        }
-        else if (*sep == ' ') {
-            /* whitespace wildcard */
-            if (!isspace(c)) {
-                sep++;
-                sep_start++;
-                ungetc(c, *fp);
-            }
-            else if (sep == sep_start) {
-                sep_start--;
-            }
-        }
-        else if (*sep != c) {
-            ungetc(c, *fp);
-            result = -2;
-            break;
-        }
-        else {
-            sep++;
-        }
-    }
     return result;
 }
 
@@ -2051,7 +1993,8 @@ _calc_length(PyObject *start, PyObject *stop, PyObject *step, PyObject **next, i
  * this doesn't change the references
  */
 NPY_NO_EXPORT PyObject *
-PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArray_Descr *dtype)
+PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
+                        NpyArray_Descr *dtype)
 {
     PyObject *range;
     PyArray_ArrFuncs *funcs;
@@ -2288,58 +2231,11 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 {
     PyArrayObject *ret;
-    size_t nread = 0;
 
-    /* TODO: Review whether we want the boilerplate code in this function
-             here or in PyArray_FromFile.
-             It is also duplicated in NpyArray_FromFile... */
-    if (PyDataType_REFCHK(dtype)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot read into object array");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-    if (dtype->descr->elsize == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "The elements are 0-sized.");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-    if ((sep == NULL) || (strlen(sep) == 0)) {
-        PyErr_SetString(PyExc_ValueError,
-                 "A separator must be specified when reading a text file.");
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    ASSIGN_TO_PYARRAY(
+        ret,
+        NpyArray_FromTextFile(fp, dtype->descr, num, sep));
 
-    if (dtype->descr->f->scanfunc == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Unable to read character files of that array type");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-
-    /* Move reference from interface to core object. */
-    _Npy_INCREF(dtype->descr);
-    Py_DECREF(dtype);
-    ret = array_from_text(dtype->descr, num, sep, &nread, fp,
-                          (next_element) fromfile_next_element,
-                          (skip_separator) fromfile_skip_separator, NULL);
-    if (ret == NULL) {
-        return NULL;
-    }
-    if (((intp) nread) < num) {
-        /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1)*PyArray_ITEMSIZE(ret);
-        char *tmp;
-
-        if((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
-            Py_DECREF(ret);
-            return PyErr_NoMemory();
-        }
-        PyArray_BYTES(ret) = tmp;
-        PyArray_DIM(ret,0) = nread;
-    }
     return (PyObject *)ret;
 }
 

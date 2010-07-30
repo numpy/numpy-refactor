@@ -1666,6 +1666,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     return ret;
 }
 
+
 #if 0
 /* TODO: Dead code? Duplicate, but different, version in npy_descriptor.c */
 NpyArray_Descr *
