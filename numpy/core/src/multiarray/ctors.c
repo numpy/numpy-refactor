@@ -60,127 +60,6 @@ PyCapsule_GetPointer(void *ptr, void *notused)
     } while(0)
 
 
-
-/*
- * Reading from a file or a string.
- *
- * As much as possible, we try to use the same code for both files and strings,
- * so the semantics for fromstring and fromfile are the same, especially with
- * regards to the handling of text representations.
- */
-
-typedef int (*next_element)(void **, void *, NpyArray_Descr *, void *);
-typedef int (*skip_separator)(void **, const char *, void *);
-
-static int
-fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
-                     const char *end)
-{
-    int r = dtype->f->fromstr(*s, dptr, s, dtype);
-    if (end != NULL && *s > end) {
-        return -1;
-    }
-    return r;
-}
-
-/*
- * Remove multiple whitespace from the separator, and add a space to the
- * beginning and end. This simplifies the separator-skipping code below.
- */
-static char *
-swab_separator(char *sep)
-{
-    int skip_space = 0;
-    char *s, *start;
-
-    s = start = malloc(strlen(sep)+3);
-    /* add space to front if there isn't one */
-    if (*sep != '\0' && !isspace(*sep)) {
-        *s = ' '; s++;
-    }
-    while (*sep != '\0') {
-        if (isspace(*sep)) {
-            if (skip_space) {
-                sep++;
-            }
-            else {
-                *s = ' ';
-                s++;
-                sep++;
-                skip_space = 1;
-            }
-        }
-        else {
-            *s = *sep;
-            s++;
-            sep++;
-            skip_space = 0;
-        }
-    }
-    /* add space to end if there isn't one */
-    if (s != start && s[-1] == ' ') {
-        *s = ' ';
-        s++;
-    }
-    *s = '\0';
-    return start;
-}
-
-/*
- * Assuming that the separator is the next bit in the string (file), skip it.
- *
- * Single spaces in the separator are matched to arbitrary-long sequences
- * of whitespace in the input. If the separator consists only of spaces,
- * it matches one or more whitespace characters.
- *
- * If we can't match the separator, return -2.
- * If we hit the end of the string (file), return -1.
- * Otherwise, return 0.
- */
-static int
-fromstr_skip_separator(char **s, const char *sep, const char *end)
-{
-    char *string = *s;
-    int result = 0;
-    while (1) {
-        char c = *string;
-        if (c == '\0' || (end != NULL && string >= end)) {
-            result = -1;
-            break;
-        }
-        else if (*sep == '\0') {
-            if (string != *s) {
-                /* matched separator */
-                result = 0;
-                break;
-            }
-            else {
-                /* separator was whitespace wildcard that didn't match */
-                result = -2;
-                break;
-            }
-        }
-        else if (*sep == ' ') {
-            /* whitespace wildcard */
-            if (!isspace(c)) {
-                sep++;
-                continue;
-            }
-        }
-        else if (*sep != c) {
-            result = -2;
-            break;
-        }
-        else {
-            sep++;
-        }
-        string++;
-    }
-    *s = string;
-    return result;
-}
-
-
 /*
  * If s is not a list, return 0
  * Otherwise:
@@ -2146,86 +2025,6 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step,
 }
 
 
-/*
- * Create an array by reading from the given stream, using the passed
- * next_element and skip_separator functions.
- *
- * Steals a reference to dtype.
- */
-#define FROM_BUFFER_SIZE 4096
-static PyArrayObject *
-array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
-                void *stream, next_element next, skip_separator skip_sep,
-                void *stream_data)
-{
-    PyArrayObject *r;
-    intp i;
-    char *dptr, *clean_sep, *tmp;
-    int err = 0;
-    intp thisbuf = 0;
-    intp size;
-    intp bytes, totalbytes;
-
-    size = (num >= 0) ? num : FROM_BUFFER_SIZE;
-    ASSIGN_TO_PYARRAY(r,
-                      NpyArray_NewFromDescr(dtype,
-                                            1, &size,
-                                            NULL, NULL,
-                                            0, NPY_TRUE, NULL, NULL));
-    if (r == NULL) {
-        return NULL;
-    }
-    clean_sep = swab_separator(sep);
-    NPY_BEGIN_ALLOW_THREADS;
-    totalbytes = bytes = size * dtype->elsize;
-    dptr = PyArray_BYTES(r);
-    for (i= 0; num < 0 || i < num; i++) {
-        if (next(&stream, dptr, dtype, stream_data) < 0) {
-            break;
-        }
-        *nread += 1;
-        thisbuf += 1;
-        dptr += dtype->elsize;
-        if (num < 0 && thisbuf == size) {
-            totalbytes += bytes;
-            tmp = PyDataMem_RENEW(PyArray_BYTES(r), totalbytes);
-            if (tmp == NULL) {
-                err = 1;
-                break;
-            }
-            PyArray_BYTES(r) = tmp;
-            dptr = tmp + (totalbytes - bytes);
-            thisbuf = 0;
-        }
-        if (skip_sep(&stream, clean_sep, stream_data) < 0) {
-            break;
-        }
-    }
-    if (num < 0) {
-        tmp = PyDataMem_RENEW(PyArray_BYTES(r), NPY_MAX(*nread,1)*dtype->elsize);
-        if (tmp == NULL) {
-            err = 1;
-        }
-        else {
-            PyArray_DIM(r,0) = *nread;
-            PyArray_BYTES(r) = tmp;
-        }
-    }
-    NPY_END_ALLOW_THREADS;
-    free(clean_sep);
-    if (err == 1) {
-        PyErr_NoMemory();
-    }
-    if (PyErr_Occurred()) {
-        Py_DECREF(r);
-        return NULL;
-    }
-    return r;
-}
-#undef FROM_BUFFER_SIZE
-
-
-
 /* Steals a reference to dtype. */
 NPY_NO_EXPORT PyObject *
 PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
@@ -2252,7 +2051,7 @@ PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
  * then as many as possible are read.
  *
  * If ``sep`` is NULL or empty, then binary data is assumed, else
- * text data, with ``sep`` as the separator between elements. Whitespace in
+ * text data, with ``sep`` as the separator between elements.  Whitespace in
  * the separator matches any length of whitespace in the text, and a match
  * for whitespace around the separator is added.
  *
@@ -2426,13 +2225,10 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
                    intp num, char *sep)
 {
-    int itemsize;
     PyArrayObject *ret;
-    Bool binary;
-    NpyArray_Descr *dtypeCore = NULL;
 
     if (dtype == NULL) {
-        dtype=PyArray_DescrFromType(PyArray_DEFAULT);
+        dtype = PyArray_DescrFromType(PyArray_DEFAULT);
     }
     if (PyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         PyErr_SetString(PyExc_ValueError,
@@ -2440,46 +2236,10 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
         Py_DECREF(dtype);
         return NULL;
     }
-    itemsize = dtype->descr->elsize;
-    if (itemsize == 0) {
-        PyErr_SetString(PyExc_ValueError, "zero-valued itemsize");
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    ASSIGN_TO_PYARRAY(
+        ret,
+        NpyArray_FromString(data, slen, dtype->descr, num, sep));
 
-    /* Move reference to core. */
-    dtypeCore = dtype->descr;
-    _Npy_INCREF(dtypeCore);
-    Py_DECREF(dtype);
-    dtype = NULL;
-
-    binary = ((sep == NULL) || (strlen(sep) == 0));
-    if (binary) {
-        ASSIGN_TO_PYARRAY(
-            ret, NpyArray_FromBinaryString(data, slen, dtypeCore, num));
-    } else {
-        /* read from character-based string */
-        size_t nread = 0;
-        char *end;
-
-        if (dtypeCore->f->scanfunc == NULL) {
-            PyErr_SetString(PyExc_ValueError, "don't know how to read "
-                            "character strings with that array type");
-            _Npy_DECREF(dtypeCore);
-            return NULL;
-        }
-        if (slen < 0) {
-            end = NULL;
-        }
-        else {
-            end = data + slen;
-        }
-        ret = array_from_text(dtypeCore, num, sep, &nread,
-                              data,
-                              (next_element) fromstr_next_element,
-                              (skip_separator) fromstr_skip_separator,
-                              end);
-    }
     return (PyObject *)ret;
 }
 

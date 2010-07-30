@@ -47,8 +47,7 @@ array_shape_get(PyArrayObject *self)
 static int
 array_shape_set(PyArrayObject *self, PyObject *val)
 {
-    int nd, res;
-    PyObject *ret;
+    int res;
     PyArray_Dims newdims;
 
     if (!PyArray_IntpConverter(val, &newdims)) {
