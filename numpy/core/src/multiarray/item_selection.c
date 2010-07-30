@@ -529,68 +529,23 @@ NPY_NO_EXPORT PyObject *
 PyArray_Nonzero(PyArrayObject *self)
 {
     int n = PyArray_NDIM(self), j;
-    intp count = 0, i, size;
-    NpyArrayIterObject *it = NULL;
-    PyObject *ret = NULL, *item;
-    intp *dptr[MAX_DIMS];
+    NpyArray *arrays[MAX_DIMS];
+    PyObject* ret;
 
-    it = NpyArray_IterNew(PyArray_ARRAY(self));
-    if (it == NULL) {
-        return NULL;
-    }
-    size = it->size;
-    for (i = 0; i < size; i++) {
-        if (PyArray_DESCR(self)->f->nonzero(it->dataptr, PyArray_ARRAY(self))) {
-            count++;
-        }
-        NpyArray_ITER_NEXT(it);
-    }
-
-    NpyArray_ITER_RESET(it);
     ret = PyTuple_New(n);
     if (ret == NULL) {
-        goto fail;
-    }
-    for (j = 0; j < n; j++) {
-        item = PyArray_New(Py_TYPE(self), 1, &count,
-                           PyArray_INTP, NULL, NULL, 0, 0,
-                           (PyObject *)self);
-        if (item == NULL) {
-            goto fail;
-        }
-        PyTuple_SET_ITEM(ret, j, item);
-        dptr[j] = (intp *)PyArray_DATA(item);
-    }
-    if (n == 1) {
-        for (i = 0; i < size; i++) {
-            if (PyArray_DESCR(self)->f->nonzero(it->dataptr, 
-                                                PyArray_ARRAY(self))) {
-                *(dptr[0])++ = i;
-            }
-            NpyArray_ITER_NEXT(it);
-        }
-    }
-    else {
-        /* reset contiguous so that coordinates gets updated */
-        it->contiguous = 0;
-        for (i = 0; i < size; i++) {
-            if (PyArray_DESCR(self)->f->nonzero(it->dataptr, 
-                                                PyArray_ARRAY(self))) {
-                for (j = 0; j < n; j++) {
-                    *(dptr[j])++ = it->coordinates[j];
-                }
-            }
-            NpyArray_ITER_NEXT(it);
-        }
+        return NULL;
     }
 
-    _Npy_DECREF(it);
+    if (NpyArray_NonZero(PyArray_ARRAY(self), arrays, self) < 0) {
+        Py_DECREF(ret);
+        return NULL;
+    }
+
+    for (j=0; j<n; j++) {
+        PyTuple_SET_ITEM(ret, j, Npy_INTERFACE(arrays[j]));
+    }
+
     return ret;
-
- fail:
-    Py_XDECREF(ret);
-    Py_XDECREF(it);
-    return NULL;
-
 }
 

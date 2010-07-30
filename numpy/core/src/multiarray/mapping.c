@@ -492,6 +492,49 @@ fancy_indexing_check(PyObject *args)
     return retval;
 }
 
+static PyObject *
+fancy_index(PyObject* index, npy_bool* pfancy)
+{
+    int fancy = fancy_indexing_check(index);
+
+    switch (fancy) {
+    case SOBJ_BADARRAY:
+        *pfancy = NPY_FALSE;
+        PyErr_SetString(PyExc_IndexError,
+                        "arrays used as indices must be of "
+                        "integer (or boolean) type");
+        return NULL;
+        break;
+    case SOBJ_TOOMANY:
+        *pfancy = NPY_FALSE;
+        PyErr_SetString(PyExc_IndexError, "too many indices");
+        return NULL;
+        break;
+    case SOBJ_ISFANCY:
+        *pfancy = NPY_TRUE;
+        Py_INCREF(index);
+        return index;
+        break;
+    case SOBJ_LISTTUP:
+        *pfancy = NPY_TRUE;
+        return PySequence_Tuple(index);
+        break;
+    default:
+        assert(NPY_FALSE);
+        /*FALLTHROUGH*/
+    case SOBJ_NOTFANCY:
+        *pfancy = NPY_FALSE;
+        Py_INCREF(index);
+        return index;
+    }
+}
+
+#undef SOBJ_NOTFANCY
+#undef SOBJ_ISFANCY
+#undef SOBJ_BADARRAY
+#undef SOBJ_TOOMANY
+#undef SOBJ_LISTTUP
+
 /*
  * Called when treating array object like a mapping -- called first from
  * Python when using a[object] unless object is a standard slice object
@@ -546,9 +589,11 @@ NPY_NO_EXPORT PyObject *
 array_subscript(PyArrayObject *self, PyObject *op)
 {
     int nd, fancy;
+    npy_bool is_fancy;
     PyArrayObject *other;
     NpyArray_DescrField *value;
     PyObject *obj;
+    PyObject *index;
 
     if (PyString_Check(op) || PyUnicode_Check(op)) {
         PyObject *temp;
@@ -557,10 +602,10 @@ array_subscript(PyArrayObject *self, PyObject *op)
             value = NpyDict_Get(PyArray_DESCR(self)->fields, PyString_AsString(op));
             if (NULL != value) {
                 PyArrayObject *result;
-                
+
                 _Npy_INCREF(value->descr);  /* NpyArray_GetField steal ref. */
-                ASSIGN_TO_PYARRAY(result, 
-                                  NpyArray_GetField(PyArray_ARRAY(self), 
+                ASSIGN_TO_PYARRAY(result,
+                                  NpyArray_GetField(PyArray_ARRAY(self),
                                                     value->descr, value->offset));
                 return (PyObject *)result;
             }
@@ -637,10 +682,10 @@ array_subscript(PyArrayObject *self, PyObject *op)
             }
             else {
                 PyArrayObject *result;
-                
+
                 intp oned = 0;
                 _Npy_INCREF(PyArray_DESCR(self));
-                ASSIGN_TO_PYARRAY(result, 
+                ASSIGN_TO_PYARRAY(result,
                                   NpyArray_NewFromDescr(PyArray_DESCR(self),
                                                         1, &oned,
                                                         NULL, NULL,
@@ -653,39 +698,50 @@ array_subscript(PyArrayObject *self, PyObject *op)
         return NULL;
     }
 
-    fancy = fancy_indexing_check(op);
-    if (fancy != SOBJ_NOTFANCY) {
-        PyArrayMapIterObject *mit;
+    index = fancy_index(op, &is_fancy);
+    if (index == NULL) {
+        return NULL;
+    }
+
+    if (is_fancy) {
         int oned;
 
         oned = ((PyArray_NDIM(self) == 1) &&
-                !(PyTuple_Check(op) && PyTuple_GET_SIZE(op) > 1));
+                !(PyTuple_Check(index) && PyTuple_GET_SIZE(index) > 1));
 
-        /* wrap arguments into a mapiter object */
-        mit = (PyArrayMapIterObject *) PyArray_MapIterNew(op, oned, fancy);
-        if (mit == NULL) {
-            return NULL;
-        }
         if (oned) {
             PyArrayIterObject *it;
             PyObject *rval;
             it = (PyArrayIterObject *) PyArray_IterNew((PyObject *)self);
             if (it == NULL) {
-                Py_DECREF(mit);
+                Py_DECREF(index);
                 return NULL;
             }
-            rval = npy_iter_subscript(it->iter, mit->indexobj);
+            rval = npy_iter_subscript(it->iter, index);
             Py_DECREF(it);
-            Py_DECREF(mit);
+            Py_DECREF(index);
             return rval;
-        }
-        PyArray_MapIterBind(mit, self);
-        other = (PyArrayObject *)PyArray_GetMap(mit);
-        Py_DECREF(mit);
-        return (PyObject *)other;
-    }
+        } else {
+            PyArrayMapIterObject *mit;
 
-    return array_subscript_simple(self, op);
+            mit = (PyArrayMapIterObject *) PyArray_MapIterNew(index);
+            if (mit == NULL) {
+                Py_DECREF(index);
+                return NULL;
+            }
+            PyArray_MapIterBind(mit, self);
+            other = (PyArrayObject *)PyArray_GetMap(mit);
+            Py_DECREF(mit);
+            Py_DECREF(index);
+            return (PyObject *)other;
+        }
+    } else {
+        PyObject *result;
+
+        result = array_subscript_simple(self, index);
+        Py_DECREF(index);
+        return result;
+    }
 }
 
 
@@ -774,8 +830,10 @@ _tuple_of_integers(PyObject *seq, intp *vals, int maxvals)
 static int
 array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
 {
-    int ret, oned, fancy;
+    int ret, oned;
     intp vals[MAX_DIMS];
+    PyObject* new_index;
+    npy_bool is_fancy;
 
     if (op == NULL) {
         PyErr_SetString(PyExc_ValueError,
@@ -875,37 +933,51 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
     }
     PyErr_Clear();
 
-    fancy = fancy_indexing_check(index);
-    if (fancy != SOBJ_NOTFANCY) {
-        PyArrayMapIterObject *mit;
-        
+    new_index = fancy_index(index, &is_fancy);
+    if (new_index == NULL) {
+        return -1;
+    }
+
+    if (is_fancy) {
+
         oned = ((PyArray_NDIM(self) == 1) &&
-                !(PyTuple_Check(index) && PyTuple_GET_SIZE(index) > 1));
-        mit = (PyArrayMapIterObject *) PyArray_MapIterNew(index, oned, fancy);
-        if (mit == NULL) {
-            return -1;
-        }
+                !(PyTuple_Check(new_index) && PyTuple_GET_SIZE(new_index) > 1));
         if (oned) {
             NpyArrayIterObject *it;
             int rval;
 
             it = NpyArray_IterNew(PyArray_ARRAY(self));
             if (it == NULL) {
-                Py_DECREF(mit);
+                Py_DECREF(new_index);
                 return -1;
             }
-            rval = npy_iter_ass_subscript(it, mit->indexobj, op);
+            rval = npy_iter_ass_subscript(it, new_index, op);
             _Npy_DECREF(it);
-            Py_DECREF(mit);
+            Py_DECREF(new_index);
             return rval;
         }
-        PyArray_MapIterBind(mit, self);
-        ret = PyArray_SetMap(mit, op);
-        Py_DECREF(mit);
-        return ret;
-    }
+        else {
+            PyArrayMapIterObject *mit;
 
-    return array_ass_sub_simple(self, index, op);
+            mit = (PyArrayMapIterObject *) PyArray_MapIterNew(new_index);
+            if (mit == NULL) {
+                Py_DECREF(new_index);
+                return -1;
+            }
+            PyArray_MapIterBind(mit, self);
+            ret = PyArray_SetMap(mit, op);
+            Py_DECREF(mit);
+            Py_DECREF(new_index);
+            return ret;
+        }
+    }
+    else {
+        int result;
+
+        result = array_ass_sub_simple(self, new_index, op);
+        Py_DECREF(new_index);
+        return result;
+    }
 }
 
 
@@ -1362,25 +1434,17 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     return;
 }
 
-
+/*
+ * Creates a new MapIter from an indexob.  Assumes that the 
+ * index has already been processed with fancy_index.
+ */
 NPY_NO_EXPORT PyObject *
-PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
+PyArray_MapIterNew(PyObject *indexobj)
 {
     PyArrayMapIterObject *pyMit;
     NpyArrayMapIterObject *mit;
     PyObject *arr = NULL;
     int i, n, started, nonindex;
-
-    if (fancy == SOBJ_BADARRAY) {
-        PyErr_SetString(PyExc_IndexError,                       \
-                        "arrays used as indices must be of "    \
-                        "integer (or boolean) type");
-        return NULL;
-    }
-    if (fancy == SOBJ_TOOMANY) {
-        PyErr_SetString(PyExc_IndexError, "too many indices");
-        return NULL;
-    }
 
     /* This is the core iterator object - not a Python object. */
     mit = NpyArray_MapIterNew();
@@ -1389,40 +1453,14 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
         return NULL;
     }
     pyMit = Npy_INTERFACE(mit);
-    
+
     /* Move the held reference from the core obj to the interface obj. */
     Py_INCREF(pyMit);
     _Npy_DECREF(mit);
-    
+
     /* TODO: Refactor away the use of Py object for indexobj. */
     Py_INCREF(indexobj);
     pyMit->indexobj = indexobj;
-
-    if (fancy == SOBJ_LISTTUP) {
-        PyObject *newobj;
-        newobj = PySequence_Tuple(indexobj);
-        if (newobj == NULL) {
-            goto fail;
-        }
-        Py_DECREF(indexobj);
-        indexobj = newobj;
-        pyMit->indexobj = indexobj;
-    }
-
-#undef SOBJ_NOTFANCY
-#undef SOBJ_ISFANCY
-#undef SOBJ_BADARRAY
-#undef SOBJ_TOOMANY
-#undef SOBJ_LISTTUP
-
-    if (oned) {
-        return (PyObject *)pyMit;
-    }
-    /*
-     * Must have some kind of fancy indexing if we are here
-     * indexobj is either a list, an arrayobject, or a tuple
-     * (with at least 1 list or arrayobject or Bool object)
-     */
 
     /* convert all inputs to iterators */
     if (PyArray_Check(indexobj) && (PyArray_TYPE(indexobj) == PyArray_BOOL)) {
