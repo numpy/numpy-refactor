@@ -9,6 +9,18 @@
 #include "numpy/numpy_api.h"
 
 
+/* Defined in npy_arraytypes.c.src */
+extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
+
+
+
+/* Initializes the library at startup.  This functions must be called exactly once
+   by the interface layer.*/
+void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs)
+{
+    _init_builtin_descr_wrappers(functionDefs);
+}
+
 
 
 /*NUMPY_API
@@ -510,7 +522,7 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     return ret;
 
 fail:
-    Py_XDECREF(ret);
+    _Npy_XDECREF(ret);
     return NULL;
 }
 
@@ -773,7 +785,7 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
     if (inverted) {
         status = _npyarray_revert(ret);
         if(status) {
-            Py_DECREF(ret);
+            _Npy_DECREF(ret);
             ret = NULL;
             goto done;
         }
@@ -896,8 +908,8 @@ NpyArray_EquivTypenums(int typenum1, int typenum2)
     d1 = NpyArray_DescrFromType(typenum1);
     d2 = NpyArray_DescrFromType(typenum2);
     ret = NpyArray_EquivTypes(d1, d2);
-    Py_DECREF(d1);
-    Py_DECREF(d2);
+    _Npy_DECREF(d1);
+    _Npy_DECREF(d2);
     return ret;
 }
 

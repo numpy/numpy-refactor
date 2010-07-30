@@ -457,7 +457,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     it = NpyArray_IterAllButAxis(src, &axis);
     if (it == NULL) {
         if (src != orig_src) {
-            Py_DECREF(src);
+            _Npy_DECREF(src);
         }
         return -1;
     }

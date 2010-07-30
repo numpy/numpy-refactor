@@ -22,6 +22,11 @@
 #endif
 
 
+/* TODO: Delete this once numpyos is moved into the core. */
+NPY_NO_EXPORT double
+NumPyOS_ascii_strtod(const char *s, char** endptr);
+
+
 static Bool
 Npy_STRING_ISSPACE(char ch);
 
@@ -96,189 +101,6 @@ Npy_STRING_ISSPACE(char ch);
 /* From arraytypes.c.src */
 
 
-extern Bool OBJECT_nonzero (void **ip, NpyArray *ap);
-
-
-/**begin repeat
- * #name = number, integer, signedinteger, unsignedinteger, inexact,
- *         floating, complexfloating, flexible, character, timeinteger#
- * #NAME = Number, Integer, SignedInteger, UnsignedInteger, Inexact,
- *         Floating, ComplexFloating, Flexible, Character, TimeInteger#
- */
-//NPY_NO_EXPORT NpyTypeObject Npy@NAME@ArrType_Type;
-/**end repeat**/
-
-    
-
-/**begin repeat
- *
- * #TYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, LONG, UINT, ULONG,
- *         LONGLONG, ULONGLONG, FLOAT, DOUBLE#
- * #func1 = PyBool_FromLong, PyInt_FromLong*6, PyLong_FromUnsignedLong*2,
- *          PyLong_FromLongLong, PyLong_FromUnsignedLongLong,
- *          PyFloat_FromDouble*2#
- * #func2 = PyObject_IsTrue, MyPyLong_AsLong*6, MyPyLong_AsUnsignedLong*2,
- *          MyPyLong_AsLongLong, MyPyLong_AsUnsignedLongLong,
- *          MyPyFloat_AsDouble*2#
- * #type = Bool, byte, ubyte, short, ushort, int, long, uint, ulong,
- *         longlong, ulonglong, float, double#
- * #type1 = long*7, ulong*2, longlong, ulonglong, float, double#
- * #kind = Bool, Byte, UByte, Short, UShort, Int, Long, UInt, ULong,
- *         LongLong, ULongLong, Float, Double#
-*/
-extern PyObject *
-@TYPE@_getitem(char *ip, NpyArray *ap);
-
-extern int
-@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-/**end repeat**/
-
-
-/**begin repeat
- *
- * #TYPE = CFLOAT, CDOUBLE#
- * #type = float, double#
- */
-extern PyObject *
-@TYPE@_getitem(char *ip, NpyArray *ap);
-
-/**end repeat**/
-
-
-
-/**begin repeat
- *
- * #TYPE = CFLOAT, CDOUBLE, CLONGDOUBLE#
- * #type = float, double, longdouble#
- * #kind = CFloat, CDouble, CLongDouble#
- */
-extern int
-@TYPE@_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-/**end repeat**/
-
-/*
- * These return array scalars which are different than other date-types.
- */
-
-extern PyObject *
-LONGDOUBLE_getitem(char *ip, NpyArray *ap);
-
-extern int
-LONGDOUBLE_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-extern PyObject *
-CLONGDOUBLE_getitem(char *ip, NpyArray *ap);
-
-/* UNICODE */
-extern PyObject *
-UNICODE_getitem(char *ip, NpyArray *ap);
-
-extern int
-UNICODE_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-extern PyObject *
-STRING_getitem(char *ip, NpyArray *ap);
-
-extern int
-STRING_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-/* OBJECT */
-
-extern PyObject *
-OBJECT_getitem(char *ip, NpyArray *ap);
-
-extern int
-OBJECT_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-extern PyObject *
-VOID_getitem(char *ip, NpyArray *ap);
-
-extern int
-VOID_setitem(PyObject *op, char *ip, NpyArray *ap);
-
-extern PyObject *
-DATETIME_getitem(char *ip, NpyArray *ap);
-
-extern PyObject *
-TIMEDELTA_getitem(char *ip, NpyArray *ap);
-
-extern int
-DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-extern int
-TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap);
-
-    
-/**begin repeat
- *
- * #FROMTYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
- *             LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
- *             CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID, OBJECT,
- *             DATETIME, TIMEDELTA#
- * #fromtype = Bool, byte, ubyte, short, ushort, int, uint, long, ulong,
- *             longlong, ulonglong, float, double, longdouble,
- *             cfloat, cdouble, clongdouble, char, char, char, PyObject *,
- *             datetime, timedelta#
- * #skip = 1*17, aip->descr->elsize*3, 1*3#
- */
-extern void
-@FROMTYPE@_to_OBJECT(@fromtype@ *ip, PyObject **op, intp n, NpyArray *aip,
-                     NpyArray *NPY_UNUSED(aop));
-/**end repeat**/
-
-
-/**begin repeat
- *
- * #TOTYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
- *           LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
- *           CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID, DATETIME,
- *           TIMEDELTA#
- * #totype = Bool, byte, ubyte, short, ushort, int, uint, long, ulong,
- *           longlong, ulonglong, float, double, longdouble,
- *           cfloat, cdouble, clongdouble, char, char, char, datetime,
- *           timedelta#
- * #skip = 1*17, aop->descr->elsize*3, 1*2#
- */
-extern void
-OBJECT_to_@TOTYPE@(void **ip, @totype@ *op, npy_intp n,
-                   NpyArray *aip, NpyArray *aop);
-/**end repeat**/
-
-
-/**begin repeat
- *
- * #from = STRING*22, UNICODE*22, VOID*22#
- * #fromtyp = char*66#
- * #to = (BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG, LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE, CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID, DATETIME, TIMEDELTA)*3#
- * #totyp = (Bool, byte, ubyte, short, ushort, int, uint, long, ulong, longlong, ulonglong, float, double, longdouble, cfloat, cdouble, clongdouble, char, char, char, datetime, timedelta)*3#
- * #oskip = (1*17,aop->descr->elsize*3,1*2)*3#
- * #convert = 1*17, 0*3, 1*2, 1*17, 0*3, 1*2, 0*22#
- * #convstr = (Int*9, Long*2, Float*3, Complex*3, Tuple*3, Long*2)*3#
- */
-extern void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
-               NpyArray *aop);
-/**end repeat**/
-
-
-/**begin repeat
- *
- * #to = STRING*19, UNICODE*19, VOID*19#
- * #totyp = char*19, char*19, char*19#
- * #from = (BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
- *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
- *         CFLOAT, CDOUBLE, CLONGDOUBLE, DATETIME, TIMEDELTA)*3#
- * #fromtyp = (Bool, byte, ubyte, short, ushort, int, uint, long, ulong,
- *            longlong, ulonglong, float, double, longdouble,
- *            cfloat, cdouble, clongdouble, datetime, timedelta)*3#
- */
-extern void
-@from@_to_@to@(@fromtyp@ *ip, @totyp@ *op, intp n, NpyArray *aip,
-               NpyArray *aop);
-
-/**end repeat**/
 
 
 /*
@@ -298,16 +120,27 @@ extern void
  * #type = short, ushort, int, uint, long, ulong, longlong, ulonglong#
  * #format = "hd", "hu", "d", "u", "ld", "lu", LONGLONG_FMT, ULONGLONG_FMT#
  */
-extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *NPY_UNUSED(ignored));
+int
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
+{
+    return fscanf(fp, "%"@format@, ip);
+}
 /**end repeat**/
 
 /**begin repeat
  * #fname = FLOAT, DOUBLE, LONGDOUBLE#
  * #type = float, double, longdouble#
  */
-extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *ignored);
+int
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
+{
+    double result;
+    int ret;
+    
+    ret = NumPyOS_ascii_ftolf(fp, &result);
+    *ip = (@type@) result;
+    return ret;
+}
 /**end repeat**/
 
 /**begin repeat
@@ -316,19 +149,42 @@ extern int
  * #btype = int, uint#
  * #format = "d", "u"#
  */
-extern int
-@fname@_scan(FILE *fp, @type@ *ip, void *ignore, PyArray_Descr *ignore2);
+int
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
+{
+    @btype@ temp;
+    int num;
+    
+    num = fscanf(fp, "%"@format@, &temp);
+    *ip = (@type@) temp;
+    return num;
+}
 /**end repeat**/
 
-extern int
-BOOL_scan(FILE *fp, Bool *ip, void *ignore, PyArray_Descr *ignore2);
+int
+BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
+{
+    int temp;
+    int num;
+    
+    num = fscanf(fp, "%d", &temp);
+    *ip = (Bool) (temp != 0);
+    return num;
+}
 
 /**begin repeat
- * #fname = CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
+ * #fname = CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID,
  *          DATETIME, TIMEDELTA#
  */
 #define @fname@_scan NULL
 /**end repeat**/
+
+
+/*
+ *****************************************************************************
+ **                             FROMSTR                                     **
+ *****************************************************************************
+ */
 
 
 /**begin repeat
@@ -339,8 +195,15 @@ BOOL_scan(FILE *fp, Bool *ip, void *ignore, PyArray_Descr *ignore2);
  * #func = (l, ul)*5, l, l#
  * #btype = (long, ulong)*5, long, long#
  */
-extern int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *ignore);
+int
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
+{
+    @btype@ result;
+    
+    result = PyOS_strto@func@(str, endptr, 10);
+    *ip = (@type@) result;
+    return 0;
+}
 /**end repeat**/
 
 /**begin repeat
@@ -348,59 +211,30 @@ extern int
  * #fname=FLOAT,DOUBLE,LONGDOUBLE#
  * #type=float,double,longdouble#
  */
-extern int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, PyArray_Descr *ignore);
+int
+@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
+{
+    double result;
+    
+    result = NumPyOS_ascii_strtod(str, endptr);
+    *ip = (@type@) result;
+    return 0;
+}
 /**end repeat**/
 
 
 
 /**begin repeat
- * #fname = BOOL, CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID#
+ * #fname = BOOL, CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID#
  */
 #define @fname@_fromstr NULL
 /**end repeat**/
 
 
 
-extern void
-OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
-                  intp n, int swap, void *arr);
-
-extern void
-OBJECT_copyswap(PyObject **dst, PyObject **src, int swap, void *arr);
-
-
-/* object type */
-
-extern int
-OBJECT_compare(PyObject **ip1, PyObject **ip2, NpyArray *ap);
-
-extern int
-OBJECT_argmax(PyObject **ip, intp n, intp *max_ind, NpyArray *aip);
-
-extern void
-OBJECT_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
-           void *ignore);
-
-
 
 #define BOOL_fill NULL
 
-/* this requires buffer to be filled with objects or NULL */
-extern void
-OBJECT_fill(PyObject **buffer, intp length, void *ignored);
-
-extern void
-OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *ignored);
-
-
-
-NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNew \
-       (PyArray_Descr *);
-
-
-
-#define OBJECT_fastclip NULL
 
 
 #define _NPY_UNUSEDBOOL  NPY_UNUSED
@@ -458,7 +292,7 @@ NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNew \
  *             timedelta#
  */
 static void
-@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, intp n,
+@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -473,7 +307,7 @@ static void
  * #fromtype = float, double, longdouble#
  */
 static void
-@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, intp n,
+@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -496,7 +330,7 @@ static void
  *             timedelta#
 */
 static void
-@FROMTYPE@_to_BOOL(@fromtype@ *ip, Bool *op, intp n,
+@FROMTYPE@_to_BOOL(@fromtype@ *ip, Bool *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -511,7 +345,7 @@ static void
  * #fromtype = cfloat, cdouble, clongdouble#
 */
 static void
-@FROMTYPE@_to_BOOL(@fromtype@ *ip, Bool *op, intp n,
+@FROMTYPE@_to_BOOL(@fromtype@ *ip, Bool *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -531,7 +365,7 @@ static void
  *           timedelta#
 */
 static void
-BOOL_to_@TOTYPE@(Bool *ip, @totype@ *op, intp n,
+BOOL_to_@TOTYPE@(Bool *ip, @totype@ *op, npy_intp n,
              NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -555,7 +389,7 @@ BOOL_to_@TOTYPE@(Bool *ip, @totype@ *op, intp n,
  *             timedelta#
  */
 static void
-@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, intp n,
+@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
@@ -578,7 +412,7 @@ static void
  * #fromtype = float, double, longdouble#
  */
 static void
-@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, intp n,
+@FROMTYPE@_to_@TOTYPE@(@fromtype@ *ip, @totype@ *op, npy_intp n,
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     n <<= 1;
@@ -1196,29 +1030,6 @@ UNICODE_nonzero (npy_ucs4 *ip, NpyArray *ap)
 }
 
 
-/* TODO: Dead code? Also in arraytypes.c.src */
-#if 0
-Bool
-OBJECT_nonzero (void **ip, NpyArray *ap)
-{
-
-    if (NpyArray_ISALIGNED(ap)) {
-        if (*ip == NULL) {
-            return FALSE;
-        }
-        return (Bool) PyObject_IsTrue(*(PyObject **)ip);
-    }
-    else {
-        PyObject *obj;
-        NPY_COPY_PYOBJECT_PTR(&obj, (PyObject **)ip);
-        if (obj == NULL) {
-            return FALSE;
-        }
-        return (Bool) PyObject_IsTrue(obj);
-    }
-}
-
-#endif
 
 /*
  * if we have fields, then nonzero only if all sub-fields are nonzero.
@@ -1913,7 +1724,6 @@ static void
 }
 /**end repeat**/
 
-#define OBJECT_fastputmask NULL
 
 
 /*
@@ -2018,7 +1828,6 @@ static int
 }
 /**end repeat**/
 
-#define OBJECT_fasttake NULL
 
 
 /*
@@ -2046,8 +1855,9 @@ static int
  * #endian = |, |, =#
 */
 static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
-    (NpyArray_GetItemFunc*)@from@_getitem,
-    (NpyArray_SetItemFunc*)@from@_setitem,
+//    (NpyArray_GetItemFunc*)@from@_getitem,
+//    (NpyArray_SetItemFunc*)@from@_setitem,
+    NULL, NULL,
     (NpyArray_CopySwapNFunc*)@from@_copyswapn,
     (NpyArray_CopySwapFunc*)@from@_copyswap,
     (NpyArray_CompareFunc*)@from@_compare,
@@ -2073,29 +1883,10 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
     (NpyArray_FastTakeFunc *)NULL,
     NULL, NULL, NULL, NULL,
     {
-        (NpyArray_VectorUnaryFunc*)@from@_to_BOOL,
-        (NpyArray_VectorUnaryFunc*)@from@_to_BYTE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_UBYTE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_SHORT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_USHORT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_INT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_UINT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_LONG,
-        (NpyArray_VectorUnaryFunc*)@from@_to_ULONG,
-        (NpyArray_VectorUnaryFunc*)@from@_to_LONGLONG,
-        (NpyArray_VectorUnaryFunc*)@from@_to_ULONGLONG,
-        (NpyArray_VectorUnaryFunc*)@from@_to_FLOAT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_DOUBLE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_LONGDOUBLE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_CFLOAT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_CDOUBLE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_CLONGDOUBLE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_DATETIME,
-        (NpyArray_VectorUnaryFunc*)@from@_to_TIMEDELTA,
-        (NpyArray_VectorUnaryFunc*)@from@_to_OBJECT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_STRING,
-        (NpyArray_VectorUnaryFunc*)@from@_to_UNICODE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_VOID
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL,
     }
 };
 
@@ -2127,23 +1918,24 @@ NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
  *
  * #from = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
  *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
- *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, DATETIME, TIMEDELTA#
- * #num = 1*14, 2*3, 1*3#
+ *         CFLOAT, CDOUBLE, CLONGDOUBLE, DATETIME, TIMEDELTA#
+ * #num = 1*14, 2*3, 1*2#
  * #fromtyp = Bool, byte, ubyte, short, ushort, int, uint, long, ulong,
  *            longlong, ulonglong, float, double, longdouble,
- *            float, double, longdouble, PyObject *, datetime, timedelta#
+ *            float, double, longdouble, datetime, timedelta#
  * #NAME = Bool, Byte, UByte, Short, UShort, Int, UInt, Long, ULong,
  *         LongLong, ULongLong, Float, Double, LongDouble,
- *         CFloat, CDouble, CLongDouble, Object, Datetime, Timedelta#
+ *         CFloat, CDouble, CLongDouble, Datetime, Timedelta#
  * #kind = GENBOOL, SIGNED, UNSIGNED, SIGNED, UNSIGNED, SIGNED, UNSIGNED, SIGNED, UNSIGNED,
  *         SIGNED, UNSIGNED, FLOATING, FLOATING, FLOATING,
- *         COMPLEX, COMPLEX, COMPLEX, OBJECT, DATETIME, TIMEDELTA#
- * #endian = |*3, =*14, |, =*2#
- * #isobject= 0*17,NPY_OBJECT_DTYPE_FLAGS,0*2#
+ *         COMPLEX, COMPLEX, COMPLEX, DATETIME, TIMEDELTA#
+ * #endian = |*3, =*14, =*2#
+ * #isobject= 0*19#
  */
 static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
-    (NpyArray_GetItemFunc*)@from@_getitem,
-    (NpyArray_SetItemFunc*)@from@_setitem,
+//    (NpyArray_GetItemFunc*)@from@_getitem,
+//    (NpyArray_SetItemFunc*)@from@_setitem,
+    NULL, NULL,
     (NpyArray_CopySwapNFunc*)@from@_copyswapn,
     (NpyArray_CopySwapFunc*)@from@_copyswap,
     (NpyArray_CompareFunc*)@from@_compare,
@@ -2188,10 +1980,11 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
         (NpyArray_VectorUnaryFunc*)@from@_to_CLONGDOUBLE,
         (NpyArray_VectorUnaryFunc*)@from@_to_DATETIME,
         (NpyArray_VectorUnaryFunc*)@from@_to_TIMEDELTA,
-        (NpyArray_VectorUnaryFunc*)@from@_to_OBJECT,
-        (NpyArray_VectorUnaryFunc*)@from@_to_STRING,
-        (NpyArray_VectorUnaryFunc*)@from@_to_UNICODE,
-        (NpyArray_VectorUnaryFunc*)@from@_to_VOID
+        NULL, NULL, NULL, NULL
+        //(NpyArray_VectorUnaryFunc*)@from@_to_OBJECT,
+        //(NpyArray_VectorUnaryFunc*)@from@_to_STRING,
+        //(NpyArray_VectorUnaryFunc*)@from@_to_UNICODE,
+        //(NpyArray_VectorUnaryFunc*)@from@_to_VOID
     }
 };
 
@@ -2217,6 +2010,56 @@ NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
 };
 
 /**end repeat**/
+
+static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
+    //    (NpyArray_GetItemFunc*)OBJECT_getitem,
+    //    (NpyArray_SetItemFunc*)OBJECT_setitem,
+    NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL,
+    {
+        NULL, NULL, NULL
+    },
+    {
+        NULL, NULL, NULL
+    },
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, NULL, NULL, NULL,
+    {
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL
+    }
+};
+
+NPY_NO_EXPORT NpyArray_Descr OBJECT_Descr = {
+    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NPY_VALID_MAGIC,
+    NpyArray_OBJECTLTR,
+    NpyArray_OBJECTLTR,
+    '|',
+    0,
+    NPY_OBJECT_DTYPE_FLAGS,
+    NpyArray_OBJECT,
+    sizeof(PyObject *),
+    _ALIGN(PyObject *),
+    NULL,
+    NULL,
+    NULL,
+    &_NpyObject_ArrFuncs,
+    NULL,
+};
+
+
+
 
 static void
 _init_datetime_descr(NpyArray_Descr *descr)
@@ -2273,20 +2116,79 @@ static NpyArray_Descr *_builtin_descrs[] = {
 /* The interface layer needs to be given the opportunity to provide a wrapper
  for each built-in type descr before it ever gets returned to the interface
  layer.  This should only ever be performed once. */
-static int _builtin_descrs_wrapped = NPY_FALSE;
-
-static void _init_builtin_descr_wrappers()
+void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
 {
     int type;
     
-    /* TODO: Need thread locking here. */
-    if (NPY_FALSE == _builtin_descrs_wrapped) {
-        _builtin_descrs_wrapped = NPY_TRUE;
-        
-        for (type=0; type < NPY_NTYPES; type++) {
-            assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) ); /* Should only ever be called once. */
-            NpyInterface_DescrNewFromType(type, _builtin_descrs[type], &_builtin_descrs[type]->nob_interface);
-        }
+    /* Set the gettime, setitem methods on each type's array functions. */
+    
+    /**begin repeat
+     *
+     * #from = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
+     *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+     *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
+     *         DATETIME, TIMEDELTA#
+     * #NAME = Bool, Byte, UByte, Short, UShort, Int, UInt, Long, ULong,
+     *         LongLong, ULongLong, Float, Double, LongDouble,
+     *         CFloat, CDouble, CLongDouble, Object, String, Unicode, Void,
+     *         Datetime, Timedelta#
+     */
+    _Npy@NAME@_ArrFuncs.getitem = externDefs-> @from@_getitem;
+    _Npy@NAME@_ArrFuncs.setitem = externDefs-> @from@_setitem;
+    
+    /**end repeat**/
+
+    
+    /* All of the functions for dealing with objects are specified externally. */
+    /**begin repeat
+     *
+     * #from     = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
+     *             LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+     *             CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID,
+     *             DATETIME, TIMEDELTA#
+     * #NAME = Bool, Byte, UByte, Short, UShort, Int, UInt, Long, ULong,
+     *         LongLong, ULongLong, Float, Double, LongDouble,
+     *         CFloat, CDouble, CLongDouble, String, Unicode, Void, 
+     *         Datetime, Timedelta#
+     */
+    _Npy@NAME@_ArrFuncs.cast[NPY_OBJECT] = 
+        (NpyArray_VectorUnaryFunc *)externDefs->cast_to_obj[NPY_@from@];
+    _Npy@NAME@_ArrFuncs.cast[NPY_STRING] = 
+        (NpyArray_VectorUnaryFunc *)externDefs->cast_to_string[NPY_@from@];
+    _Npy@NAME@_ArrFuncs.cast[NPY_UNICODE] = 
+        (NpyArray_VectorUnaryFunc *)externDefs->cast_to_unicode[NPY_@from@];
+    _Npy@NAME@_ArrFuncs.cast[NPY_VOID] = 
+        (NpyArray_VectorUnaryFunc *)externDefs->cast_to_void[NPY_@from@];
+    /**end repeat**/
+
+    
+    /* Just copy the provided function arrays into the descriptors. */
+    memmove(_NpyObject_ArrFuncs.cast, externDefs->cast_from_obj, NPY_NTYPES * sizeof(void *));
+    memmove(_NpyString_ArrFuncs.cast, externDefs->cast_from_string, NPY_NTYPES * sizeof(void *));
+    memmove(_NpyUnicode_ArrFuncs.cast, externDefs->cast_from_unicode, NPY_NTYPES * sizeof(void *));
+    memmove(_NpyVoid_ArrFuncs.cast, externDefs->cast_from_void, NPY_NTYPES * sizeof(void *));
+
+    /* All object methods must be provided by the interface. */
+    _NpyObject_ArrFuncs.copyswapn = externDefs->OBJECT_copyswapn;
+    _NpyObject_ArrFuncs.copyswap = externDefs->OBJECT_copyswap;
+    _NpyObject_ArrFuncs.compare = externDefs->OBJECT_compare;
+    _NpyObject_ArrFuncs.argmax = externDefs->OBJECT_argmax;
+    _NpyObject_ArrFuncs.dotfunc = externDefs->OBJECT_dotfunc;
+    _NpyObject_ArrFuncs.scanfunc = externDefs->OBJECT_scanfunc;
+    _NpyObject_ArrFuncs.fromstr = externDefs->OBJECT_fromstr;
+    _NpyObject_ArrFuncs.nonzero = externDefs->OBJECT_nonzero;
+    _NpyObject_ArrFuncs.fill = externDefs->OBJECT_fill;
+    _NpyObject_ArrFuncs.fillwithscalar = externDefs->OBJECT_fillwithscalar;
+    _NpyObject_ArrFuncs.scalarkind = externDefs->OBJECT_scalarkind;
+    _NpyObject_ArrFuncs.fastclip = externDefs->OBJECT_fastclip;
+    _NpyObject_ArrFuncs.fastputmask = externDefs->OBJECT_fastputmask;
+    _NpyObject_ArrFuncs.fasttake = externDefs->OBJECT_fasttake;
+    
+    
+    
+    for (type=0; type < NPY_NTYPES; type++) {
+        assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) ); /* Should only ever be called once. */
+        NpyInterface_DescrNewFromType(type, _builtin_descrs[type], &_builtin_descrs[type]->nob_interface);
     }
 }
 
@@ -2299,10 +2201,6 @@ NpyArray_DescrFromType(int type)
 {
     NpyArray_Descr *ret = NULL;
 
-    if (NPY_FALSE == _builtin_descrs_wrapped) {
-        _init_builtin_descr_wrappers();        
-    }
-    
     if (type < NPY_NTYPES) {
         ret = _builtin_descrs[type];
     }
