@@ -2230,12 +2230,6 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
     if (dtype == NULL) {
         dtype = PyArray_DescrFromType(PyArray_DEFAULT);
     }
-    if (PyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot create an object array from a string");
-        Py_DECREF(dtype);
-        return NULL;
-    }
     ASSIGN_TO_PYARRAY(
         ret,
         NpyArray_FromString(data, slen, dtype->descr, num, sep));

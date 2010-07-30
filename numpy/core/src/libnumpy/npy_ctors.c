@@ -1624,6 +1624,12 @@ NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
 {
     NpyArray *ret;
 
+    if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot create an object array from a string");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
     if (dtype->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
         _Npy_DECREF(dtype);
