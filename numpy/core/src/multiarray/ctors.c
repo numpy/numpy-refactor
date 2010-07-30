@@ -52,7 +52,7 @@ PyCapsule_GetPointer(void *ptr, void *notused)
     do {                                                \
         if (PyArray_Check(b)) {                         \
             PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
-            _Npy_INCREF(PyArray_BASE_ARRAY(a));          \
+            _Npy_INCREF(PyArray_BASE_ARRAY(a));         \
         } else {                                        \
             PyArray_BASE(a) = (PyObject*) b;            \
             Py_INCREF(b);                               \
@@ -1467,8 +1467,7 @@ PyArray_FromInterface(PyObject *input)
             longlong num = PyLong_AsLongLong(attr);
             if (error_converting(num)) {
                 PyErr_SetString(PyExc_TypeError,
-                                "offset "\
-                                "must be an integer");
+                                "offset must be an integer");
                 goto fail;
             }
             data += num;
@@ -1479,8 +1478,7 @@ PyArray_FromInterface(PyObject *input)
         PyObject *dataptr;
         if (PyTuple_GET_SIZE(attr) != 2) {
             PyErr_SetString(PyExc_TypeError,
-                            "data must return "     \
-                            "a 2-tuple with (data pointer "\
+                            "data must return a 2-tuple with (data pointer "
                             "integer, read-only flag)");
             goto fail;
         }
@@ -1490,8 +1488,7 @@ PyArray_FromInterface(PyObject *input)
                          "%p", (void **)&data);
             if (res < 1) {
                 PyErr_SetString(PyExc_TypeError,
-                                "data string cannot be " \
-                                "converted");
+                                "data string cannot be converted");
                 goto fail;
             }
         }
@@ -1499,9 +1496,8 @@ PyArray_FromInterface(PyObject *input)
             data = PyLong_AsVoidPtr(dataptr);
         }
         else {
-            PyErr_SetString(PyExc_TypeError, "first element " \
-                            "of data tuple must be integer" \
-                            " or string.");
+            PyErr_SetString(PyExc_TypeError, "first element "
+                            "of data tuple must be integer or string.");
             goto fail;
         }
         if (PyObject_IsTrue(PyTuple_GET_ITEM(attr,1))) {
@@ -1565,8 +1561,7 @@ PyArray_FromInterface(PyObject *input)
         }
         if (n != PyTuple_GET_SIZE(attr)) {
             PyErr_SetString(PyExc_ValueError,
-                            "mismatch in length of "\
-                            "strides and shape");
+                            "mismatch in length of strides and shape");
             Py_DECREF(ret);
             return NULL;
         }
@@ -1636,8 +1631,7 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
     }
     if (!PyArray_Check(new)) {
         PyErr_SetString(PyExc_ValueError,
-                        "object __array__ method not "  \
-                        "producing an array");
+                        "object __array__ method not producing an array");
         Py_DECREF(new);
         return NULL;
     }
@@ -1994,7 +1988,7 @@ _calc_length(PyObject *start, PyObject *stop, PyObject *step, PyObject **next, i
         if (PyTuple_Check(stop)) {
             PyErr_Clear();
             PyErr_SetString(PyExc_TypeError,
-                            "arange: scalar arguments expected "\
+                            "arange: scalar arguments expected "
                             "instead of a tuple.");
         }
         return -1;
@@ -2415,8 +2409,7 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
 
     if (PyDataType_REFCHK(type)) {
         PyErr_SetString(PyExc_ValueError,
-                        "cannot create an OBJECT array from memory"\
-                        " buffer");
+                        "cannot create an OBJECT array from memory buffer");
         Py_DECREF(type);
         return NULL;
     }
@@ -2458,7 +2451,7 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
 
     if ((offset < 0) || (offset >= ts)) {
         PyErr_Format(PyExc_ValueError,
-                     "offset must be non-negative and smaller than buffer "\
+                     "offset must be non-negative and smaller than buffer "
                      "lenth (%" INTP_FMT ")", (intp)ts);
         Py_DECREF(buf);
         Py_DECREF(type);
@@ -2472,8 +2465,7 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
     if (n < 0 ) {
         if (s % itemsize != 0) {
             PyErr_SetString(PyExc_ValueError,
-                            "buffer size must be a multiple"\
-                            " of element size");
+                            "buffer size must be a multiple of element size");
             Py_DECREF(buf);
             Py_DECREF(type);
             return NULL;
@@ -2483,8 +2475,7 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
     else {
         if (s < n*itemsize) {
             PyErr_SetString(PyExc_ValueError,
-                            "buffer is smaller than requested"\
-                            " size");
+                            "buffer is smaller than requested size");
             Py_DECREF(buf);
             Py_DECREF(type);
             return NULL;
@@ -2547,8 +2538,7 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
     }
     if (PyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         PyErr_SetString(PyExc_ValueError,
-                        "Cannot create an object array from"    \
-                        " a string");
+                        "Cannot create an object array from a string");
         Py_DECREF(dtype);
         return NULL;
     }
@@ -2575,10 +2565,8 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
         char *end;
 
         if (dtypeCore->f->scanfunc == NULL) {
-            PyErr_SetString(PyExc_ValueError,
-                            "don't know how to read "       \
-                            "character strings with that "  \
-                            "array type");
+            PyErr_SetString(PyExc_ValueError, "don't know how to read "
+                            "character strings with that array type");
             _Npy_DECREF(dtypeCore);
             return NULL;
         }
@@ -2597,6 +2585,7 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
     return (PyObject *)ret;
 }
 
+
 /* steals a reference to dtype (which cannot be NULL)
  */
 NPY_NO_EXPORT PyObject *
@@ -2613,7 +2602,7 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
     }
     elcount = (count < 0) ? 0 : count;
     if ((elsize=dtype->elsize) == 0) {
-        PyErr_SetString(PyExc_ValueError, "Must specify length "\
+        PyErr_SetString(PyExc_ValueError, "Must specify length "
                         "when using variable-size data-type.");
         goto done;
     }
@@ -2623,8 +2612,8 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
      * reference counts before throwing away any memory.
      */
     if (NpyDataType_REFCHK(dtype)) {
-        PyErr_SetString(PyExc_ValueError, "cannot create "\
-                        "object arrays from iterator");
+        PyErr_SetString(PyExc_ValueError,
+                        "cannot create object arrays from iterator");
         goto done;
     }
 
