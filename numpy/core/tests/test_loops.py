@@ -427,5 +427,13 @@ class TestLoops(TestCase):
             c = b.astype( t )
             assert_equal( a, c )
 
+    def test_copysign( self ):
+
+        for t in [np.single, np.double, np.longdouble]:
+            a = np.arange( 5, dtype=t ) -2
+            b = np.arange( 5, dtype=t )
+            c = np.copysign( b, a )
+            assert_equal( c, np.array( [0, -1, 2, 3, 4], dtype=t ) )
+
 if __name__ == "__main__":
     run_module_suite()
