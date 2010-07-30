@@ -1292,7 +1292,7 @@ swab_separator(char *sep)
     int skip_space = 0;
     char *s, *start;
 
-    s = start = malloc(strlen(sep)+3);
+    s = start = malloc(strlen(sep) + 3);
     /* add space to front if there isn't one */
     if (*sep != '\0' && !isspace(*sep)) {
         *s = ' '; s++;
@@ -1323,6 +1323,66 @@ swab_separator(char *sep)
     }
     *s = '\0';
     return start;
+}
+
+
+static int
+fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
+                      void *NPY_UNUSED(stream_data))
+{
+    /* the NULL argument is for backwards-compatibility */
+    return dtype->f->scanfunc(*fp, dptr, NULL, dtype);
+}
+
+
+static int
+fromfile_skip_separator(FILE **fp, const char *sep,
+                        void *NPY_UNUSED(stream_data))
+{
+    int result = 0;
+    const char *sep_start = sep;
+
+    while (1) {
+        int c = fgetc(*fp);
+
+        if (c == EOF) {
+            result = -1;
+            break;
+        }
+        else if (*sep == '\0') {
+            ungetc(c, *fp);
+            if (sep != sep_start) {
+                /* matched separator */
+                result = 0;
+                break;
+            }
+            else {
+                /* separator was whitespace wildcard that didn't match */
+                result = -2;
+                break;
+            }
+        }
+        else if (*sep == ' ') {
+            /* whitespace wildcard */
+            if (!isspace(c)) {
+                sep++;
+                sep_start++;
+                ungetc(c, *fp);
+            }
+            else if (sep == sep_start) {
+                sep_start--;
+            }
+        }
+        else if (*sep != c) {
+            ungetc(c, *fp);
+            result = -2;
+            break;
+        }
+        else {
+            sep++;
+        }
+    }
+    return result;
 }
 
 
@@ -1398,6 +1458,65 @@ array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
     return r;
 }
 #undef FROM_BUFFER_SIZE
+
+
+
+/* Steals a reference to dtype. */
+NpyArray *
+NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
+{
+    NpyArray *ret;
+    size_t nread = 0;
+
+    /* TODO: Review whether we want the boilerplate code in this function
+             here or in PyArray_FromFile.
+             It is also duplicated in NpyArray_FromFile... */
+    if (NpyDataType_REFCHK(dtype)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot read into object array");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "The elements are 0-sized.");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if ((sep == NULL) || (strlen(sep) == 0)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                 "A separator must be specified when reading a text file.");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->f->scanfunc == NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Unable to read character files of that array type");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+
+    /* Move reference from interface to core object. */
+    ret = array_from_text(dtype, num, sep, &nread, fp,
+                          (Npy_next_element) fromfile_next_element,
+                          (Npy_skip_separator) fromfile_skip_separator, NULL);
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (((npy_intp) nread) < num) {
+        /* Realloc memory for smaller number of elements */
+        const size_t nsize = NPY_MAX(nread,1) * PyArray_ITEMSIZE(ret);
+        char *tmp;
+
+        if ((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
+            _Npy_DECREF(ret);
+            return NpyErr_NoMemory();
+        }
+        NpyArray_BYTES(ret) = tmp;
+        NpyArray_DIM(ret,0) = nread;
+    }
+    return ret;
+}
 
 
 

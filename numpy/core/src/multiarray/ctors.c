@@ -1641,11 +1641,12 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
 
 
 NPY_NO_EXPORT PyObject *
-PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode, PyObject *context)
+PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode,
+                            PyObject *context)
 {
-    return PyArray_FromArrayAttr(op, (NULL != typecode) ? PyArray_Descr_WRAP(typecode) : NULL, context);
+    return PyArray_FromArrayAttr(op,
+        (NULL != typecode) ? PyArray_Descr_WRAP(typecode) : NULL, context);
 }
-
 
 
 
