@@ -1875,7 +1875,7 @@ struct NpyArray_FunctionDefs _array_function_defs = {
     (NpyArray_ScanFunc *) NULL,
     (NpyArray_FromStrFunc *) NULL,
     (NpyArray_NonzeroFunc *) & OBJECT_nonzero,
-    (NpyArray_FillFunc *) NULL,
+    (NpyArray_FillFunc *) & OBJECT_fill,
     (NpyArray_FillWithScalarFunc *) NULL,
     (NpyArray_ScalarKindFunc *) NULL,
     (NpyArray_FastClipFunc *) NULL,
