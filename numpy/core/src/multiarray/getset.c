@@ -69,61 +69,17 @@ array_strides_get(PyArrayObject *self)
 static int
 array_strides_set(PyArrayObject *self, PyObject *obj)
 {
+    int res;
     PyArray_Dims newstrides = {NULL, 0};
-    NpyArray *new;
-    intp numbytes = 0;
-    intp offset = 0;
-    Py_ssize_t buf_len;
-    char *buf;
 
     if (!PyArray_IntpConverter(obj, &newstrides) ||
         newstrides.ptr == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid strides");
         return -1;
     }
-    if (newstrides.len != PyArray_NDIM(self)) {
-        PyErr_Format(PyExc_ValueError, "strides must be "       \
-                     " same length as shape (%d)", PyArray_NDIM(self));
-        goto fail;
-    }
-    new = PyArray_BASE_ARRAY(self);
-    while(NULL != NpyArray_BASE_ARRAY(new)) {
-        new = NpyArray_BASE_ARRAY(new);
-    }
-    /*
-     * Get the available memory through the buffer interface on
-     * new->base or if that fails from the current new
-     */
-    if (NULL != new->base_obj && PyObject_AsReadBuffer(new->base_obj,
-                                                       (const void **)&buf,
-                                                       &buf_len) >= 0) {
-        offset = PyArray_BYTES(self) - buf;
-        numbytes = buf_len + offset;
-    }
-    else {
-        PyErr_Clear();
-        numbytes = PyArray_MultiplyList(
-                 NpyArray_DIMS(new),
-                 NpyArray_NDIM(new)) * NpyArray_ITEMSIZE(new);
-        offset = PyArray_BYTES(self) - NpyArray_BYTES(new);
-    }
-
-    if (!PyArray_CheckStrides(PyArray_ITEMSIZE(self),
-                              PyArray_NDIM(self), numbytes,
-                              offset,
-                              PyArray_DIMS(self), newstrides.ptr)) {
-        PyErr_SetString(PyExc_ValueError, "strides is not "\
-                        "compatible with available memory");
-        goto fail;
-    }
-    memcpy(PyArray_STRIDES(self), newstrides.ptr, sizeof(intp) * newstrides.len);
-    PyArray_UpdateFlags(self, CONTIGUOUS | FORTRAN);
-    PyDimMem_FREE(newstrides.ptr);
-    return 0;
-
- fail:
-    PyDimMem_FREE(newstrides.ptr);
-    return -1;
+    res = NpyArray_SetStrides(PyArray_ARRAY(self), &newstrides);
+    NpyDimMem_FREE(newstrides.ptr);
+    return res;
 }
 
 

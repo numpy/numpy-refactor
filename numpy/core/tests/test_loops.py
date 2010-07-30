@@ -40,6 +40,18 @@ class TestLoops(TestCase):
 
     # Still need to test conjugate on cfloat, cdouble and clongdouble
 
+    def test_conjugate_complex( self ):
+
+        x = np.arange( 5, dtype=np.clongdouble )
+        x *= 0+1j
+        y = np.conjugate( x )
+        yeqx = y == x
+        # conj(0) == 0
+        assert_equal( yeqx, [True, False, False, False, False] )
+
+        z = np.conjugate( y )
+        assert_equal( z, x )
+
     def test_logical_ops( self ):
 
         for t in alltypes[1:]:
@@ -278,6 +290,150 @@ class TestLoops(TestCase):
             b = np.ones_like( a )
             assert a.shape == b.shape, "ones_like garbles shape"
             assert_equal( b, np.array( [1,1,1,1,1], dtype=t ) )
+
+    def test_fmax( self ):
+
+        for t in [ np.single, np.double, np.longdouble,
+                   np.csingle, np.cdouble, np.clongdouble ]:
+
+            a = np.arange( 5, dtype=t )
+            b = a[::-1]
+            c = np.fmax( a, b )
+            assert_equal( c, np.array( [4,3,2,3,4], dtype=t ) )
+
+    def test_object_loops( self ):
+
+        a = np.arange( 5, dtype='O' )
+        b = a[::-1]
+
+        c = a >= b
+        assert_equal( c, [False, False, True, True, True] )
+
+        c = a > b
+        assert_equal( c, [False, False, False, True, True] )
+
+        c = a < b
+        assert_equal( c, [True, True, False, False, False] )
+
+        c = a <= b
+        assert_equal( c, [True, True, True, False, False] )
+
+        # Check casting to numeric types
+        for t in [ np.byte, np.ubyte, np.short, np.ushort,
+                   np.intc, np.uintc, np.int, np.uint,
+                   np.longlong, np.ulonglong,
+                   np.single, np.double, np.longdouble,
+                   np.csingle, np.cdouble, np.clongdouble,
+                   np.unicode ]:
+            b = a.astype( t )
+
+            # We have to use array of sequence conversion rather than
+            # arange() here because np.unicode lacks fill support, hence
+            # won't work with arange().
+            assert_equal( b, np.array( [0,1,2,3,4], dtype=t ) )
+
+            c = b.astype( 'O' )
+
+            # Object arrays don't compare as equal, so we have to cast again
+            # to the target type to verify equivalence.
+            assert_equal( b, c.astype( t ) )
+
+        # Timedelta and datetime when converted to object, are
+        # datetime/timedelta objects, not the integers that they started off
+        # as in the a array above.  So we convert again, and test for
+        # equality between datetime/timedelta objects, which were converted
+        # through the datetime/timedelta scalars.  This seems reasonable.
+        for t in [ np.datetime64, np.timedelta64 ]:
+            b = a.astype( t )
+            assert_equal( b, np.array( [0,1,2,3,4], dtype=t ) )
+
+            c = b.astype( 'O' )
+            d = c.astype( t )
+
+            # Object arrays don't compare as equal, so we cast them to
+            # arrays of integers and do the comparison that way.
+            assert_equal( b.astype( np.int ), d.astype( np.int ) )
+
+        # Curiously, this doesn't exercise OBJECT_to_OBJECT, hence adding
+        # that to the suppression list.
+        b = a.astype( 'O' )
+        assert_equal( b, np.array( [0,1,2,3,4], dtype='O' ) )
+
+        # Unclear how to check OBJECT_to_VOID
+        try:
+            va = a.astype( np.void )
+            assert_equal( va, np.array( [0,1,2,3,4], dtype=np.void ) )
+        except:
+            pass
+
+        # Now check OBJECT_sign
+        a = a - 2
+        b = np.sign( a )
+        assert_equal( b, np.array( [-1,-1,0,1,1] ) )
+
+    def test_string_conversions( self ):
+
+        target_types = [ np.byte, np.ubyte, np.short, np.ushort,
+                         np.intc, np.uintc,
+                         np.int, np.uint, np.longlong, np.ulonglong,
+                         np.single, np.double, np.longdouble,
+                         np.csingle, np.cdouble, np.clongdouble,
+                         np.unicode ]
+
+        for t in target_types:
+            a = np.array( [0,1,2,3,4], dtype=t )
+            b = a.astype( 'S10' )
+            c = b.astype( t )
+            assert_equal( a, c )
+
+    @dec.knownfailureif(True, "datetime converions fail.")
+    def test_string_to_datetimedelta( self ):
+        # Handle these separately, as they each currently fail.
+        for t in [np.datetime64, np.timedelta64]:
+            a = np.array( [0,1,2,3,4], dtype=t )
+            b = a.astype( 'S50' )
+            c = b.astype( t )
+            assert_equal( a, c )
+
+    @dec.knownfailureif(True, "string to bool converions fail.")
+    def test_string_to_bool( self ):
+
+        a = np.array( [False, True] )
+        b = a.astype( 'S10' )
+        # This also fails with np.bool_
+        c = b.astype( np.bool )
+        assert_equal( c, a )
+
+    def test_unicode_conversions( self ):
+        target_types = [ np.byte, np.ubyte, np.short, np.ushort,
+                         np.intc, np.uintc,
+                         np.int, np.uint, np.longlong, np.ulonglong,
+                         np.single, np.double, np.longdouble,
+                         np.csingle, np.cdouble, np.clongdouble,
+                         ]
+
+        for t in target_types:
+            a = np.array( [0,1,2,3,4], dtype=t )
+            b = a.astype( 'U10' )
+            c = b.astype( t )
+            assert_equal( a, c )
+
+    @dec.knownfailureif(True, "datetime converions fail.")
+    def test_unicode_to_datetimedelta( self ):
+        # Handle these separately, as they each currently fail.
+        for t in [np.datetime64, np.timedelta64]:
+            a = np.array( [0,1,2,3,4], dtype=t )
+            b = a.astype( 'U50' )
+            c = b.astype( t )
+            assert_equal( a, c )
+
+    def test_copysign( self ):
+
+        for t in [np.single, np.double, np.longdouble]:
+            a = np.arange( 5, dtype=t ) -2
+            b = np.arange( 5, dtype=t )
+            c = np.copysign( b, a )
+            assert_equal( c, np.array( [0, -1, 2, 3, 4], dtype=t ) )
 
 if __name__ == "__main__":
     run_module_suite()
