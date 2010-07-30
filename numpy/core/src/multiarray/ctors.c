@@ -2201,6 +2201,7 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step,
                                    (NULL != dtype) ? dtype->descr : NULL);
 }
 
+
 /*
  * Create an array by reading from the given stream, using the passed
  * next_element and skip_separator functions.

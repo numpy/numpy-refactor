@@ -786,10 +786,6 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 }
 
 
-
-
-
-
 /*NUMPY_API
  * Generic new array creation routine.
  *
@@ -1286,8 +1282,128 @@ NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 }
 
 
-static NpyArray *array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
-                                       npy_intp num, size_t *nread)
+/*
+ * Remove multiple whitespace from the separator, and add a space to the
+ * beginning and end. This simplifies the separator-skipping code below.
+ */
+static char *
+swab_separator(char *sep)
+{
+    int skip_space = 0;
+    char *s, *start;
+
+    s = start = malloc(strlen(sep)+3);
+    /* add space to front if there isn't one */
+    if (*sep != '\0' && !isspace(*sep)) {
+        *s = ' '; s++;
+    }
+    while (*sep != '\0') {
+        if (isspace(*sep)) {
+            if (skip_space) {
+                sep++;
+            }
+            else {
+                *s = ' ';
+                s++;
+                sep++;
+                skip_space = 1;
+            }
+        }
+        else {
+            *s = *sep;
+            s++;
+            sep++;
+            skip_space = 0;
+        }
+    }
+    /* add space to end if there isn't one */
+    if (s != start && s[-1] == ' ') {
+        *s = ' ';
+        s++;
+    }
+    *s = '\0';
+    return start;
+}
+
+
+/*
+ * Create an array by reading from the given stream, using the passed
+ * next_element and skip_separator functions.
+ *
+ * Steals a reference to dtype.
+ */
+#define FROM_BUFFER_SIZE 4096
+static NpyArray *
+array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
+                void *stream, Npy_next_element next,
+                Npy_skip_separator skip_sep, void *stream_data)
+{
+    NpyArray *r;
+    npy_intp i, thisbuf = 0, size, bytes, totalbytes;
+    char *dptr, *clean_sep, *tmp;
+    int err = 0;
+
+    size = (num >= 0) ? num : FROM_BUFFER_SIZE;
+    r = NpyArray_NewFromDescr(dtype, 1, &size,
+                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    if (r == NULL) {
+        return NULL;
+    }
+    clean_sep = swab_separator(sep);
+    NPY_BEGIN_ALLOW_THREADS;
+    totalbytes = bytes = size * dtype->elsize;
+    dptr = NpyArray_BYTES(r);
+    for (i= 0; num < 0 || i < num; i++) {
+        if (next(&stream, dptr, dtype, stream_data) < 0) {
+            break;
+        }
+        *nread += 1;
+        thisbuf += 1;
+        dptr += dtype->elsize;
+        if (num < 0 && thisbuf == size) {
+            totalbytes += bytes;
+            tmp = NpyDataMem_RENEW(NpyArray_BYTES(r), totalbytes);
+            if (tmp == NULL) {
+                err = 1;
+                break;
+            }
+            NpyArray_BYTES(r) = tmp;
+            dptr = tmp + (totalbytes - bytes);
+            thisbuf = 0;
+        }
+        if (skip_sep(&stream, clean_sep, stream_data) < 0) {
+            break;
+        }
+    }
+    if (num < 0) {
+        tmp = NpyDataMem_RENEW(NpyArray_BYTES(r),
+                               NPY_MAX(*nread, 1) * dtype->elsize);
+        if (tmp == NULL) {
+            err = 1;
+        }
+        else {
+            NpyArray_DIM(r,0) = *nread;
+            NpyArray_BYTES(r) = tmp;
+        }
+    }
+    NPY_END_ALLOW_THREADS;
+    free(clean_sep);
+    if (err == 1) {
+        NpyErr_NoMemory();
+    }
+    if (NpyErr_Occurred()) {
+        _Npy_DECREF(r);
+        return NULL;
+    }
+    return r;
+}
+#undef FROM_BUFFER_SIZE
+
+
+
+static NpyArray *
+array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
+                      npy_intp num, size_t *nread)
 {
     NpyArray *r;
     npy_intp start, numbytes;

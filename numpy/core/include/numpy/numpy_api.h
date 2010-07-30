@@ -63,9 +63,8 @@ typedef struct {
 } NpyDict_Iter;
 
 
-
-
-/* Really internal to the core, but required for now by PyArray_TypeNumFromString */
+/* Really internal to the core, but required for now by
+   PyArray_TypeNumFromString */
 /* TODO: Refactor and add an accessor for npy_userdescrs */
 extern struct NpyArray_Descr **npy_userdescrs;
 
@@ -85,6 +84,16 @@ int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interface
 int NpyInterface_DescrNewFromType(int type, struct NpyArray_Descr *descr, void **interfaceRet);
 int NpyInterface_DescrNewFromWrapper(void *base, struct NpyArray_Descr *descr, void **interfaceRet);
 
+
+/*
+ * Reading from a file or a string.
+ *
+ * As much as possible, we try to use the same code for both files and strings,
+ * so the semantics for fromstring and fromfile are the same, especially with
+ * regards to the handling of text representations.
+ */
+typedef int (*Npy_next_element)(void **, void *, NpyArray_Descr *, void *);
+typedef int (*Npy_skip_separator)(void **, const char *, void *);
 
 
 /*
