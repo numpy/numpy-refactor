@@ -25,7 +25,7 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
     }
     if (NpyArray_DATA(ret) != NpyArray_DATA(self)) {
         _Npy_XDECREF(ret);
-        NpyErr_SetString(NpyExc_ValueError,
+        NpyErr_SetString(NpyExc_AttributeError,
                          "incompatible shape for a non-contiguous array");
         return -1;
     }

@@ -391,6 +391,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyExc_RuntimeError PyExc_RuntimeError
 #define NpyErr_Format PyErr_Format
 #define NpyExc_RuntimeError PyExc_RuntimeError
+#define NpyExc_AttributeError PyExc_AttributeError
 #define NpyErr_Clear() PyErr_Clear()
 #define NpyErr_Print() PyErr_Print()
 
