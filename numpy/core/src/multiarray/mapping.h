@@ -57,6 +57,6 @@ NPY_NO_EXPORT void
 PyArray_MapIterBind(PyArrayMapIterObject *, PyArrayObject *);
 
 NPY_NO_EXPORT PyObject*
-PyArray_MapIterNew(PyObject *, int, int);
+PyArray_MapIterNew(PyObject *);
 
 #endif
