@@ -1442,7 +1442,7 @@ arraymultiter_next(PyArrayMultiIterObject *pmulti)
             PyTuple_SET_ITEM(ret, i,
                              PyArray_ToScalar(it->dataptr, 
                                               Npy_INTERFACE(it->ao)));
-            PyArray_ITER_NEXT(it);
+            NpyArray_ITER_NEXT(it);
         }
         multi->index++;
         return ret;
