@@ -674,7 +674,7 @@ array_subscript(PyArrayObject *self, PyObject *op)
                 Py_DECREF(mit);
                 return NULL;
             }
-            rval = npy_iter_subscript(it->iter, mit->iter->indexobj);
+            rval = npy_iter_subscript(it->iter, mit->indexobj);
             Py_DECREF(it);
             Py_DECREF(mit);
             return rval;
@@ -894,7 +894,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
                 Py_DECREF(mit);
                 return -1;
             }
-            rval = npy_iter_ass_subscript(it, (PyObject *)mit->iter->indexobj, op);
+            rval = npy_iter_ass_subscript(it, mit->indexobj, op);
             _Npy_DECREF(it);
             Py_DECREF(mit);
             return rval;
@@ -1234,7 +1234,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
      * But, be sure to do it with a true array.
      */
     if (PyArray_CheckExact(arr)) {
-        sub = array_subscript_simple(arr, mit->indexobj);
+        sub = array_subscript_simple(arr, pyMit->indexobj);
     }
     else {
         Py_INCREF(arr);
@@ -1242,7 +1242,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
         if (obj == NULL) {
             goto fail;
         }
-        sub = array_subscript_simple((PyArrayObject *)obj, mit->indexobj);
+        sub = array_subscript_simple((PyArrayObject *)obj, pyMit->indexobj);
         Py_DECREF(obj);
     }
 
@@ -1265,7 +1265,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
      * Now, we still need to interpret the ellipsis and slice objects
      * to determine which axes the indexing arrays are referring to
      */
-    n = PyTuple_GET_SIZE(mit->indexobj);
+    n = PyTuple_GET_SIZE(pyMit->indexobj);
     /* The number of dimensions an ellipsis takes up */
     ellipexp = PyArray_NDIM(arr) - n + 1;
     /*
@@ -1282,7 +1282,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
          * We need to fill in the starting coordinates for
          * the subspace
          */
-        obj = PyTuple_GET_ITEM(mit->indexobj, i);
+        obj = PyTuple_GET_ITEM(pyMit->indexobj, i);
         if (PyInt_Check(obj) || PyLong_Check(obj)) {
             mit->iteraxes[j++] = curraxis++;
         }
@@ -1396,7 +1396,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
     
     /* TODO: Refactor away the use of Py object for indexobj. */
     Py_INCREF(indexobj);
-    mit->indexobj = indexobj;
+    pyMit->indexobj = indexobj;
 
     if (fancy == SOBJ_LISTTUP) {
         PyObject *newobj;
@@ -1406,7 +1406,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
         }
         Py_DECREF(indexobj);
         indexobj = newobj;
-        mit->indexobj = indexobj;
+        pyMit->indexobj = indexobj;
     }
 
 #undef SOBJ_NOTFANCY
@@ -1432,13 +1432,13 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
         }
         mit->nd = 1;
         mit->dimensions[0] = mit->iters[0]->dims_m1[0]+1;
-        Py_DECREF(mit->indexobj);
-        mit->indexobj = PyTuple_New(mit->numiter);
-        if (mit->indexobj == NULL) {
+        Py_DECREF(pyMit->indexobj);
+        pyMit->indexobj = PyTuple_New(mit->numiter);
+        if (pyMit->indexobj == NULL) {
             goto fail;
         }
         for (i = 0; i < mit->numiter; i++) {
-            PyTuple_SET_ITEM(mit->indexobj, i, PyInt_FromLong(0));
+            PyTuple_SET_ITEM(pyMit->indexobj, i, PyInt_FromLong(0));
         }
     }
 
@@ -1460,8 +1460,8 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
         memcpy(mit->dimensions, PyArray_DIMS(arr), mit->nd*sizeof(intp));
         mit->size = PyArray_SIZE(arr);
         Py_DECREF(arr);
-        Py_DECREF(mit->indexobj);
-        mit->indexobj = Py_BuildValue("(N)", PyInt_FromLong(0));
+        Py_DECREF(pyMit->indexobj);
+        pyMit->indexobj = Py_BuildValue("(N)", PyInt_FromLong(0));
     }
     else {
         /* must be a tuple */
@@ -1521,8 +1521,8 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
                 PyTuple_SET_ITEM(new,j++,obj);
             }
         }
-        Py_DECREF(mit->indexobj);
-        mit->indexobj = new;
+        Py_DECREF(pyMit->indexobj);
+        pyMit->indexobj = new;
         /*
          * Store the number of iterators actually converted
          * These will be mapped to actual axes at bind time
@@ -1543,6 +1543,7 @@ PyArray_MapIterNew(PyObject *indexobj, int oned, int fancy)
 static void
 arraymapiter_dealloc(PyArrayMapIterObject *mit)
 {
+    Py_XDECREF(mit->indexobj);
     Npy_DEALLOC(mit->iter);
     _pya_free(mit);
 }

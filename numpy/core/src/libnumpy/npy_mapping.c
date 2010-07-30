@@ -41,7 +41,6 @@ NpyArray_MapIterNew()
     mit->subspace = NULL;
     mit->numiter = 0;
     mit->consec = 1;
-    mit->indexobj = NULL;
     
     if (NPY_FALSE == NpyInterface_MapIterNewWrapper(mit, &mit->nob_interface)) {
         Npy_INTERFACE(mit) = NULL;
@@ -60,7 +59,6 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     assert(0 == mit->nob_refcnt);
     
     Npy_INTERFACE(mit) = NULL;
-    Py_XDECREF(mit->indexobj);
     _Npy_XDECREF(mit->ait);
     _Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {

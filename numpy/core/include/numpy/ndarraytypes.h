@@ -544,6 +544,7 @@ typedef struct {
         int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
         int  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         NpyArrayMapIterObject* iter;
+        PyObject* indexobj;
 } PyArrayMapIterObject;
 
 typedef struct {
