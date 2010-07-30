@@ -49,43 +49,13 @@ array_shape_set(PyArrayObject *self, PyObject *val)
 {
     int nd;
     PyObject *ret;
+    PyArray_Dims newdims;
 
-    /* Assumes C-order */
-    ret = PyArray_Reshape(self, val);
-    if (ret == NULL) {
+
+    if (!PyArray_IntpConverter(val, &newdims)) {
         return -1;
     }
-    if (PyArray_DATA(ret) != PyArray_DATA(self)) {
-        Py_DECREF(ret);
-        PyErr_SetString(PyExc_AttributeError,
-                        "incompatible shape for a non-contiguous "\
-                        "array");
-        return -1;
-    }
-
-    /* Free old dimensions and strides */
-    PyDimMem_FREE(PyArray_DIMS(self));
-    nd = PyArray_NDIM(ret);
-    PyArray_NDIM(self) = nd;
-    if (nd > 0) {
-        /* create new dimensions and strides */
-        PyArray_DIMS(self) = PyDimMem_NEW(2*nd);
-        if (PyArray_DIMS(self) == NULL) {
-            Py_DECREF(ret);
-            PyErr_SetString(PyExc_MemoryError,"");
-            return -1;
-        }
-        PyArray_STRIDES(self) = PyArray_DIMS(self) + nd;
-        memcpy(PyArray_DIMS(self), PyArray_DIMS(ret), nd*sizeof(intp));
-        memcpy(PyArray_STRIDES(self), PyArray_STRIDES(ret), nd*sizeof(intp));
-    }
-    else {
-        PyArray_DIMS(self) = NULL;
-        PyArray_STRIDES(self) = NULL;
-    }
-    Py_DECREF(ret);
-    PyArray_UpdateFlags(self, CONTIGUOUS | FORTRAN);
-    return 0;
+    return NpyArray_SetShape(PyArray_ARRAY(self), &newdims);
 }
 
 

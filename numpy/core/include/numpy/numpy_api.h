@@ -247,8 +247,9 @@ int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
 
 int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 
-NpyArray* NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
+NpyArray* NpyArray_Newshape(NpyArray *self, NpyArray_Dims *newdims,
                             NPY_ORDER fortran);
+int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
 NpyArray* NpyArray_Squeeze(NpyArray *self);
 NpyArray* NpyArray_SwapAxes(NpyArray *ap, int a1, int a2);
 NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
