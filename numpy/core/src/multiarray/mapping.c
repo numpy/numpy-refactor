@@ -830,7 +830,7 @@ _tuple_of_integers(PyObject *seq, intp *vals, int maxvals)
 static int
 array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
 {
-    int ret, oned, fancy;
+    int ret, oned;
     intp vals[MAX_DIMS];
     PyObject* new_index;
     npy_bool is_fancy;

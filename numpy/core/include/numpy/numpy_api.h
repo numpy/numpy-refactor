@@ -280,6 +280,7 @@ int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
 NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
 NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
 NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side);
+int NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj);
 
 void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 int NpyArray_RegisterDataType(NpyArray_Descr *descr);
