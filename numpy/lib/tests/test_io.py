@@ -137,6 +137,11 @@ class TestSavezLoad(RoundtripTest, TestCase):
         assert_equal(b, l['file_b'])
 
     def test_savez_filename_clashes(self):
+        if hasattr(sys, 'gettotalrefcount'):
+            # skip this test when Python was compiled using
+            # the --with-pydebug option
+            return
+
         # Test that issue #852 is fixed
         # and savez functions in multithreaded environment
 
@@ -1181,6 +1186,10 @@ M   33  21.99
 
 
 def test_gzip_load():
+    if hasattr(sys, 'gettotalrefcount'):
+        # skip this test when Python was compiled using --with-pydebug
+        return
+
     a = np.random.random((5, 5))
 
     s = StringIO()
@@ -1195,6 +1204,10 @@ def test_gzip_load():
 
 
 def test_gzip_loadtxt():
+    if hasattr(sys, 'gettotalrefcount'):
+        # skip this test when Python was compiled using --with-pydebug
+        return
+
     # Thanks to another windows brokeness, we can't use
     # NamedTemporaryFile: a file created from this function cannot be
     # reopened by another open call. So we first put the gzipped string

@@ -7,6 +7,13 @@ types = [np.bool_, np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc,
          np.single, np.double, np.longdouble, np.csingle,
          np.cdouble, np.clongdouble]
 
+real_types = [ np.byte, np.ubyte, np.short, np.ushort,
+               np.intc, np.uintc,
+               np.int_, np.uint, np.longlong, np.ulonglong,
+               np.single, np.double, np.longdouble ]
+
+complex_types = [ np.csingle, np.cdouble, np.clongdouble ]
+
 # This compares scalarmath against ufuncs.
 
 class TestTypes(TestCase):
@@ -241,46 +248,12 @@ class TestTypes(TestCase):
 
             assert val == 3 and valo == 3, "Trouble with float (%d)" % k
 
-    def test_misc_niggles(self, level=1):
+    def test_gentype_nonzero( self ):
 
-        # Verify the nonzero method on longdouble and clongdouble types.
-        # This is done essentially by evaluating an apprpriately typed
-        # (number) object as a condition.  I guess that's probably done
-        # elsewhere in the test suite for the other interesting data types.
-
-        x = np.longdouble( 4.4 )
-        y = np.nonzero( x )
-
-        assert x, "Trouble with longdouble_nonzero"
-
+        # This exercises gentype_nonzero, and thus may point the path to
+        # executing other gentype_* functions.
         z = np.clongdouble( 4 + 5j )
-
-        assert z, "Trouble with clongdouble_nonzero"
-
-        from operator import itruediv
-        itruediv( z, x )
-
-        q = int(z)
-
-        divmod( x, 1.1 )
-
         r = np.nonzero( z )
-
-        s = np.longlong( 99 )
-        t = int(s)
-
-    def xtest_scalarmath_module_methods( self, level=1 ):
-        # Rename to test_* when ready.
-
-        # The purpose of this method is to actually exercise the scalarmath
-        # mdoule's module-methods, whose names are:
-        #    use_scalarmath
-        #    use_pythonmath
-        #    alter_pyscalars
-        #    restore_pyscalars
-        # Those module methods need to be exercised.
-
-        pass
 
     def test_type_create(self, level=1):
         for k, atype in enumerate(types):
@@ -288,6 +261,81 @@ class TestTypes(TestCase):
             b = atype([1,2,3])
             assert_equal(a,b)
 
+    def test_scalartype_ops( self ):
+
+        int_types = [ np.byte, np.ubyte, np.short, np.ushort,
+                      np.intc, np.uintc,
+                      np.int_, np.uint, np.longlong, np.ulonglong ]
+
+        for t in int_types:
+            x = t(7)
+            y = x ^ x
+            assert y == 0, "xor on scalartype"
+
+            x = t(1)
+            y = x << 1
+            assert y == 2, "left shift on scalartype"
+
+            # NOTE:  y came back not the same type as t, so a right shift on
+            # y doesn't exercise the <t>_rshift function.  To get the
+            # <t>_rshift, we have to go back to a <t> instance.
+            y = t(2)
+            z = y >> 1
+            assert z == 1, "right shift on scalartype"
+
+            assert np.invert(x) != 1, "invert on scalartype"
+            assert np.invert( np.invert( x ) ) == x, "invert on scalartype"
+
+            y = t(0)
+            z = x & y
+            assert z == 0, "bitwise and on scalartype"
+
+            z = x | y
+            assert z == 1, "bitwise or on scalartype"
+            assert z, "nonzero on scalartype"
+
+            x = t(0)
+            assert ~x, "Invert on numpy scalar types"
+
+            #x = t(5)
+            #y = x // 2
+            #assert y, "nonzero on numpy scalar types"
+            #assert y == 2, "floor divide on numpy scalar types"
+
+        for t in real_types:
+            x = t(5)
+            assert x, "nonzero on scalartype"
+
+            y = x // 2.
+            assert y == 2, "floor divide on scalartype"
+
+            y = t(2)
+            n,r = divmod( x, y )
+            assert n == t(2), "divmod on scalartype"
+            assert r == t(1), "divmod on scalartype"
+
+        for t in complex_types:
+
+            x = t(5)
+            assert x, "nonzero on complex scalartype"
+
+            y = x // 2
+            assert y == 2, "Floor divide on complex scalartype"
+
+        from operator import itruediv
+        itruediv( z, x )
+
+        for t in types[1:]:
+            z = t(5)
+            x = t(2)
+            itruediv( z, x )
+
+            x = t(5)
+            y = np.long(x)
+            assert y == x, "Cast scalartype to long"
+
+            y = np.int(x)
+            assert y == x, "Cast scalartype to int"
 
 class TestPower(TestCase):
     def test_small_types(self):

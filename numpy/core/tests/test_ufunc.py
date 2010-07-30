@@ -244,8 +244,25 @@ class TestUfunc(TestCase):
         c = b >> 1
         assert_equal( c, a )
 
-    def test_array_bit_ops( self ):
+        # Test also the LONGLONG and ULONGLONG variants.
 
+        a = np.arange( 5, dtype=np.longlong )
+        b = a << 1
+        assert_equal( b, a*2 )
+        c = b >> 1
+        assert_equal( c, a )
+
+        a = np.arange( 5, dtype=np.ulonglong )
+        b = a << 1
+        assert_equal( b, a*2 )
+        c = b >> 1
+        assert_equal( c, a )
+
+    def test_array_bit_ops( self ):
+        self.exercise_array_bit_ops_t( np.longlong )
+        self.exercise_array_bit_ops_t( np.ulonglong )
+
+    def old_array_bit_ops( self ):
         # Test bitwise xor.
         a = np.arange(5)
         b = a ^ a
@@ -254,6 +271,25 @@ class TestUfunc(TestCase):
         z = np.zeros( 5, np.int32 )
         c = a ^ z
         assert_equal( c, a )
+
+    def exercise_array_bit_ops_t( self, tp ):
+
+        # Test bitwise xor
+        a = np.arange( 5, dtype=tp )
+        b = a ^ a
+        assert_equal( b, np.zeros( 5, dtype=tp ) )
+
+        z = np.zeros( 5, dtype=tp )
+        c = a ^ z
+        assert_equal( c, a )
+
+        # Test bitwise or
+        a = np.zeros( 5, dtype=tp )
+        b = np.ones( 5, dtype=tp )
+        assert_equal( a | b, b )
+
+        # Test bitwise and
+        assert_equal( a & b, a )
 
     def test_array_inplace_ops( self ):
 

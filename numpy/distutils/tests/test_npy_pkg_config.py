@@ -1,3 +1,4 @@
+import sys
 import os
 from tempfile import mkstemp
 
@@ -32,8 +33,11 @@ includedir = ${prefix}/include
 cflags = -I${includedir}
 libs = -L${libdir}
 """
-simple_variable_d = {'cflags': '-I/foo/bar/include', 'libflags': '-L/foo/bar/lib',
-        'version': '0.1', 'name': 'foo'}
+simple_variable_d = {
+    'cflags': '-I/foo/bar/include',
+    'libflags': '-L/foo/bar/lib',
+    'version': '0.1', 'name': 'foo'
+}
 
 class TestLibraryInfo(TestCase):
     def test_simple(self):
@@ -72,6 +76,12 @@ class TestLibraryInfo(TestCase):
             self.assertTrue(out.cflags() == '-I/Users/david/include')
         finally:
             os.remove(filename)
+
+if hasattr(sys, 'gettotalrefcount'):
+    # skip this test class when Python was compiled using
+    # the --with-pydebug option
+    del TestLibraryInfo
+
 
 class TestParseFlags(TestCase):
     def test_simple_cflags(self):

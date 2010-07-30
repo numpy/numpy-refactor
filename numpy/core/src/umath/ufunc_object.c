@@ -2850,9 +2850,15 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             if (loop->cast) {
                 /* A little tricky because we need to cast it first */
                 PyArray_DESCR(arr)->f->copyswap(loop->buffer, loop->inptr,
-                        loop->swap, NULL);
+                                                loop->swap, NULL);
                 loop->cast(loop->buffer, loop->castbuf, 1, NULL, NULL);
-                if (loop->obj & UFUNC_OBJ_ISOBJECT) {
+                if ((loop->obj & UFUNC_OBJ_ISOBJECT) &&
+                    !PyArray_ISOBJECT(arr)) {
+                    /* 
+                     * In this case the cast function is creating
+                     * an object reference so we need to incref
+                     * it since we care copying it to bufptr[0].
+                     */
                     Py_XINCREF(*((PyObject **)loop->castbuf));
                 }
                 memcpy(loop->bufptr[0], loop->castbuf, loop->outsize);
@@ -2860,7 +2866,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             else {
                 /* Simple copy */
                 PyArray_DESCR(arr)->f->copyswap(loop->bufptr[0], loop->inptr,
-                        loop->swap, NULL);
+                                                loop->swap, NULL);
             }
             loop->inptr += loop->instrides;
             n = 1;
@@ -2872,7 +2878,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                         break;
                     }
                     PyArray_DESCR(arr)->f->copyswap(dptr, loop->inptr,
-                            loop->swap, NULL);
+                                                    loop->swap, NULL);
                     loop->inptr += loop->instrides;
                     dptr += loop->insize;
                 }
@@ -2880,7 +2886,7 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                     loop->cast(loop->buffer, loop->castbuf, i, NULL, NULL);
                 }
                 loop->function((char **)loop->bufptr, &i,
-                        loop->steps, loop->funcdata);
+                               loop->steps, loop->funcdata);
                 loop->bufptr[0] += loop->steps[0]*i;
                 loop->bufptr[2] += loop->steps[2]*i;
                 UFUNC_CHECK_ERROR(loop);
@@ -2891,20 +2897,25 @@ PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
             loop->index++;
         }
 
-        /*
-         * DECREF left-over objects if buffering was used.
-         * It is needed when casting created new objects in
-         * castbuf.  Intermediate copying into castbuf (via
-         * loop->function) decref'd what was already there.
-
-         * It's the final copy into the castbuf that needs a DECREF.
-         */
-
-        /* Only when casting needed and it is from a non-object array */
-        if ((loop->obj & UFUNC_OBJ_ISOBJECT) && loop->cast &&
-            (!PyArray_ISOBJECT(arr))) {
-            for (i=0; i<loop->bufsize; i++) {
-                Py_CLEAR(((PyObject **)loop->castbuf)[i]);
+        if (loop->obj & UFUNC_OBJ_ISOBJECT) {
+            /*
+             * DECREF left-over objects if buffering was used.
+             * There are 2 cases here.
+             * 1. The output is an object. In this case the
+             * castfunc will produce objects and castbuf needs
+             * to be decrefed.
+             * 2. The input is an object array.  In this case
+             * the copyswap will produce object references and
+             * the buffer needs to be decrefed.
+             */
+            if (!PyArray_ISOBJECT(arr)) {
+                for (i=0; i<loop->bufsize; i++) {
+                    Py_CLEAR(((PyObject **)loop->castbuf)[i]);
+                }
+            } else {
+                for (i=0; i<loop->bufsize; i++) {
+                    Py_CLEAR(((PyObject **)loop->buffer)[i]);
+                }
             }
         }
 

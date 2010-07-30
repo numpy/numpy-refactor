@@ -47,45 +47,16 @@ array_shape_get(PyArrayObject *self)
 static int
 array_shape_set(PyArrayObject *self, PyObject *val)
 {
-    int nd;
+    int nd, res;
     PyObject *ret;
+    PyArray_Dims newdims;
 
-    /* Assumes C-order */
-    ret = PyArray_Reshape(self, val);
-    if (ret == NULL) {
+    if (!PyArray_IntpConverter(val, &newdims)) {
         return -1;
     }
-    if (PyArray_DATA(ret) != PyArray_DATA(self)) {
-        Py_DECREF(ret);
-        PyErr_SetString(PyExc_AttributeError,
-                        "incompatible shape for a non-contiguous "\
-                        "array");
-        return -1;
-    }
-
-    /* Free old dimensions and strides */
-    PyDimMem_FREE(PyArray_DIMS(self));
-    nd = PyArray_NDIM(ret);
-    PyArray_NDIM(self) = nd;
-    if (nd > 0) {
-        /* create new dimensions and strides */
-        PyArray_DIMS(self) = PyDimMem_NEW(2*nd);
-        if (PyArray_DIMS(self) == NULL) {
-            Py_DECREF(ret);
-            PyErr_SetString(PyExc_MemoryError,"");
-            return -1;
-        }
-        PyArray_STRIDES(self) = PyArray_DIMS(self) + nd;
-        memcpy(PyArray_DIMS(self), PyArray_DIMS(ret), nd*sizeof(intp));
-        memcpy(PyArray_STRIDES(self), PyArray_STRIDES(ret), nd*sizeof(intp));
-    }
-    else {
-        PyArray_DIMS(self) = NULL;
-        PyArray_STRIDES(self) = NULL;
-    }
-    Py_DECREF(ret);
-    PyArray_UpdateFlags(self, CONTIGUOUS | FORTRAN);
-    return 0;
+    res = NpyArray_SetShape(PyArray_ARRAY(self), &newdims);
+    NpyDimMem_FREE(newdims.ptr);
+    return res;
 }
 
 
@@ -98,59 +69,17 @@ array_strides_get(PyArrayObject *self)
 static int
 array_strides_set(PyArrayObject *self, PyObject *obj)
 {
+    int res;
     PyArray_Dims newstrides = {NULL, 0};
-    NpyArray *new;
-    intp numbytes = 0;
-    intp offset = 0;
-    Py_ssize_t buf_len;
-    char *buf;
 
     if (!PyArray_IntpConverter(obj, &newstrides) ||
         newstrides.ptr == NULL) {
         PyErr_SetString(PyExc_TypeError, "invalid strides");
         return -1;
     }
-    if (newstrides.len != PyArray_NDIM(self)) {
-        PyErr_Format(PyExc_ValueError, "strides must be "       \
-                     " same length as shape (%d)", PyArray_NDIM(self));
-        goto fail;
-    }
-    new = PyArray_BASE_ARRAY(self);
-    while(NULL != NpyArray_BASE_ARRAY(new)) {
-        new = NpyArray_BASE_ARRAY(new);
-    }
-    /*
-     * Get the available memory through the buffer interface on
-     * new->base or if that fails from the current new
-     */
-    if (NULL != new->base_obj && PyObject_AsReadBuffer(new->base_obj,
-                                                       (const void **)&buf,
-                                                       &buf_len) >= 0) {
-        offset = PyArray_BYTES(self) - buf;
-        numbytes = buf_len + offset;
-    }
-    else {
-        PyErr_Clear();
-        numbytes = PyArray_MultiplyList(NpyArray_DIMS(new),
-                                        NpyArray_NDIM(new))*NpyArray_ITEMSIZE(new);
-        offset = PyArray_BYTES(self) - NpyArray_BYTES(new);
-    }
-
-    if (!PyArray_CheckStrides(PyArray_ITEMSIZE(self), PyArray_NDIM(self), numbytes,
-                              offset,
-                              PyArray_DIMS(self), newstrides.ptr)) {
-        PyErr_SetString(PyExc_ValueError, "strides is not "\
-                        "compatible with available memory");
-        goto fail;
-    }
-    memcpy(PyArray_STRIDES(self), newstrides.ptr, sizeof(intp)*newstrides.len);
-    PyArray_UpdateFlags(self, CONTIGUOUS | FORTRAN);
-    PyDimMem_FREE(newstrides.ptr);
-    return 0;
-
- fail:
-    PyDimMem_FREE(newstrides.ptr);
-    return -1;
+    res = NpyArray_SetStrides(PyArray_ARRAY(self), &newstrides);
+    NpyDimMem_FREE(newstrides.ptr);
+    return res;
 }
 
 
@@ -341,17 +270,17 @@ array_data_set(PyArrayObject *self, PyObject *op)
         }
         _Npy_DECREF(PyArray_BASE_ARRAY(self));
         PyArray_BASE_ARRAY(self) = NULL;
-    } 
+    }
     if (NULL != PyArray_BASE(self)) {
         Py_DECREF(PyArray_BASE(self));
         PyArray_BASE(self) = NULL;
     }
-    
+
     if (PyArray_Check(op)) {
         PyArray_BASE_ARRAY(self) = PyArray_ARRAY(op);
         _Npy_INCREF(PyArray_BASE_ARRAY(self));
     } else {
-        PyArray_BASE(self) = op;        
+        PyArray_BASE(self) = op;
         Py_INCREF(PyArray_BASE(self));
     }
     ASSERT_ONE_BASE(self);
@@ -418,14 +347,14 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
     NpyArray_Descr *newtype = NULL;
     PyArray_Descr *newtypeInterface = NULL;
     int result;
-    
+
     if (!(PyArray_DescrConverter(arg, &newtypeInterface)) ||
         newtypeInterface == NULL) {
         Py_XDECREF(newtypeInterface);
         PyErr_SetString(PyExc_TypeError, "invalid data-type for array");
         return -1;
     }
-    
+
     PyArray_Descr_REF_TO_CORE(newtypeInterface, newtype);
     result = NpyArray_SetDescr(PyArray_ARRAY(self), newtype);
     _Npy_DECREF(newtype);
@@ -461,8 +390,10 @@ array_struct_get(PyArrayObject *self)
             return PyErr_NoMemory();
         }
         PyArray_STRIDES(inter) = inter->shape + PyArray_NDIM(self);
-        memcpy(inter->shape, PyArray_DIMS(self), sizeof(intp)*PyArray_NDIM(self));
-        memcpy(PyArray_STRIDES(inter), PyArray_STRIDES(self), sizeof(intp)*PyArray_NDIM(self));
+        memcpy(inter->shape, PyArray_DIMS(self),
+               sizeof(intp)*PyArray_NDIM(self));
+        memcpy(PyArray_STRIDES(inter), PyArray_STRIDES(self),
+               sizeof(intp)*PyArray_NDIM(self));
     }
     else {
         inter->shape = NULL;
@@ -470,7 +401,8 @@ array_struct_get(PyArrayObject *self)
     }
     PyArray_BYTES(inter) = PyArray_BYTES(self);
     if (PyArray_DESCR(self)->names) {
-        PyArray_Descr *wrap = (PyArray_Descr *)npy_arraydescr_protocol_descr_get(PyArray_DESCR(self));
+        PyArray_Descr *wrap = (PyArray_Descr *)
+                       npy_arraydescr_protocol_descr_get(PyArray_DESCR(self));
         if (NULL != wrap) {
             PyArray_DESCR(inter) = wrap->descr;
             _Npy_INCREF(wrap->descr);
@@ -531,7 +463,7 @@ _get_part(PyArrayObject *self, int imag)
                                 PyArray_DIMS(self),
                                 PyArray_STRIDES(self),
                                 PyArray_BYTES(self) + offset,
-                                PyArray_FLAGS(self), 
+                                PyArray_FLAGS(self),
                                 NPY_FALSE, Py_TYPE(self), self));
     if (ret == NULL) {
         return NULL;
@@ -692,12 +624,13 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     copyswap = PyArray_DESCR(self)->f->copyswap;
     if (NpyDataType_REFCHK(PyArray_DESCR(self))) {
         while (selfit->index < selfit->size) {
-            /* TODO: Fix this for garbage collected environments, new pointers will be written back. */
+            /* TODO: Fix this for garbage collected environments,
+               new pointers will be written back. */
             NpyArray_Item_XDECREF(selfit->dataptr, PyArray_DESCR(self));
             NpyArray_Item_INCREF(arrit->dataptr, PyArray_DESCR(arr));
             memmove(selfit->dataptr, arrit->dataptr, sizeof(PyObject **));
             if (swap) {
-                copyswap(selfit->dataptr, NULL, swap, 
+                copyswap(selfit->dataptr, NULL, swap,
                          PyArray_ARRAY(self));
             }
             NpyArray_ITER_NEXT(selfit);

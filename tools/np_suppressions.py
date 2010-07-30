@@ -22,4 +22,7 @@ suppressions = [
     [ r".*/libnumpy/npy_arraytypes\.", "LONGLONG_to_LONGLONG" ],
     [ r".*/libnumpy/npy_arraytypes\.", "ULONGLONG_to_ULONGLONG" ],
 
+    # This is also apparently uninvokable.  See test_loops.py
+    [ r".*/src/multiarray/arraytypes\.", "OBJECT_to_OBJECT" ],
+
     ]

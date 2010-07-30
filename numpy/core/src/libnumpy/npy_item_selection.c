@@ -1420,3 +1420,79 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
     return NULL;
 }
 
+
+/*
+ * Fills on index_arrays with 1-d arrays giving the indexes
+ * along each dimension of the non-zero elements in self.
+ * index_arrays must be an array of size self->nd.  Each
+ * index array will be the length of the number of non-zero
+ * elements in self.
+ */
+int
+NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj)
+{
+    int n = self->nd, j;
+    npy_intp count = 0, i, size;
+    NpyArrayIterObject *it = NULL;
+    NpyArray *item;
+    npy_intp *dptr[NPY_MAXDIMS];
+    NpyArray_NonzeroFunc *nonzero = self->descr->f->nonzero;
+
+    for (i=0; i<n; i++) {
+        index_arrays[i] = NULL;
+    }
+
+    it = NpyArray_IterNew(self);
+    if (it == NULL) {
+        return -1;
+    }
+    size = it->size;
+    for (i = 0; i < size; i++) {
+        if (nonzero(it->dataptr, self)) {
+            count++;
+        }
+        NpyArray_ITER_NEXT(it);
+    }
+
+    NpyArray_ITER_RESET(it);
+    for (j = 0; j < n; j++) {
+        item = NpyArray_New(NULL, 1, &count,
+                            NPY_INTP, NULL, NULL, 0, 0,
+                            obj);
+        if (item == NULL) {
+            goto fail;
+        }
+        index_arrays[j] = item;
+        dptr[j] = (intp *)NpyArray_DATA(item);
+    }
+    if (n == 1) {
+        for (i = 0; i < size; i++) {
+            if (nonzero(it->dataptr, self)) {
+                *(dptr[0])++ = i;
+            }
+            NpyArray_ITER_NEXT(it);
+        }
+    }
+    else {
+        /* reset contiguous so that coordinates gets updated */
+        it->contiguous = 0;
+        for (i = 0; i < size; i++) {
+            if (nonzero(it->dataptr, self)) {
+                for (j = 0; j < n; j++) {
+                    *(dptr[j])++ = it->coordinates[j];
+                }
+            }
+            NpyArray_ITER_NEXT(it);
+        }
+    }
+
+    _Npy_DECREF(it);
+    return 0;
+
+ fail:
+    for (i=0; i<n; i++) {
+        _Npy_XDECREF(index_arrays[i]);
+    }
+    _Npy_XDECREF(it);
+    return -1;
+}
