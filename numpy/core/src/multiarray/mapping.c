@@ -1114,89 +1114,37 @@ NPY_NO_EXPORT PyMappingMethods array_as_mapping = {
 static int
 _nonzero_indices(PyObject *myBool, NpyArrayIterObject **iters)
 {
-    NpyArray_Descr *typecode;
-    PyArrayObject *ba = NULL, *new = NULL;
-    int nd, j;
-    intp size, i, count;
-    Bool *ptr;
-    intp coords[MAX_DIMS], dims_m1[MAX_DIMS];
-    intp *dptr[MAX_DIMS];
+    int i, j, n;
+    int result;
+    NpyArray *arrays[NPY_MAXDIMS];
 
-    typecode = NpyArray_DescrFromType(PyArray_BOOL);
-    ba = (PyArrayObject *)PyArray_FromAnyUnwrap(myBool, typecode, 0, 0,
-                                                CARRAY, NULL);
-    if (ba == NULL) {
+    /* Get the arrays. */
+    if (NpyArray_NonZero(PyArray_ARRAY(myBool), arrays, myBool) < 0) {
         return -1;
     }
-    nd = PyArray_NDIM(ba);
-    for (j = 0; j < nd; j++) {
-        iters[j] = NULL;
-    }
-    size = PyArray_SIZE(ba);
-    ptr = (Bool *)PyArray_BYTES(ba);
-    count = 0;
 
-    /* pre-determine how many nonzero entries there are */
-    for (i = 0; i < size; i++) {
-        if (*(ptr++)) {
-            count++;
-        }
-    }
+    /* Make iterators. */
+    n = PyArray_NDIM(myBool);
 
-    /* create count-sized index arrays for each dimension */
-    for (j = 0; j < nd; j++) {
-        new = (PyArrayObject *)PyArray_New(&PyArray_Type, 1, &count,
-                                           PyArray_INTP, NULL, NULL,
-                                           0, 0, NULL);
-        if (new == NULL) {
-            goto fail;
-        }
-        iters[j] = NpyArray_IterNew(PyArray_ARRAY(new));
-        Py_DECREF(new);
-        if (iters[j] == NULL) {
-            goto fail;
-        }
-        dptr[j] = (intp *)iters[j]->ao->data;
-        coords[j] = 0;
-        dims_m1[j] = PyArray_DIM(ba, j)-1;
-    }
-    ptr = (Bool *)PyArray_BYTES(ba);
-    if (count == 0) {
-        goto finish;
-    }
-
-    /*
-     * Loop through the Boolean array  and copy coordinates
-     * for non-zero entries
-     */
-    for (i = 0; i < size; i++) {
-        if (*(ptr++)) {
-            for (j = 0; j < nd; j++) {
-                *(dptr[j]++) = coords[j];
+    result = n;
+    for (i=0; i<n; i++) {
+        iters[i] = NpyArray_IterNew(arrays[i]);
+        if (iters[i] == NULL) {
+            /* Decref the iters. */
+            for (j=0; j<i; j++) {
+                _Npy_DECREF(iters[j]);
             }
-        }
-        /* Borrowed from ITER_NEXT macro */
-        for (j = nd - 1; j >= 0; j--) {
-            if (coords[j] < dims_m1[j]) {
-                coords[j]++;
-                break;
-            }
-            else {
-                coords[j] = 0;
-            }
+            result = -1;
+            break;
         }
     }
 
- finish:
-    Py_DECREF(ba);
-    return nd;
-
- fail:
-    for (j = 0; j < nd; j++) {
-        _Npy_XDECREF(iters[j]);
+    /* Decref the arrays */
+    for (i=0; i<n; i++) {
+        _Npy_DECREF(arrays[i]);
     }
-    Py_XDECREF(ba);
-    return -1;
+
+    return result;
 }
 
 /* convert an indexing object to an INTP indexing array iterator
