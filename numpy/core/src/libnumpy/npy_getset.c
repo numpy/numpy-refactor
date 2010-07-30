@@ -19,7 +19,6 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
     NpyArray *ret;
 
     ret = NpyArray_Newshape(self, newdims, NPY_CORDER);
-    NpyDimMem_FREE(newdims->ptr);
     if (ret == NULL) {
         return -1;
     }
