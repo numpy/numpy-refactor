@@ -386,6 +386,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 
 /*
  * Error handling.
+ * TODO: port these function from Python into npy_exceptions.c
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
 #define NpyErr_SetNone(e) PyErr_SetNone(e)
@@ -404,7 +405,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyErr_Print() PyErr_Print()
 
 #if PY_VERSION_HEX >= 0x02050000
-#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 
+#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
 #else
 #define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
 #endif
