@@ -103,7 +103,9 @@ array_typestr_get(PyArrayObject *self)
 static PyObject *
 array_descr_get(PyArrayObject *self)
 {
-    PyArray_Descr *descr = PyArray_Descr_WRAP( PyArray_DESCR(self) );
+    PyArray_Descr *descr;
+
+    descr = PyArray_Descr_WRAP(PyArray_DESCR(self));
     Py_INCREF(descr);
     return (PyObject *)descr;
 }
