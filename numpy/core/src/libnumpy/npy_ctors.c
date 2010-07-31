@@ -1624,6 +1624,9 @@ NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
 {
     NpyArray *ret;
 
+    if (dtype == NULL) {
+        dtype = NpyArray_DescrFromType(NPY_DEFAULT_TYPE);
+    }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot create an object array from a string");
