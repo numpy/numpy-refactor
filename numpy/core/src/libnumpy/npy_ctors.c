@@ -262,8 +262,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
 
     if (multi->size != NpyArray_SIZE(dest)) {
         NpyErr_SetString(NpyExc_ValueError,
-                        "array dimensions are not "\
-                        "compatible for copy");
+                        "array dimensions are not compatible for copy");
         _Npy_DECREF(multi);
         return -1;
     }
@@ -850,7 +849,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     }
     if (nd > NPY_MAXDIMS) {
         NpyErr_Format(NpyExc_ValueError,
-                     "maximum number of dimensions is %d", NPY_MAXDIMS);
+                      "maximum number of dimensions is %d", NPY_MAXDIMS);
         _Npy_DECREF(descr);
         return NULL;
     }
@@ -1089,8 +1088,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         !NpyArray_CanCastTo(oldtype, newtype)) {
         _Npy_DECREF(newtype);
         NpyErr_SetString(NpyExc_TypeError,
-                        "array cannot be safely cast "  \
-                        "to required type");
+                        "array cannot be safely cast to required type");
         return NULL;
     }
 
@@ -1771,7 +1769,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
-                         "Cannot create an object array from"    \
+                         "Cannot create an object array from"
                          " a string");
         _Npy_DECREF(dtype);
         return NULL;
@@ -1786,8 +1784,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     if (num < 0 ) {
         if (slen % itemsize != 0) {
             NpyErr_SetString(NpyExc_ValueError,
-                             "string size must be a "\
-                             "multiple of element size");
+                             "string size must be a multiple of element size");
             _Npy_DECREF(dtype);
             return NULL;
         }
@@ -1796,8 +1793,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     else {
         if (slen < num*itemsize) {
             NpyErr_SetString(NpyExc_ValueError,
-                             "string is smaller than " \
-                             "requested size");
+                             "string is smaller than requested size");
             _Npy_DECREF(dtype);
             return NULL;
         }

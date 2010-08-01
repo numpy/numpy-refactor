@@ -99,7 +99,8 @@ Npy_STRING_ISSPACE(char ch);
 #define NpyArray_COMPLEXLTR      NPY_COMPLEXLTR
 
 
-/* TODO: Find a better way to handle getitem, setitem and other functions provided by the interface. */
+/* TODO: Find a better way to handle getitem, setitem and other functions
+   provided by the interface. */
 /* From arraytypes.c.src */
 
 

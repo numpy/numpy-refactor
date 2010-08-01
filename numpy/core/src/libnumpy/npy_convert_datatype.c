@@ -11,7 +11,8 @@
 
 /*
  * Reference counts:
- * copyswapn is used which increases and decreases reference counts for OBJECT arrays.
+ * copyswapn is used which increases and decreases reference counts for OBJECT
+ * arrays.
  * All that needs to happen is for any reference counts in the buffers to be
  * decreased when completely finished with the buffers.
  *
@@ -198,7 +199,8 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         NpyTypeNum_ISNUMBER(type_num) &&
         !NpyTypeNum_ISBOOL(type_num)) {
 
-        /* TODO: Need solution for using ComplexWarning class as object to NpyErr_WarnEx. Callback or just classify as RuntimeErr? */
+        /* TODO: Need solution for using ComplexWarning class as object to
+           NpyErr_WarnEx. Callback or just classify as RuntimeErr? */
         PyObject *cls = NULL, *obj = NULL;
         obj = PyImport_ImportModule("numpy.core");
         if (obj) {
@@ -281,8 +283,8 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
      *  then getitem and setitem are used for the cast
      *  and byteswapping is handled by those methods
      */
-    if (NpyArray_ISFLEXIBLE(mp) || NpyArray_ISOBJECT(mp) || NpyArray_ISOBJECT(out) ||
-        NpyArray_ISFLEXIBLE(out)) {
+    if (NpyArray_ISFLEXIBLE(mp) || NpyArray_ISOBJECT(mp) ||
+              NpyArray_ISOBJECT(out) || NpyArray_ISFLEXIBLE(out)) {
         iswap = oswap = 0;
     }
     else {
@@ -699,7 +701,3 @@ NpyArray_ValidType(int type)
     _Npy_DECREF(descr);
     return res;
 }
-
-
-
-

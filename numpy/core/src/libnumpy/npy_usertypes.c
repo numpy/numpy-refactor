@@ -180,7 +180,8 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
                          " is missing.");
         return -1;
     }
-    /* TODO: Can't check typeobj down here in the core.  Do we need a callback or check on the way in? */
+    /* TODO: Can't check typeobj down here in the core.  Do we need a
+       callback or check on the way in? */
  /*   if (descr->typeobj == NULL) {
         NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
         return -1;
