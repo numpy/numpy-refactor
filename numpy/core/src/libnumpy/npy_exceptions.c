@@ -10,7 +10,7 @@
 #define MSG_SIZE  1024
 
 
-enum {
+enum npyexc_type {
     NpyExc_NOERROR = 0,
     NpyExc_MemoryError,
     NpyExc_IOError,
@@ -22,34 +22,43 @@ enum {
 };
 
 
-int _type = NpyExc_NOERROR;
-char _msg[MSG_SIZE];
+static enum npyexc_type cur = NpyExc_NOERROR;
+static char msg[MSG_SIZE];
 
 
 void NpyErr_Clear()
 {
-    _type = NpyExc_NOERROR;
-    _msg[0] = '\0';
+    cur = NpyExc_NOERROR;
+    msg[0] = '\0';
 }
 
 
 int NpyErr_Occurred()
 {
-    return _type;
+    return cur;
+}
+
+
+/* Return the current error message.  Call this function only when
+   NpyErr_Occurred() returned non-zero. */
+char *NpyErr_OccurredString()
+{
+    assert(NpyErr_Occurred());
+    return msg;
 }
 
 
 int NpyErr_ExceptionMatches(int exc)
 {
-    return exc == _type ? 1 : 0;
+    return (exc == cur) ? 1 : 0;
 }
 
 
 void NpyErr_SetString(int exc, const char *str)
 {
-    _type = exc;
+    cur = exc;
     assert(strlen(str) < MSG_SIZE);
-    strcpy(_msg, str);
+    strcpy(msg, str);
 }
 
 
@@ -57,25 +66,25 @@ void NpyErr_Format(int exc, const char *format, ...)
 {
     va_list vargs;
 
-    _type = exc;
+    cur = exc;
     assert(strlen(format) < MSG_SIZE);
     va_start(vargs, format);
-    vsprintf(_msg, format, vargs);
+    vsprintf(msg, format, vargs);
     va_end(vargs);
 }
 
 
 void NpyErr_NoMemory()
 {
-    _type = NpyExc_MemoryError;
-    _msg[0] = '\0';
+    cur = NpyExc_MemoryError;
+    msg[0] = '\0';
 }
 
 
 void NpyErr_Print()
 {
     assert(NpyErr_Occurred());
-#define CP(t)   if (_type == t) fprintf(stderr, "%s: %s\n", # t, _msg);
+#define CP(t)   if (cur == t) fprintf(stderr, "%s: %s\n", # t, msg);
     CP(NpyExc_MemoryError);
     CP(NpyExc_IOError);
     CP(NpyExc_ValueError);
@@ -90,6 +99,7 @@ void NpyErr_Print()
 int main()
 {
     NpyErr_SetString(NpyExc_TypeError, "something has wrong type");
+    printf("String = '%s'\n", NpyErr_OccurredString());
     NpyErr_Print();
     NpyErr_Format(NpyExc_ValueError, "too large");
     NpyErr_Print();
