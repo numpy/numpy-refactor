@@ -1,6 +1,6 @@
 /*
- *  npy_methods.c - 
- *  
+ *  npy_methods.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -20,7 +20,7 @@ NpyArray *
 NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 {
     NpyArray *ret = NULL;
-    
+
     if (offset < 0 || (offset + typed->elsize) > self->descr->elsize) {
         NpyErr_Format(NpyExc_ValueError,
                       "Need 0 <= offset <= %d for requested type "  \
@@ -33,7 +33,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
                                 self->nd, self->dimensions,
                                 self->strides,
                                 self->data + offset,
-                                self->flags, NPY_FALSE, NULL, 
+                                self->flags, NPY_FALSE, NULL,
                                 Npy_INTERFACE(self));
     if (ret == NULL) {
         return NULL;
@@ -41,7 +41,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
     _Npy_INCREF(self);
     ret->base_arr = self;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    
+
     NpyArray_UpdateFlags(ret, NPY_UPDATE_ALL);
     return ret;
 }
@@ -54,13 +54,13 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
  *
  * Steals a reference to dtype.
  */
-int 
+int
 NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
                   int offset, NpyArray *val)
 {
     NpyArray *ret = NULL;
     int retval = 0;
-    
+
     if (offset < 0 || (offset + dtype->elsize) > self->descr->elsize) {
         NpyErr_Format(NpyExc_ValueError,
                       "Need 0 <= offset <= %d for requested type "  \
@@ -71,7 +71,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
     }
     ret = NpyArray_NewFromDescr(dtype, self->nd, self->dimensions,
                                 self->strides, self->data + offset,
-                                self->flags, NPY_FALSE, NULL, 
+                                self->flags, NPY_FALSE, NULL,
                                 Npy_INTERFACE(self));
     if (ret == NULL) {
         return -1;
@@ -79,7 +79,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
     _Npy_INCREF(self);
     ret->base_arr = self;
     assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    
+
     NpyArray_UpdateFlags(ret, NPY_UPDATE_ALL);
     retval = NpyArray_MoveInto(ret, val);
     _Npy_DECREF(ret);
@@ -100,7 +100,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
     npy_intp size;
     NpyArray_CopySwapNFunc *copyswapn;
     NpyArrayIterObject *it;
-    
+
     copyswapn = self->descr->f->copyswapn;
     if (inplace) {
         if (!NpyArray_ISWRITEABLE(self)) {
@@ -125,7 +125,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
             }
             _Npy_DECREF(it);
         }
-        
+
         _Npy_INCREF(self);
         return self;
     }

@@ -1,6 +1,6 @@
 /*
- *  npy_convert.c - 
- *  
+ *  npy_convert.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -21,13 +21,13 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
                                 NpyArray_NDIM(self), NpyArray_DIMS(self),
                                 NpyArray_STRIDES(self),
                                 NpyArray_BYTES(self),
-                                NpyArray_FLAGS(self), 
+                                NpyArray_FLAGS(self),
                                 NPY_FALSE,
                                 subtype, Npy_INTERFACE(self));
     if (new == NULL) {
         return NULL;
     }
-    
+
     new->base_arr = self;
     _Npy_INCREF(self);
     assert(NULL == new->base_obj);
@@ -121,11 +121,11 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
          * We would decref newtype here.
          * temp will steal a reference to it
          */
-        temp = 
+        temp =
             NpyArray_NewFromDescr(newtype, NpyArray_NDIM(self),
                                   NpyArray_DIMS(self), NpyArray_STRIDES(self),
-                                  NpyArray_BYTES(self), NpyArray_FLAGS(self), 
-                                  NPY_TRUE, NULL, 
+                                  NpyArray_BYTES(self), NpyArray_FLAGS(self),
+                                  NPY_TRUE, NULL,
                                   NULL);
         if (temp == NULL) {
             return -1;
@@ -183,13 +183,13 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
 }
 
 
-int 
+int
 NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 {
     npy_intp size;
     npy_intp n;
     NpyArrayIterObject *it;
-        
+
     /* binary data */
     if (NpyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
         NpyErr_SetString(NpyExc_ValueError, "cannot write " \
@@ -197,7 +197,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
                          "binary mode");
         return -1;
     }
-    
+
     if (NpyArray_ISCONTIGUOUS(self)) {
         size = NpyArray_SIZE(self);
         NPY_BEGIN_ALLOW_THREADS;
@@ -214,7 +214,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
     }
     else {
         NPY_BEGIN_THREADS_DEF;
-        
+
         it = NpyArray_IterNew(self);
         NPY_BEGIN_THREADS;
         while (it->index < it->size) {

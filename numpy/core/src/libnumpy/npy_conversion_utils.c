@@ -1,6 +1,6 @@
 /*
- *  npy_conversion_util.c - 
- *  
+ *  npy_conversion_util.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -14,11 +14,11 @@
 /*NUMPY_API
  * Typestr converter
  */
-int 
+int
 NpyArray_TypestrConvert(int itemsize, int gentype)
 {
     int newtype = gentype;
-    
+
     if (gentype == NPY_GENBOOLLTR) {
         if (itemsize == 1) {
             newtype = NPY_BOOL;

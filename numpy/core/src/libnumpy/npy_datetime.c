@@ -1,6 +1,6 @@
 /*
- *  npy_datetime.c - 
- *  
+ *  npy_datetime.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -70,7 +70,7 @@ day_of_week(npy_longlong absdate)
 {
     /* Add in four for the Thursday on Jan 1, 1970 (epoch offset)*/
     absdate += 4;
-    
+
     if (absdate >= 0) {
         return absdate % 7;
     }
@@ -104,47 +104,47 @@ year_offset(npy_longlong year)
 static npy_longlong
 days_from_ymd(int year, int month, int day)
 {
-    
+
     /* Calculate the absolute date */
     int leap;
     npy_longlong yearoffset, absdate;
-    
+
     /* Is it a leap year ? */
     leap = is_leapyear(year);
-    
+
     /* Negative month values indicate months relative to the years end */
     if (month < 0) month += 13;
     Py_AssertWithArg(month >= 1 && month <= 12,
                      PyExc_ValueError,
                      "month out of range (1-12): %i",
                      month);
-    
+
     /* Negative values indicate days relative to the months end */
     if (day < 0) day += days_in_month[leap][month - 1] + 1;
     Py_AssertWithArg(day >= 1 && day <= days_in_month[leap][month - 1],
                      PyExc_ValueError,
                      "day out of range: %i",
                      day);
-    
+
     /*
      * Number of days between Dec 31, (year - 1) and Dec 31, 1969
      *    (can be negative).
      */
     yearoffset = year_offset(year);
-    
+
     if (PyErr_Occurred()) goto onError;
-    
+
     /*
      * Calculate the number of days using yearoffset
      * Jan 1, 1970 is day 0 and thus Dec. 31, 1969 is day -1
      */
     absdate = day-1 + month_offset[leap][month - 1] + yearoffset;
-    
+
     return absdate;
-    
+
 onError:
     return 0;
-    
+
 }
 
 /* Returns absolute seconds from an hour, minute, and second
@@ -174,17 +174,17 @@ days_to_ymdstruct(npy_datetime dlong)
     int leap, dayoffset;
     int month = 1, day = 1;
     int *monthoffset;
-    
+
     dlong += 1;
-    
+
     /* Approximate year */
     year = 1970 + dlong / 365.2425;
-    
+
     /* Apply corrections to reach the correct year */
     while (1) {
         /* Calculate the year offset */
         yearoffset = year_offset(year);
-        
+
         /*
          * Backward correction: absdate must be greater than the
          * yearoffset
@@ -193,10 +193,10 @@ days_to_ymdstruct(npy_datetime dlong)
             year--;
             continue;
         }
-        
+
         dayoffset = dlong - yearoffset;
         leap = is_leapyear(year);
-        
+
         /* Forward correction: non leap years only have 365 days */
         if (dayoffset > 365 && !leap) {
             year++;
@@ -204,7 +204,7 @@ days_to_ymdstruct(npy_datetime dlong)
         }
         break;
     }
-    
+
     /* Now iterate to find the month */
     monthoffset = month_offset[leap];
     for (month = 1; month < 13; month++) {
@@ -212,11 +212,11 @@ days_to_ymdstruct(npy_datetime dlong)
             break;
     }
     day = dayoffset - month_offset[leap][month-1];
-    
+
     ymd.year  = year;
     ymd.month = month;
     ymd.day   = day;
-    
+
     return ymd;
 }
 
@@ -230,15 +230,15 @@ seconds_to_hmsstruct(npy_longlong dlong)
 {
     int hour, minute, second;
     hmsstruct hms;
-    
+
     hour   = dlong / 3600;
     minute = (dlong % 3600) / 60;
     second = dlong - (hour*3600 + minute*60);
-    
+
     hms.hour   = hour;
     hms.min = minute;
     hms.sec = second;
-    
+
     return hms;
 }
 
@@ -252,18 +252,18 @@ seconds_to_hmsstruct(npy_longlong dlong)
 /*==================================================
  // Parsing DateTime struct and returns a date-time number
  // =================================================
- 
+
  Structure is assumed to be already normalized
  */
 
 /*NUMPY_API
  * Create a datetime value from a filled datetime struct and resolution unit.
  */
-npy_datetime 
+npy_datetime
 NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
 {
     npy_datetime ret;
-    
+
     if (fr == NPY_FR_Y) {
         ret = d->year - 1970;
     }
@@ -286,7 +286,7 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
         else if (fr == NPY_FR_B) {
             npy_longlong x;
             int dotw = day_of_week(days);
-        
+
             if (dotw > 4) {
                 /* Invalid business day */
                 ret = 0;
@@ -335,7 +335,7 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
         else if (fr == NPY_FR_ps) {
             npy_int64 num2 = 1000 * 1000;
             npy_int64 num1;
-        
+
             num2 *= (npy_int64)(1000 * 1000);
             num1 = (npy_int64)(86400) * num2;
             ret = days * num1 + secs_from_hms(d->hour, d->min, d->sec, num2)
@@ -346,7 +346,7 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
             npy_int64 num2 = 1000000;
             num2 *= (npy_int64)(1000000);
             num2 *= (npy_int64)(1000);
-        
+
             /* get number of seconds as a postive or negative number */
             if (days >= 0) {
                 ret = secs_from_hms(d->hour, d->min, d->sec, 1);
@@ -360,11 +360,11 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
         else if (fr == NPY_FR_as) {
             /* only 9.2 secs */
             npy_int64 num1, num2;
-        
+
             num1 = 1000000;
             num1 *= (npy_int64)(1000000);
             num2 = num1 * (npy_int64)(1000000);
-        
+
             if (days >= 0) {
                 ret = d->sec;
             }
@@ -380,7 +380,7 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
             ret = -1;
         }
     }
-    
+
     return ret;
 }
 
@@ -392,11 +392,11 @@ NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
 /*NUMPY_API
  * Create a timdelta value from a filled timedelta struct and resolution unit.
  */
-npy_datetime 
+npy_datetime
 NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
 {
     npy_datetime ret;
-    
+
     if (fr == NPY_FR_Y) {
         ret = d->day / _DAYS_PER_YEAR;
     }
@@ -449,11 +449,11 @@ NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
     }
     else if (fr == NPY_FR_ps) {
         npy_int64 num2, num1;
-        
+
         num2 = 1000000;
         num2 *= (npy_int64)(1000000);
         num1 = (npy_int64)(86400) * num2;
-        
+
         ret = d->day * num1 + d->sec * num2 + d->us * (npy_int64)(1000000)
         + d->ps;
     }
@@ -467,7 +467,7 @@ NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
     else if (fr == NPY_FR_as) {
         /* only 9.2 secs */
         npy_int64 num1, num2;
-        
+
         num1 = 1000000;
         num1 *= (npy_int64)(1000000);
         num2 = num1 * (npy_int64)(1000000);
@@ -479,7 +479,7 @@ NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
         NpyErr_SetString(NpyExc_ValueError, "invalid internal frequency");
         ret = -1;
     }
-    
+
     return ret;
 }
 
@@ -488,18 +488,18 @@ NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
 /*NUMPY_API
  * Fill the datetime struct from the value and resolution unit.
  */
-void 
+void
 NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
                                   npy_datetimestruct *result)
 {
     int year = 1970, month = 1, day = 1,
     hour = 0, min = 0, sec = 0,
     us = 0, ps = 0, as = 0;
-    
+
     npy_int64 tmp;
     ymdstruct ymd;
     hmsstruct hms;
-    
+
     /*
      * Note that what looks like val / N and val % N for positive numbers maps to
      * [val - (N-1)] / N and [N-1 + (val+1) % N] for negative numbers (with the 2nd
@@ -673,7 +673,7 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
         num3 *= (npy_int64)(1000);
         num1 = (npy_int64)(86400) * num3;
         num2 = num1 - 1;
-        
+
         if (val >= 0) {
             ymd = days_to_ymdstruct(val / num1);
             tmp = val % num1;
@@ -699,7 +699,7 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
         num1 = 1000000000;
         num1 *= (npy_int64)(1000);
         num2 = num1 * (npy_int64)(1000);
-        
+
         if (val >= 0) {
             sec = val / num2;
             tmp = val % num2;
@@ -762,7 +762,7 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
     else {
         NpyErr_SetString(NpyExc_RuntimeError, "invalid internal time resolution");
     }
-    
+
     result->year  = year;
     result->month = month;
     result->day   = day;
@@ -772,7 +772,7 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
     result->us    = us;
     result->ps    = ps;
     result->as    = as;
-    
+
     return;
 }
 
@@ -784,20 +784,20 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
 /*NUMPY_API
  * Fill the timedelta struct from the timedelta value and resolution unit.
  */
-void 
+void
 NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
                                     npy_timedeltastruct *result)
 {
     npy_longlong day=0;
     int sec=0, us=0, ps=0, as=0;
     npy_bool negative=0;
-    
+
     /*
      * Note that what looks like val / N and val % N for positive numbers maps to
      * [val - (N-1)] / N and [N-1 + (val+1) % N] for negative numbers (with the 2nd
      * value, the remainder, being positive in both cases).
      */
-    
+
     if (val < 0) {
         val = -val;
         negative = 1;
@@ -861,7 +861,7 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
         num2 = 1000000000;
         num2 *= (npy_int64)(1000);
         num1 = (npy_int64)(86400) * num2;
-        
+
         day = val / num1;
         ps = val % num1;
         sec = ps / num2;
@@ -874,7 +874,7 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
         npy_int64 num1, num2;
         num1 = 1000000000;
         num2 = num1 * (npy_int64)(1000000);
-        
+
         day = 0;
         sec = val / num2;
         val = val % num2;
@@ -900,7 +900,7 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
     else {
         NpyErr_SetString(NpyExc_RuntimeError, "invalid internal time resolution");
     }
-    
+
     if (negative) {
         result->day = -day;
         result->sec = -sec;

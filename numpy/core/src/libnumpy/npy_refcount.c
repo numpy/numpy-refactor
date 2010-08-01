@@ -1,6 +1,6 @@
 /*
- *  npy_refcount.c - 
- *  
+ *  npy_refcount.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -17,7 +17,7 @@ NPY_NO_EXPORT void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;
-    
+
     if (!NpyDataType_REFCHK(descr)) {
         return;
     }
@@ -30,7 +30,7 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;
-        
+
         NpyDict_IterInit(&pos);
         while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
@@ -47,11 +47,11 @@ NPY_NO_EXPORT void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;
-    
+
     if (!NpyDataType_REFCHK(descr)) {
         return;
     }
-    
+
     if (descr->type_num == NPY_OBJECT) {
         NPY_COPY_VOID_PTR(&temp, data);
         NpyInterface_XDecref(temp);
@@ -60,7 +60,7 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
         const char *key;
         NpyArray_DescrField *value;
         NpyDict_Iter pos;
-        
+
         NpyDict_IterInit(&pos);
         while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {

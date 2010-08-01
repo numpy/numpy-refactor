@@ -368,7 +368,7 @@ static void
 arrayiter_dealloc(NpyArrayIterObject *it)
 {
     assert(0 == it->nob_refcnt);
-    
+
     array_iter_base_dealloc(it);
     NpyArray_free(it);
 }
@@ -403,9 +403,9 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 {
     NpyArrayMultiIterObject *multi;
     NpyArray *current;
-    
+
     int i, ntot, err=0;
-    
+
     ntot = n + nadd;
     if (ntot < 2 || ntot > NPY_MAXARGS) {
         NpyErr_Format(NpyExc_ValueError,
@@ -420,13 +420,13 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
     }
     _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
     multi->magic_number = NPY_VALID_MAGIC;
-    
+
     for (i = 0; i < ntot; i++) {
         multi->iters[i] = NULL;
     }
     multi->numiter = ntot;
     multi->index = 0;
-    
+
     for (i = 0; i < ntot; i++) {
         if (i < n) {
             current = mps[i];
@@ -436,7 +436,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         }
         multi->iters[i] = NpyArray_IterNew(current);
     }
-    
+
     if (!err && NpyArray_Broadcast(multi) < 0) {
         err = 1;
     }
@@ -458,7 +458,7 @@ NpyArrayMultiIterObject *
 NpyArray_MultiIterNew()
 {
     NpyArrayMultiIterObject *ret;
-    
+
     ret = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (NULL == ret) {
         PyErr_NoMemory();
@@ -490,12 +490,12 @@ NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
 {
     NpyArrayMultiIterObject* result;
-    
+
     va_list va;
     va_start(va, nadd);
     result = NpyArray_vMultiIterFromArrays(mps, n, nadd, va);
     va_end(va);
-    
+
     return result;
 }
 
@@ -517,14 +517,14 @@ get_ptr_constant(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS];
-    NpyArrayNeighborhoodIterObject *niter = 
+    NpyArrayNeighborhoodIterObject *niter =
         (NpyArrayNeighborhoodIterObject*)_iter;
     NpyArrayIterObject *p = niter->_internal_iter;
-    
+
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR(i)
     }
-    
+
     return p->translate(p, _coordinates);
 }
 #undef _INF_SET_PTR
@@ -543,16 +543,16 @@ static inline npy_intp
 __npy_pos_remainder(npy_intp i, npy_intp n)
 {
     npy_intp k, l, j;
-    
+
     /* Mirror i such as it is guaranteed to be positive */
     if (i < 0) {
         i = - i - 1;
     }
-    
+
     /* compute k and l such as i = k * n + l, 0 <= l < k */
     k = i / n;
     l = i - k * n;
-    
+
     if (_NPY_IS_EVEN(k)) {
         j = l;
     } else {
@@ -573,14 +573,14 @@ get_ptr_mirror(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
-    NpyArrayNeighborhoodIterObject *niter = 
+    NpyArrayNeighborhoodIterObject *niter =
         (NpyArrayNeighborhoodIterObject*)_iter;
     NpyArrayIterObject *p = niter->_internal_iter;
-    
+
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR_MIRROR(i)
     }
-    
+
     return p->translate(p, _coordinates);
 }
 #undef _INF_SET_PTR_MIRROR
@@ -590,7 +590,7 @@ static inline npy_intp
 __npy_euclidean_division(npy_intp i, npy_intp n)
 {
     npy_intp l;
-    
+
     l = i % n;
     if (l < 0) {
         l += n;
@@ -608,10 +608,10 @@ get_ptr_circular(NpyArrayIterObject* _iter, npy_intp *coordinates)
 {
     int i;
     npy_intp bd, _coordinates[NPY_MAXDIMS], lb;
-    NpyArrayNeighborhoodIterObject *niter = 
+    NpyArrayNeighborhoodIterObject *niter =
         (NpyArrayNeighborhoodIterObject*)_iter;
     NpyArrayIterObject *p = niter->_internal_iter;
-    
+
     for(i = 0; i < niter->nd; ++i) {
         _INF_SET_PTR_CIRCULAR(i)
     }
@@ -639,24 +639,24 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     }
     _NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
-    
+
     array_iter_base_init((NpyArrayIterObject *)ret, x->ao);
     _Npy_INCREF(x);
     ret->_internal_iter = x;
-    
+
     ret->nd = x->ao->nd;
-    
+
     for (i = 0; i < ret->nd; ++i) {
         ret->dimensions[i] = x->ao->dimensions[i];
     }
-    
+
     /* Compute the neighborhood size and copy the shape */
     ret->size = 1;
     for (i = 0; i < ret->nd; ++i) {
         ret->bounds[i][0] = bounds[2 * i];
         ret->bounds[i][1] = bounds[2 * i + 1];
         ret->size *= (ret->bounds[i][1] - ret->bounds[i][0]) + 1;
-        
+
         /* limits keep track of valid ranges for the neighborhood: if a bound
          * of the neighborhood is outside the array, then limits is the same as
          * boundaries. On the contrary, if a bound is strictly inside the
@@ -675,7 +675,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     ret->constant = fill;
     ret->constant_free = fillfree;
     ret->mode = mode;
-    
+
     switch (mode) {
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
             ret->translate = &get_ptr_constant;
@@ -692,13 +692,13 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
             NpyErr_SetString(NpyExc_ValueError, "Unsupported padding mode");
             goto fail;
     }
-    
+
     /*
      * XXX: we force x iterator to be non contiguous because we need
      * coordinates... Modifying the iterator here is not great
      */
     x->contiguous = 0;
-    
+
     NpyArrayNeighborhoodIter_Reset(ret);
     if (NPY_FALSE == NpyInterface_NeighborhoodIterNewWrapper(ret, &ret->nob_interface)) {
         if (fill && fillfree) {
@@ -710,7 +710,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     }
 
     return ret;
-    
+
  fail:
     if (fill && fillfree) {
         (*fillfree)(fill);

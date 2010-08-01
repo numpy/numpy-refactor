@@ -1,6 +1,6 @@
 /*
- *  npy_flagsobject.c - 
- *  
+ *  npy_flagsobject.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -23,7 +23,7 @@ _IsContiguous(NpyArray *ap)
     npy_intp sd;
     npy_intp dim;
     int i;
-    
+
     if (ap->nd == 0) {
         return 1;
     }
@@ -53,7 +53,7 @@ _IsFortranContiguous(NpyArray *ap)
     npy_intp sd;
     npy_intp dim;
     int i;
-    
+
     if (ap->nd == 0) {
         return 1;
     }
@@ -81,9 +81,9 @@ _IsFortranContiguous(NpyArray *ap)
 /*NUMPY_API
  * Update Several Flags at once.
  */
-void 
+void
 NpyArray_UpdateFlags(NpyArray *ret, int flagmask)
-{    
+{
     if (flagmask & NPY_FORTRAN) {
         if (_IsFortranContiguous(ret)) {
             ret->flags |= NPY_FORTRAN;

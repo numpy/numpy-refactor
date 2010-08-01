@@ -1,6 +1,6 @@
 /*
- *  npy_convert_datatype.c - 
- *  
+ *  npy_convert_datatype.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -40,12 +40,12 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
         dcopyfunc(dptr, dstride, buffers[0], delsize, N, dswap, dest);
         return;
     }
-    
+
     /* otherwise we need to divide up into bufsize pieces */
     i = 0;
     while (N > 0) {
         int newN = NPY_MIN(N, bufsize);
-        
+
         _strided_buffered_cast(dptr+i*dstride, dstride, delsize,
                                dswap, dcopyfunc,
                                sptr+i*sstride, sstride, selsize,
@@ -59,7 +59,7 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
 
 
 
-static int 
+static int
 _broadcast_cast(NpyArray *out, NpyArray *in,
                 NpyArray_VectorUnaryFunc *castfunc, int iswap, int oswap)
 {
@@ -70,14 +70,14 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     NpyArray_CopySwapNFunc *ocopyfunc, *icopyfunc;
     char *obptr;
     NPY_BEGIN_THREADS_DEF;
-    
+
     delsize = NpyArray_ITEMSIZE(out);
     selsize = NpyArray_ITEMSIZE(in);
     multi = NpyArray_MultiIterFromArrays(NULL, 0, 2, out, in);
     if (multi == NULL) {
         return -1;
     }
-    
+
     if (multi->size != NpyArray_SIZE(out)) {
         NpyErr_SetString(PyExc_ValueError,
                          "array dimensions are not "\
@@ -85,7 +85,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         _Npy_DECREF(multi);
         return -1;
     }
-    
+
     icopyfunc = in->descr->f->copyswapn;
     ocopyfunc = out->descr->f->copyswapn;
     maxaxis = NpyArray_RemoveSmallest(multi);
@@ -101,7 +101,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         N = (int) (NPY_MIN(maxdim, NPY_BUFSIZE));
         ostrides = multi->iters[0]->strides[maxaxis];
         istrides = multi->iters[1]->strides[maxaxis];
-        
+
     }
     buffers[0] = malloc(N*delsize);
     if (buffers[0] == NULL) {
@@ -120,13 +120,13 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     if (NpyDataType_FLAGCHK(in->descr, NPY_NEEDS_INIT)) {
         memset(buffers[1], 0, N*selsize);
     }
-    
+
 #if NPY_ALLOW_THREADS
     if (NpyArray_ISNUMBER(in) && NpyArray_ISNUMBER(out)) {
         NPY_BEGIN_THREADS;
     }
 #endif
-    
+
     while (multi->index < multi->size) {
         _strided_buffered_cast(multi->iters[0]->dataptr,
                                ostrides,
@@ -161,7 +161,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     if (NpyErr_Occurred()) {
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -197,7 +197,7 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         !NpyTypeNum_ISCOMPLEX(type_num) &&
         NpyTypeNum_ISNUMBER(type_num) &&
         !NpyTypeNum_ISBOOL(type_num)) {
-        
+
         /* TODO: Need solution for using ComplexWarning class as object to NpyErr_WarnEx. Callback or just classify as RuntimeErr? */
         PyObject *cls = NULL, *obj = NULL;
         obj = PyImport_ImportModule("numpy.core");
@@ -205,12 +205,12 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
             cls = PyObject_GetAttrString(obj, "ComplexWarning");
             Py_DECREF(obj);
         }
-        NpyErr_WarnEx(cls, 
+        NpyErr_WarnEx(cls,
                       "Casting complex values to real discards the imaginary "
                       "part", 0);
         Npy_Interface_XDECREF(cls);
     }
-    
+
     if (NULL == castfunc) {
         NpyErr_SetString(NpyExc_ValueError, "No cast function available.");
         return NULL;
@@ -231,7 +231,7 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 /*NUMPY_API
  * Cast to an already created array.
  */
-int 
+int
 NpyArray_CastTo(NpyArray *out, NpyArray *mp)
 {
     int simple;
@@ -240,7 +240,7 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
     npy_intp mpsize = NpyArray_SIZE(mp);
     int iswap, oswap;
     NPY_BEGIN_THREADS_DEF;
-    
+
     if (mpsize == 0) {
         return 0;
     }
@@ -248,12 +248,12 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
         NpyErr_SetString(NpyExc_ValueError, "output array is not writeable");
         return -1;
     }
-    
+
     castfunc = NpyArray_GetCastFunc(mp->descr, out->descr->type_num);
     if (castfunc == NULL) {
         return -1;
     }
-    
+
     same = NpyArray_SAMESHAPE(out, mp);
     simple = same && ((NpyArray_ISCARRAY_RO(mp) && NpyArray_ISCARRAY(out)) ||
                       (NpyArray_ISFARRAY_RO(mp) && NpyArray_ISFARRAY(out)));
@@ -264,7 +264,7 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
         }
 #endif
         castfunc(mp->data, out->data, mpsize, mp, out);
-        
+
 #if NPY_ALLOW_THREADS
         if (NpyArray_ISNUMBER(mp) && NpyArray_ISNUMBER(out)) {
             NPY_END_THREADS;
@@ -275,7 +275,7 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
         }
         return 0;
     }
-    
+
     /*
      * If the input or output is OBJECT, STRING, UNICODE, or VOID
      *  then getitem and setitem are used for the cast
@@ -289,7 +289,7 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
         iswap = NpyArray_ISBYTESWAPPED(mp);
         oswap = NpyArray_ISBYTESWAPPED(out);
     }
-    
+
     return _broadcast_cast(out, mp, castfunc, iswap, oswap);
 }
 
@@ -308,9 +308,9 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
     NpyArray *out;
     int ret;
     NpyArray_Descr *mpd;
-    
+
     mpd = mp->descr;
-    
+
     if (((mpd == at) ||
          ((mpd->type_num == at->type_num) &&
           NpyArray_EquivByteorders(mpd->byteorder, at->byteorder) &&
@@ -320,7 +320,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
         _Npy_INCREF(mp);
         return mp;
     }
-    
+
     if (at->elsize == 0) {
         NpyArray_DESCR_REPLACE(at);
         if (at == NULL) {
@@ -338,13 +338,13 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
             at->elsize = mpd->elsize;
         }
     }
-    
+
     out = NpyArray_NewFromDescr(at, mp->nd,
                                 mp->dimensions,
                                 NULL, NULL,
                                 fortran, NPY_FALSE,
                                 NULL, Npy_INTERFACE(mp));
-    
+
     if (out == NULL) {
         return NULL;
     }
@@ -352,7 +352,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
     if (ret != -1) {
         return out;
     }
-    
+
     _Npy_DECREF(out);
     return NULL;
 }
@@ -362,7 +362,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
 
 
 
-static int 
+static int
 _bufferedcast(NpyArray *out, NpyArray *in,
               NpyArray_VectorUnaryFunc *castfunc)
 {
@@ -380,18 +380,18 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     NpyArray_CopySwapFunc *in_csn;
     NpyArray_CopySwapFunc *out_csn;
     int retval = -1;
-    
+
     in_csn = in->descr->f->copyswap;
     out_csn = out->descr->f->copyswap;
-    
+
     /*
      * If the input or output is STRING, UNICODE, or VOID
      * then getitem and setitem are used for the cast
      *  and byteswapping is handled by those methods
      */
-    
+
     inswap = !(NpyArray_ISFLEXIBLE(in) || NpyArray_ISNOTSWAPPED(in));
-    
+
     inbuffer = NpyDataMem_NEW(NPY_BUFSIZE*elsize);
     if (inbuffer == NULL) {
         return -1;
@@ -419,7 +419,7 @@ _bufferedcast(NpyArray *out, NpyArray *in,
         }
         nels = NPY_MIN(nels, NPY_BUFSIZE);
     }
-    
+
     optr = (obuf) ? outbuffer: out->data;
     bptr = inbuffer;
     el = 0;
@@ -454,7 +454,7 @@ _bufferedcast(NpyArray *out, NpyArray *in,
         }
     }
     retval = 0;
-    
+
 exit:
     _Npy_XDECREF(it_in);
     NpyDataMem_FREE(inbuffer);
@@ -475,7 +475,7 @@ NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
     int simple;
     NpyArray_VectorUnaryFunc *castfunc = NULL;
     npy_intp mpsize = NpyArray_SIZE(mp);
-    
+
     if (mpsize == 0) {
         return 0;
     }
@@ -483,14 +483,14 @@ NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
         NpyErr_SetString(NpyExc_ValueError, "output array is not writeable");
         return -1;
     }
-    
+
     if (!(mpsize == NpyArray_SIZE(out))) {
         NpyErr_SetString(NpyExc_ValueError,
                          "arrays must have the same number of"
                          " elements for the cast.");
         return -1;
     }
-    
+
     castfunc = NpyArray_GetCastFunc(mp->descr, out->descr->type_num);
     if (castfunc == NULL) {
         return -1;
@@ -513,12 +513,12 @@ NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
 /*NUMPY_API
  *Check the type coercion rules.
  */
-int 
+int
 NpyArray_CanCastSafely(int fromtype, int totype)
 {
     NpyArray_Descr *from, *to;
     int felsize, telsize;
-    
+
     if (fromtype == totype) {
         return 1;
     }
@@ -560,7 +560,7 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     felsize = from->elsize;
     _Npy_DECREF(from);
     _Npy_DECREF(to);
-    
+
     switch(fromtype) {
         case NPY_BYTE:
         case NPY_SHORT:
@@ -650,13 +650,13 @@ NpyArray_CanCastSafely(int fromtype, int totype)
 /*NUMPY_API
  * leaves reference count alone --- cannot be NULL
  */
-npy_bool 
+npy_bool
 NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 {
     int fromtype=from->type_num;
     int totype=to->type_num;
     npy_bool ret;
-    
+
     ret = NpyArray_CanCastSafely(fromtype, totype);
     if (ret) {
         /* Check String and Unicode more closely */
@@ -686,12 +686,12 @@ NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 /*NUMPY_API
  * Is the typenum valid?
  */
-int 
+int
 NpyArray_ValidType(int type)
 {
     NpyArray_Descr *descr;
     int res=NPY_TRUE;
-    
+
     descr = NpyArray_DescrFromType(type);
     if (descr == NULL) {
         res = NPY_FALSE;

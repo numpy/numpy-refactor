@@ -106,7 +106,7 @@ void
 NpyArray_dealloc(NpyArray *self) {
     assert(NPY_VALID_MAGIC == self->magic_number);
     assert(NULL == self->base_arr || NPY_VALID_MAGIC == self->base_arr->magic_number);
-    
+
     if (self->base_arr) {
         /*
          * UPDATEIFCOPY means that base points to an
@@ -142,7 +142,7 @@ NpyArray_dealloc(NpyArray *self) {
         Npy_Interface_DECREF(self->base_obj);
         self->base_obj = NULL;
     }
-    
+
     if ((self->flags & NPY_OWNDATA) && self->data) {
         /* Free internal references if an Object array */
         if (NpyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
@@ -166,7 +166,7 @@ NpyArray_dealloc(NpyArray *self) {
         }
         NpyDataMem_FREE(self->data);
     }
-    
+
     NpyDimMem_FREE(self->dimensions);
     _Npy_DECREF(self->descr);
     self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */

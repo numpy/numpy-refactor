@@ -1658,8 +1658,7 @@ NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
         else {
             end = data + slen;
         }
-        ret = array_from_text(dtype, num, sep, &nread,
-                              data,
+        ret = array_from_text(dtype, num, sep, &nread, data,
                               (next_element) fromstr_next_element,
                               (skip_separator) fromstr_skip_separator,
                               end);

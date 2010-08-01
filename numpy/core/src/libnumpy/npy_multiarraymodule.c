@@ -291,7 +291,7 @@ NpyArray_CanCoerceScalar(int thistype, int neededtype,
         }
     }
     _Npy_DECREF(from);
-    
+
     switch(scalar) {
         case NPY_BOOL_SCALAR:
         case NPY_OBJECT_SCALAR:
@@ -542,7 +542,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     tmp = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
     if (tmp == NULL) {
         return NULL;
-    }    
+    }
     arr = tmp;
 
     nd = NpyArray_NDIM(arr);

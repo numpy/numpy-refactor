@@ -26,7 +26,7 @@ NpyArray_MapIterNew()
 {
     NpyArrayMapIterObject *mit;
     int i;
-    
+
     /* Allocates the Python object wrapper around the map iterator. */
     mit = (NpyArrayMapIterObject *)NpyArray_malloc(sizeof(NpyArrayMapIterObject));
     _NpyObject_Init((_NpyObject *)mit, &NpyArrayMapIter_Type);
@@ -41,7 +41,7 @@ NpyArray_MapIterNew()
     mit->subspace = NULL;
     mit->numiter = 0;
     mit->consec = 1;
-    
+
     if (NPY_FALSE == NpyInterface_MapIterNewWrapper(mit, &mit->nob_interface)) {
         Npy_INTERFACE(mit) = NULL;
         _Npy_DECREF(mit);
@@ -57,7 +57,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     int i;
 
     assert(0 == mit->nob_refcnt);
-    
+
     Npy_INTERFACE(mit) = NULL;
     _Npy_XDECREF(mit->ait);
     _Npy_XDECREF(mit->subspace);
@@ -74,14 +74,14 @@ NPY_NO_EXPORT void
 NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;
-    int i,j; 
+    int i,j;
     npy_intp coord[NPY_MAXDIMS];
     NpyArray_CopySwapFunc *copyswap;
-    
+
     mit->index = 0;
-    
+
     copyswap = mit->iters[0]->ao->descr->f->copyswap;
-    
+
     if (mit->subspace != NULL) {
         memcpy(coord, mit->bscoord, sizeof(npy_intp)*mit->ait->ao->nd);
         NpyArray_ITER_RESET(mit->subspace);
@@ -125,7 +125,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
     int i, j;
     npy_intp coord[NPY_MAXDIMS];
     NpyArray_CopySwapFunc *copyswap;
-    
+
     mit->index += 1;
     if (mit->index >= mit->size) {
         return;
@@ -166,7 +166,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
 
 /*
  * Indexes the first dimenstion of the array and returns the
- * item as an array. 
+ * item as an array.
  */
 NpyArray *
 NpyArray_ArrayItem(NpyArray *self, npy_intp i)
@@ -193,7 +193,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
         return NULL;
     }
     NpyArray_BASE_ARRAY(r) = self;
-    _Npy_INCREF(self); 
+    _Npy_INCREF(self);
     assert(r->base_obj == NULL);
     NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
     return r;
