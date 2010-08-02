@@ -1447,6 +1447,7 @@ arraymultiter_next(PyArrayMultiIterObject *pmulti)
         multi->index++;
         return ret;
     }
+    Py_DECREF(ret);
     return NULL;
 }
 
