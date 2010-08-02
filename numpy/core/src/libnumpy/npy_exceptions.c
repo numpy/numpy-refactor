@@ -11,29 +11,29 @@
 
 
 enum npyexc_type {
-    NpyExc_NOERROR = 0,
-    NpyExc_MemoryError,
-    NpyExc_IOError,
-    NpyExc_ValueError,
-    NpyExc_TypeError,
-    NpyExc_IndexError,
-    NpyExc_RuntimeError,
-    NpyExc_AttributeError,
+    _NpyExc_NOERROR = 0,
+    _NpyExc_MemoryError,
+    _NpyExc_IOError,
+    _NpyExc_ValueError,
+    _NpyExc_TypeError,
+    _NpyExc_IndexError,
+    _NpyExc_RuntimeError,
+    _NpyExc_AttributeError,
 };
 
 
-static enum npyexc_type cur = NpyExc_NOERROR;
+static enum npyexc_type cur = _NpyExc_NOERROR;
 static char msg[MSG_SIZE];
 
 
-void NpyErr_Clear()
+void _NpyErr_Clear()
 {
-    cur = NpyExc_NOERROR;
+    cur = _NpyExc_NOERROR;
     msg[0] = '\0';
 }
 
 
-int NpyErr_Occurred()
+int _NpyErr_Occurred()
 {
     return cur;
 }
@@ -41,20 +41,20 @@ int NpyErr_Occurred()
 
 /* Return the current error message.  Call this function only when
    NpyErr_Occurred() returned non-zero. */
-char *NpyErr_OccurredString()
+char *_NpyErr_OccurredString()
 {
-    assert(NpyErr_Occurred());
+    assert(_NpyErr_Occurred());
     return msg;
 }
 
 
-int NpyErr_ExceptionMatches(int exc)
+int _NpyErr_ExceptionMatches(int exc)
 {
     return (exc == cur) ? 1 : 0;
 }
 
 
-void NpyErr_SetString(int exc, const char *str)
+void _NpyErr_SetString(int exc, const char *str)
 {
     cur = exc;
     assert(strlen(str) < MSG_SIZE);
@@ -62,7 +62,7 @@ void NpyErr_SetString(int exc, const char *str)
 }
 
 
-void NpyErr_Format(int exc, const char *format, ...)
+void _NpyErr_Format(int exc, const char *format, ...)
 {
     va_list vargs;
 
@@ -74,43 +74,45 @@ void NpyErr_Format(int exc, const char *format, ...)
 }
 
 
-void NpyErr_NoMemory()
+void _NpyErr_NoMemory()
 {
-    cur = NpyExc_MemoryError;
+    cur = _NpyExc_MemoryError;
     msg[0] = '\0';
 }
 
 
-void NpyErr_Print()
+void _NpyErr_Print()
 {
-    assert(NpyErr_Occurred());
+    assert(_NpyErr_Occurred());
 #define CP(t)   if (cur == t) fprintf(stderr, "%s: %s\n", # t, msg);
-    CP(NpyExc_MemoryError);
-    CP(NpyExc_IOError);
-    CP(NpyExc_ValueError);
-    CP(NpyExc_TypeError);
-    CP(NpyExc_IndexError);
-    CP(NpyExc_RuntimeError);
-    CP(NpyExc_AttributeError);
+    CP(_NpyExc_MemoryError);
+    CP(_NpyExc_IOError);
+    CP(_NpyExc_ValueError);
+    CP(_NpyExc_TypeError);
+    CP(_NpyExc_IndexError);
+    CP(_NpyExc_RuntimeError);
+    CP(_NpyExc_AttributeError);
 #undef CP
 }
 
 
+/*
 int main()
 {
-    NpyErr_SetString(NpyExc_TypeError, "something has wrong type");
-    printf("String = '%s'\n", NpyErr_OccurredString());
-    NpyErr_Print();
-    NpyErr_Format(NpyExc_ValueError, "too large");
-    NpyErr_Print();
-    NpyErr_Format(NpyExc_ValueError, "too large (%d)", 32);
-    NpyErr_Print();
-    NpyErr_Format(NpyExc_AttributeError, "too large (%d) %s", 32, "bad");
-    NpyErr_Print();
-    NpyErr_NoMemory();
-    NpyErr_Print();
-    assert(NpyErr_ExceptionMatches(NpyExc_MemoryError));
-    assert(!NpyErr_ExceptionMatches(NpyExc_IndexError));
+    _NpyErr_SetString(_NpyExc_TypeError, "something has wrong type");
+    printf("String = '%s'\n", _NpyErr_OccurredString());
+    _NpyErr_Print();
+    _NpyErr_Format(_NpyExc_ValueError, "too large");
+    _NpyErr_Print();
+    _NpyErr_Format(_NpyExc_ValueError, "too large (%d)", 32);
+    _NpyErr_Print();
+    _NpyErr_Format(_NpyExc_AttributeError, "too large (%d) %s", 32, "bad");
+    _NpyErr_Print();
+    _NpyErr_NoMemory();
+    _NpyErr_Print();
+    assert(_NpyErr_ExceptionMatches(_NpyExc_MemoryError));
+    assert(!_NpyErr_ExceptionMatches(_NpyExc_IndexError));
 
     return 0;
 }
+*/
