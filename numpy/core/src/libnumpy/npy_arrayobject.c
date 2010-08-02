@@ -120,8 +120,8 @@ NpyArray_dealloc(NpyArray *self) {
             self->base_arr->flags |= NPY_WRITEABLE;
             _Npy_INCREF(self); /* hold on to self in next call */
             if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
-                NpyErr_Print();
-                NpyErr_Clear();
+                /* NpyErr_Print(); */
+                _NPY_Error_Clear();
             }
             /*
              * Don't need to DECREF -- because we are deleting

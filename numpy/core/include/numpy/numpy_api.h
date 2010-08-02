@@ -422,8 +422,12 @@ enum npyexc_type {
 };
 
 typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);
+typedef int (*npy_tp_error_occurred)(void);
+typedef void (*npy_tp_error_clear)(void);
 
 npy_tp_error_set _NPY_Error_Set;
+npy_tp_error_occurred _NPY_Error_Occurred;
+npy_tp_error_clear _NPY_Error_Clear;
 
 
 /*

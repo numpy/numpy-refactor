@@ -159,7 +159,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
     free(buffers[0]);
     free(buffers[1]);
-    if (NpyErr_Occurred()) {
+    if (_NPY_Error_Occurred()) {
         return -1;
     }
 
