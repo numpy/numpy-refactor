@@ -47,7 +47,9 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 
 
 /* Defined by the core library. */
-extern void initlibnumpy(struct NpyArray_FunctionDefs *, npy_tp_error_cb);
+extern void initlibnumpy(struct NpyArray_FunctionDefs *,
+                         npy_tp_error_set);
+
 
 /* Defind in arraytypes.c.src */
 extern struct NpyArray_FunctionDefs _array_function_defs;
@@ -2364,7 +2366,7 @@ static struct PyModuleDef moduledef = {
 
 
 static void
-on_error(enum npyexc_type tp, const char *msg)
+error_set(enum npyexc_type tp, const char *msg)
 {
     /* printf("XXX %d: %s\n", (int) tp, msg); */
     if (tp == _NpyExc_ValueError) {
@@ -2388,7 +2390,8 @@ PyMODINIT_FUNC initmultiarray(void) {
     /* Initialize the core libnumpy library. Basically this is just providing
        pointers to functions that it can use for coverting type-to-object,
        object-to-type, and similar operations. */
-    initlibnumpy(&_array_function_defs, (npy_tp_error_cb) on_error);
+    initlibnumpy(&_array_function_defs,
+                 (npy_tp_error_set) error_set);
 
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)

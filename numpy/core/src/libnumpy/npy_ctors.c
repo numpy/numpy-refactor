@@ -261,9 +261,9 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     }
 
     if (multi->size != NpyArray_SIZE(dest)) {
-        printf("ASDF %p\n", _NPY_Error_CB);
-        _NPY_Error_CB(_NpyExc_ValueError,
-                      "array dimensions are not compatible for copy");
+        /* printf("ASDF %p\n", _NPY_Error_Set); */
+        _NPY_Error_Set(_NpyExc_ValueError,
+                       "array dimensions are not compatible for copy");
         _Npy_DECREF(multi);
         return -1;
     }

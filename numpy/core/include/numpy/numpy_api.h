@@ -421,9 +421,9 @@ enum npyexc_type {
     _NpyExc_AttributeError,
 };
 
-typedef void (*npy_tp_error_cb)(enum npyexc_type, const char *);
+typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);
 
-npy_tp_error_cb _NPY_Error_CB;
+npy_tp_error_set _NPY_Error_Set;
 
 
 /*
