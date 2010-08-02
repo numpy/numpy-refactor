@@ -1736,7 +1736,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
     PyObject *obj;
     int ret;
 
-    if (_safe_ceil_to_intp((stop - start)/step, &length)) {
+    if (_safe_ceil_to_intp((stop - start) / step, &length)) {
         PyErr_SetString(PyExc_OverflowError,
                 "arange: overflow while computing length");
     }
@@ -1767,7 +1767,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
         return range;
     }
     obj = PyFloat_FromDouble(start + step);
-    ret = funcs->setitem(obj, PyArray_BYTES(range)+PyArray_ITEMSIZE(range),
+    ret = funcs->setitem(obj, PyArray_BYTES(range) + PyArray_ITEMSIZE(range),
                          PyArray_ARRAY(range));
     Py_DECREF(obj);
     if (ret < 0) {

@@ -2374,11 +2374,10 @@ PyMODINIT_FUNC initmultiarray(void) {
     PyObject *c_api;
 
     
-    /* Initialize the core libnumpy library. Basically this is just providing pointers
-       to functions that it can use for coverting type-to-object, object-to-type, and
-       similar operations. */
+    /* Initialize the core libnumpy library. Basically this is just providing
+       pointers to functions that it can use for coverting type-to-object,
+       object-to-type, and similar operations. */
     initlibnumpy(&_array_function_defs);
-    
     
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)
@@ -2392,9 +2391,9 @@ PyMODINIT_FUNC initmultiarray(void) {
 
 #if defined(MS_WIN64) && defined(__GNUC__)
     PyErr_WarnEx(PyExc_Warning,
-        "Numpy built with MINGW-W64 on Windows 64 bits is experimental, " \
-        "and only available for \n" \
-        "testing. You are advised not to use it for production. \n\n" \
+        "Numpy built with MINGW-W64 on Windows 64 bits is experimental, "
+        "and only available for \n"
+        "testing. You are advised not to use it for production. \n\n"
         "CRASHES ARE TO BE EXPECTED - PLEASE REPORT THEM TO NUMPY DEVELOPERS",
         1);
 #endif

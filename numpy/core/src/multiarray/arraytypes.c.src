@@ -1846,8 +1846,8 @@ set_typeinfo(PyObject *dict)
 }
 
 
-/* This structure stores pointers to all of the type conversion & boxing functions
-   that need to be provided to the core at initialization. */
+/* This structure stores pointers to all of the type conversion & boxing
+   functions that need to be provided to the core at initialization. */
 struct NpyArray_FunctionDefs _array_function_defs = {
     /**begin repeat
      *
@@ -1897,7 +1897,6 @@ struct NpyArray_FunctionDefs _array_function_defs = {
         /**end repeat**/
     },
 
-
     /* Fill in cast_from_string array */
     {
         /**begin repeat
@@ -1936,7 +1935,6 @@ struct NpyArray_FunctionDefs _array_function_defs = {
         (NpyArray_VectorUnaryFunc *)& VOID_to_@FROM@,
         /**end repeat**/
     },
-
 
     /* Fill in cast_to_obj array */
     {
@@ -1994,5 +1992,3 @@ struct NpyArray_FunctionDefs _array_function_defs = {
 
 
 #undef _MAX_LETTER
-
-
