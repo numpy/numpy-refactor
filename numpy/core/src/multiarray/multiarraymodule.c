@@ -519,7 +519,6 @@ PyArray_MatrixProduct(PyObject *op1, PyObject *op2)
         return (PyObject *)ret;
     }
 
-    /* TODO: Wrap return value. */
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_MatrixProduct(PyArray_ARRAY(ap1),
                                              PyArray_ARRAY(ap2), typenum));
