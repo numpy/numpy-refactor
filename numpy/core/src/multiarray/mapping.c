@@ -141,213 +141,30 @@ array_ass_big_item(PyArrayObject *self, intp i, PyObject *v)
 
 /* -------------------------------------------------------------- */
 
-static void
-_swap_axes(NpyArrayMapIterObject *mit, PyArrayObject **ret, int getmap)
-{
-    PyObject *new;
-    int n1, n2, n3, val, bnd;
-    int i;
-    PyArray_Dims permute;
-    intp d[MAX_DIMS];
-    PyArrayObject *arr;
-
-    permute.ptr = d;
-    permute.len = mit->nd;
-
-    /*
-     * arr might not have the right number of dimensions
-     * and need to be reshaped first by pre-pending ones
-     */
-    arr = *ret;
-    if (PyArray_NDIM(arr) != mit->nd) {
-        for (i = 1; i <= PyArray_NDIM(arr); i++) {
-            permute.ptr[mit->nd-i] = PyArray_DIM(arr, PyArray_NDIM(arr)-i);
-        }
-        for (i = 0; i < mit->nd-PyArray_NDIM(arr); i++) {
-            permute.ptr[i] = 1;
-        }
-        new = PyArray_Newshape(arr, &permute, PyArray_ANYORDER);
-        Py_DECREF(arr);
-        *ret = (PyArrayObject *)new;
-        if (new == NULL) {
-            return;
-        }
-    }
-
-    /*
-     * Setting and getting need to have different permutations.
-     * On the get we are permuting the returned object, but on
-     * setting we are permuting the object-to-be-set.
-     * The set permutation is the inverse of the get permutation.
-     */
-
-    /*
-     * For getting the array the tuple for transpose is
-     * (n1,...,n1+n2-1,0,...,n1-1,n1+n2,...,n3-1)
-     * n1 is the number of dimensions of the broadcast index array
-     * n2 is the number of dimensions skipped at the start
-     * n3 is the number of dimensions of the result
-     */
-
-    /*
-     * For setting the array the tuple for transpose is
-     * (n2,...,n1+n2-1,0,...,n2-1,n1+n2,...n3-1)
-     */
-    n1 = mit->iters[0]->nd_m1 + 1;
-    n2 = mit->iteraxes[0];
-    n3 = mit->nd;
-
-    /* use n1 as the boundary if getting but n2 if setting */
-    bnd = getmap ? n1 : n2;
-    val = bnd;
-    i = 0;
-    while (val < n1 + n2) {
-        permute.ptr[i++] = val++;
-    }
-    val = 0;
-    while (val < bnd) {
-        permute.ptr[i++] = val++;
-    }
-    val = n1 + n2;
-    while (val < n3) {
-        permute.ptr[i++] = val++;
-    }
-    new = PyArray_Transpose(*ret, &permute);
-    Py_DECREF(*ret);
-    *ret = (PyArrayObject *)new;
-}
 
 static PyObject *
 PyArray_GetMap(PyArrayMapIterObject *pyMit)
 {
-    NpyArrayMapIterObject *mit = pyMit->iter;
-    NpyArrayIterObject *it;
-    PyArrayObject *ret, *temp;
-    int index;
-    int swap;
-    PyArray_CopySwapFunc *copyswap;
-
-    /* Unbound map iterator --- Bind should have been called */
-    if (mit->ait == NULL) {
-        return NULL;
-    }
-
-    /* This relies on the map iterator object telling us the shape
-       of the new array in nd and dimensions.
-    */
-    temp = Npy_INTERFACE( mit->ait->ao );
-    _Npy_INCREF(PyArray_DESCR(temp));
-    ASSIGN_TO_PYARRAY(ret, NpyArray_NewFromDescr(PyArray_DESCR(temp),
-                                               mit->nd, mit->dimensions,
-                                               NULL, NULL,
-                                               PyArray_ISFORTRAN(temp),
-                                               NPY_FALSE, NULL, temp));
-    if (ret == NULL) {
-        return NULL;
-    }
-
-    /*
-     * Now just iterate through the new array filling it in
-     * with the next object from the original array as
-     * defined by the mapping iterator
-     */
-
-    if ((it = NpyArray_IterNew(PyArray_ARRAY(ret))) == NULL) {
-        Py_DECREF(ret);
-        return NULL;
-    }
-    index = it->size;
-    swap = (PyArray_ISNOTSWAPPED(temp) != PyArray_ISNOTSWAPPED(ret));
-    copyswap = PyArray_DESCR(ret)->f->copyswap;
-    NpyArray_MapIterReset(mit);
-    while (index--) {
-        copyswap(it->dataptr, mit->dataptr, swap, PyArray_ARRAY(ret));
-        NpyArray_MapIterNext(mit);
-        NpyArray_ITER_NEXT(it);
-    }
-    _Npy_DECREF(it);
-
-    /* check for consecutive axes */
-    if ((mit->subspace != NULL) && (mit->consec)) {
-        if (mit->iteraxes[0] > 0) {  /* then we need to swap */
-            _swap_axes(mit, &ret, 1);
-        }
-    }
-    return (PyObject *)ret;
+    NpyArray* result = NpyArray_GetMap(pyMit->iter);
+    RETURN_PYARRAY(result);
 }
 
 static int
 PyArray_SetMap(PyArrayMapIterObject *pyMit, PyObject *op)
 {
-    NpyArrayMapIterObject *mit = pyMit->iter;
-    NpyArrayIterObject *it;
-    PyObject *arr = NULL;
-    int index;
-    int swap;
-    PyArray_CopySwapFunc *copyswap;
-    NpyArray_Descr *descr;
+    PyObject *arr;
+    int result;
+    NpyArray_Descr *descr = pyMit->iter->ait->ao->descr;
 
-    /* Unbound Map Iterator */
-    if (mit->ait == NULL) {
-        return -1;
-    }
-    descr = mit->ait->ao->descr;
     _Npy_INCREF(descr);
     arr = PyArray_FromAnyUnwrap(op, descr, 0, 0, FORCECAST, NULL);
     if (arr == NULL) {
         return -1;
     }
-    if ((mit->subspace != NULL) && (mit->consec)) {
-        if (mit->iteraxes[0] > 0) {  /* then we need to swap */
-            _swap_axes(mit, (PyArrayObject **)&arr, 0);
-            if (arr == NULL) {
-                return -1;
-            }
-        }
-    }
 
-    /* Be sure values array is "broadcastable"
-       to shape of mit->dimensions, mit->nd */
-
-    if ((it = NpyArray_BroadcastToShape(PyArray_ARRAY(arr), mit->dimensions, 
-                                        mit->nd))==NULL) { 
-        Py_DECREF(arr);
-        return -1;
-    }
-
-    index = mit->size;
-    swap = (NpyArray_ISNOTSWAPPED(mit->ait->ao) !=
-            (PyArray_ISNOTSWAPPED(arr)));
-    copyswap = PyArray_DESCR(arr)->f->copyswap;
-    NpyArray_MapIterReset(mit);
-    /* Need to decref arrays with objects in them */
-    if (NpyDataType_FLAGCHK(descr, NPY_ITEM_HASOBJECT)) {
-        while (index--) {
-            NpyArray_Item_INCREF(it->dataptr, PyArray_DESCR(arr));
-            NpyArray_Item_XDECREF(mit->dataptr, PyArray_DESCR(arr));
-            memmove(mit->dataptr, it->dataptr, PyArray_ITEMSIZE(arr));
-            /* ignored unless VOID array with object's */
-            if (swap) {
-                copyswap(mit->dataptr, NULL, swap, PyArray_ARRAY(arr));
-            }
-            NpyArray_MapIterNext(mit);
-            NpyArray_ITER_NEXT(it);
-        }
-        Py_DECREF(arr);
-        _Npy_DECREF(it);
-        return 0;
-    }
-    while(index--) {
-        memmove(mit->dataptr, it->dataptr, PyArray_ITEMSIZE(arr));
-        if (swap) {
-            copyswap(mit->dataptr, NULL, swap, PyArray_ARRAY(arr));
-        }
-        NpyArray_MapIterNext(mit);
-        NpyArray_ITER_NEXT(it);
-    }
+    result = NpyArray_SetMap(pyMit->iter, PyArray_ARRAY(arr));
     Py_DECREF(arr);
-    _Npy_DECREF(it);
-    return 0;
+    return result;
 }
 
 NPY_NO_EXPORT int

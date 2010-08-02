@@ -187,6 +187,8 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 NpyArrayMapIterObject *NpyArray_MapIterNew(void);
 void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
 void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
+NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
+int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
 NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
 
 
