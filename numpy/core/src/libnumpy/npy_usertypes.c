@@ -29,16 +29,16 @@ maintainer email:  oliphant.travis@ieee.org
 
 NpyArray_Descr **npy_userdescrs=NULL;
 
-static NpyArray_CastFuncsItem* 
+static NpyArray_CastFuncsItem*
 castfuncs_new(void)
 {
-    NpyArray_CastFuncsItem* result = 
+    NpyArray_CastFuncsItem* result =
         (NpyArray_CastFuncsItem *) malloc(sizeof(NpyArray_CastFuncsItem));
     result[0].totype = NPY_NOTYPE;
     return result;
 }
 
-static NpyArray_CastFuncsItem* 
+static NpyArray_CastFuncsItem*
 castfuncs_append(NpyArray_CastFuncsItem* items,
                  int totype, NpyArray_VectorUnaryFunc* func)
 {
@@ -180,7 +180,8 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
                          " is missing.");
         return -1;
     }
-    /* TODO: Can't check typeobj down here in the core.  Do we need a callback or check on the way in? */
+    /* TODO: Can't check typeobj down here in the core.  Do we need a
+       callback or check on the way in? */
  /*   if (descr->typeobj == NULL) {
         NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
         return -1;

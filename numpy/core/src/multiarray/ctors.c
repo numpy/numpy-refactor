@@ -54,189 +54,10 @@ PyCapsule_GetPointer(void *ptr, void *notused)
             PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
             _Npy_INCREF(PyArray_BASE_ARRAY(a));         \
         } else {                                        \
-            PyArray_BASE(a) = (PyObject*) b;            \
+            PyArray_BASE(a) = (PyObject *) b;           \
             Py_INCREF(b);                               \
         }                                               \
     } while(0)
-
-
-
-/*
- * Reading from a file or a string.
- *
- * As much as possible, we try to use the same code for both files and strings,
- * so the semantics for fromstring and fromfile are the same, especially with
- * regards to the handling of text representations.
- */
-
-typedef int (*next_element)(void **, void *, NpyArray_Descr *, void *);
-typedef int (*skip_separator)(void **, const char *, void *);
-
-static int
-fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
-                     const char *end)
-{
-    int r = dtype->f->fromstr(*s, dptr, s, dtype);
-    if (end != NULL && *s > end) {
-        return -1;
-    }
-    return r;
-}
-
-static int
-fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
-                      void *NPY_UNUSED(stream_data))
-{
-    /* the NULL argument is for backwards-compatibility */
-    return dtype->f->scanfunc(*fp, dptr, NULL, dtype);
-}
-
-/*
- * Remove multiple whitespace from the separator, and add a space to the
- * beginning and end. This simplifies the separator-skipping code below.
- */
-static char *
-swab_separator(char *sep)
-{
-    int skip_space = 0;
-    char *s, *start;
-
-    s = start = malloc(strlen(sep)+3);
-    /* add space to front if there isn't one */
-    if (*sep != '\0' && !isspace(*sep)) {
-        *s = ' '; s++;
-    }
-    while (*sep != '\0') {
-        if (isspace(*sep)) {
-            if (skip_space) {
-                sep++;
-            }
-            else {
-                *s = ' ';
-                s++;
-                sep++;
-                skip_space = 1;
-            }
-        }
-        else {
-            *s = *sep;
-            s++;
-            sep++;
-            skip_space = 0;
-        }
-    }
-    /* add space to end if there isn't one */
-    if (s != start && s[-1] == ' ') {
-        *s = ' ';
-        s++;
-    }
-    *s = '\0';
-    return start;
-}
-
-/*
- * Assuming that the separator is the next bit in the string (file), skip it.
- *
- * Single spaces in the separator are matched to arbitrary-long sequences
- * of whitespace in the input. If the separator consists only of spaces,
- * it matches one or more whitespace characters.
- *
- * If we can't match the separator, return -2.
- * If we hit the end of the string (file), return -1.
- * Otherwise, return 0.
- */
-static int
-fromstr_skip_separator(char **s, const char *sep, const char *end)
-{
-    char *string = *s;
-    int result = 0;
-    while (1) {
-        char c = *string;
-        if (c == '\0' || (end != NULL && string >= end)) {
-            result = -1;
-            break;
-        }
-        else if (*sep == '\0') {
-            if (string != *s) {
-                /* matched separator */
-                result = 0;
-                break;
-            }
-            else {
-                /* separator was whitespace wildcard that didn't match */
-                result = -2;
-                break;
-            }
-        }
-        else if (*sep == ' ') {
-            /* whitespace wildcard */
-            if (!isspace(c)) {
-                sep++;
-                continue;
-            }
-        }
-        else if (*sep != c) {
-            result = -2;
-            break;
-        }
-        else {
-            sep++;
-        }
-        string++;
-    }
-    *s = string;
-    return result;
-}
-
-static int
-fromfile_skip_separator(FILE **fp, const char *sep,
-                        void *NPY_UNUSED(stream_data))
-{
-    int result = 0;
-    const char *sep_start = sep;
-
-    while (1) {
-        int c = fgetc(*fp);
-
-        if (c == EOF) {
-            result = -1;
-            break;
-        }
-        else if (*sep == '\0') {
-            ungetc(c, *fp);
-            if (sep != sep_start) {
-                /* matched separator */
-                result = 0;
-                break;
-            }
-            else {
-                /* separator was whitespace wildcard that didn't match */
-                result = -2;
-                break;
-            }
-        }
-        else if (*sep == ' ') {
-            /* whitespace wildcard */
-            if (!isspace(c)) {
-                sep++;
-                sep_start++;
-                ungetc(c, *fp);
-            }
-            else if (sep == sep_start) {
-                sep_start--;
-            }
-        }
-        else if (*sep != c) {
-            ungetc(c, *fp);
-            result = -2;
-            break;
-        }
-        else {
-            sep++;
-        }
-    }
-    return result;
-}
 
 
 /*
@@ -274,7 +95,7 @@ object_depth_and_dimension(PyObject *s, int max, intp *dims)
         return 1;
     }
 
-    newdims = PyDimMem_NEW(2*(max - 1));
+    newdims = PyDimMem_NEW(2 * (max - 1));
     test_dims = newdims + (max - 1);
     if (islist) {
         obj = PyList_GET_ITEM(s, 0);
@@ -291,7 +112,7 @@ object_depth_and_dimension(PyObject *s, int max, intp *dims)
         else {
             obj = PyTuple_GET_ITEM(s, i);
         }
-        test_nd = object_depth_and_dimension(obj, max-1, test_dims);
+        test_nd = object_depth_and_dimension(obj, max - 1, test_dims);
 
         if ((nd != test_nd) ||
             (!PyArray_CompareLists(newdims, test_dims, nd))) {
@@ -301,14 +122,12 @@ object_depth_and_dimension(PyObject *s, int max, intp *dims)
     }
 
     for (i = 1; i <= nd; i++) {
-        dims[i] = newdims[i-1];
+        dims[i] = newdims[i - 1];
     }
     dims[0] = size;
     PyDimMem_FREE(newdims);
     return nd + 1;
 }
-
-
 
 
 /* If numitems > 1, then dst must be contiguous */
@@ -320,9 +139,8 @@ copy_and_swap(void *dst, void *src, int itemsize, intp numitems,
     char *s1 = (char *)src;
     char *d1 = (char *)dst;
 
-
     if ((numitems == 1) || (itemsize == srcstrides)) {
-        memcpy(d1, s1, itemsize*numitems);
+        memcpy(d1, s1, itemsize * numitems);
     }
     else {
         for (i = 0; i < numitems; i++) {
@@ -394,7 +212,7 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, intp offset)
     for (i = 0; i < slen; i++) {
         PyObject *o = PySequence_GetItem(s, i);
         if ((PyArray_NDIM(a) - dim) > 1) {
-            res = setArrayFromSequence(a, o, dim+1, offset);
+            res = setArrayFromSequence(a, o, dim + 1, offset);
         }
         else {
             res = PyArray_DESCR(a)->f->setitem(o, (PyArray_BYTES(a) + offset),
@@ -419,13 +237,11 @@ static int
 Assign_Array(PyArrayObject *self, PyObject *v)
 {
     if (!PySequence_Check(v)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "assignment from non-sequence");
+        PyErr_SetString(PyExc_ValueError, "assignment from non-sequence");
         return -1;
     }
     if (PyArray_NDIM(self) == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "assignment to 0-d array");
+        PyErr_SetString(PyExc_ValueError, "assignment to 0-d array");
         return -1;
     }
     return setArrayFromSequence(self, v, 0, 0);
@@ -514,7 +330,7 @@ ObjectArray_FromNestedList(PyObject *s, NpyArray_Descr *typecode, int fortran)
         Py_DECREF(r);
         return NULL;
     }
-    return (PyObject*)r;
+    return (PyObject *)r;
 }
 
 /*
@@ -605,7 +421,7 @@ discover_depth(PyObject *s, int max, int stop_at_string, int stop_at_tuple)
             }
         }
         Py_DECREF(e);
-        if (d>-1) {
+        if (d > -1) {
             return d;
         }
     }
@@ -614,11 +430,11 @@ discover_depth(PyObject *s, int max, int stop_at_string, int stop_at_tuple)
     if (PySequence_Length(s) == 0) {
         return 1;
     }
-    if ((e=PySequence_GetItem(s,0)) == NULL) {
+    if ((e=PySequence_GetItem(s, 0)) == NULL) {
         return -1;
     }
     if (e != s) {
-        d = discover_depth(e, max-1, stop_at_string, stop_at_tuple);
+        d = discover_depth(e, max - 1, stop_at_string, stop_at_tuple);
         if (d >= 0) {
             d++;
         }
@@ -655,7 +471,7 @@ discover_itemsize(PyObject *s, int nd, int *itemsize)
         if ((e = PySequence_GetItem(s,i))==NULL) {
             return -1;
         }
-        r = discover_itemsize(e,nd-1,itemsize);
+        r = discover_itemsize(e, nd - 1, itemsize);
         Py_DECREF(e);
         if (r == -1) {
             return -1;
@@ -747,24 +563,22 @@ Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
     check_it = (typecode->type != PyArray_CHARLTR);
     stop_at_string = (type != PyArray_STRING) ||
                      (typecode->type == PyArray_STRINGLTR);
-    stop_at_tuple = (type == PyArray_VOID && (typecode->names
-                                              || typecode->subarray));
+    stop_at_tuple = (type == PyArray_VOID && (typecode->names ||
+                                              typecode->subarray));
 
     nd = discover_depth(s, MAX_DIMS + 1, stop_at_string, stop_at_tuple);
     if (nd == 0) {
         return Array_FromPyScalar(s, typecode);
     }
     else if (nd < 0) {
-        PyErr_SetString(PyExc_ValueError,
-                "invalid input sequence");
+        PyErr_SetString(PyExc_ValueError, "invalid input sequence");
         goto fail;
     }
     if (max_depth && NpyTypeNum_ISOBJECT(type) && (nd > max_depth)) {
         nd = max_depth;
     }
     if ((max_depth && nd > max_depth) || (min_depth && nd < min_depth)) {
-        PyErr_SetString(PyExc_ValueError,
-                "invalid number of dimensions");
+        PyErr_SetString(PyExc_ValueError, "invalid number of dimensions");
         goto fail;
     }
 
@@ -808,7 +622,7 @@ Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
         Py_DECREF(r);
         return NULL;
     }
-    return (PyObject*)r;
+    return (PyObject *)r;
 
  fail:
     _Npy_DECREF(typecode);
@@ -846,7 +660,8 @@ PyArray_NewFromDescr(PyTypeObject *subtype, PyArray_Descr *descr, int nd,
    only gets set
    if __array_finalize__ is defined. */
 NPY_NO_EXPORT int
-NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStrides, void *subtypeTmp,
+NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray,
+                             int customStrides, void *subtypeTmp,
                              void *interfaceData, void **interfaceRet)
 {
     PyTypeObject *subtype;
@@ -883,7 +698,8 @@ NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray, int customStri
     if ((subtype != &PyArray_Type)) {
         PyObject *res, *func, *args;
 
-        func = PyObject_GetAttrString((PyObject *)wrapper, "__array_finalize__");
+        func = PyObject_GetAttrString((PyObject *)wrapper,
+                                      "__array_finalize__");
         if (func && func != Py_None) {
             if (customStrides) {
                 /*
@@ -1370,7 +1186,8 @@ PyArray_FromStructInterface(PyObject *input)
                 &thetypeWrapper) == PY_FAIL) {
             thetype = NULL;
             PyErr_Clear();
-        } else {
+        }
+        else {
             thetype = thetypeWrapper->descr;
         }
     }
@@ -1641,11 +1458,12 @@ PyArray_FromArrayAttr(PyObject *op, PyArray_Descr *typecode, PyObject *context)
 
 
 NPY_NO_EXPORT PyObject *
-PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode, PyObject *context)
+PyArray_FromArrayAttrUnwrap(PyObject *op, NpyArray_Descr *typecode,
+                            PyObject *context)
 {
-    return PyArray_FromArrayAttr(op, (NULL != typecode) ? PyArray_Descr_WRAP(typecode) : NULL, context);
+    return PyArray_FromArrayAttr(op,
+        (NULL != typecode) ? PyArray_Descr_WRAP(typecode) : NULL, context);
 }
-
 
 
 
@@ -1763,6 +1581,7 @@ PyArray_EnsureArray(PyObject *op)
     return new;
 }
 
+
 /*NUMPY_API*/
 NPY_NO_EXPORT PyObject *
 PyArray_EnsureAnyArray(PyObject *op)
@@ -1832,7 +1651,8 @@ PyArray_Zeros(int nd, intp *dims, PyArray_Descr *type, int fortran)
 {
     PyArrayObject *ret;
 
-    /* TODO: Function probably needs to be split, but _zerofill needs a "0" int object to use for object arrays. */
+    /* TODO: Function probably needs to be split,
+             but _zerofill needs a "0" int object to use for object arrays. */
     if (!type) {
         type = PyArray_DescrFromType(PyArray_DEFAULT);
     }
@@ -1977,7 +1797,8 @@ PyArray_Arange(double start, double stop, double step, int type_num)
  * the formula is len = (intp) ceil((start - stop) / step);
  */
 static intp
-_calc_length(PyObject *start, PyObject *stop, PyObject *step, PyObject **next, int cmplx)
+_calc_length(PyObject *start, PyObject *stop, PyObject *step,
+             PyObject **next, int cmplx)
 {
     intp len, tmp;
     PyObject *val;
@@ -2050,7 +1871,8 @@ _calc_length(PyObject *start, PyObject *stop, PyObject *step, PyObject **next, i
  * this doesn't change the references
  */
 NPY_NO_EXPORT PyObject *
-PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArray_Descr *dtype)
+PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
+                        NpyArray_Descr *dtype)
 {
     PyObject *range;
     PyArray_ArrFuncs *funcs;
@@ -2173,7 +1995,8 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArra
         new = PyArray_Byteswap((PyArrayObject *)range, 1);
         Py_DECREF(new);
         _Npy_DECREF(PyArray_DESCR(range));
-        PyArray_DESCR(range) = dtype;  /* reference alloc'd earlier in this func */
+        /* reference alloc'd earlier in this func */
+        PyArray_DESCR(range) = dtype;
     }
     Py_DECREF(start);
     Py_DECREF(step);
@@ -2186,6 +2009,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step, NpyArra
     Py_XDECREF(next);
     return NULL;
 }
+
 
 /*NUMPY_API
  *
@@ -2201,143 +2025,17 @@ PyArray_ArangeObj(PyObject *start, PyObject *stop, PyObject *step,
                                    (NULL != dtype) ? dtype->descr : NULL);
 }
 
-/*
- * Create an array by reading from the given stream, using the passed
- * next_element and skip_separator functions.
- *
- * Steals a reference to dtype.
- */
-#define FROM_BUFFER_SIZE 4096
-static PyArrayObject *
-array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
-                void *stream, next_element next, skip_separator skip_sep,
-                void *stream_data)
-{
-    PyArrayObject *r;
-    intp i;
-    char *dptr, *clean_sep, *tmp;
-    int err = 0;
-    intp thisbuf = 0;
-    intp size;
-    intp bytes, totalbytes;
-
-    size = (num >= 0) ? num : FROM_BUFFER_SIZE;
-    ASSIGN_TO_PYARRAY(r,
-                      NpyArray_NewFromDescr(dtype,
-                                            1, &size,
-                                            NULL, NULL,
-                                            0, NPY_TRUE, NULL, NULL));
-    if (r == NULL) {
-        return NULL;
-    }
-    clean_sep = swab_separator(sep);
-    NPY_BEGIN_ALLOW_THREADS;
-    totalbytes = bytes = size * dtype->elsize;
-    dptr = PyArray_BYTES(r);
-    for (i= 0; num < 0 || i < num; i++) {
-        if (next(&stream, dptr, dtype, stream_data) < 0) {
-            break;
-        }
-        *nread += 1;
-        thisbuf += 1;
-        dptr += dtype->elsize;
-        if (num < 0 && thisbuf == size) {
-            totalbytes += bytes;
-            tmp = PyDataMem_RENEW(PyArray_BYTES(r), totalbytes);
-            if (tmp == NULL) {
-                err = 1;
-                break;
-            }
-            PyArray_BYTES(r) = tmp;
-            dptr = tmp + (totalbytes - bytes);
-            thisbuf = 0;
-        }
-        if (skip_sep(&stream, clean_sep, stream_data) < 0) {
-            break;
-        }
-    }
-    if (num < 0) {
-        tmp = PyDataMem_RENEW(PyArray_BYTES(r), NPY_MAX(*nread,1)*dtype->elsize);
-        if (tmp == NULL) {
-            err = 1;
-        }
-        else {
-            PyArray_DIM(r,0) = *nread;
-            PyArray_BYTES(r) = tmp;
-        }
-    }
-    NPY_END_ALLOW_THREADS;
-    free(clean_sep);
-    if (err == 1) {
-        PyErr_NoMemory();
-    }
-    if (PyErr_Occurred()) {
-        Py_DECREF(r);
-        return NULL;
-    }
-    return r;
-}
-#undef FROM_BUFFER_SIZE
-
-
 
 /* Steals a reference to dtype. */
 NPY_NO_EXPORT PyObject *
 PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 {
     PyArrayObject *ret;
-    size_t nread = 0;
 
-    /* TODO: Review whether we want the boilerplate code in this function
-             here or in PyArray_FromFile.
-             It is also duplicated in NpyArray_FromFile... */
-    if (PyDataType_REFCHK(dtype)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot read into object array");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-    if (dtype->descr->elsize == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "The elements are 0-sized.");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-    if ((sep == NULL) || (strlen(sep) == 0)) {
-        PyErr_SetString(PyExc_ValueError,
-                 "A separator must be specified when reading a text file.");
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    ASSIGN_TO_PYARRAY(
+        ret,
+        NpyArray_FromTextFile(fp, dtype->descr, num, sep));
 
-    if (dtype->descr->f->scanfunc == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Unable to read character files of that array type");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-
-    /* Move reference from interface to core object. */
-    _Npy_INCREF(dtype->descr);
-    Py_DECREF(dtype);
-    ret = array_from_text(dtype->descr, num, sep, &nread, fp,
-                          (next_element) fromfile_next_element,
-                          (skip_separator) fromfile_skip_separator, NULL);
-    if (ret == NULL) {
-        return NULL;
-    }
-    if (((intp) nread) < num) {
-        /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1)*PyArray_ITEMSIZE(ret);
-        char *tmp;
-
-        if((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
-            Py_DECREF(ret);
-            return PyErr_NoMemory();
-        }
-        PyArray_BYTES(ret) = tmp;
-        PyArray_DIM(ret,0) = nread;
-    }
     return (PyObject *)ret;
 }
 
@@ -2354,7 +2052,7 @@ PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
  * then as many as possible are read.
  *
  * If ``sep`` is NULL or empty, then binary data is assumed, else
- * text data, with ``sep`` as the separator between elements. Whitespace in
+ * text data, with ``sep`` as the separator between elements.  Whitespace in
  * the separator matches any length of whitespace in the text, and a match
  * for whitespace around the separator is added.
  *
@@ -2367,14 +2065,12 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     PyArrayObject *ret = NULL;
 
     if (PyDataType_REFCHK(dtype)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot read into object array");
+        PyErr_SetString(PyExc_ValueError, "Cannot read into object array");
         Py_DECREF(dtype);
         return NULL;
     }
     if (dtype->descr->elsize == 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "The elements are 0-sized.");
+        PyErr_SetString(PyExc_ValueError, "The elements are 0-sized.");
         Py_DECREF(dtype);
         return NULL;
     }
@@ -2384,7 +2080,8 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
         _Npy_INCREF(dtype->descr);
         Py_DECREF(dtype);
         ASSIGN_TO_PYARRAY(ret, NpyArray_FromBinaryFile(fp, dtype->descr, num));
-    } else {
+    }
+    else {
         ret = (PyArrayObject* ) PyArray_FromTextFile(fp, dtype, num, sep);
     }
 
@@ -2520,7 +2217,7 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
  * then as many as possible are read.
  *
  * If ``sep`` is NULL or empty, then binary data is assumed, else
- * text data, with ``sep`` as the separator between elements. Whitespace in
+ * text data, with ``sep`` as the separator between elements.  Whitespace in
  * the separator matches any length of whitespace in the text, and a match
  * for whitespace around the separator is added.
  */
@@ -2528,59 +2225,16 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
                    intp num, char *sep)
 {
-    int itemsize;
     PyArrayObject *ret;
-    Bool binary;
-    NpyArray_Descr *dtypeCore = NULL;
 
     if (dtype == NULL) {
-        dtype=PyArray_DescrFromType(PyArray_DEFAULT);
+        dtype = PyArray_DescrFromType(PyArray_DEFAULT);
     }
-    if (PyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
-        PyErr_SetString(PyExc_ValueError,
-                        "Cannot create an object array from a string");
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_FromString(data, slen, dtype->descr, num, sep));
+    if (ret == NULL) {
         Py_DECREF(dtype);
         return NULL;
-    }
-    itemsize = dtype->descr->elsize;
-    if (itemsize == 0) {
-        PyErr_SetString(PyExc_ValueError, "zero-valued itemsize");
-        Py_DECREF(dtype);
-        return NULL;
-    }
-
-    /* Move reference to core. */
-    dtypeCore = dtype->descr;
-    _Npy_INCREF(dtypeCore);
-    Py_DECREF(dtype);
-    dtype = NULL;
-
-    binary = ((sep == NULL) || (strlen(sep) == 0));
-    if (binary) {
-        ASSIGN_TO_PYARRAY(
-            ret, NpyArray_FromBinaryString(data, slen, dtypeCore, num));
-    } else {
-        /* read from character-based string */
-        size_t nread = 0;
-        char *end;
-
-        if (dtypeCore->f->scanfunc == NULL) {
-            PyErr_SetString(PyExc_ValueError, "don't know how to read "
-                            "character strings with that array type");
-            _Npy_DECREF(dtypeCore);
-            return NULL;
-        }
-        if (slen < 0) {
-            end = NULL;
-        }
-        else {
-            end = data + slen;
-        }
-        ret = array_from_text(dtypeCore, num, sep, &nread,
-                              data,
-                              (next_element) fromstr_next_element,
-                              (skip_separator) fromstr_skip_separator,
-                              end);
     }
     return (PyObject *)ret;
 }
@@ -2635,7 +2289,8 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
             */
             elcount = (i >> 1) + (i < 4 ? 4 : 2) + i;
             if (elcount <= NPY_MAX_INTP/elsize) {
-                new_data = PyDataMem_RENEW(PyArray_BYTES(ret), elcount * elsize);
+                new_data = PyDataMem_RENEW(PyArray_BYTES(ret),
+                                           elcount * elsize);
             }
             else {
                 new_data = NULL;

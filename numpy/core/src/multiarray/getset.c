@@ -47,8 +47,7 @@ array_shape_get(PyArrayObject *self)
 static int
 array_shape_set(PyArrayObject *self, PyObject *val)
 {
-    int nd, res;
-    PyObject *ret;
+    int res;
     PyArray_Dims newdims;
 
     if (!PyArray_IntpConverter(val, &newdims)) {
@@ -104,7 +103,9 @@ array_typestr_get(PyArrayObject *self)
 static PyObject *
 array_descr_get(PyArrayObject *self)
 {
-    PyArray_Descr *descr = PyArray_Descr_WRAP( PyArray_DESCR(self) );
+    PyArray_Descr *descr;
+
+    descr = PyArray_Descr_WRAP(PyArray_DESCR(self));
     Py_INCREF(descr);
     return (PyObject *)descr;
 }

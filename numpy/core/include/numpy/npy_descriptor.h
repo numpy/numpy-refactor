@@ -211,6 +211,93 @@ struct NpyArray_CastFuncsItem {
 
 
 
+/* Allows the interface to provide type-specific boxing and unboxing (type-to-object, 
+   object-to-type) functions and object-manipulation functions to the core. */
+struct NpyArray_FunctionDefs {
+    /* Get-set methods per type. */
+    NpyArray_GetItemFunc *BOOL_getitem;
+    NpyArray_GetItemFunc *BYTE_getitem;
+    NpyArray_GetItemFunc *UBYTE_getitem;
+    NpyArray_GetItemFunc *SHORT_getitem;
+    NpyArray_GetItemFunc *USHORT_getitem;
+    NpyArray_GetItemFunc *INT_getitem;
+    NpyArray_GetItemFunc *LONG_getitem;
+    NpyArray_GetItemFunc *UINT_getitem;
+    NpyArray_GetItemFunc *ULONG_getitem;
+    NpyArray_GetItemFunc *LONGLONG_getitem;
+    NpyArray_GetItemFunc *ULONGLONG_getitem;
+    NpyArray_GetItemFunc *FLOAT_getitem;
+    NpyArray_GetItemFunc *DOUBLE_getitem;
+    NpyArray_GetItemFunc *LONGDOUBLE_getitem;
+    NpyArray_GetItemFunc *CFLOAT_getitem;
+    NpyArray_GetItemFunc *CDOUBLE_getitem;
+    NpyArray_GetItemFunc *CLONGDOUBLE_getitem;
+    NpyArray_GetItemFunc *UNICODE_getitem;
+    NpyArray_GetItemFunc *STRING_getitem;
+    NpyArray_GetItemFunc *OBJECT_getitem;
+    NpyArray_GetItemFunc *VOID_getitem;
+    NpyArray_GetItemFunc *DATETIME_getitem;
+    NpyArray_GetItemFunc *TIMEDELTA_getitem;
+    
+    NpyArray_SetItemFunc *BOOL_setitem;
+    NpyArray_SetItemFunc *BYTE_setitem;
+    NpyArray_SetItemFunc *UBYTE_setitem;
+    NpyArray_SetItemFunc *SHORT_setitem;
+    NpyArray_SetItemFunc *USHORT_setitem;
+    NpyArray_SetItemFunc *INT_setitem;
+    NpyArray_SetItemFunc *LONG_setitem;
+    NpyArray_SetItemFunc *UINT_setitem;
+    NpyArray_SetItemFunc *ULONG_setitem;
+    NpyArray_SetItemFunc *LONGLONG_setitem;
+    NpyArray_SetItemFunc *ULONGLONG_setitem;
+    NpyArray_SetItemFunc *FLOAT_setitem;
+    NpyArray_SetItemFunc *DOUBLE_setitem;
+    NpyArray_SetItemFunc *LONGDOUBLE_setitem;
+    NpyArray_SetItemFunc *CFLOAT_setitem;
+    NpyArray_SetItemFunc *CDOUBLE_setitem;
+    NpyArray_SetItemFunc *CLONGDOUBLE_setitem;
+    NpyArray_SetItemFunc *UNICODE_setitem;
+    NpyArray_SetItemFunc *STRING_setitem;
+    NpyArray_SetItemFunc *OBJECT_setitem;
+    NpyArray_SetItemFunc *VOID_setitem;
+    NpyArray_SetItemFunc *DATETIME_setitem;
+    NpyArray_SetItemFunc *TIMEDELTA_setitem;
+
+    /* Object type methods. */
+    NpyArray_CopySwapNFunc *OBJECT_copyswapn;
+    NpyArray_CopySwapFunc *OBJECT_copyswap;
+    NpyArray_CompareFunc *OBJECT_compare;
+    NpyArray_ArgFunc *OBJECT_argmax;
+    NpyArray_DotFunc *OBJECT_dotfunc;
+    NpyArray_ScanFunc *OBJECT_scanfunc;
+    NpyArray_FromStrFunc *OBJECT_fromstr;
+    NpyArray_NonzeroFunc *OBJECT_nonzero;
+    NpyArray_FillFunc *OBJECT_fill;
+    NpyArray_FillWithScalarFunc *OBJECT_fillwithscalar;
+    NpyArray_ScalarKindFunc *OBJECT_scalarkind;
+    NpyArray_FastClipFunc *OBJECT_fastclip;
+    NpyArray_FastPutmaskFunc *OBJECT_fastputmask;
+    NpyArray_FastTakeFunc *OBJECT_fasttake;
+
+    /* Unboxing (object-to-type) */
+    NpyArray_VectorUnaryFunc *cast_from_obj[NPY_NTYPES];    
+    /* String-to-type */
+    NpyArray_VectorUnaryFunc *cast_from_string[NPY_NTYPES];
+    /* Unicode-to-type */
+    NpyArray_VectorUnaryFunc *cast_from_unicode[NPY_NTYPES];
+    /* Void-to-type */
+    NpyArray_VectorUnaryFunc *cast_from_void[NPY_NTYPES];
+
+    /* Boxing (type-to-object) */
+    NpyArray_VectorUnaryFunc *cast_to_obj[NPY_NTYPES];
+    /* Type-to-string */
+    NpyArray_VectorUnaryFunc *cast_to_string[NPY_NTYPES];
+    /* Type-to-unicode */
+    NpyArray_VectorUnaryFunc *cast_to_unicode[NPY_NTYPES];
+    /* Type-to-void */
+    NpyArray_VectorUnaryFunc *cast_to_void[NPY_NTYPES];
+};
+
 extern _NpyTypeObject NpyArrayDescr_Type;
 
 

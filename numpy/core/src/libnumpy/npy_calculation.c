@@ -1,6 +1,6 @@
 /*
- *  npy_calculation.c - 
- *  
+ *  npy_calculation.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -21,11 +21,11 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     int elsize;
     int copyret = 0;
     NPY_BEGIN_THREADS_DEF;
-    
+
     if ((ap=NpyArray_CheckAxis(op, &axis, 0)) == NULL) {
         return NULL;
     }
-    
+
     /*
      * We need to permute the array so that axis is placed at the end.
      * And all other dimensions are shifted left.
@@ -34,7 +34,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         NpyArray_Dims newaxes;
         npy_intp dims[NPY_MAXDIMS];
         int i;
-        
+
         newaxes.ptr = dims;
         newaxes.len = ap->nd;
         for (i = 0; i < axis; i++) dims[i] = i;
@@ -49,7 +49,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     else {
         op = ap;
     }
-    
+
     /* Will get native-byte order contiguous copy. */
     ap = NpyArray_ContiguousFromArray(op, op->descr->type_num);
     _Npy_DECREF(op);
@@ -69,7 +69,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
                          "of an empty sequence");
         goto fail;
     }
-    
+
     if (!out) {
         rp = NpyArray_New(NULL, ap->nd-1,
                           ap->dimensions, NPY_INTP,
@@ -94,7 +94,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
             copyret = 1;
         }
     }
-    
+
     NPY_BEGIN_THREADS_DESCR(ap->descr);
     n = NpyArray_SIZE(ap)/m;
     rptr = (npy_intp *)rp->data;
@@ -103,7 +103,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         rptr += 1;
     }
     NPY_END_THREADS_DESCR(ap->descr);
-    
+
     _Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
@@ -113,7 +113,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         rp = obj;
     }
     return rp;
-    
+
 fail:
     _Npy_DECREF(ap);
     _Npy_XDECREF(rp);

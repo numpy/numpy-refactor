@@ -9,6 +9,16 @@
 #include "numpy/numpy_api.h"
 
 
+/*
+ * Reading from a file or a string.
+ *
+ * As much as possible, we try to use the same code for both files and strings,
+ * so the semantics for fromstring and fromfile are the same, especially with
+ * regards to the handling of text representations.
+ */
+typedef int (*next_element)(void **, void *, NpyArray_Descr *, void *);
+typedef int (*skip_separator)(void **, const char *, void *);
+
 
 
 static void
@@ -252,8 +262,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
 
     if (multi->size != NpyArray_SIZE(dest)) {
         NpyErr_SetString(NpyExc_ValueError,
-                        "array dimensions are not "\
-                        "compatible for copy");
+                        "array dimensions are not compatible for copy");
         _Npy_DECREF(multi);
         return -1;
     }
@@ -454,7 +463,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     it = NpyArray_IterAllButAxis(src, &axis);
     if (it == NULL) {
         if (src != orig_src) {
-            Py_DECREF(src);
+            _Npy_DECREF(src);
         }
         return -1;
     }
@@ -786,10 +795,6 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 }
 
 
-
-
-
-
 /*NUMPY_API
  * Generic new array creation routine.
  *
@@ -844,7 +849,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     }
     if (nd > NPY_MAXDIMS) {
         NpyErr_Format(NpyExc_ValueError,
-                     "maximum number of dimensions is %d", NPY_MAXDIMS);
+                      "maximum number of dimensions is %d", NPY_MAXDIMS);
         _Npy_DECREF(descr);
         return NULL;
     }
@@ -1083,8 +1088,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         !NpyArray_CanCastTo(oldtype, newtype)) {
         _Npy_DECREF(newtype);
         NpyErr_SetString(NpyExc_TypeError,
-                        "array cannot be safely cast "  \
-                        "to required type");
+                        "array cannot be safely cast to required type");
         return NULL;
     }
 
@@ -1286,8 +1290,385 @@ NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 }
 
 
-static NpyArray *array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
-                                       npy_intp num, size_t *nread)
+static int
+fromstr_next_element(char **s, void *dptr, NpyArray_Descr *dtype,
+                     const char *end)
+{
+    int r = dtype->f->fromstr(*s, dptr, s, dtype);
+    if (end != NULL && *s > end) {
+        return -1;
+    }
+    return r;
+}
+
+/*
+ * Assuming that the separator is the next bit in the string (file), skip it.
+ *
+ * Single spaces in the separator are matched to arbitrary-long sequences
+ * of whitespace in the input. If the separator consists only of spaces,
+ * it matches one or more whitespace characters.
+ *
+ * If we can't match the separator, return -2.
+ * If we hit the end of the string (file), return -1.
+ * Otherwise, return 0.
+ */
+static int
+fromstr_skip_separator(char **s, const char *sep, const char *end)
+{
+    char *string = *s;
+    int result = 0;
+    while (1) {
+        char c = *string;
+        if (c == '\0' || (end != NULL && string >= end)) {
+            result = -1;
+            break;
+        }
+        else if (*sep == '\0') {
+            if (string != *s) {
+                /* matched separator */
+                result = 0;
+                break;
+            }
+            else {
+                /* separator was whitespace wildcard that didn't match */
+                result = -2;
+                break;
+            }
+        }
+        else if (*sep == ' ') {
+            /* whitespace wildcard */
+            if (!isspace(c)) {
+                sep++;
+                continue;
+            }
+        }
+        else if (*sep != c) {
+            result = -2;
+            break;
+        }
+        else {
+            sep++;
+        }
+        string++;
+    }
+    *s = string;
+    return result;
+}
+
+
+/*
+ * Remove multiple whitespace from the separator, and add a space to the
+ * beginning and end. This simplifies the separator-skipping code below.
+ */
+static char *
+swab_separator(char *sep)
+{
+    int skip_space = 0;
+    char *s, *start;
+
+    s = start = malloc(strlen(sep) + 3);
+    /* add space to front if there isn't one */
+    if (*sep != '\0' && !isspace(*sep)) {
+        *s = ' '; s++;
+    }
+    while (*sep != '\0') {
+        if (isspace(*sep)) {
+            if (skip_space) {
+                sep++;
+            }
+            else {
+                *s = ' ';
+                s++;
+                sep++;
+                skip_space = 1;
+            }
+        }
+        else {
+            *s = *sep;
+            s++;
+            sep++;
+            skip_space = 0;
+        }
+    }
+    /* add space to end if there isn't one */
+    if (s != start && s[-1] == ' ') {
+        *s = ' ';
+        s++;
+    }
+    *s = '\0';
+    return start;
+}
+
+
+static int
+fromfile_next_element(FILE **fp, void *dptr, NpyArray_Descr *dtype,
+                      void *NPY_UNUSED(stream_data))
+{
+    /* the NULL argument is for backwards-compatibility */
+    return dtype->f->scanfunc(*fp, dptr, NULL, dtype);
+}
+
+
+static int
+fromfile_skip_separator(FILE **fp, const char *sep,
+                        void *NPY_UNUSED(stream_data))
+{
+    int result = 0;
+    const char *sep_start = sep;
+
+    while (1) {
+        int c = fgetc(*fp);
+
+        if (c == EOF) {
+            result = -1;
+            break;
+        }
+        else if (*sep == '\0') {
+            ungetc(c, *fp);
+            if (sep != sep_start) {
+                /* matched separator */
+                result = 0;
+                break;
+            }
+            else {
+                /* separator was whitespace wildcard that didn't match */
+                result = -2;
+                break;
+            }
+        }
+        else if (*sep == ' ') {
+            /* whitespace wildcard */
+            if (!isspace(c)) {
+                sep++;
+                sep_start++;
+                ungetc(c, *fp);
+            }
+            else if (sep == sep_start) {
+                sep_start--;
+            }
+        }
+        else if (*sep != c) {
+            ungetc(c, *fp);
+            result = -2;
+            break;
+        }
+        else {
+            sep++;
+        }
+    }
+    return result;
+}
+
+
+/*
+ * Create an array by reading from the given stream, using the passed
+ * next_element and skip_separator functions.
+ *
+ * Steals a reference to dtype.
+ */
+#define FROM_BUFFER_SIZE 4096
+static NpyArray *
+array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
+                void *stream, next_element next,
+                skip_separator skip_sep, void *stream_data)
+{
+    NpyArray *r;
+    npy_intp i, thisbuf = 0, size, bytes, totalbytes;
+    char *dptr, *clean_sep, *tmp;
+    int err = 0;
+
+    size = (num >= 0) ? num : FROM_BUFFER_SIZE;
+    r = NpyArray_NewFromDescr(dtype, 1, &size,
+                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    if (r == NULL) {
+        return NULL;
+    }
+    clean_sep = swab_separator(sep);
+    NPY_BEGIN_ALLOW_THREADS;
+    totalbytes = bytes = size * dtype->elsize;
+    dptr = NpyArray_BYTES(r);
+    for (i= 0; num < 0 || i < num; i++) {
+        if (next(&stream, dptr, dtype, stream_data) < 0) {
+            break;
+        }
+        *nread += 1;
+        thisbuf += 1;
+        dptr += dtype->elsize;
+        if (num < 0 && thisbuf == size) {
+            totalbytes += bytes;
+            tmp = NpyDataMem_RENEW(NpyArray_BYTES(r), totalbytes);
+            if (tmp == NULL) {
+                err = 1;
+                break;
+            }
+            NpyArray_BYTES(r) = tmp;
+            dptr = tmp + (totalbytes - bytes);
+            thisbuf = 0;
+        }
+        if (skip_sep(&stream, clean_sep, stream_data) < 0) {
+            break;
+        }
+    }
+    if (num < 0) {
+        tmp = NpyDataMem_RENEW(NpyArray_BYTES(r),
+                               NPY_MAX(*nread, 1) * dtype->elsize);
+        if (tmp == NULL) {
+            err = 1;
+        }
+        else {
+            NpyArray_DIM(r,0) = *nread;
+            NpyArray_BYTES(r) = tmp;
+        }
+    }
+    NPY_END_ALLOW_THREADS;
+    free(clean_sep);
+    if (err == 1) {
+        NpyErr_NoMemory();
+    }
+    if (NpyErr_Occurred()) {
+        _Npy_DECREF(r);
+        return NULL;
+    }
+    return r;
+}
+#undef FROM_BUFFER_SIZE
+
+
+
+/* Steals a reference to dtype. */
+NpyArray *
+NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
+{
+    NpyArray *ret;
+    size_t nread = 0;
+
+    /* TODO: Review whether we want the boilerplate code in this function
+             here or in PyArray_FromFile.
+             It is also duplicated in NpyArray_FromFile... */
+    if (NpyDataType_REFCHK(dtype)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot read into object array");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "The elements are 0-sized.");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if ((sep == NULL) || (strlen(sep) == 0)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                 "A separator must be specified when reading a text file.");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->f->scanfunc == NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Unable to read character files of that array type");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+
+    /* Move reference from interface to core object. */
+    ret = array_from_text(dtype, num, sep, &nread, fp,
+                          (next_element) fromfile_next_element,
+                          (skip_separator) fromfile_skip_separator, NULL);
+    if (ret == NULL) {
+        return NULL;
+    }
+    if (((npy_intp) nread) < num) {
+        /* Realloc memory for smaller number of elements */
+        const size_t nsize = NPY_MAX(nread,1) * PyArray_ITEMSIZE(ret);
+        char *tmp;
+
+        if ((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
+            _Npy_DECREF(ret);
+            NpyErr_SetString(NpyErr_NoMemory(), "");
+            return NULL;
+        }
+        NpyArray_BYTES(ret) = tmp;
+        NpyArray_DIM(ret,0) = nread;
+    }
+    return ret;
+}
+
+
+
+/*NUMPY_API
+ *
+ * Given a pointer to a string ``data``, a string length ``slen``, and
+ * a ``PyArray_Descr``, return an array corresponding to the data
+ * encoded in that string.
+ *
+ * If the dtype is NULL, the default array type is used (double).
+ * If non-null, the reference is stolen.
+ *
+ * If ``slen`` is < 0, then the end of string is used for text data.
+ * It is an error for ``slen`` to be < 0 for binary data (since embedded NULLs
+ * would be the norm).
+ *
+ * The number of elements to read is given as ``num``; if it is < 0, then
+ * then as many as possible are read.
+ *
+ * If ``sep`` is NULL or empty, then binary data is assumed, else
+ * text data, with ``sep`` as the separator between elements. Whitespace in
+ * the separator matches any length of whitespace in the text, and a match
+ * for whitespace around the separator is added.
+ */
+NpyArray *
+NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
+                    intp num, char *sep)
+{
+    NpyArray *ret;
+
+    if (dtype == NULL) {
+        dtype = NpyArray_DescrFromType(NPY_DEFAULT_TYPE);
+    }
+    if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Cannot create an object array from a string");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+    if (dtype->elsize == 0) {
+        NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
+        _Npy_DECREF(dtype);
+        return NULL;
+    }
+
+    if ((sep == NULL) || (strlen(sep) == 0)) {
+        ret = NpyArray_FromBinaryString(data, slen, dtype, num);
+    } else {
+        /* read from character-based string */
+        size_t nread = 0;
+        char *end;
+
+        if (dtype->f->scanfunc == NULL) {
+            NpyErr_SetString(NpyExc_ValueError, "don't know how to read "
+                             "character strings with that array type");
+            _Npy_DECREF(dtype);
+            return NULL;
+        }
+        if (slen < 0) {
+            end = NULL;
+        }
+        else {
+            end = data + slen;
+        }
+        ret = array_from_text(dtype, num, sep, &nread, data,
+                              (next_element) fromstr_next_element,
+                              (skip_separator) fromstr_skip_separator,
+                              end);
+    }
+    return ret;
+}
+
+
+
+static NpyArray *
+array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
+                      npy_intp num, size_t *nread)
 {
     NpyArray *r;
     npy_intp start, numbytes;
@@ -1388,7 +1769,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
-                         "Cannot create an object array from"    \
+                         "Cannot create an object array from"
                          " a string");
         _Npy_DECREF(dtype);
         return NULL;
@@ -1403,8 +1784,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     if (num < 0 ) {
         if (slen % itemsize != 0) {
             NpyErr_SetString(NpyExc_ValueError,
-                             "string size must be a "\
-                             "multiple of element size");
+                             "string size must be a multiple of element size");
             _Npy_DECREF(dtype);
             return NULL;
         }
@@ -1413,8 +1793,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     else {
         if (slen < num*itemsize) {
             NpyErr_SetString(NpyExc_ValueError,
-                             "string is smaller than " \
-                             "requested size");
+                             "string is smaller than requested size");
             _Npy_DECREF(dtype);
             return NULL;
         }
@@ -1430,6 +1809,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     memcpy(ret->data, data, num*dtype->elsize);
     return ret;
 }
+
 
 #if 0
 /* TODO: Dead code? Duplicate, but different, version in npy_descriptor.c */

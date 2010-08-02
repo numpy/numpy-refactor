@@ -48,7 +48,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
         ret = NpyArray_NewFromDescr(self->descr,
                                     nd, shape,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, 
+                                    NPY_FALSE, NULL,
                                     Npy_INTERFACE(self));
 
         if (ret == NULL) {
@@ -507,7 +507,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
                                 aop->nd,
                                 aop->dimensions,
                                 NULL, NULL, 0,
-                                NPY_FALSE, NULL, 
+                                NPY_FALSE, NULL,
                                 Npy_INTERFACE(aop));
     aop->dimensions[axis] = n;
     if (ret == NULL) {
@@ -562,13 +562,13 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
     int copyret = 0;
     ap = NULL;
 
-    
+
     ap = NpyArray_FromArray(ip, NpyArray_DescrFromType(NPY_INTP), 0);
     if (ap == NULL) {
         goto fail;
     }
-    
-    /* Broadcast all arrays to each other, index array at the end. */ 
+
+    /* Broadcast all arrays to each other, index array at the end. */
     multi = NpyArray_MultiIterFromArrays(mps, n, 1, ap);
     if (multi == NULL) {
         goto fail;
@@ -580,7 +580,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                                     multi->nd,
                                     multi->dimensions,
                                     NULL, NULL, 0,
-                                    NPY_FALSE, NULL, 
+                                    NPY_FALSE, NULL,
                                     Npy_INTERFACE(ap));
     }
     else {

@@ -9,7 +9,7 @@
  * $Id: hashtable.c,v 1.4 2000/08/02 19:01:13 pomakis Exp pomakis $
  \*--------------------------------------------------------------------------*/
 
-/* Adapted for use in NumPy to replace usage of CPython PyDict functions.  
+/* Adapted for use in NumPy to replace usage of CPython PyDict functions.
    The bulk of the edits are for NumPy style guidelines and function naming. */
 
 
@@ -56,40 +56,40 @@ static long calculateIdealNumOfBuckets(NpyDict *hashTable);
  \*--------------------------------------------------------------------------*/
 
 NpyDict *
-NpyDict_CreateTable(long numOfBuckets) 
+NpyDict_CreateTable(long numOfBuckets)
 {
     NpyDict *hashTable;
     int i;
-    
+
     assert(numOfBuckets > 0);
-    
+
     hashTable = (NpyDict *) malloc(sizeof(NpyDict));
     if (hashTable == NULL)
         return NULL;
-    
+
     hashTable->bucketArray = (NpyDict_KVPair **)
     malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
     if (hashTable->bucketArray == NULL) {
         free(hashTable);
         return NULL;
     }
-    
+
     hashTable->numOfBuckets = numOfBuckets;
     hashTable->numOfElements = 0;
-    
+
     for (i=0; i<numOfBuckets; i++)
         hashTable->bucketArray[i] = NULL;
-    
+
     hashTable->idealRatio = 3.0;
     hashTable->lowerRehashThreshold = 0.0;
     hashTable->upperRehashThreshold = 15.0;
-    
+
     hashTable->keycmp = pointercmp;
     hashTable->valuecmp = pointercmp;
     hashTable->hashFunction = pointerHashFunction;
     hashTable->keyDeallocator = NULL;
     hashTable->valueDeallocator = NULL;
-    
+
     return hashTable;
 }
 
@@ -106,11 +106,11 @@ NpyDict_CreateTable(long numOfBuckets)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
-NpyDict_Destroy(NpyDict *hashTable) 
+void
+NpyDict_Destroy(NpyDict *hashTable)
 {
     int i;
-    
+
     for (i=0; i<hashTable->numOfBuckets; i++) {
         NpyDict_KVPair *pair = hashTable->bucketArray[i];
         while (pair != NULL) {
@@ -123,7 +123,7 @@ NpyDict_Destroy(NpyDict *hashTable)
             pair = nextPair;
         }
     }
-    
+
     free(hashTable->bucketArray);
     free(hashTable);
 }
@@ -149,15 +149,15 @@ NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(v
 {
     int i;
     NpyDict *copy;
-    
+
     copy = (NpyDict *)malloc(sizeof(NpyDict));
     memcpy(copy, orig, sizeof(NpyDict));
     copy->bucketArray = (NpyDict_KVPair **)malloc(copy->numOfBuckets * sizeof(NpyDict_KVPair *));
-    
+
     /* Duplicate each table entry. */
     for (i = 0; i < copy->numOfBuckets; i++) {
         NpyDict_KVPair *pair = orig->bucketArray[i];
-        
+
         copy->bucketArray[i] = NULL;
         while (pair != NULL) {
             NpyDict_KVPair *newEntry = (NpyDict_KVPair *)malloc(sizeof(NpyDict_KVPair));
@@ -191,8 +191,8 @@ NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(v
  *                     specified key.
  \*--------------------------------------------------------------------------*/
 
-int 
-NpyDict_ContainsKey(const NpyDict *hashTable, const void *key) 
+int
+NpyDict_ContainsKey(const NpyDict *hashTable, const void *key)
 {
     return (NpyDict_Get(hashTable, key) != NULL);
 }
@@ -217,11 +217,11 @@ NpyDict_ContainsKey(const NpyDict *hashTable, const void *key)
  *                     specified value.
  \*--------------------------------------------------------------------------*/
 
-int 
-NpyDict_ContainsValue(const NpyDict *hashTable, const void *value) 
+int
+NpyDict_ContainsValue(const NpyDict *hashTable, const void *value)
 {
     int i;
-    
+
     for (i=0; i<hashTable->numOfBuckets; i++) {
         NpyDict_KVPair *pair = hashTable->bucketArray[i];
         while (pair != NULL) {
@@ -230,7 +230,7 @@ NpyDict_ContainsValue(const NpyDict *hashTable, const void *value)
             pair = pair->next;
         }
     }
-    
+
     return 0;
 }
 
@@ -254,21 +254,21 @@ NpyDict_ContainsValue(const NpyDict *hashTable, const void *value)
  *      err          - 0 if successful, -1 if an error was encountered
  \*--------------------------------------------------------------------------*/
 
-int 
-NpyDict_Put(NpyDict *hashTable, const void *key, void *value) 
+int
+NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
 {
     long hashValue;
     NpyDict_KVPair *pair;
-    
+
     assert(key != NULL);
     assert(value != NULL);
-    
+
     hashValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
     pair = hashTable->bucketArray[hashValue];
-    
+
     while (pair != NULL && hashTable->keycmp(key, pair->key) != 0)
         pair = pair->next;
-    
+
     if (pair) {
         if (pair->key != key) {
             if (hashTable->keyDeallocator != NULL)
@@ -292,7 +292,7 @@ NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
             newPair->next = hashTable->bucketArray[hashValue];
             hashTable->bucketArray[hashValue] = newPair;
             hashTable->numOfElements++;
-            
+
             if (hashTable->upperRehashThreshold > hashTable->idealRatio) {
                 float elementToBucketRatio = (float) hashTable->numOfElements /
                 (float) hashTable->numOfBuckets;
@@ -301,7 +301,7 @@ NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
             }
         }
     }
-    
+
     return 0;
 }
 
@@ -323,14 +323,14 @@ NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
  \*--------------------------------------------------------------------------*/
 
 void *
-NpyDict_Get(const NpyDict *hashTable, const void *key) 
+NpyDict_Get(const NpyDict *hashTable, const void *key)
 {
     long hashValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
     NpyDict_KVPair *pair = hashTable->bucketArray[hashValue];
-    
+
     while (pair != NULL && hashTable->keycmp(key, pair->key) != 0)
         pair = pair->next;
-    
+
     return (pair == NULL)? NULL : pair->value;
 }
 
@@ -342,7 +342,7 @@ NpyDict_Get(const NpyDict *hashTable, const void *key)
  *  DESCRIPTION:
  *      Removes the original key and re-inserts the value under the new key.
  *      This is the same as get/remove/put but avoids a bunch of memory
- *      allocations/deallocations. 
+ *      allocations/deallocations.
  *      NOTE: Same as remove, the original key is deallocated!
  *      NOTE: If the newKey already exists, the existing value is removed first.
  *  EFFICIENCY:
@@ -361,12 +361,12 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
     NpyDict_KVPair *pair = hashTable->bucketArray[hashValue];
     NpyDict_KVPair *previousPair = NULL;
     NpyDict_KVPair *pairToIns = NULL;
-    
+
     while (pair != NULL && hashTable->keycmp(oldKey, pair->key) != 0) {
         previousPair = pair;
         pair = pair->next;
     }
-    
+
     if (pair != NULL) {
         if (hashTable->keyDeallocator != NULL)
             hashTable->keyDeallocator((void *) pair->key);
@@ -376,14 +376,14 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
             hashTable->bucketArray[hashValue] = pair->next;
 
         pairToIns = pair;
-        
+
         /* Re-insert pair using the new key. */
         hashValue = hashTable->hashFunction(newKey) % hashTable->numOfBuckets;
         pair = hashTable->bucketArray[hashValue];
-        
+
         while (pair != NULL && hashTable->keycmp(newKey, pair->key) != 0)
             pair = pair->next;
-        
+
         if (pair) {
             if (pair->key != newKey) {
                 if (hashTable->keyDeallocator != NULL)
@@ -402,7 +402,7 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
             /* value is already set - doesn't change */
             pairToIns->next = hashTable->bucketArray[hashValue];
             hashTable->bucketArray[hashValue] = pairToIns;
-        }        
+        }
     }
 }
 
@@ -425,18 +425,18 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
-NpyDict_Remove(NpyDict *hashTable, const void *key) 
+void
+NpyDict_Remove(NpyDict *hashTable, const void *key)
 {
     long hashValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
     NpyDict_KVPair *pair = hashTable->bucketArray[hashValue];
     NpyDict_KVPair *previousPair = NULL;
-    
+
     while (pair != NULL && hashTable->keycmp(key, pair->key) != 0) {
         previousPair = pair;
         pair = pair->next;
     }
-    
+
     if (pair != NULL) {
         if (hashTable->keyDeallocator != NULL)
             hashTable->keyDeallocator((void *) pair->key);
@@ -448,7 +448,7 @@ NpyDict_Remove(NpyDict *hashTable, const void *key)
             hashTable->bucketArray[hashValue] = pair->next;
         free(pair);
         hashTable->numOfElements--;
-        
+
         if (hashTable->lowerRehashThreshold > 0.0) {
             float elementToBucketRatio = (float) hashTable->numOfElements /
             (float) hashTable->numOfBuckets;
@@ -472,11 +472,11 @@ NpyDict_Remove(NpyDict *hashTable, const void *key)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
-NpyDict_RemoveAll(NpyDict *hashTable) 
+void
+NpyDict_RemoveAll(NpyDict *hashTable)
 {
     int i;
-    
+
     for (i=0; i<hashTable->numOfBuckets; i++) {
         NpyDict_KVPair *pair = hashTable->bucketArray[i];
         while (pair != NULL) {
@@ -490,7 +490,7 @@ NpyDict_RemoveAll(NpyDict *hashTable)
         }
         hashTable->bucketArray[i] = NULL;
     }
-    
+
     hashTable->numOfElements = 0;
     NpyDict_Rehash(hashTable, 5);
 }
@@ -512,7 +512,7 @@ NpyDict_RemoveAll(NpyDict *hashTable)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_IterInit(NpyDict_Iter *iter)
 {
     iter->bucket = -1;      /* -1 because first Next() increments to 0 */
@@ -545,7 +545,7 @@ NpyDict_IterInit(NpyDict_Iter *iter)
  *      bool         - true if a key/value pair is returned, false if the
  *                     end has been reached.
  \*--------------------------------------------------------------------------*/
-int 
+int
 NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key, void **value)
 {
     /* Advance to the next element in this bucket if there is one. Otherwise
@@ -556,7 +556,7 @@ NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key, void **valu
     while (NULL == iter->element && iter->bucket < hashTable->numOfBuckets-1) {
         iter->element = hashTable->bucketArray[++iter->bucket];
     }
-    
+
     if (NULL == iter->element) {
         *key = NULL;
         *value = NULL;
@@ -584,8 +584,8 @@ NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key, void **valu
  *                     key/value pairs
  \*--------------------------------------------------------------------------*/
 
-int 
-NpyDict_IsEmpty(const NpyDict *hashTable) 
+int
+NpyDict_IsEmpty(const NpyDict *hashTable)
 {
     return (hashTable->numOfElements == 0);
 }
@@ -605,8 +605,8 @@ NpyDict_IsEmpty(const NpyDict *hashTable)
  *                     the specified HashTable
  \*--------------------------------------------------------------------------*/
 
-long 
-NpyDict_Size(const NpyDict *hashTable) 
+long
+NpyDict_Size(const NpyDict *hashTable)
 {
     return hashTable->numOfElements;
 }
@@ -627,8 +627,8 @@ NpyDict_Size(const NpyDict *hashTable)
  *                     HashTable
  \*--------------------------------------------------------------------------*/
 
-long 
-NpyDict_GetNumBuckets(const NpyDict *hashTable) 
+long
+NpyDict_GetNumBuckets(const NpyDict *hashTable)
 {
     return hashTable->numOfBuckets;
 }
@@ -652,9 +652,9 @@ NpyDict_GetNumBuckets(const NpyDict *hashTable)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
-                                 int (*keycmp)(const void *key1, const void *key2)) 
+                                 int (*keycmp)(const void *key1, const void *key2))
 {
     assert(keycmp != NULL);
     hashTable->keycmp = keycmp;
@@ -679,9 +679,9 @@ NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
-                                   int (*valuecmp)(const void *value1, const void *value2)) 
+                                   int (*valuecmp)(const void *value1, const void *value2))
 {
     assert(valuecmp != NULL);
     hashTable->valuecmp = valuecmp;
@@ -708,7 +708,7 @@ NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_SetHashFunction(NpyDict *hashTable,
                         unsigned long (*hashFunction)(const void *key))
 {
@@ -724,7 +724,7 @@ NpyDict_SetHashFunction(NpyDict *hashTable,
  *      buckets is specified, the HashTable is rehashed to that number of
  *      buckets.  If 0 is specified, the HashTable is rehashed to a number
  *      of buckets which is automatically calculated to be a prime number
- *      that achieves (as closely as possible) the ideal element-to-bucket 
+ *      that achieves (as closely as possible) the ideal element-to-bucket
  *      ratio specified by the HashTableSetIdealRatio() function.
  *  EFFICIENCY:
  *      O(n)
@@ -742,19 +742,19 @@ NpyDict_SetHashFunction(NpyDict *hashTable,
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
-NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets) 
+void
+NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
 {
     NpyDict_KVPair **newBucketArray;
     int i;
-    
+
     assert(numOfBuckets >= 0);
     if (numOfBuckets == 0)
         numOfBuckets = calculateIdealNumOfBuckets(hashTable);
-    
+
     if (numOfBuckets == hashTable->numOfBuckets)
         return; /* already the right size! */
-    
+
     newBucketArray = (NpyDict_KVPair **)
     malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
     if (newBucketArray == NULL) {
@@ -762,10 +762,10 @@ NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
          * error; we just can't perform the rehash. */
         return;
     }
-    
+
     for (i=0; i<numOfBuckets; i++)
         newBucketArray[i] = NULL;
-    
+
     for (i=0; i<hashTable->numOfBuckets; i++) {
         NpyDict_KVPair *pair = hashTable->bucketArray[i];
         while (pair != NULL) {
@@ -776,7 +776,7 @@ NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
             pair = nextPair;
         }
     }
-    
+
     free(hashTable->bucketArray);
     hashTable->bucketArray = newBucketArray;
     hashTable->numOfBuckets = numOfBuckets;
@@ -824,14 +824,14 @@ NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
-                      float lowerRehashThreshold, float upperRehashThreshold) 
+                      float lowerRehashThreshold, float upperRehashThreshold)
 {
     assert(idealRatio > 0.0);
     assert(lowerRehashThreshold < idealRatio);
     assert(upperRehashThreshold == 0.0 || upperRehashThreshold > idealRatio);
-    
+
     hashTable->idealRatio = idealRatio;
     hashTable->lowerRehashThreshold = lowerRehashThreshold;
     hashTable->upperRehashThreshold = upperRehashThreshold;
@@ -865,10 +865,10 @@ NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
  *      <nothing>
  \*--------------------------------------------------------------------------*/
 
-void 
+void
 NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
                                  void (*keyDeallocator)(void *key),
-                                 void (*valueDeallocator)(void *value)) 
+                                 void (*valueDeallocator)(void *value))
 {
     hashTable->keyDeallocator = keyDeallocator;
     hashTable->valueDeallocator = valueDeallocator;
@@ -888,16 +888,16 @@ NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
  *      unsigned long - the unmodulated hash value of the key
  \*--------------------------------------------------------------------------*/
 
-unsigned long 
-NpyDict_StringHashFunction(const void *key) 
+unsigned long
+NpyDict_StringHashFunction(const void *key)
 {
     const unsigned char *str = (const unsigned char *) key;
     unsigned long hashValue = 0;
     int i;
-    
+
     for (i=0; str[i] != '\0'; i++)
         hashValue = hashValue * 37 + str[i];
-    
+
     return hashValue;
 }
 
@@ -911,13 +911,13 @@ static unsigned long pointerHashFunction(const void *pointer) {
 
 static int isProbablePrime(long oddNumber) {
     long i;
-    
+
     for (i=3; i<51; i+=2)
         if (oddNumber == i)
             return 1;
         else if (oddNumber%i == 0)
             return 0;
-    
+
     return 1; /* maybe */
 }
 
@@ -929,6 +929,6 @@ static long calculateIdealNumOfBuckets(NpyDict *hashTable) {
         idealNumOfBuckets |= 0x01; /* make it an odd number */
     while (!isProbablePrime(idealNumOfBuckets))
         idealNumOfBuckets += 2;
-    
+
     return idealNumOfBuckets;
 }

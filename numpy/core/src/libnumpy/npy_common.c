@@ -1,6 +1,6 @@
 /*
- *  npy_common.c - 
- *  
+ *  npy_common.c -
+ *
  */
 
 #define _MULTIARRAYMODULE
@@ -14,19 +14,19 @@
 #define MAX(a,b) ((a > b) ? (a) : (b))
 #endif
 
-int 
+int
 Npy_IsAligned(NpyArray *ap)
 {
     int i, alignment, aligned = 1;
     npy_intp ptr;
-    
+
     /* The special casing for STRING and VOID types was removed
      * in accordance with http://projects.scipy.org/numpy/ticket/1227
      * It used to be that IsAligned always returned True for these
      * types, which is indeed the case when they are created using
      * NpyArray_DescrConverter(), but not necessarily when using
      * NpyArray_DescrAlignConverter(). */
-    
+
     alignment = ap->descr->alignment;
     if (alignment == 1) {
         return 1;
@@ -40,14 +40,14 @@ Npy_IsAligned(NpyArray *ap)
 }
 
 
-npy_bool 
+npy_bool
 Npy_IsWriteable(NpyArray *ap)
 {
     NpyArray *base_arr = ap->base_arr;
     void *base_obj = ap->base_obj;
     void *dummy;
     size_t n;
-    
+
     /* If we own our own data, then no-problem */
     if ((base_arr == NULL && NULL == base_obj) || (ap->flags & NPY_OWNDATA)) {
         return NPY_TRUE;
@@ -61,7 +61,7 @@ Npy_IsWriteable(NpyArray *ap)
      * - this last could be removed if a proper pickleable
      * buffer was added to Python.
      */
-    
+
     while (NULL != base_arr) {
         if (NpyArray_CHKFLAGS(base_arr, NPY_OWNDATA)) {
             return (npy_bool) (NpyArray_ISWRITEABLE(base_arr));
@@ -69,7 +69,7 @@ Npy_IsWriteable(NpyArray *ap)
         base_arr = base_arr->base_arr;
         base_obj = base_arr->base_obj;
     }
-    
+
     /*
      * here so pickle support works seamlessly
      * and unpickled array can be set and reset writeable
@@ -89,7 +89,7 @@ Npy_IsWriteable(NpyArray *ap)
  * new reference
  * doesn't alter refcount of chktype or mintype ---
  * unless one of them is returned
- * TODO: Come up with a name that means something. 
+ * TODO: Come up with a name that means something.
  */
 #if 0
 /* TODO: Dead code, duplicate in npy_common.c */

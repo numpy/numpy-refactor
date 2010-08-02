@@ -46,6 +46,14 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 #include "numpymemoryview.h"
 
 
+/* Defined by the core library. */
+extern void initlibnumpy(struct NpyArray_FunctionDefs *);
+
+/* Defind in arraytypes.c.src */
+extern struct NpyArray_FunctionDefs _array_function_defs;
+
+
+
 /*NUMPY_API
  * Get Priority from object
  */
@@ -2365,6 +2373,13 @@ PyMODINIT_FUNC initmultiarray(void) {
     PyObject *m, *d, *s;
     PyObject *c_api;
 
+    
+    /* Initialize the core libnumpy library. Basically this is just providing pointers
+       to functions that it can use for coverting type-to-object, object-to-type, and
+       similar operations. */
+    initlibnumpy(&_array_function_defs);
+    
+    
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)
     m = PyModule_Create(&moduledef);
@@ -2376,7 +2391,7 @@ PyMODINIT_FUNC initmultiarray(void) {
     }
 
 #if defined(MS_WIN64) && defined(__GNUC__)
-  PyErr_WarnEx(PyExc_Warning,
+    PyErr_WarnEx(PyExc_Warning,
         "Numpy built with MINGW-W64 on Windows 64 bits is experimental, " \
         "and only available for \n" \
         "testing. You are advised not to use it for production. \n\n" \

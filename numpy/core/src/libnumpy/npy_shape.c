@@ -276,7 +276,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
                                 n, dimensions,
                                 strides,
                                 self->data,
-                                flags, NPY_FALSE, NULL, 
+                                flags, NPY_FALSE, NULL,
                                 Npy_INTERFACE(self));
 
     if (ret == NULL) {
@@ -332,7 +332,7 @@ NpyArray_Squeeze(NpyArray *self)
                                 newnd, dimensions,
                                 strides, self->data,
                                 self->flags,
-                                NPY_FALSE, NULL, 
+                                NPY_FALSE, NULL,
                                 Npy_INTERFACE(self));
     if (ret == NULL) {
         return NULL;
@@ -459,7 +459,7 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
     ret = NpyArray_NewFromDescr(ap->descr,
                                 n, ap->dimensions,
                                 NULL, ap->data, ap->flags,
-                                NPY_FALSE, NULL, 
+                                NPY_FALSE, NULL,
                                 Npy_INTERFACE(ap));
     if (ret == NULL) {
         return NULL;
@@ -521,8 +521,8 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
                                 1, &size,
                                 NULL,
                                 NULL,
-                                0, 
-                                NPY_FALSE, NULL, 
+                                0,
+                                NPY_FALSE, NULL,
                                 Npy_INTERFACE(a));
 
     if (ret == NULL) {

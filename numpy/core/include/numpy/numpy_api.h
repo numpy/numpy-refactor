@@ -63,9 +63,8 @@ typedef struct {
 } NpyDict_Iter;
 
 
-
-
-/* Really internal to the core, but required for now by PyArray_TypeNumFromString */
+/* Really internal to the core, but required for now by
+   PyArray_TypeNumFromString */
 /* TODO: Refactor and add an accessor for npy_userdescrs */
 extern struct NpyArray_Descr **npy_userdescrs;
 
@@ -84,7 +83,6 @@ int NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter
 int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet);
 int NpyInterface_DescrNewFromType(int type, struct NpyArray_Descr *descr, void **interfaceRet);
 int NpyInterface_DescrNewFromWrapper(void *base, struct NpyArray_Descr *descr, void **interfaceRet);
-
 
 
 /*
@@ -118,8 +116,14 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
-                           int inflag, int *objflags);
+size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
+                           size_t itemsize, int inflag, int *objflags);
+
+NpyArray * NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype,
+                                 npy_intp num, char *sep);
+NpyArray * NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
+                               intp num, char *sep);
+
 NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 
@@ -226,6 +230,10 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
 #define NpyArray_EquivArrTypes(a1, a2)                                         \
         NpyArray_EquivTypes(NpyArray_DESCR(a1), NpyArray_DESCR(a2))
 
+/* getset.c */
+int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
+int NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides);
+
 
 /*
  * API functions.
@@ -249,7 +257,6 @@ int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 
 NpyArray* NpyArray_Newshape(NpyArray *self, NpyArray_Dims *newdims,
                             NPY_ORDER fortran);
-int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
 NpyArray* NpyArray_Squeeze(NpyArray *self);
 NpyArray* NpyArray_SwapAxes(NpyArray *ap, int a1, int a2);
 NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
@@ -379,6 +386,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 
 /*
  * Error handling.
+ * TODO: port these function from Python into npy_exceptions.c
  */
 #define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
 #define NpyErr_SetNone(e) PyErr_SetNone(e)
@@ -397,7 +405,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyErr_Print() PyErr_Print()
 
 #if PY_VERSION_HEX >= 0x02050000
-#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel) 
+#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
 #else
 #define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
 #endif

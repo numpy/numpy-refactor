@@ -77,7 +77,7 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
 
     /* Get the available memory through the buffer interface on
      * new->base or if that fails from the current new
-     */
+     * NOTE: PyObject_AsReadBuffer is never called during tests */
     if (new->base_obj != NULL && PyObject_AsReadBuffer(new->base_obj,
                                                        (const void **)&buf,
                                                        &buf_len) >= 0) {
