@@ -2229,13 +2229,15 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
 
     if (dtype == NULL) {
         dtype = PyArray_DescrFromType(PyArray_DEFAULT);
+        if (dtype == NULL) {
+            return NULL;
+        }
     }
+    _Npy_INCREF(dtype->descr);
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_FromString(data, slen, dtype->descr, num, sep));
-    if (ret == NULL) {
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    Py_XDECREF(dtype);
+
     return (PyObject *)ret;
 }
 
