@@ -147,10 +147,11 @@ parse_subindex(PyObject *op, intp *step_size, intp *n_steps, intp max)
 
 NPY_NO_EXPORT int
 parse_index(PyArrayObject *self, PyObject *op,
-            intp *dimensions, intp *strides, intp *offset_ptr)
+            intp *dimensions, intp *strides, intp *offset_ptr,
+            int* axismap, intp* starts)
 {
     int i, j, n;
-    int nd_old, nd_new, n_add, n_pseudo;
+    int nd_old, nd_new, n_add, n_pseudo, axis;
     intp n_steps, start, offset, step_size;
     PyObject *op1 = NULL;
     int is_slice;
@@ -173,7 +174,7 @@ parse_index(PyArrayObject *self, PyObject *op,
         is_slice = 0;
     }
 
-    nd_old = nd_new = 0;
+    nd_old = nd_new = axis = 0;
 
     offset = 0;
     for (i = 0; i < n; i++) {
@@ -191,9 +192,18 @@ parse_index(PyArrayObject *self, PyObject *op,
         if (start == -1) {
             break;
         }
+        /* Record optional info. */
+        if (axismap) {
+            axismap[i] = axis;
+        }
+        if (starts) {
+            starts[i] = start;
+        }
+        /* Fill in dimensions, strides and offset */
         if (n_steps == PseudoIndex) {
             dimensions[nd_new] = 1; strides[nd_new] = 0;
             nd_new++;
+            axis++;
         }
         else {
             if (n_steps == RubberIndex) {
@@ -215,7 +225,7 @@ parse_index(PyArrayObject *self, PyObject *op,
                         PyArray_DIM(self, nd_old);
                     strides[nd_new] = \
                         PyArray_STRIDE(self, nd_old);
-                    nd_new++; nd_old++;
+                    nd_new++; nd_old++; axis++;
                 }
             }
             else {
@@ -231,7 +241,8 @@ parse_index(PyArrayObject *self, PyObject *op,
                     strides[nd_new] = step_size * \
                         PyArray_STRIDE(self, nd_old-1);
                     nd_new++;
-                }
+                } 
+                axis++;
             }
         }
     }
