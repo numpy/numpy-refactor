@@ -411,6 +411,20 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #endif
 
 
+enum npyexc_type {
+    _NpyExc_MemoryError,
+    _NpyExc_IOError,
+    _NpyExc_ValueError,
+    _NpyExc_TypeError,
+    _NpyExc_IndexError,
+    _NpyExc_RuntimeError,
+    _NpyExc_AttributeError,
+};
+
+typedef void (*npy_tp_error_cb)(enum npyexc_type, const char *);
+
+npy_tp_error_cb _NPY_Error_CB;
+
 
 /*
  * TMP
@@ -422,5 +436,3 @@ extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
 
 #endif
-
-
