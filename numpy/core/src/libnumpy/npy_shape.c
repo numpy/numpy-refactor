@@ -61,7 +61,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         }
         newsize *= new_dimensions[k];
         if (newsize <= 0 || newsize > largest) {
-            NpyErr_NoMemory();
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return -1;
         }
     }

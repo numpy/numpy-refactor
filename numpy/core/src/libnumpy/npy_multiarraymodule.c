@@ -21,9 +21,9 @@ void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
                   npy_tp_error_clear error_clear)
 {
     _init_builtin_descr_wrappers(functionDefs);
-    _NPY_Error_Set = error_set;
-    _NPY_Error_Occurred = error_occurred;
-    _NPY_Error_Clear = error_clear;
+    NpyErr_SetString = error_set;
+    NpyErr_Occurred = error_occurred;
+    NpyErr_Clear = error_clear;
 }
 
 

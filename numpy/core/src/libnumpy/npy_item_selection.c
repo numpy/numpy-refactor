@@ -907,6 +907,7 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
     NpyArray *ap = NULL, *store_arr = NULL;
     char *ip;
     int i, n, m, elsize, orign;
+    char msg[1024];
 
     n = op->nd;
     if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
@@ -916,7 +917,8 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
         axis += n;
     }
     if ((axis < 0) || (axis >= n)) {
-        NpyErr_Format(NpyExc_ValueError, "axis(=%d) out of bounds", axis);
+        sprintf(msg, "axis(=%d) out of bounds", axis);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         return -1;
     }
     if (!NpyArray_ISWRITEABLE(op)) {
@@ -1100,10 +1102,11 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     int object = 0;
     NpyArray_ArgSortFunc *argsort;
     NPY_BEGIN_THREADS_DEF;
+    char msg[1024];
 
     its = (NpyArrayIterObject **) PyDataMem_NEW(n*sizeof(NpyArrayIterObject*));
     if (its == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
     for (i = 0; i < n; i++) {
@@ -1121,8 +1124,8 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
             }
         }
         if (!mps[i]->descr->f->argsort[NPY_MERGESORT]) {
-            NpyErr_Format(NpyExc_TypeError,
-                         "merge sort not available for item %d", i);
+            printf(msg, "merge sort not available for item %d", i);
+            NpyErr_SetString(NpyExc_TypeError, msg);
             goto fail;
         }
         /* XXX: What do we do about this NPY_NEEDS_PYAPI? */
@@ -1155,8 +1158,8 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
         axis += nd;
     }
     if ((axis < 0) || (axis >= nd)) {
-        NpyErr_Format(NpyExc_ValueError,
-                "axis(=%d) out of bounds", axis);
+        printf(msg, "axis(=%d) out of bounds", axis);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         goto fail;
     }
 

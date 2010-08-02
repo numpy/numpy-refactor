@@ -20,12 +20,14 @@ NpyArray *
 NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 {
     NpyArray *ret = NULL;
+    char msg[1024];
 
     if (offset < 0 || (offset + typed->elsize) > self->descr->elsize) {
-        NpyErr_Format(NpyExc_ValueError,
-                      "Need 0 <= offset <= %d for requested type "  \
-                      "but received offset = %d",
-                      self->descr->elsize-typed->elsize, offset);
+        sprintf(msg,
+                "Need 0 <= offset <= %d for requested type "
+                "but received offset = %d",
+                self->descr->elsize-typed->elsize, offset);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         _Npy_DECREF(typed);
         return NULL;
     }
@@ -60,12 +62,13 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
 {
     NpyArray *ret = NULL;
     int retval = 0;
+    char msg[1024];
 
     if (offset < 0 || (offset + dtype->elsize) > self->descr->elsize) {
-        NpyErr_Format(NpyExc_ValueError,
-                      "Need 0 <= offset <= %d for requested type "  \
-                      "but received offset = %d",
+        sprintf(msg, "Need 0 <= offset <= %d for requested type "
+                     "but received offset = %d",
                       self->descr->elsize-dtype->elsize, offset);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         _Npy_DECREF(dtype);
         return -1;
     }

@@ -121,7 +121,7 @@ NpyArray_dealloc(NpyArray *self) {
             _Npy_INCREF(self); /* hold on to self in next call */
             if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
                 /* NpyErr_Print(); */
-                _NPY_Error_Clear();
+                NpyErr_Clear();
             }
             /*
              * Don't need to DECREF -- because we are deleting

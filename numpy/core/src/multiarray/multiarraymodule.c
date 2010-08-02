@@ -2370,19 +2370,54 @@ static struct PyModuleDef moduledef = {
 static void
 error_set(enum npyexc_type tp, const char *msg)
 {
-    if (tp == _NpyExc_ValueError) {
+    PyObject *cls = NULL, *obj = NULL;
+
+    switch (tp) {
+    case NpyExc_MemoryError:
+        PyErr_NoMemory();
+        break;
+    case NpyExc_IOError:
+        PyErr_SetString(PyExc_IOError, msg);
+        break;
+    case NpyExc_ValueError:
         PyErr_SetString(PyExc_ValueError, msg);
+        break;
+    case NpyExc_TypeError:
+        PyErr_SetString(PyExc_TypeError, msg);
+        break;
+    case NpyExc_IndexError:
+        PyErr_SetString(PyExc_IndexError, msg);
+        break;
+    case NpyExc_RuntimeError:
+        PyErr_SetString(PyExc_RuntimeError, msg);
+        break;
+    case NpyExc_AttributeError:
+        PyErr_SetString(PyExc_AttributeError, msg);
+        break;
+    case NpyExc_ComplexWarning:
+        obj = PyImport_ImportModule("numpy.core");
+        if (obj) {
+            cls = PyObject_GetAttrString(obj, "ComplexWarning");
+            PyErr_WarnEx(cls,
+                      "Casting complex values to real discards the imaginary "
+                      "part", 0);
+        }
+        Py_XDECREF(obj);
+        Py_XDECREF(cls);
+        break;
+    default:
+        PyErr_Format(PyExc_SystemError, "Hmm, didn't expect tp = %d", tp);
     }
 }
 
 static int
 error_occurred(void)
 {
-    if (PyErr_Occurred()) {
-        return 1;
+    if (PyErr_Occurred() == NULL) {
+        return 0;
     }
     else {
-        return 0;
+        return 1;
     }
 }
 
