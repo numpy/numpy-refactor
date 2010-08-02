@@ -1106,7 +1106,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     }
     /* Fill in bscoord with the start for the slice axes. */
     memset(mit->bscoord, 0, sizeof(intp)*PyArray_NDIM(arr));
-    n = PySequence_Length(pyMit->indexobj);
+    n = mit->nd;
     for (i=0; i<n; i++) {
         mit->bscoord[axismap[i]] = starts[i];
     }
