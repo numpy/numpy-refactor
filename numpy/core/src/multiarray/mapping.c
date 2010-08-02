@@ -27,7 +27,8 @@
     assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
 
 static PyObject *
-array_subscript_simple(PyArrayObject *self, PyObject *op);
+array_subscript_simple(PyArrayObject *self, PyObject *op,
+                       int* axismap, intp* starts);
 
 
 /* Callback from the core to construct the PyObject wrapper around an interator. */
@@ -550,7 +551,8 @@ fancy_index(PyObject* index, npy_bool* pfancy)
  */
 
 NPY_NO_EXPORT PyObject *
-array_subscript_simple(PyArrayObject *self, PyObject *op)
+array_subscript_simple(PyArrayObject *self, PyObject *op,
+                       int* axismap, intp* starts)
 {
     intp dimensions[MAX_DIMS], strides[MAX_DIMS];
     intp offset;
@@ -565,7 +567,8 @@ array_subscript_simple(PyArrayObject *self, PyObject *op)
     PyErr_Clear();
 
     /* Standard (view-based) Indexing */
-    if ((nd = parse_index(self, op, dimensions, strides, &offset)) == -1) {
+    if ((nd = parse_index(self, op, dimensions, strides, &offset,
+                          axismap, starts)) == -1) {
         return NULL;
     }
     /* This will only work if new array will be a view */
@@ -738,7 +741,7 @@ array_subscript(PyArrayObject *self, PyObject *op)
     } else {
         PyObject *result;
 
-        result = array_subscript_simple(self, index);
+        result = array_subscript_simple(self, index, NULL, NULL);
         Py_DECREF(index);
         return result;
     }
@@ -769,7 +772,8 @@ array_ass_sub_simple(PyArrayObject *self, PyObject *index, PyObject *op)
     /* Rest of standard (view-based) indexing */
 
     if (PyArray_CheckExact(self)) {
-        tmp = (PyArrayObject *)array_subscript_simple(self, index);
+        tmp = (PyArrayObject *)array_subscript_simple(self, index,
+                                                      NULL, NULL);
         if (tmp == NULL) {
             return -1;
         }
@@ -1222,9 +1226,11 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     NpyArrayIterObject *it;
     int subnd;
     PyObject *sub, *obj = NULL;
-    int i, j, n, curraxis, ellipexp, noellip;
+    int i, n;
     intp dimsize;
     intp *indptr;
+    int axismap[NPY_MAXDIMS];
+    intp starts[NPY_MAXDIMS];
 
     subnd = PyArray_NDIM(arr) - mit->numiter;
     if (subnd < 0) {
@@ -1254,7 +1260,8 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
      * But, be sure to do it with a true array.
      */
     if (PyArray_CheckExact(arr)) {
-        sub = array_subscript_simple(arr, pyMit->indexobj);
+        sub = array_subscript_simple(arr, pyMit->indexobj,
+                                     axismap, starts);
     }
     else {
         Py_INCREF(arr);
@@ -1262,7 +1269,8 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
         if (obj == NULL) {
             goto fail;
         }
-        sub = array_subscript_simple((PyArrayObject *)obj, pyMit->indexobj);
+        sub = array_subscript_simple((PyArrayObject *)obj, pyMit->indexobj,
+                                     axismap, starts);
         Py_DECREF(obj);
     }
 
@@ -1274,6 +1282,17 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     if (mit->subspace == NULL) {
         goto fail;
     }
+    /* Convert iteraxes from indices into the indexobj to indices
+       into the array. */
+    for (i=0; i<mit->numiter; i++) {
+        mit->iteraxes[i] = axismap[mit->iteraxes[i]];
+    }
+    /* Fill in bscoord with the start for the slice axes. */
+    memset(mit->bscoord, 0, sizeof(intp)*PyArray_NDIM(arr));
+    n = PySequence_Length(pyMit->indexobj);
+    for (i=0; i<n; i++) {
+        mit->bscoord[axismap[i]] = starts[i];
+    }
     /* Expand dimensions of result */
     n = mit->subspace->ao->nd;
     for (i = 0; i < n; i++) {
@@ -1281,61 +1300,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
     }
     mit->nd += n;
 
-    /*
-     * Now, we still need to interpret the ellipsis and slice objects
-     * to determine which axes the indexing arrays are referring to
-     */
-    n = PyTuple_GET_SIZE(pyMit->indexobj);
-    /* The number of dimensions an ellipsis takes up */
-    ellipexp = PyArray_NDIM(arr) - n + 1;
-    /*
-     * Now fill in iteraxes -- remember indexing arrays have been
-     * converted to 0's in mit->indexobj
-     */
-    curraxis = 0;
-    j = 0;
-    /* Only expand the first ellipsis */
-    noellip = 1;
-    memset(mit->bscoord, 0, sizeof(intp)*PyArray_NDIM(arr));
-    for (i = 0; i < n; i++) {
-        /*
-         * We need to fill in the starting coordinates for
-         * the subspace
-         */
-        obj = PyTuple_GET_ITEM(pyMit->indexobj, i);
-        if (PyInt_Check(obj) || PyLong_Check(obj)) {
-            mit->iteraxes[j++] = curraxis++;
-        }
-        else if (noellip && obj == Py_Ellipsis) {
-            curraxis += ellipexp;
-            noellip = 0;
-        }
-        else {
-            intp start = 0;
-            intp stop, step;
-            /* Should be slice object or another Ellipsis */
-            if (obj == Py_Ellipsis) {
-                mit->bscoord[curraxis] = 0;
-            }
-            else if (!PySlice_Check(obj) ||
-                     (slice_GetIndices((PySliceObject *)obj,
-                                       PyArray_DIM(arr, curraxis),
-                                       &start, &stop, &step,
-                                       &dimsize) < 0)) {
-                PyErr_Format(PyExc_ValueError,
-                             "unexpected object "       \
-                             "(%s) in selection position %d",
-                             Py_TYPE(obj)->tp_name, i);
-                goto fail;
-            }
-            else {
-                mit->bscoord[curraxis] = start;
-            }
-            curraxis += 1;
-        }
-    }
 
-    
  finish:
     /* Here check the indexes (now that we have iteraxes) */
     mit->size = PyArray_OverflowMultiplyList(mit->dimensions, mit->nd);
@@ -1385,6 +1350,10 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 /*
  * Creates a new MapIter from an indexob.  Assumes that the 
  * index has already been processed with fancy_index.
+ *
+ * Sets iteraxes to the indexes in indexobj that has been converted
+ * to iterators.  PyArray_MapIterBind will change these into 
+ * indexes into the array, taking into account ellipses.
  */
 NPY_NO_EXPORT PyObject *
 PyArray_MapIterNew(PyObject *indexobj)
@@ -1425,6 +1394,7 @@ PyArray_MapIterNew(PyObject *indexobj)
         }
         for (i = 0; i < mit->numiter; i++) {
             PyTuple_SET_ITEM(pyMit->indexobj, i, PyInt_FromLong(0));
+            mit->iteraxes[i] = i;
         }
     }
 
@@ -1448,6 +1418,7 @@ PyArray_MapIterNew(PyObject *indexobj)
         Py_DECREF(arr);
         Py_DECREF(pyMit->indexobj);
         pyMit->indexobj = Py_BuildValue("(N)", PyInt_FromLong(0));
+        mit->iteraxes[0] = 0;
     }
     else {
         /* must be a tuple */
@@ -1480,8 +1451,8 @@ PyArray_MapIterNew(PyObject *indexobj)
                 if (nonindex) {
                     mit->consec = 0;
                 }
-                mit->numiter += numiters;
                 if (numiters == 1) {
+                    mit->iteraxes[mit->numiter++] = j;
                     PyTuple_SET_ITEM(new,j++, PyInt_FromLong(0));
                 }
                 else {
@@ -1495,6 +1466,7 @@ PyArray_MapIterNew(PyObject *indexobj)
                         goto fail;
                     }
                     for (k = 0; k < numiters; k++) {
+                        mit->iteraxes[mit->numiter++] = j;
                         PyTuple_SET_ITEM(new, j++, PyInt_FromLong(0));
                     }
                 }
