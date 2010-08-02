@@ -2396,12 +2396,18 @@ error_set(enum npyexc_type tp, const char *msg)
         break;
     case NpyExc_ComplexWarning:
         obj = PyImport_ImportModule("numpy.core");
+#if PY_VERSION_HEX >= 0x02050000
+#define WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
+#else
+#define WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
+#endif      
         if (obj) {
             cls = PyObject_GetAttrString(obj, "ComplexWarning");
-            PyErr_WarnEx(cls,
-                      "Casting complex values to real discards the imaginary "
-                      "part", 0);
+            WarnEx(cls,
+                   "Casting complex values to real discards the imaginary "
+                   "part", 0);
         }
+#undef WarnEx
         Py_XDECREF(obj);
         Py_XDECREF(cls);
         break;
