@@ -2031,10 +2031,14 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 {
     PyArrayObject *ret;
-
-    ASSIGN_TO_PYARRAY(
-        ret,
-        NpyArray_FromTextFile(fp, dtype->descr, num, sep));
+    
+    if (dtype == NULL) {
+        return NULL;
+    }
+    _Npy_INCREF(dtype->descr);
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_FromTextFile(fp, dtype->descr, num, sep));
+    Py_XDECREF(dtype);
 
     return (PyObject *)ret;
 }
