@@ -607,10 +607,17 @@ typedef struct {
 #define PyArray_BASE_ARRAY(obj) NpyArray_BASE_ARRAY(PAA(obj))
 #define PyArray_BASE(obj) NpyArray_BASE(PAA(obj))
 
-#define PyArray_GETITEM(obj,itemptr) NpyArray_GETITEM(PAA(obj),itemptr)
-#define PyArray_SETITEM(obj,itemptr,v) NpyArray_SETITEM(PAA(obj),itemptr,v)
+#define PyArray_GETITEM(obj, itemptr)                               \
+    (PAA(obj))->descr->f->getitem((char *)(itemptr),                \
+                                  (PyArrayObject *) (PAA(obj)))
 
-#define _PyADT(obj) (assert(NULL != obj && PyArray_DescrCheck(obj)),((PyArray_Descr *)(obj))->descr->type_num)
+#define PyArray_SETITEM(obj, itemptr, v)                            \
+    (PAA(obj))->descr->f->setitem((PyObject *)(v),                  \
+                                  (char *)(itemptr),                \
+                                  (PAA(obj)))
+
+#define _PyADT(obj) (assert(NULL != obj && \
+      PyArray_DescrCheck(obj)),((PyArray_Descr *)(obj))->descr->type_num)
 #define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADT(obj))
 #define PyDataType_ISUNSIGNED(obj) NpyTypeNum_ISUNSIGNED(_PyADT(obj))
 #define PyDataType_ISSIGNED(obj) NpyTypeNum_ISSIGNED(_PyADT(obj))

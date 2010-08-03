@@ -64,16 +64,6 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_BASE_ARRAY(obj) ((obj)->base_arr)
 #define NpyArray_BASE(obj) ((obj)->base_obj)
 
-#define NpyArray_GETITEM(obj,itemptr)                           \
-        (obj)->descr->f->getitem((char *)(itemptr),             \
-                                 (PyArrayObject *)(obj))
-
-#define NpyArray_SETITEM(obj,itemptr,v)                         \
-        (obj)->descr->f->setitem((PyObject *)(v),               \
-                                 (char *)(itemptr),             \
-                                 (obj))
-
-
 #define NpyArray_SIZE(m) NpyArray_MultiplyList(NpyArray_DIMS(m),    \
                                                NpyArray_NDIM(m))
 #define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
