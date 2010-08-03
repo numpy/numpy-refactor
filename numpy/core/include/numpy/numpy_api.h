@@ -12,7 +12,7 @@
 enum {
     NPY_CPU_UNKNOWN_ENDIAN,
     NPY_CPU_LITTLE,
-    NPY_CPU_BIG
+    NPY_CPU_BIG,
 };
 #endif
 
@@ -97,7 +97,6 @@ int NpyInterface_DescrNewFromWrapper(void *base, struct NpyArray_Descr *descr,
 
 /* arraytypes.c.src */
 /* TODO: Needs to call back to interface layer */
-#define NpyArray_CopyObject(d, s) PyArray_CopyObject(d, s)
 
 void NpyArray_dealloc(NpyArray *self);
 
@@ -386,12 +385,9 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
         }                                                                 \
         _Npy_XDECREF(obj)
 
-#define NpyObject_New(a, b) PyObject_New(a, b)
-
 /*
  * Object model.
  */
-#define NpyObject_Init(object, type) PyObject_Init(object, type)
 
 /*
  * Memory
