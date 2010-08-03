@@ -1181,7 +1181,8 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
 
 static Py_ssize_t
 construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
-                 PyObject *typetup)
+                 PyObject *typetup, 
+                 PyObject **prep_func, PyObject *prep_context)
 {
     Py_ssize_t nargs;
     int i;
@@ -1199,7 +1200,6 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
     npy_intp temp_dims[NPY_MAXDIMS];
     npy_intp *out_dims;
     int out_nd;
-    PyObject *wraparr[NPY_MAXARGS];
 
     /* Check number of arguments */
     nargs = PyTuple_Size(args);
@@ -1489,39 +1489,21 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
 
     }
 
-    /*
-     * Use __array_prepare__ on all outputs
-     * if present on one of the input arguments.
-     * If present for multiple inputs:
-     * use __array_prepare__ of input object with largest
-     * __array_priority__ (default = 0.0)
-     *
-     * Exception:  we should not wrap outputs for items already
-     * passed in as output-arguments.  These items should either
-     * be left unwrapped or wrapped by calling their own __array_prepare__
-     * routine.
-     *
-     * For each output argument, wrap will be either
-     * NULL --- call PyArray_Return() -- default if no output arguments given
-     * None --- array-object passed in don't call PyArray_Return
-     * method --- the __array_prepare__ method to call.
-     */
-    _find_array_prepare(args, wraparr, loop->ufunc->nin, loop->ufunc->nout);
-
     /* wrap outputs */
     for (i = 0; i < loop->ufunc->nout; i++) {
         int j = loop->ufunc->nin+i;
         PyObject *wrap;
         PyObject *res;
-        wrap = wraparr[i];
+        wrap = prep_func[i];
         if (wrap != NULL) {
             if (wrap == Py_None) {
-                Py_DECREF(wrap);
                 continue;
             }
             res = PyObject_CallFunction(wrap, "O(OOi)",
-                        mps[j], loop->ufunc, args, i);
-            Py_DECREF(wrap);
+                                        mps[j], 
+                                        PyTuple_GET_ITEM(prep_context, 0),
+                                        PyTuple_GET_ITEM(prep_context, 1),
+                                        i);
             if ((res == NULL) || (res == Py_None)) {
                 if (!PyErr_Occurred()){
                     PyErr_SetString(PyExc_TypeError,
@@ -1868,7 +1850,9 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
 }
 
 static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObject **mps)
+construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, 
+               PyArrayObject **mps, PyObject **prep_func,
+               PyObject *prep_context)
 {
     PyUFuncLoopObject *loop;
     int i;
@@ -1969,7 +1953,8 @@ construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObjec
     }
 
     /* Setup the arrays */
-    if (construct_arrays(loop, args, mps, typetup) < 0) {
+    if (construct_arrays(loop, args, mps, typetup, 
+                         prep_func, prep_context) < 0) {
         goto fail;
     }
     PyUFunc_clearfperr();
@@ -2057,10 +2042,36 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyUFuncLoopObject *loop;
     int i;
     NPY_BEGIN_THREADS_DEF;
+    PyObject *wraparr[NPY_MAXARGS];
+    PyObject *context = NULL;
+    Py_ssize_t nargs;
 
-    if (!(loop = construct_loop(self, args, kwds, mps))) {
+    /* Check number of arguments */
+    nargs = PyTuple_Size(args);
+    if ((nargs < self->nin) || (nargs > self->nargs)) {
+        PyErr_SetString(PyExc_ValueError, "invalid number of arguments");
         return -1;
     }
+
+    /* Set up prepare functions. */
+    _find_array_prepare(args, wraparr, self->nin, self->nout);
+    context = Py_BuildValue("(OO)", self, args);
+
+    /* Build the loop. */
+    loop = construct_loop(self, args, kwds, mps, wraparr, context);
+
+    /* Clean up. */
+    if (context) {
+        for (i=0; i<nargs; i++) {
+            Py_XDECREF(wraparr);
+        }
+        Py_DECREF(context);
+    }
+
+    if (loop == NULL) {
+        return -1;
+    }
+
     if (loop->notimplemented) {
         ufuncloop_dealloc(loop);
         return -2;
