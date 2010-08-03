@@ -14,7 +14,8 @@
 #define NPY_FR_ERR  -1
 
 /* Offset for number of days between Dec 31, 1969 and Jan 1, 0001
- *  Assuming Gregorian calendar was always in effect (proleptic Gregorian calendar)
+ * Assuming Gregorian calendar was always in effect (proleptic Gregorian
+ * calendar)
  */
 
 /* Calendar Structure for Parsing Long -> Date */
@@ -39,7 +40,16 @@ typedef struct {
  * license version 1.0.0
  */
 
-#define Py_AssertWithArg(x,errortype,errorstr,a1) {if (!(x)) {PyErr_Format(errortype,errorstr,a1);goto onError;}}
+#define _AssertWithArg(x, errortype, errorstr, a1)   \
+    {                                                  \
+         if (!(x)) {                                   \
+             char msg[1024];                           \
+             sprintf(msg, errorstr, a1);               \
+             NpyErr_SetString(errortype, msg);         \
+             goto onError;                             \
+         }                                             \
+    }
+
 
 /* Table with day offsets for each month (0-based, without and with leap) */
 static int month_offset[2][13] = {
@@ -91,7 +101,8 @@ year_offset(npy_longlong year)
     if (year >= 0 || -1/4 == -1)
         return (year-1969)*365 + year/4 - year/100 + year/400 - 477;
     else
-        return (year-1969)*365 + (year-3)/4 - (year-99)/100 + (year-399)/400 - 477;
+        return (year-1969)*365 + (year-3)/4 -
+                      (year-99)/100 + (year-399)/400 - 477;
 }
 
 /*
@@ -114,17 +125,13 @@ days_from_ymd(int year, int month, int day)
 
     /* Negative month values indicate months relative to the years end */
     if (month < 0) month += 13;
-    Py_AssertWithArg(month >= 1 && month <= 12,
-                     PyExc_ValueError,
-                     "month out of range (1-12): %i",
-                     month);
+    _AssertWithArg(month >= 1 && month <= 12,
+                   NpyExc_ValueError, "month out of range (1-12): %i", month);
 
     /* Negative values indicate days relative to the months end */
     if (day < 0) day += days_in_month[leap][month - 1] + 1;
-    Py_AssertWithArg(day >= 1 && day <= days_in_month[leap][month - 1],
-                     PyExc_ValueError,
-                     "day out of range: %i",
-                     day);
+    _AssertWithArg(day >= 1 && day <= days_in_month[leap][month - 1],
+                   NpyExc_ValueError, "day out of range: %i", day);
 
     /*
      * Number of days between Dec 31, (year - 1) and Dec 31, 1969
@@ -132,7 +139,9 @@ days_from_ymd(int year, int month, int day)
      */
     yearoffset = year_offset(year);
 
-    if (PyErr_Occurred()) goto onError;
+    if (NpyErr_Occurred()) {
+        goto onError;
+    }
 
     /*
      * Calculate the number of days using yearoffset
@@ -760,7 +769,8 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
         as = tmp % num1;
     }
     else {
-        NpyErr_SetString(NpyExc_RuntimeError, "invalid internal time resolution");
+        NpyErr_SetString(NpyExc_RuntimeError,
+                         "invalid internal time resolution");
     }
 
     result->year  = year;
@@ -778,7 +788,8 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
 
 /*
  * FIXME: Overflow is not handled at all
- *   To convert from Years, Months, and Business Days, multiplication by the average is done
+ *   To convert from Years, Months, and Business Days, multiplication by
+ *   the average is done
  */
 
 /*NUMPY_API
@@ -794,8 +805,8 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 
     /*
      * Note that what looks like val / N and val % N for positive numbers maps to
-     * [val - (N-1)] / N and [N-1 + (val+1) % N] for negative numbers (with the 2nd
-     * value, the remainder, being positive in both cases).
+     * [val - (N-1)] / N and [N-1 + (val+1) % N] for negative numbers (with
+     * the 2nd value, the remainder, being positive in both cases).
      */
 
     if (val < 0) {
@@ -898,7 +909,8 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
         as = as % num1;
     }
     else {
-        NpyErr_SetString(NpyExc_RuntimeError, "invalid internal time resolution");
+        NpyErr_SetString(NpyExc_RuntimeError,
+                         "invalid internal time resolution");
     }
 
     if (negative) {

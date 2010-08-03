@@ -167,8 +167,6 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
 
 
 
-
-
 /*NUMPY_API
  * Get a cast function to cast from the input descriptor to the
  * output type_number (must be a registered data-type).
@@ -208,7 +206,6 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
     }
     return castfunc;
 }
-
 
 
 

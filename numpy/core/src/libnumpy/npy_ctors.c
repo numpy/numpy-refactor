@@ -30,13 +30,13 @@ _unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
     char *tin = src;
 
 
-#define _MOVE_N_SIZE(size)              \
-for(i=0; i<N; i++) {                    \
-memmove(tout, tin, size);               \
-tin += instrides;                       \
-tout += outstrides;                     \
-}                                       \
-return
+#define _MOVE_N_SIZE(size)             \
+    for(i=0; i<N; i++) {               \
+        memmove(tout, tin, size);      \
+        tin += instrides;              \
+        tout += outstrides;            \
+    }                                  \
+    return
 
     switch(elsize) {
         case 8:
@@ -1581,10 +1581,10 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
     }
     if (((npy_intp) nread) < num) {
         /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1) * PyArray_ITEMSIZE(ret);
+        const size_t nsize = NPY_MAX(nread, 1) * NpyArray_ITEMSIZE(ret);
         char *tmp;
 
-        if ((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
+        if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
             _Npy_DECREF(ret);
             NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return NULL;
