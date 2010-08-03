@@ -34,9 +34,9 @@ enum {
 #define NPY_FLOAT_FMT "g"
 #define NPY_DOUBLE_FMT "g"
 
-#ifdef PY_LONG_LONG
-typedef PY_LONG_LONG npy_longlong;
-typedef unsigned PY_LONG_LONG npy_ulonglong;
+#ifdef HAVE_LONG_LONG
+typedef long long             npy_longlong;
+typedef unsigned long long    npy_ulonglong;
 #  ifdef _MSC_VER
 #    define NPY_LONGLONG_FMT         "I64d"
 #    define NPY_ULONGLONG_FMT        "I64u"
@@ -59,7 +59,7 @@ typedef long npy_longlong;
 typedef unsigned long npy_ulonglong;
 #  define NPY_LONGLONG_SUFFIX(x)  (x##L)
 #  define NPY_ULONGLONG_SUFFIX(x) (x##UL)
-#endif
+#endif /* ifdef HAVE_LONG_LONG */
 
 
 typedef unsigned char npy_bool;
@@ -841,4 +841,3 @@ typedef npy_int64 npy_datetime;
 /* End of typedefs for numarray style bit-width names */
 
 #endif
-
