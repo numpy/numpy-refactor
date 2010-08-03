@@ -1574,8 +1574,8 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
     /* Move reference from interface to core object. */
     ret = array_from_text(dtype, num, sep, &nread, fp,
-                          (next_element) fromfile_next_element,
-                          (skip_separator) fromfile_skip_separator, NULL);
+                          next_element fromfile_next_element,
+                          skip_separator fromfile_skip_separator, NULL);
     if (ret == NULL) {
         return NULL;
     }
@@ -1659,8 +1659,8 @@ NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
             end = data + slen;
         }
         ret = array_from_text(dtype, num, sep, &nread, data,
-                              (next_element) fromstr_next_element,
-                              (skip_separator) fromstr_skip_separator,
+                              next_element fromstr_next_element,
+                              skip_separator fromstr_skip_separator,
                               end);
     }
     return ret;
