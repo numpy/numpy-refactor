@@ -262,7 +262,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
 
     if (multi->size != NpyArray_SIZE(dest)) {
         NpyErr_SetString(NpyExc_ValueError,
-                        "array dimensions are not compatible for copy");
+                         "array dimensions are not compatible for copy");
         _Npy_DECREF(multi);
         return -1;
     }
@@ -335,7 +335,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     if (!NpyArray_ISALIGNED(src)) {
         aligned = malloc((size_t)nbytes);
         if (aligned == NULL) {
-            NpyErr_NoMemory();
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return -1;
         }
         memcpy(aligned, src->data, (size_t) nbytes);
@@ -746,6 +746,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 {
     NpyArray *temp1, *temp2;
     int n = arr->nd;
+    char msg[1024];
 
     if (*axis == NPY_MAXDIMS || n == 0) {
         if (n != 1) {
@@ -786,8 +787,8 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
         *axis += n;
     }
     if ((*axis < 0) || (*axis >= n)) {
-        NpyErr_Format(NpyExc_ValueError,
-                     "axis(=%d) out of bounds", *axis);
+        sprintf(msg, "axis(=%d) out of bounds", *axis);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         _Npy_DECREF(temp2);
         return NULL;
     }
@@ -817,6 +818,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     size_t sd;
     npy_intp largest;
     npy_intp size;
+    char msg[1024];
 
     assert(NULL != descr && NPY_VALID_MAGIC == descr->magic_number);
 
@@ -848,8 +850,8 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         return NULL;
     }
     if (nd > NPY_MAXDIMS) {
-        NpyErr_Format(NpyExc_ValueError,
-                      "maximum number of dimensions is %d", NPY_MAXDIMS);
+        sprintf(msg, "maximum number of dimensions is %d", NPY_MAXDIMS);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         _Npy_DECREF(descr);
         return NULL;
     }
@@ -932,7 +934,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     if (nd > 0) {
         self->dimensions = NpyDimMem_NEW(2*nd);
         if (self->dimensions == NULL) {
-            NpyErr_NoMemory();
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             goto fail;
         }
         self->strides = self->dimensions + nd;
@@ -965,7 +967,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
             sd = descr->elsize;
         }
         if ((data = NpyDataMem_NEW(sd)) == NULL) {
-            NpyErr_NoMemory();
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             goto fail;
         }
         self->flags |= NPY_OWNDATA;
@@ -1030,7 +1032,7 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
     if (descr->elsize == 0) {
         if (itemsize < 1) {
             NpyErr_SetString(NpyExc_ValueError,
-                            "data type must provide an itemsize");
+                             "data type must provide an itemsize");
             _Npy_DECREF(descr);
             return NULL;
         }
@@ -1523,7 +1525,7 @@ array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
     NPY_END_ALLOW_THREADS;
     free(clean_sep);
     if (err == 1) {
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
     }
     if (NpyErr_Occurred()) {
         _Npy_DECREF(r);
@@ -1584,7 +1586,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
         if ((tmp = PyDataMem_RENEW(PyArray_BYTES(ret), nsize)) == NULL) {
             _Npy_DECREF(ret);
-            NpyErr_SetString(NpyErr_NoMemory(), "");
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return NULL;
         }
         NpyArray_BYTES(ret) = tmp;
@@ -1746,7 +1748,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
             _Npy_DECREF(ret);
-            NpyErr_NoMemory();
+            NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return NULL;
         }
         ret->data = tmp;

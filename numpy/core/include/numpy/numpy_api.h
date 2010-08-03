@@ -386,32 +386,29 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyArray_free(ptr) PyArray_free(ptr)
 
 
+
+
 /*
- * Error handling.
- * TODO: port these function from Python into npy_exceptions.c
+ * Exception handling
  */
-#define NpyErr_SetString(exc, str) PyErr_SetString(exc, str)
-#define NpyErr_SetNone(e) PyErr_SetNone(e)
-#define NpyErr_NoMemory() PyErr_NoMemory()
-#define NpyErr_Occurred() PyErr_Occurred()
-#define NpyExc_ValueError PyExc_ValueError
-#define NpyExc_MemoryError PyExc_MemoryError
-#define NpyExc_IOError PyExc_IOError
-#define NpyExc_TypeError PyExc_TypeError
-#define NpyExc_IndexError PyExc_IndexError
-#define NpyExc_RuntimeError PyExc_RuntimeError
-#define NpyErr_Format PyErr_Format
-#define NpyExc_RuntimeError PyExc_RuntimeError
-#define NpyExc_AttributeError PyExc_AttributeError
-#define NpyErr_Clear() PyErr_Clear()
-#define NpyErr_Print() PyErr_Print()
+enum npyexc_type {
+    NpyExc_MemoryError,
+    NpyExc_IOError,
+    NpyExc_ValueError,
+    NpyExc_TypeError,
+    NpyExc_IndexError,
+    NpyExc_RuntimeError,
+    NpyExc_AttributeError,
+    NpyExc_ComplexWarning,
+};
 
-#if PY_VERSION_HEX >= 0x02050000
-#define NpyErr_WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
-#else
-#define NpyErr_WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
-#endif
+typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);
+typedef int (*npy_tp_error_occurred)(void);
+typedef void (*npy_tp_error_clear)(void);
 
+npy_tp_error_set NpyErr_SetString;
+npy_tp_error_occurred NpyErr_Occurred;
+npy_tp_error_clear NpyErr_Clear;
 
 
 /*
@@ -424,5 +421,3 @@ extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
 
 #endif
-
-

@@ -80,9 +80,8 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
 
     if (multi->size != NpyArray_SIZE(out)) {
-        NpyErr_SetString(PyExc_ValueError,
-                         "array dimensions are not "\
-                         "compatible for copy");
+        NpyErr_SetString(NpyExc_ValueError,
+                         "array dimensions are not compatible for copy");
         _Npy_DECREF(multi);
         return -1;
     }
@@ -106,13 +105,13 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
     buffers[0] = malloc(N*delsize);
     if (buffers[0] == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return -1;
     }
     buffers[1] = malloc(N*selsize);
     if (buffers[1] == NULL) {
         free(buffers[0]);
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return -1;
     }
     if (NpyDataType_FLAGCHK(out->descr, NPY_NEEDS_INIT)) {
@@ -195,22 +194,12 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
         }
     }
     if (NpyTypeNum_ISCOMPLEX(descr->type_num) &&
-        !NpyTypeNum_ISCOMPLEX(type_num) &&
-        NpyTypeNum_ISNUMBER(type_num) &&
-        !NpyTypeNum_ISBOOL(type_num)) {
-
-        /* TODO: Need solution for using ComplexWarning class as object to
-           NpyErr_WarnEx. Callback or just classify as RuntimeErr? */
-        PyObject *cls = NULL, *obj = NULL;
-        obj = PyImport_ImportModule("numpy.core");
-        if (obj) {
-            cls = PyObject_GetAttrString(obj, "ComplexWarning");
-            Py_DECREF(obj);
-        }
-        NpyErr_WarnEx(cls,
-                      "Casting complex values to real discards the imaginary "
-                      "part", 0);
-        Npy_Interface_XDECREF(cls);
+              !NpyTypeNum_ISCOMPLEX(type_num) &&
+              NpyTypeNum_ISNUMBER(type_num) &&
+              !NpyTypeNum_ISBOOL(type_num)) {
+        NpyErr_SetString(
+            NpyExc_ComplexWarning,
+            "Casting complex values to real discards the imaginary part");
     }
 
     if (NULL == castfunc) {

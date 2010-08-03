@@ -403,19 +403,19 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 {
     NpyArrayMultiIterObject *multi;
     NpyArray *current;
-
     int i, ntot, err=0;
+    char msg[1024];
 
     ntot = n + nadd;
     if (ntot < 2 || ntot > NPY_MAXARGS) {
-        NpyErr_Format(NpyExc_ValueError,
-                      "Need between 2 and (%d) "                 \
-                      "array objects (inclusive).", NPY_MAXARGS);
+        sprintf(msg, "Need between 2 and (%d) array objects (inclusive).",
+                NPY_MAXARGS);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         return NULL;
     }
     multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (multi == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
     _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
@@ -461,7 +461,7 @@ NpyArray_MultiIterNew()
 
     ret = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (NULL == ret) {
-        PyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
     _NpyObject_Init(ret, &NpyArrayMultiIter_Type);

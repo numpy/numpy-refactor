@@ -47,7 +47,11 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 
 
 /* Defined by the core library. */
-extern void initlibnumpy(struct NpyArray_FunctionDefs *);
+extern void initlibnumpy(struct NpyArray_FunctionDefs *,
+                         npy_tp_error_set,
+                         npy_tp_error_occurred,
+                         npy_tp_error_clear);
+
 
 /* Defind in arraytypes.c.src */
 extern struct NpyArray_FunctionDefs _array_function_defs;
@@ -2362,6 +2366,72 @@ static struct PyModuleDef moduledef = {
 };
 #endif
 
+
+static void
+error_set(enum npyexc_type tp, const char *msg)
+{
+    PyObject *cls = NULL, *obj = NULL;
+
+    switch (tp) {
+    case NpyExc_MemoryError:
+        PyErr_NoMemory();
+        break;
+    case NpyExc_IOError:
+        PyErr_SetString(PyExc_IOError, msg);
+        break;
+    case NpyExc_ValueError:
+        PyErr_SetString(PyExc_ValueError, msg);
+        break;
+    case NpyExc_TypeError:
+        PyErr_SetString(PyExc_TypeError, msg);
+        break;
+    case NpyExc_IndexError:
+        PyErr_SetString(PyExc_IndexError, msg);
+        break;
+    case NpyExc_RuntimeError:
+        PyErr_SetString(PyExc_RuntimeError, msg);
+        break;
+    case NpyExc_AttributeError:
+        PyErr_SetString(PyExc_AttributeError, msg);
+        break;
+    case NpyExc_ComplexWarning:
+        obj = PyImport_ImportModule("numpy.core");
+#if PY_VERSION_HEX >= 0x02050000
+#define WarnEx(cls, msg, stackLevel) PyErr_WarnEx(cls, msg, stackLevel)
+#else
+#define WarnEx(obj, msg, stackLevel) PyErr_Warn(cls, msg)
+#endif      
+        if (obj) {
+            cls = PyObject_GetAttrString(obj, "ComplexWarning");
+            WarnEx(cls, msg, 0);
+        }
+#undef WarnEx
+        Py_XDECREF(obj);
+        Py_XDECREF(cls);
+        break;
+    default:
+        PyErr_Format(PyExc_SystemError, "Hmm, didn't expect tp = %d", tp);
+    }
+}
+
+static int
+error_occurred(void)
+{
+    if (PyErr_Occurred() == NULL) {
+        return 0;
+    }
+    else {
+        return 1;
+    }
+}
+
+static void
+error_clear(void)
+{
+    PyErr_Clear();
+}
+
+
 /* Initialization function for the module */
 #if defined(NPY_PY3K)
 #define RETVAL m
@@ -2374,12 +2444,14 @@ PyMODINIT_FUNC initmultiarray(void) {
     PyObject *c_api;
 
     
-    /* Initialize the core libnumpy library. Basically this is just providing pointers
-       to functions that it can use for coverting type-to-object, object-to-type, and
-       similar operations. */
-    initlibnumpy(&_array_function_defs);
-    
-    
+    /* Initialize the core libnumpy library. Basically this is just providing
+       pointers to functions that it can use for coverting type-to-object,
+       object-to-type, and similar operations. */
+    initlibnumpy(&_array_function_defs,
+                 (npy_tp_error_set) error_set,
+                 (npy_tp_error_occurred) error_occurred,
+                 (npy_tp_error_clear) error_clear);
+
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)
     m = PyModule_Create(&moduledef);
@@ -2392,9 +2464,9 @@ PyMODINIT_FUNC initmultiarray(void) {
 
 #if defined(MS_WIN64) && defined(__GNUC__)
     PyErr_WarnEx(PyExc_Warning,
-        "Numpy built with MINGW-W64 on Windows 64 bits is experimental, " \
-        "and only available for \n" \
-        "testing. You are advised not to use it for production. \n\n" \
+        "Numpy built with MINGW-W64 on Windows 64 bits is experimental, "
+        "and only available for \n"
+        "testing. You are advised not to use it for production. \n\n"
         "CRASHES ARE TO BE EXPECTED - PLEASE REPORT THEM TO NUMPY DEVELOPERS",
         1);
 #endif

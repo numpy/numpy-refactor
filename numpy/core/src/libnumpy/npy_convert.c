@@ -189,6 +189,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
     npy_intp size;
     npy_intp n;
     NpyArrayIterObject *it;
+    char msg[1024];
 
     /* binary data */
     if (NpyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
@@ -206,9 +207,10 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
                    (size_t) size, fp);
         NPY_END_ALLOW_THREADS;
         if (n < size) {
-            NpyErr_Format(NpyExc_ValueError,
-                          "%ld requested and %ld written",
-                          (long) size, (long) n);
+            sprintf(msg,
+                    "%ld requested and %ld written",
+                    (long) size, (long) n);
+            NpyErr_SetString(NpyExc_ValueError, msg);
             return -1;
         }
     }
@@ -222,10 +224,10 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
                        (size_t) self->descr->elsize,
                        1, fp) < 1) {
                 NPY_END_THREADS;
-                NpyErr_Format(NpyExc_IOError,
-                              "problem writing element"\
-                              " %"NPY_INTP_FMT" to file",
-                              it->index);
+                sprintf(msg,
+                        "problem writing element %"NPY_INTP_FMT" to file",
+                        it->index);
+                NpyErr_SetString(NpyExc_IOError, msg);
                 _Npy_DECREF(it);
                 return -1;
             }

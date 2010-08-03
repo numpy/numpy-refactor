@@ -13,14 +13,18 @@
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
 
 
-
-/* Initializes the library at startup.  This functions must be called exactly once
-   by the interface layer.*/
-void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs)
+/* Initializes the library at startup.
+   This functions must be called exactly once by the interface layer.*/
+void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
+                  npy_tp_error_set error_set,
+                  npy_tp_error_occurred error_occurred,
+                  npy_tp_error_clear error_clear)
 {
     _init_builtin_descr_wrappers(functionDefs);
+    NpyErr_SetString = error_set;
+    NpyErr_Occurred = error_occurred;
+    NpyErr_Clear = error_clear;
 }
-
 
 
 /*NUMPY_API
