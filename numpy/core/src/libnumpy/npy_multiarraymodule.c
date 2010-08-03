@@ -200,7 +200,9 @@ NpyArray_Free(NpyArray *ap, void *ptr)
         return -1;
     }
     if (ap->nd >= 2) {
-        NpyArray_free(ptr);     /* TODO: Notice lower case 'f' - points to define that translate to free or something. */
+        /* TODO: Notice lower case 'f' - points to define that translate to
+                 free or something. */
+        NpyArray_free(ptr);
     }
     _Npy_DECREF(ap);
     return 0;
@@ -338,7 +340,7 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
     /*
      * Need to choose an output array that can hold a sum
      */
-    if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
+    if (Py_TYPE(Npy_INTERFACE(ap2)) != Py_TYPE(Npy_INTERFACE(ap1))) {
         /* TODO: We can't get priority from the core object.
            We need to refactor this and probably move this
            funciton to the interface layer. */

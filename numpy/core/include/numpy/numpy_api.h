@@ -423,9 +423,11 @@ typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);
 typedef int (*npy_tp_error_occurred)(void);
 typedef void (*npy_tp_error_clear)(void);
 
+/* these functions are set in initlibnumpy */
 npy_tp_error_set NpyErr_SetString;
 npy_tp_error_occurred NpyErr_Occurred;
 npy_tp_error_clear NpyErr_Clear;
+
 
 
 /*
