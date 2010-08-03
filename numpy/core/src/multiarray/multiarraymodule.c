@@ -50,8 +50,8 @@ NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 extern void initlibnumpy(struct NpyArray_FunctionDefs *,
                          npy_tp_error_set,
                          npy_tp_error_occurred,
-                         npy_tp_error_clear);
-
+                         npy_tp_error_clear,
+                         npy_tp_getpriority);
 
 /* Defind in arraytypes.c.src */
 extern struct NpyArray_FunctionDefs _array_function_defs;
@@ -2432,6 +2432,13 @@ error_clear(void)
 }
 
 
+static double
+getpriority(void *obj, double def)
+{
+    return PyArray_GetPriority((PyObject *)obj, def);
+}
+
+
 /* Initialization function for the module */
 #if defined(NPY_PY3K)
 #define RETVAL m
@@ -2450,7 +2457,8 @@ PyMODINIT_FUNC initmultiarray(void) {
     initlibnumpy(&_array_function_defs,
                  (npy_tp_error_set) error_set,
                  (npy_tp_error_occurred) error_occurred,
-                 (npy_tp_error_clear) error_clear);
+                 (npy_tp_error_clear) error_clear,
+                 (npy_tp_getpriority) getpriority);
 
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)
