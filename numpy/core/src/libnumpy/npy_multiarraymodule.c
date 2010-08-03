@@ -520,7 +520,7 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     NPY_END_THREADS_DESCR(ap2->descr);
     _Npy_DECREF(it1);
     _Npy_DECREF(it2);
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         goto fail;
     }
     return ret;
@@ -687,7 +687,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     }
 
     NPY_END_THREADS_DESCR(NpyArray_DESCR(ret));
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         goto clean_ret;
     }
 
