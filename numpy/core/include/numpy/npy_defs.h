@@ -37,8 +37,8 @@ typedef unsigned long	npy_uintp;
 typedef long		npy_intp;
 
 #elif defined(HAVE_LONG_LONG) && (SIZEOF_VOID_P <= SIZEOF_LONG_LONG)
-typedef unsigned PY_LONG_LONG	npy_uintp;
-typedef PY_LONG_LONG		npy_intp;
+typedef unsigned long long	npy_uintp;
+typedef long long		npy_intp;
 
 #else
 #   error "NumPy needs a typedef for npy_uintp and npy_intp."
