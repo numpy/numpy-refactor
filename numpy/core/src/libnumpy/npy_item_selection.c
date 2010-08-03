@@ -1124,7 +1124,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
             }
         }
         if (!mps[i]->descr->f->argsort[NPY_MERGESORT]) {
-            printf(msg, "merge sort not available for item %d", i);
+            sprintf(msg, "merge sort not available for item %d", i);
             NpyErr_SetString(NpyExc_TypeError, msg);
             goto fail;
         }
@@ -1158,7 +1158,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
         axis += nd;
     }
     if ((axis < 0) || (axis >= nd)) {
-        printf(msg, "axis(=%d) out of bounds", axis);
+        sprintf(msg, "axis(=%d) out of bounds", axis);
         NpyErr_SetString(NpyExc_ValueError, msg);
         goto fail;
     }
