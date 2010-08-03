@@ -2403,9 +2403,7 @@ error_set(enum npyexc_type tp, const char *msg)
 #endif      
         if (obj) {
             cls = PyObject_GetAttrString(obj, "ComplexWarning");
-            WarnEx(cls,
-                   "Casting complex values to real discards the imaginary "
-                   "part", 0);
+            WarnEx(cls, msg, 0);
         }
 #undef WarnEx
         Py_XDECREF(obj);

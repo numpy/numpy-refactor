@@ -197,7 +197,9 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
               !NpyTypeNum_ISCOMPLEX(type_num) &&
               NpyTypeNum_ISNUMBER(type_num) &&
               !NpyTypeNum_ISBOOL(type_num)) {
-        NpyErr_SetString(NpyExc_ComplexWarning, "ComplexWarning");
+        NpyErr_SetString(
+            NpyExc_ComplexWarning,
+            "Casting complex values to real discards the imaginary part");
     }
 
     if (NULL == castfunc) {
