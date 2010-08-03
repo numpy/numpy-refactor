@@ -430,7 +430,7 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     return ret;
 
  fail:
-    Py_XDECREF(ret);
+    _Npy_DECREF(ret);
     return NULL;
 }
 
