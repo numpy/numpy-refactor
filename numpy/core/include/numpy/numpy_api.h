@@ -20,16 +20,16 @@ enum {
 
 #define NpyArray_UCS4 npy_ucs4
 
-#define NpyDataType_FLAGCHK(dtype, flag)                                   \
+#define NpyDataType_FLAGCHK(dtype, flag)          \
         (((dtype)->flags & (flag)) == (flag))
 
-#define NpyArray_DESCR_REPLACE(descr)                                 \
-        do {                                                          \
-            NpyArray_Descr *_new_;                                    \
-            _new_ = NpyArray_DescrNew(descr);                         \
-            _Npy_XDECREF(descr);                                      \
-            descr = _new_;                                            \
-        } while(0)
+#define NpyArray_DESCR_REPLACE(descr)                             \
+    do {                                                          \
+        NpyArray_Descr *_new_;                                    \
+        _new_ = NpyArray_DescrNew(descr);                         \
+        _Npy_XDECREF(descr);                                      \
+        descr = _new_;                                            \
+    } while(0)
 
 #define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
 
@@ -413,8 +413,9 @@ npy_tp_error_clear NpyErr_Clear;
  * TMP
  */
 extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
-extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
-                                         npy_intp instrides, npy_intp N, int elsize);
+extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides,
+                                         char *src, npy_intp instrides,
+                                         npy_intp N, int elsize);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
 
