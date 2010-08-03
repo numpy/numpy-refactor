@@ -19,13 +19,31 @@
 #define NPY_INVALID_MAGIC 0xdeadbeef
 
 
-/*
- * This is to typedef npy_intp to the appropriate pointer size for
- * this platform.  Py_intptr_t, Py_uintptr_t are defined in pyport.h.
+/* uintptr_t is the C9X name for an unsigned integral type such that a
+ * legitimate void* can be cast to uintptr_t and then back to void* again
+ * without loss of information.  Similarly for intptr_t, wrt a signed
+ * integral type.
  */
-/* TODO: Need a platform-dependent size for npy_intp */
-typedef Py_intptr_t npy_intp;
-typedef Py_uintptr_t npy_uintp;
+#ifdef HAVE_UINTPTR_T
+typedef uintptr_t	npy_uintp;
+typedef intptr_t	npy_intp;
+
+#elif SIZEOF_VOID_P <= SIZEOF_INT
+typedef unsigned int	npy_uintp;
+typedef int		npy_intp;
+
+#elif SIZEOF_VOID_P <= SIZEOF_LONG
+typedef unsigned long	npy_uintp;
+typedef long		npy_intp;
+
+#elif defined(HAVE_LONG_LONG) && (SIZEOF_VOID_P <= SIZEOF_LONG_LONG)
+typedef unsigned PY_LONG_LONG	npy_uintp;
+typedef PY_LONG_LONG		npy_intp;
+
+#else
+#   error "NumPy needs a typedef for npy_uintp and npy_intp."
+#endif /* HAVE_UINTPTR_T */
+
 
 
 /*typedef Py_intptr_t npy_intp;
@@ -325,7 +343,8 @@ typedef npy_bool (NpyArray_NonzeroFunc)(void *, struct NpyArray *);
  * before or contiguous data will be obtained
  */
 
-typedef int (NpyArray_CompareFunc)(const void *, const void *, struct NpyArray *);
+typedef int (NpyArray_CompareFunc)(const void *, const void *,
+                                   struct NpyArray *);
 typedef int (NpyArray_ArgFunc)(void*, npy_intp, npy_intp*, struct NpyArray *);
 
 typedef void (NpyArray_DotFunc)(void *, npy_intp, void *, npy_intp, void *,
@@ -346,9 +365,11 @@ typedef int (NpyArray_FromStrFunc)(char *s, void *dptr, char **endptr,
 typedef int (NpyArray_FillFunc)(void *, npy_intp, struct NpyArray *);
 
 typedef int (NpyArray_SortFunc)(void *, npy_intp, struct NpyArray *);
-typedef int (NpyArray_ArgSortFunc)(void *, npy_intp *, npy_intp, struct NpyArray *);
+typedef int (NpyArray_ArgSortFunc)(void *, npy_intp *, npy_intp,
+                                   struct NpyArray *);
 
-typedef int (NpyArray_FillWithScalarFunc)(void *, npy_intp, void *, struct NpyArray *);
+typedef int (NpyArray_FillWithScalarFunc)(void *, npy_intp, void *,
+                                          struct NpyArray *);
 
 typedef int (NpyArray_ScalarKindFunc)(struct NpyArray *);
 
