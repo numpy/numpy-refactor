@@ -26,14 +26,14 @@ struct NpyArray_DateTimeInfo {
                    * input-only mechanism
                    */
     int events;
-};	
+};
 
 
 struct NpyArray_Descr {
     NpyObject_HEAD
-    
-    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and 
-                             NPY_INVALID_MAGIC on dealloc */
+
+    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and
+                               NPY_INVALID_MAGIC on dealloc */
     char kind;              /* kind for this type */
     char type;              /* unique-character representing this type */
     char byteorder;         /*
@@ -51,110 +51,111 @@ struct NpyArray_Descr {
                              * is an array (C-contiguous)
                              * of some other type
                              */
-    struct NpyDict_struct 
+    struct NpyDict_struct
         *fields;            /* The fields dictionary for this type
                              * For statically defined descr this
                              * is always NULL.
                              */
-    
-    char **names;           /* Array of char *, NULL indicates end of array. 
-                             * char* lifetime is exactly lifetime of array itself. */
-    
+
+    char **names;           /* Array of char *, NULL indicates end of array.
+                             * char* lifetime is exactly lifetime of array
+                             * itself. */
+
     struct NpyArray_ArrFuncs *f; /*
                               * a table of functions specific for each
                               * basic data descriptor
                               */
-    
-	NpyArray_DateTimeInfo  
+
+        NpyArray_DateTimeInfo
         *dtinfo;            /*
-                             * Non-NULL if this type is array of 
-                             * DATETIME or TIMEDELTA 
+                             * Non-NULL if this type is array of
+                             * DATETIME or TIMEDELTA
                              */
-    
+
 };
 
 
 struct NpyArray_ArrFuncs {
     /* The next four functions *cannot* be NULL */
-    
+
     /*
      * Functions to get and set items with standard Python types
      * -- not array scalars
      */
     NpyArray_GetItemFunc *getitem;
     NpyArray_SetItemFunc *setitem;
-    
+
     /*
      * Copy and/or swap data.  Memory areas may not overlap
      * Use memmove first if they might
      */
     NpyArray_CopySwapNFunc *copyswapn;
     NpyArray_CopySwapFunc *copyswap;
-    
+
     /*
      * Function to compare items
      * Can be NULL
      */
     NpyArray_CompareFunc *compare;
-    
+
     /*
      * Function to select largest
      * Can be NULL
      */
     NpyArray_ArgFunc *argmax;
-    
+
     /*
      * Function to compute dot product
      * Can be NULL
      */
     NpyArray_DotFunc *dotfunc;
-    
+
     /*
      * Function to scan an ASCII file and
      * place a single value plus possible separator
      * Can be NULL
      */
     NpyArray_ScanFunc *scanfunc;
-    
+
     /*
      * Function to read a single value from a string
      * and adjust the pointer; Can be NULL
      */
     NpyArray_FromStrFunc *fromstr;
-    
+
     /*
      * Function to determine if data is zero or not
      * If NULL a default version is
      * used at Registration time.
      */
     NpyArray_NonzeroFunc *nonzero;
-    
+
     /*
      * Used for arange.
      * Can be NULL.
      */
     NpyArray_FillFunc *fill;
-    
+
     /*
      * Function to fill arrays with scalar values
      * Can be NULL
      */
     NpyArray_FillWithScalarFunc *fillwithscalar;
-    
+
     /*
      * Sorting functions
      * Can be NULL
      */
     NpyArray_SortFunc *sort[NPY_NSORTS];
     NpyArray_ArgSortFunc *argsort[NPY_NSORTS];
-    
+
     /*
-     * Array of PyArray_CastFuncsItem given cast functions to 
+     * Array of PyArray_CastFuncsItem given cast functions to
      * user defined types. The array it terminated with PyArray_NOTYPE.
      * Can be NULL.
      */
     struct NpyArray_CastFuncsItem* castfuncs;
-    
+
     /*
      * Functions useful for generalizing
      * the casting rules.
@@ -163,11 +164,11 @@ struct NpyArray_ArrFuncs {
     NpyArray_ScalarKindFunc *scalarkind;
     int **cancastscalarkindto;
     int *cancastto;
-    
+
     NpyArray_FastClipFunc *fastclip;
     NpyArray_FastPutmaskFunc *fastputmask;
     NpyArray_FastTakeFunc *fasttake;
-    
+
     /*
      * A little room to grow --- should use generic function
      * interface for most additions
@@ -176,27 +177,30 @@ struct NpyArray_ArrFuncs {
     void *pad2;
     void *pad3;
     void *pad4;
-    
+
     /*
      * Functions to cast to all other standard types
      * Can have some NULL entries
      */
     NpyArray_VectorUnaryFunc *cast[NPY_NTYPES];
-    
+
 };
 
 
 struct NpyArray_ArrayDescr {
     NpyArray_Descr *base;
-    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially implement */
-    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1 shape_dims is an */
+    npy_intp shape_num_dims;    /* shape_num_dims and shape_dims essentially
+                                   implement */
+    npy_intp *shape_dims;       /* a tuple. When shape_num_dims  >= 1
+                                   shape_dims is an */
     /* allocated array of ints; shape_dims == NULL iff */
     /* shape_num_dims == 1 */
 };
 
 
 
-/* Used as the value of an NpyDict to record the fields in an NpyArray_Descr object */
+/* Used as the value of an NpyDict to record the fields in an
+   NpyArray_Descr object */
 struct NpyArray_DescrField {
     NpyArray_Descr *descr;
     int offset;
@@ -211,8 +215,9 @@ struct NpyArray_CastFuncsItem {
 
 
 
-/* Allows the interface to provide type-specific boxing and unboxing (type-to-object, 
-   object-to-type) functions and object-manipulation functions to the core. */
+/* Allows the interface to provide type-specific boxing and unboxing
+   (type-to-object, object-to-type) functions and object-manipulation
+   functions to the core. */
 struct NpyArray_FunctionDefs {
     /* Get-set methods per type. */
     NpyArray_GetItemFunc *BOOL_getitem;
@@ -238,7 +243,7 @@ struct NpyArray_FunctionDefs {
     NpyArray_GetItemFunc *VOID_getitem;
     NpyArray_GetItemFunc *DATETIME_getitem;
     NpyArray_GetItemFunc *TIMEDELTA_getitem;
-    
+
     NpyArray_SetItemFunc *BOOL_setitem;
     NpyArray_SetItemFunc *BYTE_setitem;
     NpyArray_SetItemFunc *UBYTE_setitem;
@@ -280,7 +285,7 @@ struct NpyArray_FunctionDefs {
     NpyArray_FastTakeFunc *OBJECT_fasttake;
 
     /* Unboxing (object-to-type) */
-    NpyArray_VectorUnaryFunc *cast_from_obj[NPY_NTYPES];    
+    NpyArray_VectorUnaryFunc *cast_from_obj[NPY_NTYPES];
     /* String-to-type */
     NpyArray_VectorUnaryFunc *cast_from_string[NPY_NTYPES];
     /* Unicode-to-type */
@@ -312,7 +317,7 @@ NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
 void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
 void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
 NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
-void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key, 
+void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key,
                             NpyArray_Descr *descr,
                             int offset, const char *title);
 struct NpyDict_struct *NpyArray_DescrFieldsCopy(struct NpyDict_struct *fields);

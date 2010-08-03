@@ -8,7 +8,7 @@
 #include <numpy/npy_endian.h>
 
 
-/* 
+/*
  * This file contains defines and basic types used by the core
  * library.
  */
@@ -119,7 +119,7 @@ enum NPY_TYPECHAR { NPY_BOOLLTR = '?',
     NPY_DATETIMELTR = 'M',
     NPY_TIMEDELTALTR = 'm',
     NPY_CHARLTR = 'c',
-    
+
     /*
      * No Descriptor, just a define -- this let's
      * Python users specify an array of integers
@@ -128,7 +128,7 @@ enum NPY_TYPECHAR { NPY_BOOLLTR = '?',
      */
     NPY_INTPLTR = 'p',
     NPY_UINTPLTR = 'P',
-    
+
     NPY_GENBOOLLTR ='b',
     NPY_SIGNEDLTR = 'i',
     NPY_UNSIGNEDLTR = 'u',
