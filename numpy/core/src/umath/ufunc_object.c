@@ -411,26 +411,18 @@ _find_matching_userloop(PyObject *obj, int *arg_types,
 }
 
 /*
- * if only one type is specified then it is the "first" output data-type
- * and the first signature matching this output data-type is returned.
- *
- * if a tuple of types is specified then an exact match to the signature
- * is searched and it much match exactly or an error occurs
+ * Converts type_tup into an array of typenums.
  */
 static int
-extract_specified_loop(PyUFuncObject *self, int *arg_types,
-                       PyUFuncGenericFunction *function, void **data,
-                       PyObject *type_tup, int userdef)
+get_rtypenums(PyUFuncObject *self, PyObject *type_tup, int *rtypenums)
 {
-    Py_ssize_t n = 1;
-    int rtypenums[NPY_MAXARGS];
-    static char msg[] = "loop written to specified type(s) not found";
     PyArray_Descr *dtype;
+    int n, i;
     int nargs;
-    int i, j;
     int strtype = 0;
 
     nargs = self->nargs;
+
     if (PyTuple_Check(type_tup)) {
         n = PyTuple_GET_SIZE(type_tup);
         if (n != 1 && n != nargs) {
@@ -505,6 +497,27 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
         Py_DECREF(dtype);
     }
 
+    return 0;
+}
+
+/*
+ * if only one type is specified then it is the "first" output data-type
+ * and the first signature matching this output data-type is returned.
+ *
+ * if a tuple of types is specified then an exact match to the signature
+ * is searched and it much match exactly or an error occurs
+ */
+static int
+extract_specified_loop(PyUFuncObject *self, int *arg_types,
+                       PyUFuncGenericFunction *function, void **data,
+                       int *rtypenums, int userdef)
+{
+    Py_ssize_t n = 1;
+    static char msg[] = "loop written to specified type(s) not found";
+    int nargs;
+    int i, j;
+
+    nargs = self->nargs;
     if (userdef > 0) {
         /* search in the user-defined functions */
         PyObject *key, *obj;
@@ -595,7 +608,7 @@ static int
 select_types(PyUFuncObject *self, int *arg_types,
              PyUFuncGenericFunction *function, void **data,
              PyArray_SCALARKIND *scalars,
-             PyObject *typetup)
+             int *rtypenums)
 {
     int i, j;
     char start_type;
@@ -612,9 +625,9 @@ select_types(PyUFuncObject *self, int *arg_types,
         }
     }
 
-    if (typetup != NULL)
+    if (rtypenums != NULL)
         return extract_specified_loop(self, arg_types, function, data,
-                                      typetup, userdef);
+                                      rtypenums, userdef);
 
     if (userdef > 0) {
         PyObject *key, *obj;
@@ -1252,7 +1265,7 @@ convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 
 static Py_ssize_t
 construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
-                 PyObject *typetup, 
+                 int *rtypenums, 
                  PyObject **prep_func, PyObject *prep_context)
 {
     int i;
@@ -1325,7 +1338,7 @@ construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
 
     /* Select an appropriate function for these argument types. */
     if (select_types(loop->ufunc, arg_types, &(loop->function),
-                     &(loop->funcdata), scalars, typetup) == -1) {
+                     &(loop->funcdata), scalars, rtypenums) == -1) {
         return -1;
     }
 
@@ -1857,14 +1870,13 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
 }
 
 static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self, Py_ssize_t nargs, PyObject *kwds, 
+construct_loop(PyUFuncObject *self, Py_ssize_t nargs, 
+               PyObject *extobj, int *rtypenums,
                PyArrayObject **mps, PyObject **prep_func,
                PyObject *prep_context)
 {
     PyUFuncLoopObject *loop;
     int i;
-    PyObject *typetup = NULL;
-    PyObject *extobj = NULL;
     char *name;
 
     if (self == NULL) {
@@ -1914,36 +1926,6 @@ construct_loop(PyUFuncObject *self, Py_ssize_t nargs, PyObject *kwds,
     }
     name = self->name ? self->name : "";
 
-    /*
-     * Extract sig= keyword and extobj= keyword if present.
-     * Raise an error if anything else is present in the
-     * keyword dictionary
-     */
-    if (kwds != NULL) {
-        PyObject *key, *value;
-        Py_ssize_t pos = 0;
-        while (PyDict_Next(kwds, &pos, &key, &value)) {
-            char *keystring = PyString_AsString(key);
-
-            if (keystring == NULL) {
-                PyErr_Clear();
-                PyErr_SetString(PyExc_TypeError, "invalid keyword");
-                goto fail;
-            }
-            if (strncmp(keystring,"extobj",6) == 0) {
-                extobj = value;
-            }
-            else if (strncmp(keystring,"sig",3) == 0) {
-                typetup = value;
-            }
-            else {
-                char *format = "'%s' is an invalid keyword to %s";
-                PyErr_Format(PyExc_TypeError,format,keystring, name);
-                goto fail;
-            }
-        }
-    }
-
     if (extobj == NULL) {
         if (PyUFunc_GetPyValues(name,
                                 &(loop->bufsize), &(loop->errormask),
@@ -1960,7 +1942,7 @@ construct_loop(PyUFuncObject *self, Py_ssize_t nargs, PyObject *kwds,
     }
 
     /* Setup the arrays */
-    if (construct_arrays(loop, nargs, mps, typetup, 
+    if (construct_arrays(loop, nargs, mps, rtypenums, 
                          prep_func, prep_context) < 0) {
         goto fail;
     }
@@ -2052,6 +2034,51 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyObject *wraparr[NPY_MAXARGS];
     PyObject *context = NULL;
     Py_ssize_t nargs;
+    PyObject *extobj = NULL;
+    PyObject *typetup = NULL;
+    int typenumbuf[NPY_MAXARGS];
+    int *rtypenums;
+
+    /*
+     * Extract sig= keyword and extobj= keyword if present.
+     * Raise an error if anything else is present in the
+     * keyword dictionary
+     */
+    if (kwds != NULL) {
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(kwds, &pos, &key, &value)) {
+            char *keystring = PyString_AsString(key);
+
+            if (keystring == NULL) {
+                PyErr_Clear();
+                PyErr_SetString(PyExc_TypeError, "invalid keyword");
+                goto fail;
+            }
+            if (strncmp(keystring,"extobj",6) == 0) {
+                extobj = value;
+            }
+            else if (strncmp(keystring,"sig",3) == 0) {
+                typetup = value;
+            }
+            else {
+                char *format = "'%s' is an invalid keyword to %s";
+                PyErr_Format(PyExc_TypeError,format,keystring, 
+                             self->name ? self->name : "");
+                goto fail;
+            }
+        }
+    }
+
+    /* Convert typetup to an array of typenums. */
+    if (typetup != NULL) {
+        if (get_rtypenums(self, typetup, typenumbuf) < 0) {
+            return -1;
+        }
+        rtypenums = typenumbuf;
+    } else {
+        rtypenums = NULL;
+    }
 
     /* Convert args to arrays in mps. */
     if ((i=convert_args(self, args, mps)) < 0) {
@@ -2065,7 +2092,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     context = Py_BuildValue("(OO)", self, args);
 
     /* Build the loop. */
-    loop = construct_loop(self, nargs, kwds, mps, wraparr, context);
+    loop = construct_loop(self, nargs, extobj, rtypenums, mps, 
+                          wraparr, context);
 
     /* Clean up. */
     if (context) {
@@ -2074,6 +2102,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
         }
         Py_DECREF(context);
     }
+    Py_XDECREF(extobj);
+    Py_XDECREF(typetup);
 
     if (loop == NULL) {
         return -1;
