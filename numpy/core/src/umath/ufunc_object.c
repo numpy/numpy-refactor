@@ -423,7 +423,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
                        PyObject *type_tup, int userdef)
 {
     Py_ssize_t n = 1;
-    int *rtypenums;
+    int rtypenums[NPY_MAXARGS];
     static char msg[] = "loop written to specified type(s) not found";
     PyArray_Descr *dtype;
     int nargs;
@@ -467,11 +467,6 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
                 }
             }
         }
-    rtypenums = (int *)_pya_malloc(n*sizeof(int));
-    if (rtypenums == NULL) {
-        PyErr_NoMemory();
-        return -1;
-    }
 
     if (strtype) {
         char *ptr;
@@ -484,7 +479,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
             }
             dtype = PyArray_DescrFromType((int) *ptr);
             if (dtype == NULL) {
-                goto fail;
+                return -1;
             }
             rtypenums[i] = dtype->descr->type_num;
             Py_DECREF(dtype);
@@ -496,7 +491,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
         for (i = 0; i < n; i++) {
             if (PyArray_DescrConverter(PyTuple_GET_ITEM(type_tup, i),
                                        &dtype) == NPY_FAIL) {
-                goto fail;
+                return -1;
             }
             rtypenums[i] = dtype->descr->type_num;
             Py_DECREF(dtype);
@@ -504,7 +499,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
     }
     else {
         if (PyArray_DescrConverter(type_tup, &dtype) == NPY_FAIL) {
-            goto fail;
+            return -1;
         }
         rtypenums[0] = dtype->descr->type_num;
         Py_DECREF(dtype);
@@ -518,7 +513,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
         obj = NULL;
         key = PyInt_FromLong((long) userdef);
         if (key == NULL) {
-            goto fail;
+            return -1;
         }
         obj = PyDict_GetItem(self->userloops, key);
         Py_DECREF(key);
@@ -526,7 +521,7 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
             PyErr_SetString(PyExc_TypeError,
                             "user-defined type used in ufunc" \
                             " with no registered loops");
-            goto fail;
+            return -1;
         }
         /*
          * extract the correct function
@@ -554,12 +549,12 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
                     arg_types[i] = funcdata->arg_types[i];
                 }
                 Py_DECREF(obj);
-                goto finish;
+                return 0;
             }
             funcdata = funcdata->next;
         }
         PyErr_SetString(PyExc_TypeError, msg);
-        goto fail;
+        return -1;
     }
 
     /* look for match in self->functions */
@@ -583,18 +578,12 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
             for (i = 0; i < nargs; i++) {
                 arg_types[i] = self->types[j*nargs+i];
             }
-            goto finish;
+            return 0;
         }
     }
     PyErr_SetString(PyExc_TypeError, msg);
 
- fail:
-    _pya_free(rtypenums);
     return -1;
-
- finish:
-    _pya_free(rtypenums);
-    return 0;
 }
 
 
