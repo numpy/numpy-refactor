@@ -431,9 +431,9 @@ npy_tp_error_occurred NpyErr_Occurred;
 npy_tp_error_clear NpyErr_Clear;
 
 
-typedef double (*npy_tp_getpriority)(void *, double);
+typedef int (*npy_tp_cmp_priority)(void *, void *);
 
-npy_tp_getpriority Npy_GetPriority;
+npy_tp_cmp_priority Npy_CmpPriority;
 
 
 
