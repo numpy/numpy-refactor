@@ -336,17 +336,16 @@ static NpyArray *
 new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
                   int nd, npy_intp dimensions[], int typenum)
 {
-    NpyArray *ret;
     int tmp;
 
     /*
      * Need to choose an output array that can hold a sum
      */
     tmp = Npy_CmpPriority(Npy_INTERFACE(ap1), Npy_INTERFACE(ap2));
-    ret = NpyArray_New(NULL, nd, dimensions,
-                       typenum, NULL, NULL, 0, 0,
-                       Npy_INTERFACE(tmp ? ap2 : ap1));
-    return ret;
+
+    return NpyArray_New(NULL, nd, dimensions,
+                        typenum, NULL, NULL, 0, 0,
+                        Npy_INTERFACE(tmp ? ap2 : ap1));
 }
 
 
