@@ -18,12 +18,14 @@ extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
 void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
                   npy_tp_error_set error_set,
                   npy_tp_error_occurred error_occurred,
-                  npy_tp_error_clear error_clear)
+                  npy_tp_error_clear error_clear,
+                  npy_tp_getpriority getpriority)
 {
     _init_builtin_descr_wrappers(functionDefs);
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;
     NpyErr_Clear = error_clear;
+    Npy_GetPriority = getpriority;
 }
 
 
@@ -200,7 +202,9 @@ NpyArray_Free(NpyArray *ap, void *ptr)
         return -1;
     }
     if (ap->nd >= 2) {
-        NpyArray_free(ptr);     /* TODO: Notice lower case 'f' - points to define that translate to free or something. */
+        /* TODO: Notice lower case 'f' - points to define that translate to
+                 free or something. */
+        NpyArray_free(ptr);
     }
     _Npy_DECREF(ap);
     return 0;
@@ -338,12 +342,9 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
     /*
      * Need to choose an output array that can hold a sum
      */
-    if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
-        /* TODO: We can't get priority from the core object.
-           We need to refactor this and probably move this
-           funciton to the interface layer. */
-        prior2 = PyArray_GetPriority(Npy_INTERFACE(ap2), 0.0);
-        prior1 = PyArray_GetPriority(Npy_INTERFACE(ap1), 0.0);
+    if (Py_TYPE(Npy_INTERFACE(ap2)) != Py_TYPE(Npy_INTERFACE(ap1))) {
+        prior2 = Npy_GetPriority(Npy_INTERFACE(ap2), 0.0);
+        prior1 = Npy_GetPriority(Npy_INTERFACE(ap1), 0.0);
     }
     else {
         prior1 = prior2 = 0.0;

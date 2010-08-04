@@ -1179,27 +1179,13 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
     return ret;
 }
 
-static Py_ssize_t
-construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
-                 PyObject *typetup)
+static int
+convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 {
+    PyObject *obj, *context;
     Py_ssize_t nargs;
     int i;
-    int arg_types[NPY_MAXARGS];
-    PyArray_SCALARKIND scalars[NPY_MAXARGS];
-    PyArray_SCALARKIND maxarrkind, maxsckind, new;
-    PyUFuncObject *self = loop->ufunc;
-    Bool allscalars = TRUE;
-    PyTypeObject *subtype = &PyArray_Type;
-    PyObject *context = NULL;
-    PyObject *obj;
-    int flexible = 0;
-    int object = 0;
-
-    npy_intp temp_dims[NPY_MAXDIMS];
-    npy_intp *out_dims;
-    int out_nd;
-    PyObject *wraparr[NPY_MAXARGS];
+    int result;
 
     /* Check number of arguments */
     nargs = PyTuple_Size(args);
@@ -1208,10 +1194,13 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         return -1;
     }
 
-    /* Get each input argument */
-    maxarrkind = PyArray_NOSCALAR;
-    maxsckind = PyArray_NOSCALAR;
-    for(i = 0; i < self->nin; i++) {
+    /* Clear mps. */
+    for (i=0; i<self->nargs; i++) {
+        mps[i] = NULL;
+    }
+
+    /* Convert input arguments to arrays. */
+    for (i=0; i<self->nin; i++) {
         obj = PyTuple_GET_ITEM(args,i);
         if (!PyArray_Check(obj) && !PyArray_IsScalar(obj, Generic)) {
             context = Py_BuildValue("OOi", self, args, i);
@@ -1222,8 +1211,79 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
         mps[i] = (PyArrayObject *)PyArray_FromAny(obj, NULL, 0, 0, 0, context);
         Py_XDECREF(context);
         if (mps[i] == NULL) {
-            return -1;
+            result = -1;
+            goto fail;
         }
+    }
+
+
+    /* Get any return arguments */
+    for (i = self->nin; i < nargs; i++) {
+        obj = PyTuple_GET_ITEM(args, i);
+        if (obj == Py_None) {
+            mps[i] = NULL;
+        } else if (PyArray_Check(obj)) {
+            mps[i] = (PyArrayObject *)obj;
+            Py_INCREF(obj);
+        } else if (PyArrayIter_Check(obj)) {
+            PyObject *new = PyObject_CallMethod(obj, "__array__", NULL);
+            if (new == NULL) {
+                result = -1;
+                goto fail;
+            } else if (!PyArray_Check(new)) {
+                PyErr_SetString(PyExc_TypeError,
+                                "__array__ must return an array.");
+                Py_DECREF(new);
+                result = -1;
+                goto fail;
+            } else {
+                mps[i] = (PyArrayObject *)new;
+            }
+        } else {
+            PyErr_SetString(PyExc_TypeError,
+                            "return arrays must be "    \
+                            "of ArrayType");
+            result = -1;
+            goto fail;
+        }
+
+    }
+
+
+    return 0;
+
+ fail:
+    /* DECREF mps. */
+    for (i=0; i<self->nargs; i++) {
+        Py_XDECREF(mps[i]);
+        mps[i] = NULL;
+    }
+    return result;
+}
+
+static Py_ssize_t
+construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
+                 PyObject *typetup, 
+                 PyObject **prep_func, PyObject *prep_context)
+{
+    int i;
+    int arg_types[NPY_MAXARGS];
+    PyArray_SCALARKIND scalars[NPY_MAXARGS];
+    PyArray_SCALARKIND maxarrkind, maxsckind, new;
+    PyUFuncObject *self = loop->ufunc;
+    Bool allscalars = TRUE;
+    PyTypeObject *subtype = &PyArray_Type;
+    int flexible = 0;
+    int object = 0;
+
+    npy_intp temp_dims[NPY_MAXDIMS];
+    npy_intp *out_dims;
+    int out_nd;
+
+    /* Get each input argument */
+    maxarrkind = PyArray_NOSCALAR;
+    maxsckind = PyArray_NOSCALAR;
+    for(i = 0; i < self->nin; i++) {
         arg_types[i] = PyArray_TYPE(mps[i]);
         if (!flexible && NpyTypeNum_ISFLEXIBLE(arg_types[i])) {
             flexible = 1;
@@ -1279,24 +1339,6 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
                      &(loop->funcdata), scalars, typetup) == -1) {
         return -1;
     }
-    /*
-     * FAIL with NotImplemented if the other object has
-     * the __r<op>__ method and has __array_priority__ as
-     * an attribute (signalling it can handle ndarray's)
-     * and is not already an ndarray or a subtype of the same type.
-     */
-    if ((arg_types[1] == PyArray_OBJECT)
-        && (loop->ufunc->nin==2) && (loop->ufunc->nout == 1)) {
-        PyObject *_obj = PyTuple_GET_ITEM(args, 1);
-        if (!PyArray_CheckExact(_obj)
-            /* If both are same subtype of object arrays, then proceed */
-            && !(Py_TYPE(_obj) == Py_TYPE(PyTuple_GET_ITEM(args, 0)))
-            && PyObject_HasAttrString(_obj, "__array_priority__")
-            && _has_reflected_op(_obj, loop->ufunc->name)) {
-            loop->notimplemented = 1;
-            return nargs;
-        }
-    }
 
     /*
      * Create copies for some of the arrays if they are small
@@ -1350,30 +1392,6 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
 
     /* Get any return arguments */
     for (i = self->nin; i < nargs; i++) {
-        mps[i] = (PyArrayObject *)PyTuple_GET_ITEM(args, i);
-        if (((PyObject *)mps[i])==Py_None) {
-            mps[i] = NULL;
-            continue;
-        }
-        Py_INCREF(mps[i]);
-        if (!PyArray_Check((PyObject *)mps[i])) {
-            PyObject *new;
-            if (PyArrayIter_Check(mps[i])) {
-                new = PyObject_CallMethod((PyObject *)mps[i],
-                                          "__array__", NULL);
-                Py_DECREF(mps[i]);
-                mps[i] = (PyArrayObject *)new;
-            }
-            else {
-                PyErr_SetString(PyExc_TypeError,
-                                "return arrays must be "\
-                                "of ArrayType");
-                Py_DECREF(mps[i]);
-                mps[i] = NULL;
-                return -1;
-            }
-        }
-
         if (self->core_enabled) {
             if (_compute_dimension_size(loop, mps, i) < 0) {
                 return -1;
@@ -1489,39 +1507,21 @@ construct_arrays(PyUFuncLoopObject *loop, PyObject *args, PyArrayObject **mps,
 
     }
 
-    /*
-     * Use __array_prepare__ on all outputs
-     * if present on one of the input arguments.
-     * If present for multiple inputs:
-     * use __array_prepare__ of input object with largest
-     * __array_priority__ (default = 0.0)
-     *
-     * Exception:  we should not wrap outputs for items already
-     * passed in as output-arguments.  These items should either
-     * be left unwrapped or wrapped by calling their own __array_prepare__
-     * routine.
-     *
-     * For each output argument, wrap will be either
-     * NULL --- call PyArray_Return() -- default if no output arguments given
-     * None --- array-object passed in don't call PyArray_Return
-     * method --- the __array_prepare__ method to call.
-     */
-    _find_array_prepare(args, wraparr, loop->ufunc->nin, loop->ufunc->nout);
-
     /* wrap outputs */
     for (i = 0; i < loop->ufunc->nout; i++) {
         int j = loop->ufunc->nin+i;
         PyObject *wrap;
         PyObject *res;
-        wrap = wraparr[i];
+        wrap = prep_func[i];
         if (wrap != NULL) {
             if (wrap == Py_None) {
-                Py_DECREF(wrap);
                 continue;
             }
             res = PyObject_CallFunction(wrap, "O(OOi)",
-                        mps[j], loop->ufunc, args, i);
-            Py_DECREF(wrap);
+                                        mps[j], 
+                                        PyTuple_GET_ITEM(prep_context, 0),
+                                        PyTuple_GET_ITEM(prep_context, 1),
+                                        i);
             if ((res == NULL) || (res == Py_None)) {
                 if (!PyErr_Occurred()){
                     PyErr_SetString(PyExc_TypeError,
@@ -1868,7 +1868,9 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
 }
 
 static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObject **mps)
+construct_loop(PyUFuncObject *self, Py_ssize_t nargs, PyObject *kwds, 
+               PyArrayObject **mps, PyObject **prep_func,
+               PyObject *prep_context)
 {
     PyUFuncLoopObject *loop;
     int i;
@@ -1969,7 +1971,8 @@ construct_loop(PyUFuncObject *self, PyObject *args, PyObject *kwds, PyArrayObjec
     }
 
     /* Setup the arrays */
-    if (construct_arrays(loop, args, mps, typetup) < 0) {
+    if (construct_arrays(loop, nargs, mps, typetup, 
+                         prep_func, prep_context) < 0) {
         goto fail;
     }
     PyUFunc_clearfperr();
@@ -2057,10 +2060,56 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyUFuncLoopObject *loop;
     int i;
     NPY_BEGIN_THREADS_DEF;
+    PyObject *wraparr[NPY_MAXARGS];
+    PyObject *context = NULL;
+    Py_ssize_t nargs;
 
-    if (!(loop = construct_loop(self, args, kwds, mps))) {
+    /* Convert args to arrays in mps. */
+    if ((i=convert_args(self, args, mps)) < 0) {
+        return i;
+    }
+
+    nargs = PyTuple_Size(args);
+
+    /* Set up prepare functions. */
+    _find_array_prepare(args, wraparr, self->nin, self->nout);
+    context = Py_BuildValue("(OO)", self, args);
+
+    /* Build the loop. */
+    loop = construct_loop(self, nargs, kwds, mps, wraparr, context);
+
+    /* Clean up. */
+    if (context) {
+        for (i=0; i<nargs; i++) {
+            Py_XDECREF(wraparr);
+        }
+        Py_DECREF(context);
+    }
+
+    if (loop == NULL) {
         return -1;
     }
+
+    /*
+     * FAIL with NotImplemented if the other object has
+     * the __r<op>__ method and has __array_priority__ as
+     * an attribute (signalling it can handle ndarray's)
+     * and is not already an ndarray or a subtype of the same type.
+     */
+    if (self->nin == 2 && self->nout == 1 &&
+        PyArray_TYPE(mps[1]) == PyArray_OBJECT) {
+        PyObject *obj = PyTuple_GET_ITEM(args, 1);
+        if (!PyArray_CheckExact(obj)
+            /* If both are same subtype of object arrays, then proceed */
+            && !(Py_TYPE(obj) == Py_TYPE(PyTuple_GET_ITEM(args, 0)))
+            && PyObject_HasAttrString(obj, "__array_priority__")
+            && _has_reflected_op(obj, self->name)) {
+            /* Return -2 for notimplemented. */
+            ufuncloop_dealloc(loop);
+            return -2;
+        }
+    }
+
     if (loop->notimplemented) {
         ufuncloop_dealloc(loop);
         return -2;

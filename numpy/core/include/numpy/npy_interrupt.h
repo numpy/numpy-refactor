@@ -64,8 +64,8 @@ NPY_SIGINT_OFF
 
 In order for this to work correctly, the
 [code] block must not allocate any memory or alter the reference count of any
-Python objects.  In other words [code] must be interruptible so that continuation
-after NPY_SIGINT_OFF will only be "missing some computations"
+Python objects.  In other words [code] must be interruptible so that
+continuation after NPY_SIGINT_OFF will only be "missing some computations"
 
 Interrupt handling does not work well with threads.
 
@@ -97,15 +97,15 @@ Interrupt handling does not work well with threads.
 
 #endif
 
-#    define NPY_SIGINT_ON {                                             \
-                   PyOS_sighandler_t _npy_sig_save;                     \
-                   _npy_sig_save = PyOS_setsig(SIGINT, _PyArray_SigintHandler); \
-                   if (SIGSETJMP(*((SIGJMP_BUF *)_PyArray_GetSigintBuf()), \
-                                 1) == 0) {                             \
+#  define NPY_SIGINT_ON {                                                 \
+             PyOS_sighandler_t _npy_sig_save;                             \
+             _npy_sig_save = PyOS_setsig(SIGINT, _PyArray_SigintHandler); \
+             if (SIGSETJMP(*((SIGJMP_BUF *)_PyArray_GetSigintBuf()),      \
+                             1) == 0) {                                   \
 
-#    define NPY_SIGINT_OFF }                                      \
-        PyOS_setsig(SIGINT, _npy_sig_save);                       \
-        }
+#  define NPY_SIGINT_OFF }                                                \
+             PyOS_setsig(SIGINT, _npy_sig_save);                          \
+             }
 
 #else /* NPY_NO_SIGNAL  */
 
