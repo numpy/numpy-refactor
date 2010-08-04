@@ -2080,8 +2080,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
 
     /* Clean up. */
     if (context) {
-        for (i=0; i<nargs; i++) {
-            Py_XDECREF(wraparr);
+        for (i=0; i<self->nout; i++) {
+            Py_XDECREF(wraparr[i]);
         }
         Py_DECREF(context);
     }
