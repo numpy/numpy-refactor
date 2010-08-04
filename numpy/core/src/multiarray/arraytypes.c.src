@@ -1588,12 +1588,13 @@ OBJECT_fill(PyObject **buffer, intp length, void *NPY_UNUSED(ignored))
     intp i;
     PyObject *start = buffer[0];
     PyObject *delta = buffer[1];
+    PyObject *second;
 
     delta = PyNumber_Subtract(delta, start);
     if (!delta) {
         return;
     }
-    start = PyNumber_Add(start, delta);
+    second = start = PyNumber_Add(start, delta);
     if (!start) {
         goto finish;
     }
@@ -1609,6 +1610,7 @@ OBJECT_fill(PyObject **buffer, intp length, void *NPY_UNUSED(ignored))
     }
 
 finish:
+    Py_XDECREF(second);
     Py_DECREF(delta);
     return;
 }
@@ -1844,8 +1846,8 @@ set_typeinfo(PyObject *dict)
 }
 
 
-/* This structure stores pointers to all of the type conversion & boxing functions
-   that need to be provided to the core at initialization. */
+/* This structure stores pointers to all of the type conversion & boxing
+   functions that need to be provided to the core at initialization. */
 struct NpyArray_FunctionDefs _array_function_defs = {
     /**begin repeat
      *
@@ -1895,7 +1897,6 @@ struct NpyArray_FunctionDefs _array_function_defs = {
         /**end repeat**/
     },
 
-
     /* Fill in cast_from_string array */
     {
         /**begin repeat
@@ -1934,7 +1935,6 @@ struct NpyArray_FunctionDefs _array_function_defs = {
         (NpyArray_VectorUnaryFunc *)& VOID_to_@FROM@,
         /**end repeat**/
     },
-
 
     /* Fill in cast_to_obj array */
     {
@@ -1992,5 +1992,3 @@ struct NpyArray_FunctionDefs _array_function_defs = {
 
 
 #undef _MAX_LETTER
-
-

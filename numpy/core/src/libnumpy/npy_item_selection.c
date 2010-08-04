@@ -705,9 +705,10 @@ _new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
     elsize = op->descr->elsize;
     astride = op->strides[axis];
 
-    needcopy = !(op->flags & NPY_ALIGNED) || (astride != (npy_intp) elsize) || swap;
+    needcopy = !(op->flags & NPY_ALIGNED) || (astride != (npy_intp) elsize) ||
+                                                                         swap;
     if (needcopy) {
-        char *buffer = NpyDataMem_NEW(N*elsize);
+        char *buffer = NpyDataMem_NEW(N * elsize);
 
         while (size--) {
             _unaligned_strided_byte_copy(buffer, (npy_intp) elsize, it->dataptr,
@@ -789,8 +790,8 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
         valbuffer = NpyDataMem_NEW(N*elsize);
         indbuffer = NpyDataMem_NEW(N*sizeof(npy_intp));
         while (size--) {
-            _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize, it->dataptr,
-                                         astride, N, elsize);
+            _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize,
+                                         it->dataptr, astride, N, elsize);
             if (swap) {
                 _strided_byte_swap(valbuffer, (npy_intp) elsize, N, elsize);
             }
@@ -907,6 +908,7 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
     NpyArray *ap = NULL, *store_arr = NULL;
     char *ip;
     int i, n, m, elsize, orign;
+    char msg[1024];
 
     n = op->nd;
     if ((n == 0) || (NpyArray_SIZE(op) == 1)) {
@@ -916,7 +918,8 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
         axis += n;
     }
     if ((axis < 0) || (axis >= n)) {
-        NpyErr_Format(NpyExc_ValueError, "axis(=%d) out of bounds", axis);
+        sprintf(msg, "axis(=%d) out of bounds", axis);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         return -1;
     }
     if (!NpyArray_ISWRITEABLE(op)) {
@@ -1078,12 +1081,12 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
 }
 
 /*
- *LexSort an array providing indices that will sort a collection of arrays
- *lexicographically.  The first key is sorted on first, followed by the second key
- *-- requires that arg"merge"sort is available for each sort_key
+ * LexSort an array providing indices that will sort a collection of arrays
+ * lexicographically.  The first key is sorted on first, followed by the
+ * second key -- requires that arg"merge"sort is available for each sort_key
  *
- *Returns an index array that shows the indexes for the lexicographic sort along
- *the given axis.
+ * Returns an index array that shows the indexes for the lexicographic sort along
+ * the given axis.
  */
 NpyArray *
 NpyArray_LexSort(NpyArray** mps, int n, int axis)
@@ -1100,10 +1103,11 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     int object = 0;
     NpyArray_ArgSortFunc *argsort;
     NPY_BEGIN_THREADS_DEF;
+    char msg[1024];
 
-    its = (NpyArrayIterObject **) PyDataMem_NEW(n*sizeof(NpyArrayIterObject*));
+    its = (NpyArrayIterObject **) NpyDataMem_NEW(n*sizeof(NpyArrayIterObject*));
     if (its == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
     for (i = 0; i < n; i++) {
@@ -1121,8 +1125,8 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
             }
         }
         if (!mps[i]->descr->f->argsort[NPY_MERGESORT]) {
-            NpyErr_Format(NpyExc_TypeError,
-                         "merge sort not available for item %d", i);
+            sprintf(msg, "merge sort not available for item %d", i);
+            NpyErr_SetString(NpyExc_TypeError, msg);
             goto fail;
         }
         /* XXX: What do we do about this NPY_NEEDS_PYAPI? */
@@ -1155,8 +1159,8 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
         axis += nd;
     }
     if ((axis < 0) || (axis >= nd)) {
-        NpyErr_Format(NpyExc_ValueError,
-                "axis(=%d) out of bounds", axis);
+        sprintf(msg, "axis(=%d) out of bounds", axis);
+        NpyErr_SetString(NpyExc_ValueError, msg);
         goto fail;
     }
 
@@ -1209,7 +1213,8 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
                 astride = mps[j]->strides[axis];
                 argsort = mps[j]->descr->f->argsort[NPY_MERGESORT];
                 _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize,
-                                             its[j]->dataptr, astride, N, elsize);
+                                             its[j]->dataptr, astride,
+                                             N, elsize);
                 if (swaps[j]) {
                     _strided_byte_swap(valbuffer, (npy_intp) elsize, N, elsize);
                 }
@@ -1355,8 +1360,6 @@ local_search_right(NpyArray *arr, NpyArray *key, NpyArray *ret)
         pkey += elsize;
     }
 }
-
-
 
 
 /*

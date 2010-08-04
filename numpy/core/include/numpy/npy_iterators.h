@@ -14,7 +14,7 @@ typedef char* (*npy_iter_get_dataptr_t)(NpyArrayIterObject* iter, npy_intp*);
 struct NpyArrayIterObject {
         NpyObject_HEAD
         int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
-    
+
         int               nd_m1;            /* number of dimensions - 1 */
         npy_intp          index, size;
         npy_intp          coordinates[NPY_MAXDIMS];/* N-dimensional loop */
@@ -311,7 +311,7 @@ enum {
 typedef struct {
     NpyObject_HEAD
     int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
-    
+
     /*
      * NpyArrayIterObject part: keep this in this exact order
      */

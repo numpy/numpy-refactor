@@ -1736,7 +1736,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
     PyObject *obj;
     int ret;
 
-    if (_safe_ceil_to_intp((stop - start)/step, &length)) {
+    if (_safe_ceil_to_intp((stop - start) / step, &length)) {
         PyErr_SetString(PyExc_OverflowError,
                 "arange: overflow while computing length");
     }
@@ -1767,7 +1767,7 @@ PyArray_Arange(double start, double stop, double step, int type_num)
         return range;
     }
     obj = PyFloat_FromDouble(start + step);
-    ret = funcs->setitem(obj, PyArray_BYTES(range)+PyArray_ITEMSIZE(range),
+    ret = funcs->setitem(obj, PyArray_BYTES(range) + PyArray_ITEMSIZE(range),
                          PyArray_ARRAY(range));
     Py_DECREF(obj);
     if (ret < 0) {
@@ -2031,10 +2031,14 @@ NPY_NO_EXPORT PyObject *
 PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 {
     PyArrayObject *ret;
-
-    ASSIGN_TO_PYARRAY(
-        ret,
-        NpyArray_FromTextFile(fp, dtype->descr, num, sep));
+    
+    if (dtype == NULL) {
+        return NULL;
+    }
+    _Npy_INCREF(dtype->descr);
+    ASSIGN_TO_PYARRAY(ret,
+                      NpyArray_FromTextFile(fp, dtype->descr, num, sep));
+    Py_XDECREF(dtype);
 
     return (PyObject *)ret;
 }
@@ -2229,13 +2233,15 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
 
     if (dtype == NULL) {
         dtype = PyArray_DescrFromType(PyArray_DEFAULT);
+        if (dtype == NULL) {
+            return NULL;
+        }
     }
+    _Npy_INCREF(dtype->descr);
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_FromString(data, slen, dtype->descr, num, sep));
-    if (ret == NULL) {
-        Py_DECREF(dtype);
-        return NULL;
-    }
+    Py_XDECREF(dtype);
+
     return (PyObject *)ret;
 }
 

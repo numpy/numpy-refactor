@@ -6,7 +6,8 @@
 
 struct NpyArray {
     NpyObject_HEAD
-    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
+    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization
+                               and NPY_INVALID_MAGIC on dealloc */
     char *data;             /* pointer to raw data buffer */
     int nd;                 /* number of dimensions, also called ndim */
     npy_intp *dimensions;   /* size in each dimension */
@@ -16,7 +17,7 @@ struct NpyArray {
                              */
     struct NpyArray *base_arr; /* Base when it's specifically an array object */
     void *base_obj;         /* Base when it's an opaque interface object */
-    
+
     struct NpyArray_Descr *descr;   /* Pointer to type structure */
     int flags;              /* Flags describing array -- see below */
 };
@@ -40,14 +41,14 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 
 
 #define NpyArray_NDIM(obj) ((obj)->nd)
-#define NpyArray_ISONESEGMENT(m) (NpyArray_NDIM(m) == 0 ||              \
-                                 NpyArray_CHKFLAGS(m, NPY_CONTIGUOUS) || \
+#define NpyArray_ISONESEGMENT(m) (NpyArray_NDIM(m) == 0 ||                \
+                                 NpyArray_CHKFLAGS(m, NPY_CONTIGUOUS) ||  \
                                  NpyArray_CHKFLAGS(m, NPY_FORTRAN))
 
-#define NpyArray_ISFORTRAN(m) (NpyArray_CHKFLAGS(m, NPY_FORTRAN) &&     \
+#define NpyArray_ISFORTRAN(m) (NpyArray_CHKFLAGS(m, NPY_FORTRAN) &&       \
                                (NpyArray_NDIM(m) > 1))
 
-#define NpyArray_FORTRAN_IF(m) ((NpyArray_CHKFLAGS(m, NPY_FORTRAN) ?     \
+#define NpyArray_FORTRAN_IF(m) ((NpyArray_CHKFLAGS(m, NPY_FORTRAN) ?      \
                                  NPY_FORTRAN : 0))
 
 #define NpyArray_DATA(obj) ((void *)((obj)->data))
@@ -63,17 +64,8 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_BASE_ARRAY(obj) ((obj)->base_arr)
 #define NpyArray_BASE(obj) ((obj)->base_obj)
 
-#define NpyArray_GETITEM(obj,itemptr)                           \
-        (obj)->descr->f->getitem((char *)(itemptr),             \
-                                 (PyArrayObject *)(obj))
-
-#define NpyArray_SETITEM(obj,itemptr,v)                         \
-        (obj)->descr->f->setitem((PyObject *)(v),               \
-                                 (char *)(itemptr),             \
-                                 (obj))
-
-
-#define NpyArray_SIZE(m) NpyArray_MultiplyList(NpyArray_DIMS(m), NpyArray_NDIM(m))
+#define NpyArray_SIZE(m) NpyArray_MultiplyList(NpyArray_DIMS(m),    \
+                                               NpyArray_NDIM(m))
 #define NpyArray_NBYTES(m) (NpyArray_ITEMSIZE(m) * NpyArray_SIZE(m))
 
 #define NpyArray_SAMESHAPE(a1,a2) ((NpyArray_NDIM(a1) == NpyArray_NDIM(a2)) && \
@@ -106,13 +98,14 @@ int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
      */
 #define NpyArray_ISVARIABLE(obj) NpyTypeNum_ISFLEXIBLE(NpyArray_TYPE(obj))
 
-#define NpyArray_SAFEALIGNEDCOPY(obj) (NpyArray_ISALIGNED(obj) && !NpyArray_ISVARIABLE(obj))
+#define NpyArray_SAFEALIGNEDCOPY(obj) (NpyArray_ISALIGNED(obj) &&      \
+                                       !NpyArray_ISVARIABLE(obj))
 
 
 #define NpyArray_ISNOTSWAPPED(m) NpyArray_ISNBO(NpyArray_DESCR(m)->byteorder)
 #define NpyArray_ISBYTESWAPPED(m) (!NpyArray_ISNOTSWAPPED(m))
 
-#define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&       \
+#define NpyArray_FLAGSWAP(m, flags) (NpyArray_CHKFLAGS(m, flags) &&     \
                                     NpyArray_ISNOTSWAPPED(m))
 
 #define NpyArray_ISCARRAY(m) NpyArray_FLAGSWAP(m, NPY_CARRAY)

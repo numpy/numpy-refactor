@@ -3,7 +3,7 @@
 
 #include "npy_defs.h"
 
-/* Simple object model for numpy objects. 
+/* Simple object model for numpy objects.
    This is similar to the Python object model. */
 
 typedef struct _NpyObject _NpyObject;
@@ -32,7 +32,7 @@ struct _NpyObject {
                 NpyInterface_Incref(Npy_INTERFACE(a));                \
             (a)->nob_refcnt++;                                        \
        } while(0)                                                     \
-        
+
 
 #define _Npy_DECREF(a)                                          \
         if (--(a)->nob_refcnt == 0) {                           \

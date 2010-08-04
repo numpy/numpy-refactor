@@ -13,14 +13,20 @@
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
 
 
-
-/* Initializes the library at startup.  This functions must be called exactly once
-   by the interface layer.*/
-void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs)
+/* Initializes the library at startup.
+   This functions must be called exactly once by the interface layer.*/
+void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
+                  npy_tp_error_set error_set,
+                  npy_tp_error_occurred error_occurred,
+                  npy_tp_error_clear error_clear,
+                  npy_tp_cmp_priority cmp_priority)
 {
     _init_builtin_descr_wrappers(functionDefs);
+    NpyErr_SetString = error_set;
+    NpyErr_Occurred = error_occurred;
+    NpyErr_Clear = error_clear;
+    Npy_CmpPriority = cmp_priority;
 }
-
 
 
 /*NUMPY_API
@@ -196,7 +202,9 @@ NpyArray_Free(NpyArray *ap, void *ptr)
         return -1;
     }
     if (ap->nd >= 2) {
-        NpyArray_free(ptr);     /* TODO: Notice lower case 'f' - points to define that translate to free or something. */
+        /* TODO: Notice lower case 'f' - points to define that translate to
+                 free or something. */
+        NpyArray_free(ptr);
     }
     _Npy_DECREF(ap);
     return 0;
@@ -329,25 +337,15 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
                   int nd, npy_intp dimensions[], int typenum)
 {
     NpyArray *ret;
-    double prior1, prior2;
+    int tmp;
 
     /*
      * Need to choose an output array that can hold a sum
      */
-    if (Py_TYPE(ap2) != Py_TYPE(ap1)) {
-        /* TODO: We can't get priority from the core object.
-           We need to refactor this and probably move this
-           funciton to the interface layer. */
-        prior2 = PyArray_GetPriority(Npy_INTERFACE(ap2), 0.0);
-        prior1 = PyArray_GetPriority(Npy_INTERFACE(ap1), 0.0);
-    }
-    else {
-        prior1 = prior2 = 0.0;
-    }
-
+    tmp = Npy_CmpPriority(Npy_INTERFACE(ap1), Npy_INTERFACE(ap2));
     ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
-                       Npy_INTERFACE(prior2 > prior1 ? ap2 : ap1));
+                       Npy_INTERFACE(tmp ? ap2 : ap1));
     return ret;
 }
 
@@ -426,7 +424,7 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     return ret;
 
  fail:
-    Py_XDECREF(ret);
+    _Npy_DECREF(ret);
     return NULL;
 }
 
@@ -516,7 +514,7 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     NPY_END_THREADS_DESCR(ap2->descr);
     _Npy_DECREF(it1);
     _Npy_DECREF(it2);
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         goto fail;
     }
     return ret;
@@ -683,7 +681,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     }
 
     NPY_END_THREADS_DESCR(NpyArray_DESCR(ret));
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         goto clean_ret;
     }
 

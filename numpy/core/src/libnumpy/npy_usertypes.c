@@ -48,10 +48,10 @@ castfuncs_append(NpyArray_CastFuncsItem* items,
         n++;
     }
     items = (NpyArray_CastFuncsItem *)
-        realloc(items, (n + 2)*sizeof(NpyArray_CastFuncsItem));
+        realloc(items, (n + 2) * sizeof(NpyArray_CastFuncsItem));
     items[n].totype = totype;
     items[n].castfunc = func;
-    items[n+1].totype = NPY_NOTYPE;
+    items[n + 1].totype = NPY_NOTYPE;
 
     return items;
 }
@@ -65,7 +65,7 @@ _append_new(int *types, int insert)
     while (types[n] != NPY_NOTYPE) {
         n++;
     }
-    newtypes = (int *)realloc(types, (n + 2)*sizeof(int));
+    newtypes = (int *)realloc(types, (n + 2) * sizeof(int));
     newtypes[n] = insert;
     newtypes[n + 1] = NPY_NOTYPE;
     return newtypes;
@@ -163,7 +163,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
     typenum = NPY_USERDEF + NPY_NUMUSERTYPES;
     descr->type_num = typenum;
     if (descr->elsize == 0) {
-        NpyErr_SetString(NpyExc_ValueError, "cannot register a" \
+        NpyErr_SetString(NpyExc_ValueError, "cannot register a"
                          "flexible data-type");
         return -1;
     }
@@ -176,7 +176,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
     }
     if (f->copyswap == NULL || f->getitem == NULL ||
         f->setitem == NULL) {
-        NpyErr_SetString(NpyExc_ValueError, "a required array function"   \
+        NpyErr_SetString(NpyExc_ValueError, "a required array function"
                          " is missing.");
         return -1;
     }
@@ -187,7 +187,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
         return -1;
     } */
     npy_userdescrs = realloc(npy_userdescrs,
-                             (NPY_NUMUSERTYPES+1)*sizeof(void *));
+                             (NPY_NUMUSERTYPES + 1) * sizeof(void *));
     if (npy_userdescrs == NULL) {
         NpyErr_SetString(NpyExc_MemoryError, "RegisterDataType");
         return -1;
@@ -229,7 +229,7 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
  */
 int
 NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
-                        NPY_SCALARKIND scalar)
+                         NPY_SCALARKIND scalar)
 {
     if (scalar == NPY_NOSCALAR) {
         /*
@@ -238,27 +238,25 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
          * -- they become part of the data-type
          */
         if (descr->f->cancastto == NULL) {
-            descr->f->cancastto = (int *)NpyArray_malloc(1*sizeof(int));
+            descr->f->cancastto = (int *)NpyArray_malloc(1 * sizeof(int));
             descr->f->cancastto[0] = NPY_NOTYPE;
         }
-        descr->f->cancastto = _append_new(descr->f->cancastto,
-                                          totype);
+        descr->f->cancastto = _append_new(descr->f->cancastto, totype);
     }
     else {
         /* register with cancastscalarkindto */
         if (descr->f->cancastscalarkindto == NULL) {
             int i;
             descr->f->cancastscalarkindto =
-                (int **)NpyArray_malloc(NPY_NSCALARKINDS* sizeof(int*));
+                (int **)NpyArray_malloc(NPY_NSCALARKINDS * sizeof(int *));
             for (i = 0; i < NPY_NSCALARKINDS; i++) {
                 descr->f->cancastscalarkindto[i] = NULL;
             }
         }
         if (descr->f->cancastscalarkindto[scalar] == NULL) {
             descr->f->cancastscalarkindto[scalar] =
-                (int *)NpyArray_malloc(1*sizeof(int));
-            descr->f->cancastscalarkindto[scalar][0] =
-                NPY_NOTYPE;
+                (int *)NpyArray_malloc(1 * sizeof(int));
+            descr->f->cancastscalarkindto[scalar][0] = NPY_NOTYPE;
         }
         descr->f->cancastscalarkindto[scalar] =
             _append_new(descr->f->cancastscalarkindto[scalar], totype);

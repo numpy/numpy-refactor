@@ -6,7 +6,8 @@ parse_subindex(PyObject *op, intp *step_size, intp *n_steps, intp max);
 
 NPY_NO_EXPORT int
 parse_index(PyArrayObject *self, PyObject *op,
-            intp *dimensions, intp *strides, intp *offset_ptr);
+            intp *dimensions, intp *strides, intp *offset_ptr,
+            int* axismap, intp* starts);
 
 NPY_NO_EXPORT PyObject
 *iter_subscript(PyArrayIterObject *, PyObject *);

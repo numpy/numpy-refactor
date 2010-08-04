@@ -62,7 +62,7 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
 {
     NpyArray *new;
     npy_intp numbytes = 0, offset = 0;
-    Py_ssize_t buf_len;
+    ssize_t buf_len;
     char *buf;
 
     if (newstrides->len != NpyArray_NDIM(self)) {
@@ -85,7 +85,7 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
         numbytes = buf_len - offset;
     }
     else {
-        PyErr_Clear();
+        NpyErr_Clear();
         numbytes = NpyArray_MultiplyList(
                        NpyArray_DIMS(new),
                        NpyArray_NDIM(new)) * NpyArray_ITEMSIZE(new);

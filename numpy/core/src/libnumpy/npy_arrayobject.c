@@ -101,11 +101,13 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
 
 
 /* Deallocs & destroy's the array object. */
-/* TODO: For now caller is expected to call _array_dealloc_buffer_info and clear weak refs.  Need to revisit. */
+/* TODO: For now caller is expected to call _array_dealloc_buffer_info
+         and clear weak refs.  Need to revisit. */
 void
 NpyArray_dealloc(NpyArray *self) {
     assert(NPY_VALID_MAGIC == self->magic_number);
-    assert(NULL == self->base_arr || NPY_VALID_MAGIC == self->base_arr->magic_number);
+    assert(NULL == self->base_arr ||
+           NPY_VALID_MAGIC == self->base_arr->magic_number);
 
     if (self->base_arr) {
         /*
@@ -120,7 +122,7 @@ NpyArray_dealloc(NpyArray *self) {
             self->base_arr->flags |= NPY_WRITEABLE;
             _Npy_INCREF(self); /* hold on to self in next call */
             if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
-                NpyErr_Print();
+                /* NpyErr_Print(); */
                 NpyErr_Clear();
             }
             /*
@@ -169,7 +171,8 @@ NpyArray_dealloc(NpyArray *self) {
 
     NpyDimMem_FREE(self->dimensions);
     _Npy_DECREF(self->descr);
-    self->magic_number = NPY_INVALID_MAGIC;   /* Flag that this object is now deallocated. */
+    /* Flag that this object is now deallocated. */
+    self->magic_number = NPY_INVALID_MAGIC;
 
     NpyArray_free(self);
 }
