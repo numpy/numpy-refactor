@@ -19,13 +19,13 @@ void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
                   npy_tp_error_set error_set,
                   npy_tp_error_occurred error_occurred,
                   npy_tp_error_clear error_clear,
-                  npy_tp_getpriority getpriority)
+                  npy_tp_cmp_priority cmp_priority)
 {
     _init_builtin_descr_wrappers(functionDefs);
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;
     NpyErr_Clear = error_clear;
-    Npy_GetPriority = getpriority;
+    Npy_CmpPriority = cmp_priority;
 }
 
 
@@ -337,22 +337,15 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
                   int nd, npy_intp dimensions[], int typenum)
 {
     NpyArray *ret;
-    double prior1, prior2;
+    int tmp;
 
     /*
      * Need to choose an output array that can hold a sum
      */
-    if (Py_TYPE(Npy_INTERFACE(ap2)) != Py_TYPE(Npy_INTERFACE(ap1))) {
-        prior2 = Npy_GetPriority(Npy_INTERFACE(ap2), 0.0);
-        prior1 = Npy_GetPriority(Npy_INTERFACE(ap1), 0.0);
-    }
-    else {
-        prior1 = prior2 = 0.0;
-    }
-
+    tmp = Npy_CmpPriority(Npy_INTERFACE(ap1), Npy_INTERFACE(ap2));
     ret = NpyArray_New(NULL, nd, dimensions,
                        typenum, NULL, NULL, 0, 0,
-                       Npy_INTERFACE(prior2 > prior1 ? ap2 : ap1));
+                       Npy_INTERFACE(tmp ? ap2 : ap1));
     return ret;
 }
 
