@@ -1,6 +1,9 @@
 #ifndef _NPY_ARRAYDESCR_H_
 #define _NPY_ARRAYDESCR_H_
 
+#include <numpy/npy_dict.h>
+
+
 NPY_NO_EXPORT PyObject *npy_arraydescr_protocol_typestr_get(NpyArray_Descr *);
 NPY_NO_EXPORT PyObject *arraydescr_protocol_typestr_get(PyArray_Descr *);
 NPY_NO_EXPORT PyObject *npy_arraydescr_protocol_descr_get(NpyArray_Descr *self);

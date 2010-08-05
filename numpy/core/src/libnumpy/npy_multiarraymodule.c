@@ -10,6 +10,7 @@
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_arrayobject.h"
+#include "numpy/npy_dict.h"
 
 
 /* TODO: Yuck, global variable, need accessor. */

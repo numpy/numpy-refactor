@@ -21,12 +21,32 @@
 #define PY_SSIZE_T_CLEAN
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_dict.h"
 
 
 static int pointercmp(const void *pointer1, const void *pointer2);
 static unsigned long pointerHashFunction(const void *pointer);
 static int isProbablePrime(long number);
-static long calculateIdealNumOfBuckets(NpyDict *hashTable);
+static long calculateIdealNumOfBuckets(struct NpyDict_struct *hashTable);
+
+struct NpyDict_KVPair_struct {
+    const void *key;
+    void *value;
+    struct NpyDict_KVPair_struct *next;
+};
+
+struct NpyDict_struct {
+    long numOfBuckets;
+    long numOfElements;
+    NpyDict_KVPair **bucketArray;
+    float idealRatio, lowerRehashThreshold, upperRehashThreshold;
+    int (*keycmp)(const void *key1, const void *key2);
+    int (*valuecmp)(const void *value1, const void *value2);
+    unsigned long (*hashFunction)(const void *key);
+    void (*keyDeallocator)(void *key);
+    void (*valueDeallocator)(void *value);
+};
+
 
 /*--------------------------------------------------------------------------*\
  *  NAME:
@@ -407,6 +427,36 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
 }
 
 
+
+/*--------------------------------------------------------------------------*\
+ *  NAME:
+ *      NpyDict_ForceValue() - re-sets the value for a key & skips any value 
+ *                             destruction.
+ *  DESCRIPTION:
+ *      Directly overwrites the value for an existing key skipping all safety
+ *      checks like making sure the prior value is cleaned up. Useful for
+ *      modifying a linked-list or something.
+ *
+ *      If the key doesn't already exist, nothing is modified.
+ *  EFFICIENCY:
+ *      O(1), assuming a good hash function and element-to-bucket ratio
+ *  ARGUMENTS:
+ *      hashTable    - the HashTable to search
+ *      key          - the key whose value is desired
+ *      value        - the new value
+ \*--------------------------------------------------------------------------*/
+
+void
+NpyDict_ForceValue(NpyDict *hashTable, const void *key, void *value)
+{
+    long hashValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
+    NpyDict_KVPair *pair = hashTable->bucketArray[hashValue];
+    
+    while (pair != NULL && hashTable->keycmp(key, pair->key) != 0)
+        pair = pair->next;
+
+    if (NULL != pair) pair->value = value;
+}
 
 
 /*--------------------------------------------------------------------------*\

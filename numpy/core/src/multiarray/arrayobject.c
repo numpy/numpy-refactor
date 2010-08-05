@@ -31,6 +31,7 @@ maintainer email:  oliphant.travis@ieee.org
 #include "numpy/arrayscalars.h"
 #include "numpy/ndarraytypes.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_dict.h"
 
 #include "npy_config.h"
 

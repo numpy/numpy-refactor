@@ -1,8 +1,9 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #define _MULTIARRAYMODULE
-#include <numpy/ndarrayobject.h>
 #include <numpy/numpy_api.h>
+#include <numpy/npy_dict.h>
+#include <numpy/ndarrayobject.h>
 
 #include "npy_config.h"
 

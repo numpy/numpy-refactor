@@ -8,6 +8,7 @@
 #include "numpy/arrayobject.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_iterators.h"
+#include "numpy/npy_dict.h"
 
 #include "common.h"
 #include "ctors.h"

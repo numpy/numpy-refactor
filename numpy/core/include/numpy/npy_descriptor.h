@@ -11,6 +11,7 @@
     NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
 
 
+struct NpyDict_struct;
 
 
 /*

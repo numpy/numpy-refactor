@@ -9,6 +9,7 @@
 #include <strings.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_dict.h"
 
 
 /* Incref all objects found at this record */
