@@ -78,6 +78,8 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
         new = NpyArray_BASE_ARRAY(new);
     }
 
+#if 0
+    /* TODO: Fix this so we can set strides on a buffer-backed array. */
     /* Get the available memory through the buffer interface on
      * new->base or if that fails from the current new
      * NOTE: PyObject_AsReadBuffer is never called during tests */
@@ -87,6 +89,13 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
         offset = NpyArray_BYTES(self) - buf;
         numbytes = buf_len - offset;
     }
+#else
+    if (new->base_obj != NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "strides cannot be set on array created from a buffer.");
+        return -1;
+    }
+#endif
     else {
         NpyErr_Clear();
         numbytes = NpyArray_MultiplyList(

@@ -1,8 +1,7 @@
 import os
 import genapi
 
-from genapi import \
-        TypeApi, GlobalVarApi, FunctionApi, BoolValuesApi
+from genapi import TypeApi, GlobalVarApi, FunctionApi, BoolValuesApi
 
 import numpy_api
 
