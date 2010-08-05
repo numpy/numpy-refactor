@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <numpy/npy_common.h>
 #include <numpy/npy_endian.h>
+#include <pyconfig.h>
 
 
 /*
