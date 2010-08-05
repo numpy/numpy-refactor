@@ -164,7 +164,9 @@ NpyArray_dealloc(NpyArray *self)
              * Don't need to DECREF -- because we are deleting
              * self already...
              */
-            result = 1;
+            if (self->nob_refcnt == 1) {
+                result = 1;
+            }
         }
         NpyDataMem_FREE(self->data);
     }
