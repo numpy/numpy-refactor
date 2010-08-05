@@ -26,4 +26,14 @@ slice_GetIndices(PySliceObject *r, intp length,
                  intp *start, intp *stop, intp *step,
                  intp *slicelength);
 
+NPY_NO_EXPORT int
+NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
+
+NPY_NO_EXPORT int
+NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet);
+
+NPY_NO_EXPORT int
+NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter, void **interfaceRet);
+
+
 #endif

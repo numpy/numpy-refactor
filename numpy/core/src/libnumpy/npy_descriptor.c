@@ -12,6 +12,7 @@
 #include "numpy/npy_object.h"
 #include "numpy/npy_arrayobject.h"
 #include "numpy/npy_dict.h"
+#include "npy_internal.h"
 
 
 #if !defined(MAX)

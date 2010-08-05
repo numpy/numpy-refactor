@@ -1875,10 +1875,7 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
 }
 
 static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self, Py_ssize_t nargs, 
-               PyObject *extobj, int *rtypenums,
-               PyArrayObject **mps, PyObject **prep_func,
-               PyObject *prep_context)
+construct_loop(PyUFuncObject *self)
 {
     PyUFuncLoopObject *loop;
     int i;
@@ -1898,7 +1895,7 @@ construct_loop(PyUFuncObject *self, Py_ssize_t nargs,
         _pya_free(loop);
         return NULL;
     }
-    
+
     loop->iter->index = 0;
     loop->iter->numiter = self->nargs;
     loop->ufunc = self;
@@ -1931,27 +1928,6 @@ construct_loop(PyUFuncObject *self, Py_ssize_t nargs,
     }
     name = self->name ? self->name : "";
 
-    if (extobj == NULL) {
-        if (PyUFunc_GetPyValues(name,
-                                &(loop->bufsize), &(loop->errormask),
-                                &(loop->errobj)) < 0) {
-            goto fail;
-        }
-    }
-    else {
-        if (_extract_pyvals(extobj, name,
-                            &(loop->bufsize), &(loop->errormask),
-                            &(loop->errobj)) < 0) {
-            goto fail;
-        }
-    }
-
-    /* Setup the arrays */
-    if (construct_arrays(loop, nargs, mps, rtypenums, 
-                         prep_func, prep_context) < 0) {
-        goto fail;
-    }
-    PyUFunc_clearfperr();
     return loop;
 
 fail:
@@ -2043,6 +2019,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyObject *typetup = NULL;
     int typenumbuf[NPY_MAXARGS];
     int *rtypenums;
+    int res;
+    char* name = self->name ? self->name : "";
 
     /*
      * Extract sig= keyword and extobj= keyword if present.
@@ -2058,7 +2036,7 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
             if (keystring == NULL) {
                 PyErr_Clear();
                 PyErr_SetString(PyExc_TypeError, "invalid keyword");
-                goto fail;
+                return -1;
             }
             if (strncmp(keystring,"extobj",6) == 0) {
                 extobj = value;
@@ -2068,9 +2046,8 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
             }
             else {
                 char *format = "'%s' is an invalid keyword to %s";
-                PyErr_Format(PyExc_TypeError,format,keystring, 
-                             self->name ? self->name : "");
-                goto fail;
+                PyErr_Format(PyExc_TypeError,format,keystring, name);
+                return -1;
             }
         }
     }
@@ -2084,22 +2061,49 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     } else {
         rtypenums = NULL;
     }
+    Py_XDECREF(typetup);
 
     /* Convert args to arrays in mps. */
     if ((i=convert_args(self, args, mps)) < 0) {
         return i;
     }
 
-    nargs = PyTuple_Size(args);
+    /* Build the loop. */
+    loop = construct_loop(self);
+    if (loop == NULL) {
+        return -1;
+    }
+
+    /* Setup error handling. */
+    if (extobj == NULL) {
+        if (PyUFunc_GetPyValues(name,
+                                &(loop->bufsize), &(loop->errormask),
+                                &(loop->errobj)) < 0) {
+            ufuncloop_dealloc(loop);
+            return -1;
+        }
+    }
+    else {
+        res =_extract_pyvals(extobj, name,
+                             &(loop->bufsize), &(loop->errormask),
+                             &(loop->errobj));
+        Py_DECREF(extobj);
+        if (res < 0) {
+            ufuncloop_dealloc(loop);
+            return -1;
+        }
+    }
+    PyUFunc_clearfperr();
+
 
     /* Set up prepare functions. */
+    nargs = PyTuple_Size(args);
     _find_array_prepare(args, wraparr, self->nin, self->nout);
     context = Py_BuildValue("(OO)", self, args);
 
-    /* Build the loop. */
-    loop = construct_loop(self, nargs, extobj, rtypenums, mps, 
-                          wraparr, context);
-
+    /* Setup the arrays */
+    res = construct_arrays(loop, nargs, mps, rtypenums, 
+                           wraparr, context);
     /* Clean up. */
     if (context) {
         for (i=0; i<self->nout; i++) {
@@ -2107,10 +2111,9 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
         }
         Py_DECREF(context);
     }
-    Py_XDECREF(extobj);
-    Py_XDECREF(typetup);
 
-    if (loop == NULL) {
+    if (res < 0) {
+        ufuncloop_dealloc(loop);
         return -1;
     }
 

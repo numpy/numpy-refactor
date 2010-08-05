@@ -11,6 +11,7 @@
 #include "numpy/numpy_api.h"
 #include "numpy/npy_arrayobject.h"
 #include "numpy/npy_dict.h"
+#include "npy_internal.h"
 
 
 /* TODO: Yuck, global variable, need accessor. */
@@ -20,19 +21,36 @@ int NPY_NUMUSERTYPES = 0;
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
 
 
+npy_interface_incref _NpyInterface_Incref = NULL;
+npy_interface_decref _NpyInterface_Decref = NULL;
+struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
+};
+
+
 /* Initializes the library at startup.
    This functions must be called exactly once by the interface layer.*/
 void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
+                  struct NpyInterface_WrapperFuncs *wrapperFuncs,
                   npy_tp_error_set error_set,
                   npy_tp_error_occurred error_occurred,
                   npy_tp_error_clear error_clear,
-                  npy_tp_cmp_priority cmp_priority)
+                  npy_tp_cmp_priority cmp_priority,
+                  npy_interface_incref incref, npy_interface_decref decref)
 {
-    _init_builtin_descr_wrappers(functionDefs);
+    if (NULL != wrapperFuncs) {
+        memmove(&_NpyArrayWrapperFuncs, wrapperFuncs, sizeof(struct NpyInterface_WrapperFuncs));
+    }
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;
     NpyErr_Clear = error_clear;
     Npy_CmpPriority = cmp_priority;
+    
+    _NpyInterface_Incref = incref;
+    _NpyInterface_Decref = decref;
+
+    /* Must be last because it uses some of the above functions. */
+    _init_builtin_descr_wrappers(functionDefs);
 }
 
 

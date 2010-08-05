@@ -50,26 +50,6 @@ extern struct NpyArray_Descr **npy_userdescrs;
 
 
 
-/*
- * External interface-provided functions
- */
-void NpyInterface_Incref(void *);
-void NpyInterface_Decref(void *);
-void NpyInterface_XDecref(void *);
-int NpyInterface_ArrayNewWrapper(NpyArray *newArray, int ensureArray,
-                                 int customStrides, void *subtype,
-                                 void *interfaceData, void **interfaceRet);
-int NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet);
-int NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter,
-                                     void **interfaceRet);
-int NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter,
-                                            void **interfaceRet);
-int NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter,
-                                   void **interfaceRet);
-int NpyInterface_DescrNewFromType(int type, struct NpyArray_Descr *descr,
-                                  void **interfaceRet);
-int NpyInterface_DescrNewFromWrapper(void *base, struct NpyArray_Descr *descr,
-                                     void **interfaceRet);
 
 
 /*
@@ -179,6 +159,11 @@ void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr);
 void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
+int
+NpyArray_INCREF(NpyArray *arr);
+int
+NpyArray_XDECREF(NpyArray *arr);
+
 
 #define NpyArray_ContiguousFromArray(op, type)                  \
     NpyArray_FromArray(op, NpyArray_DescrFromType(type),        \
@@ -186,6 +171,8 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
 
 #define NpyArray_EquivArrTypes(a1, a2)                                   \
         NpyArray_EquivTypes(NpyArray_DESCR(a1), NpyArray_DESCR(a2))
+
+
 
 /* getset.c */
 int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
@@ -307,13 +294,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
     if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
     Py_XDECREF(a); }
 
-
-/* These operate on the elements IN the array, not the array itself. */
-/* TODO: Would love to rename these, easy to misread NpyArray_XX and Npy_XX */
-#define NpyArray_INCREF(a) PyArray_INCREF(Npy_INTERFACE(a))
-#define NpyArray_DECREF(a) PyArray_XDECREF(Npy_INTERFACE(a))
-#define NpyArray_XDECREF(a) PyArray_XDECREF(a ? Npy_INTERFACE(a) : NULL)
-
+/* TODO: This looks wrong. */
 #define NpyArray_XDECREF_ERR(obj)                                         \
         if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {            \
             NpyArray_FLAGS(NpyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
@@ -343,6 +324,7 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 extern int NPY_NUMUSERTYPES;
 
 
+
 /*
  * Exception handling
  */
@@ -370,6 +352,70 @@ npy_tp_error_clear NpyErr_Clear;
 typedef int (*npy_tp_cmp_priority)(void *, void *);
 
 npy_tp_cmp_priority Npy_CmpPriority;
+
+
+/*
+ * Interface-provided reference management.  Note that even though these mirror the
+ * Python routines they are slightly different because they also work w/ garbage
+ * collected systems. Primarily, INCREF returns a possibly different handle. 
+ */
+typedef void *(*npy_interface_incref)(void *);
+typedef void (*npy_interface_decref)(void *);
+
+/* Do not call directly, use macros below because interface does not have to provide these. */
+extern npy_interface_incref _NpyInterface_Incref;
+extern npy_interface_decref _NpyInterface_Decref;
+
+#define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? _NpyInterface_Incref(ptr) : NULL)
+#define NpyInterface_DECREF(ptr) (NULL != _NpyInterface_Decref ? _NpyInterface_Decref(ptr) : NULL)
+
+
+/*
+ * Interface wrapper-generators.  These allows the interface the option of wrapping each
+ * core object with another structure, such as a PyObject derivative.
+ */
+
+typedef int (*npy_interface_array_new_wrapper)(
+        NpyArray *newArray, int ensureArray,
+        int customStrides, void *subtype,
+        void *interfaceData, void **interfaceRet);
+typedef int (*npy_interface_iter_new_wrapper)(
+        NpyArrayIterObject *iter, void **interfaceRet);
+typedef int (*npy_interface_multi_iter_new_wrapper)(
+        NpyArrayMultiIterObject *iter,
+        void **interfaceRet);
+typedef int (*npy_interface_neighbor_iter_new_wrapper)(
+        NpyArrayNeighborhoodIterObject *iter,
+        void **interfaceRet);
+typedef int (*npy_interface_map_iter_new_wrapper)(
+        NpyArrayMapIterObject *iter,
+        void **interfaceRet);
+typedef int (*npy_interface_descr_new_from_type)(
+        int type, struct NpyArray_Descr *descr,
+        void **interfaceRet);
+typedef int (*npy_interface_descr_new_from_wrapper)(
+        void *base, struct NpyArray_Descr *descr,
+        void **interfaceRet);
+
+struct NpyInterface_WrapperFuncs {
+    npy_interface_array_new_wrapper array_new_wrapper;
+    npy_interface_iter_new_wrapper iter_new_wrapper;
+    npy_interface_multi_iter_new_wrapper multi_iter_new_wrapper;
+    npy_interface_neighbor_iter_new_wrapper neighbor_iter_new_wrapper;
+    npy_interface_map_iter_new_wrapper map_iter_new_wrapper;
+    npy_interface_descr_new_from_type descr_new_from_type;
+    npy_interface_descr_new_from_wrapper descr_new_from_wrapper;
+};
+
+
+
+extern void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
+                         struct NpyInterface_WrapperFuncs *wrapperFuncs,
+                         npy_tp_error_set error_set,
+                         npy_tp_error_occurred error_occurred,
+                         npy_tp_error_clear error_clear,
+                         npy_tp_cmp_priority cmp_priority,
+                         npy_interface_incref incref, npy_interface_decref decref);
 
 
 

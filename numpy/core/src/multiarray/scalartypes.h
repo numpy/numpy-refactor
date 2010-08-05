@@ -23,4 +23,10 @@ _typenum_fromtypeobj(PyObject *type, int user);
 NPY_NO_EXPORT void *
 scalar_value(PyObject *scalar, NpyArray_Descr *descr);
 
+NPY_NO_EXPORT int
+NpyInterface_DescrNewFromType(int type, NpyArray_Descr *descr, void **interfaceRet);
+
+NPY_NO_EXPORT int
+NpyInterface_DescrNewFromWrapper(void *baseTmp, NpyArray_Descr *descr, void **interfaceRet);
+
 #endif

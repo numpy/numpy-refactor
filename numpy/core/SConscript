@@ -216,7 +216,7 @@ if not BYPASS_SINGLE_EXTENDED:
 # replacement ones if not found.
 # Note: including Python.h is necessary because it modifies some math.h
 # definitions
-for f in ["isnan", "isinf", "signbit", "isfinite"]:
+for f in ["isnan", "isinf", "signbit"]:
     includes = """\
 #include <math.h>
 """
@@ -226,6 +226,9 @@ for f in ["isnan", "isinf", "signbit", "isfinite"]:
             '#define NPY_HAVE_DECL_%s' % f.upper()))
     else:
         numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(), ''))
+
+f = "isfinite"
+numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(), ''))
 
 inline = config.CheckInline()
 config.Define('inline', inline)
