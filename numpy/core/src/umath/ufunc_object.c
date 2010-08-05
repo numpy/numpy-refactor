@@ -1875,10 +1875,7 @@ ufuncloop_dealloc(PyUFuncLoopObject *self)
 }
 
 static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self, Py_ssize_t nargs, 
-               PyObject *extobj, int *rtypenums,
-               PyArrayObject **mps, PyObject **prep_func,
-               PyObject *prep_context)
+construct_loop(PyUFuncObject *self, PyObject *extobj)
 {
     PyUFuncLoopObject *loop;
     int i;
@@ -1946,11 +1943,6 @@ construct_loop(PyUFuncObject *self, Py_ssize_t nargs,
         }
     }
 
-    /* Setup the arrays */
-    if (construct_arrays(loop, nargs, mps, rtypenums, 
-                         prep_func, prep_context) < 0) {
-        goto fail;
-    }
     PyUFunc_clearfperr();
     return loop;
 
@@ -2084,34 +2076,42 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     } else {
         rtypenums = NULL;
     }
+    Py_XDECREF(typetup);
 
     /* Convert args to arrays in mps. */
     if ((i=convert_args(self, args, mps)) < 0) {
         return i;
     }
 
-    nargs = PyTuple_Size(args);
-
-    /* Set up prepare functions. */
-    _find_array_prepare(args, wraparr, self->nin, self->nout);
-    context = Py_BuildValue("(OO)", self, args);
-
     /* Build the loop. */
-    loop = construct_loop(self, nargs, extobj, rtypenums, mps, 
-                          wraparr, context);
+    loop = construct_loop(self, extobj);
 
-    /* Clean up. */
-    if (context) {
-        for (i=0; i<self->nout; i++) {
-            Py_XDECREF(wraparr[i]);
-        }
-        Py_DECREF(context);
-    }
     Py_XDECREF(extobj);
-    Py_XDECREF(typetup);
 
-    if (loop == NULL) {
-        return -1;
+    if (loop != NULL) {
+        int res;
+
+        nargs = PyTuple_Size(args);
+
+        /* Set up prepare functions. */
+        _find_array_prepare(args, wraparr, self->nin, self->nout);
+        context = Py_BuildValue("(OO)", self, args);
+
+        /* Setup the arrays */
+        res = construct_arrays(loop, nargs, mps, rtypenums, 
+                               wraparr, context);
+        /* Clean up. */
+        if (context) {
+            for (i=0; i<self->nout; i++) {
+                Py_XDECREF(wraparr[i]);
+            }
+            Py_DECREF(context);
+        }
+
+        if (res < 0) {
+            ufuncloop_dealloc(loop);
+            return -1;
+        }
     }
 
     /*
