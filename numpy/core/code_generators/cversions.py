@@ -1,6 +1,6 @@
 """Simple script to compute the api hash of the current API as defined by
 numpy_api_order and ufunc_api_order."""
-from os.path import join, dirname
+from os.path import dirname
 
 from genapi import fullapi_hash
 import numpy_api
