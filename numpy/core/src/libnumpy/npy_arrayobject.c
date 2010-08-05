@@ -107,11 +107,17 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
 
 
 
-/* Deallocs & destroy's the array object. */
+/* Deallocs & destroy's the array object. 
+ *  Returns whether or not we did an artificial incref
+ *  so we can keep track of the total refcount for debugging.
+ */
 /* TODO: For now caller is expected to call _array_dealloc_buffer_info
          and clear weak refs.  Need to revisit. */
-void
-NpyArray_dealloc(NpyArray *self) {
+int
+NpyArray_dealloc(NpyArray *self) 
+{
+    int result = 0;
+
     assert(NPY_VALID_MAGIC == self->magic_number);
     assert(NULL == self->base_arr ||
            NPY_VALID_MAGIC == self->base_arr->magic_number);
@@ -136,10 +142,7 @@ NpyArray_dealloc(NpyArray *self) {
              * Don't need to DECREF -- because we are deleting
              *self already...
              */
-#ifdef Py_REF_DEBUG
-            /* Decrement the total refcnt for debugging. */
-            _Py_DEC_REFTOTAL;
-#endif
+            result = 1;
         }
         /*
          * In any case base is pointing to something that we need
@@ -161,17 +164,7 @@ NpyArray_dealloc(NpyArray *self) {
              * Don't need to DECREF -- because we are deleting
              * self already...
              */
-#ifdef Py_REF_DEBUG
-            /*
-             * Decrement the total refcnt for debugging.
-             * We don't do this if the refcnt is not 1 because
-             * this means an _Npy_DECREF would not result in
-             * a Py_DECREF.
-             */
-            if (self->nob_refcnt == 1) {
-                _Py_DEC_REFTOTAL;
-            }
-#endif
+            result = 1;
         }
         NpyDataMem_FREE(self->data);
     }
@@ -182,6 +175,8 @@ NpyArray_dealloc(NpyArray *self) {
     self->magic_number = NPY_INVALID_MAGIC;
 
     NpyArray_free(self);
+
+    return result;
 }
 
 _NpyTypeObject NpyArray_Type = {

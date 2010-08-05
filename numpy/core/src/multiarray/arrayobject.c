@@ -177,14 +177,20 @@ static void
 array_dealloc(PyArrayObject *self) {
     assert(NPY_VALID_MAGIC == self->magic_number);
     assert(NULL == PyArray_BASE_ARRAY(self) || NPY_VALID_MAGIC == PyArray_BASE_ARRAY(self)->magic_number);
-    
+
     _array_dealloc_buffer_info(self);
 
     if (self->weakreflist != NULL) {
         PyObject_ClearWeakRefs((PyObject *)self);
     }
-    
+
+#ifdef Py_REF_DEBUG
+    if (NpyArray_dealloc(PyArray_ARRAY(self))) {
+        _Py_DEC_REFTOTAL;
+    }
+#else
     NpyArray_dealloc(PyArray_ARRAY(self));
+#endif
     (*self->ob_type->tp_free)(self);
 }
 

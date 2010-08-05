@@ -59,7 +59,7 @@ extern struct NpyArray_Descr **npy_userdescrs;
 /* arraytypes.c.src */
 /* TODO: Needs to call back to interface layer */
 
-void NpyArray_dealloc(NpyArray *self);
+int NpyArray_dealloc(NpyArray *self);
 
 
 /* common.c */
