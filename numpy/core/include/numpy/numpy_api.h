@@ -1,10 +1,11 @@
 #ifndef _NUMPY_API_H_
 #define _NUMPY_API_H_
 
-#include "npy_3kcompat.h"
 #include "assert.h"
 #include <numpy/npy_defs.h>
 #include <numpy/npy_descriptor.h>
+#include <numpy/npy_iterators.h>
+
 
 /* FIXME: we need to add this later */
 #if 0
@@ -31,12 +32,13 @@ enum {
         descr = _new_;                                            \
     } while(0)
 
-#define NpyArray_EquivByteorders(b1, b2) PyArray_EquivByteorders(b1, b2)
+#define NpyArray_EquivByteorders(b1, b2)                          \
+    (((b1) == (b2)) || (NpyArray_ISNBO(b1) == NpyArray_ISNBO(b2)))
+
 
 #define NpyDataType_ISOBJECT(obj) NpyTypeNum_ISOBJECT(obj->type_num)
 #define NpyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(obj->type_num)
-#define NpyArray_CheckExact(op) PyArray_CheckExact(op)
-#define NpyArray_Check(op) PyArray_Check(op)
+#define NpyArray_Check(op) (&NpyArray_Type == (op)->nob_type)
 
 
 typedef struct NpyDict_KVPair_struct {
@@ -129,13 +131,13 @@ size_t _array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
 
 NpyArray * NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype,
                                  npy_intp num, char *sep);
-NpyArray * NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
-                               intp num, char *sep);
+NpyArray * NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
+                               npy_intp num, char *sep);
 
 NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 
-NPY_NO_EXPORT void
+void
 byte_swap_vector(void *p, npy_intp n, int size);
 
 
@@ -181,8 +183,6 @@ unsigned long NpyDict_StringHashFunction(const void *key);
 /* flagsobject.c */
 void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
-
-#include <numpy/npy_iterators.h>
 
 
 /* methods.c */
@@ -233,9 +233,9 @@ int NpyArray_GetEndianness(void);
 
 
 /* refcount.c */
-NPY_NO_EXPORT void
+void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr);
-NPY_NO_EXPORT void
+void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
 
 #define NpyArray_ContiguousFromArray(op, type)                  \
@@ -366,19 +366,11 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
     Py_XDECREF(a); }
 
 
-/* These operate on interface objects and will be replaced with callbacks
-   to the interface layer. */
-#define Npy_Interface_INCREF(a) Py_INCREF(a)
-#define Npy_Interface_DECREF(a) Py_DECREF(a)
-#define Npy_Interface_XINCREF(a) Py_XINCREF(a)
-#define Npy_Interface_XDECREF(a) Py_XDECREF(a)
-
-
 /* These operate on the elements IN the array, not the array itself. */
 /* TODO: Would love to rename these, easy to misread NpyArray_XX and Npy_XX */
 #define NpyArray_INCREF(a) PyArray_INCREF(Npy_INTERFACE(a))
-#define NpyArray_DECREF(a) PyArray_DECREF(Npy_INTERFACE(a))
-#define NpyArray_XDECREF(a) PyArray_XDECREF( a ? Npy_INTERFACE(a) : NULL)
+#define NpyArray_DECREF(a) PyArray_XDECREF(Npy_INTERFACE(a))
+#define NpyArray_XDECREF(a) PyArray_XDECREF(a ? Npy_INTERFACE(a) : NULL)
 
 #define NpyArray_XDECREF_ERR(obj)                                         \
         if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {            \
@@ -394,17 +386,19 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 /*
  * Memory
  */
-#define NpyDataMem_NEW(sz) PyDataMem_NEW(sz)
-#define NpyDataMem_RENEW(p, sz) PyDataMem_RENEW(p, sz)
-#define NpyDataMem_FREE(p) PyDataMem_FREE(p)
+#define NpyDataMem_NEW(sz) malloc(sz)
+#define NpyDataMem_RENEW(p, sz) realloc(p, sz)
+#define NpyDataMem_FREE(p) free(p)
 
-#define NpyDimMem_NEW(size) PyDimMem_NEW(size)
-#define NpyDimMem_RENEW(p, sz) PyDimMem_RENEW(p, sz)
-#define NpyDimMem_FREE(ptr) PyDimMem_FREE(ptr)
+#define NpyDimMem_NEW(size) ((npy_intp *)malloc(size*sizeof(npy_intp)))
+#define NpyDimMem_RENEW(p, sz) ((npy_intp *)realloc(p, sz*sizeof(npy_intp)))
+#define NpyDimMem_FREE(ptr) free(ptr)
 
-#define NpyArray_malloc(size) PyArray_malloc(size)
-#define NpyArray_free(ptr) PyArray_free(ptr)
+#define NpyArray_malloc(size) malloc(size)
+#define NpyArray_free(ptr) free(ptr)
 
+/* TODO: Yuck, global variable, need accessor. */
+extern int NPY_NUMUSERTYPES;
 
 
 /*

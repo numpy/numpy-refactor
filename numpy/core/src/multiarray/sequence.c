@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayscalars.h"
 #include "numpy/numpy_api.h"
+#include "numpy/ndarraytypes.h"
 
 #include "npy_config.h"
 

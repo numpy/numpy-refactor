@@ -444,7 +444,9 @@ libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
                 pjoin('src', 'libnumpy', 'npy_multiarraymodule.c'),
                 pjoin('src', 'libnumpy', 'npy_refcount.c'),
                 pjoin('src', 'libnumpy', 'npy_shape.c'),
-                pjoin('src', 'libnumpy', 'npy_usertypes.c')]
+                pjoin('src', 'libnumpy', 'npy_usertypes.c'),
+                pjoin('src', 'libnumpy', 'numpyos.c')]
+                
 libnumpy_src.extend(npy_arraytypes_src)
 
 
@@ -458,7 +460,6 @@ if ENABLE_SEPARATE_COMPILATION:
         pjoin('src', 'multiarray', 'hashdescr.c'),
         pjoin('src', 'multiarray', 'arrayobject.c'),
         pjoin('src', 'multiarray', 'datetime.c'),
-        pjoin('src', 'multiarray', 'numpyos.c'),
         pjoin('src', 'multiarray', 'flagsobject.c'),
         pjoin('src', 'multiarray', 'descriptor.c'),
         pjoin('src', 'multiarray', 'iterators.c'),

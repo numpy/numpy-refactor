@@ -31,7 +31,6 @@
 
 #include "npy_3kcompat.h"
 
-NPY_NO_EXPORT int NPY_NUMUSERTYPES = 0;
 
 #define PyAO PyArrayObject
 
@@ -2430,12 +2429,6 @@ error_clear(void)
     PyErr_Clear();
 }
 
-
-static double
-getpriority(void *obj, double def)
-{
-    return PyArray_GetPriority((PyObject *)obj, def);
-}
 
 
 static int

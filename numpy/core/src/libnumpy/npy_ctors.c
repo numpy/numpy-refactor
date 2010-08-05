@@ -5,9 +5,17 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <ctype.h>
+#include <memory.h>
 #include "npy_config.h"
+#include "numpy/utils.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
 
+/* TODO: Remove these declarations once PyArray_INCREF, etc refactored. */
+extern int PyArray_INCREF(void *);
+extern int PyArray_XDECREF(void *);
 
 /*
  * Reading from a file or a string.
@@ -183,7 +191,7 @@ _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 }
 
 
-NPY_NO_EXPORT void
+void
 byte_swap_vector(void *p, npy_intp n, int size)
 {
     _strided_byte_swap(p, (npy_intp) size, n, size);
@@ -1142,8 +1150,8 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
          */
         else {
             _Npy_DECREF(newtype);
-            if ((flags & NPY_ENSUREARRAY) &&
-                !NpyArray_CheckExact(arr)) {
+            if ((flags & NPY_ENSUREARRAY) /*&&
+                !NpyArray_CheckExact(arr) -- TODO: Would be nice to check this in the future */ ) {
                 _Npy_INCREF(arr->descr);
                 ret = NpyArray_NewFromDescr(arr->descr,
                                             arr->nd,
@@ -1470,7 +1478,7 @@ fromfile_skip_separator(FILE **fp, const char *sep,
  */
 #define FROM_BUFFER_SIZE 4096
 static NpyArray *
-array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
+array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
                 void *stream, next_element next,
                 skip_separator skip_sep, void *stream_data)
 {
@@ -1513,7 +1521,7 @@ array_from_text(NpyArray_Descr *dtype, intp num, char *sep, size_t *nread,
     }
     if (num < 0) {
         tmp = NpyDataMem_RENEW(NpyArray_BYTES(r),
-                               NPY_MAX(*nread, 1) * dtype->elsize);
+                               NpyArray_MAX(*nread, 1) * dtype->elsize);
         if (tmp == NULL) {
             err = 1;
         }
@@ -1581,7 +1589,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
     }
     if (((npy_intp) nread) < num) {
         /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread, 1) * NpyArray_ITEMSIZE(ret);
+        const size_t nsize = NpyArray_MAX(nread, 1) * NpyArray_ITEMSIZE(ret);
         char *tmp;
 
         if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
@@ -1619,8 +1627,8 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
  * for whitespace around the separator is added.
  */
 NpyArray *
-NpyArray_FromString(char *data, intp slen, NpyArray_Descr *dtype,
-                    intp num, char *sep)
+NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
+                    npy_intp num, char *sep)
 {
     NpyArray *ret;
 
@@ -1743,7 +1751,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
     }
     if (((npy_intp) nread) < num) {
         /* Realloc memory for smaller number of elements */
-        const size_t nsize = NPY_MAX(nread,1)*ret->descr->elsize;
+        const size_t nsize = NpyArray_MAX(nread,1)*ret->descr->elsize;
         char *tmp;
 
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {

@@ -2,9 +2,14 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/npy_object.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
+
+
 
 static int
 _check_ones(NpyArray *self, int newnd, npy_intp* newdims, npy_intp *strides);

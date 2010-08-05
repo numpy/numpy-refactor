@@ -183,7 +183,7 @@ NpyArray_BroadcastToShape(struct NpyArray *ao, npy_intp *dims, int nd);
  * Any object passed to NpyArray_Broadcast must be binary compatible
  * with this structure.
  */
-typedef struct NpyArrayMultiIterObject {
+struct NpyArrayMultiIterObject {
         NpyObject_HEAD
         /* DANGER - this must be in sync with MyUFuncLoopObject in ufuncobject.h */
         int                  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
@@ -194,7 +194,9 @@ typedef struct NpyArrayMultiIterObject {
         int                  nd;                      /* number of dims */
         npy_intp             dimensions[NPY_MAXDIMS]; /* dimensions */
         NpyArrayIterObject    *iters[NPY_MAXARGS];     /* iterators */
-} NpyArrayMultiIterObject;
+};
+
+typedef struct NpyArrayMultiIterObject NpyArrayMultiIterObject;
 
 extern _NpyTypeObject NpyArrayMultiIter_Type;
 
@@ -257,7 +259,7 @@ NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 /* Store the information needed for fancy-indexing over an array */
 
-typedef struct {
+struct NpyArrayMapIterObject {
         NpyObject_HEAD
         /*
          * Multi-iterator portion --- needs to be present in this
@@ -294,7 +296,10 @@ typedef struct {
         int                   consec;
         char                  *dataptr;
 
-} NpyArrayMapIterObject;
+};
+
+typedef struct NpyArrayMapIterObject NpyArrayMapIterObject;
+
 
 /*
  * TODO: We should have both PY and NPY level modes since the
@@ -308,7 +313,7 @@ enum {
     NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING
 };
 
-typedef struct {
+struct NpyArrayNeighborhoodIterObject {
     NpyObject_HEAD
     int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
 
@@ -352,7 +357,8 @@ typedef struct {
     npy_free_func constant_free;
 
     int mode;
-} NpyArrayNeighborhoodIterObject;
+};
+typedef struct NpyArrayNeighborhoodIterObject NpyArrayNeighborhoodIterObject;
 
 
 extern _NpyTypeObject NpyArrayNeighborhoodIter_Type;

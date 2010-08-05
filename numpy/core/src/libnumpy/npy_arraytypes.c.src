@@ -1,16 +1,23 @@
 /* -*- c -*- */
 #define PY_SSIZE_T_CLEAN
 
+/* TODO: Need to fix setup to produce HAVE_LONG_LONG without including Python.h or
+ wherever it was coming from. */
+#define HAVE_LONG_LONG 1
+
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
-#include "numpy/arrayobject.h"
-#include "numpy/arrayscalars.h"
+#include <stdlib.h>
+#include <memory.h>
 #include "numpy/numpy_api.h"
 #include "numpy/npy_object.h"
-
-#include "npy_3kcompat.h"
+#include "numpy/npy_arrayobject.h"
+#include "numpy/numpyos.h"
 
 #include "numpy/npy_math.h"
+#include "numpy/noprefix.h"
+#include "numpy/utils.h"
+
 
 
 #define __ALIGNED(obj, sz) ((((size_t) obj) % (sz))==0)
@@ -23,13 +30,13 @@
 
 
 /* TODO: Delete this once numpyos is moved into the core. */
-NPY_NO_EXPORT double
+double
 NumPyOS_ascii_strtod(const char *s, char** endptr);
-NPY_NO_EXPORT int
+int
 NumPyOS_ascii_ftolf(FILE *fp, double *value);
 
 
-static Bool
+static npy_bool
 Npy_STRING_ISSPACE(char ch);
 
 
@@ -165,13 +172,13 @@ int
 /**end repeat**/
 
 int
-BOOL_scan(FILE *fp, Bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
+BOOL_scan(FILE *fp, npy_bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
 {
     int temp;
     int num;
 
     num = fscanf(fp, "%d", &temp);
-    *ip = (Bool) (temp != 0);
+    *ip = (npy_bool) (temp != 0);
     return num;
 }
 
@@ -203,7 +210,7 @@ int
 {
     @btype@ result;
 
-    result = PyOS_strto@func@(str, endptr, 10);
+    result = NumPyOS_strto@func@(str, endptr, 10);
     *ip = (@type@) result;
     return 0;
 }
@@ -445,8 +452,8 @@ static void
  *         double, longdouble, datetime, timedelta#
  */
 static void
-@fname@_copyswapn (void *dst, intp dstride, void *src, intp sstride,
-                   intp n, int swap, void *NPY_UNUSED(arr))
+@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride,
+                   npy_intp n, int swap, void *NPY_UNUSED(arr))
 {
     if (src != NULL) {
         if (sstride == sizeof(@type@) && dstride == sizeof(@type@)) {
@@ -516,8 +523,8 @@ static void
         {
             int i, nn;
 
-            b = a + (SIZEOF_@fsize@-1);
-            nn = SIZEOF_@fsize@ / 2;
+            b = a + (NPY_SIZEOF_@fsize@-1);
+            nn = NPY_SIZEOF_@fsize@ / 2;
             for (i = 0; i < nn; i++) {
                 c = *a;
                 *a++ = *b;
@@ -536,7 +543,7 @@ static void
  * #type = Bool, byte, ubyte#
  */
 static void
-@fname@_copyswapn (void *dst, intp dstride, void *src, intp sstride, intp n,
+@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride, npy_intp n,
                    int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
 {
     if (src != NULL) {
@@ -572,7 +579,7 @@ static void
  * #fsize = FLOAT, DOUBLE, LONGDOUBLE#
 */
 static void
-@fname@_copyswapn (void *dst, intp dstride, void *src, intp sstride, intp n,
+@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride, npy_intp n,
                    int swap, void *NPY_UNUSED(arr))
 {
 
@@ -588,9 +595,9 @@ static void
     }
 
     if (swap) {
-        _strided_byte_swap(dst, dstride, n, SIZEOF_@fsize@);
-        _strided_byte_swap(((char *)dst + SIZEOF_@fsize@), dstride,
-                n, SIZEOF_@fsize@);
+        _strided_byte_swap(dst, dstride, n, NPY_SIZEOF_@fsize@);
+        _strided_byte_swap(((char *)dst + NPY_SIZEOF_@fsize@), dstride,
+                n, NPY_SIZEOF_@fsize@);
     }
 }
 
@@ -677,16 +684,16 @@ static void
         {
             int i, nn;
 
-            b = a + (SIZEOF_@fsize@ - 1);
-            nn = SIZEOF_@fsize@ / 2;
+            b = a + (NPY_SIZEOF_@fsize@ - 1);
+            nn = NPY_SIZEOF_@fsize@ / 2;
             for (i = 0; i < nn; i++) {
                 c = *a;
                 *a++ = *b;
                 *b-- = c;
             }
             a += nn / 2;
-            b = a + (SIZEOF_@fsize@ - 1);
-            nn = SIZEOF_@fsize@ / 2;
+            b = a + (NPY_SIZEOF_@fsize@ - 1);
+            nn = NPY_SIZEOF_@fsize@ / 2;
             for (i = 0; i < nn; i++) {
                 c = *a;
                 *a++ = *b;
@@ -702,8 +709,8 @@ static void
 
 /* ignore swap */
 static void
-STRING_copyswapn (char *dst, intp dstride, char *src, intp sstride,
-                  intp n, int NPY_UNUSED(swap), NpyArray *arr)
+STRING_copyswapn (char *dst, npy_intp dstride, char *src, npy_intp sstride,
+                  npy_intp n, int NPY_UNUSED(swap), NpyArray *arr)
 {
     if (src != NULL && arr != NULL) {
         int itemsize = arr->descr->elsize;
@@ -721,8 +728,8 @@ STRING_copyswapn (char *dst, intp dstride, char *src, intp sstride,
 
 /* */
 static void
-VOID_copyswapn (char *dst, intp dstride, char *src, intp sstride,
-                intp n, int swap, NpyArray *arr)
+VOID_copyswapn (char *dst, npy_intp dstride, char *src, npy_intp sstride,
+                npy_intp n, int swap, NpyArray *arr)
 {
     if (arr == NULL) {
         return;
@@ -827,8 +834,8 @@ VOID_copyswap (char *dst, char *src, int swap, NpyArray *arr)
 
 
 static void
-UNICODE_copyswapn (char *dst, intp dstride, char *src, intp sstride,
-                   intp n, int swap, NpyArray *arr)
+UNICODE_copyswapn (char *dst, npy_intp dstride, char *src, npy_intp sstride,
+                   npy_intp n, int swap, NpyArray *arr)
 {
     int itemsize;
 
@@ -1365,9 +1372,9 @@ finish:
  * #incr = ip++*14, ip+=2*3, ip++*2#
  */
 static int
-@fname@_argmax(@type@ *ip, intp n, intp *max_ind, NpyArray *NPY_UNUSED(aip))
+@fname@_argmax(@type@ *ip, npy_intp n, npy_intp *max_ind, NpyArray *NPY_UNUSED(aip))
 {
-    intp i;
+    npy_intp i;
     @type@ mp = *ip;
 
     *max_ind = 0;
@@ -1390,9 +1397,9 @@ static int
  * #type = char, PyArray_UCS4#
  */
 static int
-@fname@_argmax(@type@ *ip, intp n, intp *max_ind, NpyArray *aip)
+@fname@_argmax(@type@ *ip, npy_intp n, npy_intp *max_ind, NpyArray *aip)
 {
-    intp i;
+    npy_intp i;
     int elsize = aip->descr->elsize;
     @type@ *mp = (@type@ *)NpyArray_malloc(elsize);
 
@@ -1426,11 +1433,11 @@ static int
  */
 
 static void
-BOOL_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
+BOOL_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op, npy_intp n,
          void *NPY_UNUSED(ignore))
 {
     Bool tmp = FALSE;
-    intp i;
+    npy_intp i;
 
     for (i = 0; i < n; i++, ip1 += is1, ip2 += is2) {
         if ((*((Bool *)ip1) != 0) && (*((Bool *)ip2) != 0)) {
@@ -1454,11 +1461,11 @@ BOOL_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
  *        datetime, timedelta#
  */
 static void
-@name@_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
+@name@_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op, npy_intp n,
            void *NPY_UNUSED(ignore))
 {
     @out@ tmp = (@out@)0;
-    intp i;
+    npy_intp i;
 
     for (i = 0; i < n; i++, ip1 += is1, ip2 += is2) {
         tmp += (@out@)(*((@type@ *)ip1)) *
@@ -1474,11 +1481,11 @@ static void
  * #name = CFLOAT, CDOUBLE, CLONGDOUBLE#
  * #type = float, double, longdouble#
  */
-static void @name@_dot(char *ip1, intp is1, char *ip2, intp is2,
-                       char *op, intp n, void *NPY_UNUSED(ignore))
+static void @name@_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2,
+                       char *op, npy_intp n, void *NPY_UNUSED(ignore))
 {
     @type@ tmpr = (@type@)0.0, tmpi=(@type@)0.0;
-    intp i;
+    npy_intp i;
 
     for (i = 0; i < n; i++, ip1 += is1, ip2 += is2) {
         tmpr += ((@type@ *)ip1)[0] * ((@type@ *)ip2)[0]
@@ -1508,9 +1515,9 @@ static void @name@_dot(char *ip1, intp is1, char *ip2, intp is2,
  *         datetime, timedelta#
 */
 static void
-@NAME@_fill(@typ@ *buffer, intp length, void *NPY_UNUSED(ignored))
+@NAME@_fill(@typ@ *buffer, npy_intp length, void *NPY_UNUSED(ignored))
 {
-    intp i;
+    npy_intp i;
     @typ@ start = buffer[0];
     @typ@ delta = buffer[1];
 
@@ -1527,9 +1534,9 @@ static void
  * #typ = cfloat, cdouble, clongdouble#
 */
 static void
-@NAME@_fill(@typ@ *buffer, intp length, void *NPY_UNUSED(ignore))
+@NAME@_fill(@typ@ *buffer, npy_intp length, void *NPY_UNUSED(ignore))
 {
-    intp i;
+    npy_intp i;
     @typ@ start;
     @typ@ delta;
 
@@ -1554,7 +1561,7 @@ static void
  * #typ = Bool, byte, ubyte#
  */
 static void
-@NAME@_fillwithscalar(@typ@ *buffer, intp length, @typ@ *value, void *NPY_UNUSED(ignored))
+@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value, void *NPY_UNUSED(ignored))
 {
     memset(buffer, *value, length);
 }
@@ -1570,9 +1577,9 @@ static void
  *        datetime, timedelta#
  */
 static void
-@NAME@_fillwithscalar(@typ@ *buffer, intp length, @typ@ *value, void *NPY_UNUSED(ignored))
+@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value, void *NPY_UNUSED(ignored))
 {
-    intp i;
+    npy_intp i;
     @typ@ val = *value;
 
     for (i = 0; i < length; ++i) {
@@ -1599,7 +1606,7 @@ static void
  *         datetime, timedelta#
  */
 static void
-@name@_fastclip(@type@ *in, intp ni, @type@ *min, @type@ *max, @type@ *out)
+@name@_fastclip(@type@ *in, npy_intp ni, @type@ *min, @type@ *max, @type@ *out)
 {
     npy_intp i;
     @type@ max_val = 0, min_val = 0;
@@ -1643,7 +1650,7 @@ static void
  * #type = cfloat, cdouble, clongdouble#
  */
 static void
-@name@_fastclip(@type@ *in, intp ni, @type@ *min, @type@ *max, @type@ *out)
+@name@_fastclip(@type@ *in, npy_intp ni, @type@ *min, @type@ *max, @type@ *out)
 {
     npy_intp i;
     @type@ max_val, min_val;
@@ -1658,24 +1665,24 @@ static void
     }
     if (max == NULL) {
         for (i = 0; i < ni; i++) {
-            if (PyArray_CLT(in[i],min_val)) {
+            if (NpyArray_CLT(in[i],min_val)) {
                 out[i] = min_val;
             }
         }
     }
     else if (min == NULL) {
         for (i = 0; i < ni; i++) {
-            if (PyArray_CGT(in[i], max_val)) {
+            if (NpyArray_CGT(in[i], max_val)) {
                 out[i] = max_val;
             }
         }
     }
     else {
         for (i = 0; i < ni; i++) {
-            if (PyArray_CLT(in[i], min_val)) {
+            if (NpyArray_CLT(in[i], min_val)) {
                 out[i] = min_val;
             }
-            else if (PyArray_CGT(in[i], max_val)) {
+            else if (NpyArray_CGT(in[i], max_val)) {
                 out[i] = max_val;
             }
         }
@@ -1703,7 +1710,7 @@ static void
  *         cfloat, cdouble, clongdouble, datetime, timedelta#
 */
 static void
-@name@_fastputmask(@type@ *in, Bool *mask, intp ni, @type@ *vals, intp nv)
+@name@_fastputmask(@type@ *in, Bool *mask, npy_intp ni, @type@ *vals, npy_intp nv)
 {
     npy_intp i;
     @type@ s_val;
@@ -1751,7 +1758,7 @@ static int
                     npy_intp m_middle, npy_intp nelem,
                     NPY_CLIPMODE clipmode)
 {
-    intp i, j, k, tmp;
+    npy_intp i, j, k, tmp;
 
     switch(clipmode) {
     case NPY_RAISE:
@@ -1894,7 +1901,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
+NpyArray_Descr @from@_Descr = {
     _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
@@ -1986,7 +1993,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NPY_NO_EXPORT NpyArray_Descr @from@_Descr = {
+NpyArray_Descr @from@_Descr = {
     _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@kind@LTR,
@@ -2033,7 +2040,7 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
     }
 };
 
-NPY_NO_EXPORT NpyArray_Descr OBJECT_Descr = {
+NpyArray_Descr OBJECT_Descr = {
     _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_OBJECTLTR,
@@ -2042,8 +2049,8 @@ NPY_NO_EXPORT NpyArray_Descr OBJECT_Descr = {
     0,
     NPY_OBJECT_DTYPE_FLAGS,
     NpyArray_OBJECT,
-    sizeof(PyObject *),
-    _ALIGN(PyObject *),
+    sizeof(void *),
+    _ALIGN(void *),
     NULL,
     NULL,
     NULL,

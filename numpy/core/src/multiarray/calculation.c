@@ -949,6 +949,17 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
 }
 
 
+NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
+{
+    PyObject *result = PyArray_Conjugate(Npy_INTERFACE(self), (NULL != out) ? Npy_INTERFACE(out) : NULL);
+    NpyArray *coreResult;
+    
+    coreResult = PyArray_ARRAY(result);
+    _Npy_INCREF(coreResult);
+    Py_DECREF(result);
+    return coreResult;
+}
+
 /*NUMPY_API
  * Conjugate
  */

@@ -28,10 +28,10 @@
 
 
 #include "Python.h"
+#include "numpy/numpy_api.h"
 #include "numpy/ndarraytypes.h"
 #include "numpy/noprefix.h"
 #include "numpy/npy_math.h"
-#include "numpy/numpy_api.h"
 #include "npy_config.h"
 
 #define NOT_USED NPY_UNUSED(unused)

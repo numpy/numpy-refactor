@@ -5,8 +5,11 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
 
 
 
@@ -42,8 +45,8 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
             return -1;
         }
         NpyArray_STRIDES(self) = NpyArray_DIMS(self) + nd;
-        memcpy(NpyArray_DIMS(self), NpyArray_DIMS(ret), nd * sizeof(intp));
-        memcpy(NpyArray_STRIDES(self), NpyArray_STRIDES(ret), nd * sizeof(intp));
+        memcpy(NpyArray_DIMS(self), NpyArray_DIMS(ret), nd * sizeof(npy_intp));
+        memcpy(NpyArray_STRIDES(self), NpyArray_STRIDES(ret), nd * sizeof(npy_intp));
     }
     else {
         NpyArray_DIMS(self) = NULL;

@@ -80,8 +80,8 @@
    TODO: There may be more architectures we can white list.
 */
 #if defined(NPY_CPU_X86) || defined(NPY_CPU_AMD64)
-    #define NPY_COPY_PYOBJECT_PTR(dst, src) (*((PyObject **)(dst)) =  \
-                                             *((PyObject **)(src)))
+    #define NPY_COPY_PYOBJECT_PTR(dst, src) (*((void **)(dst)) =  \
+                                             *((void **)(src)))
 #else
     #if NPY_SIZEOF_PY_INTPTR_T == 4
         #define NPY_COPY_PYOBJECT_PTR(dst, src)    \

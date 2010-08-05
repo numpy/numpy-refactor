@@ -5,9 +5,11 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
-
+#include "numpy/npy_arrayobject.h"
+#include "numpy/npy_descriptor.h"
 
 
 

@@ -7,7 +7,7 @@
 #define PY_SSIZE_T_CLEAN
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
-
+#include "numpy/npy_arrayobject.h"
 
 
 

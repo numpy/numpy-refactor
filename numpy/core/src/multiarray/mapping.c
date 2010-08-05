@@ -7,9 +7,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "numpy/numpy_api.h"
-#include "npy_config.h"
-
-#include "npy_3kcompat.h"
+#include "numpy/npy_iterators.h"
 
 #include "common.h"
 #include "ctors.h"

@@ -7,6 +7,7 @@
 */
 
 #include "Python.h"
+#include "numpy/numpy_api.h"
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/arrayscalars.h"

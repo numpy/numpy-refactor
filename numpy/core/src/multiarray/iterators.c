@@ -4,13 +4,10 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include "numpy/numpy_api.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
-#include "numpy/numpy_api.h"
-
-#include "npy_config.h"
-
-#include "npy_3kcompat.h"
+#include "numpy/npy_iterators.h"
 
 #include "arrayobject.h"
 #include "iterators.h"
@@ -368,7 +365,7 @@ PyArray_IterNew(PyObject *obj)
     
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
        interface object. Decref before incref would be unfortunate. */
-    Py_INCREF( Npy_INTERFACE(iter) );
+    Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
     
     return (PyObject *)Npy_INTERFACE(iter);
@@ -387,7 +384,7 @@ PyArray_BroadcastToShape(PyObject *obj, intp *dims, int nd)
     
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
-    Py_INCREF( Npy_INTERFACE(iter) );
+    Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
     
     return (PyObject*)Npy_INTERFACE(iter);
@@ -415,7 +412,7 @@ PyArray_IterAllButAxis(PyObject *obj, int *inaxis)
     
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
-    Py_INCREF( Npy_INTERFACE(iter) );
+    Py_INCREF( (PyArrayIterObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
     
     return (PyObject*)Npy_INTERFACE(iter);
@@ -1426,7 +1423,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
     NpyArray_MultiIter_RESET(multi);
 
     /* Move the reference from the core to the interface. */
-    Py_INCREF( Npy_INTERFACE(multi) );
+    Py_INCREF( (PyObject *)Npy_INTERFACE(multi) );
     _Npy_DECREF( multi );
     return (PyObject *)Npy_INTERFACE(multi);
 
@@ -1732,7 +1729,7 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
     }
     
     /* Move the reference from the core object to the interface obj. */
-    Py_INCREF( Npy_INTERFACE(coreRet) );
+    Py_INCREF( (PyObject *)Npy_INTERFACE(coreRet) );
     _Npy_DECREF( coreRet );
     
     return (PyObject *)Npy_INTERFACE(coreRet);

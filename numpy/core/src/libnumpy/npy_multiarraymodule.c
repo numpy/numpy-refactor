@@ -5,9 +5,15 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
 
+
+/* TODO: Yuck, global variable, need accessor. */
+int NPY_NUMUSERTYPES = 0;
 
 /* Defined in npy_arraytypes.c.src */
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
@@ -743,6 +749,9 @@ _npyarray_revert(NpyArray *ret)
 }
 
 
+/* TODO: Remove this declaration once PyArray_Conjugate is refactored */
+extern NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out);
+
 /*NUMPY_API
  * correlate(a1, a2 ,typenum, mode)
  *
@@ -761,16 +770,10 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
                   once NpyArray_Conjugate is created, which can be done once
                   the ufunc stuff is in the core.
          */
-        PyObject* iap2 = PyArray_Conjugate(Npy_INTERFACE(ap2), NULL);
-        if (iap2 == NULL) {
+        ap2 = NpyArray_Conjugate(ap2, NULL);
+        if (NULL == ap2) {
             return NULL;
         }
-        /* Move the reference. */
-        cap2 = PyArray_ARRAY(iap2);
-        _Npy_INCREF(cap2);
-        Py_DECREF(iap2);
-        /* Change ap2. */
-        ap2 = cap2;
     }
 
     ret = _npyarray_correlate(ap1, ap2, typenum, mode, &inverted);

@@ -1,14 +1,12 @@
 #define _MULTIARRAYMODULE
-#include <numpy/npy_iterators.h>
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
-/* TODO: Get rid of this include once we've split PyArrayObject. */
-#include <numpy/ndarraytypes.h>
 #include <numpy/numpy_api.h>
+#include <numpy/npy_iterators.h>
+#include <numpy/npy_arrayobject.h>
 
-/* XXX: We should be getting this from an include. */
-#ifndef MAX
-#define MAX(a,b) ((a > b) ? (a) : (b))
-#endif
+
 
 
 static void
@@ -70,7 +68,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
 
 
 /* Reset the map iterator to the beginning */
-NPY_NO_EXPORT void
+void
 NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;
@@ -118,7 +116,7 @@ NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
  * This function needs to update the state of the map iterator
  * and point mit->dataptr to the memory-location of the next object
  */
-NPY_NO_EXPORT void
+void
 NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;

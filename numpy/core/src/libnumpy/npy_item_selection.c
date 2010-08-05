@@ -1,8 +1,15 @@
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
-#include "npy_3kcompat.h"
+#include "numpy/npy_arrayobject.h"
+
+
+/* TODO: Get rid of use of PyArray_INCREF here */
+extern int PyArray_INCREF(void *);
+
 
 NpyArray *
 NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
@@ -1466,7 +1473,7 @@ NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj)
             goto fail;
         }
         index_arrays[j] = item;
-        dptr[j] = (intp *)NpyArray_DATA(item);
+        dptr[j] = (npy_intp *)NpyArray_DATA(item);
     }
     if (n == 1) {
         for (i = 0; i < size; i++) {

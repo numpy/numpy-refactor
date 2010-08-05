@@ -1,17 +1,18 @@
 #define PY_SSIZE_T_CLEAN
-#include <Python.h>
 
 #include <locale.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <assert.h>
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
-#include "numpy/arrayobject.h"
-#include "numpy/npy_math.h"
 
 #include "npy_config.h"
-
-#include "npy_3kcompat.h"
+#include "numpy/npy_math.h"
+#include "numpy/numpyos.h"
 
 /*
  * From the C99 standard, section 7.19.6: The exponent always contains at least
@@ -25,6 +26,8 @@
 #else
 #define MIN_EXPONENT_DIGITS 2
 #endif
+
+#define Npy_CHARMASK(c) ( (c) & 0xff )
 
 /*
  * Ensure that any exponent, if present, is at least MIN_EXPONENT_DIGITS
@@ -45,7 +48,7 @@ _ensure_minimum_exponent_length(char* buffer, size_t buf_size)
         p += 2;
 
         /* Find the end of the exponent, keeping track of leading zeros. */
-        while (*p && isdigit(Py_CHARMASK(*p))) {
+        while (*p && isdigit(Npy_CHARMASK(*p))) {
             if (in_leading_zeros && *p == '0') {
                 ++leading_zero_cnt;
             }
@@ -119,11 +122,11 @@ _ensure_decimal_point(char* buffer, size_t buf_size)
          * ever be '-', but it can't hurt to check for both.
          */
         ++p;
-    while (*p && isdigit(Py_CHARMASK(*p))) {
+    while (*p && isdigit(Npy_CHARMASK(*p))) {
         ++p;
     }
     if (*p == '.') {
-        if (isdigit(Py_CHARMASK(*(p+1)))) {
+        if (isdigit(Npy_CHARMASK(*(p+1)))) {
             /*
              * Nothing to do, we already have a decimal
              * point and a digit after it.
@@ -179,7 +182,7 @@ _change_decimal_from_locale_to_dot(char* buffer)
         if (*buffer == '+' || *buffer == '-') {
             buffer++;
         }
-        while (isdigit(Py_CHARMASK(*buffer))) {
+        while (isdigit(Npy_CHARMASK(*buffer))) {
             buffer++;
         }
         if (strncmp(buffer, decimal_point, decimal_point_len) == 0) {
@@ -288,7 +291,7 @@ _fix_ascii_format(char* buf, size_t buflen, int decimal)
  * Return value: The pointer to the buffer with the converted string.
  */
 #define _ASCII_FORMAT(type, suffix, print_type)                         \
-    NPY_NO_EXPORT char*                                                 \
+    char*                                                               \
     NumPyOS_ascii_format ## suffix(char *buffer, size_t buf_size,       \
                                    const char *format,                  \
                                    type val, int decimal)               \
@@ -297,7 +300,7 @@ _fix_ascii_format(char* buf, size_t buflen, int decimal)
             if(_check_ascii_format(format)) {                           \
                 return NULL;                                            \
             }                                                           \
-            PyOS_snprintf(buffer, buf_size, format, (print_type)val);   \
+            NumPyOS_snprintf(buffer, buf_size, format, (print_type)val);   \
             return _fix_ascii_format(buffer, buf_size, decimal);        \
         }                                                               \
         else if (npy_isnan(val)){                                       \
@@ -336,7 +339,7 @@ _ASCII_FORMAT(long double, l, double)
  *
  * Same as isspace under C locale
  */
-NPY_NO_EXPORT int
+int
 NumPyOS_ascii_isspace(char c)
 {
     return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t'
@@ -430,6 +433,7 @@ static double
 NumPyOS_ascii_strtod_plain(const char *s, char** endptr)
 {
     double result;
+    /* TODO: This ends up being recursive back to NumPyOS_ascii_strtod. Huh?! */
 #if PY_VERSION_HEX >= 0x02070000
     NPY_ALLOW_C_API_DEF
     NPY_ALLOW_C_API
@@ -442,7 +446,8 @@ NumPyOS_ascii_strtod_plain(const char *s, char** endptr)
     }
     NPY_DISABLE_C_API
 #else
-    result = PyOS_ascii_strtod(s, endptr);
+/*    result = NumPyOS_ascii_strtod(s, endptr); */
+    result = strtod(s, endptr);
 #endif
     return result;
 }
@@ -452,7 +457,7 @@ NumPyOS_ascii_strtod_plain(const char *s, char** endptr)
  *
  * Work around bugs in PyOS_ascii_strtod
  */
-NPY_NO_EXPORT double
+double
 NumPyOS_ascii_strtod(const char *s, char** endptr)
 {
     struct lconv *locale_data = localeconv();
@@ -562,7 +567,7 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
  *      * 1 if a number read,
  *      * EOF if end-of-file met before reading anything.
  */
-NPY_NO_EXPORT int
+int
 NumPyOS_ascii_ftolf(FILE *fp, double *value)
 {
     char buffer[FLOAT_FORMATBUFLEN + 1];

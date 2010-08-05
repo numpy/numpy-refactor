@@ -5,7 +5,8 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
-
+#include <stdlib.h>
+#include <strings.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 
@@ -13,7 +14,7 @@
 /* Incref all objects found at this record */
 /*NUMPY_API
  */
-NPY_NO_EXPORT void
+void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;
@@ -23,7 +24,7 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
     }
     if (descr->type_num == NPY_OBJECT) {
         NPY_COPY_PYOBJECT_PTR(&temp, data);
-        Npy_Interface_XINCREF(temp);
+        NpyInterface_Incref(temp);
         /* TODO: Fix for garbage collected environments - needs to store possibly new pointer */
     }
     else if (NpyDataType_HASFIELDS(descr)) {
@@ -43,7 +44,7 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
 }
 
 
-NPY_NO_EXPORT void
+void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;

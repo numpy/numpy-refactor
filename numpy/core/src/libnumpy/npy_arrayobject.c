@@ -1,8 +1,14 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
+
+extern int PyArray_INCREF(void *);     /* TODO: Make these into interface functions */
+extern int PyArray_XDECREF(void *);
+
 
 /*
  * Compute the size of an array (in number of items)
@@ -141,7 +147,7 @@ NpyArray_dealloc(NpyArray *self) {
         _Npy_DECREF(self->base_arr);
         self->base_arr = NULL;
     } else if (NULL != self->base_obj) {
-        Npy_Interface_DECREF(self->base_obj);
+        NpyInterface_Decref(self->base_obj);
         self->base_obj = NULL;
     }
 

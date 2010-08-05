@@ -21,7 +21,7 @@
 #include "npy_config.h"
 #include "_datetime.h"
 
-#include "numpyos.h"
+#include "numpy/numpyos.h"
 
 
 /* Defined in core */

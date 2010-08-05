@@ -5,8 +5,12 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_arrayobject.h"
+#include "numpy/npy_descriptor.h"
 
 
 /*
@@ -45,7 +49,7 @@ _strided_buffered_cast(char *dptr, npy_intp dstride, int delsize, int dswap,
     /* otherwise we need to divide up into bufsize pieces */
     i = 0;
     while (N > 0) {
-        int newN = NPY_MIN(N, bufsize);
+        int newN = NpyArray_MIN(N, bufsize);
 
         _strided_buffered_cast(dptr+i*dstride, dstride, delsize,
                                dswap, dcopyfunc,
@@ -98,7 +102,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
     else {
         maxdim = multi->dimensions[maxaxis];
-        N = (int) (NPY_MIN(maxdim, NPY_BUFSIZE));
+        N = (int) (NpyArray_MIN(maxdim, NPY_BUFSIZE));
         ostrides = multi->iters[0]->strides[maxaxis];
         istrides = multi->iters[1]->strides[maxaxis];
 
@@ -405,7 +409,7 @@ _bufferedcast(NpyArray *out, NpyArray *in,
         if (it_out == NULL) {
             goto exit;
         }
-        nels = NPY_MIN(nels, NPY_BUFSIZE);
+        nels = NpyArray_MIN(nels, NPY_BUFSIZE);
     }
 
     optr = (obuf) ? outbuffer: out->data;

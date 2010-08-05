@@ -13,7 +13,7 @@
 #include "npy_3kcompat.h"
 
 #include "buffer.h"
-#include "numpyos.h"
+#include "numpy/numpyos.h"
 
 /*************************************************************************
  ****************   Implement Buffer Protocol ****************************

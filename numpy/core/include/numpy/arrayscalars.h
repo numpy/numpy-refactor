@@ -3,6 +3,7 @@
 
 #include <numpy/numpy_api.h>
 #include <numpy/npy_descriptor.h>
+#include <numpy/ndarraytypes.h>
 
 #ifndef _MULTIARRAYMODULE
 typedef struct {

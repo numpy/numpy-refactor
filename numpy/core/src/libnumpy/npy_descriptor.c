@@ -5,9 +5,12 @@
 
 #define _MULTIARRAYMODULE
 #define PY_SSIZE_T_CLEAN
+#include <stdlib.h>
+#include <memory.h>
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_object.h"
+#include "numpy/npy_arrayobject.h"
 
 
 #if !defined(MAX)
@@ -118,7 +121,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
  * doesn't alter refcount of chktype or mintype ---
  * unless one of them is returned
  */
-NPY_NO_EXPORT NpyArray_Descr *
+NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
 {
     NpyArray_Descr *outtype;
@@ -225,7 +228,7 @@ NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
     if (outtype->type_num == NPY_VOID &&
         mintype->type_num != NPY_VOID) {
         _Npy_DECREF(outtype);
-        outtype = NpyArray_DescrFromType(PyArray_OBJECT);
+        outtype = NpyArray_DescrFromType(NPY_OBJECT);
     }
     return outtype;
 }

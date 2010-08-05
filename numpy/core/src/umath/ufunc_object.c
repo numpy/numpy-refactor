@@ -25,7 +25,11 @@
  */
 #define _UMATHMODULE
 
-#include "Python.h"
+
+#define NPY_ALLOW_THREADS 1
+
+
+#include <Python.h>
 
 #include "npy_config.h"
 #ifdef ENABLE_SEPARATE_COMPILATION
@@ -33,12 +37,13 @@
 #define NO_IMPORT_ARRAY
 #endif
 
-#include "npy_3kcompat.h"
+#include "numpy/numpy_api.h"
+#include "numpy/npy_iterators.h"
 
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_iterators.h"
+#include "numpy/ndarraytypes.h"
+#include "npy_3kcompat.h"
 
 #include "ufunc_object.h"
 

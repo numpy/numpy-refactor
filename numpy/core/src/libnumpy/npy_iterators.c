@@ -1,9 +1,13 @@
 #define _MULTIARRAYMODULE
-#include <numpy/npy_iterators.h>
-#include <numpy/numpy_api.h>
+#include <stdlib.h>
+#include <memory.h>
+#include <stdarg.h>
 #include "npy_config.h"
-/* TODO: Get rid of this include once we've split PyArrayObject. */
-#include <numpy/ndarraytypes.h>
+#include <numpy/numpy_api.h>
+#include <numpy/npy_arrayobject.h>
+#include <numpy/npy_iterators.h>
+
+
 
 /* XXX: We should be getting this from an include. */
 #ifndef MAX

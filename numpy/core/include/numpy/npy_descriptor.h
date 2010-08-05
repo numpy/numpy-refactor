@@ -1,7 +1,6 @@
 #ifndef _NPY_DESCRIPTOR_H_
 #define _NPY_DESCRIPTOR_H_
 
-#include "npy_defs.h"
 #include "npy_object.h"
 
 #define NpyDataType_HASFIELDS(obj) ((obj)->names != NULL)

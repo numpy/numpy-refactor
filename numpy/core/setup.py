@@ -713,7 +713,8 @@ def configuration(parent_package='',top_path=None):
         join('include', 'numpy', 'numpy_api.h'),
         join('include', 'numpy', 'npy_defs.h'),
         join('include', 'numpy', 'npy_iterators.h'),
-        join('include', 'numpy', 'npy_object.h')]
+        join('include', 'numpy', 'npy_object.h'),
+        join('include', 'numpy', 'numpyos.h')]
     
     libnumpy_source = [
         join('src', 'libnumpy', 'npy_arrayobject.c'),
@@ -736,6 +737,7 @@ def configuration(parent_package='',top_path=None):
         join('src', 'libnumpy', 'npy_refcount.c'),
         join('src', 'libnumpy', 'npy_shape.c'),
         join('src', 'libnumpy', 'npy_usertypes.c'),
+        join('src', 'libnumpy', 'numpyos.c'),
         ]
 
     config.add_library('numpy', sources=libnumpy_source)
@@ -759,7 +761,6 @@ def configuration(parent_package='',top_path=None):
             join('src', 'multiarray', 'multiarraymodule.h'),
             join('src', 'multiarray', 'numpymemoryview.h'),
             join('src', 'multiarray', 'number.h'),
-            join('src', 'multiarray', 'numpyos.h'),
             join('src', 'multiarray', 'refcount.h'),
             join('src', 'multiarray', 'scalartypes.h'),
             join('src', 'multiarray', 'sequence.h'),
@@ -773,7 +774,6 @@ def configuration(parent_package='',top_path=None):
         join('src', 'multiarray', 'numpymemoryview.c'),
         join('src', 'multiarray', 'buffer.c'),
         join('src', 'multiarray', 'datetime.c'),
-        join('src', 'multiarray', 'numpyos.c'),
         join('src', 'multiarray', 'conversion_utils.c'),
         join('src', 'multiarray', 'flagsobject.c'),
         join('src', 'multiarray', 'descriptor.c'),
