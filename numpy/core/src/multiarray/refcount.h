@@ -16,4 +16,10 @@ PyArray_XDECREF(PyArrayObject *mp);
 NPY_NO_EXPORT void
 PyArray_FillObjectArray(PyArrayObject *arr, PyObject *obj);
 
+NPY_NO_EXPORT void *
+NpyInterface_Incref(void *obj);
+
+NPY_NO_EXPORT void
+NpyInterface_Decref(void *obj);
+
 #endif

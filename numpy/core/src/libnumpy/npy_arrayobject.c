@@ -5,6 +5,7 @@
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_arrayobject.h"
+#include "npy_internal.h"
 
 extern int PyArray_INCREF(void *);     /* TODO: Make these into interface functions */
 extern int PyArray_XDECREF(void *);
@@ -147,7 +148,7 @@ NpyArray_dealloc(NpyArray *self) {
         _Npy_DECREF(self->base_arr);
         self->base_arr = NULL;
     } else if (NULL != self->base_obj) {
-        NpyInterface_Decref(self->base_obj);
+        NpyInterface_DECREF(self->base_obj);
         self->base_obj = NULL;
     }
 

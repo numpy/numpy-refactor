@@ -26,24 +26,19 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype);
  * Reference counting callbacks provided to the core. 
  */
 
-void
-NpyInterface_Incref(void *objtmp)
+/* Returns a new handle to the object.  For garbage collected systems this will be different than
+   the incoming object.  For refcounted systems such as CPython we just return the original ptr. */
+NPY_NO_EXPORT void *
+NpyInterface_Incref(void *obj)
 {
-    PyObject *obj = (PyObject *)objtmp;
     Py_INCREF(obj);
+    return obj;
 }
 
-void
-NpyInterface_Decref(void *objtmp)
+NPY_NO_EXPORT void
+NpyInterface_Decref(void *obj)
 {
-    PyObject *obj = (PyObject *)objtmp;
-    Py_DECREF(obj);
-}
-
-void
-NpyInterface_XDecref(void *objtmp)
-{
-    PyObject *obj = (PyObject *)objtmp;
+    /* Used XDECREF, so this function cleanly handles NULL. */
     Py_XDECREF(obj);
 }
 
@@ -77,56 +72,10 @@ PyArray_Item_XDECREF(char *data, PyArray_Descr *descr)
 NPY_NO_EXPORT int
 PyArray_INCREF(PyArrayObject *mp)
 {
-    intp i, n;
-    PyObject **data;
-    PyObject *temp;
-    NpyArrayIterObject *it;
-
-    if (!NpyDataType_REFCHK(PyArray_DESCR(mp))) {
-        return 0;
-    }
-    if (PyArray_TYPE(mp) != PyArray_OBJECT) {
-        it = NpyArray_IterNew(PyArray_ARRAY(mp));
-        if (it == NULL) {
-            return -1;
-        }
-        while(it->index < it->size) {
-            NpyArray_Item_INCREF(it->dataptr, PyArray_DESCR(mp));
-            NpyArray_ITER_NEXT(it);
-        }
-        _Npy_DECREF(it);
-        return 0;
-    }
-
-    if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)PyArray_BYTES(mp);
-        n = PyArray_SIZE(mp);
-        if (PyArray_ISALIGNED(mp)) {
-            for (i = 0; i < n; i++, data++) {
-                Py_XINCREF(*data);
-            }
-        }
-        else {
-            for( i = 0; i < n; i++, data++) {
-                NPY_COPY_PYOBJECT_PTR(&temp, data);
-                Py_XINCREF(temp);
-            }
-        }
-    }
-    else { /* handles misaligned data too */
-        it = NpyArray_IterNew(PyArray_ARRAY(mp));
-        if (it == NULL) {
-            return -1;
-        }
-        while(it->index < it->size) {
-            NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
-            Py_XINCREF(temp);
-            NpyArray_ITER_NEXT(it);
-        }
-        _Npy_DECREF(it);
-    }
-    return 0;
+    return NpyArray_INCREF(PyArray_ARRAY(mp));
 }
+
+
 
 /*NUMPY_API
   Decrement all internal references for object arrays.
@@ -135,53 +84,7 @@ PyArray_INCREF(PyArrayObject *mp)
 NPY_NO_EXPORT int
 PyArray_XDECREF(PyArrayObject *mp)
 {
-    intp i, n;
-    PyObject **data;
-    PyObject *temp;
-    NpyArrayIterObject *it;
-
-    if (!NpyDataType_REFCHK(PyArray_DESCR(mp))) {
-        return 0;
-    }
-    if (PyArray_TYPE(mp) != PyArray_OBJECT) {
-        it = NpyArray_IterNew(PyArray_ARRAY(mp));
-        if (it == NULL) {
-            return -1;
-        }
-        while(it->index < it->size) {
-            NpyArray_Item_XDECREF(it->dataptr, PyArray_DESCR(mp));
-            NpyArray_ITER_NEXT(it);
-        }
-        _Npy_DECREF(it);
-        return 0;
-    }
-
-    if (PyArray_ISONESEGMENT(mp)) {
-        data = (PyObject **)PyArray_BYTES(mp);
-        n = PyArray_SIZE(mp);
-        if (PyArray_ISALIGNED(mp)) {
-            for (i = 0; i < n; i++, data++) Py_XDECREF(*data);
-        }
-        else {
-            for (i = 0; i < n; i++, data++) {
-                NPY_COPY_PYOBJECT_PTR(&temp, data);
-                Py_XDECREF(temp);
-            }
-        }
-    }
-    else { /* handles misaligned data too */
-        it = NpyArray_IterNew(PyArray_ARRAY(mp));
-        if (it == NULL) {
-            return -1;
-        }
-        while(it->index < it->size) {
-            NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
-            Py_XDECREF(temp);
-            NpyArray_ITER_NEXT(it);
-        }
-        _Npy_DECREF(it);
-    }
-    return 0;
+    return NpyArray_XDECREF(PyArray_ARRAY(mp));
 }
 
 /*NUMPY_API

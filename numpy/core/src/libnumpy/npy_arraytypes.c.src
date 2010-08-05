@@ -14,6 +14,7 @@
 #include "numpy/npy_arrayobject.h"
 #include "numpy/numpyos.h"
 #include "numpy/npy_dict.h"
+#include "npy_internal.h"
 
 #include "numpy/npy_math.h"
 #include "numpy/noprefix.h"

@@ -37,24 +37,20 @@
 /* Internal APIs */
 #include "arraytypes.h"
 #include "arrayobject.h"
+#include "ctors.h"
 #include "hashdescr.h"
 #include "descriptor.h"
 #include "calculation.h"
+#include "iterators.h"
+#include "mapping.h"
 #include "number.h"
 #include "scalartypes.h"
 #include "numpymemoryview.h"
+#include "refcount.h"
 
-
-/* Defined by the core library. */
-extern void initlibnumpy(struct NpyArray_FunctionDefs *,
-                         npy_tp_error_set,
-                         npy_tp_error_occurred,
-                         npy_tp_error_clear,
-                         npy_tp_cmp_priority);
 
 /* Defind in arraytypes.c.src */
 extern struct NpyArray_FunctionDefs _array_function_defs;
-
 
 
 /*NUMPY_API
@@ -2445,6 +2441,19 @@ cmp_priority(void *obj1, void *obj2)
 }
 
 
+struct NpyInterface_WrapperFuncs _wrapper_funcs = {
+    NpyInterface_ArrayNewWrapper,
+    NpyInterface_IterNewWrapper,
+    NpyInterface_MultiIterNewWrapper,
+    NpyInterface_NeighborhoodIterNewWrapper,
+    NpyInterface_MapIterNewWrapper,
+    NpyInterface_DescrNewFromType,
+    NpyInterface_DescrNewFromWrapper
+};
+
+
+
+
 /* Initialization function for the module */
 #if defined(NPY_PY3K)
 #define RETVAL m
@@ -2461,10 +2470,12 @@ PyMODINIT_FUNC initmultiarray(void) {
        pointers to functions that it can use for coverting type-to-object,
        object-to-type, and similar operations. */
     initlibnumpy(&_array_function_defs,
+                 &_wrapper_funcs,
                  (npy_tp_error_set) error_set,
                  (npy_tp_error_occurred) error_occurred,
                  (npy_tp_error_clear) error_clear,
-                 (npy_tp_cmp_priority) cmp_priority);
+                 (npy_tp_cmp_priority) cmp_priority,
+                 NpyInterface_Incref, NpyInterface_Decref);
 
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)

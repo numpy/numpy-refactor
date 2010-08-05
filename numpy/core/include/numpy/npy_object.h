@@ -29,7 +29,7 @@ struct _NpyObject {
 #define _Npy_INCREF(a)                                                \
        do {                                                           \
             if (0 == (a)->nob_refcnt && NULL != Npy_INTERFACE(a))     \
-                NpyInterface_Incref(Npy_INTERFACE(a));                \
+                NpyInterface_INCREF(Npy_INTERFACE(a));                \
             (a)->nob_refcnt++;                                        \
        } while(0)                                                     \
 
@@ -37,7 +37,7 @@ struct _NpyObject {
 #define _Npy_DECREF(a)                                          \
         if (--(a)->nob_refcnt == 0) {                           \
             if (NULL != Npy_INTERFACE(a))                       \
-                NpyInterface_Decref(Npy_INTERFACE(a));          \
+                NpyInterface_DECREF(Npy_INTERFACE(a));          \
             else (a)->nob_type->ntp_dealloc((_NpyObject*)a);    \
         }
 

@@ -12,6 +12,8 @@
 #include "numpy/utils.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_arrayobject.h"
+#include "npy_internal.h"
+
 
 /* TODO: Remove these declarations once PyArray_INCREF, etc refactored. */
 extern int PyArray_INCREF(void *);

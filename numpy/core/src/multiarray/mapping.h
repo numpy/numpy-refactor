@@ -59,4 +59,7 @@ PyArray_MapIterBind(PyArrayMapIterObject *, PyArrayObject *);
 NPY_NO_EXPORT PyObject*
 PyArray_MapIterNew(PyObject *);
 
+NPY_NO_EXPORT int
+NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet);
+
 #endif

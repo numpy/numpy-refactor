@@ -5,6 +5,7 @@
 #include <numpy/numpy_api.h>
 #include <numpy/npy_iterators.h>
 #include <numpy/npy_arrayobject.h>
+#include "npy_internal.h"
 
 
 
