@@ -2984,7 +2984,7 @@ NPY_NO_EXPORT PyTypeObject PyArrayDescr_Type = {
     0,                                          /* tp_init */
     0,                                          /* tp_alloc */
     arraydescr_new,                             /* tp_new */
-    0,                                          /* tp_free */
+    (freefunc)_pya_free,                        /* tp_free */
     0,                                          /* tp_is_gc */
     0,                                          /* tp_bases */
     0,                                          /* tp_mro */

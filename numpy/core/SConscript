@@ -218,7 +218,6 @@ if not BYPASS_SINGLE_EXTENDED:
 # definitions
 for f in ["isnan", "isinf", "signbit", "isfinite"]:
     includes = """\
-#include <Python.h>
 #include <math.h>
 """
     st = config.CheckDeclaration(f, includes=includes)
