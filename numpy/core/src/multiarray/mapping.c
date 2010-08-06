@@ -35,17 +35,17 @@ NPY_NO_EXPORT int
 NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet)
 {
     PyArrayMapIterObject *result;
-    
+
     result = _pya_malloc(sizeof(*result));
     if (result == NULL) {
         *interfaceRet = NULL;
         return NPY_FALSE;
     }
-    
+
     PyObject_Init((PyObject *)result, &PyArrayMapIter_Type);
     result->magic_number = NPY_VALID_MAGIC;
     result->iter = iter;
-    
+
     *interfaceRet = result;
     return NPY_TRUE;
 }
@@ -211,7 +211,7 @@ add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
         dimensions[i]  = 1;
     }
     _Npy_INCREF(PyArray_DESCR(arr));
-    ASSIGN_TO_PYARRAY(other, 
+    ASSIGN_TO_PYARRAY(other,
                       NpyArray_NewFromDescr(PyArray_DESCR(arr),
                                             newaxis_count, dimensions,
                                             NULL, PyArray_BYTES(arr),
@@ -220,7 +220,7 @@ add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
     if (NULL == other) {
         return NULL;
     }
-    
+
     PyArray_BASE_ARRAY(other) = PyArray_ARRAY(arr);
     _Npy_INCREF(PyArray_BASE_ARRAY(other));
     ASSERT_ONE_BASE(other);
@@ -682,12 +682,12 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
     if (PyString_Check(index) || PyUnicode_Check(index)) {
         if (PyArray_DESCR(self)->names) {
             NpyArray_DescrField *value;
-            
+
             value = NpyDict_Get(PyArray_DESCR(self)->fields, PyString_AsString(index));
             if (NULL != value) {
                 PyArray_Descr *descrWrap = PyArray_Descr_WRAP(value->descr);
                 Py_INCREF(descrWrap);
-                return PyArray_SetField(self, descrWrap, 
+                return PyArray_SetField(self, descrWrap,
                                         value->offset, op);
             }
         }
@@ -710,14 +710,14 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
         if (index == Py_Ellipsis || index == Py_None ||
             (PyTuple_Check(index) && (0 == PyTuple_GET_SIZE(index) ||
                                       count_new_axes_0d(index) > 0))) {
-            return PyArray_DESCR(self)->f->setitem(op, PyArray_BYTES(self), 
+            return PyArray_DESCR(self)->f->setitem(op, PyArray_BYTES(self),
                                                    PyArray_ARRAY(self));
         }
         if (PyBool_Check(index) || PyArray_IsScalar(index, Bool) ||
             (PyArray_Check(index) && (PyArray_DIMS(index)==0) &&
              PyArray_ISBOOL(index))) {
             if (PyObject_IsTrue(index)) {
-                return PyArray_DESCR(self)->f->setitem(op, 
+                return PyArray_DESCR(self)->f->setitem(op,
                             PyArray_BYTES(self), PyArray_ARRAY(self));
             }
             else { /* don't do anything */
@@ -748,7 +748,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
             }
         }
         item = PyArray_GetPtr(self, vals);
-        return PyArray_DESCR(self)->f->setitem(op, item, 
+        return PyArray_DESCR(self)->f->setitem(op, item,
                                                PyArray_ARRAY(self));
     }
     PyErr_Clear();
@@ -1164,11 +1164,11 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 }
 
 /*
- * Creates a new MapIter from an indexob.  Assumes that the 
+ * Creates a new MapIter from an indexob.  Assumes that the
  * index has already been processed with fancy_index.
  *
  * Sets iteraxes to the indexes in indexobj that has been converted
- * to iterators.  PyArray_MapIterBind will change these into 
+ * to iterators.  PyArray_MapIterBind will change these into
  * indexes into the array, taking into account ellipses.
  */
 NPY_NO_EXPORT PyObject *

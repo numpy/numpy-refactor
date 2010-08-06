@@ -27,17 +27,17 @@ NPY_NO_EXPORT int
 NpyInterface_IterNewWrapper(NpyArrayIterObject *iter, void **interfaceRet)
 {
     PyArrayIterObject *result;
-    
+
     result = _pya_malloc(sizeof(*result));
     if (result == NULL) {
         *interfaceRet = NULL;
         return NPY_FALSE;
     }
-    
+
     PyObject_Init((PyObject *)result, &PyArrayIter_Type);
     result->magic_number = NPY_VALID_MAGIC;
     result->iter = iter;
-    
+
     *interfaceRet = result;
     return NPY_TRUE;
 }
@@ -47,17 +47,17 @@ NPY_NO_EXPORT int
 NpyInterface_MultiIterNewWrapper(NpyArrayMultiIterObject *iter, void **interfaceRet)
 {
     PyArrayMultiIterObject *result;
-    
+
     result = _pya_malloc(sizeof(*result));
     if (result == NULL) {
         *interfaceRet = NULL;
         return NPY_FALSE;
     }
-    
+
     PyObject_Init((PyObject *)result, &PyArrayMultiIter_Type);
     result->magic_number = NPY_VALID_MAGIC;
-    result->iter = iter;    
-    
+    result->iter = iter;
+
     *interfaceRet = result;
     return NPY_TRUE;
 }
@@ -67,16 +67,16 @@ NPY_NO_EXPORT int
 NpyInterface_NeighborhoodIterNewWrapper(NpyArrayNeighborhoodIterObject *iter, void **interfaceRet)
 {
     PyArrayNeighborhoodIterObject *result;
-    
+
     result = _pya_malloc(sizeof(*result));
     if (result == NULL) {
         *interfaceRet = NULL;
         return NPY_FALSE;
     }
-    
+
     PyObject_Init((PyObject *)result, &PyArrayNeighborhoodIter_Type);
     result->magic_number = NPY_VALID_MAGIC;
-    result->iter = iter;    
+    result->iter = iter;
 
     *interfaceRet = result;
     return NPY_TRUE;
@@ -352,7 +352,7 @@ PyArray_IterNew(PyObject *obj)
 {
     PyArrayObject *ao = (PyArrayObject *)obj;
     NpyArrayIterObject *iter = NULL;
-    
+
     if (!PyArray_Check(ao)) {
         PyErr_BadInternalCall();
         return NULL;
@@ -362,12 +362,12 @@ PyArray_IterNew(PyObject *obj)
     if (NULL == iter) {
         return NULL;
     }
-    
+
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
        interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
-    
+
     return (PyObject *)Npy_INTERFACE(iter);
 }
 
@@ -381,12 +381,12 @@ NPY_NO_EXPORT PyObject *
 PyArray_BroadcastToShape(PyObject *obj, intp *dims, int nd)
 {
     NpyArrayIterObject *iter = NpyArray_BroadcastToShape(PyArray_ARRAY(obj), dims, nd);
-    
+
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
-    
+
     return (PyObject*)Npy_INTERFACE(iter);
 }
 
@@ -403,18 +403,18 @@ NPY_NO_EXPORT PyObject *
 PyArray_IterAllButAxis(PyObject *obj, int *inaxis)
 {
     NpyArrayIterObject *iter;
-    
+
     if (!PyArray_Check(obj)) {
         PyErr_BadInternalCall();
         return NULL;
     }
     iter = NpyArray_IterAllButAxis(PyArray_ARRAY(obj), inaxis);
-    
+
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyArrayIterObject *)Npy_INTERFACE(iter) );
     _Npy_DECREF( iter );
-    
+
     return (PyObject*)Npy_INTERFACE(iter);
 }
 
@@ -454,7 +454,7 @@ static void
 arrayiter_dealloc(PyArrayIterObject *it)
 {
     Npy_DEALLOC(it->iter);
-    
+
     it->magic_number = NPY_INVALID_MAGIC;
     _pya_free(it);
 }
@@ -501,10 +501,10 @@ iter_subscript_Bool(NpyArrayIterObject *self, PyArrayObject *ind)
     }
     itemsize = self->ao->descr->elsize;
     _Npy_INCREF(self->ao->descr);
-    ASSIGN_TO_PYARRAY(r, 
+    ASSIGN_TO_PYARRAY(r,
                       NpyArray_NewFromDescr(self->ao->descr, 1, &count,
                                             NULL, NULL,
-                                            0, NPY_FALSE, NULL, 
+                                            0, NPY_FALSE, NULL,
                                             Npy_INTERFACE(self->ao)));
     if (r == NULL) {
         return NULL;
@@ -689,7 +689,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
         ASSIGN_TO_PYARRAY(r, NpyArray_NewFromDescr(self->ao->descr,
                                   1, &n_steps,
                                   NULL, NULL,
-                                  0, NPY_FALSE, 
+                                  0, NPY_FALSE,
                                   NULL, Npy_INTERFACE(self->ao)));
         if (r == NULL) {
             goto fail;
@@ -849,7 +849,7 @@ iter_ass_sub_int(NpyArrayIterObject *self, PyArrayObject *ind,
     return 0;
 }
 
-    
+
 NPY_NO_EXPORT int
 iter_ass_subscript(PyArrayIterObject *self, PyObject *ind, PyObject *val)
 {
@@ -957,14 +957,14 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
         NpyArray_ITER_GOTO1D(self, start);
         if (n_steps == SingleIndex) {
             /* Integer */
-            copyswap(self->dataptr, PyArray_DATA(arrval), swap, 
+            copyswap(self->dataptr, PyArray_DATA(arrval), swap,
                      PyArray_ARRAY(arrval));
             NpyArray_ITER_RESET(self);
             retval = 0;
             goto finish;
         }
         while (n_steps--) {
-            copyswap(self->dataptr, val_it->dataptr, swap, 
+            copyswap(self->dataptr, val_it->dataptr, swap,
                      PyArray_ARRAY(arrval));
             start += step_size;
             NpyArray_ITER_GOTO1D(self, start);
@@ -1090,7 +1090,7 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
     _Npy_INCREF(it->ao);
     NpyArray_BASE_ARRAY(r) = it->ao;
     assert(NULL == NpyArray_BASE_ARRAY(r) || NULL == NpyArray_BASE(r));
-    
+
     ASSIGN_TO_PYARRAY(result, r);
     return (PyObject *)result;
 }
@@ -1399,14 +1399,14 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
     }
 
     /* TODO: Shouldn't this just call PyArray_MultiIterFromObjects? */
-    multi = NpyArray_MultiIterNew();    
+    multi = NpyArray_MultiIterNew();
     multi->numiter = n;
     multi->index = 0;
     for (i = 0; i < n; i++) {
         multi->iters[i] = NULL;
     }
     for (i = 0; i < n; i++) {
-        arr = (PyArrayObject* )PyArray_FromAny(PyTuple_GET_ITEM(args, i), 
+        arr = (PyArrayObject* )PyArray_FromAny(PyTuple_GET_ITEM(args, i),
                                                NULL, 0, 0, 0, NULL);
         if (arr == NULL) {
             goto fail;
@@ -1448,7 +1448,7 @@ arraymultiter_next(PyArrayMultiIterObject *pmulti)
         for (i = 0; i < n; i++) {
             NpyArrayIterObject *it=multi->iters[i];
             PyTuple_SET_ITEM(ret, i,
-                             PyArray_ToScalar(it->dataptr, 
+                             PyArray_ToScalar(it->dataptr,
                                               Npy_INTERFACE(it->ao)));
             NpyArray_ITER_NEXT(it);
         }
@@ -1522,13 +1522,13 @@ arraymultiter_iters_get(PyArrayMultiIterObject *self)
     return res;
 }
 
-static PyObject* 
+static PyObject*
 arraymultiter_numiter_get(PyArrayMultiIterObject* multi)
 {
     return PyInt_FromLong((long) multi->iter->numiter);
 }
 
-static PyObject* 
+static PyObject*
 arraymultiter_nd_get(PyArrayMultiIterObject* multi)
 {
     return PyInt_FromLong((long) multi->iter->nd);
@@ -1649,13 +1649,13 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
 {
     char *ret;
     int storeflags, st;
-    
+
     ret = (char *)PyDataMem_NEW(ao->descr->elsize);
     if (ret == NULL) {
         PyErr_SetNone(PyExc_MemoryError);
         return NULL;
     }
-    
+
     if (NpyArray_ISOBJECT(ao)) {                /* TODO: Double check this case, memcpy of a pointer? Is ISOBJECT still correct? */
         memcpy(ret, fill->data, sizeof(PyObject*));
         Py_INCREF(*(PyObject**)ret);     /* TODO: What are the possible object types for ret? */
@@ -1665,13 +1665,13 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
         ao->flags |= NPY_BEHAVED;
         st = ao->descr->f->setitem(Npy_INTERFACE(fill), ret, ao);
         ao->flags = storeflags;
-        
+
         if (st < 0) {
             PyDataMem_FREE(ret);
             return NULL;
         }
     }
-    
+
     return ret;
 }
 
@@ -1722,16 +1722,16 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
             PyErr_SetString(PyExc_ValueError, "Unsupported padding mode");
             return NULL;
     }
-    coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode, 
+    coreRet = NpyArray_NeighborhoodIterNew(x->iter, bounds, mode,
                                            fillptr, freefill);
     if (NULL == coreRet) {
-        return NULL;        
+        return NULL;
     }
-    
+
     /* Move the reference from the core object to the interface obj. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(coreRet) );
     _Npy_DECREF( coreRet );
-    
+
     return (PyObject *)Npy_INTERFACE(coreRet);
 }
 
