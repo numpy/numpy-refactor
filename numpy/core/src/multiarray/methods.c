@@ -833,14 +833,9 @@ array_preparearray(PyArrayObject *self, PyObject *args)
     if (ret == NULL) {
         return NULL;
     }
-    if (PyArray_Check(arr)) {
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
-    } else {
-        PyArray_BASE(ret) = arr;
-        Py_INCREF(PyArray_BASE(ret));
-    }
-    ASSERT_ONE_BASE(ret);
+    PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
+    _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+
     return (PyObject *)ret;
 }
 
