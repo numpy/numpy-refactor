@@ -161,7 +161,8 @@ def configuration(parent_package='',top_path=None):
 def setup_package():
 
     # Rewrite the version file everytime
-    if os.path.exists('numpy/version.py'): os.remove('numpy/version.py')
+    if os.path.exists('numpy/version.py'):
+        os.remove('numpy/version.py')
     write_version_py()
 
     # Perform 2to3 if needed
