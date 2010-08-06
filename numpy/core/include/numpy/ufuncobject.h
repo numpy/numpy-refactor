@@ -4,6 +4,8 @@
 extern "C" {
 #endif
 
+struct NpyDict_struct;
+    
 typedef void (*PyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
 
 typedef struct {
@@ -18,7 +20,7 @@ typedef struct {
         char *doc;
         void *ptr;
         PyObject *obj;
-        PyObject *userloops;
+        struct NpyDict_struct *userloops;
     
         /* generalized ufunc */
         int core_enabled;      /* 0 for scalar ufunc; 1 for generalized ufunc */
