@@ -19,7 +19,7 @@ OTHERINCLUDES = \
         src/npy_iterators.h \
         src/npy_math.h \
         src/npy_object.h \
-	src/numospy.h \
+	src/numpyos.h \
 	src/utils.h
 
 # Sources to build library
