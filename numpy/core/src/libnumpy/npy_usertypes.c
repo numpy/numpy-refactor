@@ -22,7 +22,6 @@ maintainer email:  oliphant.travis@ieee.org
 */
 
 #define _MULTIARRAYMODULE
-#define PY_SSIZE_T_CLEAN
 
 #include <stdlib.h>
 #include <memory.h>
