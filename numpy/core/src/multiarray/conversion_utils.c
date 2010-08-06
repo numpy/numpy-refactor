@@ -721,6 +721,11 @@ convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
         if (islice->step == -1 && PyErr_Occurred()) {
             return -1;
         }
+        if (islice->step == 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "slice step cannot be zero");
+            return -1;
+        }
     }
 
     return 0;
