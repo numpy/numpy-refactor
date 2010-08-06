@@ -39,6 +39,8 @@
 
 #include "numpy/numpy_api.h"
 #include "numpy/npy_iterators.h"
+#include "numpy/npy_dict.h"
+#include "numpy/npy_ufunc_object.h"
 
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
@@ -62,6 +64,51 @@
     } while (0)
 
 /* ---------------------------------------------------------------- */
+
+
+/* TODO: Following three functions are duplicates of npy_ufunc_object.c and should go away 
+   once we can build a shared library of the core code. */
+static int npy_compare_ints(const void *a, const void *b)
+{
+    if (a < b ) return -1;
+    else if ( a > b ) return 1;
+    return 0;
+}
+
+static int npy_hash_int(const void *a)
+{
+    return (int)a;          /* Size change is safe - just a hash function */
+}
+
+/*
+ * This frees the linked-list structure when the CObject
+ * is destroyed (removed from the internal dictionary)
+ */
+static void npy_free_loop1d_list(PyUFunc_Loop1d *data)
+{
+    while (data != NULL) {
+        PyUFunc_Loop1d *next = data->next;
+        NpyArray_free(data->arg_types);
+        NpyArray_free(data);
+        data = next;
+    }
+}
+
+
+NpyDict *npy_create_userloops_table()
+{
+    NpyDict *new = NpyDict_CreateTable(7);  /* 7 is a guess at enough */
+    NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))npy_compare_ints);
+    NpyDict_SetHashFunction(new, (int (*)(const void *))npy_hash_int);
+    NpyDict_SetDeallocationFunctions(new, NULL, (void (*)(void *))npy_free_loop1d_list); 
+    return new;
+}
+
+/* TODO: END of duplicated code */
+
+
+
+
 
 
 static int
@@ -384,15 +431,13 @@ _find_array_prepare(PyObject *args, PyObject **output_wrap, int nin, int nout)
  * will occur.
  */
 static int
-_find_matching_userloop(PyObject *obj, int *arg_types,
+_find_matching_userloop(PyUFunc_Loop1d *funcdata, int *arg_types,
                         PyArray_SCALARKIND *scalars,
                         PyUFuncGenericFunction *function, void **data,
                         int nargs, int nin)
 {
-    PyUFunc_Loop1d *funcdata;
     int i;
 
-    funcdata = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(obj);
     while (funcdata != NULL) {
         for (i = 0; i < nin; i++) {
             if (!PyArray_CanCoerceScalar(arg_types[i],
@@ -525,17 +570,10 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
     nargs = self->nargs;
     if (userdef > 0) {
         /* search in the user-defined functions */
-        PyObject *key, *obj;
         PyUFunc_Loop1d *funcdata;
 
-        obj = NULL;
-        key = PyInt_FromLong((long) userdef);
-        if (key == NULL) {
-            return -1;
-        }
-        obj = PyDict_GetItem(self->userloops, key);
-        Py_DECREF(key);
-        if (obj == NULL) {
+        funcdata = NpyDict_Get(self->userloops, (void *)(npy_intp)userdef);
+        if (NULL == funcdata) {
             PyErr_SetString(PyExc_TypeError,
                             "user-defined type used in ufunc" \
                             " with no registered loops");
@@ -545,7 +583,6 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
          * extract the correct function
          * data and argtypes
          */
-        funcdata = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(obj);
         while (funcdata != NULL) {
             if (n != 1) {
                 for (i = 0; i < nargs; i++) {
@@ -566,7 +603,6 @@ extract_specified_loop(PyUFuncObject *self, int *arg_types,
                 for(i = 0; i < nargs; i++) {
                     arg_types[i] = funcdata->arg_types[i];
                 }
-                Py_DECREF(obj);
                 return 0;
             }
             funcdata = funcdata->next;
@@ -635,15 +671,16 @@ select_types(PyUFuncObject *self, int *arg_types,
                                       rtypenums, userdef);
 
     if (userdef > 0) {
-        PyObject *key, *obj;
         int ret = -1;
-        obj = NULL;
 
         /*
          * Look through all the registered loops for all the user-defined
          * types to find a match.
          */
         while (ret == -1) {
+            PyUFunc_Loop1d *funcdata;
+            npy_intp userdefP;
+            
             if (userdef_ind >= self->nin) {
                 break;
             }
@@ -651,20 +688,13 @@ select_types(PyUFuncObject *self, int *arg_types,
             if (!(NpyTypeNum_ISUSERDEF(userdef))) {
                 continue;
             }
-            key = PyInt_FromLong((long) userdef);
-            if (key == NULL) {
-                return -1;
-            }
-            obj = PyDict_GetItem(self->userloops, key);
-            Py_DECREF(key);
-            if (obj == NULL) {
-                continue;
-            }
+            userdefP = (npy_intp)userdef;
+            funcdata = NpyDict_Get(self->userloops, (void *)userdefP);
             /*
              * extract the correct function
              * data and argtypes for this user-defined type.
              */
-            ret = _find_matching_userloop(obj, arg_types, scalars,
+            ret = _find_matching_userloop(funcdata, arg_types, scalars,
                                           function, data, self->nargs,
                                           self->nin);
         }
@@ -4094,8 +4124,8 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
                             void *data)
 {
     PyArray_Descr *descr;
-    PyUFunc_Loop1d *funcdata;
-    PyObject *key, *cobj;
+    PyUFunc_Loop1d *funcdata, *current = NULL;
+    PyObject *key;
     int i;
     int *newtypes=NULL;
 
@@ -4107,7 +4137,7 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
     Py_DECREF(descr);
 
     if (ufunc->userloops == NULL) {
-        ufunc->userloops = PyDict_New();
+        ufunc->userloops = npy_create_userloops_table();
     }
     key = PyInt_FromLong((long) usertype);
     if (key == NULL) {
@@ -4138,20 +4168,14 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
     funcdata->next = NULL;
 
     /* Get entry for this user-defined type*/
-    cobj = PyDict_GetItem(ufunc->userloops, key);
+    current = (PyUFunc_Loop1d *)NpyDict_Get(ufunc->userloops, (void *)(npy_intp)usertype);
     /* If it's not there, then make one and return. */
-    if (cobj == NULL) {
-        cobj = PyCapsule_FromVoidPtr((void *)funcdata, _loop1d_list_free);
-        if (cobj == NULL) {
-            goto fail;
-        }
-        PyDict_SetItem(ufunc->userloops, key, cobj);
-        Py_DECREF(cobj);
-        Py_DECREF(key);
+    if (NULL == current) {
+        NpyDict_Put(ufunc->userloops, (void *)(npy_intp)usertype, funcdata);
         return 0;
     }
     else {
-        PyUFunc_Loop1d *current, *prev = NULL;
+        PyUFunc_Loop1d *prev = NULL;
         int cmp = 1;
         /*
          * There is already at least 1 loop. Place this one in
@@ -4159,7 +4183,6 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
          * is exactly like this one, then just replace.
          * Otherwise insert.
          */
-        current = (PyUFunc_Loop1d *)PyCapsule_AsVoidPtr(cobj);
         while (current != NULL) {
             cmp = cmp_arg_types(current->arg_types, newtypes, ufunc->nargs);
             if (cmp >= 0) {
@@ -4184,18 +4207,16 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
             funcdata->next = current;
             if (prev == NULL) {
                 /* place this at front */
-                _SETCPTR(cobj, funcdata);
+                NpyDict_ForceValue(ufunc->userloops, (void *)(npy_intp)usertype, funcdata);
             }
             else {
                 prev->next = funcdata;
             }
         }
     }
-    Py_DECREF(key);
     return 0;
 
  fail:
-    Py_DECREF(key);
     _pya_free(funcdata);
     _pya_free(newtypes);
     if (!PyErr_Occurred()) PyErr_NoMemory();
@@ -4223,7 +4244,9 @@ ufunc_dealloc(PyUFuncObject *self)
     if (self->ptr) {
         _pya_free(self->ptr);
     }
-    Py_XDECREF(self->userloops);
+    if (NULL != self->userloops) {
+        NpyDict_Destroy(self->userloops);
+    }
     Py_XDECREF(self->obj);
     _pya_free(self);
 }

@@ -446,6 +446,7 @@ libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
                 pjoin('src', 'libnumpy', 'npy_multiarraymodule.c'),
                 pjoin('src', 'libnumpy', 'npy_refcount.c'),
                 pjoin('src', 'libnumpy', 'npy_shape.c'),
+                pjoin('src', 'libnumpy', 'npy_ufunc_object.c'),
                 pjoin('src', 'libnumpy', 'npy_usertypes.c'),
                 pjoin('src', 'libnumpy', 'numpyos.c'),
                 pjoin('src', 'libnumpy', 'npy_index.c')]

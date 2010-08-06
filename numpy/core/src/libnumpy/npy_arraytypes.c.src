@@ -1,8 +1,7 @@
 /* -*- c -*- */
-#define PY_SSIZE_T_CLEAN
 
-/* TODO: Need to fix setup to produce HAVE_LONG_LONG without including Python.h or
- wherever it was coming from. */
+/* TODO: Need to fix setup to produce HAVE_LONG_LONG without including
+   Python.h or wherever it was coming from. */
 #define HAVE_LONG_LONG 1
 
 #define _MULTIARRAYMODULE
