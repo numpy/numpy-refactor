@@ -40,4 +40,7 @@ typedef struct NpyIndex {
 
 void NpyArray_IndexDealloc(NpyIndex* indexes, int n);
 
+int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
+                       int n, NpyIndex* out_indexes);
+
 #endif

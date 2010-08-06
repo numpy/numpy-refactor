@@ -691,8 +691,27 @@ convert_array(PyObject*obj, int type, NpyArray **parray)
 static int
 convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
 {
+    if (slice->step == Py_None) {
+        islice->step = 1;
+    }
+    else {
+        islice->step = PyArray_PyIntAsIntp(slice->step);
+        if (islice->step == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (islice->step == 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "slice step cannot be zero");
+            return -1;
+        }
+    }
+
     if (slice->start == Py_None) {
-        islice->start = 0;
+        if (slice->step > 0) {
+            islice->start = 0;
+        } else {
+            islice->start = -1;
+        }
     }
     else {
         islice->start = PyArray_PyIntAsIntp(slice->start);
@@ -711,21 +730,6 @@ convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
             return -1;
         }
         islice->has_stop = NPY_TRUE;
-    }
-
-    if (slice->step == Py_None) {
-        islice->step = 1;
-    }
-    else {
-        islice->step = PyArray_PyIntAsIntp(slice->step);
-        if (islice->step == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        if (islice->step == 0) {
-            PyErr_SetString(PyExc_ValueError,
-                            "slice step cannot be zero");
-            return -1;
-        }
     }
 
     return 0;
@@ -868,7 +872,7 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
             for (i=0; i<n; i++) {
                 item = PyTuple_GET_ITEM(index, i);
                 if (convert_single_index(item, &indexes[i]) < 0) {
-                    NpyArray_IndexDealloc(indexes, n-1);
+                    NpyArray_IndexDealloc(indexes, i);
                     return -1;
                 }
             }
@@ -883,7 +887,7 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
         for (i=0; i<n; i++) {
             item = PySequence_GetItem(index, i);
             if (convert_single_index(item, &indexes[i]) < 0) {
-                NpyArray_IndexDealloc(indexes, n-1);
+                NpyArray_IndexDealloc(indexes, i);
                 Py_DECREF(item);
                 return -1;
             }
