@@ -6,7 +6,7 @@ AC_INIT([libndarray], [1.0], [info@enthought.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SRCDIR([src/npy_arrayobject.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([npy_config.h])
 
 # Checks for programs.
 AC_PROG_CC
@@ -16,6 +16,13 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
+
+
+
+AC_DEFINE(HAVE_UINTPTR_T, 1, [Define if you have the \`uintptr_t' type.])
+AC_CHECK_SIZEOF(long)
+
+
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
