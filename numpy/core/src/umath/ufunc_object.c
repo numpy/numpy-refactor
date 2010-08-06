@@ -1518,8 +1518,8 @@ construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
     }
 
     /* wrap outputs */
-    if (prepare_outputs_func) {
-        if (prepare_outputs_func(self, mps, prepare_data) < 0) {
+    if (prepare) {
+        if (prepare(self, mps, prepare_data) < 0) {
             return -1;
         }
     }
