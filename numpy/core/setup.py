@@ -736,6 +736,7 @@ def configuration(parent_package='',top_path=None):
         join('src', 'libnumpy', 'npy_multiarraymodule.c'),
         join('src', 'libnumpy', 'npy_refcount.c'),
         join('src', 'libnumpy', 'npy_shape.c'),
+        join('src', 'libnumpy', 'npy_ufunc_object.c'),
         join('src', 'libnumpy', 'npy_usertypes.c'),
         join('src', 'libnumpy', 'numpyos.c'),
         ]

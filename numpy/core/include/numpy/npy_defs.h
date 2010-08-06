@@ -322,32 +322,32 @@ typedef enum {
 
 
 #if NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_INT
-#define NPY_INTP NPY_INT
-#define NPY_UINTP NPY_UINT
-#define PyIntpArrType_Type PyIntArrType_Type
-#define PyUIntpArrType_Type PyUIntArrType_Type
-#define NPY_MAX_INTP NPY_MAX_INT
-#define NPY_MIN_INTP NPY_MIN_INT
-#define NPY_MAX_UINTP NPY_MAX_UINT
-#define NPY_INTP_FMT "d"
+    #define NPY_INTP NPY_INT
+    #define NPY_UINTP NPY_UINT
+    #define PyIntpArrType_Type PyIntArrType_Type
+    #define PyUIntpArrType_Type PyUIntArrType_Type
+    #define NPY_MAX_INTP NPY_MAX_INT
+    #define NPY_MIN_INTP NPY_MIN_INT
+    #define NPY_MAX_UINTP NPY_MAX_UINT
+    #define NPY_INTP_FMT "d"
 #elif NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_LONG
-#define NPY_INTP NPY_LONG
-#define NPY_UINTP NPY_ULONG
-#define PyIntpArrType_Type PyLongArrType_Type
-#define PyUIntpArrType_Type PyULongArrType_Type
-#define NPY_MAX_INTP NPY_MAX_LONG
-#define NPY_MIN_INTP MIN_LONG
-#define NPY_MAX_UINTP NPY_MAX_ULONG
-#define NPY_INTP_FMT "ld"
+    #define NPY_INTP NPY_LONG
+    #define NPY_UINTP NPY_ULONG
+    #define PyIntpArrType_Type PyLongArrType_Type
+    #define PyUIntpArrType_Type PyULongArrType_Type
+    #define NPY_MAX_INTP NPY_MAX_LONG
+    #define NPY_MIN_INTP MIN_LONG
+    #define NPY_MAX_UINTP NPY_MAX_ULONG
+    #define NPY_INTP_FMT "ld"
 #elif defined(PY_LONG_LONG) && (NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_LONGLONG)
-#define NPY_INTP NPY_LONGLONG
-#define NPY_UINTP NPY_ULONGLONG
-#define PyIntpArrType_Type PyLongLongArrType_Type
-#define PyUIntpArrType_Type PyULongLongArrType_Type
-#define NPY_MAX_INTP NPY_MAX_LONGLONG
-#define NPY_MIN_INTP NPY_MIN_LONGLONG
-#define NPY_MAX_UINTP NPY_MAX_ULONGLONG
-#define NPY_INTP_FMT "Ld"
+    #define NPY_INTP NPY_LONGLONG
+    #define NPY_UINTP NPY_ULONGLONG
+    #define PyIntpArrType_Type PyLongLongArrType_Type
+    #define PyUIntpArrType_Type PyULongLongArrType_Type
+    #define NPY_MAX_INTP NPY_MAX_LONGLONG
+    #define NPY_MIN_INTP NPY_MIN_LONGLONG
+    #define NPY_MAX_UINTP NPY_MAX_ULONGLONG
+    #define NPY_INTP_FMT "Ld"
 #endif
 
 
@@ -380,11 +380,11 @@ typedef enum {
  * field have them
  */
 #define NPY_FROM_FIELDS    (NPY_NEEDS_INIT | NPY_LIST_PICKLE |             \
-NPY_ITEM_REFCOUNT | NPY_NEEDS_PYAPI)
+    NPY_ITEM_REFCOUNT | NPY_NEEDS_PYAPI)
 
 #define NPY_OBJECT_DTYPE_FLAGS (NPY_LIST_PICKLE | NPY_USE_GETITEM |       \
-NPY_ITEM_IS_POINTER | NPY_ITEM_REFCOUNT | \
-NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
+    NPY_ITEM_IS_POINTER | NPY_ITEM_REFCOUNT | \
+    NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
 
 
 
@@ -500,12 +500,12 @@ NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
 #define NPY_END_THREADS   do {if (_save) PyEval_RestoreThread(_save);} while (0);
 
 #define NPY_BEGIN_THREADS_DESCR(dtype)                          \
-do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
-NPY_BEGIN_THREADS;} while (0);
+    do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
+    NPY_BEGIN_THREADS;} while (0);
 
 #define NPY_END_THREADS_DESCR(dtype)                            \
-do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
-NPY_END_THREADS; } while (0);
+    do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
+    NPY_END_THREADS; } while (0);
 
 #define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
 #define NPY_ALLOW_C_API      __save__ = PyGILState_Ensure();
