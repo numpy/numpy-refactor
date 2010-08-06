@@ -792,6 +792,7 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
         if (NULL == ap2) {
             return NULL;
         }
+        cap2 = ap2;
     }
 
     ret = _npyarray_correlate(ap1, ap2, typenum, mode, &inverted);

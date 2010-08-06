@@ -4,6 +4,12 @@ from numpy.testing import *
 import numpy.core.umath as ncu
 import numpy as np
 
+class FailingWrap(object):
+    def __array__(self):
+        return np.zeros(1)
+    def __array_wrap__(self, arr, context):
+        raise RuntimeError
+
 
 class TestDivision(TestCase):
     def test_division_int(self):
@@ -577,12 +583,7 @@ class TestSpecialMethods(TestCase):
         self.assertTrue(type(ncu.exp(c) is C))
 
     def test_failing_wrap(self):
-        class A(object):
-            def __array__(self):
-                return np.zeros(1)
-            def __array_wrap__(self, arr, context):
-                raise RuntimeError
-        a = A()
+        a = FailingWrap()
         self.assertRaises(RuntimeError, ncu.maximum, a, a)
 
     def test_default_prepare(self):
