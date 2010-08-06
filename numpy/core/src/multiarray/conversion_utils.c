@@ -750,9 +750,13 @@ convert_sequence(PyObject* seq, NpyArray** parray)
 static int
 convert_single_index(PyObject* obj, NpyIndex* index)
 {
+    /* None is a newaxis. */
+    if (obj == Py_None) {
+        index->type = NPY_INDEX_NEWAXIS;
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
-    if (PyArray_Check(obj)) {
+    else if (PyArray_Check(obj)) {
         if (PyArray_ISINTEGER(obj)) {
             index->type = NPY_INDEX_INTP_ARRAY;
             if (convert_array(obj, NPY_INTP, &index->index.intp_array) < 0) {
@@ -808,14 +812,46 @@ convert_single_index(PyObject* obj, NpyIndex* index)
 }
 
 /*
+ * Returns whether a sequence should be treated like a tuple.
+ * Essentially it should be unless it looks like a sequence of
+ * indexes.
+ */
+static npy_bool
+sequence_tuple(PyObject* seq)
+{
+    Py_ssize_t i, n;
+    PyObject *item;
+
+    n = PySequence_Length(seq);
+    if (n < 0 || n > NPY_MAXDIMS) {
+        return NPY_FALSE;
+    }
+
+    for (i=0; i<n; i++) {
+        item = PySequence_GetItem(seq, i);
+        if (item == Py_None ||
+            item == Py_Ellipsis ||
+            PySlice_Check(item) ||
+            PySequence_Check(item)) {
+            Py_DECREF(item);
+            return NPY_TRUE;
+        }
+        Py_DECREF(item);
+    }
+    return NPY_FALSE;
+}
+
+/*
  * Converts a python object into an array of indexes. 
  */
 NPY_NO_EXPORT int
 PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
 {
-    int i, n;
+    Py_ssize_t i, n;
     PyObject *item;
 
+    /* This is the simplest case. We have multiple args as a 
+     * tuple.  Just convert each one. */
     if (PyTuple_Check(index)) {
         n = PyTuple_GET_SIZE(index);
         if (n >= NPY_MAXDIMS) {
@@ -833,9 +869,24 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
             }
             return n;
         }
-    } else {
-        return convert_single_index(index, &indexes[0]);
     }
+
+    /* For sequences that don't look like a sequence of intp
+     * treat them like a tuple. */
+    if (PySequence_Check(index) && sequence_tuple(index)) {
+        n = PySequence_Length(index);
+        for (i=0; i<n; i++) {
+            item = PySequence_GetItem(index, i);
+            if (convert_single_index(item, &indexes[i]) < 0) {
+                NpyArray_IndexDealloc(indexes, n-1);
+                Py_DECREF(item);
+                return -1;
+            }
+        }
+        return n;
+    }
+
+    return convert_single_index(index, &indexes[0]);
 }
 
 

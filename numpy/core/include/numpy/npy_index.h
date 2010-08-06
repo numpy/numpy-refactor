@@ -22,7 +22,8 @@ typedef enum NpyIndexType {
     NPY_INDEX_STRING,
     NPY_INDEX_BOOL_ARRAY,
     NPY_INDEX_INTP_ARRAY,
-    NPY_INDEX_ELLIPSIS
+    NPY_INDEX_ELLIPSIS,
+    NPY_INDEX_NEWAXIS,
 } NpyIndexType;
 
 typedef struct NpyIndex {
