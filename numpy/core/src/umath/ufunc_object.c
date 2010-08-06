@@ -1298,10 +1298,13 @@ convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
     return result;
 }
 
+typedef int (*prepare_outputs_func)(PyUFuncObject* self, PyArrayObject **mps,
+                                    void* data);
+
 static Py_ssize_t
 construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
                  int *rtypenums, 
-                 PyObject **prep_func, PyObject *prep_context)
+                 prepare_outputs_func prepare, void* prepare_data)
 {
     int i;
     int arg_types[NPY_MAXARGS];
@@ -1545,29 +1548,9 @@ construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
     }
 
     /* wrap outputs */
-    for (i = 0; i < loop->ufunc->nout; i++) {
-        int j = loop->ufunc->nin+i;
-        PyObject *wrap;
-        PyObject *res;
-        wrap = prep_func[i];
-        if (wrap != NULL) {
-            if (wrap == Py_None) {
-                continue;
-            }
-            res = PyObject_CallFunction(wrap, "O(OOi)",
-                                        mps[j], 
-                                        PyTuple_GET_ITEM(prep_context, 0),
-                                        PyTuple_GET_ITEM(prep_context, 1),
-                                        i);
-            if ((res == NULL) || (res == Py_None)) {
-                if (!PyErr_Occurred()){
-                    PyErr_SetString(PyExc_TypeError,
-                            "__array_prepare__ must return an ndarray or subclass thereof");
-                }
-                return -1;
-            }
-            Py_DECREF(mps[j]);
-            mps[j] = (PyArrayObject *)res;
+    if (prepare) {
+        if (prepare(self, mps, prepare_data) < 0) {
+            return -1;
         }
     }
 
@@ -2015,7 +1998,51 @@ fail:
 
 */
 
+static int
+prepare_outputs(PyUFuncObject* self, PyArrayObject **mps, PyObject* args)
+{
+    PyObject *wraparr[NPY_MAXARGS];
+    Py_ssize_t nargs;
+    int i;
+    int result = 0;
 
+    /* Set up prepare functions. */
+    nargs = PyTuple_Size(args);
+    _find_array_prepare(args, wraparr, self->nin, self->nout);
+
+    /* wrap outputs */
+    for (i = 0; i < self->nout; i++) {
+        int j = self->nin+i;
+        PyObject *wrap;
+        PyObject *res;
+        wrap = wraparr[i];
+        if (wrap != NULL) {
+            if (wrap == Py_None) {
+                continue;
+            }
+            res = PyObject_CallFunction(wrap, "O(OOi)",
+                                        mps[j], 
+                                        self, args, i);
+            if ((res == NULL) || (res == Py_None)) {
+                if (!PyErr_Occurred()){
+                    PyErr_SetString(PyExc_TypeError,
+                            "__array_prepare__ must return an ndarray or subclass thereof");
+                }
+                result = -1;
+                break;
+            }
+            Py_DECREF(mps[j]);
+            mps[j] = (PyArrayObject *)res;
+        }
+    }
+
+    /* Cleanup. */
+    for (i=0; i<self->nout; i++) {
+        Py_XDECREF(wraparr[i]);
+    }
+
+    return result;
+}
 
 
 /*
@@ -2042,8 +2069,6 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyUFuncLoopObject *loop;
     int i;
     NPY_BEGIN_THREADS_DEF;
-    PyObject *wraparr[NPY_MAXARGS];
-    PyObject *context = NULL;
     Py_ssize_t nargs;
     PyObject *extobj = NULL;
     PyObject *typetup = NULL;
@@ -2126,21 +2151,11 @@ PyUFunc_GenericFunction(PyUFuncObject *self, PyObject *args, PyObject *kwds,
     PyUFunc_clearfperr();
 
 
-    /* Set up prepare functions. */
-    nargs = PyTuple_Size(args);
-    _find_array_prepare(args, wraparr, self->nin, self->nout);
-    context = Py_BuildValue("(OO)", self, args);
-
     /* Setup the arrays */
+    nargs = PyTuple_Size(args);
     res = construct_arrays(loop, nargs, mps, rtypenums, 
-                           wraparr, context);
-    /* Clean up. */
-    if (context) {
-        for (i=0; i<self->nout; i++) {
-            Py_XDECREF(wraparr[i]);
-        }
-        Py_DECREF(context);
-    }
+                           (prepare_outputs_func)prepare_outputs,
+                           (void*) args);
 
     if (res < 0) {
         ufuncloop_dealloc(loop);
