@@ -53,8 +53,6 @@ Npy_IsWriteable(NpyArray *ap)
 {
     NpyArray *base_arr = ap->base_arr;
     void *base_obj = ap->base_obj;
-    void *dummy;
-    size_t n;
 
     /* If we own our own data, then no-problem */
     if ((base_arr == NULL && NULL == base_obj) || (ap->flags & NPY_OWNDATA)) {
