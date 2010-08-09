@@ -199,6 +199,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
     n = mit->subspace->ao->nd;
     for (i = 0; i < n; i++) {
         mit->dimensions[mit->nd+i] = mit->subspace->ao->dimensions[i];
+        mit->bscoord[mit->nd+i] = 0;
     }
     mit->nd += n;
 

@@ -81,6 +81,10 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
                 }
             }
             break;
+        case NPY_INDEX_INTP_ARRAY:
+            out_indexes[result++] = indexes[i];
+            _Npy_INCREF(indexes[i].index.intp_array);
+            break;
         default:
             /* Copy anything else. */
             out_indexes[result++] = indexes[i];
@@ -274,6 +278,11 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 out_indexes[result].index.intp = val;
                 result++;
             }
+            break;
+
+        case NPY_INDEX_INTP_ARRAY:
+            out_indexes[result++] = indexes[i];
+            _Npy_INCREF(indexes[i].index.intp_array);
             break;
 
         default:
