@@ -294,7 +294,7 @@ typedef enum {
 
 #define NpyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) && \
                                     ((type) < NPY_USERDEF+     \
-                                     NPY_NUMUSERTYPES))
+                                     NpyArray_GetNumusertypes()))
 
 #define NpyTypeNum_ISEXTENDED(type) (NpyTypeNum_ISFLEXIBLE(type) ||  \
                                      NpyTypeNum_ISUSERDEF(type))

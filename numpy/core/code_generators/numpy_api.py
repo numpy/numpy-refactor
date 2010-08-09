@@ -13,11 +13,11 @@ exception, so it should hopefully not get unnoticed).
 """
 
 multiarray_global_vars = {
-    'NPY_NUMUSERTYPES':             6,
+    'XXX6':             6,
 }
 
 multiarray_global_vars_types = {
-    'NPY_NUMUSERTYPES':             'int',
+    'XXX6':             'int',
 }
 
 multiarray_scalar_bool_values = {

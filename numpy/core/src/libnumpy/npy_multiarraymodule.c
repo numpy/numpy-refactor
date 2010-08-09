@@ -13,8 +13,6 @@
 #include "npy_internal.h"
 
 
-/* TODO: Yuck, global variable, need accessor. */
-int NPY_NUMUSERTYPES = 0;
 
 /* Defined in npy_arraytypes.c.src */
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);

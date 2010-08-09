@@ -32,6 +32,9 @@
 #include "npy_3kcompat.h"
 
 
+/* TODO: remove this */
+int XXX6 = 42;
+
 #define PyAO PyArrayObject
 
 /* Internal APIs */

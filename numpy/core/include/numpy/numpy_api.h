@@ -324,10 +324,6 @@ void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 #define NpyArray_malloc(size) malloc(size)
 #define NpyArray_free(ptr) free(ptr)
 
-/* TODO: Yuck, global variable, need accessor. */
-extern int NPY_NUMUSERTYPES;
-
-
 
 /*
  * Exception handling

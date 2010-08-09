@@ -57,7 +57,7 @@ PyArray_TypeNumFromTypeObj(PyTypeObject *typeobj)
     NpyArray_Descr *descr;
     
     /* TODO: This looks at the python type and needs to change. */
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+    for (i = 0; i < NpyArray_GetNumusertypes(); i++) {
         descr = npy_userdescrs[i];
         if (PyArray_Descr_WRAP(descr)->typeobj == typeobj) {
             return descr->type_num;
