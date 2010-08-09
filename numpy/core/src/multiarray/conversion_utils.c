@@ -742,7 +742,7 @@ convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
     }
 
     if (slice->start == Py_None) {
-        if (slice->step > 0) {
+        if (islice->step > 0) {
             islice->start = 0;
         } else {
             islice->start = -1;
@@ -849,7 +849,9 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             return -1;
         }
         index->type = NPY_INDEX_INTP;
+#undef intp
         index->index.intp = val;
+#define intp npy_intp
     }
 
     return 0;
@@ -930,7 +932,11 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
         return n;
     }
 
-    return convert_single_index(index, &indexes[0]);
+    if (convert_single_index(index, &indexes[0]) < 0) {
+        return -1;
+    }
+
+    return 1;
 }
 
 

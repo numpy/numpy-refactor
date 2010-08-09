@@ -9,12 +9,14 @@
 #include "numpy/numpy_api.h"
 #include "numpy/npy_iterators.h"
 #include "numpy/npy_dict.h"
+#include "numpy/npy_index.h"
 
 #include "common.h"
 #include "ctors.h"
 #include "iterators.h"
 #include "arrayobject.h"
 #include "mapping.h"
+#include "conversion_utils.h"
 
 #define SOBJ_NOTFANCY 0
 #define SOBJ_ISFANCY 1
@@ -26,8 +28,7 @@
     assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
 
 static PyObject *
-array_subscript_simple(PyArrayObject *self, PyObject *op,
-                       int* axismap, intp* starts);
+array_subscript_simple(PyArrayObject *self, PyObject *op);
 
 
 /* Callback from the core to construct the PyObject wrapper around an interator. */
@@ -45,6 +46,7 @@ NpyInterface_MapIterNewWrapper(NpyArrayMapIterObject *iter, void **interfaceRet)
     PyObject_Init((PyObject *)result, &PyArrayMapIter_Type);
     result->magic_number = NPY_VALID_MAGIC;
     result->iter = iter;
+    result->indexobj = NULL;
 
     *interfaceRet = result;
     return NPY_TRUE;
@@ -367,41 +369,17 @@ fancy_index(PyObject* index, npy_bool* pfancy)
  */
 
 NPY_NO_EXPORT PyObject *
-array_subscript_simple(PyArrayObject *self, PyObject *op,
-                       int* axismap, intp* starts)
+array_subscript_simple(PyArrayObject *self, PyObject *op)
 {
-    intp dimensions[MAX_DIMS], strides[MAX_DIMS];
-    intp offset;
-    int nd;
-    PyArrayObject *other;
-    intp value;
+    NpyIndex indexes[NPY_MAXDIMS];
+    int n;
 
-    value = PyArray_PyIntAsIntp(op);
-    if (!PyErr_Occurred()) {
-        return array_big_item(self, value);
-    }
-    PyErr_Clear();
-
-    /* Standard (view-based) Indexing */
-    if ((nd = parse_index(self, op, dimensions, strides, &offset,
-                          axismap, starts)) == -1) {
+    n = PyArray_IndexConverter(op, indexes);
+    if (n < 0) {
         return NULL;
     }
-    /* This will only work if new array will be a view */
-    _Npy_INCREF(PyArray_DESCR(self));
-    ASSIGN_TO_PYARRAY(other, NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                                   nd, dimensions,
-                                                   strides, PyArray_BYTES(self)+offset,
-                                                   PyArray_FLAGS(self), NPY_FALSE,
-                                                   NULL, self));
-    if (NULL == other) {
-        return NULL;
-    }
-    PyArray_BASE_ARRAY(other) = PyArray_ARRAY(self);
-    _Npy_INCREF(PyArray_BASE_ARRAY(other));
-    PyArray_UpdateFlags(other, UPDATE_ALL);
-    ASSERT_ONE_BASE(other);
-    return (PyObject *)other;
+
+    RETURN_PYARRAY(NpyArray_IndexSimple(PyArray_ARRAY(self), indexes, n));
 }
 
 NPY_NO_EXPORT PyObject *
@@ -557,7 +535,7 @@ array_subscript(PyArrayObject *self, PyObject *op)
     } else {
         PyObject *result;
 
-        result = array_subscript_simple(self, index, NULL, NULL);
+        result = array_subscript_simple(self, index);
         Py_DECREF(index);
         return result;
     }
@@ -588,8 +566,7 @@ array_ass_sub_simple(PyArrayObject *self, PyObject *index, PyObject *op)
     /* Rest of standard (view-based) indexing */
 
     if (PyArray_CheckExact(self)) {
-        tmp = (PyArrayObject *)array_subscript_simple(self, index,
-                                                      NULL, NULL);
+        tmp = (PyArrayObject *)array_subscript_simple(self, index);
         if (tmp == NULL) {
             return -1;
         }
@@ -1038,129 +1015,7 @@ PyArray_MapIterNext(PyArrayMapIterObject *pyMit)
 NPY_NO_EXPORT void
 PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 {
-    NpyArrayMapIterObject *mit = pyMit->iter;
-    NpyArrayIterObject *it;
-    int subnd;
-    PyObject *sub, *obj = NULL;
-    int i, n;
-    intp dimsize;
-    intp *indptr;
-    int axismap[NPY_MAXDIMS];
-    intp starts[NPY_MAXDIMS];
-
-    subnd = PyArray_NDIM(arr) - mit->numiter;
-    if (subnd < 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "too many indices for array");
-        return;
-    }
-
-    mit->ait = NpyArray_IterNew(PyArray_ARRAY(arr));
-    if (mit->ait == NULL) {
-        return;
-    }
-    /* no subspace iteration needed.  Finish up and Return */
-    if (subnd == 0) {
-        n = PyArray_NDIM(arr);
-        for (i = 0; i < n; i++) {
-            mit->iteraxes[i] = i;
-        }
-        goto finish;
-    }
-
-    /*
-     * all indexing arrays have been converted to 0
-     * therefore we can extract the subspace with a simple
-     * getitem call which will use view semantics
-     *
-     * But, be sure to do it with a true array.
-     */
-    if (PyArray_CheckExact(arr)) {
-        sub = array_subscript_simple(arr, pyMit->indexobj,
-                                     axismap, starts);
-    }
-    else {
-        Py_INCREF(arr);
-        obj = PyArray_EnsureArray((PyObject *)arr);
-        if (obj == NULL) {
-            goto fail;
-        }
-        sub = array_subscript_simple((PyArrayObject *)obj, pyMit->indexobj,
-                                     axismap, starts);
-        Py_DECREF(obj);
-    }
-
-    if (sub == NULL) {
-        goto fail;
-    }
-    mit->subspace = NpyArray_IterNew(PyArray_ARRAY(sub));
-    Py_DECREF(sub);
-    if (mit->subspace == NULL) {
-        goto fail;
-    }
-    /* Convert iteraxes from indices into the indexobj to indices
-       into the array. */
-    for (i=0; i<mit->numiter; i++) {
-        mit->iteraxes[i] = axismap[mit->iteraxes[i]];
-    }
-    /* Fill in bscoord with the start for the slice axes. */
-    memset(mit->bscoord, 0, sizeof(intp)*PyArray_NDIM(arr));
-    n = mit->nd;
-    for (i=0; i<n; i++) {
-        mit->bscoord[axismap[i]] = starts[i];
-    }
-    /* Expand dimensions of result */
-    n = mit->subspace->ao->nd;
-    for (i = 0; i < n; i++) {
-        mit->dimensions[mit->nd+i] = mit->subspace->ao->dimensions[i];
-    }
-    mit->nd += n;
-
-
- finish:
-    /* Here check the indexes (now that we have iteraxes) */
-    mit->size = PyArray_OverflowMultiplyList(mit->dimensions, mit->nd);
-    if (mit->size < 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "dimensions too large in fancy indexing");
-        goto fail;
-    }
-    if (mit->ait->size == 0 && mit->size != 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "invalid index into a 0-size array");
-        goto fail;
-    }
-
-    for (i = 0; i < mit->numiter; i++) {
-        intp indval;
-        it = mit->iters[i];
-        NpyArray_ITER_RESET(it);
-        dimsize = PyArray_DIM(arr, mit->iteraxes[i]);
-        while (it->index < it->size) {
-            indptr = ((intp *)it->dataptr);
-            indval = *indptr;
-            if (indval < 0) {
-                indval += dimsize;
-            }
-            if (indval < 0 || indval >= dimsize) {
-                PyErr_Format(PyExc_IndexError,
-                             "index (%"INTP_FMT") out of range "\
-                             "(0<=index<%"INTP_FMT") in dimension %d",
-                             indval, (dimsize-1), mit->iteraxes[i]);
-                goto fail;
-            }
-            NpyArray_ITER_NEXT(it);
-        }
-        NpyArray_ITER_RESET(it);
-    }
-    return;
-
- fail:
-    _Npy_XDECREF(mit->subspace);
-    _Npy_XDECREF(mit->ait);
-    mit->subspace = NULL;
-    mit->ait = NULL;
-    return;
+    NpyArray_MapIterBind(pyMit->iter, PyArray_ARRAY(arr));
 }
 
 /*
@@ -1174,143 +1029,26 @@ PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 NPY_NO_EXPORT PyObject *
 PyArray_MapIterNew(PyObject *indexobj)
 {
-    PyArrayMapIterObject *pyMit;
+    NpyIndex indexes[NPY_MAXDIMS];
     NpyArrayMapIterObject *mit;
-    PyObject *arr = NULL;
-    int i, n, started, nonindex;
+    PyArrayMapIterObject *pyMit;
+    int n;
 
-    /* This is the core iterator object - not a Python object. */
-    mit = NpyArray_MapIterNew();
-    if (NULL == mit) {
-        _Npy_DECREF(mit);
+    n = PyArray_IndexConverter(indexobj, indexes);
+    if (n < 0) {
         return NULL;
     }
-    pyMit = Npy_INTERFACE(mit);
+    mit = NpyArray_MapIterNew(indexes, n);
+    if (mit == NULL) {
+        return NULL;
+    }
 
-    /* Move the held reference from the core obj to the interface obj. */
+    /* Move the held reference and return the python object. */
+    pyMit = Npy_INTERFACE(mit);
     Py_INCREF(pyMit);
     _Npy_DECREF(mit);
 
-    /* TODO: Refactor away the use of Py object for indexobj. */
-    Py_INCREF(indexobj);
-    pyMit->indexobj = indexobj;
-
-    /* convert all inputs to iterators */
-    if (PyArray_Check(indexobj) && (PyArray_TYPE(indexobj) == PyArray_BOOL)) {
-        mit->numiter = _nonzero_indices(indexobj, mit->iters);
-        if (mit->numiter < 0) {
-            goto fail;
-        }
-        mit->nd = 1;
-        mit->dimensions[0] = mit->iters[0]->dims_m1[0]+1;
-        Py_DECREF(pyMit->indexobj);
-        pyMit->indexobj = PyTuple_New(mit->numiter);
-        if (pyMit->indexobj == NULL) {
-            goto fail;
-        }
-        for (i = 0; i < mit->numiter; i++) {
-            PyTuple_SET_ITEM(pyMit->indexobj, i, PyInt_FromLong(0));
-            mit->iteraxes[i] = i;
-        }
-    }
-
-    else if (PyArray_Check(indexobj) || !PyTuple_Check(indexobj)) {
-        NpyArray_Descr *indtype;
-
-        mit->numiter = 1;
-        indtype = NpyArray_DescrFromType(PyArray_INTP);
-        arr = PyArray_FromAnyUnwrap(indexobj, indtype, 0, 0, FORCECAST, NULL);
-        if (arr == NULL) {
-            goto fail;
-        }
-        mit->iters[0] = NpyArray_IterNew(PyArray_ARRAY(arr));
-        if (mit->iters[0] == NULL) {
-            Py_DECREF(arr);
-            goto fail;
-        }
-        mit->nd = PyArray_NDIM(arr);
-        memcpy(mit->dimensions, PyArray_DIMS(arr), mit->nd*sizeof(intp));
-        mit->size = PyArray_SIZE(arr);
-        Py_DECREF(arr);
-        Py_DECREF(pyMit->indexobj);
-        pyMit->indexobj = Py_BuildValue("(N)", PyInt_FromLong(0));
-        mit->iteraxes[0] = 0;
-    }
-    else {
-        /* must be a tuple */
-        PyObject *obj;
-        NpyArrayIterObject **iterp;
-        PyObject *new;
-        int numiters, j, n2;
-        /*
-         * Make a copy of the tuple -- we will be replacing
-         * index objects with 0's
-         */
-        n = PyTuple_GET_SIZE(indexobj);
-        n2 = n;
-        new = PyTuple_New(n2);
-        if (new == NULL) {
-            goto fail;
-        }
-        started = 0;
-        nonindex = 0;
-        j = 0;
-        for (i = 0; i < n; i++) {
-            obj = PyTuple_GET_ITEM(indexobj,i);
-            iterp = mit->iters + mit->numiter;
-            if ((numiters=_convert_obj(obj, iterp)) < 0) {
-                Py_DECREF(new);
-                goto fail;
-            }
-            if (numiters > 0) {
-                started = 1;
-                if (nonindex) {
-                    mit->consec = 0;
-                }
-                if (numiters == 1) {
-                    mit->iteraxes[mit->numiter++] = j;
-                    PyTuple_SET_ITEM(new,j++, PyInt_FromLong(0));
-                }
-                else {
-                    /*
-                     * we need to grow the new indexing object and fill
-                     * it with 0s for each of the iterators produced
-                     */
-                    int k;
-                    n2 += numiters - 1;
-                    if (_PyTuple_Resize(&new, n2) < 0) {
-                        goto fail;
-                    }
-                    for (k = 0; k < numiters; k++) {
-                        mit->iteraxes[mit->numiter++] = j;
-                        PyTuple_SET_ITEM(new, j++, PyInt_FromLong(0));
-                    }
-                }
-            }
-            else {
-                if (started) {
-                    nonindex = 1;
-                }
-                Py_INCREF(obj);
-                PyTuple_SET_ITEM(new,j++,obj);
-            }
-        }
-        Py_DECREF(pyMit->indexobj);
-        pyMit->indexobj = new;
-        /*
-         * Store the number of iterators actually converted
-         * These will be mapped to actual axes at bind time
-         */
-        if (NpyArray_Broadcast((NpyArrayMultiIterObject *)mit) < 0) {
-            goto fail;
-        }
-    }
-
     return (PyObject *)pyMit;
-
- fail:
-    Py_DECREF(pyMit);
-    return NULL;
 }
 
 

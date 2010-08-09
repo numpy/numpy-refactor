@@ -14,9 +14,11 @@ NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
         switch(index->type) {
         case NPY_INDEX_INTP_ARRAY:
             _Npy_DECREF(index->index.intp_array);
+            index->index.intp_array = NULL;
             break;
         case NPY_INDEX_BOOL_ARRAY:
             _Npy_DECREF(index->index.bool_array);
+            index->index.bool_array = NULL;
             break;
         default:
             break;
@@ -46,6 +48,46 @@ int count_nonnew(NpyIndex* indexes, int n)
             break;
         }
     }
+    return result;
+}
+
+/*
+ * Expands any boolean arrays in the index into intp arrays of the
+ * indexes of the non-zero entries.
+ */
+int
+NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
+{
+    int i;
+    int result = 0;
+
+    for (i=0; i<n; i++) {
+        switch (indexes[i].type) {
+        case NPY_INDEX_BOOL_ARRAY:
+            {
+                /* Convert to intp array on non-zero indexes. */
+                NpyArray *index_arrays[NPY_MAXDIMS];
+                NpyArray *bool_array = indexes[i].index.bool_array;
+                int j;
+
+                if (NpyArray_NonZero(bool_array, index_arrays, NULL) < 0) {
+                    NpyArray_IndexDealloc(out_indexes, result);
+                    return -1;
+                }
+                for (j=0; j<bool_array->nd; j++) {
+                    out_indexes[result].type = NPY_INDEX_INTP_ARRAY;
+                    out_indexes[result].index.intp_array = index_arrays[j];
+                    result++;
+                }
+            }
+            break;
+        default:
+            /* Copy anything else. */
+            out_indexes[result++] = indexes[i];
+            break;
+        }
+    }
+
     return result;
 }
 
@@ -227,6 +269,10 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                                      "Invalid index.");
                     return -1;
                 }
+
+                out_indexes[result].type = NPY_INDEX_INTP;
+                out_indexes[result].index.intp = val;
+                result++;
             }
             break;
 
@@ -284,6 +330,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
 
                 dimensions[nd_new] = dim;
                 strides[nd_new] = slice->step * array->strides[iDim];
+                offset += array->strides[iDim]*slice->start;
                 iDim++;
                 nd_new++;
             }
@@ -340,6 +387,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
         nd_new++;
     }
 
+    *offset_ptr = offset;
     return nd_new;
 }
 
