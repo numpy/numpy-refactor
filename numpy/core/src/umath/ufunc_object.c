@@ -854,7 +854,7 @@ PyUFunc_GetPyValues(char *name, int *bufsize, int *errmask, PyObject **errobj)
  * of casting.
  */
 static int
-_create_copies(PyUFuncLoopObject *loop, int *arg_types, PyArrayObject **mps)
+_create_copies(NpyUFuncLoopObject *loop, int *arg_types, PyArrayObject **mps)
 {
     int nin = loop->ufunc->nin;
     int i;
@@ -1133,7 +1133,7 @@ fail:
  * dimension array (used for output arguments).
  */
 static npy_intp*
-_compute_output_dims(PyUFuncLoopObject *loop, int iarg,
+_compute_output_dims(NpyUFuncLoopObject *loop, int iarg,
                      int *out_nd, npy_intp *tmp_dims)
 {
     int i;
@@ -1164,7 +1164,7 @@ _compute_output_dims(PyUFuncLoopObject *loop, int iarg,
 
 /* Check and set core_dim_sizes and core_strides for the i-th argument. */
 static int
-_compute_dimension_size(PyUFuncLoopObject *loop, PyArrayObject **mps, int i)
+_compute_dimension_size(NpyUFuncLoopObject *loop, PyArrayObject **mps, int i)
 {
     NpyUFuncObject *ufunc = loop->ufunc;
     int j = ufunc->core_offsets[i];
@@ -1307,7 +1307,7 @@ typedef int (*prepare_outputs_func)(PyUFuncObject* self, PyArrayObject **mps,
                                     void* data);
 
 static Py_ssize_t
-construct_arrays(PyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
+construct_arrays(NpyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps,
                  int *rtypenums, 
                  prepare_outputs_func prepare, void* prepare_data)
 {
@@ -1871,31 +1871,32 @@ ufuncreduce_dealloc(PyUFuncReduceObject *self)
     _pya_free(self);
 }
 
+/* TODO: Ready to move */
 static void
-ufuncloop_dealloc(PyUFuncLoopObject *self)
+ufuncloop_dealloc(NpyUFuncLoopObject *self)
 {
     if (self->ufunc != NULL) {
         if (self->core_dim_sizes) {
-            _pya_free(self->core_dim_sizes);
+            free(self->core_dim_sizes);
         }
         if (self->core_strides) {
-            _pya_free(self->core_strides);
+            free(self->core_strides);
         }
         self->iter->numiter = self->ufunc->nargs;
         _Npy_DECREF(self->iter);
         if (self->buffer[0]) {
-            PyDataMem_FREE(self->buffer[0]);
+            NpyDataMem_FREE(self->buffer[0]);
         }
         Py_XDECREF(self->errobj);
-        Py_DECREF(self->ufunc);
+        _Npy_DECREF(self->ufunc);
     }
-    _pya_free(self);
+    free(self);
 }
 
-static PyUFuncLoopObject *
-construct_loop(PyUFuncObject *self)
+static NpyUFuncLoopObject *
+construct_loop(NpyUFuncObject *self)
 {
-    PyUFuncLoopObject *loop;
+    NpyUFuncLoopObject *loop;
     int i;
     char *name;
 
@@ -1903,23 +1904,23 @@ construct_loop(PyUFuncObject *self)
         PyErr_SetString(PyExc_ValueError, "function not supported");
         return NULL;
     }
-    if ((loop = _pya_malloc(sizeof(PyUFuncLoopObject))) == NULL) {
+    if ((loop = malloc(sizeof(NpyUFuncLoopObject))) == NULL) {
         PyErr_NoMemory();
         return loop;
     }
 
     loop->iter = NpyArray_MultiIterNew();
     if (loop->iter == NULL) {
-        _pya_free(loop);
+        free(loop);
         return NULL;
     }
 
     loop->iter->index = 0;
-    loop->iter->numiter = PyUFunc_UFUNC(self)->nargs;
-    loop->ufunc = PyUFunc_UFUNC(self);
-    Py_INCREF(self);
+    loop->iter->numiter = self->nargs;
+    loop->ufunc = self;
+    _Npy_INCREF(loop->ufunc);
     loop->buffer[0] = NULL;
-    for (i = 0; i < PyUFunc_UFUNC(self)->nargs; i++) {
+    for (i = 0; i < self->nargs; i++) {
         loop->iter->iters[i] = NULL;
         loop->cast[i] = NULL;
     }
@@ -1929,13 +1930,13 @@ construct_loop(PyUFuncObject *self)
     loop->core_dim_sizes = NULL;
     loop->core_strides = NULL;
 
-    if (PyUFunc_UFUNC(self)->core_enabled) {
-        int num_dim_ix = 1 + PyUFunc_UFUNC(self)->core_num_dim_ix;
-        int nstrides = PyUFunc_UFUNC(self)->nargs 
-                        + PyUFunc_UFUNC(self)->core_offsets[PyUFunc_UFUNC(self)->nargs - 1]
-                        + PyUFunc_UFUNC(self)->core_num_dims[PyUFunc_UFUNC(self)->nargs - 1];
-        loop->core_dim_sizes = _pya_malloc(sizeof(npy_intp)*num_dim_ix);
-        loop->core_strides = _pya_malloc(sizeof(npy_intp)*nstrides);
+    if (self->core_enabled) {
+        int num_dim_ix = 1 + self->core_num_dim_ix;
+        int nstrides = self->nargs 
+                        + self->core_offsets[self->nargs - 1]
+                        + self->core_num_dims[self->nargs - 1];
+        loop->core_dim_sizes = malloc(sizeof(npy_intp)*num_dim_ix);
+        loop->core_strides = malloc(sizeof(npy_intp)*nstrides);
         if (loop->core_dim_sizes == NULL || loop->core_strides == NULL) {
             PyErr_NoMemory();
             goto fail;
@@ -1945,7 +1946,7 @@ construct_loop(PyUFuncObject *self)
             loop->core_dim_sizes[i] = 1;
         }
     }
-    name = PyUFunc_UFUNC(self)->name ? PyUFunc_UFUNC(self)->name : "";
+    name = self->name ? self->name : "";
 
     return loop;
 
@@ -1957,7 +1958,7 @@ fail:
 
 /*
   static void
-  _printbytebuf(PyUFuncLoopObject *loop, int bufnum)
+  _printbytebuf(NpyUFuncLoopObject *loop, int bufnum)
   {
   int i;
 
@@ -1968,7 +1969,7 @@ fail:
   }
 
   static void
-  _printlongbuf(PyUFuncLoopObject *loop, int bufnum)
+  _printlongbuf(NpyUFuncLoopObject *loop, int bufnum)
   {
   int i;
 
@@ -1979,7 +1980,7 @@ fail:
   }
 
   static void
-  _printlongbufptr(PyUFuncLoopObject *loop, int bufnum)
+  _printlongbufptr(NpyUFuncLoopObject *loop, int bufnum)
   {
   int i;
 
@@ -1992,7 +1993,7 @@ fail:
 
 
   static void
-  _printcastbuf(PyUFuncLoopObject *loop, int bufnum)
+  _printcastbuf(NpyUFuncLoopObject *loop, int bufnum)
   {
   int i;
 
@@ -2073,7 +2074,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
                         PyArrayObject **mps)
 {
     NpyUFuncObject *self;
-    PyUFuncLoopObject *loop;
+    NpyUFuncLoopObject *loop;
     int i;
     NPY_BEGIN_THREADS_DEF;
     Py_ssize_t nargs;
@@ -2130,8 +2131,14 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         return i;
     }
 
+    /*
+     * REFACTOR POINT - most of the rest can be pushed into the core.
+     */
+    self = PyUFunc_UFUNC(pySelf);
+    pySelf = NULL;
+    
     /* Build the loop. */
-    loop = construct_loop(pySelf);
+    loop = construct_loop(self);
     if (loop == NULL) {
         return -1;
     }
@@ -2169,12 +2176,6 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         return -1;
     }
 
-    /*
-     * REFACTOR POINT - most of the rest can be pushed into the core.
-     */
-    self = PyUFunc_UFUNC(pySelf);
-    pySelf = NULL;
-    
     /*
      * FAIL with NotImplemented if the other object has
      * the __r<op>__ method and has __array_priority__ as

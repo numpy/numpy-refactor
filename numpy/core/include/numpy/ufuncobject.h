@@ -64,10 +64,10 @@ typedef struct {
         (UFUNC_ERR_PRINT << UFUNC_SHIFT_INVALID)
 
         /* Only internal -- not exported, yet*/
-typedef struct PyUFuncLoopObject {
+typedef struct NpyUFuncLoopObject {
         /* Multi-iterator portion --- needs to be present in this order
            to work with PyArray_Broadcast */
-        PyObject_HEAD
+        NpyObject_HEAD
 
         /* The iterators. */
         struct NpyArrayMultiIterObject *iter;
@@ -106,7 +106,7 @@ typedef struct PyUFuncLoopObject {
 
         /* For casting */
         char *castbuf[NPY_MAXARGS];
-        PyArray_VectorUnaryFunc *cast[NPY_MAXARGS];
+        NpyArray_VectorUnaryFunc *cast[NPY_MAXARGS];
 
         /* usually points to buffer but when a cast is to be
            done it switches for that argument to castbuf.
@@ -128,7 +128,7 @@ typedef struct PyUFuncLoopObject {
         npy_intp *core_dim_sizes;   /* stores sizes of core dimensions;
                                        contains 1 + core_num_dim_ix elements */
         npy_intp *core_strides;     /* strides of loop and core dimensions */
-} PyUFuncLoopObject;
+} NpyUFuncLoopObject;
 
 /* Could make this more clever someday */
 #define UFUNC_MAXIDENTITY 32
