@@ -101,7 +101,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     NpyArray_free(mit);
 }
 
-void
+int
 NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
 {
     NpyArrayIterObject *it;
@@ -116,12 +116,12 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
     if (subnd < 0) {
         NpyErr_SetString(NpyExc_ValueError,
                         "too many indices for array");
-        return;
+        return -1;
     }
 
     mit->ait = NpyArray_IterNew(arr);
     if (mit->ait == NULL) {
-        return;
+        return -1;
     }
     /* no subspace iteration needed.  Finish up and Return */
     if (subnd == 0) {
@@ -245,7 +245,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
         }
         NpyArray_ITER_RESET(it);
     }
-    return;
+    return 0;
 
  fail:
     NpyArray_IndexDealloc(bound_indexes, nbound);
@@ -253,7 +253,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
     _Npy_XDECREF(mit->ait);
     mit->subspace = NULL;
     mit->ait = NULL;
-    return;
+    return -1;
 }
 
 

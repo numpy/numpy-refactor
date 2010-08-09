@@ -122,7 +122,7 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 /* mapping.c */
 NpyArrayMapIterObject *NpyArray_MapIterNew(NpyIndex* indexes, int n);
-void NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr);
+int NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr);
 void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
 void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);

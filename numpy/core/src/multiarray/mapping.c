@@ -526,7 +526,11 @@ array_subscript(PyArrayObject *self, PyObject *op)
                 Py_DECREF(index);
                 return NULL;
             }
-            PyArray_MapIterBind(mit, self);
+            if (PyArray_MapIterBind(mit, self) < 0) {
+                Py_DECREF(mit);
+                Py_DECREF(index);
+                return NULL;
+            }
             other = (PyArrayObject *)PyArray_GetMap(mit);
             Py_DECREF(mit);
             Py_DECREF(index);
@@ -761,7 +765,11 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
                 Py_DECREF(new_index);
                 return -1;
             }
-            PyArray_MapIterBind(mit, self);
+            if (PyArray_MapIterBind(mit, self) < 0) {
+                Py_DECREF(mit);
+                Py_DECREF(new_index);
+                return -1;
+            }
             ret = PyArray_SetMap(mit, op);
             Py_DECREF(mit);
             Py_DECREF(new_index);
@@ -1012,10 +1020,10 @@ PyArray_MapIterNext(PyArrayMapIterObject *pyMit)
  * Let's do it at bind time and also convert all <0 values to >0 here
  * as well.
  */
-NPY_NO_EXPORT void
+NPY_NO_EXPORT int
 PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 {
-    NpyArray_MapIterBind(pyMit->iter, PyArray_ARRAY(arr));
+    return NpyArray_MapIterBind(pyMit->iter, PyArray_ARRAY(arr));
 }
 
 /*
