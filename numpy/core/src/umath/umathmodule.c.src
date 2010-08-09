@@ -41,7 +41,7 @@
 #include "__umath_generated.c"
 #include "__ufunc_api.c"
 
-static PyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
+static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
 
 /* TODO: Ready to move */
@@ -185,7 +185,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 
 /* Less automated additions to the ufuncs */
 
-static PyUFuncGenericFunction frexp_functions[] = {
+static NpyUFuncGenericFunction frexp_functions[] = {
 #ifdef HAVE_FREXPF
     FLOAT_frexp,
 #endif
@@ -206,7 +206,7 @@ static char frexp_signatures[] = {
 #endif
 };
 
-static PyUFuncGenericFunction ldexp_functions[] = {
+static NpyUFuncGenericFunction ldexp_functions[] = {
 #ifdef HAVE_LDEXPF
     FLOAT_ldexp,
 #endif
