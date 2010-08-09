@@ -2,24 +2,25 @@ AUTOMAKE_OPTIONS = foreign
 
 # Headers which are installed to support the library
 INSTINCLUDES = \
-        src/numpy_api.h \
-        src/npy_descriptor.h \
-        src/npy_dict.h \
-        src/npy_index.h \
-        src/npy_iterators.h \
-        src/npy_math.h
-
-# Headers which are not installed
-OTHERINCLUDES = \
+        npy_config.h \
 	src/_neighborhood_iterator_imp.h \
-	src/noprefix.h \
-	src/npy_arrayobject.h \
+        src/numpy_api.h \
 	src/npy_common.h \
 	src/npy_cpu.h \
 	src/npy_defs.h \
+        src/npy_descriptor.h \
+        src/npy_dict.h \
         src/npy_endian.h \
+        src/npy_index.h \
+        src/npy_iterators.h \
+        src/npy_math.h \
+        src/npy_object.h
+
+# Headers which are not installed
+OTHERINCLUDES = \
+	src/noprefix.h \
+	src/npy_arrayobject.h \
         src/npy_internal.h \
-        src/npy_object.h \
 	src/numpyos.h \
 	src/utils.h
 
