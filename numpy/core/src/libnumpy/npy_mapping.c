@@ -5,6 +5,7 @@
 #include <numpy/numpy_api.h>
 #include <numpy/npy_iterators.h>
 #include <numpy/npy_arrayobject.h>
+#include <numpy/npy_index.h>
 #include "npy_internal.h"
 
 
@@ -400,3 +401,33 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
     return r;
 }
 
+
+NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
+{
+    NpyIndex new_indexes[NPY_MAXDIMS];
+    npy_intp dimensions[NPY_MAXDIMS];
+    npy_intp strides[NPY_MAXDIMS];
+    npy_intp offset;
+    int n2;
+
+    /* Bind the index to the array. */
+    n2 = NpyArray_IndexBind(self, indexes, n, new_indexes);
+    if (n2 < 0) {
+        return NULL;
+    }
+
+    /* Convert to dimensions and strides. */
+    n2 = NpyArray_IndexToDimsEtc(self, new_indexes, n2,
+                                 dimensions, strides, &offset, NPY_FALSE);
+    if (n2 < 0) {
+        return NULL;
+    }
+
+    /* Make the result. */
+    _Npy_INCREF(self->descr);
+    return NpyArray_NewFromDescr(self->descr, n2,
+                                 dimensions, strides,
+                                 self->data + offset,
+                                 self->flags, NPY_FALSE,
+                                 NULL, Npy_INTERFACE(self));
+}

@@ -886,7 +886,7 @@ sequence_tuple(PyObject* seq)
 }
 
 /*
- * Converts a python object into an array of indexes. 
+ * Converts a python object into an array of indexes.
  */
 NPY_NO_EXPORT int
 PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
@@ -894,7 +894,7 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
     Py_ssize_t i, n;
     PyObject *item;
 
-    /* This is the simplest case. We have multiple args as a 
+    /* This is the simplest case. We have multiple args as a
      * tuple.  Just convert each one. */
     if (PyTuple_Check(index)) {
         n = PyTuple_GET_SIZE(index);

@@ -54,7 +54,8 @@ int count_nonnew(NpyIndex* indexes, int n)
  *
  * 1. Expanding any ellipses.
  * 2. Setting slice start/stop/step appropriately for the array dims.
- * 3. Expanding any boolean arrays to intp arrays of non-zero indices.
+ * 3. Handling any negative indexes.
+ * 4. Expanding any boolean arrays to intp arrays of non-zero indices.
  *
  * Returns the number of indices in out_indexes, or -1 on error.
  */
@@ -73,6 +74,13 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
         }
 
         switch (indexes[i].type) {
+
+        case NPY_INDEX_STRING:
+            NpyErr_SetString(NpyExc_IndexError,
+                             "String index not allowed.");
+            return -1;
+            break;
+
         case NPY_INDEX_ELLIPSIS:
             {
                 /* Expand the ellipsis. */
@@ -95,6 +103,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 }
             }
             break;
+
         case NPY_INDEX_BOOL_ARRAY:
             {
                 /* Convert to intp array on non-zero indexes. */
@@ -202,6 +211,22 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 }
 
                 result++;
+            }
+            break;
+
+        case NPY_INDEX_INTP:
+            {
+                npy_intp val = indexes[i].index.intp;
+                npy_intp dim = NpyArray_DIM(array, result);
+
+                if (val < 0) {
+                    val += dim;
+                }
+                if (val < 0 || val >= dim) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "Invalid index.");
+                    return -1;
+                }
             }
             break;
 
