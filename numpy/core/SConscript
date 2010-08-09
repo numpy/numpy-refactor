@@ -375,8 +375,11 @@ umath_funcs_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'funcs.inc.src'
 umath_loops_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'loops.c.src'))
 arraytypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'arraytypes.c.src'))
-npy_arraytypes_src = env.GenerateFromTemplate(
-    pjoin('src', 'libnumpy', 'npy_arraytypes.c.src'))
+
+# TODO:
+# npy_arraytypes_src = env.GenerateFromTemplate(
+#     pjoin('src', 'libnumpy', 'npy_arraytypes.c.src'))
+
 sortmodule_src = env.GenerateFromTemplate(pjoin('src', '_sortmodule.c.src'))
 umathmodule_src = env.GenerateFromTemplate(pjoin('src', 'umath',
     'umathmodule.c.src'))
@@ -425,38 +428,6 @@ env.Install('$distutils_installdir/lib/npy-pkg-config', npymath_ini)
 
 
 #-----------------
-# Build libnumpy core
-#-----------------
-libnumpy_src = [pjoin('src', 'libnumpy', 'npy_arrayobject.c'),
-                pjoin('src', 'libnumpy', 'npy_calculation.c'),
-                pjoin('src', 'libnumpy', 'npy_common.c'),
-                pjoin('src', 'libnumpy', 'npy_conversion_utils.c'),
-                pjoin('src', 'libnumpy', 'npy_convert.c'),
-                pjoin('src', 'libnumpy', 'npy_convert_datatype.c'),
-                pjoin('src', 'libnumpy', 'npy_ctors.c'),
-                pjoin('src', 'libnumpy', 'npy_datetime.c'),
-                pjoin('src', 'libnumpy', 'npy_descriptor.c'),
-                pjoin('src', 'libnumpy', 'npy_dict.c'),
-                pjoin('src', 'libnumpy', 'npy_flagsobject.c'),
-                pjoin('src', 'libnumpy', 'npy_getset.c'),
-                pjoin('src', 'libnumpy', 'npy_item_selection.c'),
-                pjoin('src', 'libnumpy', 'npy_iterators.c'),
-                pjoin('src', 'libnumpy', 'npy_mapping.c'),
-                pjoin('src', 'libnumpy', 'npy_methods.c'),
-                pjoin('src', 'libnumpy', 'npy_multiarraymodule.c'),
-                pjoin('src', 'libnumpy', 'npy_refcount.c'),
-                pjoin('src', 'libnumpy', 'npy_shape.c'),
-                pjoin('src', 'libnumpy', 'npy_ufunc_object.c'),
-                pjoin('src', 'libnumpy', 'npy_usertypes.c'),
-                pjoin('src', 'libnumpy', 'numpyos.c'),
-                pjoin('src', 'libnumpy', 'npy_index.c')]
-
-libnumpy_src.extend(npy_arraytypes_src)
-
-
-libnumpy = env.StaticExtLibrary('libnumpy', source = libnumpy_src)
-
-#-----------------
 # Build multiarray
 #-----------------
 if ENABLE_SEPARATE_COMPILATION:
@@ -491,7 +462,12 @@ if ENABLE_SEPARATE_COMPILATION:
         multiarray_src.extend([pjoin("src", "multiarray", "ucsnarrow.c")])
 else:
     multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule_onefile.c')]
-multiarray = env.DistutilsPythonExtension('multiarray', LIBS=['libnumpy', 'npymath'], source = multiarray_src)
+multiarray = env.DistutilsPythonExtension(
+         'multiarray', LIBS=['ndarray', 'npymath'],
+         INCPATH=['/home/ischnell/usr/include'],
+         LIBPATH=['/home/ischnell/usr/lib',
+                  '/home/ischnell/foo/numpy-refactor/build/scons/numpy/core'],
+         source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
 #------------------

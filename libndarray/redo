@@ -8,4 +8,6 @@ autoreconf -fvi
 
 make
 
+rm -rf "$HOME/usr"
+
 make install
