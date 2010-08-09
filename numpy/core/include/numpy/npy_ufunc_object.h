@@ -5,7 +5,7 @@
 #include <numpy/npy_object.h>
 
 
-typedef void (*PyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
+typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
 
 
 struct NpyDict_struct;
@@ -16,7 +16,7 @@ struct NpyUFuncObject {
     
     int nin, nout, nargs;
     int identity;
-    PyUFuncGenericFunction *functions;
+    NpyUFuncGenericFunction *functions;
     void **data;
     int ntypes;
     int check_return;

@@ -434,7 +434,7 @@ _find_array_prepare(PyObject *args, PyObject **output_wrap, int nin, int nout)
 static int
 _find_matching_userloop(PyUFunc_Loop1d *funcdata, int *arg_types,
                         PyArray_SCALARKIND *scalars,
-                        PyUFuncGenericFunction *function, void **data,
+                        NpyUFuncGenericFunction *function, void **data,
                         int nargs, int nin)
 {
     int i;
@@ -561,7 +561,7 @@ get_rtypenums(NpyUFuncObject *self, PyObject *type_tup, int *rtypenums)
 /* TODO: OK TO MOVE */
 static int
 extract_specified_loop(NpyUFuncObject *self, int *arg_types,
-                       PyUFuncGenericFunction *function, void **data,
+                       NpyUFuncGenericFunction *function, void **data,
                        int *rtypenums, int userdef)
 {
     Py_ssize_t n = 1;
@@ -650,7 +650,7 @@ extract_specified_loop(NpyUFuncObject *self, int *arg_types,
 /* TODO: Ok to move */
 static int
 select_types(NpyUFuncObject *self, int *arg_types,
-             PyUFuncGenericFunction *function, void **data,
+             NpyUFuncGenericFunction *function, void **data,
              PyArray_SCALARKIND *scalars,
              int *rtypenums)
 {
@@ -3947,9 +3947,9 @@ ufunc_seterr(PyObject *NPY_UNUSED(dummy), PyObject *args)
 /* TODO: Ready to move */
 int
 NpyUFunc_ReplaceLoopBySignature(NpyUFuncObject *func,
-                               PyUFuncGenericFunction newfunc,
+                               NpyUFuncGenericFunction newfunc,
                                int *signature,
-                               PyUFuncGenericFunction *oldfunc)
+                               NpyUFuncGenericFunction *oldfunc)
 {
     int i, j;
     int res = -1;
@@ -3976,16 +3976,16 @@ NpyUFunc_ReplaceLoopBySignature(NpyUFuncObject *func,
 /*UFUNC_API*/
 NPY_NO_EXPORT int
 PyUFunc_ReplaceLoopBySignature(PyUFuncObject *func,
-                               PyUFuncGenericFunction newfunc,
+                               NpyUFuncGenericFunction newfunc,
                                int *signature,
-                               PyUFuncGenericFunction *oldfunc)
+                               NpyUFuncGenericFunction *oldfunc)
 {
     return NpyUFunc_ReplaceLoopBySignature(PyUFunc_UFUNC(func), newfunc, signature, oldfunc);
 }
 
 /*UFUNC_API*/
 NPY_NO_EXPORT PyObject *
-PyUFunc_FromFuncAndData(PyUFuncGenericFunction *func, void **data,
+PyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
                         char *types, int ntypes,
                         int nin, int nout, int identity,
                         char *name, char *doc, int check_return)
@@ -3996,7 +3996,7 @@ PyUFunc_FromFuncAndData(PyUFuncGenericFunction *func, void **data,
 
 /* TODO: Ready to move */
 NpyUFuncObject *
-NpyUFunc_FromFuncAndDataAndSignature(PyUFuncGenericFunction *func, void **data,
+NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                      char *types, int ntypes,
                                      int nin, int nout, int identity,
                                      char *name, char *doc,
@@ -4057,7 +4057,7 @@ NpyUFunc_FromFuncAndDataAndSignature(PyUFuncGenericFunction *func, void **data,
 
 /*UFUNC_API*/
 NPY_NO_EXPORT PyObject *
-PyUFunc_FromFuncAndDataAndSignature(PyUFuncGenericFunction *func, void **data,
+PyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                     char *types, int ntypes,
                                     int nin, int nout, int identity,
                                     char *name, char *doc,
@@ -4186,7 +4186,7 @@ _loop1d_list_free(void *ptr)
 int
 NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
                              int usertype,
-                             PyUFuncGenericFunction function,
+                             NpyUFuncGenericFunction function,
                              int *arg_types,
                              void *data)
 {
@@ -4291,7 +4291,7 @@ fail:
 NPY_NO_EXPORT int
 PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
                             int usertype,
-                            PyUFuncGenericFunction function,
+                            NpyUFuncGenericFunction function,
                             int *arg_types,
                             void *data)
 {

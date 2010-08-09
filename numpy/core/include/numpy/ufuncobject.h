@@ -83,7 +83,7 @@ typedef struct NpyUFuncLoopObject {
         int first;
 
         /* Specific function and data to use */
-        PyUFuncGenericFunction function;
+        NpyUFuncGenericFunction function;
         void *funcdata;
 
         /* Loop method */
@@ -151,7 +151,7 @@ typedef struct {
         PyObject *errobj;
         int first;
 
-        PyUFuncGenericFunction function;
+        NpyUFuncGenericFunction function;
         void *funcdata;
         int meth;
         int swap;
@@ -207,7 +207,7 @@ typedef struct {
    user-defined 1-d loops.
  */
 typedef struct _loop1d_info {
-        PyUFuncGenericFunction func;
+        NpyUFuncGenericFunction func;
         void *data;
         int *arg_types;
         struct _loop1d_info *next;

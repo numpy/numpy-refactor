@@ -271,6 +271,9 @@ void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
 void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
                                          npy_timedeltastruct *result);
 
+int
+NpyArray_GetNumusertypes(void);
+
 
 
 /*
