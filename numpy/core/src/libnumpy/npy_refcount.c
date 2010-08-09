@@ -28,8 +28,8 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
     }
     if (descr->type_num == NPY_OBJECT) {
         NPY_COPY_PYOBJECT_PTR(&temp, data);
-        NpyInterface_INCREF(temp);
-        /* TODO: Fix for garbage collected environments - needs to store possibly new pointer */
+        temp = NpyInterface_INCREF(temp);
+        NPY_COPY_PYOBJECT_PTR(data, &temp);
     }
     else if (NpyDataType_HASFIELDS(descr)) {
         const char *key;

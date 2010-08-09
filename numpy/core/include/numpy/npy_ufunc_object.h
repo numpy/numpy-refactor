@@ -4,7 +4,12 @@
 
 #include <numpy/npy_object.h>
 
-#ifdef tempnotused
+
+typedef void (*PyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
+
+
+struct NpyDict_struct;
+
 struct NpyUFuncObject {
     NpyObject_HEAD
     int magic_number;
@@ -18,7 +23,6 @@ struct NpyUFuncObject {
     char *name, *types;
     char *doc;
     void *ptr;
-    PyObject *obj;
     struct NpyDict_struct *userloops;
     
     /* generalized ufunc */
@@ -36,10 +40,9 @@ struct NpyUFuncObject {
     char *core_signature;  /* signature string for printing purpose */
 };
 
-#endif
+typedef struct NpyUFuncObject NpyUFuncObject;
 
-
-struct NpyDict_struct;
+extern _NpyTypeObject NpyUFunc_Type;
 
 
 extern struct NpyDict_struct *npy_create_userloops_table();

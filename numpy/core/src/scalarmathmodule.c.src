@@ -8,6 +8,7 @@
 
 #include "Python.h"
 #include "numpy/numpy_api.h"
+#include "numpy/npy_ufunc_object.h"
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/arrayscalars.h"
@@ -1231,8 +1232,8 @@ get_functions(void)
 
     obj = PyObject_GetAttrString(mm, "power");
     if (obj == NULL) goto fail;
-    funcdata = ((PyUFuncObject *)obj)->data;
-    signatures = ((PyUFuncObject *)obj)->types;
+    funcdata = PyUFunc_UFUNC((PyUFuncObject *)obj)->data;
+    signatures = PyUFunc_UFUNC((PyUFuncObject *)obj)->types;
 
     i = 0;
     j = 0;
@@ -1248,8 +1249,8 @@ get_functions(void)
     /* Get the floor functions */
     obj = PyObject_GetAttrString(mm, "floor");
     if (obj == NULL) goto fail;
-    funcdata = ((PyUFuncObject *)obj)->data;
-    signatures = ((PyUFuncObject *)obj)->types;
+    funcdata = PyUFunc_UFUNC((PyUFuncObject *)obj)->data;
+    signatures = PyUFunc_UFUNC((PyUFuncObject *)obj)->types;
     i = 0;
     j = 0;
     while(signatures[i] != PyArray_FLOAT) {i+=2; j++;}
@@ -1261,8 +1262,8 @@ get_functions(void)
     /* Get the sqrt functions */
     obj = PyObject_GetAttrString(mm, "sqrt");
     if (obj == NULL) goto fail;
-    funcdata = ((PyUFuncObject *)obj)->data;
-    signatures = ((PyUFuncObject *)obj)->types;
+    funcdata = PyUFunc_UFUNC((PyUFuncObject *)obj)->data;
+    signatures = PyUFunc_UFUNC((PyUFuncObject *)obj)->types;
     i = 0;
     j = 0;
     while(signatures[i] != PyArray_FLOAT) {i+=2; j++;}
@@ -1274,8 +1275,8 @@ get_functions(void)
     /* Get the fmod functions */
     obj = PyObject_GetAttrString(mm, "fmod");
     if (obj == NULL) goto fail;
-    funcdata = ((PyUFuncObject *)obj)->data;
-    signatures = ((PyUFuncObject *)obj)->types;
+    funcdata = PyUFunc_UFUNC((PyUFuncObject *)obj)->data;
+    signatures = PyUFunc_UFUNC((PyUFuncObject *)obj)->types;
     i = 0;
     j = 0;
     while(signatures[i] != PyArray_FLOAT) {i+=3; j++;}
