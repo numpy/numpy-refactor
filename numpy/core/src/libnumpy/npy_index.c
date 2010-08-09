@@ -139,7 +139,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                     return -1;
                 }
                 /* Fill with full slices. */
-                for (j=0; j<n2; i++) {
+                for (j=0; j<n2; j++) {
                     NpyIndex *out = &out_indexes[result];
                     out->type = NPY_INDEX_SLICE;
                     out->index.slice.start = 0;

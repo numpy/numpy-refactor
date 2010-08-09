@@ -791,6 +791,9 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     if (obj == Py_None) {
         index->type = NPY_INDEX_NEWAXIS;
     }
+    else if (obj == Py_Ellipsis) {
+        index->type = NPY_INDEX_ELLIPSIS;
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {
@@ -806,7 +809,8 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             }
         } else {
             PyErr_SetString(PyExc_IndexError,
-                            "Array index must be bool or integer array.");
+                            "arrays used as indices must be of "
+                            "integer (or boolean) type");
             return -1;
         }
     }
@@ -915,6 +919,13 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
             }
             return n;
         }
+    }
+
+    if (PyArray_Check(index)) {
+        if (convert_single_index(index, &indexes[0]) < 0) {
+            return -1;
+        }
+        return 1;
     }
 
     /* For sequences that don't look like a sequence of intp
