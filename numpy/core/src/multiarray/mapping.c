@@ -1023,7 +1023,23 @@ PyArray_MapIterNext(PyArrayMapIterObject *pyMit)
 NPY_NO_EXPORT int
 PyArray_MapIterBind(PyArrayMapIterObject *pyMit, PyArrayObject *arr)
 {
-    return NpyArray_MapIterBind(pyMit->iter, PyArray_ARRAY(arr));
+    int result;
+    PyObject* true_array;
+
+    if (PyArray_CheckExact(arr)) {
+        true_array = (PyObject*) arr;
+        Py_INCREF(arr);
+    } else {
+        Py_INCREF(arr);
+        true_array = PyArray_EnsureArray((PyObject *)arr);
+        if (true_array == NULL) {
+            return -1;
+        }
+    }
+    result = NpyArray_MapIterBind(pyMit->iter, PyArray_ARRAY(arr),
+                                  PyArray_ARRAY(true_array));
+    Py_DECREF(true_array);
+    return result;
 }
 
 /*

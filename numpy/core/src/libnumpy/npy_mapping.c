@@ -102,7 +102,8 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
 }
 
 int
-NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
+NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
+                     NpyArray *true_array)
 {
     NpyArrayIterObject *it;
     int subnd;
@@ -173,18 +174,19 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr)
         NpyArray *view;
 
         /* Convert to dimensions and strides. */
-        n2 = NpyArray_IndexToDimsEtc(arr, bound_indexes, nbound,
+        n2 = NpyArray_IndexToDimsEtc(true_array, bound_indexes, nbound,
                                      dimensions, strides, &offset, 
                                      NPY_TRUE);
         if (n2 < 0) {
             goto fail;
         }
 
-        view =  NpyArray_NewFromDescr(arr->descr, n2,
+        _Npy_INCREF(true_array->descr);
+        view =  NpyArray_NewFromDescr(true_array->descr, n2,
                                       dimensions, strides,
-                                      arr->data + offset,
-                                      arr->flags, NPY_TRUE,
-                                      NULL, Npy_INTERFACE(arr));
+                                      true_array->data + offset,
+                                      true_array->flags, NPY_FALSE,
+                                      NULL, Npy_INTERFACE(true_array));
         if (view == NULL) {
             goto fail;
         }
