@@ -30,6 +30,8 @@ maintainer email:  oliphant.travis@ieee.org
 #include "numpy/npy_arrayobject.h"
 
 
+static numusertypes = 0;
+
 NpyArray_Descr **npy_userdescrs=NULL;
 
 static NpyArray_CastFuncsItem*
@@ -139,6 +141,13 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 }
 
 
+int
+NpyArray_GetNumusertypes(void)
+{
+    return numusertypes;
+}
+
+
 /*
   returns typenum to associate with this type >=NPY_USERDEF.
   needs the userdecrs table and NPY_NUMUSER variables
@@ -157,13 +166,13 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
     NpyArray_ArrFuncs *f;
 
     /* See if this type is already registered */
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+    for (i = 0; i < numusertypes; i++) {
         descr2 = npy_userdescrs[i];
         if (descr2 == descr) {
             return descr->type_num;
         }
     }
-    typenum = NPY_USERDEF + NPY_NUMUSERTYPES;
+    typenum = NPY_USERDEF + numusertypes;
     descr->type_num = typenum;
     if (descr->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "cannot register a"
@@ -190,12 +199,12 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
         return -1;
     } */
     npy_userdescrs = realloc(npy_userdescrs,
-                             (NPY_NUMUSERTYPES + 1) * sizeof(void *));
+                             (numusertypes + 1) * sizeof(void *));
     if (npy_userdescrs == NULL) {
         NpyErr_SetString(NpyExc_MemoryError, "RegisterDataType");
         return -1;
     }
-    npy_userdescrs[NPY_NUMUSERTYPES++] = descr;
+    npy_userdescrs[numusertypes++] = descr;
     return typenum;
 }
 

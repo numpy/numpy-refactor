@@ -159,7 +159,7 @@ PyArray_TypeNumFromName(char *str)
     NpyArray_Descr *descr;
     PyTypeObject *type;
     
-    for (i = 0; i < NPY_NUMUSERTYPES; i++) {
+    for (i = 0; i < NpyArray_GetNumusertypes(); i++) {
         descr = npy_userdescrs[i];
         type = PyArray_Descr_WRAP(descr)->typeobj;
         if (strcmp(type->tp_name, str) == 0) {
