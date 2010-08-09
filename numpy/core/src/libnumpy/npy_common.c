@@ -4,7 +4,6 @@
  */
 
 #define _MULTIARRAYMODULE
-#define PY_SSIZE_T_CLEAN
 #include "npy_config.h"
 #include "numpy/numpy_api.h"
 #include "numpy/npy_arrayobject.h"
@@ -45,8 +44,9 @@ Npy_IsAligned(NpyArray *ap)
 }
 
 /* TODO: Remove these declarations once pickling code below is refactored into
- * the interface */
+ * the interface
 #include <Python.h>
+*/
 
 npy_bool
 Npy_IsWriteable(NpyArray *ap)
@@ -83,6 +83,7 @@ Npy_IsWriteable(NpyArray *ap)
      * and unpickled array can be set and reset writeable
      * -- could be abused --
      */
+#if 0  /* XXX */
     /* TODO: How is this related to pickling? Need to promote to interface layer to determine if opaque obj is writable. */
     if (NpyString_Check(base_obj)) {
         return NPY_TRUE;
@@ -90,6 +91,7 @@ Npy_IsWriteable(NpyArray *ap)
     if (NpyObject_AsWriteBuffer(base_obj, &dummy, &n) < 0) {
         return NPY_FALSE;
     }
+#endif
     return NPY_TRUE;
 }
 

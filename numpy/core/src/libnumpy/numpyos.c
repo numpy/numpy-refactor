@@ -1,5 +1,3 @@
-#define PY_SSIZE_T_CLEAN
-
 #include <locale.h>
 #include <stdio.h>
 #include <string.h>

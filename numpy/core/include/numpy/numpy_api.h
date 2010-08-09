@@ -65,8 +65,11 @@ int NpyArray_dealloc(NpyArray *self);
 /* common.c */
 /* TODO: Npy_IsWriteable() need callback to interface for base of
    string, buffer */
+/*
 #define NpyString_Check(a) PyString_Check(a)
 #define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c)
+*/
+
 int Npy_IsAligned(NpyArray *ap);
 npy_bool Npy_IsWriteable(NpyArray *ap);
 NpyArray_Descr *
@@ -124,6 +127,7 @@ void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
 int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
 NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
+/*NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n);*/
 
 
 /* multiarraymodule.c */

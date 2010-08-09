@@ -4,7 +4,6 @@
  */
 
 #define _MULTIARRAYMODULE
-#define PY_SSIZE_T_CLEAN
 #include <stdlib.h>
 #include <memory.h>
 #include "npy_config.h"

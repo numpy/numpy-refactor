@@ -1,6 +1,8 @@
 #ifndef _NPY_PRIVATE_CONVERSION_UTILS_H_
 #define _NPY_PRIVATE_CONVERSION_UTILS_H_
 
+#include <numpy/npy_index.h>
+
 NPY_NO_EXPORT int
 PyArray_Converter(PyObject *object, PyObject **address);
 
@@ -39,5 +41,8 @@ PyArray_TypestrConvert(int itemsize, int gentype);
 
 NPY_NO_EXPORT PyObject *
 PyArray_IntTupleFromIntp(int len, intp *vals);
+
+NPY_NO_EXPORT int
+PyArray_IndexConverter(PyObject* index, NpyIndex* indexes);
 
 #endif

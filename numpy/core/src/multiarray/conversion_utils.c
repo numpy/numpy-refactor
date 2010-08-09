@@ -670,3 +670,267 @@ PyArray_IntTupleFromIntp(int len, intp *vals)
     return intTuple;
 }
 
+
+static int
+convert_array(PyObject*obj, int type, NpyArray **parray)
+{
+    NpyArray_Descr *descr;
+    NpyArray *array;
+
+    descr = NpyArray_DescrFromType(type);
+    array = NpyArray_FromArray(PyArray_ARRAY(obj), descr,
+                               NPY_FORCECAST);
+    if (array == NULL) {
+        return -1;
+    } else {
+        *parray = array;
+        return 0;
+    }
+}
+
+static int
+convert_slice_nostop(PySliceObject* slice, NpyIndexSliceNoStop* islice)
+{
+    if (slice->step == Py_None) {
+        islice->step = 1;
+    }
+    else {
+        islice->step = PyArray_PyIntAsIntp(slice->step);
+        if (islice->step == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (islice->step == 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "slice step cannot be zero");
+            return -1;
+        }
+    }
+
+    if (slice->start == Py_None) {
+        if (slice->step > 0) {
+            islice->start = 0;
+        } else {
+            islice->start = -1;
+        }
+    }
+    else {
+        islice->start = PyArray_PyIntAsIntp(slice->start);
+        if (islice->start == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+static int
+convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
+{
+    if (slice->step == Py_None) {
+        islice->step = 1;
+    }
+    else {
+        islice->step = PyArray_PyIntAsIntp(slice->step);
+        if (islice->step == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (islice->step == 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "slice step cannot be zero");
+            return -1;
+        }
+    }
+
+    if (slice->start == Py_None) {
+        if (slice->step > 0) {
+            islice->start = 0;
+        } else {
+            islice->start = -1;
+        }
+    }
+    else {
+        islice->start = PyArray_PyIntAsIntp(slice->start);
+        if (islice->start == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+    }
+
+    islice->stop = PyArray_PyIntAsIntp(slice->stop);
+    if (islice->stop == -1 && PyErr_Occurred()) {
+        return -1;
+    }
+
+    return 0;
+}
+
+static int
+convert_sequence(PyObject* seq, NpyArray** parray)
+{
+    PyObject* pyArray;
+    NpyArray_Descr* descr;
+
+    descr = NpyArray_DescrFromType(NPY_INTP);
+    pyArray = PyArray_FromAnyUnwrap(seq, descr, 0, 0, NPY_FORCECAST, NULL);
+    if (pyArray == NULL) {
+        return -1;
+    }
+
+    *parray = PyArray_ARRAY(pyArray);
+    _Npy_INCREF(*parray);
+    Py_DECREF(pyArray);
+
+    return 0;
+}
+
+
+
+static int
+convert_single_index(PyObject* obj, NpyIndex* index)
+{
+    /* None is a newaxis. */
+    if (obj == Py_None) {
+        index->type = NPY_INDEX_NEWAXIS;
+    }
+    /* Arrays must be bool or integeter and will be converted to
+       intp or bool arrays. */
+    else if (PyArray_Check(obj)) {
+        if (PyArray_ISINTEGER(obj)) {
+            index->type = NPY_INDEX_INTP_ARRAY;
+            if (convert_array(obj, NPY_INTP, &index->index.intp_array) < 0) {
+                return -1;
+            }
+        } else if (PyArray_ISBOOL(obj)) {
+            index->type = NPY_INDEX_BOOL_ARRAY;
+            if (convert_array(obj, NPY_BOOL, &index->index.bool_array) < 0) {
+                return -1;
+            }
+        } else {
+            PyErr_SetString(PyExc_IndexError,
+                            "Array index must be bool or integer array.");
+            return -1;
+        }
+    }
+    /* Slices are converted. */
+    else if (PySlice_Check(obj)) {
+        PySliceObject* slice = (PySliceObject*)obj;
+
+        if (slice->stop == Py_None) {
+            index->type = NPY_INDEX_SLICE_NOSTOP;
+            if (convert_slice_nostop(slice, &index->index.slice_nostop) < 0) {
+                return -1;
+            }
+        } else {
+            index->type = NPY_INDEX_SLICE;
+            if (convert_slice(slice, &index->index.slice) < 0) {
+                return -1;
+            }
+        }
+    }
+    /* Strings and unicode. */
+    else if (PyString_Check(obj) || PyUnicode_Check(obj)) {
+        index->type = NPY_INDEX_STRING;
+        index->index.string = PyString_AsString(obj);
+        if (index->index.string == NULL) {
+            return -1;
+        }
+    }
+    /* Try to convert other sequences to intp arrays. */
+    else if (PySequence_Check(obj)) {
+        index->type = NPY_INDEX_INTP_ARRAY;
+        if (convert_sequence(obj, &index->index.intp_array) < 0) {
+            return -1;
+        }
+    }
+    /* Anything else we try to convert to an intp. */
+    else {
+        npy_intp val;
+        val = PyArray_PyIntAsIntp(obj);
+        if (val == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        index->type = NPY_INDEX_INTP;
+        index->index.intp = val;
+    }
+
+    return 0;
+}
+
+/*
+ * Returns whether a sequence should be treated like a tuple.
+ * Essentially it should be unless it looks like a sequence of
+ * indexes.
+ */
+static npy_bool
+sequence_tuple(PyObject* seq)
+{
+    Py_ssize_t i, n;
+    PyObject *item;
+
+    n = PySequence_Length(seq);
+    if (n < 0 || n > NPY_MAXDIMS) {
+        return NPY_FALSE;
+    }
+
+    for (i=0; i<n; i++) {
+        item = PySequence_GetItem(seq, i);
+        if (item == Py_None ||
+            item == Py_Ellipsis ||
+            PySlice_Check(item) ||
+            PySequence_Check(item)) {
+            Py_DECREF(item);
+            return NPY_TRUE;
+        }
+        Py_DECREF(item);
+    }
+    return NPY_FALSE;
+}
+
+/*
+ * Converts a python object into an array of indexes.
+ */
+NPY_NO_EXPORT int
+PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
+{
+    Py_ssize_t i, n;
+    PyObject *item;
+
+    /* This is the simplest case. We have multiple args as a
+     * tuple.  Just convert each one. */
+    if (PyTuple_Check(index)) {
+        n = PyTuple_GET_SIZE(index);
+        if (n >= NPY_MAXDIMS) {
+            PyErr_SetString(PyExc_IndexError,
+                            "too many indices");
+            return -1;
+        }
+        else {
+            for (i=0; i<n; i++) {
+                item = PyTuple_GET_ITEM(index, i);
+                if (convert_single_index(item, &indexes[i]) < 0) {
+                    NpyArray_IndexDealloc(indexes, i);
+                    return -1;
+                }
+            }
+            return n;
+        }
+    }
+
+    /* For sequences that don't look like a sequence of intp
+     * treat them like a tuple. */
+    if (PySequence_Check(index) && sequence_tuple(index)) {
+        n = PySequence_Length(index);
+        for (i=0; i<n; i++) {
+            item = PySequence_GetItem(index, i);
+            if (convert_single_index(item, &indexes[i]) < 0) {
+                NpyArray_IndexDealloc(indexes, i);
+                Py_DECREF(item);
+                return -1;
+            }
+        }
+        return n;
+    }
+
+    return convert_single_index(index, &indexes[0]);
+}
+
+
