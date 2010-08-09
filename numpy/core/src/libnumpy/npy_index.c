@@ -61,7 +61,7 @@ int count_nonnew(NpyIndex* indexes, int n)
 int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                        int n, NpyIndex* out_indexes)
 {
-    int i, n2;
+    int i;
     int result = 0;
 
     for (i=0; i<n; i++) {
@@ -90,7 +90,6 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                     out->type = NPY_INDEX_SLICE;
                     out->index.slice.start = 0;
                     out->index.slice.stop = NpyArray_DIM(array, result);
-                    out->index.slice.has_stop = NPY_TRUE;
                     out->index.slice.step = 1;
                     result++;
                 }
@@ -148,15 +147,6 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                     }
                 }
 
-                if (!slice->has_stop) {
-                    if (slice->step > 0) {
-                        slice->stop = dim-1;
-                    } else {
-                        slice->stop = 0;
-                    }
-                    slice->has_stop = NPY_TRUE;
-                }
-
                 if (slice->stop < 0) {
                     slice->stop += dim;
                 }
@@ -171,6 +161,50 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 result++;
             }
             break;
+
+        case NPY_INDEX_SLICE_NOSTOP:
+            {
+                /* Sets the slice values based on the array. */
+                npy_intp dim;
+                NpyIndexSlice *oslice;
+                NpyIndexSliceNoStop *islice;
+
+                dim = NpyArray_DIM(array, result);
+                out_indexes[result].type = NPY_INDEX_SLICE;
+                oslice = &out_indexes[result].index.slice;
+                islice = &indexes[i].index.slice_nostop;
+
+                oslice->step = islice->step;
+
+                if (islice->start < 0) {
+                    oslice->start = islice->start + dim;
+                }
+                else {
+                    oslice->start = islice->start;
+                }
+                if (oslice->start < 0) {
+                    oslice->start = 0;
+                    if (oslice->step < 0) {
+                        oslice->start -= 1;
+                    }
+                }
+                if (oslice->start >= dim) {
+                    oslice->start = dim;
+                    if (oslice->step < 0) {
+                        oslice->start -= 1;
+                    }
+                }
+
+                if (oslice->step > 0) {
+                    oslice->stop = dim;
+                } else {
+                    oslice->stop = -1;
+                }
+
+                result++;
+            }
+            break;
+
         default:
             /* Copy anything else. */
             out_indexes[result++] = indexes[i];
@@ -179,5 +213,108 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
     }
 
     return result;
+}
+
+/*
+ * Converts a bound index into dimensions, strides, and an offset_ptr.
+ */
+int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
+                            npy_intp *dimensions, npy_intp* strides,
+                            npy_intp* offset_ptr, npy_bool allow_arrays)
+{
+    int i;
+    int iDim = 0;
+    int nd_new = 0;
+    npy_intp offset = 0;
+
+    for (i=0; i<n; i++) {
+        switch (indexes[i].type) {
+        case NPY_INDEX_INTP:
+            if (iDim >= array->nd) {
+                NpyErr_SetString(NpyExc_IndexError,
+                                 "too many indices");
+                return -1;
+            }
+            offset += array->strides[iDim] * indexes[i].index.intp;
+            iDim++;
+            break;
+        case NPY_INDEX_SLICE:
+            {
+                NpyIndexSlice *slice = &indexes[i].index.slice;
+                npy_intp dim;
+
+                if (iDim >= array->nd) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "too many indices");
+                    return -1;
+                }
+                if ((slice->step < 0 && slice->stop >= slice->start) ||
+                    (slice->step > 0 && slice->start >= slice->stop)) {
+                    dim = 0;
+                } else if (slice->step < 0) {
+                    dim = ((slice->stop - slice->start + 1) / slice->step) + 1;
+                } else {
+                    dim = ((slice->stop - slice->start - 1) / slice->step) + 1;
+                }
+
+                dimensions[nd_new] = dim;
+                strides[nd_new] = slice->step * array->strides[iDim];
+                iDim++;
+                nd_new++;
+            }
+            break;
+
+        case NPY_INDEX_INTP_ARRAY:
+            if (allow_arrays) {
+                /* Treat arrays as a 0 index to get the subspace. */
+                if (iDim >= array->nd) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "too many indices");
+                    return -1;
+                }
+                iDim++;
+                break;
+            } else {
+                NpyErr_SetString(NpyExc_IndexError,
+                                 "Array indices are not allowed.");
+                return -1;
+            }
+            break;
+
+        case NPY_INDEX_NEWAXIS:
+            dimensions[nd_new] = 1;
+            strides[nd_new] = 0;
+            nd_new++;
+            break;
+
+        case NPY_INDEX_SLICE_NOSTOP:
+        case NPY_INDEX_BOOL_ARRAY:
+        case NPY_INDEX_ELLIPSIS:
+            NpyErr_SetString(NpyExc_IndexError,
+                             "Index is not bound to an array.");
+            return -1;
+            break;
+        case NPY_INDEX_STRING:
+            NpyErr_SetString(NpyExc_IndexError,
+                             "String indices not allowed.");
+            return -1;
+            break;
+
+        default:
+            assert(NPY_FALSE);
+            NpyErr_SetString(NpyExc_IndexError,
+                             "Illegal index type.");
+            return -1;
+        }
+    }
+
+    /* Add full slices for the rest of the array indices. */
+    for (; iDim<array->nd; iDim++) {
+        dimensions[nd_new] = array->dimensions[iDim];
+        strides[nd_new] = array->strides[iDim];
+        nd_new++;
+    }
+
+    return nd_new;
 }
 

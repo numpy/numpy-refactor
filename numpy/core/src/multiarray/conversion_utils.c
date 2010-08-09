@@ -689,6 +689,41 @@ convert_array(PyObject*obj, int type, NpyArray **parray)
 }
 
 static int
+convert_slice_nostop(PySliceObject* slice, NpyIndexSliceNoStop* islice)
+{
+    if (slice->step == Py_None) {
+        islice->step = 1;
+    }
+    else {
+        islice->step = PyArray_PyIntAsIntp(slice->step);
+        if (islice->step == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+        if (islice->step == 0) {
+            PyErr_SetString(PyExc_ValueError,
+                            "slice step cannot be zero");
+            return -1;
+        }
+    }
+
+    if (slice->start == Py_None) {
+        if (slice->step > 0) {
+            islice->start = 0;
+        } else {
+            islice->start = -1;
+        }
+    }
+    else {
+        islice->start = PyArray_PyIntAsIntp(slice->start);
+        if (islice->start == -1 && PyErr_Occurred()) {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+static int
 convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
 {
     if (slice->step == Py_None) {
@@ -720,16 +755,9 @@ convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
         }
     }
 
-    if (slice->stop == Py_None) {
-        islice->stop = 0;
-        islice->has_stop = NPY_FALSE;
-    }
-    else {
-        islice->stop = PyArray_PyIntAsIntp(slice->stop);
-        if (islice->stop == -1 && PyErr_Occurred()) {
-            return -1;
-        }
-        islice->has_stop = NPY_TRUE;
+    islice->stop = PyArray_PyIntAsIntp(slice->stop);
+    if (islice->stop == -1 && PyErr_Occurred()) {
+        return -1;
     }
 
     return 0;
@@ -786,9 +814,16 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     else if (PySlice_Check(obj)) {
         PySliceObject* slice = (PySliceObject*)obj;
 
-        index->type = NPY_INDEX_SLICE;
-        if (convert_slice(slice, &index->index.slice) < 0) {
-            return -1;
+        if (slice->stop == Py_None) {
+            index->type = NPY_INDEX_SLICE_NOSTOP;
+            if (convert_slice_nostop(slice, &index->index.slice_nostop) < 0) {
+                return -1;
+            }
+        } else {
+            index->type = NPY_INDEX_SLICE;
+            if (convert_slice(slice, &index->index.slice) < 0) {
+                return -1;
+            }
         }
     }
     /* Strings and unicode. */
