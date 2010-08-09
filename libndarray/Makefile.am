@@ -39,6 +39,7 @@ LIBSOURCES = \
         src/npy_dict.c \
         src/npy_flagsobject.c \
         src/npy_getset.c \
+        src/npy_index.c \
         src/npy_item_selection.c \
         src/npy_iterators.c \
         src/npy_mapping.c \
