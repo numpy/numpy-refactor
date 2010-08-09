@@ -5,7 +5,7 @@
 #ifndef _NEIGHBORHOOD_ITERATOR_IMP_H_
 #define _NEIGHBORHOOD_ITERATOR_IMP_H_
 
-#include <numpy/npy_iterators.h>
+#include "npy_iterators.h"
 
 /*
  * Private API (here for inline)

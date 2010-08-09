@@ -7,9 +7,9 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "npy_config.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_arrayobject.h"
-#include "numpy/npy_dict.h"
+#include "numpy_api.h"
+#include "npy_arrayobject.h"
+#include "npy_dict.h"
 #include "npy_internal.h"
 
 

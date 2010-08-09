@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <numpy/npy_common.h>
-#include <numpy/npy_endian.h>
-#include <pyconfig.h>
+#include "npy_common.h"
+#include "npy_endian.h"
+#include "npy_config.h"
 
 
 /*

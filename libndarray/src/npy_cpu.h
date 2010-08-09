@@ -18,7 +18,7 @@
 #ifndef _NPY_CPUARCH_H_
 #define _NPY_CPUARCH_H_
 
-#include "numpyconfig.h"
+#include "npy_config.h"
 
 #if defined( __i386__ ) || defined(i386) || defined(_M_IX86)
     /*

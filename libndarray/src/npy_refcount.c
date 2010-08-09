@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "npy_config.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_dict.h"
-#include "numpy/npy_iterators.h"
-#include "numpy/npy_arrayobject.h"
-#include "numpy/npy_descriptor.h"
+#include "numpy_api.h"
+#include "npy_dict.h"
+#include "npy_iterators.h"
+#include "npy_arrayobject.h"
+#include "npy_descriptor.h"
 
 
 /* Incref all objects found at this record */

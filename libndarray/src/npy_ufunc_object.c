@@ -4,13 +4,13 @@
  */
 #include "npy_config.h"
 
-#include "numpy/noprefix.h"
-#include "numpy/npy_dict.h"
-#include "numpy/ufuncobject.h"  // TODO: Fix this
-#include "numpy/numpy_api.h"
-#include "numpy/npy_iterators.h"
+#include "noprefix.h"
+#include "npy_dict.h"
+#include "ufuncobject.h"  // TODO: Fix this
+#include "numpy_api.h"
+#include "npy_iterators.h"
 
-#include "src/umath/ufunc_object.h"       // TODO: Fix this
+#include "ufunc_object.h"       // TODO: Fix this
 
 
 

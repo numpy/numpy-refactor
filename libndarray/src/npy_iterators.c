@@ -3,9 +3,9 @@
 #include <memory.h>
 #include <stdarg.h>
 #include "npy_config.h"
-#include <numpy/numpy_api.h>
-#include <numpy/npy_arrayobject.h>
-#include <numpy/npy_iterators.h>
+#include "numpy_api.h"
+#include "npy_arrayobject.h"
+#include "npy_iterators.h"
 #include "npy_internal.h"
 
 

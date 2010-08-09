@@ -1,8 +1,30 @@
 #ifndef _NPY_COMMON_H_
 #define _NPY_COMMON_H_
 
-/* This is auto-generated */
-#include "numpyconfig.h"
+
+#define NPY_SIZEOF_SHORT        2
+#define NPY_SIZEOF_INT          4
+#define NPY_SIZEOF_LONG         SIZEOF_LONG
+#define NPY_SIZEOF_FLOAT        4
+#define NPY_SIZEOF_DOUBLE       8
+#define NPY_SIZEOF_LONGDOUBLE   16
+#define NPY_SIZEOF_PY_INTPTR_T  8
+
+#define NPY_SIZEOF_COMPLEX_FLOAT        8
+#define NPY_SIZEOF_COMPLEX_DOUBLE       16
+#define NPY_SIZEOF_COMPLEX_LONGDOUBLE   32
+
+#define NPY_HAVE_DECL_ISNAN
+#define NPY_HAVE_DECL_ISINF
+
+#define NPY_SIZEOF_LONGLONG 8
+#define NPY_SIZEOF_PY_LONG_LONG 8
+
+
+/*
+typedef long npy_int64;
+typedef unsigned long npy_ucs4;
+*/
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline

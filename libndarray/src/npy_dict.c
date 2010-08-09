@@ -19,8 +19,8 @@
 #include <assert.h>
 #define _MULTIARRAYMODULE
 #include "npy_config.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_dict.h"
+#include "numpy_api.h"
+#include "npy_dict.h"
 
 
 static int pointercmp(const void *pointer1, const void *pointer2);

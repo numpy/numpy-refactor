@@ -5,8 +5,8 @@
 
 #define _MULTIARRAYMODULE
 #include "npy_config.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_arrayobject.h"
+#include "numpy_api.h"
+#include "npy_arrayobject.h"
 
 
 extern int PyArray_INCREF(void *);     /* TODO: Make these into interface functions */
@@ -43,10 +43,6 @@ Npy_IsAligned(NpyArray *ap)
     return aligned != 0;
 }
 
-/* TODO: Remove these declarations once pickling code below is refactored into
- * the interface
-#include <Python.h>
-*/
 
 npy_bool
 Npy_IsWriteable(NpyArray *ap)

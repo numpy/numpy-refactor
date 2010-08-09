@@ -9,8 +9,8 @@
 #define NPY_NO_PREFIX
 
 #include "npy_config.h"
-#include "numpy/npy_math.h"
-#include "numpy/numpyos.h"
+#include "npy_math.h"
+#include "numpyos.h"
 
 /*
  * From the C99 standard, section 7.19.6: The exponent always contains at least

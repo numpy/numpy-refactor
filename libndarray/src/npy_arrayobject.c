@@ -2,8 +2,8 @@
 #define _MULTIARRAYMODULE
 #include <stdlib.h>
 #include "npy_config.h"
-#include "numpy/numpy_api.h"
-#include "numpy/npy_arrayobject.h"
+#include "numpy_api.h"
+#include "npy_arrayobject.h"
 #include "npy_internal.h"
 
 extern int PyArray_INCREF(void *);     /* TODO: Make these into interface functions */

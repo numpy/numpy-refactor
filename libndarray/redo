@@ -1,17 +1,10 @@
 #!/bin/bash
 
-#cp ../build/scons/numpy/core/src/libnumpy/*.c src
-#for fn in npy_arrayobject.h npy_defs.h npy_descriptor.h \
-#          npy_iterators.h npy_object.h numpy_api.h
-#do
-#    cp ../numpy/core/include/numpy/$fn src
-#done
-
 make clean
 
 autoreconf -fvi
 
-./configure --prefix=~/usr
+./configure --prefix="$HOME/usr"
 
 make
 
