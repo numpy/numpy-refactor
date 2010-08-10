@@ -83,13 +83,13 @@
     #define NPY_COPY_PYOBJECT_PTR(dst, src) (*((void **)(dst)) =  \
                                              *((void **)(src)))
 #else
-    #if NPY_SIZEOF_PY_INTPTR_T == 4
+    #if NPY_SIZEOF_PTR == 4
         #define NPY_COPY_PYOBJECT_PTR(dst, src)    \
             ((char*)(dst))[0] = ((char*)(src))[0]; \
             ((char*)(dst))[1] = ((char*)(src))[1]; \
             ((char*)(dst))[2] = ((char*)(src))[2]; \
             ((char*)(dst))[3] = ((char*)(src))[3];
-    #elif NPY_SIZEOF_PY_INTPTR_T == 8
+    #elif NPY_SIZEOF_PTR == 8
         #define NPY_COPY_PYOBJECT_PTR(dst, src)    \
             ((char*)(dst))[0] = ((char*)(src))[0]; \
             ((char*)(dst))[1] = ((char*)(src))[1]; \
@@ -108,13 +108,13 @@
 #if defined(NPY_CPU_X86) || defined(NPY_CPU_AMD64)
     #define NPY_COPY_VOID_PTR(dst, src) (*((void **)(dst)) = *((void **)(src)))
 #else
-    #if NPY_SIZEOF_PY_INTPTR_T == 4
+    #if NPY_SIZEOF_PTR == 4
         #define NPY_COPY_VOID_PTR(dst, src) \
             ((char*)(dst))[0] = ((char*)(src))[0]; \
             ((char*)(dst))[1] = ((char*)(src))[1]; \
             ((char*)(dst))[2] = ((char*)(src))[2]; \
             ((char*)(dst))[3] = ((char*)(src))[3];
-    #elif NPY_SIZEOF_PY_INTPTR_T == 8
+    #elif NPY_SIZEOF_PTR == 8
         #define NPY_COPY_VOID_PTR(dst, src) \
             ((char*)(dst))[0] = ((char*)(src))[0]; \
             ((char*)(dst))[1] = ((char*)(src))[1]; \

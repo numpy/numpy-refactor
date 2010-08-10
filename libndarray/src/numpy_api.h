@@ -8,18 +8,6 @@
 #include "npy_index.h"
 
 
-/* FIXME: we need to add this later */
-#if 0
-/* enums for detected endianness */
-enum {
-    NPY_CPU_UNKNOWN_ENDIAN,
-    NPY_CPU_LITTLE,
-    NPY_CPU_BIG,
-};
-#endif
-
-
-
 #define NpyArray_UCS4 npy_ucs4
 
 #define NpyDataType_FLAGCHK(dtype, flag)          \

@@ -1,30 +1,25 @@
 #ifndef _NPY_COMMON_H_
 #define _NPY_COMMON_H_
 
+#include "npy_config.h"
 
-#define NPY_SIZEOF_SHORT        2
-#define NPY_SIZEOF_INT          4
+#define NPY_SIZEOF_SHORT        SIZEOF_SHORT
+#define NPY_SIZEOF_INT          SIZEOF_INT
 #define NPY_SIZEOF_LONG         SIZEOF_LONG
-#define NPY_SIZEOF_FLOAT        4
-#define NPY_SIZEOF_DOUBLE       8
-#define NPY_SIZEOF_LONGDOUBLE   16
-#define NPY_SIZEOF_PY_INTPTR_T  8
+#define NPY_SIZEOF_FLOAT        SIZEOF_FLOAT 
+#define NPY_SIZEOF_DOUBLE       SIZEOF_DOUBLE
+#define NPY_SIZEOF_LONGDOUBLE   SIZEOF_LONG_DOUBLE
+#define NPY_SIZEOF_LONGLONG     SIZEOF_LONG_LONG
+#define NPY_SIZEOF_PTR          SIZEOF_VOID_P
 
-#define NPY_SIZEOF_COMPLEX_FLOAT        8
-#define NPY_SIZEOF_COMPLEX_DOUBLE       16
-#define NPY_SIZEOF_COMPLEX_LONGDOUBLE   32
+#define NPY_SIZEOF_COMPLEX_FLOAT        (2 * SIZEOF_FLOAT)
+#define NPY_SIZEOF_COMPLEX_DOUBLE       (2 * SIZEOF_DOUBLE)
+#define NPY_SIZEOF_COMPLEX_LONGDOUBLE   (2 * SIZEOF_LONG_DOUBLE)
 
-#define NPY_HAVE_DECL_ISNAN
-#define NPY_HAVE_DECL_ISINF
+#define NPY_HAVE_DECL_ISNAN     HAVE_DECL_ISNAN
+#define NPY_HAVE_DECL_ISFINITE  HAVE_DECL_ISFINITE
+#define NPY_HAVE_DECL_ISINF     HAVE_DECL_ISINF
 
-#define NPY_SIZEOF_LONGLONG 8
-#define NPY_SIZEOF_PY_LONG_LONG 8
-
-
-/*
-typedef long npy_int64;
-typedef unsigned long npy_ucs4;
-*/
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline
@@ -36,9 +31,9 @@ typedef unsigned long npy_ucs4;
 
 /* enums for detected endianness */
 enum {
-        NPY_CPU_UNKNOWN_ENDIAN,
-        NPY_CPU_LITTLE,
-        NPY_CPU_BIG
+    NPY_CPU_UNKNOWN_ENDIAN,
+    NPY_CPU_LITTLE,
+    NPY_CPU_BIG,
 };
 
 /* Some platforms don't define bool, long long, or long double.
