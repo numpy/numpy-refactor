@@ -57,13 +57,37 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
         return NULL;
     }
 
-    /* Make iterators from any intp arrays in the index. */
+    /* Make iterators from any intp arrays and intp in the index. */
     j = 0;
     for (i=0; i<mit->n_indexes; i++) {
         NpyIndex* index = &mit->indexes[i];
 
         if (index->type == NPY_INDEX_INTP_ARRAY) {
             mit->iters[j] = NpyArray_IterNew(index->index.intp_array);
+            if (mit->iters[j] == NULL) {
+                mit->numiter = j-1;
+                _Npy_DECREF(mit);
+                return NULL;
+            }
+            j++;
+        } else if (index->type == NPY_INDEX_INTP) {
+            NpyArray_Descr *indtype;
+            NpyArray *indarray;
+
+            /* Make a 0-d array for the index. */
+            indtype = NpyArray_DescrFromType(NPY_INTP);
+            indarray = NpyArray_NewFromDescr(indtype,
+                                             0, NULL,
+                                             NULL, NULL, 0,
+                                             NPY_FALSE, NULL, NULL);
+            if (indarray == NULL) {
+                mit->numiter = j-1;
+                _Npy_DECREF(mit);
+                return NULL;
+            }
+            memcpy(indarray->data, &index->index.intp, sizeof(npy_intp));
+            mit->iters[j] = NpyArray_IterNew(indarray);
+            _Npy_DECREF(indarray);
             if (mit->iters[j] == NULL) {
                 mit->numiter = j-1;
                 _Npy_DECREF(mit);
@@ -160,6 +184,16 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
             break;
         default:
             mit->bscoord[i] = 0;
+        }
+    }
+
+    /* Check for non-consecutive axes. */
+    mit->consec = 1;
+    j=mit->iteraxes[0];
+    for (i=1; i<mit->numiter; i++) {
+        if (mit->iteraxes[i] != j+i) {
+            mit->consec = 0;
+            break;
         }
     }
 
