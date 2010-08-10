@@ -159,7 +159,8 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
 
 
     /* Bind the indexes to the array. */
-    nbound = NpyArray_IndexBind(arr, mit->indexes, mit->n_indexes, 
+    nbound = NpyArray_IndexBind(mit->indexes, mit->n_indexes,
+                                arr->dimensions, arr->nd,
                                 bound_indexes);
     if (nbound < 0) {
         nbound = 0;
@@ -637,7 +638,9 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     NpyArray *result;
 
     /* Bind the index to the array. */
-    n2 = NpyArray_IndexBind(self, indexes, n, new_indexes);
+    n2 = NpyArray_IndexBind(indexes, n,
+                            self->dimensions, self->nd,
+                            new_indexes);
     if (n2 < 0) {
         return NULL;
     }

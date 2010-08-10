@@ -190,6 +190,7 @@ NpyArray *
 NpyArray_IterSubcript(NpyArrayIterObject* self,
                       NpyIndex *indexes, int n)
 {
+    NpyArray* result;
     NpyIndex *index;
 
     if (n == 0 || n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS) {
@@ -203,6 +204,40 @@ NpyArray_IterSubcript(NpyArrayIterObject* self,
     }
 
     index = &indexes[0];
+
+    NpyArray_ITER_RESET(self);
+
+    switch (index->type) {
+
+    case NPY_INDEX_BOOL:
+        if (index->index.boolean) {
+            /* Returns a 0-d array with the value. */
+            _Npy_INCREF(self->ao->descr);
+            result = NpyArray_NewFromDescr(self->ao->descr,
+                                           0, NULL, NULL, 
+                                           NULL, 0, NPY_FALSE,
+                                           NULL, Npy_INTERFACE(self->ao));
+            if (result == NULL) {
+                return NULL;
+            }
+            result->descr->f->copyswap(result->data, self->dataptr,
+                                       !NpyArray_ISNOTSWAPPED(self->ao),
+                                       self->ao);
+            return result;
+        } else {
+            /* Make an empty array. */
+            npy_intp ii = 0;
+            _Npy_INCREF(self->ao->descr);
+            result = NpyArray_NewFromDescr(self->ao->descr,
+                                           1, &ii, NULL,
+                                           NULL, 0, NPY_FALSE,
+                                           NULL, Npy_INTERFACE(self->ao));
+            return result;
+        }
+        break;
+    default:
+        break;
+    }
 
     return NULL;
 }

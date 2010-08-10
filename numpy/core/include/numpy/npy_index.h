@@ -53,8 +53,9 @@ int NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
 void NpyArray_IndexDealloc(NpyIndex* indexes, int n);
 
-int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
-                       int n, NpyIndex* out_indexes);
+int NpyArray_IndexBind(NpyIndex* indexes, int n,
+                       npy_intp *dimensions, int nd,
+                       NpyIndex* out_indexes);
 
 int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
                             npy_intp *dimensions, npy_intp* strides,
