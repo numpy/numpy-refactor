@@ -17,14 +17,9 @@ AC_PROG_LIBTOOL
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
 
-
-AC_DEFINE(WORDS_BIGENDIAN, 1, [
-    Define if your processor stores words with the most significant byte
-    first (like Motorola and SPARC, unlike Intel).])
-AC_DEFINE(HAVE_UINTPTR_T, 1, [Define if you have the \`uintptr_t' type.])
-AC_DEFINE(HAVE_DECL_ISNAN, 1, [Define if declaration of isnan.])
-AC_DEFINE(HAVE_DECL_ISFINITE, 1, [Define if declaration of isfinite.])
-AC_DEFINE(HAVE_DECL_ISINF, 1, [Define if declaration of isinf.])
+AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_WORDS_BIGENDIAN()
+AC_TYPE_UINTPTR_T()
 
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
