@@ -18,7 +18,9 @@ AC_PROG_LIBTOOL
 AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
 
 
-
+AC_DEFINE(WORDS_BIGENDIAN, 1, [
+    Define if your processor stores words with the most significant byte
+    first (like Motorola and SPARC, unlike Intel).])
 AC_DEFINE(HAVE_UINTPTR_T, 1, [Define if you have the \`uintptr_t' type.])
 AC_CHECK_SIZEOF(long)
 

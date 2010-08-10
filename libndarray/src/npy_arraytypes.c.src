@@ -71,7 +71,7 @@ Npy_STRING_ISSPACE(char ch);
 #define NpyArray_CHAR        NPY_CHAR
 #define NpyArray_USERDEF     NPY_USERDEF
 
-#define NpyArray_VOID           NPY_VOID
+#define NpyArray_VOID            NPY_VOID
 #define NpyArray_TYPECHAR        NPY_TYPECHAR
 #define NpyArray_BOOLLTR         NPY_BOOLLTR
 #define NpyArray_BYTELTR         NPY_BYTELTR
