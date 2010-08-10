@@ -2,7 +2,7 @@
 #if !defined(NPY_UFUNC_OBJECT_H)
 #define NPY_UFUNC_OBJECT_H
 
-#include <numpy/npy_object.h>
+#include "npy_object.h"
 
 
 typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);

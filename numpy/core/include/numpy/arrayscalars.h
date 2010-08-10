@@ -1,9 +1,9 @@
 #ifndef _NPY_ARRAYSCALARS_H_
 #define _NPY_ARRAYSCALARS_H_
 
-#include <numpy/numpy_api.h>
-#include <numpy/npy_descriptor.h>
-#include <numpy/ndarraytypes.h>
+#include "numpy_api.h"
+#include "npy_descriptor.h"
+#include "ndarraytypes.h"
 
 #ifndef _MULTIARRAYMODULE
 typedef struct {

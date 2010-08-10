@@ -1,7 +1,7 @@
 #ifndef _NPY_INDEX_H_
 #define _NPY_INDEX_H_
 
-#include <numpy/npy_defs.h>
+#include "npy_defs.h"
 
 /*
  * Structure for describing a slice without a stop.

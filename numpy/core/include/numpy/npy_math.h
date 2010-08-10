@@ -2,7 +2,7 @@
 #define __NPY_MATH_C99_H_
 
 #include <math.h>
-#include <numpy/npy_common.h>
+#include "npy_common.h"
 
 /*
  * NAN and INFINITY like macros (same behavior as glibc for NAN, same as C99

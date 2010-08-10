@@ -1,10 +1,10 @@
 #ifndef _NUMPY_API_H_
 #define _NUMPY_API_H_
 
-#include "assert.h"
-#include <numpy/npy_defs.h>
-#include <numpy/npy_descriptor.h>
-#include <numpy/npy_iterators.h>
+#include <assert.h>
+#include "npy_defs.h"
+#include "npy_descriptor.h"
+#include "npy_iterators.h"
 
 
 /* FIXME: we need to add this later */
