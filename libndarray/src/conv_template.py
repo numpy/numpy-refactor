@@ -206,14 +206,19 @@ def process_str(astr):
 def process_file(src):
     assert src.endswith('.src')
 
+    print "READING:", src
     data = open(src).read()
-    data = process_str(data)    
+    data = process_str(data)
 
     dst = src[:-4]
+    print "WRITING:", dst
     fo = open(dst, 'w')
     fo.write(data)
     fo.close()
 
 
 if __name__ == "__main__":
-    process_file('npy_arraytypes.c.src')
+    from os.path import dirname, join
+
+    this_dir = dirname(__file__)
+    process_file(join(this_dir, 'npy_arraytypes.c.src'))
