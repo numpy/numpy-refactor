@@ -36,7 +36,7 @@ typedef int		npy_intp;
 typedef unsigned long	npy_uintp;
 typedef long		npy_intp;
 
-#elif defined(HAVE_LONG_LONG) && (NPY_SIZEOF_PY_INTPTR_T <= NPY_SIZEOF_PY_LONG_LONG)
+#elif defined(HAVE_LONG_LONG) && (NPY_SIZEOF_PY_INTPTR_T <= NPY_SIZEOF_LONGLONG)
 typedef unsigned long long	npy_uintp;
 typedef long long		npy_intp;
 

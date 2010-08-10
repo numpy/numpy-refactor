@@ -22,8 +22,14 @@ AC_DEFINE(WORDS_BIGENDIAN, 1, [
     Define if your processor stores words with the most significant byte
     first (like Motorola and SPARC, unlike Intel).])
 AC_DEFINE(HAVE_UINTPTR_T, 1, [Define if you have the \`uintptr_t' type.])
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
-
+AC_CHECK_SIZEOF(float)
+AC_CHECK_SIZEOF(double)
+AC_CHECK_SIZEOF(long double)
+AC_CHECK_SIZEOF(long long)
+AC_CHECK_SIZEOF(void *)
 
 
 # Checks for typedefs, structures, and compiler characteristics.
