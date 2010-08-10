@@ -707,7 +707,7 @@ convert_slice_nostop(PySliceObject* slice, NpyIndexSliceNoStop* islice)
     }
 
     if (slice->start == Py_None) {
-        if (slice->step > 0) {
+        if (islice->step > 0) {
             islice->start = 0;
         } else {
             islice->start = -1;

@@ -170,16 +170,16 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
 
         case NPY_INDEX_SLICE:
             {
+                /* Sets the slice values based on the array. */
+                npy_intp dim; 
+                NpyIndexSlice *slice;
+
                 if (result >= array->nd) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
                     NpyArray_IndexDealloc(out_indexes, result);
                     return -1;
                 }
-
-                /* Sets the slice values based on the array. */
-                npy_intp dim; 
-                NpyIndexSlice *slice;
 
                 dim = NpyArray_DIM(array, result);
                 out_indexes[result].type = NPY_INDEX_SLICE;
@@ -219,17 +219,17 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
 
         case NPY_INDEX_SLICE_NOSTOP:
             {
+                /* Sets the slice values based on the array. */
+                npy_intp dim;
+                NpyIndexSlice *oslice;
+                NpyIndexSliceNoStop *islice;
+
                 if (result >= array->nd) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
                     NpyArray_IndexDealloc(out_indexes, result);
                     return -1;
                 }
-
-                /* Sets the slice values based on the array. */
-                npy_intp dim;
-                NpyIndexSlice *oslice;
-                NpyIndexSliceNoStop *islice;
 
                 dim = NpyArray_DIM(array, result);
                 out_indexes[result].type = NPY_INDEX_SLICE;
