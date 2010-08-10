@@ -25,6 +25,7 @@ typedef struct NpyIndexSlice {
  */
 typedef enum NpyIndexType {
     NPY_INDEX_INTP,
+    NPY_INDEX_BOOL,
     NPY_INDEX_SLICE_NOSTOP,
     NPY_INDEX_SLICE,
     NPY_INDEX_STRING,
@@ -38,6 +39,7 @@ struct NpyIndex {
     NpyIndexType type;
     union {
         npy_intp intp;
+        npy_bool boolean;
         NpyIndexSlice slice;
         NpyIndexSliceNoStop slice_nostop;
         char *string;

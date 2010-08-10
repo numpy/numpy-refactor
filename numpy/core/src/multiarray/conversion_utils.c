@@ -845,6 +845,11 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             return -1;
         }
     }
+    /* Try as a boolean. */
+    else if (PyBool_Check(obj)) {
+        index->type = NPY_INDEX_BOOL;
+        index->index.boolean = PyObject_IsTrue(obj);
+    }
     /* Anything else we try to convert to an intp. */
     else {
         npy_intp val;

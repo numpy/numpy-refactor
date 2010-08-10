@@ -53,7 +53,7 @@ int count_nonnew(NpyIndex* indexes, int n)
 
 /*
  * Expands any boolean arrays in the index into intp arrays of the
- * indexes of the non-zero entries.
+ * indexes of the non-zero entries. Also converts boolean to intp.
  */
 int
 NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
@@ -85,6 +85,10 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
             out_indexes[result++] = indexes[i];
             _Npy_INCREF(indexes[i].index.intp_array);
             break;
+        case NPY_INDEX_BOOL:
+            out_indexes[result].type = NPY_INDEX_INTP;
+            out_indexes[result].index.intp = indexes[i].index.boolean;
+            result++;
         default:
             /* Copy anything else. */
             out_indexes[result++] = indexes[i];
@@ -102,6 +106,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
  * 2. Setting slice start/stop/step appropriately for the array dims.
  * 3. Handling any negative indexes.
  * 4. Expanding any boolean arrays to intp arrays of non-zero indices.
+ * 5. Convert any booleans to intp.
  *
  * Returns the number of indices in out_indexes, or -1 on error.
  */
@@ -270,6 +275,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
             break;
 
         case NPY_INDEX_INTP:
+        case NPY_INDEX_BOOL:
             {
                 npy_intp val, dim;
 
@@ -280,7 +286,11 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                     return -1;
                 }
 
-                val = indexes[i].index.intp;
+                if (indexes[i].type == NPY_INDEX_INTP) {
+                    val = indexes[i].index.intp;
+                } else {
+                    val = indexes[i].index.boolean;
+                }
                 dim = NpyArray_DIM(array, result-n_new);
 
                 if (val < 0) {
@@ -297,6 +307,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 result++;
             }
             break;
+
 
         case NPY_INDEX_INTP_ARRAY:
             if (result >= array->nd + n_new) {

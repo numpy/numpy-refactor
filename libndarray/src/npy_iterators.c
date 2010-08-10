@@ -7,6 +7,7 @@
 #include "npy_arrayobject.h"
 #include "npy_iterators.h"
 #include "npy_internal.h"
+#include "npy_index.h"
 
 
 
@@ -182,6 +183,27 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
  err:
     NpyErr_SetString(NpyExc_ValueError, "array is not broadcastable to "\
                     "correct shape");
+    return NULL;
+}
+
+NpyArray *
+NpyArray_IterSubcript(NpyArrayIterObject* self,
+                      NpyIndex *indexes, int n)
+{
+    NpyIndex *index;
+
+    if (n == 0 || n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS) {
+        _Npy_INCREF(self->ao);
+        return self->ao;
+    }
+
+    if (n > 1) {
+        NpyErr_SetString(NpyExc_IndexError, "unsupported iterator index.");
+        return NULL;
+    }
+
+    index = &indexes[0];
+
     return NULL;
 }
 
