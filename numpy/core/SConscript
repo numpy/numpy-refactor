@@ -468,12 +468,8 @@ multiarray = env.DistutilsPythonExtension(
          'multiarray',
          LIBS=['ndarray', 'npymath'],
          INCPATH=[pexpanduser('~/usr/include')],
-         LIBPATH=[
-             pexpanduser('~/usr/lib'),
-             os.getcwd(),
-         ],
-         source = multiarray_src,
-)
+         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
 #------------------

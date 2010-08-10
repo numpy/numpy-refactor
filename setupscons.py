@@ -19,6 +19,15 @@ import __builtin__
 import os
 import sys
 
+
+# During development, we update the core library every time we build
+import subprocess
+library_dir = os.path.abspath('libndarray')
+for cmd in [['make'], ['make', 'install']]:
+    print "RUNNING: %r in %r" % (cmd, library_dir)
+    assert subprocess.call(cmd, cwd=library_dir) == 0
+
+
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
 Intended Audience :: Science/Research
