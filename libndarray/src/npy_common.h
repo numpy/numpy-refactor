@@ -10,20 +10,16 @@
 #define NPY_SIZEOF_DOUBLE       SIZEOF_DOUBLE
 #define NPY_SIZEOF_LONGDOUBLE   SIZEOF_LONG_DOUBLE
 #define NPY_SIZEOF_LONGLONG     SIZEOF_LONG_LONG
-#define NPY_SIZEOF_PY_INTPTR_T  SIZEOF_VOID_P
+#define NPY_SIZEOF_PTR          SIZEOF_VOID_P
 
 #define NPY_SIZEOF_COMPLEX_FLOAT        (2 * SIZEOF_FLOAT)
 #define NPY_SIZEOF_COMPLEX_DOUBLE       (2 * SIZEOF_DOUBLE)
 #define NPY_SIZEOF_COMPLEX_LONGDOUBLE   (2 * SIZEOF_LONG_DOUBLE)
 
-#define NPY_HAVE_DECL_ISNAN
-#define NPY_HAVE_DECL_ISINF
+#define NPY_HAVE_DECL_ISNAN     HAVE_DECL_ISNAN
+#define NPY_HAVE_DECL_ISFINITE  HAVE_DECL_ISFINITE
+#define NPY_HAVE_DECL_ISINF     HAVE_DECL_ISINF
 
-
-/*
-typedef long npy_int64;
-typedef unsigned long npy_ucs4;
-*/
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline
@@ -37,7 +33,7 @@ typedef unsigned long npy_ucs4;
 enum {
         NPY_CPU_UNKNOWN_ENDIAN,
         NPY_CPU_LITTLE,
-        NPY_CPU_BIG
+        NPY_CPU_BIG,
 };
 
 /* Some platforms don't define bool, long long, or long double.

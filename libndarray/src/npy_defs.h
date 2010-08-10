@@ -28,15 +28,15 @@
 typedef uintptr_t	npy_uintp;
 typedef intptr_t	npy_intp;
 
-#elif NPY_SIZEOF_PY_INTPTR_T <= NPY_SIZEOF_INT
+#elif NPY_SIZEOF_PTR <= NPY_SIZEOF_INT
 typedef unsigned int	npy_uintp;
 typedef int		npy_intp;
 
-#elif NPY_SIZEOF_PY_INTPTR_T <= NPY_SIZEOF_LONG
+#elif NPY_SIZEOF_PTR <= NPY_SIZEOF_LONG
 typedef unsigned long	npy_uintp;
 typedef long		npy_intp;
 
-#elif defined(HAVE_LONG_LONG) && (NPY_SIZEOF_PY_INTPTR_T <= NPY_SIZEOF_LONGLONG)
+#elif defined(HAVE_LONG_LONG) && (NPY_SIZEOF_PTR <= NPY_SIZEOF_LONGLONG)
 typedef unsigned long long	npy_uintp;
 typedef long long		npy_intp;
 
@@ -44,10 +44,6 @@ typedef long long		npy_intp;
 #else
 #   error "NumPy needs a typedef for npy_uintp and npy_intp."
 #endif /* HAVE_UINTPTR_T */
-
-
-#define NPY_SIZEOF_INTP NPY_SIZEOF_PY_INTPTR_T
-#define NPY_SIZEOF_UINTP NPY_SIZEOF_PY_INTPTR_T
 
 
 /*
@@ -321,7 +317,7 @@ typedef enum {
 
 
 
-#if NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_INT
+#if NPY_SIZEOF_PTR == NPY_SIZEOF_INT
     #define NPY_INTP NPY_INT
     #define NPY_UINTP NPY_UINT
     #define PyIntpArrType_Type PyIntArrType_Type
@@ -330,7 +326,7 @@ typedef enum {
     #define NPY_MIN_INTP NPY_MIN_INT
     #define NPY_MAX_UINTP NPY_MAX_UINT
     #define NPY_INTP_FMT "d"
-#elif NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_LONG
+#elif NPY_SIZEOF_PTR == NPY_SIZEOF_LONG
     #define NPY_INTP NPY_LONG
     #define NPY_UINTP NPY_ULONG
     #define PyIntpArrType_Type PyLongArrType_Type
@@ -339,7 +335,7 @@ typedef enum {
     #define NPY_MIN_INTP MIN_LONG
     #define NPY_MAX_UINTP NPY_MAX_ULONG
     #define NPY_INTP_FMT "ld"
-#elif defined(PY_LONG_LONG) && (NPY_SIZEOF_PY_INTPTR_T == NPY_SIZEOF_LONGLONG)
+#elif defined(PY_LONG_LONG) && (NPY_SIZEOF_PTR == NPY_SIZEOF_LONGLONG)
     #define NPY_INTP NPY_LONGLONG
     #define NPY_UINTP NPY_ULONGLONG
     #define PyIntpArrType_Type PyLongLongArrType_Type
