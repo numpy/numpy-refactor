@@ -2,6 +2,7 @@
 #define _NPY_ITERATORS_H_
 
 #include "npy_object.h"
+#include "npy_index.h"
 
 typedef struct NpyArrayIterObject NpyArrayIterObject;
 
@@ -281,6 +282,10 @@ struct NpyArrayMapIterObject {
 
         /* flat iterator for subspace (when numiter < nd) */
         NpyArrayIterObject     *subspace;
+
+        /* The index with any iterator indices changes to 0. */
+        NpyIndex               indexes[NPY_MAXDIMS];
+        int                    n_indexes;
 
         /*
          * if subspace iteration, then this is the array of axes in
