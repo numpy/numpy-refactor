@@ -627,6 +627,9 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
         return NULL;
     }
 
+    /* Update the flags. */
+    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
+
     /* Set the base_arr on result. */
     result->base_arr = self;
     _Npy_INCREF(self);
