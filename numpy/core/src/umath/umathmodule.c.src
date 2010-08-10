@@ -41,33 +41,25 @@
 #include "__umath_generated.c"
 #include "__ufunc_api.c"
 
-static PyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
+static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
-static PyObject *
-ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUSED(kwds)) {
-    /* Keywords are ignored for now */
 
-    PyObject *function, *pyname = NULL;
-    int nin, nout, i;
+/* TODO: Ready to move */
+NpyUFuncObject *
+npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, void *function) {
+    NpyUFuncObject *self;
     PyUFunc_PyFuncData *fdata;
-    PyUFuncObject *self;
-    char *fname, *str;
-    Py_ssize_t fname_len = -1;
+    char *str;
+    int i;
     int offset[2];
-
-    if (!PyArg_ParseTuple(args, "Oii", &function, &nin, &nout)) {
+    
+    self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
+    if (NULL == self) {
         return NULL;
     }
-    if (!PyCallable_Check(function)) {
-        PyErr_SetString(PyExc_TypeError, "function must be callable");
-        return NULL;
-    }
-    self = _pya_malloc(sizeof(PyUFuncObject));
-    if (self == NULL) {
-        return NULL;
-    }
-    PyObject_Init((PyObject *)self, &PyUFunc_Type);
-
+    _NpyObject_Init(self, &NpyUFunc_Type);
+    self->magic_number = NPY_VALID_MAGIC;
+    
     self->userloops = NULL;
     self->nin = nin;
     self->nout = nout;
@@ -84,16 +76,6 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     self->core_dim_ixs = NULL;
     self->core_offsets = NULL;
     self->core_signature = NULL;
-
-    pyname = PyObject_GetAttrString(function, "__name__");
-    if (pyname) {
-        (void) PyString_AsStringAndSize(pyname, &fname, &fname_len);
-    }
-    if (PyErr_Occurred()) {
-        fname = "?";
-        fname_len = 1;
-        PyErr_Clear();
-    }
 
     /*
      * self->ptr holds a pointer for enough memory for
@@ -115,14 +97,12 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     if (i) {
         offset[1] += (sizeof(void *)-i);
     }
-    self->ptr = _pya_malloc(offset[0] + offset[1] + sizeof(void *) +
-                            (fname_len + 14));
-    if (self->ptr == NULL) {
-        Py_XDECREF(pyname);
-        return PyErr_NoMemory();
+    self->ptr = malloc(offset[0] + offset[1] + sizeof(void *) +
+                       (fname_len + 14));
+    if (NULL == self->ptr) {
+        return NULL;
     }
-    Py_INCREF(function);
-    self->obj = function;
+    
     fdata = (PyUFunc_PyFuncData *)(self->ptr);
     fdata->nin = nin;
     fdata->nout = nout;
@@ -132,7 +112,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     self->data[0] = (void *)fdata;
     self->types = (char *)self->data + sizeof(void *);
     for (i = 0; i < self->nargs; i++) {
-        self->types[i] = PyArray_OBJECT;
+        self->types[i] = NPY_OBJECT;
     }
     str = self->types + offset[1];
     memcpy(str, fname, fname_len);
@@ -142,8 +122,58 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     /* Do a better job someday */
     self->doc = "dynamic ufunc based on a python function";
 
-    Py_XDECREF(pyname);
+    return self;
+}
 
+
+
+static PyObject *
+ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUSED(kwds)) {
+    /* Keywords are ignored for now */
+    
+    PyUFuncObject *self;
+    Py_ssize_t fname_len = -1;
+    PyObject *function, *pyname = NULL;
+    char *fname;
+    int nin, nout;
+    
+    if (!PyArg_ParseTuple(args, "Oii", &function, &nin, &nout)) {
+        return NULL;
+    }
+    if (!PyCallable_Check(function)) {
+        PyErr_SetString(PyExc_TypeError, "function must be callable");
+        return NULL;
+    }
+    self = _pya_malloc(sizeof(PyUFuncObject));
+    if (self == NULL) {
+        return NULL;
+    }
+    PyObject_Init((PyObject *)self, &PyUFunc_Type);
+    self->magic_number = NPY_VALID_MAGIC;
+    
+    pyname = PyObject_GetAttrString(function, "__name__");
+    if (pyname) {
+        (void) PyString_AsStringAndSize(pyname, &fname, &fname_len);
+    }
+    if (PyErr_Occurred()) {
+        fname = "?";
+        fname_len = 1;
+        PyErr_Clear();
+    }
+        
+    /* This is ugly. We need to move the reference from the core to the interface and set
+     the interface object.  This must be done in exactly this order: First inc ref the
+     interface to 2, then set the interface on the core object, and then decref the core.
+     When we decref the core to 0, it will decref the interface back to 1. */    
+    self->ufunc = npy_ufunc_frompyfunc(nin, nout, fname, fname_len, function);
+    self->func_obj = function;
+    Py_INCREF(self);
+    self->ufunc->nob_interface = self;
+    _Npy_DECREF(self->ufunc);
+    
+    Py_INCREF(function);    
+    Py_XDECREF(pyname);
+    
     return (PyObject *)self;
 }
 
@@ -155,7 +185,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 
 /* Less automated additions to the ufuncs */
 
-static PyUFuncGenericFunction frexp_functions[] = {
+static NpyUFuncGenericFunction frexp_functions[] = {
 #ifdef HAVE_FREXPF
     FLOAT_frexp,
 #endif
@@ -176,7 +206,7 @@ static char frexp_signatures[] = {
 #endif
 };
 
-static PyUFuncGenericFunction ldexp_functions[] = {
+static NpyUFuncGenericFunction ldexp_functions[] = {
 #ifdef HAVE_LDEXPF
     FLOAT_ldexp,
 #endif

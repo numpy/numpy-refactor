@@ -2,9 +2,9 @@
 #define _NUMPY_API_H_
 
 #include "assert.h"
-#include <numpy/npy_defs.h>
-#include <numpy/npy_descriptor.h>
-#include <numpy/npy_iterators.h>
+#include "npy_defs.h"
+#include "npy_descriptor.h"
+#include "npy_iterators.h"
 
 
 /* FIXME: we need to add this later */
@@ -121,15 +121,13 @@ unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 
 /* mapping.c */
-NpyArrayMapIterObject *NpyArray_MapIterNew(NpyIndex* indexes, int n);
-int NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
-                         NpyArray* true_array);
+NpyArrayMapIterObject *NpyArray_MapIterNew(void);
 void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
 void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
 NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
 int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
 NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
-NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n);
+/*NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n);*/
 
 
 /* multiarraymodule.c */

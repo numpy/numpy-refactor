@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <numpy/npy_common.h>
-#include <numpy/npy_endian.h>
-#include <pyconfig.h>
+#include "npy_common.h"
+#include "npy_endian.h"
+#include "npy_config.h"
 
 
 /*
@@ -82,7 +82,6 @@ typedef struct NpyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef struct NpyArray_DateTimeInfo NpyArray_DateTimeInfo;
 typedef struct NpyArray_Dims NpyArray_Dims;
 typedef struct NpyArray_CastFuncsItem NpyArray_CastFuncsItem;
-typedef struct NpyIndex NpyIndex;
 
 
 

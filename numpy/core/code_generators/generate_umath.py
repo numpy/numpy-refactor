@@ -774,7 +774,7 @@ def make_arrays(funcdict):
         funcnames = ', '.join(funclist)
         signames = ', '.join(siglist)
         datanames = ', '.join(datalist)
-        code1list.append("static PyUFuncGenericFunction %s_functions[] = { %s };" \
+        code1list.append("static NpyUFuncGenericFunction %s_functions[] = { %s };" \
                          % (name, funcnames))
         code1list.append("static void * %s_data[] = { %s };" \
                          % (name, datanames))

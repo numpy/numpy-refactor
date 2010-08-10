@@ -1,42 +1,27 @@
 #ifndef Py_UFUNCOBJECT_H
 #define Py_UFUNCOBJECT_H
+
+#include "npy_ufunc_object.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct NpyDict_struct;
+extern PyTypeObject PyUFunc_Type;
     
-typedef void (*PyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
-
 typedef struct {
-        PyObject_HEAD
-        int nin, nout, nargs;
-        int identity;
-        PyUFuncGenericFunction *functions;
-        void **data;
-        int ntypes;
-        int check_return;
-        char *name, *types;
-        char *doc;
-        void *ptr;
-        PyObject *obj;
-        struct NpyDict_struct *userloops;
-    
-        /* generalized ufunc */
-        int core_enabled;      /* 0 for scalar ufunc; 1 for generalized ufunc */
-        int core_num_dim_ix;   /* number of distinct dimension names in
-                                  signature */
- 
-        /* dimension indices of input/output argument k are stored in
-           core_dim_ixs[core_offsets[k]..core_offsets[k]+core_num_dims[k]-1] */
-        int *core_num_dims;    /* numbers of core dimensions of each argument */
-        int *core_dim_ixs;     /* dimension indices in a flatted form; indices
-                                  are in the range of [0,core_num_dim_ix) */
-        int *core_offsets;     /* positions of 1st core dimensions of each
-                                  argument in core_dim_ixs */
-        char *core_signature;  /* signature string for printing purpose */
+    PyObject_HEAD
+    int magic_number;
+
+    struct NpyUFuncObject *ufunc;
+    PyObject *func_obj;     /* Used for managing refcnt of function stored in core 'ptr' field */
 } PyUFuncObject;
 
+#define PyUFunc_UFUNC(obj) \
+    (assert(NPY_VALID_MAGIC == (obj)->magic_number && NPY_VALID_MAGIC == (obj)->ufunc->magic_number), (obj)->ufunc)
+#define PyUFunc_WRAP(obj) \
+    (assert(NPY_VALID_MAGIC == (obj)->magic_number), (PyUFuncObject *)Npy_INTERFACE(obj))
+    
 #include "arrayobject.h"
 
 #define UFUNC_ERR_IGNORE 0
@@ -79,16 +64,16 @@ typedef struct {
         (UFUNC_ERR_PRINT << UFUNC_SHIFT_INVALID)
 
         /* Only internal -- not exported, yet*/
-typedef struct PyUFuncLoopObject {
+typedef struct NpyUFuncLoopObject {
         /* Multi-iterator portion --- needs to be present in this order
            to work with PyArray_Broadcast */
-        PyObject_HEAD
+        NpyObject_HEAD
 
         /* The iterators. */
         struct NpyArrayMultiIterObject *iter;
 
         /* The ufunc */
-        PyUFuncObject *ufunc;
+        struct NpyUFuncObject *ufunc;
 
         /* The error handling */
         int errormask;         /* Integer showing desired error handling */
@@ -98,7 +83,7 @@ typedef struct PyUFuncLoopObject {
         int first;
 
         /* Specific function and data to use */
-        PyUFuncGenericFunction function;
+        NpyUFuncGenericFunction function;
         void *funcdata;
 
         /* Loop method */
@@ -121,7 +106,7 @@ typedef struct PyUFuncLoopObject {
 
         /* For casting */
         char *castbuf[NPY_MAXARGS];
-        PyArray_VectorUnaryFunc *cast[NPY_MAXARGS];
+        NpyArray_VectorUnaryFunc *cast[NPY_MAXARGS];
 
         /* usually points to buffer but when a cast is to be
            done it switches for that argument to castbuf.
@@ -143,7 +128,7 @@ typedef struct PyUFuncLoopObject {
         npy_intp *core_dim_sizes;   /* stores sizes of core dimensions;
                                        contains 1 + core_num_dim_ix elements */
         npy_intp *core_strides;     /* strides of loop and core dimensions */
-} PyUFuncLoopObject;
+} NpyUFuncLoopObject;
 
 /* Could make this more clever someday */
 #define UFUNC_MAXIDENTITY 32
@@ -166,7 +151,7 @@ typedef struct {
         PyObject *errobj;
         int first;
 
-        PyUFuncGenericFunction function;
+        NpyUFuncGenericFunction function;
         void *funcdata;
         int meth;
         int swap;
@@ -222,7 +207,7 @@ typedef struct {
    user-defined 1-d loops.
  */
 typedef struct _loop1d_info {
-        PyUFuncGenericFunction func;
+        NpyUFuncGenericFunction func;
         void *data;
         int *arg_types;
         struct _loop1d_info *next;
