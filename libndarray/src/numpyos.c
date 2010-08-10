@@ -268,6 +268,52 @@ _fix_ascii_format(char* buf, size_t buflen, int decimal)
     return buf;
 }
 
+
+static int _npy_signbit_d(double x)
+{
+    union
+    {
+        double d;
+        short s[4];
+        int i[2];
+    } u;
+
+    u.d = x;
+
+#if SIZEOF_INT == 4
+
+#ifdef WORDS_BIGENDIAN /* defined in pyconfig.h */
+    return u.i[0] < 0;
+#else
+    return u.i[1] < 0;
+#endif
+
+#else  /* SIZEOF_INT != 4 */
+
+#ifdef WORDS_BIGENDIAN
+    return u.s[0] < 0;
+#else
+    return u.s[3] < 0;
+#endif
+
+#endif  /* SIZEOF_INT */
+}
+
+static int _npy_signbit_f(float x)
+{
+    return _npy_signbit_d((double) x);
+}
+
+static int _npy_signbit_ld(long double x)
+{
+    return _npy_signbit_d((double) x);
+}
+
+#define npy_signbit(x)                                           \
+    (sizeof (x) == sizeof(long double) ? _npy_signbit_ld (x)     \
+    : sizeof (x) == sizeof(double) ? _npy_signbit_d (x)          \
+    : _npy_signbit_f (x))
+
 /*
  * NumPyOS_ascii_format*:
  *      - buffer: A buffer to place the resulting string in
