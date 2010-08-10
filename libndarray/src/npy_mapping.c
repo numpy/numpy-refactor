@@ -22,10 +22,10 @@ _NpyTypeObject NpyArrayMapIter_Type = {
 
 
 NpyArrayMapIterObject *
-NpyArray_MapIterNew()
+NpyArray_MapIterNew(NpyIndex *indexes, int n)
 {
     NpyArrayMapIterObject *mit;
-    int i;
+    int i, j;
 
     /* Allocates the Python object wrapper around the map iterator. */
     mit = (NpyArrayMapIterObject *)NpyArray_malloc(sizeof(NpyArrayMapIterObject));
@@ -41,12 +41,69 @@ NpyArray_MapIterNew()
     mit->subspace = NULL;
     mit->numiter = 0;
     mit->consec = 1;
+    mit->n_indexes = 0;
 
     if (NPY_FALSE == NpyInterface_MapIterNewWrapper(mit, &mit->nob_interface)) {
         Npy_INTERFACE(mit) = NULL;
         _Npy_DECREF(mit);
         return NULL;
     }
+
+    /* Expand the boolean arrays in indexes. */
+    mit->n_indexes = NpyArray_IndexExpandBool(indexes, n,
+                                              mit->indexes);
+    if (mit->n_indexes < 0) {
+        _Npy_DECREF(mit);
+        return NULL;
+    }
+
+    /* Make iterators from any intp arrays and intp in the index. */
+    j = 0;
+    for (i=0; i<mit->n_indexes; i++) {
+        NpyIndex* index = &mit->indexes[i];
+
+        if (index->type == NPY_INDEX_INTP_ARRAY) {
+            mit->iters[j] = NpyArray_IterNew(index->index.intp_array);
+            if (mit->iters[j] == NULL) {
+                mit->numiter = j-1;
+                _Npy_DECREF(mit);
+                return NULL;
+            }
+            j++;
+        } else if (index->type == NPY_INDEX_INTP) {
+            NpyArray_Descr *indtype;
+            NpyArray *indarray;
+
+            /* Make a 0-d array for the index. */
+            indtype = NpyArray_DescrFromType(NPY_INTP);
+            indarray = NpyArray_NewFromDescr(indtype,
+                                             0, NULL,
+                                             NULL, NULL, 0,
+                                             NPY_FALSE, NULL, NULL);
+            if (indarray == NULL) {
+                mit->numiter = j-1;
+                _Npy_DECREF(mit);
+                return NULL;
+            }
+            memcpy(indarray->data, &index->index.intp, sizeof(npy_intp));
+            mit->iters[j] = NpyArray_IterNew(indarray);
+            _Npy_DECREF(indarray);
+            if (mit->iters[j] == NULL) {
+                mit->numiter = j-1;
+                _Npy_DECREF(mit);
+                return NULL;
+            }
+            j++;
+        }
+    }
+    mit->numiter = j;
+
+    /* Broadcast the index iterators. */
+    if (NpyArray_Broadcast((NpyArrayMultiIterObject *)mit) < 0) {
+        _Npy_DECREF(mit);
+        return NULL;
+    }
+
     return mit;
 }
 
@@ -64,7 +121,175 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     for (i = 0; i < mit->numiter; i++) {
         _Npy_XDECREF(mit->iters[i]);
     }
+    NpyArray_IndexDealloc(mit->indexes, mit->n_indexes);
     NpyArray_free(mit);
+}
+
+int
+NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
+                     NpyArray *true_array)
+{
+    NpyArrayIterObject *it;
+    int subnd;
+    int i, j, n;
+    npy_intp dimsize;
+    npy_intp *indptr;
+    NpyIndex bound_indexes[NPY_MAXDIMS];
+    int nbound = 0;
+
+    subnd = arr->nd - mit->numiter;
+    if (subnd < 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "too many indices for array");
+        return -1;
+    }
+
+    mit->ait = NpyArray_IterNew(arr);
+    if (mit->ait == NULL) {
+        return -1;
+    }
+    /* no subspace iteration needed.  Finish up and Return */
+    if (subnd == 0) {
+        n = arr->nd;
+        for (i = 0; i < n; i++) {
+            mit->iteraxes[i] = i;
+        }
+        goto finish;
+    }
+
+
+    /* Bind the indexes to the array. */
+    nbound = NpyArray_IndexBind(arr, mit->indexes, mit->n_indexes, 
+                                bound_indexes);
+    if (nbound < 0) {
+        nbound = 0;
+        goto fail;
+    }
+
+    /* Fill in iteraxes and bscoord from the bound indexes. */
+    j = 0;
+    for (i=0; i<nbound; i++) {
+        NpyIndex *index = &bound_indexes[i];
+
+        switch (index->type) {
+        case NPY_INDEX_INTP_ARRAY:
+            mit->iteraxes[j++] = i;
+            mit->bscoord[i] = 0;
+            break;
+        case NPY_INDEX_INTP:
+            mit->bscoord[i] = index->index.intp;
+            break;
+        case NPY_INDEX_SLICE:
+            mit->bscoord[i] = index->index.slice.start;
+            break;
+        default:
+            mit->bscoord[i] = 0;
+        }
+    }
+
+    /* Check for non-consecutive axes. */
+    mit->consec = 1;
+    j=mit->iteraxes[0];
+    for (i=1; i<mit->numiter; i++) {
+        if (mit->iteraxes[i] != j+i) {
+            mit->consec = 0;
+            break;
+        }
+    }
+
+    /*
+     * Make the subspace iterator.
+     */
+    {
+        npy_intp dimensions[NPY_MAXDIMS];
+        npy_intp strides[NPY_MAXDIMS];
+        npy_intp offset;
+        int n2;
+        NpyArray *view;
+
+        /* Convert to dimensions and strides. */
+        n2 = NpyArray_IndexToDimsEtc(true_array, bound_indexes, nbound,
+                                     dimensions, strides, &offset, 
+                                     NPY_TRUE);
+        if (n2 < 0) {
+            goto fail;
+        }
+
+        _Npy_INCREF(true_array->descr);
+        view =  NpyArray_NewFromDescr(true_array->descr, n2,
+                                      dimensions, strides,
+                                      true_array->data + offset,
+                                      true_array->flags, NPY_FALSE,
+                                      NULL, Npy_INTERFACE(true_array));
+        if (view == NULL) {
+            goto fail;
+        }
+        mit->subspace = NpyArray_IterNew(view);
+        _Npy_DECREF(view);
+        if (mit->subspace == NULL) {
+            goto fail;
+        }
+    }
+
+    /* Expand dimensions of result */
+    n = mit->subspace->ao->nd;
+    for (i = 0; i < n; i++) {
+        mit->dimensions[mit->nd+i] = mit->subspace->ao->dimensions[i];
+        mit->bscoord[mit->nd+i] = 0;
+    }
+    mit->nd += n;
+
+    /* Free the indexes. */
+    NpyArray_IndexDealloc(bound_indexes, nbound);
+    nbound = 0;
+
+ finish:
+    /* Here check the indexes (now that we have iteraxes) */
+    mit->size = NpyArray_OverflowMultiplyList(mit->dimensions, mit->nd);
+    if (mit->size < 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "dimensions too large in fancy indexing");
+        goto fail;
+    }
+    if (mit->ait->size == 0 && mit->size != 0) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "invalid index into a 0-size array");
+        goto fail;
+    }
+
+    for (i = 0; i < mit->numiter; i++) {
+        npy_intp indval;
+        it = mit->iters[i];
+        NpyArray_ITER_RESET(it);
+        dimsize = NpyArray_DIM(arr, mit->iteraxes[i]);
+        while (it->index < it->size) {
+            indptr = ((npy_intp *)it->dataptr);
+            indval = *indptr;
+            if (indval < 0) {
+                indval += dimsize;
+            }
+            if (indval < 0 || indval >= dimsize) {
+                char msg[1024];
+                sprintf(msg,
+                        "index (%"NPY_INTP_FMT") out of range "
+                        "(0<=index<%"NPY_INTP_FMT") in dimension %d",
+                        indval, (dimsize-1), mit->iteraxes[i]);
+                NpyErr_SetString(NpyExc_IndexError, msg);
+                goto fail;
+            }
+            NpyArray_ITER_NEXT(it);
+        }
+        NpyArray_ITER_RESET(it);
+    }
+    return 0;
+
+ fail:
+    NpyArray_IndexDealloc(bound_indexes, nbound);
+    _Npy_XDECREF(mit->subspace);
+    _Npy_XDECREF(mit->ait);
+    mit->subspace = NULL;
+    mit->ait = NULL;
+    return -1;
 }
 
 
@@ -409,6 +634,7 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     npy_intp strides[NPY_MAXDIMS];
     npy_intp offset;
     int n2;
+    NpyArray *result;
 
     /* Bind the index to the array. */
     n2 = NpyArray_IndexBind(self, indexes, n, new_indexes);
@@ -425,9 +651,22 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
 
     /* Make the result. */
     _Npy_INCREF(self->descr);
-    return NpyArray_NewFromDescr(self->descr, n2,
-                                 dimensions, strides,
-                                 self->data + offset,
-                                 self->flags, NPY_FALSE,
-                                 NULL, Npy_INTERFACE(self));
+    result = NpyArray_NewFromDescr(self->descr, n2,
+                                   dimensions, strides,
+                                   self->data + offset,
+                                   self->flags, NPY_FALSE,
+                                   NULL, Npy_INTERFACE(self));
+
+    if (result == NULL) {
+        return NULL;
+    }
+
+    /* Update the flags. */
+    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
+
+    /* Set the base_arr on result. */
+    result->base_arr = self;
+    _Npy_INCREF(self);
+
+    return result;
 }

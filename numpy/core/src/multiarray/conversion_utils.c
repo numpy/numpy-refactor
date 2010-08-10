@@ -707,7 +707,7 @@ convert_slice_nostop(PySliceObject* slice, NpyIndexSliceNoStop* islice)
     }
 
     if (slice->start == Py_None) {
-        if (slice->step > 0) {
+        if (islice->step > 0) {
             islice->start = 0;
         } else {
             islice->start = -1;
@@ -742,7 +742,7 @@ convert_slice(PySliceObject* slice, NpyIndexSlice* islice)
     }
 
     if (slice->start == Py_None) {
-        if (slice->step > 0) {
+        if (islice->step > 0) {
             islice->start = 0;
         } else {
             islice->start = -1;
@@ -791,6 +791,9 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     if (obj == Py_None) {
         index->type = NPY_INDEX_NEWAXIS;
     }
+    else if (obj == Py_Ellipsis) {
+        index->type = NPY_INDEX_ELLIPSIS;
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {
@@ -806,7 +809,8 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             }
         } else {
             PyErr_SetString(PyExc_IndexError,
-                            "Array index must be bool or integer array.");
+                            "arrays used as indices must be of "
+                            "integer (or boolean) type");
             return -1;
         }
     }
@@ -849,7 +853,9 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             return -1;
         }
         index->type = NPY_INDEX_INTP;
+#undef intp
         index->index.intp = val;
+#define intp npy_intp
     }
 
     return 0;
@@ -915,6 +921,13 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
         }
     }
 
+    if (PyArray_Check(index)) {
+        if (convert_single_index(index, &indexes[0]) < 0) {
+            return -1;
+        }
+        return 1;
+    }
+
     /* For sequences that don't look like a sequence of intp
      * treat them like a tuple. */
     if (PySequence_Check(index) && sequence_tuple(index)) {
@@ -930,7 +943,11 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
         return n;
     }
 
-    return convert_single_index(index, &indexes[0]);
+    if (convert_single_index(index, &indexes[0]) < 0) {
+        return -1;
+    }
+
+    return 1;
 }
 
 

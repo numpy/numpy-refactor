@@ -14,9 +14,11 @@ NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
         switch(index->type) {
         case NPY_INDEX_INTP_ARRAY:
             _Npy_DECREF(index->index.intp_array);
+            index->index.intp_array = NULL;
             break;
         case NPY_INDEX_BOOL_ARRAY:
             _Npy_DECREF(index->index.bool_array);
+            index->index.bool_array = NULL;
             break;
         default:
             break;
@@ -50,6 +52,50 @@ int count_nonnew(NpyIndex* indexes, int n)
 }
 
 /*
+ * Expands any boolean arrays in the index into intp arrays of the
+ * indexes of the non-zero entries.
+ */
+int
+NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
+{
+    int i;
+    int result = 0;
+
+    for (i=0; i<n; i++) {
+        switch (indexes[i].type) {
+        case NPY_INDEX_BOOL_ARRAY:
+            {
+                /* Convert to intp array on non-zero indexes. */
+                NpyArray *index_arrays[NPY_MAXDIMS];
+                NpyArray *bool_array = indexes[i].index.bool_array;
+                int j;
+
+                if (NpyArray_NonZero(bool_array, index_arrays, NULL) < 0) {
+                    NpyArray_IndexDealloc(out_indexes, result);
+                    return -1;
+                }
+                for (j=0; j<bool_array->nd; j++) {
+                    out_indexes[result].type = NPY_INDEX_INTP_ARRAY;
+                    out_indexes[result].index.intp_array = index_arrays[j];
+                    result++;
+                }
+            }
+            break;
+        case NPY_INDEX_INTP_ARRAY:
+            out_indexes[result++] = indexes[i];
+            _Npy_INCREF(indexes[i].index.intp_array);
+            break;
+        default:
+            /* Copy anything else. */
+            out_indexes[result++] = indexes[i];
+            break;
+        }
+    }
+
+    return result;
+}
+
+/*
  * Converts indexes int out_indexes appropriate for an array by:
  *
  * 1. Expanding any ellipses.
@@ -64,15 +110,9 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
 {
     int i;
     int result = 0;
+    int n_new = 0;
 
     for (i=0; i<n; i++) {
-        if (result >= array->nd) {
-            NpyErr_SetString(NpyExc_IndexError,
-                             "too many indices");
-            NpyArray_IndexDealloc(out_indexes, result);
-            return -1;
-        }
-
         switch (indexes[i].type) {
 
         case NPY_INDEX_STRING:
@@ -85,7 +125,8 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
             {
                 /* Expand the ellipsis. */
                 int j, n2;
-                n2 = array->nd - count_nonnew(&indexes[i], n-i) - result;
+                n2 = array->nd + n_new - 
+                    count_nonnew(&indexes[i+1], n-i-1) - result;
                 if (n2 < 0) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
@@ -93,7 +134,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                     return -1;
                 }
                 /* Fill with full slices. */
-                for (j=0; j<n2; i++) {
+                for (j=0; j<n2; j++) {
                     NpyIndex *out = &out_indexes[result];
                     out->type = NPY_INDEX_SLICE;
                     out->index.slice.start = 0;
@@ -111,7 +152,7 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 NpyArray *bool_array = indexes[i].index.bool_array;
                 int j;
 
-                if (result + bool_array->nd >= array->nd) {
+                if (result + bool_array->nd >= array->nd + n_new) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
                     NpyArray_IndexDealloc(out_indexes, result);
@@ -135,7 +176,14 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 npy_intp dim; 
                 NpyIndexSlice *slice;
 
-                dim = NpyArray_DIM(array, result);
+                if (result >= array->nd + n_new) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "too many indices");
+                    NpyArray_IndexDealloc(out_indexes, result);
+                    return -1;
+                }
+
+                dim = NpyArray_DIM(array, result-n_new);
                 out_indexes[result].type = NPY_INDEX_SLICE;
                 out_indexes[result].index.slice = indexes[i].index.slice;
                 slice = &out_indexes[result].index.slice;
@@ -178,7 +226,14 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                 NpyIndexSlice *oslice;
                 NpyIndexSliceNoStop *islice;
 
-                dim = NpyArray_DIM(array, result);
+                if (result >= array->nd + n_new) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "too many indices");
+                    NpyArray_IndexDealloc(out_indexes, result);
+                    return -1;
+                }
+
+                dim = NpyArray_DIM(array, result-n_new);
                 out_indexes[result].type = NPY_INDEX_SLICE;
                 oslice = &out_indexes[result].index.slice;
                 islice = &indexes[i].index.slice_nostop;
@@ -216,8 +271,17 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
 
         case NPY_INDEX_INTP:
             {
-                npy_intp val = indexes[i].index.intp;
-                npy_intp dim = NpyArray_DIM(array, result);
+                npy_intp val, dim;
+
+                if (result >= array->nd + n_new) {
+                    NpyErr_SetString(NpyExc_IndexError,
+                                     "too many indices");
+                    NpyArray_IndexDealloc(out_indexes, result);
+                    return -1;
+                }
+
+                val = indexes[i].index.intp;
+                dim = NpyArray_DIM(array, result-n_new);
 
                 if (val < 0) {
                     val += dim;
@@ -227,7 +291,28 @@ int NpyArray_IndexBind(NpyArray* array, NpyIndex* indexes,
                                      "Invalid index.");
                     return -1;
                 }
+
+                out_indexes[result].type = NPY_INDEX_INTP;
+                out_indexes[result].index.intp = val;
+                result++;
             }
+            break;
+
+        case NPY_INDEX_INTP_ARRAY:
+            if (result >= array->nd + n_new) {
+                NpyErr_SetString(NpyExc_IndexError,
+                                 "too many indices");
+                NpyArray_IndexDealloc(out_indexes, result);
+                return -1;
+            }
+
+            out_indexes[result++] = indexes[i];
+            _Npy_INCREF(indexes[i].index.intp_array);
+            break;
+
+        case NPY_INDEX_NEWAXIS:
+            n_new++;
+            out_indexes[result++] = indexes[i];
             break;
 
         default:
@@ -284,6 +369,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
 
                 dimensions[nd_new] = dim;
                 strides[nd_new] = slice->step * array->strides[iDim];
+                offset += array->strides[iDim]*slice->start;
                 iDim++;
                 nd_new++;
             }
@@ -340,6 +426,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
         nd_new++;
     }
 
+    *offset_ptr = offset;
     return nd_new;
 }
 

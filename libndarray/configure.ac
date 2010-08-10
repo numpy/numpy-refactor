@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.61])
 AC_INIT([libndarray], [1.0], [info@enthought.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile])

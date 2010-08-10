@@ -82,6 +82,7 @@ typedef struct NpyArray_ArrFuncs NpyArray_ArrFuncs;
 typedef struct NpyArray_DateTimeInfo NpyArray_DateTimeInfo;
 typedef struct NpyArray_Dims NpyArray_Dims;
 typedef struct NpyArray_CastFuncsItem NpyArray_CastFuncsItem;
+typedef struct NpyIndex NpyIndex;
 
 
 
