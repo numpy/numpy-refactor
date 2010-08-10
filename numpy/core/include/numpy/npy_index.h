@@ -61,4 +61,6 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
                             npy_intp *dimensions, npy_intp* strides,
                             npy_intp* offset_ptr, npy_bool allow_arrays);
 
+npy_intp NpyArray_SliceSteps(NpyIndexSlice *slice);
+
 #endif

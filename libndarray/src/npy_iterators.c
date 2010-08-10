@@ -235,6 +235,42 @@ NpyArray_IterSubcript(NpyArrayIterObject* self,
             return result;
         }
         break;
+
+    case NPY_INDEX_INTP:
+        /* Return a 0-d array with the value at the index. */
+        NpyArray_ITER_GOTO1D(self, index->index.intp);
+        _Npy_INCREF(self->ao->descr);
+        result = NpyArray_NewFromDescr(self->ao->descr,
+                                       0, NULL, NULL, 
+                                       NULL, 0, NPY_FALSE,
+                                       NULL, Npy_INTERFACE(self->ao));
+        if (result == NULL) {
+            return NULL;
+        }
+        result->descr->f->copyswap(result->data, self->dataptr,
+                                   !NpyArray_ISNOTSWAPPED(self->ao),
+                                   self->ao);
+        return result;
+        break;
+
+    case NPY_INDEX_SLICE_NOSTOP:
+    case NPY_INDEX_SLICE:
+        {
+            NpyIndex new_index;
+            npy_intp size;
+
+            /* Bind the slice. */
+            if (NpyArray_IndexBind(index, 1,
+                                   self->size, 1,
+                                   &new_index) < 0) {
+                return NULL;
+            }
+            assert(new_index.type == NPY_INDEX_SLICE);
+        }
+        break;
+
+
+
     default:
         break;
     }

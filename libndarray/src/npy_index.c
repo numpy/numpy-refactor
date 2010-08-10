@@ -363,23 +363,13 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
         case NPY_INDEX_SLICE:
             {
                 NpyIndexSlice *slice = &indexes[i].index.slice;
-                npy_intp dim;
 
                 if (iDim >= array->nd) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
                     return -1;
                 }
-                if ((slice->step < 0 && slice->stop >= slice->start) ||
-                    (slice->step > 0 && slice->start >= slice->stop)) {
-                    dim = 0;
-                } else if (slice->step < 0) {
-                    dim = ((slice->stop - slice->start + 1) / slice->step) + 1;
-                } else {
-                    dim = ((slice->stop - slice->start - 1) / slice->step) + 1;
-                }
-
-                dimensions[nd_new] = dim;
+                dimensions[nd_new] = NpyArray_SliceSteps(slice);
                 strides[nd_new] = slice->step * array->strides[iDim];
                 offset += array->strides[iDim]*slice->start;
                 iDim++;
@@ -442,3 +432,15 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
     return nd_new;
 }
 
+npy_intp 
+NpyArray_SliceSteps(NpyIndexSlice *slice)
+{
+    if ((slice->step < 0 && slice->stop >= slice->start) ||
+        (slice->step > 0 && slice->start >= slice->stop)) {
+        return 0;
+    } else if (slice->step < 0) {
+        return ((slice->stop - slice->start + 1) / slice->step) + 1;
+    } else {
+        return ((slice->stop - slice->start - 1) / slice->step) + 1;
+    }
+}
