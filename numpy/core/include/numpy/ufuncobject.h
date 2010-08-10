@@ -68,7 +68,8 @@ typedef struct NpyUFuncLoopObject {
         /* Multi-iterator portion --- needs to be present in this order
            to work with PyArray_Broadcast */
         NpyObject_HEAD
-
+        int magic_number;
+    
         /* The iterators. */
         struct NpyArrayMultiIterObject *iter;
 
@@ -134,17 +135,19 @@ typedef struct NpyUFuncLoopObject {
 #define UFUNC_MAXIDENTITY 32
 
 typedef struct {
-        PyObject_HEAD
-        PyArrayIterObject *it;
-        PyArrayObject *ret;
-        PyArrayIterObject *rit;   /* Needed for Accumulate */
+        NpyObject_HEAD
+        int magic_number;
+    
+        NpyArrayIterObject *it;
+        NpyArray *ret;
+        NpyArrayIterObject *rit;   /* Needed for Accumulate */
         int  outsize;
         npy_intp  index;
         npy_intp  size;
         char idptr[UFUNC_MAXIDENTITY];
 
         /* The ufunc */
-        PyUFuncObject *ufunc;
+        NpyUFuncObject *ufunc;
 
         /* The error handling */
         int errormask;
@@ -160,7 +163,7 @@ typedef struct {
         int bufsize;
 
         char *castbuf;
-        PyArray_VectorUnaryFunc *cast;
+        NpyArray_VectorUnaryFunc *cast;
 
         char *bufptr[3];
         npy_intp steps[3];
@@ -171,12 +174,12 @@ typedef struct {
         char *inptr;
 
         /* For copying small arrays */
-        PyObject *decref;
+        NpyArray *decref_arr;
 
         int obj;
         int retbase;
 
-} PyUFuncReduceObject;
+} NpyUFuncReduceObject;
 
 
 #if NPY_ALLOW_THREADS
