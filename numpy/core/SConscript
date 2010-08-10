@@ -470,7 +470,7 @@ multiarray = env.DistutilsPythonExtension(
          INCPATH=[pexpanduser('~/usr/include')],
          LIBPATH=[
              pexpanduser('~/usr/lib'),
-             '/home/ischnell/foo/numpy-refactor/build/scons/numpy/core',
+             os.getcwd(),
          ],
          source = multiarray_src,
 )
