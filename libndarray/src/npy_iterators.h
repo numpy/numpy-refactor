@@ -52,6 +52,11 @@ NpyArray *
 NpyArray_IterSubscript(NpyArrayIterObject* self,
                        NpyIndex *indexes, int n);
 
+int
+NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
+                             NpyIndex *indexes, int n,
+                             NpyArray *value);
+
 
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
