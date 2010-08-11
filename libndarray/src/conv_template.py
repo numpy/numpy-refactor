@@ -206,12 +206,12 @@ def process_str(astr):
 def process_file(src):
     assert src.endswith('.src')
 
-    print "READING:", src
+    print "\treading:", src
     data = open(src).read()
     data = process_str(data)
 
     dst = src[:-4]
-    print "WRITING:", dst
+    print "\twriting:", dst
     fo = open(dst, 'w')
     fo.write(data)
     fo.close()
@@ -220,5 +220,6 @@ def process_file(src):
 if __name__ == "__main__":
     from os.path import dirname, join
 
+    print "converting template:"
     this_dir = dirname(__file__)
     process_file(join(this_dir, 'npy_arraytypes.c.src'))

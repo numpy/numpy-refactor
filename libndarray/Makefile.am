@@ -61,3 +61,7 @@ include_HEADERS = $(INSTINCLUDES)
 
 # Other distributed headers
 noinst_HEADERS = $(OTHERINCLUDES)
+
+
+src/npy_arraytypes.c: src/npy_arraytypes.c.src
+	python src/conv_template.py
