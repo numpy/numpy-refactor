@@ -14,6 +14,11 @@
 
 
 
+npy_tp_error_set NpyErr_SetString;
+npy_tp_error_occurred NpyErr_Occurred;
+npy_tp_error_clear NpyErr_Clear;
+npy_tp_cmp_priority Npy_CmpPriority;
+
 /* Defined in npy_arraytypes.c.src */
 extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
 

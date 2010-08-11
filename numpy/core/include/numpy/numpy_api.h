@@ -349,14 +349,14 @@ typedef int (*npy_tp_error_occurred)(void);
 typedef void (*npy_tp_error_clear)(void);
 
 /* these functions are set in initlibnumpy */
-npy_tp_error_set NpyErr_SetString;
-npy_tp_error_occurred NpyErr_Occurred;
-npy_tp_error_clear NpyErr_Clear;
+extern npy_tp_error_set NpyErr_SetString;
+extern npy_tp_error_occurred NpyErr_Occurred;
+extern npy_tp_error_clear NpyErr_Clear;
 
 
 typedef int (*npy_tp_cmp_priority)(void *, void *);
 
-npy_tp_cmp_priority Npy_CmpPriority;
+extern npy_tp_cmp_priority Npy_CmpPriority;
 
 
 /*
