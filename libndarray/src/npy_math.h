@@ -144,35 +144,24 @@ double npy_spacing(double x);
 /*
  * IEEE 754 fpu handling. Those are guaranteed to be macros
  */
-#ifndef NPY_HAVE_DECL_ISNAN
-    #define npy_isnan(x) ((x) != (x))
-#else
+#if NPY_HAVE_DECL_ISNAN
     #define npy_isnan(x) isnan((x))
+#else
+    #define npy_isnan(x) ((x) != (x))
 #endif
 
-#ifndef NPY_HAVE_DECL_ISFINITE
-    #define npy_isfinite(x) !npy_isnan((x) + (-x))
-#else
+#if NPY_HAVE_DECL_ISFINITE
     #define npy_isfinite(x) isfinite((x))
+#else
+    #define npy_isfinite(x) !npy_isnan((x) + (-x))
 #endif
 
-#ifndef NPY_HAVE_DECL_ISINF
-    #define npy_isinf(x) (!npy_isfinite(x) && !npy_isnan(x))
-#else
+#if NPY_HAVE_DECL_ISINF
     #define npy_isinf(x) isinf((x))
+#else
+    #define npy_isinf(x) (!npy_isfinite(x) && !npy_isnan(x))
 #endif
 
-#ifndef NPY_HAVE_DECL_SIGNBIT
-    int _npy_signbit_f(float x);
-    int _npy_signbit_d(double x);
-    int _npy_signbit_ld(npy_longdouble x);
-    #define npy_signbit(x) \
-        (sizeof (x) == sizeof (long double) ? _npy_signbit_ld (x) \
-         : sizeof (x) == sizeof (double) ? _npy_signbit_d (x) \
-         : _npy_signbit_f (x))
-#else
-    #define npy_signbit(x) signbit((x))
-#endif
 
 /*
  * float C99 math functions

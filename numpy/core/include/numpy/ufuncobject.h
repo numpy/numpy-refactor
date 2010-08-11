@@ -1,7 +1,7 @@
 #ifndef Py_UFUNCOBJECT_H
 #define Py_UFUNCOBJECT_H
 
-#include <numpy/npy_ufunc_object.h>
+#include "npy_ufunc_object.h"
 
 #ifdef __cplusplus
 extern "C" {

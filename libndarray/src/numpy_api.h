@@ -1,22 +1,11 @@
 #ifndef _NUMPY_API_H_
 #define _NUMPY_API_H_
 
-#include <assert.h>
+#include "assert.h"
 #include "npy_defs.h"
 #include "npy_descriptor.h"
 #include "npy_iterators.h"
-
-
-/* FIXME: we need to add this later */
-#if 0
-/* enums for detected endianness */
-enum {
-    NPY_CPU_UNKNOWN_ENDIAN,
-    NPY_CPU_LITTLE,
-    NPY_CPU_BIG,
-};
-#endif
-
+#include "npy_index.h"
 
 
 #define NpyArray_UCS4 npy_ucs4

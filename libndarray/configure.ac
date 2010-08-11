@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.61])
 AC_INIT([libndarray], [1.0], [info@enthought.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile])
@@ -17,11 +17,18 @@ AC_PROG_LIBTOOL
 # Checks for header files.
 AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
 
+AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_WORDS_BIGENDIAN()
+AC_TYPE_UINTPTR_T()
 
-
-AC_DEFINE(HAVE_UINTPTR_T, 1, [Define if you have the \`uintptr_t' type.])
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
-
+AC_CHECK_SIZEOF(float)
+AC_CHECK_SIZEOF(double)
+AC_CHECK_SIZEOF(long double)
+AC_CHECK_SIZEOF(long long)
+AC_CHECK_SIZEOF(void *)
 
 
 # Checks for typedefs, structures, and compiler characteristics.

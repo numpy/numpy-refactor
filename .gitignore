@@ -1,5 +1,9 @@
 *.pyc
 *.so
+*.o
+*.lo
+*.la
+*.m4
 *~
 \#*
 __*
@@ -11,3 +15,22 @@ build
 
 /tools/win32build/misc/msvcrt90/msvcr90.def
 /doc/source/reference/generated
+
+
+libndarray/.libs
+libndarray/Makefile
+libndarray/Makefile.in
+libndarray/autom4te.cache
+libndarray/config.*
+libndarray/configure
+libndarray/depcomp
+libndarray/install-sh
+libndarray/libtool
+libndarray/ltmain.sh
+libndarray/missing
+libndarray/npy_config.h
+libndarray/npy_config.h.in
+libndarray/src/.deps
+libndarray/src/.dirstamp
+libndarray/src/npy_arraytypes.c
+libndarray/stamp-h1
