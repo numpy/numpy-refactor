@@ -119,6 +119,7 @@ NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
 int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
 NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
 NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n);
+NpyArray * NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n);
 
 
 /* multiarraymodule.c */

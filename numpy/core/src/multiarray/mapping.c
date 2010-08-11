@@ -382,167 +382,60 @@ array_subscript_simple(PyArrayObject *self, PyObject *op)
     RETURN_PYARRAY(NpyArray_IndexSimple(PyArray_ARRAY(self), indexes, n));
 }
 
+static npy_bool
+is_multi_fields(NpyIndex *indexes, int n)
+{
+    if (n <= 1) {
+        return NPY_FALSE;
+    } else {
+        int i;
+
+        for (i=0; i<n; i++) {
+            if (indexes[i].type != NPY_INDEX_STRING) {
+                return NPY_FALSE;
+            }
+        }
+        return NPY_TRUE;
+    }
+}
+
 NPY_NO_EXPORT PyObject *
 array_subscript(PyArrayObject *self, PyObject *op)
 {
-    int nd, fancy;
-    npy_bool is_fancy;
-    PyArrayObject *other;
-    NpyArray_DescrField *value;
-    PyObject *obj;
-    PyObject *index;
+    NpyArray *result;
+    NpyIndex indexes[NPY_MAXDIMS];
+    int n;
 
-    if (PyString_Check(op) || PyUnicode_Check(op)) {
-        PyObject *temp;
-
-        if (NULL != PyArray_DESCR(self)->names) {
-            value = NpyDict_Get(PyArray_DESCR(self)->fields, PyString_AsString(op));
-            if (NULL != value) {
-                PyArrayObject *result;
-
-                _Npy_INCREF(value->descr);  /* NpyArray_GetField steal ref. */
-                ASSIGN_TO_PYARRAY(result,
-                                  NpyArray_GetField(PyArray_ARRAY(self),
-                                                    value->descr, value->offset));
-                return (PyObject *)result;
-            }
-        }
-
-        temp = op;
-        if (PyUnicode_Check(op)) {
-            temp = PyUnicode_AsUnicodeEscapeString(op);
-        }
-        PyErr_Format(PyExc_ValueError,
-                     "field named %s not found.",
-                     PyBytes_AsString(temp));
-        if (temp != op) {
-            Py_DECREF(temp);
-        }
+    n = PyArray_IndexConverter(op, indexes);
+    if (n < 0) {
         return NULL;
     }
 
-    /* Check for multiple field access */
-    if (PyArray_DESCR(self)->names && PySequence_Check(op) && !PyTuple_Check(op)) {
-        int seqlen, i;
-        seqlen = PySequence_Size(op);
-        for (i = 0; i < seqlen; i++) {
-            obj = PySequence_GetItem(op, i);
-            if (!PyString_Check(obj) && !PyUnicode_Check(obj)) {
-                Py_DECREF(obj);
-                break;
-            }
-            Py_DECREF(obj);
+    /*
+     * Special case for multiple fields since we call into python.
+     * NOTE: For backwards compatibility we check to make sure
+     * op is not a tuple before treating it as multiple fields.
+     * As far as I can tell there is no good reason for this check.
+     */
+    if (is_multi_fields(indexes, n) && !PyTuple_Check(op)) {
+        PyObject *_numpy_internal;
+        PyObject *obj;
+
+        _numpy_internal = PyImport_ImportModule("numpy.core._internal");
+        if (_numpy_internal == NULL) {
+            return NULL;
         }
-        /*
-         * extract multiple fields if all elements in sequence
-         * are either string or unicode (i.e. no break occurred).
-         */
-        fancy = ((seqlen > 0) && (i == seqlen));
-        if (fancy) {
-            PyObject *_numpy_internal;
-            _numpy_internal = PyImport_ImportModule("numpy.core._internal");
-            if (_numpy_internal == NULL) {
-                return NULL;
-            }
-            obj = PyObject_CallMethod(_numpy_internal,
-                    "_index_fields", "OO", self, op);
-            Py_DECREF(_numpy_internal);
-            return obj;
-        }
+        obj = PyObject_CallMethod(_numpy_internal,
+                                  "_index_fields", "OO", self, op);
+        Py_DECREF(_numpy_internal);
+        NpyArray_IndexDealloc(indexes, n);
+        return obj;
     }
 
-    if (op == Py_Ellipsis) {
-        Py_INCREF(self);
-        return (PyObject *)self;
-    }
-
-    if (PyArray_NDIM(self) == 0) {
-        if (op == Py_None) {
-            return add_new_axes_0d(self, 1);
-        }
-        if (PyTuple_Check(op)) {
-            if (0 == PyTuple_GET_SIZE(op))  {
-                Py_INCREF(self);
-                return (PyObject *)self;
-            }
-            if ((nd = count_new_axes_0d(op)) == -1) {
-                return NULL;
-            }
-            return add_new_axes_0d(self, nd);
-        }
-        /* Allow Boolean mask selection also */
-        if ((PyArray_Check(op) && (PyArray_DIMS(op)==0)
-                    && PyArray_ISBOOL(op))) {
-            if (PyObject_IsTrue(op)) {
-                Py_INCREF(self);
-                return (PyObject *)self;
-            }
-            else {
-                PyArrayObject *result;
-
-                intp oned = 0;
-                _Npy_INCREF(PyArray_DESCR(self));
-                ASSIGN_TO_PYARRAY(result,
-                                  NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                                        1, &oned,
-                                                        NULL, NULL,
-                                                        NPY_DEFAULT,
-                                                        NPY_FALSE, Py_TYPE(self), NULL));
-                return (PyObject *)result;
-            }
-        }
-        PyErr_SetString(PyExc_IndexError, "0-d arrays can't be indexed.");
-        return NULL;
-    }
-
-    index = fancy_index(op, &is_fancy);
-    if (index == NULL) {
-        return NULL;
-    }
-
-    if (is_fancy) {
-        int oned;
-
-        oned = ((PyArray_NDIM(self) == 1) &&
-                !(PyTuple_Check(index) && PyTuple_GET_SIZE(index) > 1));
-
-        if (oned) {
-            PyArrayIterObject *it;
-            PyObject *rval;
-            it = (PyArrayIterObject *) PyArray_IterNew((PyObject *)self);
-            if (it == NULL) {
-                Py_DECREF(index);
-                return NULL;
-            }
-            rval = npy_iter_subscript(it->iter, index);
-            Py_DECREF(it);
-            Py_DECREF(index);
-            return rval;
-        } else {
-            PyArrayMapIterObject *mit;
-
-            mit = (PyArrayMapIterObject *) PyArray_MapIterNew(index);
-            if (mit == NULL) {
-                Py_DECREF(index);
-                return NULL;
-            }
-            if (PyArray_MapIterBind(mit, self) < 0) {
-                Py_DECREF(mit);
-                Py_DECREF(index);
-                return NULL;
-            }
-            other = (PyArrayObject *)PyArray_GetMap(mit);
-            Py_DECREF(mit);
-            Py_DECREF(index);
-            return (PyObject *)other;
-        }
-    } else {
-        PyObject *result;
-
-        result = array_subscript_simple(self, index);
-        Py_DECREF(index);
-        return result;
-    }
+    /* Otherwise call NpyArray_Subscript. */
+    result = NpyArray_Subscript(PyArray_ARRAY(self), indexes, n);
+    NpyArray_IndexDealloc(indexes, n);
+    RETURN_PYARRAY(result);
 }
 
 
