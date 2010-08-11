@@ -257,11 +257,10 @@ NpyArray_IterSubcript(NpyArrayIterObject* self,
     case NPY_INDEX_SLICE:
         {
             NpyIndex new_index;
-            npy_intp size;
 
             /* Bind the slice. */
             if (NpyArray_IndexBind(index, 1,
-                                   self->size, 1,
+                                   &self->size, 1,
                                    &new_index) < 0) {
                 return NULL;
             }
