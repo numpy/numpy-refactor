@@ -274,31 +274,32 @@ PyUFunc_clearfperr()
 
 
 static char
-_lowest_type(char intype)
+_lowest_type(char intype) 
 {
+    /* TODO: Ready to move */
     switch(intype) {
-    /* case PyArray_BYTE */
-    case PyArray_SHORT:
-    case PyArray_INT:
-    case PyArray_LONG:
-    case PyArray_LONGLONG:
-    case PyArray_DATETIME:
-    case PyArray_TIMEDELTA:
-        return PyArray_BYTE;
-    /* case PyArray_UBYTE */
-    case PyArray_USHORT:
-    case PyArray_UINT:
-    case PyArray_ULONG:
-    case PyArray_ULONGLONG:
-        return PyArray_UBYTE;
-    /* case PyArray_FLOAT:*/
-    case PyArray_DOUBLE:
-    case PyArray_LONGDOUBLE:
-        return PyArray_FLOAT;
-    /* case PyArray_CFLOAT:*/
-    case PyArray_CDOUBLE:
-    case PyArray_CLONGDOUBLE:
-        return PyArray_CFLOAT;
+        /* case PyArray_BYTE */
+    case NPY_SHORT:
+    case NPY_INT:
+    case NPY_LONG:
+    case NPY_LONGLONG:
+    case NPY_DATETIME:
+    case NPY_TIMEDELTA:
+        return NPY_BYTE;
+        /* case NPY_UBYTE */
+    case NPY_USHORT:
+    case NPY_UINT:
+    case NPY_ULONG:
+    case NPY_ULONGLONG:
+        return NPY_UBYTE;
+        /* case PyArray_FLOAT:*/
+    case NPY_DOUBLE:
+    case NPY_LONGDOUBLE:
+        return NPY_FLOAT;
+        /* case PyArray_CFLOAT:*/
+    case NPY_CDOUBLE:
+    case NPY_CLONGDOUBLE:
+        return NPY_CFLOAT;
     default:
         return intype;
     }
@@ -430,20 +431,20 @@ _find_array_prepare(PyObject *args, PyObject **output_wrap, int nin, int nout)
  * There must be a match with the input argument types or an error
  * will occur.
  */
-/* TODO: Ok to move */
 static int
 _find_matching_userloop(PyUFunc_Loop1d *funcdata, int *arg_types,
-                        PyArray_SCALARKIND *scalars,
+                        NPY_SCALARKIND *scalars,
                         NpyUFuncGenericFunction *function, void **data,
                         int nargs, int nin)
 {
+    /* TODO: Ready to move */
     int i;
 
     while (funcdata != NULL) {
         for (i = 0; i < nin; i++) {
-            if (!PyArray_CanCoerceScalar(arg_types[i],
-                                         funcdata->arg_types[i],
-                                         scalars[i]))
+            if (!NpyArray_CanCoerceScalar(arg_types[i],
+                                          funcdata->arg_types[i],
+                                          scalars[i]))
                 break;
         }
         if (i == nin) {
@@ -558,12 +559,12 @@ get_rtypenums(NpyUFuncObject *self, PyObject *type_tup, int *rtypenums)
  * if a tuple of types is specified then an exact match to the signature
  * is searched and it much match exactly or an error occurs
  */
-/* TODO: OK TO MOVE */
 static int
 extract_specified_loop(NpyUFuncObject *self, int *arg_types,
                        NpyUFuncGenericFunction *function, void **data,
                        int *rtypenums, int userdef)
 {
+    /* TODO: Ready to move */
     Py_ssize_t n = 1;
     static char msg[] = "loop written to specified type(s) not found";
     int nargs;
@@ -647,13 +648,13 @@ extract_specified_loop(NpyUFuncObject *self, int *arg_types,
  * Called to determine coercion
  * Can change arg_types.
  */
-/* TODO: Ok to move */
 static int
 select_types(NpyUFuncObject *self, int *arg_types,
              NpyUFuncGenericFunction *function, void **data,
              NPY_SCALARKIND *scalars,
              int *rtypenums)
 {
+    /* TODO: Ready to move */
     int i, j;
     char start_type;
     int userdef = -1;
@@ -982,10 +983,10 @@ _is_same_name(const char* s1, const char* s2)
  * and core_signature in PyUFuncObject "self".  Returns 0 unless an
  * error occured.
  */
-/* TODO: Ok to move */
 static int
 _parse_signature(NpyUFuncObject *self, const char *signature)
 {
+    /* TODO: Ready to move */
     size_t len;
     char const **var_names;
     int nd = 0;             /* number of dimension of the current argument */
@@ -1136,6 +1137,7 @@ static npy_intp*
 _compute_output_dims(NpyUFuncLoopObject *loop, int iarg,
                      int *out_nd, npy_intp *tmp_dims)
 {
+    /* TODO: Ready to move */
     int i;
     NpyUFuncObject *ufunc = loop->ufunc;
     if (ufunc->core_enabled == 0) {
@@ -1222,7 +1224,7 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
 }
 
 static int
-convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
+convert_args(NpyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 {
     PyObject *obj, *context;
     Py_ssize_t nargs;
@@ -1231,21 +1233,21 @@ convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 
     /* Check number of arguments */
     nargs = PyTuple_Size(args);
-    if ((nargs < PyUFunc_UFUNC(self)->nin) || (nargs > PyUFunc_UFUNC(self)->nargs)) {
+    if ((nargs < self->nin) || (nargs > self->nargs)) {
         PyErr_SetString(PyExc_ValueError, "invalid number of arguments");
         return -1;
     }
 
     /* Clear mps. */
-    for (i=0; i < PyUFunc_UFUNC(self)->nargs; i++) {
+    for (i=0; i < self->nargs; i++) {
         mps[i] = NULL;
     }
 
     /* Convert input arguments to arrays. */
-    for (i=0; i < PyUFunc_UFUNC(self)->nin; i++) {
+    for (i=0; i < self->nin; i++) {
         obj = PyTuple_GET_ITEM(args,i);
         if (!PyArray_Check(obj) && !PyArray_IsScalar(obj, Generic)) {
-            context = Py_BuildValue("OOi", self, args, i);
+            context = Py_BuildValue("OOi", Npy_INTERFACE(self), args, i);
         }
         else {
             context = NULL;
@@ -1260,7 +1262,7 @@ convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 
 
     /* Get any return arguments */
-    for (i = PyUFunc_UFUNC(self)->nin; i < nargs; i++) {
+    for (i = self->nin; i < nargs; i++) {
         obj = PyTuple_GET_ITEM(args, i);
         if (obj == Py_None) {
             mps[i] = NULL;
@@ -1296,7 +1298,7 @@ convert_args(PyUFuncObject *self, PyObject* args, PyArrayObject **mps)
 
  fail:
     /* DECREF mps. */
-    for (i=0; i < PyUFunc_UFUNC(self)->nargs; i++) {
+    for (i=0; i < self->nargs; i++) {
         Py_XDECREF(mps[i]);
         mps[i] = NULL;
     }
@@ -1872,10 +1874,10 @@ ufuncreduce_dealloc(NpyUFuncReduceObject *self)
     free(self);
 }
 
-/* TODO: Ready to move */
 static void
 ufuncloop_dealloc(NpyUFuncLoopObject *self)
 {
+    /* TODO: Ready to move */
     if (self->ufunc != NULL) {
         if (self->core_dim_sizes) {
             free(self->core_dim_sizes);
@@ -1898,6 +1900,7 @@ ufuncloop_dealloc(NpyUFuncLoopObject *self)
 static NpyUFuncLoopObject *
 construct_loop(NpyUFuncObject *self)
 {
+    /* TODO: Ready to move */
     NpyUFuncLoopObject *loop;
     int i;
     char *name;
@@ -2086,6 +2089,9 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     int *rtypenums;
     int res;
     char* name = PyUFunc_UFUNC(pySelf)->name ? PyUFunc_UFUNC(pySelf)->name : "";
+    int bufsize, errormask;
+    PyObject *errobj;
+    
 
     /*
      * Extract sig= keyword and extobj= keyword if present.
@@ -2127,11 +2133,28 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         rtypenums = NULL;
     }
     Py_XDECREF(typetup);
-
-    /* Convert args to arrays in mps. */
-    if ((i=convert_args(pySelf, args, mps)) < 0) {
-        return i;
+    
+    
+    /* Setup error handling. */
+    if (extobj == NULL) {
+        if (PyUFunc_GetPyValues(name,
+                                &bufsize, &errormask,
+                                &errobj) < 0) {
+            return -1;
+        }
     }
+    else {
+        res =_extract_pyvals(extobj, name,
+                             &bufsize, &errormask,
+                             &errobj);
+        Py_DECREF(extobj);
+        if (res < 0) {
+            return -1;
+        }
+    }
+    PyUFunc_clearfperr();
+    
+    
 
     /*
      * REFACTOR POINT - most of the rest can be pushed into the core.
@@ -2139,34 +2162,20 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     self = PyUFunc_UFUNC(pySelf);
     pySelf = NULL;
     
+    /* Convert args to arrays in mps. */
+    if ((i=convert_args(self, args, mps)) < 0) {
+        return i;
+    }
+
     /* Build the loop. */
     loop = construct_loop(self);
     if (loop == NULL) {
         return -1;
     }
-
-    /* Setup error handling. */
-    if (extobj == NULL) {
-        if (PyUFunc_GetPyValues(name,
-                                &(loop->bufsize), &(loop->errormask),
-                                &(loop->errobj)) < 0) {
-            ufuncloop_dealloc(loop);
-            return -1;
-        }
-    }
-    else {
-        res =_extract_pyvals(extobj, name,
-                             &(loop->bufsize), &(loop->errormask),
-                             &(loop->errobj));
-        Py_DECREF(extobj);
-        if (res < 0) {
-            ufuncloop_dealloc(loop);
-            return -1;
-        }
-    }
-    PyUFunc_clearfperr();
-
-
+    loop->bufsize = bufsize;
+    loop->errormask = errormask;
+    loop->errobj = errobj;
+    
     /* Setup the arrays */
     nargs = PyTuple_Size(args);
     res = construct_arrays(loop, nargs, mps, rtypenums, 
@@ -2552,10 +2561,10 @@ fail:
     return -1;
 }
 
-/* TODO: Ready to move */
 static PyArrayObject *
 _getidentity(NpyUFuncObject *self, int otype, char *str)
 {
+    /* TODO: Ready to move */
     PyObject *obj, *arr;
     PyArray_Descr *typecode = NULL;
 
@@ -2581,6 +2590,7 @@ _getidentity(NpyUFuncObject *self, int otype, char *str)
 static int
 _create_reduce_copy(NpyUFuncReduceObject *loop, NpyArray **arr, int rtype)
 {
+    /* TODO: Ready to move */
     intp maxsize;
     NpyArray *new;
     NpyArray_Descr *ntype;
@@ -3955,13 +3965,13 @@ ufunc_seterr(PyObject *NPY_UNUSED(dummy), PyObject *args)
 }
 
 
-/* TODO: Ready to move */
 int
 NpyUFunc_ReplaceLoopBySignature(NpyUFuncObject *func,
                                NpyUFuncGenericFunction newfunc,
                                int *signature,
                                NpyUFuncGenericFunction *oldfunc)
 {
+    /* TODO: Ready to move */
     int i, j;
     int res = -1;
     /* Find the location of the matching signature */
@@ -4005,7 +4015,6 @@ PyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
         nin, nout, identity, name, doc, check_return, NULL);
 }
 
-/* TODO: Ready to move */
 NpyUFuncObject *
 NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                      char *types, int ntypes,
@@ -4013,6 +4022,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                      char *name, char *doc,
                                      int check_return, const char *signature)
 {
+    /* TODO: Ready to move */
     NpyUFuncObject *self;
     
     self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
@@ -4311,10 +4321,10 @@ PyUFunc_RegisterLoopForType(PyUFuncObject *ufunc,
 
 #undef _SETCPTR
 
-/* TODO: Ready to move */
 static void
 npy_ufunc_dealloc(NpyUFuncObject *self)
 {
+    /* TODO: Ready to move */
     if (self->core_num_dims) {
         free(self->core_num_dims);
     }
@@ -4337,8 +4347,8 @@ npy_ufunc_dealloc(NpyUFuncObject *self)
     free(self);
 }
 
-/* TODO: Ready to move */
 _NpyTypeObject NpyUFunc_Type = {
+    /* TODO: Ready to move */
     (void (*)(_NpyObject *))npy_ufunc_dealloc
 };
 
