@@ -7,7 +7,7 @@
 #include "npy_arrayobject.h"
 #include "npy_index.h"
 #include "npy_internal.h"
-
+#include "npy_dict.h"
 
 
 
@@ -212,19 +212,19 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
         NpyArray *view;
 
         /* Convert to dimensions and strides. */
-        n2 = NpyArray_IndexToDimsEtc(true_array, bound_indexes, nbound,
+        n2 = NpyArray_IndexToDimsEtc(arr, bound_indexes, nbound,
                                      dimensions, strides, &offset, 
                                      NPY_TRUE);
         if (n2 < 0) {
             goto fail;
         }
 
-        _Npy_INCREF(true_array->descr);
-        view =  NpyArray_NewFromDescr(true_array->descr, n2,
+        _Npy_INCREF(arr->descr);
+        view =  NpyArray_NewFromDescr(arr->descr, n2,
                                       dimensions, strides,
-                                      true_array->data + offset,
-                                      true_array->flags, NPY_FALSE,
-                                      NULL, Npy_INTERFACE(true_array));
+                                      arr->data + offset,
+                                      arr->flags, NPY_TRUE,
+                                      NULL, Npy_INTERFACE(arr));
         if (view == NULL) {
             goto fail;
         }
@@ -675,4 +675,158 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     _Npy_INCREF(self);
 
     return result;
+}
+
+static NpyArray *
+NpyArray_SubscriptField(NpyArray *self, char* field)
+{
+    NpyArray_DescrField *value = NULL;
+
+    if (self->descr->names) {
+        value = NpyDict_Get(self->descr->fields, field);
+    }
+
+    if (value != NULL) {
+        _Npy_INCREF(value->descr);
+        return NpyArray_GetField(self, value->descr, value->offset);
+    } else {
+        char msg[1024];
+
+        sprintf(msg, "field named %s not found.", field);
+        NpyErr_SetString(NpyExc_ValueError, msg);
+        return NULL;
+    }
+}
+
+static NpyArray *
+NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
+{
+    NpyArray *result;
+    npy_intp dimensions[NPY_MAXDIMS];
+    npy_bool has_ellipsis = NPY_FALSE;
+    int nd_new = 0;
+    int i;
+
+    for (i=0; i<n; i++) {
+        switch (indexes[i].type) {
+        case NPY_INDEX_NEWAXIS:
+            dimensions[nd_new++] = 1;
+            break;
+        case NPY_INDEX_ELLIPSIS:
+            if (has_ellipsis) {
+                goto err;
+            }
+            has_ellipsis = NPY_TRUE;
+            break;
+        default:
+            goto err;
+            break;
+        }
+    }
+
+    _Npy_INCREF(self->descr);
+    result = NpyArray_NewFromDescr(self->descr,
+                                   nd_new, dimensions, NULL,
+                                   self->data, self->flags,
+                                   NPY_FALSE, NULL, 
+                                   Npy_INTERFACE(self));
+    if (result == NULL) {
+        return NULL;
+    }
+
+    result->base_arr = self;
+    _Npy_INCREF(self);
+    return result;
+
+ err:
+    NpyErr_SetString(NpyExc_IndexError,
+                     "0-d arrays can only use a single ()"
+                     " or a list of newaxes (and a single ...)"
+                     " as an index");
+    return NULL;
+}
+
+static NpyArray *
+NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
+{
+    NpyArray *result;
+
+    if (self->nd == 1 && n ==  1) {
+        /* Special case for 1-d arrays. */
+        NpyArrayIterObject *iter = NpyArray_IterNew(self);
+        if (iter == NULL) {
+            return NULL;
+        }
+        result = NpyArray_IterSubscript(iter, indexes, n);
+        _Npy_DECREF(iter);
+        return result;
+    } else {
+        NpyArrayMapIterObject *mit = NpyArray_MapIterNew(indexes, n);
+        if (mit == NULL) {
+            return NULL;
+        }
+        if (NpyArray_MapIterBind(mit, self, NULL) < 0) {
+            _Npy_DECREF(mit);
+            return NULL;
+        }
+
+        result = NpyArray_GetMap(mit);
+        _Npy_DECREF(mit);
+        return result;
+    }
+}
+
+/*
+ * Determine if this is a simple index.
+ */
+static npy_bool
+is_simple(NpyIndex *indexes, int n)
+{
+    int i;
+
+    for (i=0; i<n; i++) {
+        switch (indexes[i].type) {
+        case NPY_INDEX_INTP_ARRAY:
+        case NPY_INDEX_BOOL_ARRAY:
+        case NPY_INDEX_STRING:
+            return NPY_FALSE;
+            break;
+        default:
+            break;
+        }
+    }
+
+    return NPY_TRUE;
+}
+
+NpyArray*
+NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n)
+{
+    /* Handle cases where we just return this array. */
+    if (n == 0 || (n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS)) {
+        _Npy_INCREF(self);
+        return self;
+    }
+
+    /* Handle returning a single field. */
+    if (n == 1 && indexes[0].type == NPY_INDEX_STRING) {
+        return NpyArray_SubscriptField(self, indexes[0].index.string);
+    }
+
+    /* Handle the simple item case. */
+    if (n == 1 && indexes[0].type == NPY_INDEX_INTP) {
+        return NpyArray_ArrayItem(self, indexes[0].index.intp);
+    }
+
+    /* Treat 0-d indexes as a special case. */
+    if (self->nd == 0) {
+        return NpyArray_Subscript0d(self, indexes, n);
+    }
+
+    /* Either do simple or fancy indexing. */
+    if (is_simple(indexes, n)) {
+        return NpyArray_IndexSimple(self, indexes, n);
+    } else {
+        return NpyArray_IndexFancy(self, indexes, n);
+    }
 }

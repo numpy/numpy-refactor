@@ -933,6 +933,13 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
         return 1;
     }
 
+    if (PyString_Check(index) || PyUnicode_Check(index)) {
+        if (convert_single_index(index, &indexes[0]) < 0) {
+            return -1;
+        }
+        return 1;
+    }
+
     /* For sequences that don't look like a sequence of intp
      * treat them like a tuple. */
     if (PySequence_Check(index) && sequence_tuple(index)) {
