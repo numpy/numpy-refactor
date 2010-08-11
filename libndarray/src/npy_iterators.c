@@ -186,59 +186,15 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     return NULL;
 }
 
-NpyArray *
-NpyArray_IterSubcript(NpyArrayIterObject* self,
-                      NpyIndex *indexes, int n)
+static NpyArray *
+NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
 {
-    NpyArray* result;
-    NpyIndex *index;
-
-    if (n == 0 || n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS) {
-        _Npy_INCREF(self->ao);
-        return self->ao;
-    }
-
-    if (n > 1) {
-        NpyErr_SetString(NpyExc_IndexError, "unsupported iterator index.");
-        return NULL;
-    }
-
-    index = &indexes[0];
+    NpyArray *result;
 
     NpyArray_ITER_RESET(self);
 
-    switch (index->type) {
-
-    case NPY_INDEX_BOOL:
-        if (index->index.boolean) {
-            /* Returns a 0-d array with the value. */
-            _Npy_INCREF(self->ao->descr);
-            result = NpyArray_NewFromDescr(self->ao->descr,
-                                           0, NULL, NULL, 
-                                           NULL, 0, NPY_FALSE,
-                                           NULL, Npy_INTERFACE(self->ao));
-            if (result == NULL) {
-                return NULL;
-            }
-            result->descr->f->copyswap(result->data, self->dataptr,
-                                       !NpyArray_ISNOTSWAPPED(self->ao),
-                                       self->ao);
-            return result;
-        } else {
-            /* Make an empty array. */
-            npy_intp ii = 0;
-            _Npy_INCREF(self->ao->descr);
-            result = NpyArray_NewFromDescr(self->ao->descr,
-                                           1, &ii, NULL,
-                                           NULL, 0, NPY_FALSE,
-                                           NULL, Npy_INTERFACE(self->ao));
-            return result;
-        }
-        break;
-
-    case NPY_INDEX_INTP:
-        /* Return a 0-d array with the value at the index. */
-        NpyArray_ITER_GOTO1D(self, index->index.intp);
+    if (index) {
+        /* Returns a 0-d array with the value. */
         _Npy_INCREF(self->ao->descr);
         result = NpyArray_NewFromDescr(self->ao->descr,
                                        0, NULL, NULL, 
@@ -251,27 +207,272 @@ NpyArray_IterSubcript(NpyArrayIterObject* self,
                                    !NpyArray_ISNOTSWAPPED(self->ao),
                                    self->ao);
         return result;
+    } else {
+        /* Make an empty array. */
+        npy_intp ii = 0;
+        _Npy_INCREF(self->ao->descr);
+        result = NpyArray_NewFromDescr(self->ao->descr,
+                                       1, &ii, NULL,
+                                       NULL, 0, NPY_FALSE,
+                                       NULL, Npy_INTERFACE(self->ao));
+        return result;
+    }
+}
+
+static NpyArray *
+NpyArray_IterSubscriptIntp(NpyArrayIterObject *self, npy_intp index)
+{
+    NpyArray *result;
+
+    _Npy_INCREF(self->ao->descr);
+    result = NpyArray_NewFromDescr(self->ao->descr,
+                                   0, NULL, NULL, 
+                                   NULL, 0, NPY_FALSE,
+                                   NULL, Npy_INTERFACE(self->ao));
+    if (result == NULL) {
+        return NULL;
+    }
+    NpyArray_ITER_RESET(self);
+    NpyArray_ITER_GOTO1D(self, index);
+    result->descr->f->copyswap(result->data, self->dataptr,
+                               !NpyArray_ISNOTSWAPPED(self->ao),
+                               self->ao);
+    NpyArray_ITER_RESET(self);
+    return result;
+}
+
+static NpyArray *
+NpyArray_IterSubscriptSlice(NpyArrayIterObject *self, NpyIndexSlice *slice)
+{
+    NpyArray *result;
+    npy_intp steps, start, step_size;
+    int elsize, swap;
+    char *dptr;
+    NpyArray_CopySwapFunc *copyswap;
+
+    /* Build the result. */
+    steps = NpyArray_SliceSteps(slice);
+
+    _Npy_INCREF(self->ao->descr);
+    result = NpyArray_NewFromDescr(self->ao->descr,
+                                   1, &steps, NULL,
+                                   NULL, 0, NPY_FALSE,
+                                   NULL, Npy_INTERFACE(self->ao));
+    if (result == NULL) {
+        return result;
+    }
+
+    /* Copy in the data. */
+    copyswap = result->descr->f->copyswap;
+    start = slice->start;
+    step_size = slice->step;
+    elsize = result->descr->elsize;
+    swap = (NpyArray_ISNOTSWAPPED(self->ao) != NpyArray_ISNOTSWAPPED(result));
+    dptr = result->data;
+
+    NpyArray_ITER_RESET(self);
+    while (steps--) {
+        NpyArray_ITER_GOTO1D(self, start);
+        copyswap(dptr, self->dataptr, swap, result);
+        dptr += elsize;
+        start += step_size;
+    }
+    NpyArray_ITER_RESET(self);
+
+    return result;
+}
+
+static NpyArray *
+NpyArray_IterSubscriptBoolArray(NpyArrayIterObject *self, NpyArray *index)
+{
+    NpyArray *result;
+    npy_intp bool_size, i;
+    npy_intp result_size;
+    npy_intp stride;
+    npy_bool* dptr;
+    char* optr;
+    int elsize;
+    NpyArray_CopySwapFunc *copyswap;
+    int swap;
+
+    if (index->nd != 1) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "boolean index array should have 1 dimension");
+        return NULL;
+    }
+
+    bool_size = index->dimensions[0];
+    if (bool_size > self->size) {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "too many boolean indices");
+        return NULL;
+    }
+
+    /* Get the size of the result by counting the Trues in the index. */
+    stride = index->strides[0];
+    dptr = (npy_bool *)index->data;
+    assert(index->descr->elsize == 1);
+
+    i = bool_size;
+    result_size = 0;
+    while (i--) {
+        if (*dptr) {
+            ++result_size;
+        }
+        dptr += stride;
+    }
+
+    /* Build the result. */
+    _Npy_INCREF(self->ao->descr);
+    result = NpyArray_NewFromDescr(self->ao->descr,
+                                   1, &result_size, NULL,
+                                   NULL, 0, NPY_FALSE,
+                                   NULL, Npy_INTERFACE(self->ao));
+    if (result == NULL) {
+        return NULL;
+    }
+
+    /* Copy in the data. */
+    copyswap = result->descr->f->copyswap;
+    swap = (NpyArray_ISNOTSWAPPED(self->ao) != NpyArray_ISNOTSWAPPED(result));
+    elsize = result->descr->elsize;
+    optr = result->data;
+    dptr = (npy_bool *)index->data;
+    NpyArray_ITER_RESET(self);
+    i = bool_size;
+    while (i--) {
+        if (*dptr) {
+            copyswap(optr, self->dataptr, swap, result);
+            optr += elsize;
+        }
+        dptr += stride;
+        NpyArray_ITER_NEXT(self);
+    }
+    assert(optr == result->data + result_size*elsize);
+    NpyArray_ITER_RESET(self);
+
+    return result;
+}
+
+static NpyArray *
+NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
+                                NpyArray *index)
+{
+    NpyArray *result;
+    NpyArray_CopySwapFunc *copyswap;
+    NpyArrayIterObject *index_iter;
+    npy_intp i, num;
+    char* optr;
+    int elsize;
+    int swap;
+
+    /* Build the result in the same shape as the index. */
+    _Npy_INCREF(self->ao->descr);
+    result = NpyArray_NewFromDescr(self->ao->descr,
+                                   index->nd, index->dimensions, NULL,
+                                   NULL, 0,
+                                   NPY_FALSE, NULL, Npy_INTERFACE(self->ao));
+    if (result == NULL) {
+        return NULL;
+    }
+
+    /* Copy in the data. */
+    index_iter = NpyArray_IterNew(index);
+    if (index_iter == NULL) {
+        _Npy_DECREF(result);
+        return NULL;
+    }
+    copyswap = result->descr->f->copyswap;
+    i = index_iter->size;
+    swap = (NpyArray_ISNOTSWAPPED(self->ao) != NpyArray_ISNOTSWAPPED(result));
+    optr = result->data;
+    elsize = result->descr->elsize;
+
+    NpyArray_ITER_RESET(self);
+    while (i--) {
+        num = *((npy_intp *)index_iter->dataptr);
+        if (num < 0) {
+            num += self->size;
+        }
+        if (num < 0 || num >= self->size) {
+            char msg[1024];
+            sprintf(msg, "index %"NPY_INTP_FMT" out of bounds"
+                    " 0<=index<%"NPY_INTP_FMT,
+                    num, self->size);
+            NpyErr_SetString(NpyExc_IndexError, msg);
+            _Npy_DECREF(index_iter);
+            _Npy_DECREF(result);
+            NpyArray_ITER_RESET(self);
+            return NULL;
+        }
+        NpyArray_ITER_GOTO1D(self, num);
+        copyswap(optr, self->dataptr, swap, result);
+        optr += elsize;
+        NpyArray_ITER_NEXT(index_iter);
+    }
+    _Npy_DECREF(index_iter);
+    NpyArray_ITER_RESET(self);
+
+    return result;
+}
+
+NpyArray *
+NpyArray_IterSubscript(NpyArrayIterObject* self,
+                      NpyIndex *indexes, int n)
+{
+    NpyIndex *index;
+
+    if (n == 0 || (n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS)) {
+        _Npy_INCREF(self->ao);
+        return self->ao;
+    }
+
+    if (n > 1) {
+        NpyErr_SetString(NpyExc_IndexError, "unsupported iterator index.");
+        return NULL;
+    }
+
+    index = &indexes[0];
+
+    switch (index->type) {
+
+    case NPY_INDEX_BOOL:
+        return NpyArray_IterSubscriptBool(self, index->index.boolean);
+        break;
+
+    case NPY_INDEX_INTP:
+        /* Return a 0-d array with the value at the index. */
+        return NpyArray_IterSubscriptIntp(self, index->index.intp);
         break;
 
     case NPY_INDEX_SLICE_NOSTOP:
     case NPY_INDEX_SLICE:
         {
             NpyIndex new_index;
-            npy_intp size;
 
             /* Bind the slice. */
             if (NpyArray_IndexBind(index, 1,
-                                   self->size, 1,
+                                   &self->size, 1,
                                    &new_index) < 0) {
                 return NULL;
             }
             assert(new_index.type == NPY_INDEX_SLICE);
+
+            return NpyArray_IterSubscriptSlice(self, &new_index.index.slice);
         }
         break;
 
+    case NPY_INDEX_BOOL_ARRAY:
+        return NpyArray_IterSubscriptBoolArray(self, index->index.bool_array);
+        break;
 
+    case NPY_INDEX_INTP_ARRAY:
+        return NpyArray_IterSubscriptIntpArray(self, index->index.intp_array);
+        break;
 
     default:
+        NpyErr_SetString(NpyExc_IndexError, "unsupported iterator index");
+        return NULL;
         break;
     }
 

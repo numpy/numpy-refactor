@@ -48,6 +48,11 @@ NpyArray_IterAllButAxis(struct NpyArray* obj, int *inaxis);
 NpyArrayIterObject *
 NpyArray_BroadcastToShape(struct NpyArray *ao, npy_intp *dims, int nd);
 
+NpyArray *
+NpyArray_IterSubscript(NpyArrayIterObject* self,
+                       NpyIndex *indexes, int n);
+
+
 #define NpyArrayIter_Check(op) NpyObject_TypeCheck(op, &PyArrayIter_Type)
 
 #define NpyArray_ITER_RESET(it) {                                        \

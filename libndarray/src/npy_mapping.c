@@ -10,7 +10,6 @@
 
 
 
-
 static void
 arraymapiter_dealloc(NpyArrayMapIterObject *mit);
 
