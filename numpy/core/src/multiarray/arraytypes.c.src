@@ -8,12 +8,12 @@
 #define NPY_NO_PREFIX
 #include "npy_api.h"
 #include "npy_dict.h"
+#include "npy_math.h"
+
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 
 #include "numpy_3kcompat.h"
-
-#include "numpy/npy_math.h"
 
 #include "common.h"
 #include "ctors.h"

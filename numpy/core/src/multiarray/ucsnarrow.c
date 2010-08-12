@@ -7,7 +7,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
-#include "numpy/npy_math.h"
+#include "npy_math.h"
 
 #include "npy_config.h"
 

@@ -55,6 +55,8 @@
  */
 #include "npy_math_private.h"
 
+#include "npy_os.h"
+
 /*
  *****************************************************************************
  **                     BASIC MATH FUNCTIONS                                **

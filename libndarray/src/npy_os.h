@@ -1,6 +1,13 @@
 #ifndef _NPY_NUMPYOS_H_
 #define _NPY_NUMPYOS_H_
 
+
+#define npy_signbit(x)                                         \
+    (sizeof(x) == sizeof(long double) ? _npy_signbit_ld(x)     \
+    : sizeof(x) == sizeof(double) ? _npy_signbit_d(x)          \
+    : _npy_signbit_f(x))
+
+
 /* TODO: Need definition of NumPyOS_snprintf */
 #define NumPyOS_snprintf snprintf
 #define NumPyOS_strtol strtol

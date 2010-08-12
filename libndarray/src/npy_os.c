@@ -266,7 +266,7 @@ _fix_ascii_format(char* buf, size_t buflen, int decimal)
 }
 
 
-static int _npy_signbit_d(double x)
+int _npy_signbit_d(double x)
 {
     union
     {
@@ -296,20 +296,15 @@ static int _npy_signbit_d(double x)
 #endif  /* SIZEOF_INT */
 }
 
-static int _npy_signbit_f(float x)
+int _npy_signbit_f(float x)
 {
     return _npy_signbit_d((double) x);
 }
 
-static int _npy_signbit_ld(long double x)
+int _npy_signbit_ld(long double x)
 {
     return _npy_signbit_d((double) x);
 }
-
-#define npy_signbit(x)                                           \
-    (sizeof (x) == sizeof(long double) ? _npy_signbit_ld (x)     \
-    : sizeof (x) == sizeof(double) ? _npy_signbit_d (x)          \
-    : _npy_signbit_f (x))
 
 /*
  * NumPyOS_ascii_format*:
