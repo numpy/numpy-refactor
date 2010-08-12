@@ -22,7 +22,7 @@ OTHERINCLUDES = \
 	src/npy_arrayobject.h \
         src/npy_internal.h \
 	src/numpyos.h \
-	src/utils.h
+	src/npy_utils.h
 
 # Sources to build library
 LIBSOURCES = \
