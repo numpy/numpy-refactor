@@ -44,7 +44,7 @@ LIBSOURCES = \
         src/npy_iterators.c \
         src/npy_mapping.c \
         src/npy_methods.c \
-        src/npy_multiarraymodule.c \
+        src/npy_multiarray.c \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_usertypes.c \
