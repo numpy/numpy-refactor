@@ -6,7 +6,7 @@ More modifications by Jeff Whitaker
 #include "Python.h"
 #include "numpy/noprefix.h"
 #include "numpy/ndarraytypes.h"
-#include "numpy/npy_descriptor.h"
+#include "npy_descriptor.h"
 
 #ifdef NO_APPEND_FORTRAN
 # define FNAME(x) x

@@ -7,7 +7,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "npy_api.h"
-#include "numpy/npy_iterators.h"
+#include "npy_iterators.h"
 #include "npy_dict.h"
 #include "numpy/npy_index.h"
 

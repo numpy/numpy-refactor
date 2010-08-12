@@ -1,9 +1,9 @@
-static char module_doc[] =
-"This module provides a BLAS optimized\nmatrix multiply, inner product and dot for numpy arrays";
+static char module_doc[] = "This module provides a BLAS \
+optimized\nmatrix multiply, inner product and dot for numpy arrays";
 
 #include "Python.h"
 #include "npy_api.h"
-#include "numpy/npy_descriptor.h"
+#include "npy_descriptor.h"
 #include "numpy/ndarrayobject.h"
 #include "numpy/ndarraytypes.h"
 
