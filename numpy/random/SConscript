@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     return st[0]
     
 env = GetNumpyEnvironment(ARGUMENTS)
+env.Prepend(CPPPATH=[pexpanduser('~/usr/include')])
 
 mlib = scons_get_mathlib(env)
 env.AppendUnique(LIBS = mlib)

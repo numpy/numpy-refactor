@@ -406,7 +406,7 @@ generated_headers.append(ufunc_api[0])
 # needed for __multiarray_api.c and __ufunc_api.c included from multiarray and
 # ufunc.
 env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
-                        pexpanduser('~/usr/include')])
+                       pexpanduser('~/usr/include')])
 
 # npymath core lib
 npymath_src = [env.GenerateFromTemplate(pjoin('src', 'npymath', 'npy_math.c.src')),
