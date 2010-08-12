@@ -15,15 +15,15 @@ INSTINCLUDES = \
         src/npy_index.h \
         src/npy_iterators.h \
         src/npy_math.h \
-        src/npy_object.h
+        src/npy_object.h \
+	src/npy_utils.h
 
 # Headers which are not installed
 OTHERINCLUDES = \
 	src/noprefix.h \
 	src/npy_arrayobject.h \
         src/npy_internal.h \
-	src/numpyos.h \
-	src/utils.h
+	src/numpyos.h
 
 # Sources to build library
 LIBSOURCES = \
