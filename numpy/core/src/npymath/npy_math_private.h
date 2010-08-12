@@ -22,7 +22,7 @@
 #include <math.h>
 
 #include "npy_config.h"
-#include "npy_fpmath.h"
+#include "numpy_fpmath.h"
 
 #include "numpy/npy_math.h"
 #include "numpy/npy_cpu.h"
