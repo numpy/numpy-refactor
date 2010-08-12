@@ -5,8 +5,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#define NPY_NO_PREFIX
-
 #include "npy_config.h"
 #include "npy_math.h"
 #include "numpyos.h"
