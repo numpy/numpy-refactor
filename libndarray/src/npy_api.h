@@ -401,7 +401,6 @@ struct NpyInterface_WrapperFuncs {
     npy_interface_iter_new_wrapper iter_new_wrapper;
     npy_interface_multi_iter_new_wrapper multi_iter_new_wrapper;
     npy_interface_neighbor_iter_new_wrapper neighbor_iter_new_wrapper;
-    npy_interface_map_iter_new_wrapper map_iter_new_wrapper;
     npy_interface_descr_new_from_type descr_new_from_type;
     npy_interface_descr_new_from_wrapper descr_new_from_wrapper;
 };
