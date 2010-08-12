@@ -428,7 +428,7 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
 
 /*--------------------------------------------------------------------------*\
  *  NAME:
- *      NpyDict_ForceValue() - re-sets the value for a key & skips any value 
+ *      NpyDict_ForceValue() - re-sets the value for a key & skips any value
  *                             destruction.
  *  DESCRIPTION:
  *      Directly overwrites the value for an existing key skipping all safety
@@ -449,7 +449,7 @@ NpyDict_ForceValue(NpyDict *hashTable, const void *key, void *value)
 {
     long hashValue = hashTable->hashFunction(key) % hashTable->numOfBuckets;
     NpyDict_KVPair *pair = hashTable->bucketArray[hashValue];
-    
+
     while (pair != NULL && hashTable->keycmp(key, pair->key) != 0)
         pair = pair->next;
 

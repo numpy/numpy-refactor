@@ -110,7 +110,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
  *
  * Returns the number of indices in out_indexes, or -1 on error.
  */
-int NpyArray_IndexBind(NpyIndex* indexes, int n, 
+int NpyArray_IndexBind(NpyIndex* indexes, int n,
                        npy_intp *dimensions, int nd,
                        NpyIndex* out_indexes)
 {
@@ -131,7 +131,7 @@ int NpyArray_IndexBind(NpyIndex* indexes, int n,
             {
                 /* Expand the ellipsis. */
                 int j, n2;
-                n2 = nd + n_new - 
+                n2 = nd + n_new -
                     count_nonnew(&indexes[i+1], n-i-1) - result;
                 if (n2 < 0) {
                     NpyErr_SetString(NpyExc_IndexError,
@@ -179,7 +179,7 @@ int NpyArray_IndexBind(NpyIndex* indexes, int n,
         case NPY_INDEX_SLICE:
             {
                 /* Sets the slice values based on the array. */
-                npy_intp dim; 
+                npy_intp dim;
                 NpyIndexSlice *slice;
 
                 if (result >= nd + n_new) {
@@ -432,7 +432,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
     return nd_new;
 }
 
-npy_intp 
+npy_intp
 NpyArray_SliceSteps(NpyIndexSlice *slice)
 {
     if ((slice->step < 0 && slice->stop >= slice->start) ||

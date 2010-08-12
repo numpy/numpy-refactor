@@ -46,7 +46,7 @@ void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
     NpyErr_Occurred = error_occurred;
     NpyErr_Clear = error_clear;
     Npy_CmpPriority = cmp_priority;
-    
+
     _NpyInterface_Incref = incref;
     _NpyInterface_Decref = decref;
 

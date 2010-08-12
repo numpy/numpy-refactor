@@ -528,7 +528,7 @@ NpyArray_DescrNamesCopy(char **names)
 
 static NpyDict *npy_create_fields_table()
 {
-    NpyDict *new = NpyDict_CreateTable(7); 
+    NpyDict *new = NpyDict_CreateTable(7);
     NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))strcmp);
     NpyDict_SetHashFunction(new, NpyDict_StringHashFunction);
     NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key, npy_dealloc_fields_value);

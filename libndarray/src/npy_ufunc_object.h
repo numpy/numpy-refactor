@@ -13,7 +13,7 @@ struct NpyDict_struct;
 struct NpyUFuncObject {
     NpyObject_HEAD
     int magic_number;
-    
+
     int nin, nout, nargs;
     int identity;
     NpyUFuncGenericFunction *functions;
@@ -24,12 +24,12 @@ struct NpyUFuncObject {
     char *doc;
     void *ptr;
     struct NpyDict_struct *userloops;
-    
+
     /* generalized ufunc */
     int core_enabled;      /* 0 for scalar ufunc; 1 for generalized ufunc */
     int core_num_dim_ix;   /* number of distinct dimension names in
                             signature */
-    
+
     /* dimension indices of input/output argument k are stored in
      core_dim_ixs[core_offsets[k]..core_offsets[k]+core_num_dims[k]-1] */
     int *core_num_dims;    /* numbers of core dimensions of each argument */

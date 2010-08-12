@@ -356,7 +356,7 @@ extern npy_tp_cmp_priority Npy_CmpPriority;
 /*
  * Interface-provided reference management.  Note that even though these mirror the
  * Python routines they are slightly different because they also work w/ garbage
- * collected systems. Primarily, INCREF returns a possibly different handle. 
+ * collected systems. Primarily, INCREF returns a possibly different handle.
  */
 typedef void *(*npy_interface_incref)(void *);
 typedef void (*npy_interface_decref)(void *);

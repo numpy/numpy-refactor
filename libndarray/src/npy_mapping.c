@@ -212,7 +212,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
 
         /* Convert to dimensions and strides. */
         n2 = NpyArray_IndexToDimsEtc(arr, bound_indexes, nbound,
-                                     dimensions, strides, &offset, 
+                                     dimensions, strides, &offset,
                                      NPY_TRUE);
         if (n2 < 0) {
             goto fail;
@@ -491,7 +491,7 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
                                 mit->nd, mit->dimensions,
                                 NULL, NULL,
                                 NpyArray_ISFORTRAN(temp),
-                                NPY_FALSE, NULL, 
+                                NPY_FALSE, NULL,
                                 Npy_INTERFACE(temp));
     if (ret == NULL) {
         return NULL;
@@ -749,7 +749,7 @@ NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
     result = NpyArray_NewFromDescr(self->descr,
                                    nd_new, dimensions, NULL,
                                    self->data, self->flags,
-                                   NPY_FALSE, NULL, 
+                                   NPY_FALSE, NULL,
                                    Npy_INTERFACE(self));
     if (result == NULL) {
         return NULL;
