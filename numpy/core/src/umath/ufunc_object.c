@@ -37,7 +37,7 @@
 #define NO_IMPORT_ARRAY
 #endif
 
-#include <numpy_api.h>
+#include "npy_api.h"
 #include <npy_iterators.h>
 #include <npy_dict.h>
 #include <npy_ufunc_object.h>
