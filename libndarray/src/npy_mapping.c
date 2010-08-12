@@ -631,20 +631,21 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     npy_intp dimensions[NPY_MAXDIMS];
     npy_intp strides[NPY_MAXDIMS];
     npy_intp offset;
-    int n2;
+    int n2, n_new;
     NpyArray *result;
 
     /* Bind the index to the array. */
-    n2 = NpyArray_IndexBind(indexes, n,
-                            self->dimensions, self->nd,
-                            new_indexes);
-    if (n2 < 0) {
+    n_new = NpyArray_IndexBind(indexes, n,
+                               self->dimensions, self->nd,
+                               new_indexes);
+    if (n_new < 0) {
         return NULL;
     }
 
     /* Convert to dimensions and strides. */
     n2 = NpyArray_IndexToDimsEtc(self, new_indexes, n2,
                                  dimensions, strides, &offset, NPY_FALSE);
+    NpyArray_IndexDealloc(new_indexes, n_new);
     if (n2 < 0) {
         return NULL;
     }
