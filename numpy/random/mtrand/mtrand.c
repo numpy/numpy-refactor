@@ -158,7 +158,7 @@
 #include "numpy/arrayobject.h"
 #include "numpy/npy_iterators.h"
 #include "numpy/ndarraytypes.h"
-#include "numpy/npy_descriptor.h"
+#include "npy_descriptor.h"
 #include "mtrand_py_helper.h"
 #include "randomkit.h"
 #include "distributions.h"

@@ -25,7 +25,7 @@
 #include "npy_api.h"
 #include "numpy/npy_math.h"
 
-#include "numpy/npy_descriptor.h"
+#include "npy_descriptor.h"
 
 #include "npy_config.h"
 

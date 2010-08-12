@@ -2,7 +2,7 @@
 #include "structmember.h"
 #include "numpy/noprefix.h"
 #include "npy_api.h"
-#include "numpy/npy_descriptor.h"
+#include "npy_descriptor.h"
 
 #include "npy_config.h"
 
