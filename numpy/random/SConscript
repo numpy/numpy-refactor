@@ -1,6 +1,7 @@
 # Last Change: Wed Nov 19 09:00 PM 2008 J
 # vim:syntax=python
 import os
+from os.path import expanduser as pexpanduser
 
 from numscons import GetNumpyEnvironment, scons_get_mathlib
 
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
     return st[0]
     
 env = GetNumpyEnvironment(ARGUMENTS)
+env.Prepend(CPPPATH=[pexpanduser('~/usr/include')])
 
 mlib = scons_get_mathlib(env)
 env.AppendUnique(LIBS = mlib)
@@ -47,4 +49,8 @@ sources = [os.path.join('mtrand', x) for x in
            ['mtrand.c', 'randomkit.c', 'initarray.c', 'distributions.c']]
 
 # XXX: Pyrex dependency
-env.NumpyPythonExtension('mtrand', source = sources)
+env.NumpyPythonExtension(
+        'mtrand',
+        LIBS=['ndarray'],
+        LIBPATH=[pexpanduser('~/usr/lib')],
+        source = sources)

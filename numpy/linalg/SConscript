@@ -1,10 +1,13 @@
 # Last Change: Thu Jun 12 06:00 PM 2008 J
 # vim:syntax=python
+from os.path import expanduser as pexpanduser
+
 from numscons import GetNumpyEnvironment, scons_get_mathlib
 from numscons import CheckF77LAPACK
 from numscons import write_info
 
 env = GetNumpyEnvironment(ARGUMENTS)
+env.Prepend(CPPPATH=[pexpanduser('~/usr/include')])
 
 config = env.NumpyConfigure(custom_tests = {'CheckLAPACK' : CheckF77LAPACK})
 

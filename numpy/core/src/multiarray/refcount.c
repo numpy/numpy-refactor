@@ -10,7 +10,7 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/numpy_api.h"
-#include "numpy/npy_dict.h"
+#include "npy_dict.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 

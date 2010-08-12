@@ -30,7 +30,7 @@ maintainer email:  oliphant.travis@ieee.org
 #include "npy_arrayobject.h"
 
 
-static numusertypes = 0;
+static int numusertypes = 0;
 
 NpyArray_Descr **npy_userdescrs=NULL;
 

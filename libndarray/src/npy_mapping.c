@@ -14,6 +14,9 @@
 static void
 arraymapiter_dealloc(NpyArrayMapIterObject *mit);
 
+int
+NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
+
 
 _NpyTypeObject NpyArrayMapIter_Type = {
     (npy_destructor)arraymapiter_dealloc,

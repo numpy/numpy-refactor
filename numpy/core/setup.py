@@ -733,7 +733,7 @@ def configuration(parent_package='',top_path=None):
         join('src', 'libnumpy', 'npy_iterators.c'),
         join('src', 'libnumpy', 'npy_mapping.c'),
         join('src', 'libnumpy', 'npy_methods.c'),
-        join('src', 'libnumpy', 'npy_multiarraymodule.c'),
+        join('src', 'libnumpy', 'npy_multiarray.c'),
         join('src', 'libnumpy', 'npy_refcount.c'),
         join('src', 'libnumpy', 'npy_shape.c'),
         join('src', 'libnumpy', 'npy_ufunc_object.c'),

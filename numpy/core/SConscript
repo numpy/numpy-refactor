@@ -405,7 +405,8 @@ generated_headers.append(ufunc_api[0])
 # include/numpy is added for compatibility reasons with distutils: this is
 # needed for __multiarray_api.c and __ufunc_api.c included from multiarray and
 # ufunc.
-env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy'])
+env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
+                       pexpanduser('~/usr/include')])
 
 # npymath core lib
 npymath_src = [env.GenerateFromTemplate(pjoin('src', 'npymath', 'npy_math.c.src')),
@@ -467,7 +468,6 @@ else:
 multiarray = env.DistutilsPythonExtension(
          'multiarray',
          LIBS=['ndarray', 'npymath'],
-         INCPATH=[pexpanduser('~/usr/include')],
          LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
          source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
@@ -475,7 +475,11 @@ env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 #------------------
 # Build sort module
 #------------------
-sort = env.DistutilsPythonExtension('_sort', source = sortmodule_src)
+sort = env.DistutilsPythonExtension(
+         '_sort',
+         LIBS=['ndarray', 'npymath'],
+         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         source = sortmodule_src)
 
 #-------------------
 # Build umath module
@@ -485,7 +489,12 @@ if ENABLE_SEPARATE_COMPILATION:
     umathmodule_src.extend(umath_loops_src)
 else:
     umathmodule_src = [pjoin('src', 'umath', 'umathmodule_onefile.c')]
-umathmodule = env.DistutilsPythonExtension('umath', source = umathmodule_src)
+
+umathmodule = env.DistutilsPythonExtension(
+         'umath',
+         LIBS=['ndarray', 'npymath'],
+         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         source = umathmodule_src)
 
 #------------------------
 # Build scalarmath module

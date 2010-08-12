@@ -22,7 +22,7 @@ OTHERINCLUDES = \
 	src/npy_arrayobject.h \
         src/npy_internal.h \
 	src/numpyos.h \
-	src/utils.h
+	src/npy_utils.h
 
 # Sources to build library
 LIBSOURCES = \
@@ -44,7 +44,7 @@ LIBSOURCES = \
         src/npy_iterators.c \
         src/npy_mapping.c \
         src/npy_methods.c \
-        src/npy_multiarraymodule.c \
+        src/npy_multiarray.c \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_usertypes.c \
@@ -61,3 +61,7 @@ include_HEADERS = $(INSTINCLUDES)
 
 # Other distributed headers
 noinst_HEADERS = $(OTHERINCLUDES)
+
+
+src/npy_arraytypes.c: src/npy_arraytypes.c.src
+	python src/conv_template.py

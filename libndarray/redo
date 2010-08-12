@@ -1,7 +1,5 @@
 #!/bin/bash
 
-python src/conv_template.py
-
 make clean
 
 autoreconf -fvi

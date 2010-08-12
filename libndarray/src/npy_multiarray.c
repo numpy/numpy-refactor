@@ -1,5 +1,5 @@
 /*
- *  npy_multiarraymodule.c -
+ *  npy_multiarray.c -
  *
  */
 
