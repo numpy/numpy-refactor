@@ -20,6 +20,7 @@ AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
 AC_CHECK_DECLS([isnan, isfinite, isinf])
 AC_WORDS_BIGENDIAN()
 AC_TYPE_UINTPTR_T()
+AC_TYPE_LONG_LONG_INT()
 
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)

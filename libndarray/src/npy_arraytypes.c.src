@@ -1,9 +1,5 @@
 /* -*- c -*- */
 
-/* TODO: Need to fix setup to produce HAVE_LONG_LONG without including
-   Python.h or wherever it was coming from. */
-#define HAVE_LONG_LONG 1
-
 #include <stdlib.h>
 #include <memory.h>
 
