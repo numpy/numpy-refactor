@@ -954,6 +954,7 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
                 Py_DECREF(item);
                 return -1;
             }
+            Py_DECREF(item);
         }
         return n;
     }

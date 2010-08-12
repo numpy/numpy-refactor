@@ -7,7 +7,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/arrayobject.h"
 #include "npy_api.h"
-#include "numpy/npy_iterators.h"
+#include "npy_iterators.h"
 #include "npy_dict.h"
 #include "numpy/npy_index.h"
 
@@ -226,6 +226,7 @@ array_subscript(PyArrayObject *self, PyObject *op)
 
         _numpy_internal = PyImport_ImportModule("numpy.core._internal");
         if (_numpy_internal == NULL) {
+            NpyArray_IndexDealloc(indexes, n);
             return NULL;
         }
         obj = PyObject_CallMethod(_numpy_internal,

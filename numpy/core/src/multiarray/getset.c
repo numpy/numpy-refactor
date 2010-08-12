@@ -277,14 +277,8 @@ array_data_set(PyArrayObject *self, PyObject *op)
         PyArray_BASE(self) = NULL;
     }
 
-    if (PyArray_Check(op)) {
-        PyArray_BASE_ARRAY(self) = PyArray_ARRAY(op);
-        _Npy_INCREF(PyArray_BASE_ARRAY(self));
-    } else {
-        PyArray_BASE(self) = op;
-        Py_INCREF(PyArray_BASE(self));
-    }
-    ASSERT_ONE_BASE(self);
+    PyArray_BASE(self) = op;
+    Py_INCREF(op);
     PyArray_BYTES(self) = buf;
     PyArray_FLAGS(self) = CARRAY;
     if (!writeable) {

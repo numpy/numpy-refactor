@@ -1488,17 +1488,9 @@ array_setstate(PyArrayObject *self, PyObject *args)
             PyArray_BASE(self) = NULL;
         }
         else {
-            if (PyArray_Check(rawdata)) {
-                /* TODO: Check for leak of rawdata. */
-                PyArray_BASE_ARRAY(self) = PyArray_ARRAY(rawdata);
-                if (incref_base) {
-                    _Npy_INCREF(PyArray_BASE_ARRAY(self));
-                }
-            } else {
-                PyArray_BASE(self) = rawdata;
-                if (incref_base) {
-                    Py_INCREF(PyArray_BASE(self));
-                }
+            PyArray_BASE(self) = rawdata;
+            if (incref_base) {
+                Py_INCREF(PyArray_BASE(self));
             }
             ASSERT_ONE_BASE(self);
         }

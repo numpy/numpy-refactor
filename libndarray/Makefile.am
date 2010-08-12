@@ -6,6 +6,7 @@ INSTINCLUDES = \
         npy_config.h \
         src/_neighborhood_iterator_imp.h \
         src/npy_api.h \
+        src/npy_arrayobject.h \
         src/npy_common.h \
         src/npy_cpu.h \
         src/npy_defs.h \
@@ -23,7 +24,6 @@ INSTINCLUDES = \
 # Headers which are not installed
 OTHERINCLUDES = \
         src/npy_noprefix.h \
-        src/npy_arrayobject.h \
         src/npy_internal.h
 
 # Sources to build library

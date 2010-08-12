@@ -4,7 +4,7 @@
 cdef extern from "numpy/arrayobject.h":
     pass
     
-cdef extern from "numpy/npy_iterators.h":
+cdef extern from "npy_iterators.h":
     pass
     
 
@@ -147,7 +147,5 @@ cdef extern from "numpy/ndarraytypes.h":
     void import_array()
     
     
-cdef extern from "numpy/npy_descriptor.h":
+cdef extern from "npy_descriptor.h":
     pass
-    
-
