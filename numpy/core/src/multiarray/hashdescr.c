@@ -2,7 +2,7 @@
 #include <Python.h>
 #define _MULTIARRAYMODULE
 #include <numpy/numpy_api.h>
-#include <numpy/npy_dict.h>
+#include "npy_dict.h"
 #include <numpy/ndarrayobject.h>
 
 #include "npy_config.h"

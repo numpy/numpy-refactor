@@ -6,7 +6,7 @@
 #define NPY_NO_PREFIX
 #include "numpy/npy_math.h"
 #include "numpy/numpy_api.h"
-#include "numpy/npy_dict.h"
+#include "npy_dict.h"
 
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"

@@ -39,7 +39,7 @@
 
 #include "numpy/numpy_api.h"
 #include "numpy/npy_iterators.h"
-#include "numpy/npy_dict.h"
+#include "npy_dict.h"
 #include "numpy/npy_ufunc_object.h"
 
 #include "numpy/noprefix.h"
