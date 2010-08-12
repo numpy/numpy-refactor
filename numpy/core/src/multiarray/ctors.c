@@ -45,21 +45,6 @@ PyCapsule_GetPointer(void *ptr, void *notused)
 #endif
 
 
-#define ASSERT_ONE_BASE(r) \
-    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
-
-#define SET_BASE(a, b)                                  \
-    do {                                                \
-        if (PyArray_Check(b)) {                         \
-            PyArray_BASE_ARRAY(a) = PyArray_ARRAY(b);   \
-            _Npy_INCREF(PyArray_BASE_ARRAY(a));         \
-        } else {                                        \
-            PyArray_BASE(a) = (PyObject *) b;           \
-            Py_INCREF(b);                               \
-        }                                               \
-    } while(0)
-
-
 /*
  * If s is not a list, return 0
  * Otherwise:
@@ -850,14 +835,7 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
                       NpyArray_NewFromDescr(descr,
                                             nd, shape, strides, view->buf,
                                             flags, NPY_TRUE, NULL, NULL));
-    if (PyArray_Check(memoryview)) {
-        PyArray_BASE_ARRAY(r) = PyArray_ARRAY(memoryview);
-        _Npy_INCREF(PyArray_ARRAY(memoryview));
-        Py_DECREF(memoryview);
-    } else {
-        PyArray_BASE(r) = memoryview;
-    }
-    ASSERT_ONE_BASE(r);
+    PyArray_BASE(r) = memoryview;
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
 
     *out = r;
@@ -1205,8 +1183,8 @@ PyArray_FromStructInterface(PyObject *input)
                               inter->nd, inter->shape,
                               inter->strides, PyArray_BYTES(inter),
                               inter->flags, NPY_TRUE, NULL, NULL));
-    SET_BASE(r, input);
-    ASSERT_ONE_BASE(r);
+    PyArray_BASE(r) = input;
+    Py_INCREF(input);
     Py_DECREF(attr);
     PyArray_UpdateFlags((PyArrayObject *)r, UPDATE_ALL);
     return (PyObject *)r;
@@ -1365,8 +1343,8 @@ PyArray_FromInterface(PyObject *input)
     if (ret == NULL) {
         return NULL;
     }
-    SET_BASE(ret, base);
-    ASSERT_ONE_BASE(ret);
+    PyArray_BASE(ret) = base;
+    Py_INCREF(base);
 
     attr = PyDict_GetItemString(inter, "strides");
     if (attr != NULL && attr != Py_None) {
@@ -2199,7 +2177,6 @@ PyArray_FromBuffer(PyObject *buf, PyArray_Descr *type,
     /* Store a reference for decref on deallocation */
     PyArray_BASE(ret) = buf;
     PyArray_UpdateFlags(ret, ALIGNED);
-    ASSERT_ONE_BASE(ret);
     return (PyObject *)ret;
 }
 
