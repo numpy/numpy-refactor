@@ -16,7 +16,7 @@
 
 #include "npy_config.h"
 
-#include "npy_3kcompat.h"
+#include "numpy_3kcompat.h"
 
 static void
 _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype);
