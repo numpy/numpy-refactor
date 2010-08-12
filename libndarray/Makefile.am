@@ -1,5 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
+
 # Headers which are installed to support the library
 INSTINCLUDES = \
         npy_config.h \
@@ -45,6 +46,7 @@ LIBSOURCES = \
         src/npy_mapping.c \
         src/npy_methods.c \
         src/npy_multiarray.c \
+        src/npy_number.c \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_usertypes.c \
