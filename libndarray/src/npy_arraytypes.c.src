@@ -17,7 +17,7 @@
 #include "npy_internal.h"
 
 #include "npy_math.h"
-#include "noprefix.h"
+#include "npy_noprefix.h"
 #include "npy_utils.h"
 
 

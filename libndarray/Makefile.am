@@ -21,7 +21,7 @@ INSTINCLUDES = \
 
 # Headers which are not installed
 OTHERINCLUDES = \
-        src/noprefix.h \
+        src/npy_noprefix.h \
         src/npy_arrayobject.h \
         src/npy_internal.h \
         src/numpyos.h

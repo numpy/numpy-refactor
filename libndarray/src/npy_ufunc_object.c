@@ -4,7 +4,6 @@
  */
 #include "npy_config.h"
 
-#include "noprefix.h"
 #include "npy_dict.h"
 #include "ufuncobject.h"  // TODO: Fix this
 #include "numpy_api.h"
