@@ -22,7 +22,7 @@
 #include "npy_config.h"
 #include "_datetime.h"
 
-#include "numpy/numpyos.h"
+#include "npy_os.h"
 
 
 /* Defined in core */

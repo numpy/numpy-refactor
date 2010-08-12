@@ -16,6 +16,7 @@ INSTINCLUDES = \
         src/npy_iterators.h \
         src/npy_math.h \
         src/npy_object.h \
+        src/npy_os.h \
         src/npy_ufunc_object.h \
         src/npy_utils.h
 
@@ -23,8 +24,7 @@ INSTINCLUDES = \
 OTHERINCLUDES = \
         src/npy_noprefix.h \
         src/npy_arrayobject.h \
-        src/npy_internal.h \
-        src/npy_os.h
+        src/npy_internal.h
 
 # Sources to build library
 LIBSOURCES = \
