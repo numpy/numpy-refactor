@@ -643,7 +643,7 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     }
 
     /* Convert to dimensions and strides. */
-    n2 = NpyArray_IndexToDimsEtc(self, new_indexes, n2,
+    n2 = NpyArray_IndexToDimsEtc(self, new_indexes, n_new,
                                  dimensions, strides, &offset, NPY_FALSE);
     NpyArray_IndexDealloc(new_indexes, n_new);
     if (n2 < 0) {
