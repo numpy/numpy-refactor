@@ -794,6 +794,14 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     else if (obj == Py_Ellipsis) {
         index->type = NPY_INDEX_ELLIPSIS;
     }
+    /* Try as a boolean. */
+    else if (PyBool_Check(obj) ||
+             PyArray_IsScalar(obj, Bool) ||
+             (PyArray_Check(obj) && PyArray_NDIM(obj) == 0 &&
+              PyArray_ISBOOL(obj))) {
+        index->type = NPY_INDEX_BOOL;
+        index->index.boolean = PyObject_IsTrue(obj);
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {
@@ -844,11 +852,6 @@ convert_single_index(PyObject* obj, NpyIndex* index)
         if (convert_sequence(obj, &index->index.intp_array) < 0) {
             return -1;
         }
-    }
-    /* Try as a boolean. */
-    else if (PyBool_Check(obj)) {
-        index->type = NPY_INDEX_BOOL;
-        index->index.boolean = PyObject_IsTrue(obj);
     }
     /* Anything else we try to convert to an intp. */
     else {

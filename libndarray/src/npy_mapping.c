@@ -695,6 +695,28 @@ NpyArray_SubscriptField(NpyArray *self, char* field)
     }
 }
 
+static int
+NpyArray_SubscriptAssignField(NpyArray *self, char* field,
+                              NpyArray *v)
+{
+    NpyArray_DescrField *value = NULL;
+
+    if (self->descr->names) {
+        value = NpyDict_Get(self->descr->fields, field);
+    }
+
+    if (value != NULL) {
+        _Npy_INCREF(value->descr);
+        return NpyArray_SetField(self, value->descr, value->offset, v);
+    } else {
+        char msg[1024];
+
+        sprintf(msg, "field named %s not found.", field);
+        NpyErr_SetString(NpyExc_ValueError, msg);
+        return -1;
+    }
+}
+
 static NpyArray *
 NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
 {
@@ -743,6 +765,7 @@ NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
     return NULL;
 }
 
+
 static NpyArray *
 NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
 {
@@ -768,6 +791,37 @@ NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
         }
 
         result = NpyArray_GetMap(mit);
+        _Npy_DECREF(mit);
+        return result;
+    }
+}
+
+int
+NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes, int n,
+                          NpyArray *value)
+{
+    int result;
+
+    if (self->nd == 1 && n ==  1) {
+        /* Special case for 1-d arrays. */
+        NpyArrayIterObject *iter = NpyArray_IterNew(self);
+        if (iter == NULL) {
+            return -1;
+        }
+        result = NpyArray_IterSubscriptAssign(iter, indexes, n, value);
+        _Npy_DECREF(iter);
+        return result;
+    } else {
+        NpyArrayMapIterObject *mit = NpyArray_MapIterNew(indexes, n);
+        if (mit == NULL) {
+            return -1;
+        }
+        if (NpyArray_MapIterBind(mit, self, NULL) < 0) {
+            _Npy_DECREF(mit);
+            return -1;
+        }
+
+        result = NpyArray_SetMap(mit, value);
         _Npy_DECREF(mit);
         return result;
     }
@@ -827,3 +881,55 @@ NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n)
         return NpyArray_IndexFancy(self, indexes, n);
     }
 }
+
+int
+NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
+                         NpyArray *value)
+{
+    NpyArray *view;
+    int result;
+
+    if (!NpyArray_ISWRITEABLE(self)) {
+        NpyErr_SetString(NpyExc_RuntimeError,
+                        "array is not writeable");
+        return -1;
+    }
+
+    /* Handle cases where we have the whole array */
+    if (n == 0 || (n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS)) {
+        return NpyArray_MoveInto(self, value);
+    }
+
+    /* Handle returning a single field. */
+    if (n == 1 && indexes[0].type == NPY_INDEX_STRING) {
+        return NpyArray_SubscriptAssignField(self, indexes[0].index.string,
+                                             value);
+    }
+
+    /* Handle the simple item case. */
+    if (n == 1 && indexes[0].type == NPY_INDEX_INTP) {
+        view = NpyArray_ArrayItem(self, indexes[0].index.intp);
+        if (view == NULL) {
+            return -1;
+        }
+        result = NpyArray_MoveInto(view, value);
+        _Npy_DECREF(view);
+        return result;
+    }
+
+    /* Either do simple or fancy indexing. */
+    if (is_simple(indexes, n)) {
+        view = NpyArray_IndexSimple(self, indexes, n);
+        if (view == NULL) {
+            return NULL;
+        }
+        result = NpyArray_MoveInto(view, value);
+        _Npy_DECREF(view);
+        return result;
+    } else {
+        return NpyArray_IndexFancyAssign(self, indexes, n, value);
+    }
+}
+
+
+
