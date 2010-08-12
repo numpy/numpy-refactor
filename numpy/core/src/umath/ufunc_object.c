@@ -37,10 +37,10 @@
 #define NO_IMPORT_ARRAY
 #endif
 
-#include "numpy/numpy_api.h"
-#include "numpy/npy_iterators.h"
-#include "npy_dict.h"
-#include "numpy/npy_ufunc_object.h"
+#include <numpy_api.h>
+#include <npy_iterators.h>
+#include <npy_dict.h>
+#include <npy_ufunc_object.h>
 
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
