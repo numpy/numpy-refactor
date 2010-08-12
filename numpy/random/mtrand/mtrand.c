@@ -156,7 +156,7 @@
 #include "string.h"
 #include "math.h"
 #include "numpy/arrayobject.h"
-#include "numpy/npy_iterators.h"
+#include "npy_iterators.h"
 #include "numpy/ndarraytypes.h"
 #include "npy_descriptor.h"
 #include "mtrand_py_helper.h"
