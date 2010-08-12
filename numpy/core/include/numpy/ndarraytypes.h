@@ -8,7 +8,7 @@
 #include "numpyconfig.h"
 
 #include "numpy_api.h"
-#include "utils.h"
+#include "npy_utils.h"
 #include "npy_arrayobject.h"
 
 
