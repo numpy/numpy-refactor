@@ -35,7 +35,7 @@ typedef enum NpyIndexType {
     NPY_INDEX_NEWAXIS,
 } NpyIndexType;
 
-struct NpyIndex {
+typedef struct NpyIndex {
     NpyIndexType type;
     union {
         npy_intp intp;
@@ -46,12 +46,12 @@ struct NpyIndex {
         NpyArray *bool_array;
         NpyArray *intp_array;
     } index;
-};
+} NpyIndex;
 
-
-int NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
 void NpyArray_IndexDealloc(NpyIndex* indexes, int n);
+
+int NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
 int NpyArray_IndexBind(NpyIndex* indexes, int n,
                        npy_intp *dimensions, int nd,

@@ -5,6 +5,8 @@
 /*#include <stdio.h>*/
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include <npy_ufunc_object.h>
+#include "numpy/ufuncobject.h"
 #include "numpy/arrayobject.h"
 #include "npy_api.h"
 
@@ -18,6 +20,7 @@
  ****************   Implement Number Protocol ****************************
  *************************************************************************/
 
+/* TODO: MUST GO AWAY, no longer initialized. */
 NPY_NO_EXPORT NumericOps n_ops; /* NB: static objects initialized to zero */
 
 /*
@@ -26,14 +29,12 @@ NPY_NO_EXPORT NumericOps n_ops; /* NB: static objects initialized to zero */
  */
 
 /* FIXME - macro contains a return */
-#define SET(op)   temp = PyDict_GetItemString(dict, #op); \
+#define SET(npyop, op)   temp = PyDict_GetItemString(dict, #op); \
     if (temp != NULL) {                                   \
-        if (!(PyCallable_Check(temp))) {                  \
+        if (!(PyUFunc_Check(temp))) {                     \
             return -1;                                    \
         }                                                 \
-        Py_INCREF(temp);                                  \
-        Py_XDECREF(n_ops.op);                             \
-        n_ops.op = temp;                                  \
+        NpyArray_SetNumericOp(npyop, PyUFunc_UFUNC((PyUFuncObject *)temp)); \
     }
 
 
@@ -44,40 +45,40 @@ NPY_NO_EXPORT int
 PyArray_SetNumericOps(PyObject *dict)
 {
     PyObject *temp = NULL;
-    SET(add);
-    SET(subtract);
-    SET(multiply);
-    SET(divide);
-    SET(remainder);
-    SET(power);
-    SET(square);
-    SET(reciprocal);
-    SET(ones_like);
-    SET(sqrt);
-    SET(negative);
-    SET(absolute);
-    SET(invert);
-    SET(left_shift);
-    SET(right_shift);
-    SET(bitwise_and);
-    SET(bitwise_or);
-    SET(bitwise_xor);
-    SET(less);
-    SET(less_equal);
-    SET(equal);
-    SET(not_equal);
-    SET(greater);
-    SET(greater_equal);
-    SET(floor_divide);
-    SET(true_divide);
-    SET(logical_or);
-    SET(logical_and);
-    SET(floor);
-    SET(ceil);
-    SET(maximum);
-    SET(minimum);
-    SET(rint);
-    SET(conjugate);
+    SET(npy_op_add, add);
+    SET(npy_op_subtract, subtract);
+    SET(npy_op_multiply, multiply);
+    SET(npy_op_divide, divide);
+    SET(npy_op_remainder, remainder);
+    SET(npy_op_power, power);
+    SET(npy_op_square, square);
+    SET(npy_op_reciprocal, reciprocal);
+    SET(npy_op_ones_like, ones_like);
+    SET(npy_op_sqrt, sqrt);
+    SET(npy_op_negative, negative);
+    SET(npy_op_absolute, absolute);
+    SET(npy_op_invert, invert);
+    SET(npy_op_left_shift, left_shift);
+    SET(npy_op_right_shift, right_shift);
+    SET(npy_op_bitwise_and, bitwise_and);
+    SET(npy_op_bitwise_or, bitwise_or);
+    SET(npy_op_bitwise_xor, bitwise_xor);
+    SET(npy_op_less, less);
+    SET(npy_op_less_equal, less_equal);
+    SET(npy_op_equal, equal);
+    SET(npy_op_not_equal, not_equal);
+    SET(npy_op_greater, greater);
+    SET(npy_op_greater_equal, greater_equal);
+    SET(npy_op_floor_divide, floor_divide);
+    SET(npy_op_true_divide, true_divide);
+    SET(npy_op_logical_or, logical_or);
+    SET(npy_op_logical_and, logical_and);
+    SET(npy_op_floor, floor);
+    SET(npy_op_ceil, ceil);
+    SET(npy_op_maximum, maximum);
+    SET(npy_op_minimum, minimum);
+    SET(npy_op_rint, rint);
+    SET(npy_op_conjugate, conjugate);
     return 0;
 }
 

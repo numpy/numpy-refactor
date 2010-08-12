@@ -4074,6 +4074,15 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
     return self;
 }
 
+NpyUFuncObject *
+NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                        char *types, int ntypes,
+                        int nin, int nout, int identity,
+                        char *name, char *doc, int check_return)
+{
+    return NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes,
+                                                nin, nout, identity, name, doc, check_return, NULL);
+}
 
 
 /*UFUNC_API*/
