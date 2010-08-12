@@ -1,5 +1,4 @@
 
-#define _MULTIARRAYMODULE
 #include <stdlib.h>
 #include "npy_config.h"
 #include "numpy_api.h"

@@ -11,10 +11,10 @@
 
 #include "npy_config.h"
 
-#include "npy_3kcompat.h"
+#include "numpy_3kcompat.h"
 
 #include "buffer.h"
-#include "numpy/numpyos.h"
+#include "npy_os.h"
 
 /*************************************************************************
  ****************   Implement Buffer Protocol ****************************

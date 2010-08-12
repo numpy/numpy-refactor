@@ -13,13 +13,13 @@
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 
-#include "npy_3kcompat.h"
+#include "numpy_3kcompat.h"
 
 #include "npy_config.h"
 #include "mapping.h"
 #include "ctors.h"
 #include "usertypes.h"
-#include "numpy/numpyos.h"
+#include "npy_os.h"
 #include "common.h"
 #include "scalartypes.h"
 

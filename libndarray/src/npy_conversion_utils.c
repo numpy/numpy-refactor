@@ -3,10 +3,8 @@
  *
  */
 
-#define _MULTIARRAYMODULE
 #include "npy_config.h"
 #include "numpy_api.h"
-
 
 
 

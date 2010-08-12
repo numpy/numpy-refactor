@@ -257,7 +257,7 @@ A #define in config.h, defined when building for Py3.
    Is this sensible (we could also use PY_MAJOR_VERSION)?
 
 
-private/npy_3kcompat.h
+private/numpy_3kcompat.h
 ----------------------
 
 Convenience macros for Python 3 support:
@@ -282,7 +282,7 @@ ob_type, ob_size
 ----------------
 
 These use Py_SIZE, etc. macros now.  The macros are also defined in
-npy_3kcompat.h for the Python versions that don't have them natively.
+numpy_3kcompat.h for the Python versions that don't have them natively.
 
 Py_TPFLAGS_CHECKTYPES
 ---------------------
@@ -574,7 +574,7 @@ All uses of PyString in Numpy should be changed to one of
 In many cases the conversion only entails replacing PyString with
 PyUString.
 
-PyString is currently defined to PyBytes in npy_3kcompat.h, for making
+PyString is currently defined to PyBytes in numpy_3kcompat.h, for making
 things to build. This definition will be removed when Py3 support is
 finished.
 
@@ -626,7 +626,7 @@ Some specific decisions that have been made so far:
 
 .. todo::
 
-   Finally, remove the convenience PyString #define from npy_3kcompat.h
+   Finally, remove the convenience PyString #define from numpy_3kcompat.h
 
 .. todo::
 
@@ -703,7 +703,7 @@ Currently, the following is done:
 2) int is taken dtype-equivalent to NPY_LONG
 3) ints are converted to NPY_LONG 
 
-PyInt methods are currently replaced by PyLong, via macros in npy_3kcompat.h.
+PyInt methods are currently replaced by PyLong, via macros in numpy_3kcompat.h.
 
 Dtype decision rules were changed accordingly, so that Numpy understands
 Py3 int translate to NPY_LONG as far as dtypes are concerned.
@@ -754,7 +754,7 @@ New richcompare methods were implemented for:
 
 * flagsobject.c
 
-On the consumer side, we have a convenience wrapper in npy_3kcompat.h
+On the consumer side, we have a convenience wrapper in numpy_3kcompat.h
 providing PyObject_Cmp also on Py3.
 
 .. todo::
@@ -966,7 +966,7 @@ from the Python file object. There are, however, new PyFile_* functions
 for writing and reading data from the file.
 
 Temporary compatibility wrappers that return a dup-ed `fdopen` file pointer are
-in private/npy_3kcompat.h. This causes more flushing to be necessary, but it
+in private/numpy_3kcompat.h. This causes more flushing to be necessary, but it
 appears there is no alternative solution. The FILE pointer so obtained must be
 closed with fclose after use.
 

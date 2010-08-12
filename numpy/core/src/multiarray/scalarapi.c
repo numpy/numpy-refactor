@@ -11,7 +11,7 @@
 
 #include "npy_config.h"
 
-#include "npy_3kcompat.h"
+#include "numpy_3kcompat.h"
 
 #include "ctors.h"
 #include "descriptor.h"

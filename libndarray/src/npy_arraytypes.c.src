@@ -1,23 +1,17 @@
 /* -*- c -*- */
 
-/* TODO: Need to fix setup to produce HAVE_LONG_LONG without including
-   Python.h or wherever it was coming from. */
-#define HAVE_LONG_LONG 1
-
-#define _MULTIARRAYMODULE
-#define NPY_NO_PREFIX
 #include <stdlib.h>
 #include <memory.h>
 
 #include "numpy_api.h"
 #include "npy_object.h"
 #include "npy_arrayobject.h"
-#include "numpyos.h"
+#include "npy_os.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
 
 #include "npy_math.h"
-#include "noprefix.h"
+#include "npy_noprefix.h"
 #include "npy_utils.h"
 
 
@@ -29,13 +23,6 @@
 #else
 #define NpyArray_UCS4_ISSPACE(ch) Npy_STRING_ISSPACE((char)ch)
 #endif
-
-
-/* TODO: Delete this once numpyos is moved into the core. */
-double
-NumPyOS_ascii_strtod(const char *s, char** endptr);
-int
-NumPyOS_ascii_ftolf(FILE *fp, double *value);
 
 
 static npy_bool

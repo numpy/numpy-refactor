@@ -8,12 +8,12 @@
 
 #include "Python.h"
 #include "numpy/numpy_api.h"
-#include "numpy/npy_ufunc_object.h"
+#include "npy_ufunc_object.h"
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/arrayscalars.h"
 
-#include "npy_3kcompat.h"
+#include "numpy_3kcompat.h"
 
 /** numarray adapted routines.... **/
 

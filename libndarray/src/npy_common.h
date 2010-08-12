@@ -20,6 +20,8 @@
 #define NPY_HAVE_DECL_ISFINITE  HAVE_DECL_ISFINITE
 #define NPY_HAVE_DECL_ISINF     HAVE_DECL_ISINF
 
+#define NPY_HAVE_LONGLONG       HAVE_LONG_LONG_INT
+
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline
@@ -51,7 +53,7 @@ enum {
 #define NPY_FLOAT_FMT "g"
 #define NPY_DOUBLE_FMT "g"
 
-#ifdef HAVE_LONG_LONG
+#ifdef NPY_HAVE_LONGLONG
 typedef long long             npy_longlong;
 typedef unsigned long long    npy_ulonglong;
 #  ifdef _MSC_VER
@@ -76,7 +78,7 @@ typedef long npy_longlong;
 typedef unsigned long npy_ulonglong;
 #  define NPY_LONGLONG_SUFFIX(x)  (x##L)
 #  define NPY_ULONGLONG_SUFFIX(x) (x##UL)
-#endif /* ifdef HAVE_LONG_LONG */
+#endif /* ifdef NPY_HAVE_LONGLONG */
 
 
 typedef unsigned char npy_bool;
