@@ -45,12 +45,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
     mit->numiter = 0;
     mit->consec = 1;
     mit->n_indexes = 0;
-
-    if (NPY_FALSE == NpyInterface_MapIterNewWrapper(mit, &mit->nob_interface)) {
-        Npy_INTERFACE(mit) = NULL;
-        _Npy_DECREF(mit);
-        return NULL;
-    }
+    mit->nob_interface = NULL;
 
     /* Expand the boolean arrays in indexes. */
     mit->n_indexes = NpyArray_IndexExpandBool(indexes, n,
@@ -924,7 +919,7 @@ NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
     if (is_simple(indexes, n)) {
         view = NpyArray_IndexSimple(self, indexes, n);
         if (view == NULL) {
-            return NULL;
+            return -1;
         }
         result = NpyArray_MoveInto(view, value);
         _Npy_DECREF(view);

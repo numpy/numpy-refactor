@@ -2449,7 +2449,6 @@ struct NpyInterface_WrapperFuncs _wrapper_funcs = {
     NpyInterface_IterNewWrapper,
     NpyInterface_MultiIterNewWrapper,
     NpyInterface_NeighborhoodIterNewWrapper,
-    NpyInterface_MapIterNewWrapper,
     NpyInterface_DescrNewFromType,
     NpyInterface_DescrNewFromWrapper
 };
@@ -2515,9 +2514,6 @@ PyMODINIT_FUNC initmultiarray(void) {
     PyArrayMultiIter_Type.tp_iter = PyObject_SelfIter;
     PyArrayMultiIter_Type.tp_free = _pya_free;
     if (PyType_Ready(&PyArrayIter_Type) < 0) {
-        return RETVAL;
-    }
-    if (PyType_Ready(&PyArrayMapIter_Type) < 0) {
         return RETVAL;
     }
     if (PyType_Ready(&PyArrayMultiIter_Type) < 0) {
