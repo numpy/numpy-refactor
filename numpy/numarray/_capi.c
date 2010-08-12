@@ -2,7 +2,8 @@
 
 #define _libnumarray_MODULE
 #include "include/numpy/libnumarray.h"
-#include "include/numpy/numpy_api.h"
+
+#include "npy_api.h"
 
 #include "npy_config.h"
 #include <float.h>
