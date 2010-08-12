@@ -6,7 +6,7 @@
 
 #include "npy_dict.h"
 #include "ufuncobject.h"  // TODO: Fix this
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_iterators.h"
 
 #include "ufunc_object.h"       // TODO: Fix this

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_object.h"
 #include "npy_arrayobject.h"
 #include "npy_os.h"

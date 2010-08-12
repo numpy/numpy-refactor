@@ -2,7 +2,7 @@
 #include "npy_index.h"
 #include "npy_object.h"
 #include "npy_arrayobject.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 
 void
 NpyArray_IndexDealloc(NpyIndex*  indexes, int n)

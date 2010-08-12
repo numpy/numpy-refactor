@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "npy_config.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_dict.h"
 #include "npy_iterators.h"
 #include "npy_arrayobject.h"

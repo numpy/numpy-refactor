@@ -63,7 +63,7 @@ typedef long long		npy_intp;
 
 
 /* Forward type declarations */
-struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
+struct NpyDict_struct;      /* From npy_dict.c, npy_api.h */
 
 struct NpyArray_ArrayDescr;
 struct NpyArray_ArrFuncs;
