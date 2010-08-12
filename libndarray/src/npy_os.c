@@ -7,7 +7,7 @@
 
 #include "npy_config.h"
 #include "npy_math.h"
-#include "numpyos.h"
+#include "npy_os.h"
 
 /*
  * From the C99 standard, section 7.19.6: The exponent always contains at least

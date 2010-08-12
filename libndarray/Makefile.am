@@ -24,7 +24,7 @@ OTHERINCLUDES = \
         src/npy_noprefix.h \
         src/npy_arrayobject.h \
         src/npy_internal.h \
-        src/numpyos.h
+        src/npy_os.h
 
 # Sources to build library
 LIBSOURCES = \
@@ -51,7 +51,7 @@ LIBSOURCES = \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_usertypes.c \
-        src/numpyos.c
+        src/npy_os.c
 
 # libtool libraries to build
 lib_LTLIBRARIES = libndarray.la
