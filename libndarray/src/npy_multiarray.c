@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <memory.h>
 #include "npy_config.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_arrayobject.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
@@ -46,7 +46,7 @@ void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
     NpyErr_Occurred = error_occurred;
     NpyErr_Clear = error_clear;
     Npy_CmpPriority = cmp_priority;
-    
+
     _NpyInterface_Incref = incref;
     _NpyInterface_Decref = decref;
 

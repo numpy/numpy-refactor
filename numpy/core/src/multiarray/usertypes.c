@@ -38,7 +38,7 @@ maintainer email:  oliphant.travis@ieee.org
 
 #include "usertypes.h"
 
-#include "numpy/numpy_api.h"
+#include "npy_api.h"
 
 /*NUMPY_API
   Initialize arrfuncs to NULL

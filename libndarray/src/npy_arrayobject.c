@@ -1,7 +1,7 @@
 
 #include <stdlib.h>
 #include "npy_config.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_arrayobject.h"
 #include "npy_internal.h"
 
@@ -105,14 +105,14 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
 
 
 
-/* Deallocs & destroy's the array object. 
+/* Deallocs & destroy's the array object.
  *  Returns whether or not we did an artificial incref
  *  so we can keep track of the total refcount for debugging.
  */
 /* TODO: For now caller is expected to call _array_dealloc_buffer_info
          and clear weak refs.  Need to revisit. */
 int
-NpyArray_dealloc(NpyArray *self) 
+NpyArray_dealloc(NpyArray *self)
 {
     int result = 0;
 

@@ -5,7 +5,7 @@ AUTOMAKE_OPTIONS = foreign
 INSTINCLUDES = \
         npy_config.h \
         src/_neighborhood_iterator_imp.h \
-        src/numpy_api.h \
+        src/npy_api.h \
         src/npy_common.h \
         src/npy_cpu.h \
         src/npy_defs.h \

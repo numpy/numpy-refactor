@@ -25,20 +25,20 @@
  * integral type.
  */
 #ifdef HAVE_UINTPTR_T
-typedef uintptr_t	npy_uintp;
-typedef intptr_t	npy_intp;
+typedef uintptr_t       npy_uintp;
+typedef intptr_t        npy_intp;
 
 #elif NPY_SIZEOF_PTR <= NPY_SIZEOF_INT
-typedef unsigned int	npy_uintp;
-typedef int		npy_intp;
+typedef unsigned int    npy_uintp;
+typedef int             npy_intp;
 
 #elif NPY_SIZEOF_PTR <= NPY_SIZEOF_LONG
-typedef unsigned long	npy_uintp;
-typedef long		npy_intp;
+typedef unsigned long   npy_uintp;
+typedef long            npy_intp;
 
 #elif defined(NPY_HAVE_LONGLONG) && (NPY_SIZEOF_PTR <= NPY_SIZEOF_LONGLONG)
-typedef unsigned long long	npy_uintp;
-typedef long long		npy_intp;
+typedef unsigned long long      npy_uintp;
+typedef long long               npy_intp;
 
 
 #else
@@ -63,7 +63,7 @@ typedef long long		npy_intp;
 
 
 /* Forward type declarations */
-struct NpyDict_struct;      /* From npy_dict.c, numpy_api.h */
+struct NpyDict_struct;      /* From npy_dict.c, npy_api.h */
 
 struct NpyArray_ArrayDescr;
 struct NpyArray_ArrFuncs;

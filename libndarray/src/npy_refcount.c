@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <strings.h>
 #include "npy_config.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_dict.h"
 #include "npy_iterators.h"
 #include "npy_arrayobject.h"
@@ -87,7 +87,7 @@ NpyArray_INCREF(NpyArray *mp)
     void **data;
     void *temp;
     NpyArrayIterObject *it;
-    
+
     if (!NpyDataType_REFCHK(NpyArray_DESCR(mp))) {
         return 0;
     }
@@ -143,7 +143,7 @@ NpyArray_XDECREF(NpyArray *mp)
     void **data;
     void *temp;
     NpyArrayIterObject *it;
-    
+
     if (!NpyDataType_REFCHK(NpyArray_DESCR(mp))) {
         return 0;
     }
@@ -157,7 +157,7 @@ NpyArray_XDECREF(NpyArray *mp)
             NpyArray_ITER_NEXT(it);
         }
         _Npy_DECREF(it);
-        
+
     } else if (NpyArray_ISONESEGMENT(mp)) {
         data = (void **)NpyArray_BYTES(mp);
         n = NpyArray_SIZE(mp);

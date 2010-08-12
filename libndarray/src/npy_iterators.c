@@ -2,7 +2,7 @@
 #include <memory.h>
 #include <stdarg.h>
 #include "npy_config.h"
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_arrayobject.h"
 #include "npy_iterators.h"
 #include "npy_internal.h"
@@ -197,14 +197,14 @@ NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
         /* Returns a 0-d array with the value. */
         _Npy_INCREF(self->ao->descr);
         result = NpyArray_NewFromDescr(self->ao->descr,
-                                       0, NULL, NULL, 
+                                       0, NULL, NULL,
                                        NULL, 0, NPY_FALSE,
                                        NULL, Npy_INTERFACE(self->ao));
         if (result == NULL) {
             return NULL;
         }
 
-        swap = (NpyArray_ISNOTSWAPPED(self->ao) != 
+        swap = (NpyArray_ISNOTSWAPPED(self->ao) !=
                 NpyArray_ISNOTSWAPPED(result));
         result->descr->f->copyswap(result->data, self->dataptr, swap,
                                    self->ao);
@@ -229,7 +229,7 @@ NpyArray_IterSubscriptIntp(NpyArrayIterObject *self, npy_intp index)
 
     _Npy_INCREF(self->ao->descr);
     result = NpyArray_NewFromDescr(self->ao->descr,
-                                   0, NULL, NULL, 
+                                   0, NULL, NULL,
                                    NULL, 0, NPY_FALSE,
                                    NULL, Npy_INTERFACE(self->ao));
     if (result == NULL) {
@@ -253,7 +253,7 @@ NpyArray_IterSubscriptAssignIntp(NpyArrayIterObject *self, npy_intp index,
     int swap;
 
     if (NpyArray_SIZE(value) == 0) {
-        NpyErr_SetString(NpyExc_ValueError, 
+        NpyErr_SetString(NpyExc_ValueError,
                          "Error setting single item of array");
         return -1;
     }
@@ -319,7 +319,7 @@ NpyArray_IterSubscriptSlice(NpyArrayIterObject *self, NpyIndexSlice *slice)
 }
 
 static int
-NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self, 
+NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self,
                                   NpyIndexSlice *slice,
                                   NpyArray *value)
 {
@@ -347,7 +347,7 @@ NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self,
         copyswap = self->ao->descr->f->copyswap;
         start = slice->start;
         step_size = slice->step;
-        swap = (NpyArray_ISNOTSWAPPED(self->ao) != 
+        swap = (NpyArray_ISNOTSWAPPED(self->ao) !=
                 NpyArray_ISNOTSWAPPED(converted_value));
 
         NpyArray_ITER_RESET(self);
@@ -442,7 +442,7 @@ NpyArray_IterSubscriptBoolArray(NpyArrayIterObject *self, NpyArray *index)
 }
 
 static int
-NpyArray_IterSubscriptAssignBoolArray(NpyArrayIterObject *self, 
+NpyArray_IterSubscriptAssignBoolArray(NpyArrayIterObject *self,
                                       NpyArray *index,
                                       NpyArray *value)
 {
@@ -607,7 +607,7 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
 
         copyswap = self->ao->descr->f->copyswap;
         i = index_iter->size;
-        swap = (NpyArray_ISNOTSWAPPED(self->ao) != 
+        swap = (NpyArray_ISNOTSWAPPED(self->ao) !=
                 NpyArray_ISNOTSWAPPED(converted_value));
 
         NpyArray_ITER_RESET(self);
@@ -712,7 +712,7 @@ NpyArray_IterSubscript(NpyArrayIterObject* self,
 }
 
 int
-NpyArray_IterSubscriptAssign(NpyArrayIterObject *self, 
+NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
                              NpyIndex *indexes, int n,
                              NpyArray *value)
 {
@@ -762,19 +762,19 @@ NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
             }
             assert(new_index.type == NPY_INDEX_SLICE);
 
-            return NpyArray_IterSubscriptAssignSlice(self, 
+            return NpyArray_IterSubscriptAssignSlice(self,
                                     &new_index.index.slice, value);
         }
         break;
 
     case NPY_INDEX_BOOL_ARRAY:
-        return NpyArray_IterSubscriptAssignBoolArray(self, 
+        return NpyArray_IterSubscriptAssignBoolArray(self,
                                                      index->index.bool_array,
                                                      value);
         break;
 
     case NPY_INDEX_INTP_ARRAY:
-        return NpyArray_IterSubscriptAssignIntpArray(self, 
+        return NpyArray_IterSubscriptAssignIntpArray(self,
                                                      index->index.intp_array,
                                                      value);
         break;

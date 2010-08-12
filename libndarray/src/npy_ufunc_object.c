@@ -6,7 +6,7 @@
 
 #include "npy_dict.h"
 #include "ufuncobject.h"  // TODO: Fix this
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_iterators.h"
 
 #include "ufunc_object.h"       // TODO: Fix this
@@ -49,6 +49,6 @@ NpyDict *npy_create_userloops_table()
     NpyDict *new = NpyDict_CreateTable(7);  /* 7 is a guess at enough */
     NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))npy_compare_ints);
     NpyDict_SetHashFunction(new, (int (*)(const void *))npy_hash_int);
-    NpyDict_SetDeallocationFunctions(new, NULL, (void (*)(void *))npy_free_loop1d_list); 
+    NpyDict_SetDeallocationFunctions(new, NULL, (void (*)(void *))npy_free_loop1d_list);
     return new;
 }

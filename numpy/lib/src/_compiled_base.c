@@ -1,7 +1,7 @@
 #include "Python.h"
 #include "structmember.h"
 #include "numpy/noprefix.h"
-#include "numpy/numpy_api.h"
+#include "npy_api.h"
 #include "numpy/npy_descriptor.h"
 
 #include "npy_config.h"

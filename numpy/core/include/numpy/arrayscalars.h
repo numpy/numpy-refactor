@@ -1,7 +1,7 @@
 #ifndef _NPY_ARRAYSCALARS_H_
 #define _NPY_ARRAYSCALARS_H_
 
-#include "numpy_api.h"
+#include "npy_api.h"
 #include "npy_descriptor.h"
 #include "ndarraytypes.h"
 
