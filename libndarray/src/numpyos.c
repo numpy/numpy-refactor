@@ -5,7 +5,6 @@
 #include <ctype.h>
 #include <assert.h>
 
-#define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 
 #include "npy_config.h"

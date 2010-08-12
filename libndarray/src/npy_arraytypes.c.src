@@ -4,7 +4,6 @@
    Python.h or wherever it was coming from. */
 #define HAVE_LONG_LONG 1
 
-#define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include <stdlib.h>
 #include <memory.h>

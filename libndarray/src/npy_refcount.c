@@ -3,7 +3,6 @@
  *
  */
 
-#define _MULTIARRAYMODULE
 #include <stdlib.h>
 #include <strings.h>
 #include "npy_config.h"

@@ -21,8 +21,6 @@ maintainer email:  oliphant.travis@ieee.org
   (J. Todd Miller, Perry Greenfield, Rick White)
 */
 
-#define _MULTIARRAYMODULE
-
 #include <stdlib.h>
 #include <memory.h>
 #include "npy_config.h"

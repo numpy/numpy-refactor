@@ -1,4 +1,3 @@
-#define _MULTIARRAYMODULE
 #include <stdlib.h>
 #include <memory.h>
 #include "npy_config.h"

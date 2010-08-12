@@ -3,7 +3,6 @@
  *
  * */
 
-#define _MULTIARRAYMODULE
 #include <stdlib.h>
 #include <ctype.h>
 #include <memory.h>
