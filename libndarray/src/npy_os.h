@@ -1,6 +1,9 @@
 #ifndef _NPY_NUMPYOS_H_
 #define _NPY_NUMPYOS_H_
 
+#include <stdlib.h>
+#include <stdio.h>
+
 
 int _npy_signbit_d(double x);
 
@@ -9,7 +12,6 @@ int _npy_signbit_d(double x);
      : _npy_signbit_d((double) x))
 
 
-/* TODO: Need definition of NumPyOS_snprintf */
 #define NumPyOS_snprintf snprintf
 #define NumPyOS_strtol strtol
 #define NumPyOS_strtoul strtoul
