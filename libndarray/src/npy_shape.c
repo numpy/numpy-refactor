@@ -331,19 +331,8 @@ NpyArray_Squeeze(NpyArray *self)
     }
 
     _Npy_INCREF(self->descr);
-    ret = NpyArray_NewFromDescr(self->descr,
-                                newnd, dimensions,
-                                strides, self->data,
-                                self->flags,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(self));
-    if (ret == NULL) {
-        return NULL;
-    }
-    NpyArray_FLAGS(ret) &= ~NPY_OWNDATA;
-    ret->base_arr = self;
-    _Npy_INCREF(self);
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    ret = NpyArray_NewView(self->descr, newnd, dimensions, strides,
+                           self, 0, NPY_FALSE);
     return ret;
 }
 
@@ -459,18 +448,11 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
      * incorrectly), sets up descr, and points data at ap->data.
      */
     _Npy_INCREF(ap->descr);
-    ret = NpyArray_NewFromDescr(ap->descr,
-                                n, ap->dimensions,
-                                NULL, ap->data, ap->flags,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(ap));
+    ret = NpyArray_NewView(ap->descr, n, ap->dimensions, NULL,
+                           ap, 0, NPY_FALSE);
     if (ret == NULL) {
         return NULL;
     }
-    /* point at true owner of memory: */
-    ret->base_arr = ap;
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    _Npy_INCREF(ap);
 
     /* fix the dimensions and strides of the return-array */
     for (i = 0; i < n; i++) {

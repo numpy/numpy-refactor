@@ -211,11 +211,9 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
         }
 
         _Npy_INCREF(arr->descr);
-        view =  NpyArray_NewFromDescr(arr->descr, n2,
-                                      dimensions, strides,
-                                      arr->data + offset,
-                                      arr->flags, NPY_TRUE,
-                                      NULL, Npy_INTERFACE(arr));
+        view = NpyArray_NewView(arr->descr, n2,
+                                dimensions, strides,
+                                arr, offset, NPY_TRUE);
         if (view == NULL) {
             goto fail;
         }
@@ -601,19 +599,12 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
         return NULL;
     }
     _Npy_INCREF(NpyArray_DESCR(self));
-    r = NpyArray_NewFromDescr(NpyArray_DESCR(self),
-                              NpyArray_NDIM(self)-1,
-                              NpyArray_DIMS(self)+1,
-                              NpyArray_STRIDES(self)+1, item,
-                              NpyArray_FLAGS(self),
-                              NPY_FALSE, NULL, Npy_INTERFACE(self));
-    if (r == NULL) {
-        return NULL;
-    }
-    NpyArray_BASE_ARRAY(r) = self;
-    _Npy_INCREF(self);
-    assert(r->base_obj == NULL);
-    NpyArray_UpdateFlags(r, NPY_CONTIGUOUS | NPY_FORTRAN);
+    r = NpyArray_NewView(NpyArray_DESCR(self),
+                         NpyArray_NDIM(self)-1,
+                         NpyArray_DIMS(self)+1,
+                         NpyArray_STRIDES(self)+1,
+                         self, item-self->data, 
+                         NPY_FALSE);
     return r;
 }
 
@@ -645,22 +636,8 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
 
     /* Make the result. */
     _Npy_INCREF(self->descr);
-    result = NpyArray_NewFromDescr(self->descr, n2,
-                                   dimensions, strides,
-                                   self->data + offset,
-                                   self->flags, NPY_FALSE,
-                                   NULL, Npy_INTERFACE(self));
-
-    if (result == NULL) {
-        return NULL;
-    }
-
-    /* Update the flags. */
-    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
-
-    /* Set the base_arr on result. */
-    result->base_arr = self;
-    _Npy_INCREF(self);
+    result = NpyArray_NewView(self->descr, n2, dimensions, strides,
+                              self, offset, NPY_FALSE);
 
     return result;
 }
@@ -735,17 +712,8 @@ NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
     }
 
     _Npy_INCREF(self->descr);
-    result = NpyArray_NewFromDescr(self->descr,
-                                   nd_new, dimensions, NULL,
-                                   self->data, self->flags,
-                                   NPY_FALSE, NULL,
-                                   Npy_INTERFACE(self));
-    if (result == NULL) {
-        return NULL;
-    }
-
-    result->base_arr = self;
-    _Npy_INCREF(self);
+    result = NpyArray_NewView(self->descr, nd_new, dimensions, NULL,
+                              self, 0, NPY_FALSE);
     return result;
 
  err:

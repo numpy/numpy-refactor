@@ -29,20 +29,11 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
         _Npy_DECREF(typed);
         return NULL;
     }
-    ret = NpyArray_NewFromDescr(typed,
-                                self->nd, self->dimensions,
-                                self->strides,
-                                self->data + offset,
-                                self->flags, NPY_FALSE, NULL,
-                                Npy_INTERFACE(self));
+    ret = NpyArray_NewView(typed, self->nd, self->dimensions, self->strides,
+                           self, offset, NPY_FALSE);
     if (ret == NULL) {
         return NULL;
     }
-    _Npy_INCREF(self);
-    ret->base_arr = self;
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
-
-    NpyArray_UpdateFlags(ret, NPY_UPDATE_ALL);
     return ret;
 }
 
@@ -70,18 +61,11 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
         _Npy_DECREF(dtype);
         return -1;
     }
-    ret = NpyArray_NewFromDescr(dtype, self->nd, self->dimensions,
-                                self->strides, self->data + offset,
-                                self->flags, NPY_FALSE, NULL,
-                                Npy_INTERFACE(self));
+    ret = NpyArray_NewView(dtype, self->nd, self->dimensions, self->strides,
+                           self, offset, NPY_FALSE);
     if (ret == NULL) {
         return -1;
     }
-    _Npy_INCREF(self);
-    ret->base_arr = self;
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
-
-    NpyArray_UpdateFlags(ret, NPY_UPDATE_ALL);
     retval = NpyArray_MoveInto(ret, val);
     _Npy_DECREF(ret);
     return retval;

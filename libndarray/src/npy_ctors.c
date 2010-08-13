@@ -1071,6 +1071,34 @@ NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
 }
 
 
+/*
+ * Creates a new array which is a view into the buffer of array.
+ * Steals the reference to the descriptor.
+ */
+NpyArray *
+NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                 npy_intp *strides, NpyArray *array, npy_intp offset,
+                 npy_bool ensure_array)
+{
+    /* TODO: Add some sanity checking. */
+    int flags = array->flags & NPY_WRITEABLE;
+    if (strides == NULL) {
+        flags |= (array->flags & (NPY_CONTIGUOUS | NPY_FORTRAN));
+    }
+    NpyArray *result = NpyArray_NewFromDescr(descr, nd, dims,
+                                             strides, array->data + offset,
+                                             flags,
+                                             ensure_array, NULL,
+                                             Npy_INTERFACE(array));
+    if (result == NULL) {
+        return NULL;
+    }
+    result->base_arr = array;
+    _Npy_INCREF(array);
+    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
+    return result;
+}
+
 
 
 /*NUMPY_API
@@ -1165,23 +1193,17 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             if ((flags & NPY_ENSUREARRAY) /*&&
                 !NpyArray_CheckExact(arr) -- TODO: Would be nice to check this in the future */ ) {
                 _Npy_INCREF(arr->descr);
-                ret = NpyArray_NewFromDescr(arr->descr,
-                                            arr->nd,
-                                            arr->dimensions,
-                                            arr->strides,
-                                            arr->data,
-                                            arr->flags,
-                                            NPY_TRUE, NULL, NULL);
+                ret = NpyArray_NewView(arr->descr,
+                                       arr->nd, arr->dimensions, arr->strides,
+                                       arr, 0, NPY_TRUE);
                 if (ret == NULL) {
                     return NULL;
                 }
-                ret->base_arr = arr;
-                assert(NULL == ret->base_arr || NULL == ret->base_obj);
             }
             else {
                 ret = arr;
+                _Npy_INCREF(arr);
             }
-            _Npy_INCREF(arr);
         }
     }
 

@@ -70,18 +70,13 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     PyArray_DIM(self, 0) = ihigh-ilow;
     _Npy_INCREF(PyArray_DESCR(self));
     ASSIGN_TO_PYARRAY(r,
-                      NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                            PyArray_NDIM(self), PyArray_DIMS(self),
-                                            PyArray_STRIDES(self), data,
-                                            PyArray_FLAGS(self), NPY_FALSE, NULL, self));
+                      NpyArray_NewView(PyArray_DESCR(self),
+                                       PyArray_NDIM(self), PyArray_DIMS(self),
+                                       PyArray_STRIDES(self), 
+                                       PyArray_ARRAY(self), 
+                                       data - PyArray_BYTES(self),
+                                       NPY_FALSE));
     PyArray_DIM(self, 0) = l;
-    if (r == NULL) {
-        return NULL;
-    }
-    PyArray_BASE_ARRAY(r) = PyArray_ARRAY(self);
-    _Npy_INCREF(PyArray_BASE_ARRAY(r));
-    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r));
-    PyArray_UpdateFlags(r, UPDATE_ALL);
     return (PyObject *)r;
 }
 

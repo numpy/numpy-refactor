@@ -782,20 +782,12 @@ array_wraparray(PyArrayObject *self, PyObject *args)
 
     if (Py_TYPE(self) != Py_TYPE(arr)){
         _Npy_INCREF(PyArray_DESCR(arr));
-        ASSIGN_TO_PYARRAY(ret,
-                          NpyArray_NewFromDescr(PyArray_DESCR(arr),
-                                                PyArray_NDIM(arr),
-                                                PyArray_DIMS(arr),
-                                                PyArray_STRIDES(arr), PyArray_DATA(arr),
-                                                PyArray_FLAGS(arr), NPY_FALSE,
-                                                NULL, self));
-        if (ret == NULL) {
-            return NULL;
-        }
-        PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-        _Npy_INCREF(PyArray_BASE_ARRAY(ret));
-        assert(PyArray_BASE(ret) == NULL);
-        return (PyObject *)ret;
+        RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
+                                        PyArray_NDIM(arr),
+                                        PyArray_DIMS(arr),
+                                        PyArray_STRIDES(arr),
+                                        PyArray_ARRAY(arr), 0,
+                                        NPY_FALSE));
     } else {
         /*The type was set in __array_prepare__*/
         Py_INCREF(arr);
@@ -855,29 +847,15 @@ array_getarray(PyArrayObject *self, PyObject *args)
     /* convert to PyArray_Type */
     if (!PyArray_CheckExact(self)) {
         PyArrayObject *new;
-        PyTypeObject *subtype = &PyArray_Type;
-
-        if (!PyType_IsSubtype(Py_TYPE(self), &PyArray_Type)) {
-            subtype = &PyArray_Type;
-        }
-
         _Npy_INCREF(PyArray_DESCR(self));
         ASSIGN_TO_PYARRAY(new,
-            NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                  PyArray_NDIM(self),
-                                  PyArray_DIMS(self),
-                                  PyArray_STRIDES(self),
-                                  PyArray_DATA(self),
-                                  PyArray_FLAGS(self), NPY_FALSE,
-                                  subtype, NULL));
-        if (new == NULL) {
-            return NULL;
-        }
-        PyArray_BASE_ARRAY(new) = PyArray_ARRAY(self);
-        _Npy_INCREF(PyArray_BASE_ARRAY(new));
-        /* TODO: Check if we are leaking new. */
+                          NpyArray_NewView(PyArray_DESCR(self),
+                                           PyArray_NDIM(self),
+                                           PyArray_DIMS(self),
+                                           PyArray_STRIDES(self),
+                                           PyArray_ARRAY(self), 0,
+                                           NPY_TRUE));
         self = new;
-        ASSERT_ONE_BASE(self);
     }
     else {
         Py_INCREF(self);

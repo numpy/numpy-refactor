@@ -162,14 +162,9 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
     if (fortran == NPY_ANYORDER)
         fortran = NpyArray_ISFORTRAN(m1);
 
-    _Npy_INCREF(NpyArray_DESCR(m1));
-    ret = NpyArray_NewFromDescr(NpyArray_DESCR(m1),
-                                NpyArray_NDIM(m1),
-                                NpyArray_DIMS(m1),
-                                NULL, NULL,
-                                fortran,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(m1));
+    _Npy_INCREF(m1->descr);
+    ret = NpyArray_Alloc(m1->descr, m1->nd, m1->dimensions,
+                         fortran, Npy_INTERFACE(m1));
     if (ret == NULL) {
         return NULL;
     }

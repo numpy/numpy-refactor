@@ -452,22 +452,12 @@ _get_part(PyArrayObject *self, int imag)
         _Npy_DECREF(type);
         type = new;
     }
-    ASSIGN_TO_PYARRAY(ret,
-                      NpyArray_NewFromDescr(type,
-                                PyArray_NDIM(self),
-                                PyArray_DIMS(self),
-                                PyArray_STRIDES(self),
-                                PyArray_BYTES(self) + offset,
-                                PyArray_FLAGS(self),
-                                NPY_FALSE, Py_TYPE(self), self));
-    if (ret == NULL) {
-        return NULL;
-    }
-    PyArray_FLAGS(ret) &= ~CONTIGUOUS;
-    PyArray_FLAGS(ret) &= ~FORTRAN;
-    PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(self);
-    _Npy_INCREF(PyArray_BASE_ARRAY(ret));
-    return ret;
+    RETURN_PYARRAY(NpyArray_NewView(type,
+                                    PyArray_NDIM(self), 
+                                    PyArray_DIMS(self), 
+                                    PyArray_STRIDES(self),
+                                    PyArray_ARRAY(self), offset,
+                                    NPY_FALSE));
 }
 
 /* For Object arrays, we need to get and set the

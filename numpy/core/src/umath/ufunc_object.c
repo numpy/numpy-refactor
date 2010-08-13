@@ -1197,6 +1197,7 @@ static PyArrayObject *
 _trunc_coredim(PyArrayObject *ap, int core_nd)
 {
     PyArrayObject *ret;
+    NpyArray *arr;
     int nd = PyArray_NDIM(ap) - core_nd;
 
     if (nd < 0) {
@@ -1204,22 +1205,18 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
     }
     /* The following code is basically taken from PyArray_Transpose */
     /* NewFromDescr will steal this reference */
-    _Npy_INCREF(PyArray_ARRAY(ap)->descr);
-    ASSIGN_TO_PYARRAY(ret,
-                      NpyArray_NewFromDescr(PyArray_ARRAY(ap)->descr,
-                                            nd, PyArray_ARRAY(ap)->dimensions,
-                                            PyArray_ARRAY(ap)->strides, 
-                                            PyArray_ARRAY(ap)->data, 
-                                            PyArray_ARRAY(ap)->flags,
-                                            NPY_FALSE, NULL, ap));
-    if (ret == NULL) {
+    _Npy_INCREF(PyArray_DESCR(ap));
+    arr = NpyArray_NewView(PyArray_DESCR(ap),
+                           nd, PyArray_DIMS(ap),
+                           PyArray_STRIDES(ap),
+                           PyArray_ARRAY(ap), 0, 
+                           NPY_FALSE);
+    if (arr == NULL) {
         return NULL;
     }
-    /* point at true owner of memory: */
-    PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(ap);
-    _Npy_INCREF(PyArray_ARRAY(ap));
-    assert(NULL == PyArray_BASE(ret));
-    PyArray_UpdateFlags(ret, CONTIGUOUS | FORTRAN);
+    ret = Npy_INTERFACE(arr);
+    Py_INCREF(ret);
+    _Npy_DECREF(arr);
     return ret;
 }
 

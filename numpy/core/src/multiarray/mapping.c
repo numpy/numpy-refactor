@@ -155,20 +155,10 @@ add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
         dimensions[i]  = 1;
     }
     _Npy_INCREF(PyArray_DESCR(arr));
-    ASSIGN_TO_PYARRAY(other,
-                      NpyArray_NewFromDescr(PyArray_DESCR(arr),
-                                            newaxis_count, dimensions,
-                                            NULL, PyArray_BYTES(arr),
-                                            PyArray_FLAGS(arr), NPY_FALSE,
-                                            NULL, arr));
-    if (NULL == other) {
-        return NULL;
-    }
-
-    PyArray_BASE_ARRAY(other) = PyArray_ARRAY(arr);
-    _Npy_INCREF(PyArray_BASE_ARRAY(other));
-    ASSERT_ONE_BASE(other);
-    return (PyObject *)other;
+    RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
+                                    newaxis_count, dimensions, NULL,
+                                    PyArray_ARRAY(arr), 0,
+                                    NPY_FALSE));
 }
 
 /*

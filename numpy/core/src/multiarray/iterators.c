@@ -339,14 +339,8 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
     size = NpyArray_SIZE(it->ao);
     _Npy_INCREF(it->ao->descr);
     if (NpyArray_ISCONTIGUOUS(it->ao)) {
-        r = NpyArray_NewFromDescr(it->ao->descr,
-                                  1, &size,
-                                  NULL, it->ao->data,
-                                  it->ao->flags,
-                                  NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
-        if (r == NULL) {
-            return NULL;
-        }
+        r = NpyArray_NewView(it->ao->descr, 1, &size, NULL, it->ao, 0,
+                             NPY_TRUE);
     }
     else {
         r = NpyArray_Alloc(it->ao->descr, 1, &size, NPY_FALSE,
@@ -361,11 +355,9 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
         }
         NpyArray_FLAGS(r) |= UPDATEIFCOPY;
         it->ao->flags &= ~WRITEABLE;
+        _Npy_INCREF(it->ao);
+        NpyArray_BASE_ARRAY(r) = it->ao;
     }
-    _Npy_INCREF(it->ao);
-    NpyArray_BASE_ARRAY(r) = it->ao;
-    assert(NULL == NpyArray_BASE_ARRAY(r) || NULL == NpyArray_BASE(r));
-
     ASSIGN_TO_PYARRAY(result, r);
     return (PyObject *)result;
 }
