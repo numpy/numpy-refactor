@@ -1,7 +1,7 @@
 #ifndef _NPY_PRIVATE_CONVERSION_UTILS_H_
 #define _NPY_PRIVATE_CONVERSION_UTILS_H_
 
-#include <numpy/npy_index.h>
+#include "npy_index.h"
 
 NPY_NO_EXPORT int
 PyArray_Converter(PyObject *object, PyObject **address);

@@ -1,7 +1,7 @@
 #ifndef _NPY_NPY_FPMATH_H_
 #define _NPY_NPY_FPMATH_H_
 
-#include "npy_config.h"
+#include "numpy_config.h"
 
 #include "numpy/npy_cpu.h"
 #include "numpy/npy_common.h"

@@ -9,7 +9,7 @@
 #include "npy_api.h"
 #include "npy_iterators.h"
 #include "npy_dict.h"
-#include "numpy/npy_index.h"
+#include "npy_index.h"
 
 #include "common.h"
 #include "ctors.h"

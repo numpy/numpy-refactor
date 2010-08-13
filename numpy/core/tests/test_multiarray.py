@@ -1810,5 +1810,30 @@ if sys.version_info >= (2, 6):
                 x = np.array([(1,),(2,)], dtype={'f0': (int, j)})
                 self._check_roundtrip(x)
 
+"""
+Disabled for now because we aren't supported non-ufunc loop objects for functions
+class TestSetOps(TestCase):
+
+    def test_set_square( self ):
+        oldsquare = np.set_numeric_ops()['square']
+
+        def new_square( x ):
+            return x*x
+
+        stilloldsquare = np.set_numeric_ops( square=new_square )['square']
+
+        assert stilloldsquare == oldsquare, \
+               "Strange behavior of set_numeric_ops"
+
+        cur_square = np.set_numeric_ops()['square']
+
+        assert cur_square == new_square, "Impotent numpy.set_numeric_ops()"
+
+        np.set_numeric_ops( square=oldsquare )
+
+        assert np.set_numeric_ops()['square'] == oldsquare, \
+               "Unable to reset numeric ops to original value."
+"""
+
 if __name__ == "__main__":
     run_module_suite()

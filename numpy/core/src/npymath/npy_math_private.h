@@ -24,7 +24,7 @@
 #include "npy_config.h"
 #include "numpy_fpmath.h"
 
-#include "numpy/npy_math.h"
+#include "npy_math.h"
 #include "numpy/npy_cpu.h"
 #include "npy_endian.h"
 #include "numpy/npy_common.h"

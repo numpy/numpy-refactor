@@ -26,12 +26,11 @@
  * The heap sort is included for completeness.
  */
 
-
 #include "Python.h"
 #include "npy_api.h"
 #include "numpy/ndarraytypes.h"
 #include "numpy/noprefix.h"
-#include "numpy/npy_math.h"
+#include "npy_math.h"
 #include "npy_config.h"
 
 #define NOT_USED NPY_UNUSED(unused)
