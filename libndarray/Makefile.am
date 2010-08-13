@@ -45,6 +45,7 @@ LIBSOURCES = \
         src/npy_item_selection.c \
         src/npy_iterators.c \
         src/npy_mapping.c \
+        src/npy_math_complex.c \
         src/npy_methods.c \
         src/npy_multiarray.c \
         src/npy_number.c \
@@ -52,6 +53,7 @@ LIBSOURCES = \
         src/npy_shape.c \
         src/npy_usertypes.c \
         src/npy_os.c
+
 
 # libtool libraries to build
 lib_LTLIBRARIES = libndarray.la
@@ -68,3 +70,6 @@ noinst_HEADERS = $(OTHERINCLUDES)
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
 	python src/conv_template.py src/npy_arraytypes.c.src
+
+src/npy_math_complex.c: src/npy_math_complex.c.src
+	python src/conv_template.py src/npy_math_complex.c.src
