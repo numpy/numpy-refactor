@@ -865,11 +865,10 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
     if (out == NULL) {
         _Npy_INCREF(indescr);
         ASSIGN_TO_PYARRAY(out,
-            NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
-                                  PyArray_DIMS(self),
-                                  NULL, NULL,
-                                  PyArray_ISFORTRAN(self),
-                                  NPY_FALSE, Py_TYPE(self), self));
+                          NpyArray_Alloc(indescr, PyArray_NDIM(self),
+                                         PyArray_DIMS(self), 
+                                         PyArray_ISFORTRAN(self),
+                                         self));
         if (out == NULL) {
             goto fail;
         }

@@ -73,10 +73,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
 
             /* Make a 0-d array for the index. */
             indtype = NpyArray_DescrFromType(NPY_INTP);
-            indarray = NpyArray_NewFromDescr(indtype,
-                                             0, NULL,
-                                             NULL, NULL, 0,
-                                             NPY_FALSE, NULL, NULL);
+            indarray = NpyArray_Alloc(indtype, 0, NULL, NPY_FALSE, NULL);
             if (indarray == NULL) {
                 mit->numiter = j-1;
                 _Npy_DECREF(mit);
@@ -482,12 +479,8 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
     */
     temp = mit->ait->ao;
     _Npy_INCREF(temp->descr);
-    ret = NpyArray_NewFromDescr(temp->descr,
-                                mit->nd, mit->dimensions,
-                                NULL, NULL,
-                                NpyArray_ISFORTRAN(temp),
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(temp));
+    ret = NpyArray_Alloc(temp->descr, mit->nd, mit->dimensions,
+                         NpyArray_ISFORTRAN(temp), Npy_INTERFACE(temp));
     if (ret == NULL) {
         return NULL;
     }

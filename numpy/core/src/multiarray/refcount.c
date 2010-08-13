@@ -131,9 +131,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
         else {
             NpyArray *arr;
             _Npy_INCREF(dtype);
-            arr = NpyArray_NewFromDescr(dtype,
-                                       0, NULL, NULL, NULL,
-                                       0, NPY_TRUE, NULL, NULL);
+            arr = NpyArray_Alloc(dtype, 0, NULL, NPY_FALSE, NULL);
             if (arr!=NULL) {
                 dtype->f->setitem(obj, optr, arr);
             }

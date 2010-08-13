@@ -258,10 +258,7 @@ Array_FromPyScalar(PyObject *op, NpyArray_Descr *typecode)
     }
 
     ASSIGN_TO_PYARRAY(ret,
-        NpyArray_NewFromDescr(typecode,
-                                0, NULL,
-                                NULL, NULL, 0,
-                                NPY_FALSE, NULL, NULL));
+                      NpyArray_Alloc(typecode, 0, NULL, NPY_FALSE, NULL));
     if (NULL == ret) {
         return NULL;
     }
@@ -300,10 +297,7 @@ ObjectArray_FromNestedList(PyObject *s, NpyArray_Descr *typecode, int fortran)
     if (nd == 0) {
         return Array_FromPyScalar(s, typecode);
     }
-    arr = NpyArray_NewFromDescr(typecode,
-                                nd, d,
-                                NULL, NULL,
-                                fortran, NPY_FALSE, NULL, NULL);
+    arr = NpyArray_Alloc(typecode, nd, d, fortran, NULL);
     if (!arr) {
         return NULL;
     }
@@ -589,11 +583,7 @@ Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
         typecode->elsize = itemsize;
     }
 
-    arr = NpyArray_NewFromDescr(typecode,
-                                nd, d,
-                                NULL, NULL,
-                                fortran,
-                                NPY_FALSE, NULL, NULL);
+    arr = NpyArray_Alloc(typecode, nd, d, fortran, NULL);
     if (!arr) {
         return NULL;
     }
@@ -1910,8 +1900,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
     if (length <= 0) {
         length = 0;
         ASSIGN_TO_PYARRAY(rangeArr,
-                          NpyArray_NewFromDescr(dtype, 1, &length, NULL, NULL,
-                                                0, NPY_TRUE, NULL, NULL));
+                          NpyArray_Alloc(dtype, 1, &length, NPY_FALSE, NULL));
         Py_DECREF(step);
         Py_DECREF(start);
         return (PyObject *)rangeArr;
@@ -1931,9 +1920,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
     }
 
     ASSIGN_TO_PYARRAY(rangeArr,
-                      NpyArray_NewFromDescr(native, 1, &length,
-                                            NULL, NULL, 0, NPY_TRUE,
-                                            NULL, NULL));
+                      NpyArray_Alloc(native, 1, &length, NPY_FALSE, NULL));
     if (rangeArr == NULL) {
         goto fail;
     }
@@ -2255,9 +2242,7 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
     }
 
     ASSIGN_TO_PYARRAY(ret,
-                      NpyArray_NewFromDescr(dtype, 1,
-                                            &elcount, NULL,NULL, 0,
-                                            NPY_TRUE, NULL, NULL));
+                      NpyArray_Alloc(dtype, 1, &elcount, NPY_FALSE, NULL));
     dtype = NULL;
     if (ret == NULL) {
         goto done;

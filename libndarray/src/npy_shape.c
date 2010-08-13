@@ -520,14 +520,7 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     }
     _Npy_INCREF(a->descr);
     size = NpyArray_SIZE(a);
-    ret = NpyArray_NewFromDescr(a->descr,
-                                1, &size,
-                                NULL,
-                                NULL,
-                                0,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(a));
-
+    ret = NpyArray_Alloc(a->descr, 1, &size, NPY_FALSE, Npy_INTERFACE(a));
     if (ret == NULL) {
         return NULL;
     }

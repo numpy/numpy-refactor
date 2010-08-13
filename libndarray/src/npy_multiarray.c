@@ -584,9 +584,8 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     dims[0] = NpyArray_DIM(arr, 1);
     dims[1] = NpyArray_DIM(arr, 0);
     eltsize = NpyArray_ITEMSIZE(arr);
-    _Npy_INCREF(NpyArray_DESCR(arr));
-    ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
-                                NULL, NULL, 0, NPY_FALSE, NULL, NULL);
+    _Npy_INCREF(arr->descr);
+    ret = NpyArray_Alloc(arr->descr, 2, dims, NPY_FALSE, NULL);
     if (ret == NULL) {
         _Npy_DECREF(tmp);
         return NULL;

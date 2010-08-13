@@ -253,6 +253,8 @@ NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
 NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
                        void *obj);
+NpyArray *NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                         npy_bool is_fortran, void *interfaceData);
 int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,

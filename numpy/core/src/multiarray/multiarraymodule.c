@@ -375,10 +375,10 @@ PyArray_Concatenate(PyObject *op, int axis)
     tmp = PyArray_DIM(mps[0], 0);
     PyArray_DIM(mps[0], 0) = new_dim;
     _Npy_INCREF(PyArray_DESCR(mps[0]));
-    ASSIGN_TO_PYARRAY(ret, NpyArray_NewFromDescr(PyArray_DESCR(mps[0]), nd,
-                                                 PyArray_DIMS(mps[0]),
-                                                 NULL, NULL, 0,
-                                                 NPY_FALSE, subtype, ret));
+    ASSIGN_TO_PYARRAY(ret, 
+                      NpyArray_Alloc(PyArray_DESCR(mps[0]),
+                                     nd, PyArray_DIMS(mps[0]),
+                                     NPY_FALSE, NULL));
     PyArray_DIM(mps[0], 0) = tmp;
 
     if (ret == NULL) {

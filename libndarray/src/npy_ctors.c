@@ -1054,6 +1054,22 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
     return new;
 }
 
+/*
+ * Creates an array allocating new data.
+ * Steals the reference to the descriptor.
+ */
+NpyArray *
+NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
+               npy_bool is_fortran, void *interfaceData)
+{
+    /* TODO: Have NpyArray_NewFromDescr call this instead of
+       vice versa. */
+    return NpyArray_NewFromDescr(descr, nd, dims, 
+                                 NULL, NULL, 
+                                 ( is_fortran ? NPY_FORTRAN : 0),
+                                 NPY_FALSE, NULL, interfaceData);
+}
+
 
 
 
@@ -1122,13 +1138,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
             if ((flags & NPY_ENSUREARRAY)) {
                 ensureArray = NPY_TRUE;
             }
-            ret = NpyArray_NewFromDescr(newtype,
-                                        arr->nd,
-                                        arr->dimensions,
-                                        NULL, NULL,
-                                        flags & NPY_FORTRAN,
-                                        ensureArray, NULL,
-                                        Npy_INTERFACE(arr));
+            ret = NpyArray_Alloc(newtype, arr->nd, arr->dimensions,
+                                 flags & NPY_FORTRAN, 
+                                 ensureArray ? NULL : Npy_INTERFACE(arr));
             if (ret == NULL) {
                 return NULL;
             }
@@ -1187,11 +1199,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         if ((flags & NPY_ENSUREARRAY)) {
             ensureArray = NPY_TRUE;
         }
-        ret = NpyArray_NewFromDescr(newtype,
-                                    arr->nd, arr->dimensions,
-                                    NULL, NULL,
-                                    flags & NPY_FORTRAN,
-                                    ensureArray, NULL, Npy_INTERFACE(arr));
+        ret = NpyArray_Alloc(newtype, arr->nd, arr->dimensions,
+                             flags & NPY_FORTRAN,
+                             ensureArray ? NULL : Npy_INTERFACE(arr));
         if (ret == NULL) {
             return NULL;
         }
@@ -1488,8 +1498,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     int err = 0;
 
     size = (num >= 0) ? num : FROM_BUFFER_SIZE;
-    r = NpyArray_NewFromDescr(dtype, 1, &size,
-                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(dtype, 1, &size, NPY_FALSE, NULL);
     if (r == NULL) {
         return NULL;
     }
@@ -1709,10 +1718,7 @@ array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
         }
         num = numbytes / dtype->elsize;
     }
-    r = NpyArray_NewFromDescr(dtype,
-                              1, &num,
-                              NULL, NULL,
-                              0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(dtype, 1, &num, NPY_FALSE, NULL);
     if (r == NULL) {
         return NULL;
     }
@@ -1810,9 +1816,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     }
 
 
-    ret = NpyArray_NewFromDescr(dtype,
-                                1, &num, NULL, NULL,
-                                0, NPY_TRUE, NULL, NULL);
+    ret = NpyArray_Alloc(dtype, 1, &num, NPY_FALSE, NULL);
     if (ret == NULL) {
         return NULL;
     }

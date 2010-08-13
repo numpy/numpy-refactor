@@ -196,10 +196,8 @@ NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
     if (index) {
         /* Returns a 0-d array with the value. */
         _Npy_INCREF(self->ao->descr);
-        result = NpyArray_NewFromDescr(self->ao->descr,
-                                       0, NULL, NULL,
-                                       NULL, 0, NPY_FALSE,
-                                       NULL, Npy_INTERFACE(self->ao));
+        result = NpyArray_Alloc(self->ao->descr, 0, NULL,
+                                NPY_FALSE, Npy_INTERFACE(self->ao));
         if (result == NULL) {
             return NULL;
         }
@@ -213,10 +211,8 @@ NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
         /* Make an empty array. */
         npy_intp ii = 0;
         _Npy_INCREF(self->ao->descr);
-        result = NpyArray_NewFromDescr(self->ao->descr,
-                                       1, &ii, NULL,
-                                       NULL, 0, NPY_FALSE,
-                                       NULL, Npy_INTERFACE(self->ao));
+        result = NpyArray_Alloc(self->ao->descr, 7, &ii,
+                                NPY_FALSE, Npy_INTERFACE(self->ao));
         return result;
     }
 }
@@ -228,10 +224,8 @@ NpyArray_IterSubscriptIntp(NpyArrayIterObject *self, npy_intp index)
     int swap;
 
     _Npy_INCREF(self->ao->descr);
-    result = NpyArray_NewFromDescr(self->ao->descr,
-                                   0, NULL, NULL,
-                                   NULL, 0, NPY_FALSE,
-                                   NULL, Npy_INTERFACE(self->ao));
+    result = NpyArray_Alloc(self->ao->descr, 0, NULL,
+                            NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
         return NULL;
     }
@@ -290,10 +284,8 @@ NpyArray_IterSubscriptSlice(NpyArrayIterObject *self, NpyIndexSlice *slice)
     steps = NpyArray_SliceSteps(slice);
 
     _Npy_INCREF(self->ao->descr);
-    result = NpyArray_NewFromDescr(self->ao->descr,
-                                   1, &steps, NULL,
-                                   NULL, 0, NPY_FALSE,
-                                   NULL, Npy_INTERFACE(self->ao));
+    result = NpyArray_Alloc(self->ao->descr, 1, &steps,
+                            NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
         return result;
     }
@@ -411,10 +403,8 @@ NpyArray_IterSubscriptBoolArray(NpyArrayIterObject *self, NpyArray *index)
 
     /* Build the result. */
     _Npy_INCREF(self->ao->descr);
-    result = NpyArray_NewFromDescr(self->ao->descr,
-                                   1, &result_size, NULL,
-                                   NULL, 0, NPY_FALSE,
-                                   NULL, Npy_INTERFACE(self->ao));
+    result = NpyArray_Alloc(self->ao->descr, 1, &result_size,
+                            NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
         return NULL;
     }
@@ -525,10 +515,9 @@ NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
 
     /* Build the result in the same shape as the index. */
     _Npy_INCREF(self->ao->descr);
-    result = NpyArray_NewFromDescr(self->ao->descr,
-                                   index->nd, index->dimensions, NULL,
-                                   NULL, 0,
-                                   NPY_FALSE, NULL, Npy_INTERFACE(self->ao));
+    result = NpyArray_Alloc(self->ao->descr,
+                            index->nd, index->dimensions,
+                            NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
         return NULL;
     }

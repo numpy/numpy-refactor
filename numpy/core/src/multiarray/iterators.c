@@ -349,10 +349,8 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
         }
     }
     else {
-        r = NpyArray_NewFromDescr(it->ao->descr,
-                                  1, &size,
-                                  NULL, NULL,
-                                  0, NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
+        r = NpyArray_Alloc(it->ao->descr, 1, &size, NPY_FALSE,
+                           Npy_INTERFACE(it->ao));
         if (r == NULL) {
             return NULL;
         }

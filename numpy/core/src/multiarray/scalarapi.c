@@ -306,9 +306,7 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
         return r;
     }
 
-    r = NpyArray_NewFromDescr(typecode,
-                              0, NULL,
-                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(typecode, 0, NULL, NPY_FALSE, NULL);
     if (r==NULL) {
         _Npy_XDECREF(outcode);
         return NULL;

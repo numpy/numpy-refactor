@@ -534,12 +534,11 @@ array_imag_get(PyArrayObject *self)
     else {
         _Npy_INCREF(PyArray_DESCR(self));
         ASSIGN_TO_PYARRAY(ret,
-                          NpyArray_NewFromDescr(PyArray_DESCR(self),
-                                                PyArray_NDIM(self),
-                                                PyArray_DIMS(self),
-                                                NULL, NULL,
-                                                PyArray_ISFORTRAN(self),
-                                                NPY_FALSE, Py_TYPE(self), self));
+                          NpyArray_Alloc(PyArray_DESCR(self),
+                                         PyArray_NDIM(self),
+                                         PyArray_DIMS(self),
+                                         PyArray_ISFORTRAN(self),
+                                         self));
         if (ret == NULL) {
             return NULL;
         }

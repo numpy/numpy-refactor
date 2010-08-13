@@ -1184,7 +1184,7 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
             goto fail;
         }
         PyArray_UpdateFlags(ret, UPDATE_ALL);
-        
+
         /* TODO: This will be an issue.  Probably need to split buffer.base or we have to unwrap it. */
         if (PyArray_Check(buffer.base)) {
             PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(buffer.base);
