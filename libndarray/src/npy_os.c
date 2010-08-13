@@ -296,15 +296,6 @@ int _npy_signbit_d(double x)
 #endif  /* SIZEOF_INT */
 }
 
-int _npy_signbit_f(float x)
-{
-    return _npy_signbit_d((double) x);
-}
-
-int _npy_signbit_ld(long double x)
-{
-    return _npy_signbit_d((double) x);
-}
 
 /*
  * NumPyOS_ascii_format*:

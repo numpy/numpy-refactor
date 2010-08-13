@@ -2,10 +2,11 @@
 #define _NPY_NUMPYOS_H_
 
 
-#define npy_signbit(x)                                         \
-    (sizeof(x) == sizeof(long double) ? _npy_signbit_ld(x)     \
-    : sizeof(x) == sizeof(double) ? _npy_signbit_d(x)          \
-    : _npy_signbit_f(x))
+int _npy_signbit_d(double x);
+
+#define npy_signbit(x)                                             \
+    (sizeof(x) == sizeof(double) ? _npy_signbit_d(x)               \
+     : _npy_signbit_d((double) x))
 
 
 /* TODO: Need definition of NumPyOS_snprintf */
@@ -14,17 +15,17 @@
 #define NumPyOS_strtoul strtoul
 
 
-char*
+char *
 NumPyOS_ascii_formatd(char *buffer, size_t buf_size,
                       const char *format,
                       double val, int decimal);
 
-char*
+char *
 NumPyOS_ascii_formatf(char *buffer, size_t buf_size,
                       const char *format,
                       float val, int decimal);
 
-char*
+char *
 NumPyOS_ascii_formatl(char *buffer, size_t buf_size,
                       const char *format,
                       long double val, int decimal);
