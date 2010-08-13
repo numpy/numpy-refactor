@@ -12,16 +12,7 @@ AC_CONFIG_HEADERS([npy_config.h])
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
-# Checks for libraries.
-
-# Checks for header files.
-AC_CHECK_HEADERS([locale.h memory.h stdint.h stdlib.h string.h strings.h])
-
-AC_CHECK_DECLS([isnan, isfinite, isinf])
-AC_WORDS_BIGENDIAN()
-AC_TYPE_UINTPTR_T()
-AC_TYPE_LONG_LONG_INT()
-
+# Checks for sizes
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(long)
@@ -31,11 +22,16 @@ AC_CHECK_SIZEOF(long double)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void *)
 
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_TYPE_SIZE_T
 AC_TYPE_SSIZE_T
+AC_TYPE_UINTPTR_T()
+AC_TYPE_LONG_LONG_INT()
+
+# Other checks
+AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_WORDS_BIGENDIAN()
 
 # Checks for library functions.
 AC_FUNC_MALLOC
