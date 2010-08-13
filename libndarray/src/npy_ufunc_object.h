@@ -86,6 +86,7 @@ enum NpyArray_Ops {
     npy_op_conjugate
 };
 
+NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
 int NpyArray_SetNumericOp(enum NpyArray_Ops, NpyUFuncObject *);
 NpyUFuncObject *
     NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,

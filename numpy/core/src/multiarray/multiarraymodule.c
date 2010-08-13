@@ -1440,7 +1440,7 @@ PyArray_Where(PyObject *condition, PyObject *x, PyObject *y)
 
     zero = PyInt_FromLong((long) 0);
     obj = PyArray_EnsureAnyArray(PyArray_GenericBinaryFunction(arr, zero,
-                n_ops.not_equal));
+        PyArray_GetNumericOp(npy_op_not_equal)));
     Py_DECREF(zero);
     Py_DECREF(arr);
     if (obj == NULL) {

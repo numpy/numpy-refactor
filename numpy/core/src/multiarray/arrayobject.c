@@ -795,7 +795,7 @@ _void_compare(PyArrayObject *self, PyArrayObject *other, int cmp_op)
         PyObject *op, *tempKey;
         NpyDict_Iter pos;
 
-        op = (cmp_op == Py_EQ ? n_ops.logical_and : n_ops.logical_or);
+        op = PyArray_GetNumericOp(cmp_op == Py_EQ ? npy_op_logical_and : npy_op_logical_or);
         NpyDict_IterInit(&pos);
         while (NpyDict_IterNext(PyArray_DESCR(self)->fields, &pos, (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
@@ -859,11 +859,11 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
     switch (cmp_op) {
     case Py_LT:
         result = PyArray_GenericBinaryFunction(self, other,
-                n_ops.less);
+                PyArray_GetNumericOp(npy_op_less));
         break;
     case Py_LE:
         result = PyArray_GenericBinaryFunction(self, other,
-                n_ops.less_equal);
+                PyArray_GetNumericOp(npy_op_less_equal));
         break;
     case Py_EQ:
         if (other == Py_None) {
@@ -897,7 +897,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
         }
         result = PyArray_GenericBinaryFunction(self,
                 array_other,
-                n_ops.equal);
+                PyArray_GetNumericOp(npy_op_equal));
         if ((result == Py_NotImplemented) &&
                 (PyArray_TYPE(self) == PyArray_VOID)) {
             int _res;
@@ -962,7 +962,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
         }
         result = PyArray_GenericBinaryFunction(self,
                 array_other,
-                n_ops.not_equal);
+                PyArray_GetNumericOp(npy_op_not_equal));
         if ((result == Py_NotImplemented) &&
                 (PyArray_TYPE(self) == PyArray_VOID)) {
             int _res;
@@ -996,11 +996,11 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op)
         break;
     case Py_GT:
         result = PyArray_GenericBinaryFunction(self, other,
-                n_ops.greater);
+                PyArray_GetNumericOp(npy_op_greater));
         break;
     case Py_GE:
         result = PyArray_GenericBinaryFunction(self, other,
-                n_ops.greater_equal);
+                PyArray_GetNumericOp(npy_op_greater_equal));
         break;
     default:
         result = Py_NotImplemented;
