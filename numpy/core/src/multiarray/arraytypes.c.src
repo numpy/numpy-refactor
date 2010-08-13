@@ -19,7 +19,7 @@
 #include "ctors.h"
 #include "usertypes.h"
 #include "arrayobject.h"
-#include "npy_config.h"
+#include "numpy_config.h"
 #include "_datetime.h"
 
 #include "npy_os.h"
