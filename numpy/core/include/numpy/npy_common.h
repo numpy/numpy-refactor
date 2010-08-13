@@ -1,8 +1,27 @@
 #ifndef _NPY_COMMON_H_
 #define _NPY_COMMON_H_
 
-/* This is auto-generated */
-#include "numpyconfig.h"
+#include "npy_config.h"
+
+#define NPY_SIZEOF_SHORT        SIZEOF_SHORT
+#define NPY_SIZEOF_INT          SIZEOF_INT
+#define NPY_SIZEOF_LONG         SIZEOF_LONG
+#define NPY_SIZEOF_FLOAT        SIZEOF_FLOAT
+#define NPY_SIZEOF_DOUBLE       SIZEOF_DOUBLE
+#define NPY_SIZEOF_LONGDOUBLE   SIZEOF_LONG_DOUBLE
+#define NPY_SIZEOF_LONGLONG     SIZEOF_LONG_LONG
+#define NPY_SIZEOF_PTR          SIZEOF_VOID_P
+
+#define NPY_SIZEOF_COMPLEX_FLOAT        (2 * SIZEOF_FLOAT)
+#define NPY_SIZEOF_COMPLEX_DOUBLE       (2 * SIZEOF_DOUBLE)
+#define NPY_SIZEOF_COMPLEX_LONGDOUBLE   (2 * SIZEOF_LONG_DOUBLE)
+
+#define NPY_HAVE_DECL_ISNAN     HAVE_DECL_ISNAN
+#define NPY_HAVE_DECL_ISFINITE  HAVE_DECL_ISFINITE
+#define NPY_HAVE_DECL_ISINF     HAVE_DECL_ISINF
+
+#define NPY_HAVE_LONGLONG       HAVE_LONG_LONG_INT
+
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline
@@ -14,9 +33,9 @@
 
 /* enums for detected endianness */
 enum {
-        NPY_CPU_UNKNOWN_ENDIAN,
-        NPY_CPU_LITTLE,
-        NPY_CPU_BIG
+    NPY_CPU_UNKNOWN_ENDIAN,
+    NPY_CPU_LITTLE,
+    NPY_CPU_BIG,
 };
 
 /* Some platforms don't define bool, long long, or long double.
@@ -34,7 +53,7 @@ enum {
 #define NPY_FLOAT_FMT "g"
 #define NPY_DOUBLE_FMT "g"
 
-#ifdef HAVE_LONG_LONG
+#ifdef NPY_HAVE_LONGLONG
 typedef long long             npy_longlong;
 typedef unsigned long long    npy_ulonglong;
 #  ifdef _MSC_VER
@@ -59,7 +78,7 @@ typedef long npy_longlong;
 typedef unsigned long npy_ulonglong;
 #  define NPY_LONGLONG_SUFFIX(x)  (x##L)
 #  define NPY_ULONGLONG_SUFFIX(x) (x##UL)
-#endif /* ifdef HAVE_LONG_LONG */
+#endif /* ifdef NPY_HAVE_LONGLONG */
 
 
 typedef unsigned char npy_bool;

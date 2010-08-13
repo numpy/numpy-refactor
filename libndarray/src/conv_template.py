@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 takes templated file .xxx.src and produces .xxx file  where .xxx is
 .i or .c or .h, using the following template rules
@@ -218,8 +217,8 @@ def process_file(src):
 
 
 if __name__ == "__main__":
-    from os.path import dirname, join
+    import sys
 
     print "converting template:"
-    this_dir = dirname(__file__)
-    process_file(join(this_dir, 'npy_arraytypes.c.src'))
+    for path in sys.argv[1:]:
+        process_file(path)

@@ -17,6 +17,7 @@ typedef struct {
     PyObject *func_obj;     /* Used for managing refcnt of function stored in core 'ptr' field */
 } PyUFuncObject;
 
+#define PyUFunc_Check(obj) (&PyUFunc_Type == (obj)->ob_type)
 #define PyUFunc_UFUNC(obj) \
     (assert(NPY_VALID_MAGIC == (obj)->magic_number && NPY_VALID_MAGIC == (obj)->ufunc->magic_number), (obj)->ufunc)
 #define PyUFunc_WRAP(obj) \
@@ -217,6 +218,7 @@ typedef struct _loop1d_info {
 } PyUFunc_Loop1d;
 
 
+    
 #include "__ufunc_api.h"
 
 #define UFUNC_PYVALS_NAME "UFUNC_PYVALS"

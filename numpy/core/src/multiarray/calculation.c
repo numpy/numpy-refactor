@@ -101,8 +101,8 @@ PyArray_Max(PyArrayObject *ap, int axis, PyArrayObject *out)
     if ((arr=(PyArrayObject *)_check_axis(ap, &axis, 0)) == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericReduceFunction(arr, n_ops.maximum, axis,
-                                        PyArray_TYPE(arr), out);
+    ret = PyArray_GenericReduceFunction(arr, PyArray_GetNumericOp(npy_op_maximum), 
+                                        axis, PyArray_TYPE(arr), out);
     Py_DECREF(arr);
     return ret;
 }
@@ -119,7 +119,7 @@ PyArray_Min(PyArrayObject *ap, int axis, PyArrayObject *out)
     if ((arr=(PyArrayObject *)_check_axis(ap, &axis, 0)) == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericReduceFunction(arr, n_ops.minimum, axis,
+    ret = PyArray_GenericReduceFunction(arr, PyArray_GetNumericOp(npy_op_minimum), axis,
                                         PyArray_TYPE(arr), out);
     Py_DECREF(arr);
     return ret;
@@ -148,7 +148,7 @@ PyArray_Ptp(PyArrayObject *ap, int axis, PyArrayObject *out)
     }
     Py_DECREF(arr);
     if (out) {
-        ret = PyObject_CallFunction(n_ops.subtract, "OOO", out, obj2, out);
+        ret = PyObject_CallFunction(PyArray_GetNumericOp(npy_op_subtract), "OOO", out, obj2, out);
     }
     else {
         ret = PyNumber_Subtract(obj1, obj2);
@@ -239,7 +239,7 @@ __New_PyArray_Std(PyArrayObject *self, int axis, int rtype, PyArrayObject *out,
         return NULL;
     }
     obj2 = PyArray_EnsureAnyArray                                      \
-        (PyArray_GenericBinaryFunction((PyAO *)obj1, obj3, n_ops.multiply));
+        (PyArray_GenericBinaryFunction((PyAO *)obj1, obj3, PyArray_GetNumericOp(npy_op_multiply)));
     Py_DECREF(obj1);
     Py_DECREF(obj3);
     if (obj2 == NULL) {
@@ -269,7 +269,7 @@ __New_PyArray_Std(PyArrayObject *self, int axis, int rtype, PyArrayObject *out,
         return NULL;
     }
     /* Compute add.reduce(x*x,axis) */
-    obj1 = PyArray_GenericReduceFunction((PyAO *)obj3, n_ops.add,
+    obj1 = PyArray_GenericReduceFunction((PyAO *)obj3, PyArray_GetNumericOp(npy_op_add),
                                          axis, rtype, NULL);
     Py_DECREF(obj3);
     Py_DECREF(obj2);
@@ -295,7 +295,7 @@ __New_PyArray_Std(PyArrayObject *self, int axis, int rtype, PyArrayObject *out,
     if (!variance) {
         obj1 = PyArray_EnsureAnyArray(ret);
         /* sqrt() */
-        ret = PyArray_GenericUnaryFunction((PyAO *)obj1, n_ops.sqrt);
+        ret = PyArray_GenericUnaryFunction((PyAO *)obj1, PyArray_GetNumericOp(npy_op_sqrt));
         Py_DECREF(obj1);
     }
     if (ret == NULL || PyArray_CheckExact(self)) {
@@ -334,7 +334,7 @@ PyArray_Sum(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
     if ((new = _check_axis(self, &axis, 0)) == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericReduceFunction((PyAO *)new, n_ops.add, axis,
+    ret = PyArray_GenericReduceFunction((PyAO *)new, PyArray_GetNumericOp(npy_op_add), axis,
                                         rtype, out);
     Py_DECREF(new);
     return ret;
@@ -351,7 +351,7 @@ PyArray_Prod(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
     if ((new = _check_axis(self, &axis, 0)) == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericReduceFunction((PyAO *)new, n_ops.multiply, axis,
+    ret = PyArray_GenericReduceFunction((PyAO *)new, PyArray_GetNumericOp(npy_op_multiply), axis,
                                         rtype, out);
     Py_DECREF(new);
     return ret;
@@ -368,7 +368,7 @@ PyArray_CumSum(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
     if ((new = _check_axis(self, &axis, 0)) == NULL) {
         return NULL;
     }
-    ret = PyArray_GenericAccumulateFunction((PyAO *)new, n_ops.add, axis,
+    ret = PyArray_GenericAccumulateFunction((PyAO *)new, PyArray_GetNumericOp(npy_op_add), axis,
                                             rtype, out);
     Py_DECREF(new);
     return ret;
@@ -387,7 +387,7 @@ PyArray_CumProd(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
     }
 
     ret = PyArray_GenericAccumulateFunction((PyAO *)new,
-                                            n_ops.multiply, axis,
+                                            PyArray_GetNumericOp(npy_op_multiply), axis,
                                             rtype, out);
     Py_DECREF(new);
     return ret;
@@ -484,16 +484,16 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
         }
         if (decimals == 0) {
             if (out) {
-                return PyObject_CallFunction(n_ops.rint, "OO", a, out);
+                return PyObject_CallFunction(PyArray_GetNumericOp(npy_op_rint), "OO", a, out);
             }
-            return PyObject_CallFunction(n_ops.rint, "O", a);
+            return PyObject_CallFunction(PyArray_GetNumericOp(npy_op_rint), "O", a);
         }
-        op1 = n_ops.multiply;
-        op2 = n_ops.true_divide;
+        op1 = PyArray_GetNumericOp(npy_op_multiply);
+        op2 = PyArray_GetNumericOp(npy_op_true_divide);
     }
     else {
-        op1 = n_ops.true_divide;
-        op2 = n_ops.multiply;
+        op1 = PyArray_GetNumericOp(npy_op_true_divide);
+        op2 = PyArray_GetNumericOp(npy_op_multiply);
         decimals = -decimals;
     }
     if (!out) {
@@ -532,7 +532,7 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
     if (ret == NULL) {
         goto finish;
     }
-    tmp = PyObject_CallFunction(n_ops.rint, "OO", ret, ret);
+    tmp = PyObject_CallFunction(PyArray_GetNumericOp(npy_op_rint), "OO", ret, ret);
     if (tmp == NULL) {
         Py_DECREF(ret);
         ret = NULL;
@@ -574,7 +574,7 @@ PyArray_Mean(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
     if ((new = _check_axis(self, &axis, 0)) == NULL) {
         return NULL;
     }
-    obj1 = PyArray_GenericReduceFunction((PyAO *)new, n_ops.add, axis,
+    obj1 = PyArray_GenericReduceFunction((PyAO *)new, PyArray_GetNumericOp(npy_op_add), axis,
                                          rtype, out);
     obj2 = PyFloat_FromDouble((double) PyArray_DIM(new,axis));
     Py_DECREF(new);
@@ -591,7 +591,7 @@ PyArray_Mean(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 #endif
     }
     else {
-        ret = PyObject_CallFunction(n_ops.divide, "OOO", out, obj2, out);
+        ret = PyObject_CallFunction(PyArray_GetNumericOp(npy_op_divide), "OOO", out, obj2, out);
     }
     Py_DECREF(obj1);
     Py_DECREF(obj2);
@@ -610,7 +610,7 @@ PyArray_Any(PyArrayObject *self, int axis, PyArrayObject *out)
         return NULL;
     }
     ret = PyArray_GenericReduceFunction((PyAO *)new,
-                                        n_ops.logical_or, axis,
+                                        PyArray_GetNumericOp(npy_op_logical_or), axis,
                                         PyArray_BOOL, out);
     Py_DECREF(new);
     return ret;
@@ -628,7 +628,7 @@ PyArray_All(PyArrayObject *self, int axis, PyArrayObject *out)
         return NULL;
     }
     ret = PyArray_GenericReduceFunction((PyAO *)new,
-                                        n_ops.logical_and, axis,
+                                        PyArray_GetNumericOp(npy_op_logical_and), axis,
                                         PyArray_BOOL, out);
     Py_DECREF(new);
     return ret;
@@ -653,7 +653,7 @@ _slow_array_clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObjec
     PyObject *res1=NULL, *res2=NULL;
 
     if (max != NULL) {
-        res1 = _GenericBinaryOutFunction(self, max, out, n_ops.minimum);
+        res1 = _GenericBinaryOutFunction(self, max, out, PyArray_GetNumericOp(npy_op_minimum));
         if (res1 == NULL) {
             return NULL;
         }
@@ -665,7 +665,8 @@ _slow_array_clip(PyArrayObject *self, PyObject *min, PyObject *max, PyArrayObjec
 
     if (min != NULL) {
         res2 = _GenericBinaryOutFunction((PyArrayObject *)res1,
-                                         min, out, n_ops.maximum);
+                                         min, out, 
+                                         PyArray_GetNumericOp(npy_op_maximum));
         if (res2 == NULL) {
             Py_XDECREF(res1);
             return NULL;
@@ -968,12 +969,12 @@ PyArray_Conjugate(PyArrayObject *self, PyArrayObject *out)
     if (PyArray_ISCOMPLEX(self)) {
         if (out == NULL) {
             return PyArray_GenericUnaryFunction(self,
-                                                n_ops.conjugate);
+                                                PyArray_GetNumericOp(npy_op_conjugate));
         }
         else {
             return PyArray_GenericBinaryFunction(self,
                                                  (PyObject *)out,
-                                                 n_ops.conjugate);
+                                                 PyArray_GetNumericOp(npy_op_conjugate));
         }
     }
     else {
@@ -1007,7 +1008,7 @@ PyArray_Trace(PyArrayObject *self, int offset, int axis1, int axis2,
         return NULL;
     }
     ret = PyArray_GenericReduceFunction((PyAO *)diag,
-                                        n_ops.add, -1, rtype, out);
+                                        PyArray_GetNumericOp(npy_op_add), -1, rtype, out);
     Py_DECREF(diag);
     return ret;
 }

@@ -48,4 +48,50 @@ extern _NpyTypeObject NpyUFunc_Type;
 extern struct NpyDict_struct *npy_create_userloops_table();
 
 
+
+enum NpyArray_Ops {
+    npy_op_add,
+    npy_op_subtract,
+    npy_op_multiply,
+    npy_op_divide,
+    npy_op_remainder,
+    npy_op_power,
+    npy_op_square,
+    npy_op_reciprocal,
+    npy_op_ones_like,
+    npy_op_sqrt,
+    npy_op_negative,
+    npy_op_absolute,
+    npy_op_invert,
+    npy_op_left_shift,
+    npy_op_right_shift,
+    npy_op_bitwise_and,
+    npy_op_bitwise_xor,
+    npy_op_bitwise_or,
+    npy_op_less,
+    npy_op_less_equal,
+    npy_op_equal,
+    npy_op_not_equal,
+    npy_op_greater,
+    npy_op_greater_equal,
+    npy_op_floor_divide,
+    npy_op_true_divide,
+    npy_op_logical_or,
+    npy_op_logical_and,
+    npy_op_floor,
+    npy_op_ceil,
+    npy_op_maximum,
+    npy_op_minimum,
+    npy_op_rint,
+    npy_op_conjugate
+};
+
+NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
+int NpyArray_SetNumericOp(enum NpyArray_Ops, NpyUFuncObject *);
+NpyUFuncObject *
+    NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                             char *types, int ntypes,
+                             int nin, int nout, int identity,
+                             char *name, char *doc, int check_return);
+
 #endif

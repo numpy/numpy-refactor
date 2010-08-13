@@ -5,6 +5,8 @@
 /*#include <stdio.h>*/
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include <npy_ufunc_object.h>
+#include "numpy/ufuncobject.h"
 #include "numpy/arrayobject.h"
 #include "npy_api.h"
 
@@ -18,7 +20,6 @@
  ****************   Implement Number Protocol ****************************
  *************************************************************************/
 
-NPY_NO_EXPORT NumericOps n_ops; /* NB: static objects initialized to zero */
 
 /*
  * Dictionary can contain any of the numeric operations, by name.
@@ -26,14 +27,12 @@ NPY_NO_EXPORT NumericOps n_ops; /* NB: static objects initialized to zero */
  */
 
 /* FIXME - macro contains a return */
-#define SET(op)   temp = PyDict_GetItemString(dict, #op); \
+#define SET(npyop, op)   temp = PyDict_GetItemString(dict, #op); \
     if (temp != NULL) {                                   \
-        if (!(PyCallable_Check(temp))) {                  \
+        if (!(PyCallable_Check(temp))) {                     \
             return -1;                                    \
         }                                                 \
-        Py_INCREF(temp);                                  \
-        Py_XDECREF(n_ops.op);                             \
-        n_ops.op = temp;                                  \
+        NpyArray_SetNumericOp(npyop, PyUFunc_UFUNC((PyUFuncObject *)temp)); \
     }
 
 
@@ -44,46 +43,46 @@ NPY_NO_EXPORT int
 PyArray_SetNumericOps(PyObject *dict)
 {
     PyObject *temp = NULL;
-    SET(add);
-    SET(subtract);
-    SET(multiply);
-    SET(divide);
-    SET(remainder);
-    SET(power);
-    SET(square);
-    SET(reciprocal);
-    SET(ones_like);
-    SET(sqrt);
-    SET(negative);
-    SET(absolute);
-    SET(invert);
-    SET(left_shift);
-    SET(right_shift);
-    SET(bitwise_and);
-    SET(bitwise_or);
-    SET(bitwise_xor);
-    SET(less);
-    SET(less_equal);
-    SET(equal);
-    SET(not_equal);
-    SET(greater);
-    SET(greater_equal);
-    SET(floor_divide);
-    SET(true_divide);
-    SET(logical_or);
-    SET(logical_and);
-    SET(floor);
-    SET(ceil);
-    SET(maximum);
-    SET(minimum);
-    SET(rint);
-    SET(conjugate);
+    
+    SET(npy_op_add, add);
+    SET(npy_op_subtract, subtract);
+    SET(npy_op_multiply, multiply);
+    SET(npy_op_divide, divide);
+    SET(npy_op_remainder, remainder);
+    SET(npy_op_power, power);
+    SET(npy_op_square, square);
+    SET(npy_op_reciprocal, reciprocal);
+    SET(npy_op_ones_like, ones_like);
+    SET(npy_op_sqrt, sqrt);
+    SET(npy_op_negative, negative);
+    SET(npy_op_absolute, absolute);
+    SET(npy_op_invert, invert);
+    SET(npy_op_left_shift, left_shift);
+    SET(npy_op_right_shift, right_shift);
+    SET(npy_op_bitwise_and, bitwise_and);
+    SET(npy_op_bitwise_or, bitwise_or);
+    SET(npy_op_bitwise_xor, bitwise_xor);
+    SET(npy_op_less, less);
+    SET(npy_op_less_equal, less_equal);
+    SET(npy_op_equal, equal);
+    SET(npy_op_not_equal, not_equal);
+    SET(npy_op_greater, greater);
+    SET(npy_op_greater_equal, greater_equal);
+    SET(npy_op_floor_divide, floor_divide);
+    SET(npy_op_true_divide, true_divide);
+    SET(npy_op_logical_or, logical_or);
+    SET(npy_op_logical_and, logical_and);
+    SET(npy_op_floor, floor);
+    SET(npy_op_ceil, ceil);
+    SET(npy_op_maximum, maximum);
+    SET(npy_op_minimum, minimum);
+    SET(npy_op_rint, rint);
+    SET(npy_op_conjugate, conjugate);
     return 0;
 }
 
 /* FIXME - macro contains goto */
-#define GET(op) if (n_ops.op &&                                         \
-                    (PyDict_SetItemString(dict, #op, n_ops.op)==-1))    \
+#define GET(npyop, op) if (PyDict_SetItemString(dict, #op, (PyObject *)PyArray_GetNumericOp(npyop))==-1)    \
         goto fail;
 
 /*NUMPY_API
@@ -95,46 +94,56 @@ PyArray_GetNumericOps(void)
     PyObject *dict;
     if ((dict = PyDict_New())==NULL)
         return NULL;
-    GET(add);
-    GET(subtract);
-    GET(multiply);
-    GET(divide);
-    GET(remainder);
-    GET(power);
-    GET(square);
-    GET(reciprocal);
-    GET(ones_like);
-    GET(sqrt);
-    GET(negative);
-    GET(absolute);
-    GET(invert);
-    GET(left_shift);
-    GET(right_shift);
-    GET(bitwise_and);
-    GET(bitwise_or);
-    GET(bitwise_xor);
-    GET(less);
-    GET(less_equal);
-    GET(equal);
-    GET(not_equal);
-    GET(greater);
-    GET(greater_equal);
-    GET(floor_divide);
-    GET(true_divide);
-    GET(logical_or);
-    GET(logical_and);
-    GET(floor);
-    GET(ceil);
-    GET(maximum);
-    GET(minimum);
-    GET(rint);
-    GET(conjugate);
+    GET(npy_op_add, add);
+    GET(npy_op_subtract, subtract);
+    GET(npy_op_multiply, multiply);
+    GET(npy_op_divide, divide);
+    GET(npy_op_remainder, remainder);
+    GET(npy_op_power, power);
+    GET(npy_op_square, square);
+    GET(npy_op_reciprocal, reciprocal);
+    GET(npy_op_ones_like, ones_like);
+    GET(npy_op_sqrt, sqrt);
+    GET(npy_op_negative, negative);
+    GET(npy_op_absolute, absolute);
+    GET(npy_op_invert, invert);
+    GET(npy_op_left_shift, left_shift);
+    GET(npy_op_right_shift, right_shift);
+    GET(npy_op_bitwise_and, bitwise_and);
+    GET(npy_op_bitwise_or, bitwise_or);
+    GET(npy_op_bitwise_xor, bitwise_xor);
+    GET(npy_op_less, less);
+    GET(npy_op_less_equal, less_equal);
+    GET(npy_op_equal, equal);
+    GET(npy_op_not_equal, not_equal);
+    GET(npy_op_greater, greater);
+    GET(npy_op_greater_equal, greater_equal);
+    GET(npy_op_floor_divide, floor_divide);
+    GET(npy_op_true_divide, true_divide);
+    GET(npy_op_logical_or, logical_or);
+    GET(npy_op_logical_and, logical_and);
+    GET(npy_op_floor, floor);
+    GET(npy_op_ceil, ceil);
+    GET(npy_op_maximum, maximum);
+    GET(npy_op_minimum, minimum);
+    GET(npy_op_rint, rint);
+    GET(npy_op_conjugate, conjugate);
     return dict;
 
  fail:
     Py_DECREF(dict);
     return NULL;
 }
+
+
+
+NPY_NO_EXPORT PyObject *
+PyArray_GetNumericOp(enum NpyArray_Ops op)
+{
+    return (PyObject *)PyUFunc_WRAP( NpyArray_GetNumericOp(op) );
+}
+
+
 
 static PyObject *
 _get_keywords(int rtype, PyArrayObject *out)
@@ -247,31 +256,31 @@ PyArray_GenericInplaceUnaryFunction(PyArrayObject *m1, PyObject *op)
 static PyObject *
 array_add(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.add);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_add));
 }
 
 static PyObject *
 array_subtract(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.subtract);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_subtract));
 }
 
 static PyObject *
 array_multiply(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.multiply);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_multiply));
 }
 
 static PyObject *
 array_divide(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.divide);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_divide));
 }
 
 static PyObject *
 array_remainder(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.remainder);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_remainder));
 }
 
 static int
@@ -346,16 +355,16 @@ fast_scalar_power(PyArrayObject *a1, PyObject *o2, int inplace)
                 }
             }
             else if (exp == -1.0) {
-                fastop = n_ops.reciprocal;
+                fastop = PyArray_GetNumericOp(npy_op_reciprocal);
             }
             else if (exp ==  0.0) {
-                fastop = n_ops.ones_like;
+                fastop = PyArray_GetNumericOp(npy_op_ones_like);
             }
             else if (exp ==  0.5) {
-                fastop = n_ops.sqrt;
+                fastop = PyArray_GetNumericOp(npy_op_sqrt);
             }
             else if (exp ==  2.0) {
-                fastop = n_ops.square;
+                fastop = PyArray_GetNumericOp(npy_op_square);
             }
             else {
                 return NULL;
@@ -368,7 +377,7 @@ fast_scalar_power(PyArrayObject *a1, PyObject *o2, int inplace)
             }
         }
         else if (exp==2.0) {
-            fastop = n_ops.multiply;
+            fastop = PyArray_GetNumericOp(npy_op_multiply);
             if (inplace) {
                 return PyArray_GenericInplaceBinaryFunction
                     (a1, (PyObject *)a1, fastop);
@@ -389,7 +398,7 @@ array_power(PyArrayObject *a1, PyObject *o2, PyObject *NPY_UNUSED(modulo))
     PyObject *value;
     value = fast_scalar_power(a1, o2, 0);
     if (!value) {
-        value = PyArray_GenericBinaryFunction(a1, o2, n_ops.power);
+        value = PyArray_GenericBinaryFunction(a1, o2, PyArray_GetNumericOp(npy_op_power));
     }
     return value;
 }
@@ -398,79 +407,79 @@ array_power(PyArrayObject *a1, PyObject *o2, PyObject *NPY_UNUSED(modulo))
 static PyObject *
 array_negative(PyArrayObject *m1)
 {
-    return PyArray_GenericUnaryFunction(m1, n_ops.negative);
+    return PyArray_GenericUnaryFunction(m1, PyArray_GetNumericOp(npy_op_negative));
 }
 
 static PyObject *
 array_absolute(PyArrayObject *m1)
 {
-    return PyArray_GenericUnaryFunction(m1, n_ops.absolute);
+    return PyArray_GenericUnaryFunction(m1, PyArray_GetNumericOp(npy_op_absolute));
 }
 
 static PyObject *
 array_invert(PyArrayObject *m1)
 {
-    return PyArray_GenericUnaryFunction(m1, n_ops.invert);
+    return PyArray_GenericUnaryFunction(m1, PyArray_GetNumericOp(npy_op_invert));
 }
 
 static PyObject *
 array_left_shift(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.left_shift);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_left_shift));
 }
 
 static PyObject *
 array_right_shift(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.right_shift);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_right_shift));
 }
 
 static PyObject *
 array_bitwise_and(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.bitwise_and);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_and));
 }
 
 static PyObject *
 array_bitwise_or(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.bitwise_or);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_or));
 }
 
 static PyObject *
 array_bitwise_xor(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.bitwise_xor);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_xor));
 }
 
 static PyObject *
 array_inplace_add(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.add);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_add));
 }
 
 static PyObject *
 array_inplace_subtract(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.subtract);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_subtract));
 }
 
 static PyObject *
 array_inplace_multiply(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.multiply);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_multiply));
 }
 
 static PyObject *
 array_inplace_divide(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.divide);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_divide));
 }
 
 static PyObject *
 array_inplace_remainder(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.remainder);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_remainder));
 }
 
 static PyObject *
@@ -481,7 +490,7 @@ array_inplace_power(PyArrayObject *a1, PyObject *o2,
     PyObject *value;
     value = fast_scalar_power(a1, o2, 1);
     if (!value) {
-        value = PyArray_GenericInplaceBinaryFunction(a1, o2, n_ops.power);
+        value = PyArray_GenericInplaceBinaryFunction(a1, o2, PyArray_GetNumericOp(npy_op_power));
     }
     return value;
 }
@@ -489,57 +498,57 @@ array_inplace_power(PyArrayObject *a1, PyObject *o2,
 static PyObject *
 array_inplace_left_shift(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.left_shift);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_left_shift));
 }
 
 static PyObject *
 array_inplace_right_shift(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.right_shift);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_right_shift));
 }
 
 static PyObject *
 array_inplace_bitwise_and(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.bitwise_and);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_and));
 }
 
 static PyObject *
 array_inplace_bitwise_or(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.bitwise_or);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_or));
 }
 
 static PyObject *
 array_inplace_bitwise_xor(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericInplaceBinaryFunction(m1, m2, n_ops.bitwise_xor);
+    return PyArray_GenericInplaceBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_bitwise_xor));
 }
 
 static PyObject *
 array_floor_divide(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.floor_divide);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_floor_divide));
 }
 
 static PyObject *
 array_true_divide(PyArrayObject *m1, PyObject *m2)
 {
-    return PyArray_GenericBinaryFunction(m1, m2, n_ops.true_divide);
+    return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_true_divide));
 }
 
 static PyObject *
 array_inplace_floor_divide(PyArrayObject *m1, PyObject *m2)
 {
     return PyArray_GenericInplaceBinaryFunction(m1, m2,
-                                                n_ops.floor_divide);
+                                                PyArray_GetNumericOp(npy_op_floor_divide));
 }
 
 static PyObject *
 array_inplace_true_divide(PyArrayObject *m1, PyObject *m2)
 {
     return PyArray_GenericInplaceBinaryFunction(m1, m2,
-                                                n_ops.true_divide);
+                                                PyArray_GetNumericOp(npy_op_true_divide));
 }
 
 static int

@@ -12,6 +12,9 @@ AC_CONFIG_HEADERS([npy_config.h])
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
+# Checks for header files.
+AC_CHECK_HEADERS([complex.h])
+
 # Checks for sizes
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(int)
@@ -21,6 +24,9 @@ AC_CHECK_SIZEOF(double)
 AC_CHECK_SIZEOF(long double)
 AC_CHECK_SIZEOF(long long)
 AC_CHECK_SIZEOF(void *)
+AC_CHECK_SIZEOF(float complex,, [#include <complex.h>])
+AC_CHECK_SIZEOF(double complex,, [#include <complex.h>])
+AC_CHECK_SIZEOF(long double complex,, [#include <complex.h>])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -31,6 +37,7 @@ AC_TYPE_LONG_LONG_INT()
 
 # Other checks
 AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_CHECK_DECLS([cabsf],,, [#include <complex.h>])
 AC_WORDS_BIGENDIAN()
 
 # Checks for library functions.

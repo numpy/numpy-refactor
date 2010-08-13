@@ -31,7 +31,7 @@
 
 #include <Python.h>
 
-#include "npy_config.h"
+#include "numpy_config.h"
 #ifdef ENABLE_SEPARATE_COMPILATION
 #define PY_ARRAY_UNIQUE_SYMBOL _npy_umathmodule_ARRAY_API
 #define NO_IMPORT_ARRAY
@@ -2088,7 +2088,8 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     char* name = PyUFunc_UFUNC(pySelf)->name ? PyUFunc_UFUNC(pySelf)->name : "";
     int bufsize, errormask;
     PyObject *errobj;
-    
+    PyObject *obj;
+    int originalArgWasObjArray = 0;
 
     /*
      * Extract sig= keyword and extobj= keyword if present.
@@ -2151,11 +2152,6 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     }
     PyUFunc_clearfperr();
     
-    
-
-    /*
-     * REFACTOR POINT - most of the rest can be pushed into the core.
-     */
     self = PyUFunc_UFUNC(pySelf);
     pySelf = NULL;
     
@@ -2164,6 +2160,29 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         return i;
     }
 
+    /*
+     * We will fail with NotImplemented if the other object has
+     * the __r<op>__ method and has __array_priority__ as
+     * an attribute (signalling it can handle ndarray's)
+     * and is not already an ndarray or a subtype of the same type.
+     * We can determin this yet, but need to check the original
+     * argument here in the interface before calling the core.
+     */
+    /* TODO: This is ugly, need a better solution. */
+    if (self->nin == 2 && self->nout == 1) {
+        obj = PyTuple_GET_ITEM(args, 1);
+        originalArgWasObjArray = (!PyArray_CheckExact(obj)
+                                  /* If both are same subtype of object arrays, then proceed */
+                                  && !(Py_TYPE(obj) == Py_TYPE(PyTuple_GET_ITEM(args, 0)))
+                                  && PyObject_HasAttrString(obj, "__array_priority__")
+                                  && _has_reflected_op(obj, self->name));
+    } else originalArgWasObjArray = 0;
+    
+        
+    /*
+     * REFACTOR POINT - most of the rest can be pushed into the core.
+     */
+    
     /* Build the loop. */
     loop = construct_loop(self);
     if (loop == NULL) {
@@ -2191,17 +2210,10 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
      * and is not already an ndarray or a subtype of the same type.
      */
     if (self->nin == 2 && self->nout == 1 &&
-        PyArray_TYPE(mps[1]) == PyArray_OBJECT) {
-        PyObject *obj = PyTuple_GET_ITEM(args, 1);
-        if (!PyArray_CheckExact(obj)
-            /* If both are same subtype of object arrays, then proceed */
-            && !(Py_TYPE(obj) == Py_TYPE(PyTuple_GET_ITEM(args, 0)))
-            && PyObject_HasAttrString(obj, "__array_priority__")
-            && _has_reflected_op(obj, self->name)) {
-            /* Return -2 for notimplemented. */
-            ufuncloop_dealloc(loop);
-            return -2;
-        }
+        PyArray_TYPE(mps[1]) == PyArray_OBJECT && originalArgWasObjArray) {
+        /* Return -2 for notimplemented. */
+        ufuncloop_dealloc(loop);
+        return -2;
     }
 
     if (loop->notimplemented) {
@@ -4071,6 +4083,15 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
     return self;
 }
 
+NpyUFuncObject *
+NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                        char *types, int ntypes,
+                        int nin, int nout, int identity,
+                        char *name, char *doc, int check_return)
+{
+    return NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes,
+                                                nin, nout, identity, name, doc, check_return, NULL);
+}
 
 
 /*UFUNC_API*/
