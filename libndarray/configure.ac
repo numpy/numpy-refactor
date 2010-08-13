@@ -37,6 +37,7 @@ AC_TYPE_LONG_LONG_INT()
 
 # Other checks
 AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_CHECK_DECLS([cabsf],,, [#include <complex.h>])
 AC_WORDS_BIGENDIAN()
 
 # Checks for library functions.
