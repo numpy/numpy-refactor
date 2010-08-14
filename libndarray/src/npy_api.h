@@ -256,7 +256,7 @@ NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
 NpyArray *NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
                          npy_bool is_fortran, void *interfaceData);
 NpyArray * NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
-                            npy_intp *strides, 
+                            npy_intp *strides,
                             NpyArray *array, npy_intp offset,
                             npy_bool ensure_array);
 int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);

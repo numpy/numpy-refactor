@@ -603,7 +603,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
                          NpyArray_NDIM(self)-1,
                          NpyArray_DIMS(self)+1,
                          NpyArray_STRIDES(self)+1,
-                         self, item-self->data, 
+                         self, item-self->data,
                          NPY_FALSE);
     return r;
 }

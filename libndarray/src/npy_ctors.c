@@ -1064,8 +1064,8 @@ NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
 {
     /* TODO: Have NpyArray_NewFromDescr call this instead of
        vice versa. */
-    return NpyArray_NewFromDescr(descr, nd, dims, 
-                                 NULL, NULL, 
+    return NpyArray_NewFromDescr(descr, nd, dims,
+                                 NULL, NULL,
                                  ( is_fortran ? NPY_FORTRAN : 0),
                                  NPY_FALSE, NULL, interfaceData);
 }
@@ -1167,7 +1167,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 ensureArray = NPY_TRUE;
             }
             ret = NpyArray_Alloc(newtype, arr->nd, arr->dimensions,
-                                 flags & NPY_FORTRAN, 
+                                 flags & NPY_FORTRAN,
                                  ensureArray ? NULL : Npy_INTERFACE(arr));
             if (ret == NULL) {
                 return NULL;

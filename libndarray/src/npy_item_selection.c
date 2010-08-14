@@ -50,7 +50,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     }
     _Npy_INCREF(self->descr);
     if (!ret) {
-        ret = NpyArray_Alloc(self->descr, nd, shape, NPY_FALSE, 
+        ret = NpyArray_Alloc(self->descr, nd, shape, NPY_FALSE,
                              Npy_INTERFACE(self));
         if (ret == NULL) {
             goto fail;
