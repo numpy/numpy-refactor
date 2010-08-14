@@ -24,6 +24,7 @@ INSTINCLUDES = \
 # Headers which are not installed
 OTHERINCLUDES = \
         src/npy_noprefix.h \
+        src/npy_number.h \
         src/npy_internal.h
 
 # Sources to build library
@@ -45,6 +46,7 @@ LIBSOURCES = \
         src/npy_item_selection.c \
         src/npy_iterators.c \
         src/npy_mapping.c \
+        src/npy_math.c \
         src/npy_math_complex.c \
         src/npy_methods.c \
         src/npy_multiarray.c \
@@ -70,6 +72,9 @@ noinst_HEADERS = $(OTHERINCLUDES)
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
 	python src/conv_template.py src/npy_arraytypes.c.src
+
+src/npy_math.c: src/npy_math.c.src
+	python src/conv_template.py src/npy_math.c.src
 
 src/npy_math_complex.c: src/npy_math_complex.c.src
 	python src/conv_template.py src/npy_math_complex.c.src
