@@ -1,5 +1,4 @@
 /*
- *
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
@@ -171,7 +170,7 @@ do {                                                            \
 /*
  * Long double support
  */
-#if defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE)
+#if 1 /* XXX: defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE) */
     /*
      * Intel extended 80 bits precision. Bit representation is
      *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|

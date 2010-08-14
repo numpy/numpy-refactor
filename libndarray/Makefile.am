@@ -23,6 +23,7 @@ INSTINCLUDES = \
 
 # Headers which are not installed
 OTHERINCLUDES = \
+	src/npy_math_private.h \
         src/npy_noprefix.h \
         src/npy_number.h \
         src/npy_internal.h
@@ -42,6 +43,7 @@ LIBSOURCES = \
         src/npy_dict.c \
         src/npy_flagsobject.c \
         src/npy_getset.c \
+        src/npy_ieee754.c \
         src/npy_index.c \
         src/npy_item_selection.c \
         src/npy_iterators.c \
@@ -72,6 +74,9 @@ noinst_HEADERS = $(OTHERINCLUDES)
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
 	python src/conv_template.py src/npy_arraytypes.c.src
+
+src/npy_ieee754.c: src/npy_ieee754.c.src
+	python src/conv_template.py src/npy_ieee754.c.src
 
 src/npy_math.c: src/npy_math.c.src
 	python src/conv_template.py src/npy_math.c.src

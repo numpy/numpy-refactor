@@ -1,14 +1,15 @@
-/* -*- c -*- */
 /*
- * vim:syntax=c
- *
  * Low-level routines related to IEEE-754 format
  */
 
-#include "npy_math_common.h"
+#include <math.h>
+#include <float.h>
+
+#include "npy_config.h"
+#include "npy_math.h"
 #include "npy_math_private.h"
 
-#ifndef HAVE_COPYSIGN
+#if !HAVE_DECL_COPYSIGN
 double npy_copysign(double x, double y)
 {
     npy_uint32 hx, hy;
