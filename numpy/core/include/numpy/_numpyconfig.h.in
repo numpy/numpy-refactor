@@ -7,17 +7,11 @@
 @DEFINE_NPY_NO_SIGNAL@
 #define NPY_NO_SMP       @NPY_NO_SMP@
 
-/* XXX: this has really nothing to do in a config file... */
-#define NPY_MATHLIB      @MATHLIB@
-
 @DEFINE_NPY_ENABLE_SEPARATE_COMPILATION@
 #define NPY_VISIBILITY_HIDDEN @VISIBILITY_HIDDEN@
 
 @DEFINE_NPY_USE_C99_FORMATS@
 @DEFINE_NPY_USE_C99_COMPLEX@
-
-#define NPY_ABI_VERSION @NPY_ABI_VERSION@
-#define NPY_API_VERSION @NPY_API_VERSION@
 
 /* Ugly, but we can't test this in a proper manner without requiring a C++
  * compiler at the configuration stage of numpy ? */

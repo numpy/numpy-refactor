@@ -12,6 +12,10 @@ AC_CONFIG_HEADERS([npy_config.h])
 AC_PROG_CC
 AC_PROG_LIBTOOL
 
+# Define version constants
+AC_DEFINE([NPY_API_VERSION], [2.0], [Core library API version])
+AC_DEFINE([NPY_ABI_VERSION], [2.0], [Core library ABI version])
+
 # Checks for header files.
 AC_CHECK_HEADERS([complex.h])
 
