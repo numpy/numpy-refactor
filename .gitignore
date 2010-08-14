@@ -33,5 +33,6 @@ libndarray/npy_config.h.in
 libndarray/src/.deps
 libndarray/src/.dirstamp
 libndarray/src/npy_arraytypes.c
+libndarray/src/npy_math.c
 libndarray/src/npy_math_complex.c
 libndarray/stamp-h1
