@@ -23,6 +23,7 @@ INSTINCLUDES = \
 
 # Headers which are not installed
 OTHERINCLUDES = \
+	src/npy_fpmath.h \
 	src/npy_math_private.h \
         src/npy_noprefix.h \
         src/npy_number.h \

@@ -24,6 +24,8 @@
 #include "npy_cpu.h"
 #include "npy_endian.h"
 #include "npy_common.h"
+#include "npy_fpmath.h"
+
 
 /*
  * The original fdlibm code used statements like:
@@ -170,7 +172,7 @@ do {                                                            \
 /*
  * Long double support
  */
-#if 1 /* XXX: defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE) */
+#if defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE)
     /*
      * Intel extended 80 bits precision. Bit representation is
      *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
@@ -209,6 +211,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE)
     /*
      * Intel extended 80 bits precision, 16 bytes alignment.. Bit representation is
@@ -246,6 +249,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_16_BYTES_BE) || \
       defined(HAVE_LDOUBLE_IEEE_DOUBLE_BE)
     /* 64 bits IEEE double precision aligned on 16 bytes: used by ppc arch on
@@ -285,6 +289,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_LE)
     /* 64 bits IEEE double precision, Little Endian. */
 
@@ -322,6 +327,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_QUAD_BE)
     /*
      * IEEE quad precision, Big Endian. Bit representation is

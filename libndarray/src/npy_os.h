@@ -1,5 +1,5 @@
-#ifndef _NPY_NUMPYOS_H_
-#define _NPY_NUMPYOS_H_
+#ifndef _NPY_NPY_OS_H_
+#define _NPY_NPY_OS_H_
 
 #include <stdlib.h>
 #include <stdio.h>
