@@ -27,7 +27,8 @@
      * i386 by Sun compilers on opensolaris at least
      */
     #define NPY_CPU_X86
-#elif defined(__x86_64__) || defined(__amd64__) || defined(__x86_64) || defined(_M_AMD64)
+#elif defined(__x86_64__) || defined(__amd64__) || defined(__x86_64) || \
+        defined(_M_AMD64)
     /*
      * both __x86_64__ and __amd64__ are defined by gcc
      * __x86_64 defined by sun compiler on opensolaris at least

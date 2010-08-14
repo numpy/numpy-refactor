@@ -17,6 +17,6 @@
 #include "noprefix.h"
 #endif
 
-#include "numpy_interrupt.h"
+#include "numpy/interrupt.h"
 
 #endif
