@@ -1,4 +1,3 @@
-
 /* Signal handling:
 
 This header file defines macros that allow your code to handle
@@ -75,8 +74,8 @@ Interrupt handling does not work well with threads.
    Make the global variable and signal handler part of the C-API
 */
 
-#ifndef NPY_INTERRUPT_H
-#define NPY_INTERRUPT_H
+#ifndef _INTERRUPT_H_
+#define _INTERRUPT_H_
 
 #ifndef NPY_NO_SIGNAL
 
@@ -114,4 +113,4 @@ Interrupt handling does not work well with threads.
 
 #endif /* HAVE_SIGSETJMP */
 
-#endif /* NPY_INTERRUPT_H */
+#endif /* _INTERRUPT_H_ */

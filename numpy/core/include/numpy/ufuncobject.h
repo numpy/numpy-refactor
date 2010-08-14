@@ -1,5 +1,5 @@
-#ifndef Py_UFUNCOBJECT_H
-#define Py_UFUNCOBJECT_H
+#ifndef _UFUNCOBJECT_H_
+#define _UFUNCOBJECT_H_
 
 #include "npy_ufunc_object.h"
 
@@ -382,4 +382,4 @@ static void generate_overflow_error(void) {
 #ifdef __cplusplus
 }
 #endif
-#endif /* !Py_UFUNCOBJECT_H */
+#endif /* _UFUNCOBJECT_H_ */
