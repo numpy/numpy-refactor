@@ -1,5 +1,5 @@
-#ifndef __NUMPY_UTILS_HEADER__
-#define __NUMPY_UTILS_HEADER__
+#ifndef _NPY_UTILS_H_
+#define _NPY_UTILS_H_
 
 #ifndef __COMP_NPY_UNUSED
         #if defined(__GNUC__)

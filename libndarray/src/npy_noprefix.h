@@ -1,5 +1,5 @@
-#ifndef NPY_NOPREFIX_H
-#define NPY_NOPREFIX_H
+#ifndef _NPY_NOPREFIX_H_
+#define _NPY_NOPREFIX_H_
 
 
 #define MAX_DIMS NPY_MAXDIMS

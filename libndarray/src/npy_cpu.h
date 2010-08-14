@@ -15,8 +15,8 @@
  *              NPY_CPU_SH_LE
  *              NPY_CPU_SH_BE
  */
-#ifndef _NPY_CPUARCH_H_
-#define _NPY_CPUARCH_H_
+#ifndef _NPY_CPU_H_
+#define _NPY_CPU_H_
 
 #include "npy_config.h"
 

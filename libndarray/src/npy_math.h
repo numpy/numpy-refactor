@@ -1,5 +1,5 @@
-#ifndef __NPY_MATH_C99_H_
-#define __NPY_MATH_C99_H_
+#ifndef __NPY_MATH_H_
+#define __NPY_MATH_H_
 
 #include <math.h>
 #include "npy_common.h"

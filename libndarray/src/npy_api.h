@@ -1,5 +1,5 @@
-#ifndef _NUMPY_API_H_
-#define _NUMPY_API_H_
+#ifndef _NPY_API_H_
+#define _NPY_API_H_
 
 #include "assert.h"
 #include "npy_defs.h"
