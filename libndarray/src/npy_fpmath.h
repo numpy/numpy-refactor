@@ -59,7 +59,7 @@
     /* TODO: There is code in scons_support.py which checks for this, which
              still need to be converted such that configure defines this.
              Just use this definition for now */
-    #define HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE
+    #define HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE
 #endif
 
 #if !(defined(HAVE_LDOUBLE_IEEE_QUAD_BE) || \

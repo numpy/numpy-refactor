@@ -465,11 +465,11 @@ NumPyOS_ascii_strtod_plain(const char *s, char** endptr)
     NPY_ALLOW_C_API_DEF
     NPY_ALLOW_C_API
     result = PyOS_string_to_double(s, endptr, NULL);
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         if (endptr) {
             *endptr = (char*)s;
         }
-        PyErr_Clear();
+        NpyErr_Clear();
     }
     NPY_DISABLE_C_API
 #else

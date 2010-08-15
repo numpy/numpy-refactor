@@ -54,11 +54,10 @@ LIBSOURCES = \
         src/npy_methods.c \
         src/npy_multiarray.c \
         src/npy_number.c \
+        src/npy_os.c \
         src/npy_refcount.c \
         src/npy_shape.c \
-        src/npy_usertypes.c \
-        src/npy_os.c
-
+        src/npy_usertypes.c
 
 # libtool libraries to build
 lib_LTLIBRARIES = libndarray.la
