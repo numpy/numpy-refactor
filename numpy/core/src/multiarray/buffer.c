@@ -720,7 +720,7 @@ _descriptor_from_pep3118_format(char *s)
             in_name = !in_name;
             *p = *s;
         }
-        else if (in_name || !NumPyOS_ascii_isspace(*s)) {
+        else if (in_name || !NpyOS_ascii_isspace(*s)) {
             *p = *s;
         }
         ++p;

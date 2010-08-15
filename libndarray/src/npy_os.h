@@ -12,33 +12,33 @@ int _npy_signbit_d(double x);
      : _npy_signbit_d((double) x))
 
 
-#define NumPyOS_snprintf snprintf
-#define NumPyOS_strtol strtol
-#define NumPyOS_strtoul strtoul
+#define NpyOS_snprintf snprintf
+#define NpyOS_strtol strtol
+#define NpyOS_strtoul strtoul
 
 
 char *
-NumPyOS_ascii_formatd(char *buffer, size_t buf_size,
+NpyOS_ascii_formatd(char *buffer, size_t buf_size,
                       const char *format,
                       double val, int decimal);
 
 char *
-NumPyOS_ascii_formatf(char *buffer, size_t buf_size,
+NpyOS_ascii_formatf(char *buffer, size_t buf_size,
                       const char *format,
                       float val, int decimal);
 
 char *
-NumPyOS_ascii_formatl(char *buffer, size_t buf_size,
+NpyOS_ascii_formatl(char *buffer, size_t buf_size,
                       const char *format,
                       long double val, int decimal);
 
 double
-NumPyOS_ascii_strtod(const char *s, char** endptr);
+NpyOS_ascii_strtod(const char *s, char** endptr);
 
 int
-NumPyOS_ascii_ftolf(FILE *fp, double *value);
+NpyOS_ascii_ftolf(FILE *fp, double *value);
 
 int
-NumPyOS_ascii_isspace(char c);
+NpyOS_ascii_isspace(char c);
 
 #endif

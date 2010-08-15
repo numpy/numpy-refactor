@@ -135,7 +135,7 @@ int
     double result;
     int ret;
 
-    ret = NumPyOS_ascii_ftolf(fp, &result);
+    ret = NpyOS_ascii_ftolf(fp, &result);
     *ip = (@type@) result;
     return ret;
 }
@@ -198,7 +198,7 @@ int
 {
     @btype@ result;
 
-    result = NumPyOS_strto@func@(str, endptr, 10);
+    result = NpyOS_strto@func@(str, endptr, 10);
     *ip = (@type@) result;
     return 0;
 }
@@ -214,7 +214,7 @@ int
 {
     double result;
 
-    result = NumPyOS_ascii_strtod(str, endptr);
+    result = NpyOS_ascii_strtod(str, endptr);
     *ip = (@type@) result;
     return 0;
 }

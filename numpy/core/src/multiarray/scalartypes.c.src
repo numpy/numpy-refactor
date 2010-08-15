@@ -390,7 +390,7 @@ format_@name@(char *buf, size_t buflen, @name@ val, unsigned int prec)
     size_t i, cnt;
 
     PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-    res = NumPyOS_ascii_format@type@(buf, buflen, format, val, 0);
+    res = NpyOS_ascii_format@type@(buf, buflen, format, val, 0);
     if (res == NULL) {
         fprintf(stderr, "Error while formatting\n");
         return;
@@ -424,7 +424,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
     if (val.real == 0.0) {
 #endif
         PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-        res = NumPyOS_ascii_format@type@(buf, buflen-1, format, val.imag, 0);
+        res = NpyOS_ascii_format@type@(buf, buflen-1, format, val.imag, 0);
         if (res == NULL) {
             fprintf(stderr, "Error while formatting\n");
             return;
@@ -440,7 +440,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
         char re[64], im[64];
         if (npy_isfinite(val.real)) {
                 PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-                res = NumPyOS_ascii_format@type@(re, sizeof(re), format, val.real, 0);
+                res = NpyOS_ascii_format@type@(re, sizeof(re), format, val.real, 0);
                 if (res == NULL) {
                     fprintf(stderr, "Error while formatting\n");
                     return;
@@ -458,7 +458,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
 
         if (npy_isfinite(val.imag)) {
                 PyOS_snprintf(format, sizeof(format), _FMT2, prec);
-                res = NumPyOS_ascii_format@type@(im, sizeof(im), format, val.imag, 0);
+                res = NpyOS_ascii_format@type@(im, sizeof(im), format, val.imag, 0);
                 if (res == NULL) {
                     fprintf(stderr, "Error while formatting\n");
                     return;
