@@ -5,8 +5,10 @@ import re
 def define_repl(match):
     name = match.group(2)
 
-#    if name.startswith('SIZEOF_'):
-#        name = 'NPY_' + name
+    if name in '''
+HAVE_DECL_ISNAN HAVE_DECL_ISFINITE HAVE_DECL_ISINF
+'''.split():
+        name = 'NPY_' + name
 
     return match.group(1) + name + match.group(3)
 
