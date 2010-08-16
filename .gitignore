@@ -28,11 +28,10 @@ libndarray/install-sh
 libndarray/libtool
 libndarray/ltmain.sh
 libndarray/missing
-libndarray/npy_config.h
-libndarray/npy_config.h.in
 libndarray/src/.deps
 libndarray/src/.dirstamp
 libndarray/src/npy_arraytypes.c
+libndarray/src/npy_config.h
 libndarray/src/npy_ieee754.c
 libndarray/src/npy_math.c
 libndarray/src/npy_math_complex.c

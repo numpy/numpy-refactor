@@ -1,5 +1,6 @@
 #!/bin/bash
 
+rm -f src/npy_config.h
 make clean
 
 autoreconf -fvi

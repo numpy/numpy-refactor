@@ -3,11 +3,11 @@ AUTOMAKE_OPTIONS = foreign
 
 # Headers which are installed to support the library
 INSTINCLUDES = \
-        npy_config.h \
         src/_neighborhood_iterator_imp.h \
         src/npy_api.h \
         src/npy_arrayobject.h \
         src/npy_common.h \
+        src/npy_config.h \
         src/npy_cpu.h \
         src/npy_defs.h \
         src/npy_descriptor.h \
@@ -72,14 +72,17 @@ include_HEADERS = $(INSTINCLUDES)
 noinst_HEADERS = $(OTHERINCLUDES)
 
 
+src/npy_config.h: config.h
+	python tools/mk_config.py
+
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
-	python src/conv_template.py src/npy_arraytypes.c.src
+	python tools/conv_template.py src/npy_arraytypes.c.src
 
 src/npy_ieee754.c: src/npy_ieee754.c.src
-	python src/conv_template.py src/npy_ieee754.c.src
+	python tools/conv_template.py src/npy_ieee754.c.src
 
 src/npy_math.c: src/npy_math.c.src
-	python src/conv_template.py src/npy_math.c.src
+	python tools/conv_template.py src/npy_math.c.src
 
 src/npy_math_complex.c: src/npy_math_complex.c.src
-	python src/conv_template.py src/npy_math_complex.c.src
+	python tools/conv_template.py src/npy_math_complex.c.src

@@ -6,7 +6,7 @@ AC_INIT([libndarray], [1.0], [info@enthought.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SRCDIR([src/npy_arrayobject.c])
-AC_CONFIG_HEADERS([npy_config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
