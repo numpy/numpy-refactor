@@ -24,7 +24,7 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
         return -1;
     }
     if (NpyArray_DATA(ret) != NpyArray_DATA(self)) {
-        _Npy_XDECREF(ret);
+        Npy_XDECREF(ret);
         NpyErr_SetString(NpyExc_AttributeError,
                          "incompatible shape for a non-contiguous array");
         return -1;
@@ -38,7 +38,7 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
         /* create new dimensions and strides */
         NpyArray_DIMS(self) = NpyDimMem_NEW(2 * nd);
         if (NpyArray_DIMS(self) == NULL) {
-            _Npy_XDECREF(ret);
+            Npy_XDECREF(ret);
             NpyErr_SetString(NpyExc_MemoryError,"");
             return -1;
         }
@@ -50,7 +50,7 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
         NpyArray_DIMS(self) = NULL;
         NpyArray_STRIDES(self) = NULL;
     }
-    _Npy_XDECREF(ret);
+    Npy_XDECREF(ret);
     NpyArray_UpdateFlags(self, NPY_CONTIGUOUS | NPY_FORTRAN);
     return 0;
 }

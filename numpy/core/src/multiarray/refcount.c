@@ -130,12 +130,12 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
         }
         else {
             NpyArray *arr;
-            _Npy_INCREF(dtype);
+            Npy_INCREF(dtype);
             arr = NpyArray_Alloc(dtype, 0, NULL, NPY_FALSE, NULL);
             if (arr!=NULL) {
                 dtype->f->setitem(obj, optr, arr);
             }
-            _Npy_DECREF(arr);
+            Npy_DECREF(arr);
         }
     }
     else if (NpyDataType_HASFIELDS(dtype)) {

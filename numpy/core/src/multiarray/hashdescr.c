@@ -130,9 +130,9 @@ static int _array_descr_walk_subarray(NpyArray_ArrayDescr* adescr, PyObject *l)
         PyList_Append(l, PyInt_FromLong(adescr->shape_dims[i]));
     }
 
-    _Npy_INCREF(adescr->base);
+    Npy_INCREF(adescr->base);
     st = _array_descr_walk(adescr->base, l);
-    _Npy_DECREF(adescr->base);
+    Npy_DECREF(adescr->base);
 
     return st;
 }

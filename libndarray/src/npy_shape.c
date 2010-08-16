@@ -274,7 +274,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
         }
     }
 
-    _Npy_INCREF(self->descr);
+    Npy_INCREF(self->descr);
     ret = NpyArray_NewFromDescr(self->descr,
                                 n, dimensions,
                                 strides,
@@ -286,7 +286,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
         goto fail;
     }
     if (incref) {
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
     }
     ret->base_arr = self;
     NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
@@ -295,7 +295,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
 
  fail:
     if (!incref) {
-        _Npy_DECREF(self);
+        Npy_DECREF(self);
     }
     return NULL;
 }
@@ -317,7 +317,7 @@ NpyArray_Squeeze(NpyArray *self)
     NpyArray *ret;
 
     if (nd == 0) {
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
         return self;
     }
     for (j = 0, i = 0; i < nd; i++) {
@@ -330,7 +330,7 @@ NpyArray_Squeeze(NpyArray *self)
         }
     }
 
-    _Npy_INCREF(self->descr);
+    Npy_INCREF(self->descr);
     ret = NpyArray_NewView(self->descr, newnd, dimensions, strides,
                            self, 0, NPY_FALSE);
     return ret;
@@ -348,13 +348,13 @@ NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
     NpyArray *ret;
 
     if (a1 == a2) {
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         return ap;
     }
 
     n = ap->nd;
     if (n <= 1) {
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         return ap;
     }
 
@@ -447,7 +447,7 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
      * this allocates memory for dimensions and strides (but fills them
      * incorrectly), sets up descr, and points data at ap->data.
      */
-    _Npy_INCREF(ap->descr);
+    Npy_INCREF(ap->descr);
     ret = NpyArray_NewView(ap->descr, n, ap->dimensions, NULL,
                            ap, 0, NPY_FALSE);
     if (ret == NULL) {
@@ -500,14 +500,14 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     if (order == NPY_ANYORDER) {
         order = NpyArray_ISFORTRAN(a);
     }
-    _Npy_INCREF(a->descr);
+    Npy_INCREF(a->descr);
     size = NpyArray_SIZE(a);
     ret = NpyArray_Alloc(a->descr, 1, &size, NPY_FALSE, Npy_INTERFACE(a));
     if (ret == NULL) {
         return NULL;
     }
     if (_flat_copyinto(ret, a, order) < 0) {
-        _Npy_DECREF(ret);
+        Npy_DECREF(ret);
         return NULL;
     }
     return ret;

@@ -154,7 +154,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
-        Npy_XDECREF(typedescr);
+        Py_XDECREF(typedescr);
         return -1;
     }
     ap = (PyArrayObject *) PyArray_FromAny(*op, typedescr, nd, nd,
@@ -174,7 +174,7 @@ PyArray_AsCArray(PyObject **op, void *ptr, intp *dims, int nd,
        converted to an array and *op is overwritten with the new array object but the original object
        is not decref'd.  This is how it was so I left it alone.  Either the caller must decref or it's
        a leak or I just need more coffee. */
-    _Npy_INCREF(typedescr->descr);
+    Npy_INCREF(typedescr->descr);
     oldAp = ap;
     result = NpyArray_AsCArray(&PyArray_LARRAY(ap), ptr, dims, nd, typedescr->descr);
     Py_DECREF(oldAp);
@@ -374,7 +374,7 @@ PyArray_Concatenate(PyObject *op, int axis)
     }
     tmp = PyArray_DIM(mps[0], 0);
     PyArray_DIM(mps[0], 0) = new_dim;
-    _Npy_INCREF(PyArray_DESCR(mps[0]));
+    Npy_INCREF(PyArray_DESCR(mps[0]));
     ASSIGN_TO_PYARRAY(ret, 
                       NpyArray_Alloc(PyArray_DESCR(mps[0]),
                                      nd, PyArray_DIMS(mps[0]),
@@ -476,14 +476,14 @@ PyArray_InnerProduct(PyObject *op1, PyObject *op2)
     /* Get the interface object and move the reference. */
     ret = Npy_INTERFACE(prod);
     Py_INCREF(ret);
-    _Npy_DECREF(prod);
+    Npy_DECREF(prod);
 
     return (PyObject *)ret;
 
  fail:
     Py_XDECREF(ap1);
     Py_XDECREF(ap2);
-    _Npy_XDECREF(prod);
+    Npy_XDECREF(prod);
     return NULL;
 }
 
@@ -789,7 +789,6 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
     intp newdims[MAX_DIMS];
     intp newstrides[MAX_DIMS];
     int i, k, num;
-    PyArrayObject *ret;
 
     num = ndmin - nd;
     for (i = 0; i < num; i++) {
@@ -801,7 +800,7 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newdims[i] = PyArray_DIM(arr, k);
         newstrides[i] = PyArray_STRIDE(arr, k);
     }
-    _Npy_INCREF(PyArray_DESCR(arr));
+    Npy_INCREF(PyArray_DESCR(arr));
     RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
                                     ndmin, newdims, newstrides,
                                     PyArray_ARRAY(arr), 0,
@@ -878,8 +877,8 @@ _array_fromobject(PyObject *NPY_UNUSED(ignored), PyObject *args, PyObject *kws)
                 if (oldtype == type->descr) {
                     goto finish;
                 }
-                _Npy_INCREF(oldtype);
-                _Npy_DECREF(PyArray_DESCR(ret));
+                Npy_INCREF(oldtype);
+                Npy_DECREF(PyArray_DESCR(ret));
                 PyArray_DESCR(ret) = oldtype;
                 goto finish;
             }
@@ -1896,14 +1895,14 @@ _vec_string_no_args(PyArrayObject* char_array,
         NpyArray_ITER_NEXT(out_iter);
     }
 
-    _Npy_DECREF(in_iter);
-    _Npy_DECREF(out_iter);
+    Npy_DECREF(in_iter);
+    Npy_DECREF(out_iter);
 
     return (PyObject*)result;
 
  err:
-    _Npy_XDECREF(in_iter);
-    _Npy_XDECREF(out_iter);
+    Npy_XDECREF(in_iter);
+    Npy_XDECREF(out_iter);
     Py_XDECREF(result);
 
     return 0;

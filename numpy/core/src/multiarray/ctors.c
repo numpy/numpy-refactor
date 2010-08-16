@@ -303,7 +303,7 @@ ObjectArray_FromNestedList(PyObject *s, NpyArray_Descr *typecode, int fortran)
     }
     r = Npy_INTERFACE(arr);
     Py_INCREF(r);
-    _Npy_DECREF(arr);
+    Npy_DECREF(arr);
 
     if(Assign_Array(r,s) == -1) {
         Py_DECREF(r);
@@ -590,7 +590,7 @@ Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
 
     r = Npy_INTERFACE(arr);
     Py_INCREF(r);
-    _Npy_DECREF(arr);
+    Npy_DECREF(arr);
 
     err = Assign_Array(r,s);
     if (err == -1) {
@@ -600,7 +600,7 @@ Array_FromSequence(PyObject *s, NpyArray_Descr *typecode, int fortran,
     return (PyObject *)r;
 
  fail:
-    _Npy_DECREF(typecode);
+    Npy_DECREF(typecode);
     return NULL;
 }
 
@@ -739,7 +739,7 @@ PyArray_New(PyTypeObject *subtype, int nd, intp *dims, int type_num,
     }
     ret = Npy_INTERFACE(arr);
     Py_INCREF(ret);
-    _Npy_DECREF(arr);
+    Npy_DECREF(arr);
 
     return (PyObject *)ret;
 }
@@ -832,7 +832,7 @@ _array_from_buffer_3118(PyObject *obj, PyObject **out)
     return 0;
 
 fail:
-    _Npy_XDECREF(descr);
+    Npy_XDECREF(descr);
     Py_DECREF(memoryview);
     return -1;
 
@@ -914,7 +914,7 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
     else if (PyArray_HasArrayInterfaceTypeUnwrap(op, newtype, context, r)) {
         PyObject *new;
         if (r == NULL) {
-            _Npy_XDECREF(newtype);
+            Npy_XDECREF(newtype);
             return NULL;
         }
         if (newtype != NULL || flags != 0) {
@@ -940,7 +940,7 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
             PyObject *thiserr = NULL;
 
             /* necessary but not sufficient */
-            _Npy_INCREF(newtype);
+            Npy_INCREF(newtype);
             r = Array_FromSequence(op, newtype, flags & FORTRAN,
                                    min_depth, max_depth);
             if (r == NULL && (thiserr=PyErr_Occurred())) {
@@ -954,16 +954,16 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
                  */
                 PyErr_Clear();
                 if (isobject) {
-                    _Npy_INCREF(newtype);
+                    Npy_INCREF(newtype);
                     r = ObjectArray_FromNestedList
                         (op, newtype, flags & FORTRAN);
                     seq = TRUE;
-                    _Npy_DECREF(newtype);
+                    Npy_DECREF(newtype);
                 }
             }
             else {
                 seq = TRUE;
-                _Npy_DECREF(newtype);
+                Npy_DECREF(newtype);
             }
         }
         if (!seq) {
@@ -1000,7 +1000,7 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
     return r;
 
  err:
-    _Npy_XDECREF(newtype);
+    Npy_XDECREF(newtype);
     PyErr_SetString(PyExc_TypeError,
                     "UPDATEIFCOPY used for non-array input.");
     return NULL;
@@ -1603,7 +1603,7 @@ PyArray_CheckAxis(PyArrayObject *arr, int *axis, int flags)
     }
     ret = Npy_INTERFACE(narr);
     Py_INCREF(ret);
-    _Npy_DECREF(narr);
+    Npy_DECREF(narr);
     return ret;
 }
 
@@ -1856,22 +1856,22 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
         /* intentionally made to be PyArray_LONG default */
         deftype = NpyArray_DescrFromType(PyArray_LONG);
         newtype = PyArray_DescrFromObjectUnwrap(start, deftype);
-        _Npy_DECREF(deftype);
+        Npy_DECREF(deftype);
         deftype = newtype;
         if (stop && stop != Py_None) {
             newtype = PyArray_DescrFromObjectUnwrap(stop, deftype);
-            _Npy_DECREF(deftype);
+            Npy_DECREF(deftype);
             deftype = newtype;
         }
         if (step && step != Py_None) {
             newtype = PyArray_DescrFromObjectUnwrap(step, deftype);
-            _Npy_DECREF(deftype);
+            Npy_DECREF(deftype);
             deftype = newtype;
         }
         dtype = deftype;
     }
     else {
-        _Npy_INCREF(dtype);
+        Npy_INCREF(dtype);
     }
     if (!step || step == Py_None) {
         step = PyInt_FromLong(1);
@@ -1891,7 +1891,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
                           NpyTypeNum_ISCOMPLEX(dtype->type_num));
     err = PyErr_Occurred();
     if (err) {
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         if (err && PyErr_GivenExceptionMatches(err, PyExc_OverflowError)) {
             PyErr_SetString(PyExc_ValueError, "Maximum allowed size exceeded");
         }
@@ -1959,7 +1959,7 @@ PyArray_ArangeObjUnwrap(PyObject *start, PyObject *stop, PyObject *step,
         PyObject *new;
         new = PyArray_Byteswap((PyArrayObject *)range, 1);
         Py_DECREF(new);
-        _Npy_DECREF(PyArray_DESCR(range));
+        Npy_DECREF(PyArray_DESCR(range));
         /* reference alloc'd earlier in this func */
         PyArray_DESCR(range) = dtype;
     }
@@ -2000,7 +2000,7 @@ PyArray_FromTextFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
     if (dtype == NULL) {
         return NULL;
     }
-    _Npy_INCREF(dtype->descr);
+    Npy_INCREF(dtype->descr);
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_FromTextFile(fp, dtype->descr, num, sep));
     Py_XDECREF(dtype);
@@ -2046,7 +2046,7 @@ PyArray_FromFile(FILE *fp, PyArray_Descr *dtype, intp num, char *sep)
 
     if (NULL == sep || 0 == strlen(sep)) {
         /* Move reference from interface to core. */
-        _Npy_INCREF(dtype->descr);
+        Npy_INCREF(dtype->descr);
         Py_DECREF(dtype);
         ASSIGN_TO_PYARRAY(ret, NpyArray_FromBinaryFile(fp, dtype->descr, num));
     }
@@ -2201,7 +2201,7 @@ PyArray_FromString(char *data, intp slen, PyArray_Descr *dtype,
             return NULL;
         }
     }
-    _Npy_INCREF(dtype->descr);
+    Npy_INCREF(dtype->descr);
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_FromString(data, slen, dtype->descr, num, sep));
     Py_XDECREF(dtype);
@@ -2303,7 +2303,7 @@ PyArray_FromIterUnwrap(PyObject *obj, NpyArray_Descr *dtype, intp count)
 
  done:
     Py_XDECREF(iter);
-    _Npy_XDECREF(dtype);
+    Npy_XDECREF(dtype);
     if (PyErr_Occurred()) {
         Py_XDECREF(ret);
         return NULL;

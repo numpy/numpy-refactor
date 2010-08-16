@@ -156,9 +156,9 @@ int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
     if (NULL == loc) {
         return -1;
     }
-    _Npy_XDECREF(*loc);
+    Npy_XDECREF(*loc);
     *loc = func;
-    _Npy_INCREF(*loc);
+    Npy_INCREF(*loc);
     return 0;
 }
 

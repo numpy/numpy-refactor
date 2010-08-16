@@ -84,7 +84,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     if (multi->size != NpyArray_SIZE(out)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "array dimensions are not compatible for copy");
-        _Npy_DECREF(multi);
+        Npy_DECREF(multi);
         return -1;
     }
 
@@ -145,7 +145,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
         NPY_END_THREADS;
     }
 #endif
-    _Npy_DECREF(multi);
+    Npy_DECREF(multi);
     if (NpyDataType_REFCHK(in->descr)) {
         obptr = buffers[1];
         for (i = 0; i < N; i++, obptr+=selsize) {
@@ -306,8 +306,8 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
           NpyArray_EquivByteorders(mpd->byteorder, at->byteorder) &&
           ((mpd->elsize == at->elsize) || (at->elsize==0)))) &&
         NpyArray_ISBEHAVED_RO(mp)) {
-        _Npy_DECREF(at);
-        _Npy_INCREF(mp);
+        Npy_DECREF(at);
+        Npy_INCREF(mp);
         return mp;
     }
 
@@ -340,7 +340,7 @@ NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
         return out;
     }
 
-    _Npy_DECREF(out);
+    Npy_DECREF(out);
     return NULL;
 }
 
@@ -443,11 +443,11 @@ _bufferedcast(NpyArray *out, NpyArray *in,
     retval = 0;
 
 exit:
-    _Npy_XDECREF(it_in);
+    Npy_XDECREF(it_in);
     NpyDataMem_FREE(inbuffer);
     NpyDataMem_FREE(outbuffer);
     if (obuf) {
-        _Npy_XDECREF(it_out);
+        Npy_XDECREF(it_out);
     }
     return retval;
 }
@@ -545,8 +545,8 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     to = NpyArray_DescrFromType(totype);
     telsize = to->elsize;
     felsize = from->elsize;
-    _Npy_DECREF(from);
-    _Npy_DECREF(to);
+    Npy_DECREF(from);
+    Npy_DECREF(to);
 
     switch(fromtype) {
         case NPY_BYTE:
@@ -683,6 +683,6 @@ NpyArray_ValidType(int type)
     if (descr == NULL) {
         res = NPY_FALSE;
     }
-    _Npy_DECREF(descr);
+    Npy_DECREF(descr);
     return res;
 }

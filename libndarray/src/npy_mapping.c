@@ -17,7 +17,7 @@ int
 NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
 
-_NpyTypeObject NpyArrayMapIter_Type = {
+NpyTypeObject NpyArrayMapIter_Type = {
     (npy_destructor)arraymapiter_dealloc,
 };
 
@@ -31,7 +31,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
 
     /* Allocates the Python object wrapper around the map iterator. */
     mit = (NpyArrayMapIterObject *)NpyArray_malloc(sizeof(NpyArrayMapIterObject));
-    _NpyObject_Init((_NpyObject *)mit, &NpyArrayMapIter_Type);
+    NpyObject_Init((_NpyObject *)mit, &NpyArrayMapIter_Type);
     if (mit == NULL) {
         return NULL;
     }
@@ -50,7 +50,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
     mit->n_indexes = NpyArray_IndexExpandBool(indexes, n,
                                               mit->indexes);
     if (mit->n_indexes < 0) {
-        _Npy_DECREF(mit);
+        Npy_DECREF(mit);
         return NULL;
     }
 
@@ -63,7 +63,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
             mit->iters[j] = NpyArray_IterNew(index->index.intp_array);
             if (mit->iters[j] == NULL) {
                 mit->numiter = j-1;
-                _Npy_DECREF(mit);
+                Npy_DECREF(mit);
                 return NULL;
             }
             j++;
@@ -76,15 +76,15 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
             indarray = NpyArray_Alloc(indtype, 0, NULL, NPY_FALSE, NULL);
             if (indarray == NULL) {
                 mit->numiter = j-1;
-                _Npy_DECREF(mit);
+                Npy_DECREF(mit);
                 return NULL;
             }
             memcpy(indarray->data, &index->index.intp, sizeof(npy_intp));
             mit->iters[j] = NpyArray_IterNew(indarray);
-            _Npy_DECREF(indarray);
+            Npy_DECREF(indarray);
             if (mit->iters[j] == NULL) {
                 mit->numiter = j-1;
-                _Npy_DECREF(mit);
+                Npy_DECREF(mit);
                 return NULL;
             }
             j++;
@@ -94,7 +94,7 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
 
     /* Broadcast the index iterators. */
     if (NpyArray_Broadcast((NpyArrayMultiIterObject *)mit) < 0) {
-        _Npy_DECREF(mit);
+        Npy_DECREF(mit);
         return NULL;
     }
 
@@ -110,10 +110,10 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     assert(0 == mit->nob_refcnt);
 
     Npy_INTERFACE(mit) = NULL;
-    _Npy_XDECREF(mit->ait);
-    _Npy_XDECREF(mit->subspace);
+    Npy_XDECREF(mit->ait);
+    Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {
-        _Npy_XDECREF(mit->iters[i]);
+        Npy_XDECREF(mit->iters[i]);
     }
     NpyArray_IndexDealloc(mit->indexes, mit->n_indexes);
     NpyArray_free(mit);
@@ -210,7 +210,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
             goto fail;
         }
 
-        _Npy_INCREF(arr->descr);
+        Npy_INCREF(arr->descr);
         view = NpyArray_NewView(arr->descr, n2,
                                 dimensions, strides,
                                 arr, offset, NPY_TRUE);
@@ -218,7 +218,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
             goto fail;
         }
         mit->subspace = NpyArray_IterNew(view);
-        _Npy_DECREF(view);
+        Npy_DECREF(view);
         if (mit->subspace == NULL) {
             goto fail;
         }
@@ -278,8 +278,8 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
 
  fail:
     NpyArray_IndexDealloc(bound_indexes, nbound);
-    _Npy_XDECREF(mit->subspace);
-    _Npy_XDECREF(mit->ait);
+    Npy_XDECREF(mit->subspace);
+    Npy_XDECREF(mit->ait);
     mit->subspace = NULL;
     mit->ait = NULL;
     return -1;
@@ -408,7 +408,7 @@ _swap_axes(NpyArrayMapIterObject *mit, NpyArray **ret, int getmap)
             permute.ptr[i] = 1;
         }
         new = NpyArray_Newshape(arr, &permute, NPY_ANYORDER);
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         *ret = new;
         if (new == NULL) {
             return;
@@ -454,7 +454,7 @@ _swap_axes(NpyArrayMapIterObject *mit, NpyArray **ret, int getmap)
         permute.ptr[i++] = val++;
     }
     new = NpyArray_Transpose(*ret, &permute);
-    _Npy_DECREF(*ret);
+    Npy_DECREF(*ret);
     *ret = new;
 }
 
@@ -476,7 +476,7 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
        of the new array in nd and dimensions.
     */
     temp = mit->ait->ao;
-    _Npy_INCREF(temp->descr);
+    Npy_INCREF(temp->descr);
     ret = NpyArray_Alloc(temp->descr, mit->nd, mit->dimensions,
                          NpyArray_ISFORTRAN(temp), Npy_INTERFACE(temp));
     if (ret == NULL) {
@@ -490,7 +490,7 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
      */
 
     if ((it = NpyArray_IterNew(ret)) == NULL) {
-        _Npy_DECREF(ret);
+        Npy_DECREF(ret);
         return NULL;
     }
     index = it->size;
@@ -502,7 +502,7 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
         NpyArray_MapIterNext(mit);
         NpyArray_ITER_NEXT(it);
     }
-    _Npy_DECREF(it);
+    Npy_DECREF(it);
 
     /* check for consecutive axes */
     if ((mit->subspace != NULL) && (mit->consec)) {
@@ -540,7 +540,7 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
 
     if ((it = NpyArray_BroadcastToShape(arr, mit->dimensions,
                                         mit->nd))==NULL) {
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         return -1;
     }
 
@@ -562,8 +562,8 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
             NpyArray_MapIterNext(mit);
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(arr);
-        _Npy_DECREF(it);
+        Npy_DECREF(arr);
+        Npy_DECREF(it);
         return 0;
     }
     while(index--) {
@@ -574,8 +574,8 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
         NpyArray_MapIterNext(mit);
         NpyArray_ITER_NEXT(it);
     }
-    _Npy_DECREF(arr);
-    _Npy_DECREF(it);
+    Npy_DECREF(arr);
+    Npy_DECREF(it);
     return 0;
 }
 
@@ -598,7 +598,7 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
     if ((item = NpyArray_Index2Ptr(self, i)) == NULL) {
         return NULL;
     }
-    _Npy_INCREF(NpyArray_DESCR(self));
+    Npy_INCREF(NpyArray_DESCR(self));
     r = NpyArray_NewView(NpyArray_DESCR(self),
                          NpyArray_NDIM(self)-1,
                          NpyArray_DIMS(self)+1,
@@ -635,7 +635,7 @@ NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
     }
 
     /* Make the result. */
-    _Npy_INCREF(self->descr);
+    Npy_INCREF(self->descr);
     result = NpyArray_NewView(self->descr, n2, dimensions, strides,
                               self, offset, NPY_FALSE);
 
@@ -652,7 +652,7 @@ NpyArray_SubscriptField(NpyArray *self, char* field)
     }
 
     if (value != NULL) {
-        _Npy_INCREF(value->descr);
+        Npy_INCREF(value->descr);
         return NpyArray_GetField(self, value->descr, value->offset);
     } else {
         char msg[1024];
@@ -674,7 +674,7 @@ NpyArray_SubscriptAssignField(NpyArray *self, char* field,
     }
 
     if (value != NULL) {
-        _Npy_INCREF(value->descr);
+        Npy_INCREF(value->descr);
         return NpyArray_SetField(self, value->descr, value->offset, v);
     } else {
         char msg[1024];
@@ -711,7 +711,7 @@ NpyArray_Subscript0d(NpyArray *self, NpyIndex *indexes, int n)
         }
     }
 
-    _Npy_INCREF(self->descr);
+    Npy_INCREF(self->descr);
     result = NpyArray_NewView(self->descr, nd_new, dimensions, NULL,
                               self, 0, NPY_FALSE);
     return result;
@@ -737,7 +737,7 @@ NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
             return NULL;
         }
         result = NpyArray_IterSubscript(iter, indexes, n);
-        _Npy_DECREF(iter);
+        Npy_DECREF(iter);
         return result;
     } else {
         NpyArrayMapIterObject *mit = NpyArray_MapIterNew(indexes, n);
@@ -745,12 +745,12 @@ NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
             return NULL;
         }
         if (NpyArray_MapIterBind(mit, self, NULL) < 0) {
-            _Npy_DECREF(mit);
+            Npy_DECREF(mit);
             return NULL;
         }
 
         result = NpyArray_GetMap(mit);
-        _Npy_DECREF(mit);
+        Npy_DECREF(mit);
         return result;
     }
 }
@@ -768,7 +768,7 @@ NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes, int n,
             return -1;
         }
         result = NpyArray_IterSubscriptAssign(iter, indexes, n, value);
-        _Npy_DECREF(iter);
+        Npy_DECREF(iter);
         return result;
     } else {
         NpyArrayMapIterObject *mit = NpyArray_MapIterNew(indexes, n);
@@ -776,12 +776,12 @@ NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes, int n,
             return -1;
         }
         if (NpyArray_MapIterBind(mit, self, NULL) < 0) {
-            _Npy_DECREF(mit);
+            Npy_DECREF(mit);
             return -1;
         }
 
         result = NpyArray_SetMap(mit, value);
-        _Npy_DECREF(mit);
+        Npy_DECREF(mit);
         return result;
     }
 }
@@ -814,7 +814,7 @@ NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n)
 {
     /* Handle cases where we just return this array. */
     if (n == 0 || (n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS)) {
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
         return self;
     }
 
@@ -872,7 +872,7 @@ NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
             return -1;
         }
         result = NpyArray_MoveInto(view, value);
-        _Npy_DECREF(view);
+        Npy_DECREF(view);
         return result;
     }
 
@@ -883,7 +883,7 @@ NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
             return -1;
         }
         result = NpyArray_MoveInto(view, value);
-        _Npy_DECREF(view);
+        Npy_DECREF(view);
         return result;
     } else {
         return NpyArray_IndexFancyAssign(self, indexes, n, value);

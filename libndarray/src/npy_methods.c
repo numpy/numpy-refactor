@@ -26,7 +26,7 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
                 "but received offset = %d",
                 self->descr->elsize-typed->elsize, offset);
         NpyErr_SetString(NpyExc_ValueError, msg);
-        _Npy_DECREF(typed);
+        Npy_DECREF(typed);
         return NULL;
     }
     ret = NpyArray_NewView(typed, self->nd, self->dimensions, self->strides,
@@ -58,7 +58,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
                      "but received offset = %d",
                       self->descr->elsize-dtype->elsize, offset);
         NpyErr_SetString(NpyExc_ValueError, msg);
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return -1;
     }
     ret = NpyArray_NewView(dtype, self->nd, self->dimensions, self->strides,
@@ -67,7 +67,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
         return -1;
     }
     retval = NpyArray_MoveInto(ret, val);
-    _Npy_DECREF(ret);
+    Npy_DECREF(ret);
     return retval;
 }
 
@@ -108,10 +108,10 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
                 copyswapn(it->dataptr, stride, NULL, -1, size, 1, self);
                 NpyArray_ITER_NEXT(it);
             }
-            _Npy_DECREF(it);
+            Npy_DECREF(it);
         }
 
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
         return self;
     }
     else {
@@ -120,7 +120,7 @@ NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
             return NULL;
         }
         new = NpyArray_Byteswap(ret, NPY_TRUE);
-        _Npy_DECREF(new);
+        Npy_DECREF(new);
         return ret;
     }
 }

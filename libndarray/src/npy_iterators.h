@@ -33,7 +33,7 @@ struct NpyArrayIterObject {
         npy_iter_get_dataptr_t translate;
 };
 
-extern _NpyTypeObject NpyArrayIter_Type;
+extern NpyTypeObject NpyArrayIter_Type;
 
 
 /* Iterator API */
@@ -209,7 +209,7 @@ struct NpyArrayMultiIterObject {
 
 typedef struct NpyArrayMultiIterObject NpyArrayMultiIterObject;
 
-extern _NpyTypeObject NpyArrayMultiIter_Type;
+extern NpyTypeObject NpyArrayMultiIter_Type;
 
 NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(struct NpyArray **mps, int n, int nadd, ...);
@@ -376,7 +376,7 @@ struct NpyArrayNeighborhoodIterObject {
 typedef struct NpyArrayNeighborhoodIterObject NpyArrayNeighborhoodIterObject;
 
 
-extern _NpyTypeObject NpyArrayNeighborhoodIter_Type;
+extern NpyTypeObject NpyArrayNeighborhoodIter_Type;
 
 /*
  * Neighborhood iterator API

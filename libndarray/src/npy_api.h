@@ -17,7 +17,7 @@
     do {                                                          \
         NpyArray_Descr *_new_;                                    \
         _new_ = NpyArray_DescrNew(descr);                         \
-        _Npy_XDECREF(descr);                                      \
+        Npy_XDECREF(descr);                                      \
         descr = _new_;                                            \
     } while(0)
 
@@ -217,7 +217,7 @@ int NpyArray_CastTo(NpyArray *out, NpyArray *mp);
 int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp);
 int NpyArray_CanCastSafely(int fromtype, int totype);
 npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
-npy_bool NpyArray_CanCastScalar(_NpyTypeObject *from, _NpyTypeObject *to);
+npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
 int NpyArray_ValidType(int type);
 struct NpyArray_Descr *NpyArray_DescrFromType(int type);
 
@@ -282,34 +282,13 @@ NpyArray_GetNumusertypes(void);
  * Reference counting.
  */
 
-/* These operate on core data structures, NOT interface objects. */
-#define Npy_INCREF(a) {                                 \
-    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
-    Py_INCREF(a);   }
-
-#define Npy_DECREF(a) {                                 \
-    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
-    Py_DECREF(a); }
-
-#define Npy_XINCREF(a) {                                                \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
-    Py_XINCREF(a); }
-
-#define Npy_XDECREF(a) {                                                \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
-    Py_XDECREF(a); }
-
 /* TODO: This looks wrong. */
 #define NpyArray_XDECREF_ERR(obj)                                         \
         if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {            \
             NpyArray_FLAGS(NpyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
             NpyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                     \
         }                                                                 \
-        _Npy_XDECREF(obj)
+        Npy_XDECREF(obj)
 
 /*
  * Object model.

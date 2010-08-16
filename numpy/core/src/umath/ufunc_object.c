@@ -59,7 +59,7 @@
         } else {                                \
             pya = Npy_INTERFACE(a_);            \
             Py_INCREF(pya);                     \
-            _Npy_DECREF(a_);                    \
+            Npy_DECREF(a_);                    \
         }                                       \
     } while (0)
 
@@ -876,7 +876,7 @@ _create_copies(NpyUFuncLoopObject *loop, int *arg_types, PyArrayObject **mps)
             if (NpyArray_EquivTypes(atype, ntype)) {
                 arg_types[i] = ntype->type_num;
             }
-            _Npy_DECREF(atype);
+            Npy_DECREF(atype);
         }
         if (size < loop->bufsize || loop->ufunc->core_enabled) {
             if (!(PyArray_ISBEHAVED_RO(mps[i]))
@@ -1205,7 +1205,7 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
     }
     /* The following code is basically taken from PyArray_Transpose */
     /* NewFromDescr will steal this reference */
-    _Npy_INCREF(PyArray_DESCR(ap));
+    Npy_INCREF(PyArray_DESCR(ap));
     arr = NpyArray_NewView(PyArray_DESCR(ap),
                            nd, PyArray_DIMS(ap),
                            PyArray_STRIDES(ap),
@@ -1216,7 +1216,7 @@ _trunc_coredim(PyArrayObject *ap, int core_nd)
     }
     ret = Npy_INTERFACE(arr);
     Py_INCREF(ret);
-    _Npy_DECREF(arr);
+    Npy_DECREF(arr);
     return ret;
 }
 
@@ -1492,7 +1492,7 @@ construct_arrays(NpyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps
                 if (NpyArray_EquivTypes(atype, ntype)) {
                     arg_types[i] = ntype->type_num;
                 }
-                _Npy_DECREF(atype);
+                Npy_DECREF(atype);
             }
 
             /* still not the same -- or will we have to use buffers?*/
@@ -1779,7 +1779,7 @@ construct_arrays(NpyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps
                     loop->cast[i] = PyArray_GetCastFunc \
                         ( PyArray_Descr_WRAP(descr), PyArray_DESCR(mps[i])->type_num);
                 }
-                _Npy_DECREF(descr);
+                Npy_DECREF(descr);
                 if (!loop->cast[i]) {
                     return -1;
                 }
@@ -1828,7 +1828,7 @@ construct_arrays(NpyUFuncLoopObject *loop, Py_ssize_t nargs, PyArrayObject **mps
                 /* fprintf(stderr, "castbuf[%d] = %p\n", i, loop->castbuf[i]); */
                 descr = NpyArray_DescrFromType(arg_types[i]);
                 oldsize = descr->elsize;
-                _Npy_DECREF(descr);
+                Npy_DECREF(descr);
                 loop->bufptr[i] = loop->castbuf[i];
                 castptr = loop->castbuf[i];
                 if (loop->steps[i]) {
@@ -1857,15 +1857,15 @@ static void
 ufuncreduce_dealloc(NpyUFuncReduceObject *self)
 {
     if (self->ufunc) {
-        _Npy_XDECREF(self->it);
-        _Npy_XDECREF(self->rit);
-        _Npy_XDECREF(self->ret);
+        Npy_XDECREF(self->it);
+        Npy_XDECREF(self->rit);
+        Npy_XDECREF(self->ret);
         Py_XDECREF(self->errobj);
-        _Npy_XDECREF(self->decref_arr);
+        Npy_XDECREF(self->decref_arr);
         if (self->buffer) {
             NpyDataMem_FREE(self->buffer);
         }
-        _Npy_DECREF(self->ufunc);
+        Npy_DECREF(self->ufunc);
     }
     self->magic_number = NPY_INVALID_MAGIC;
     free(self);
@@ -1883,12 +1883,12 @@ ufuncloop_dealloc(NpyUFuncLoopObject *self)
             free(self->core_strides);
         }
         self->iter->numiter = self->ufunc->nargs;
-        _Npy_DECREF(self->iter);
+        Npy_DECREF(self->iter);
         if (self->buffer[0]) {
             NpyDataMem_FREE(self->buffer[0]);
         }
         Py_XDECREF(self->errobj);
-        _Npy_DECREF(self->ufunc);
+        Npy_DECREF(self->ufunc);
     }
     self->magic_number = NPY_INVALID_MAGIC;
     free(self);
@@ -1920,7 +1920,7 @@ construct_loop(NpyUFuncObject *self)
     loop->iter->index = 0;
     loop->iter->numiter = self->nargs;
     loop->ufunc = self;
-    _Npy_INCREF(loop->ufunc);
+    Npy_INCREF(loop->ufunc);
     loop->buffer[0] = NULL;
     for (i = 0; i < self->nargs; i++) {
         loop->iter->iters[i] = NULL;
@@ -2673,7 +2673,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     loop->swap = 0;
     loop->index = 0;
     loop->ufunc = self;
-    _Npy_INCREF(self);
+    Npy_INCREF(self);
     loop->cast = NULL;
     loop->buffer = NULL;
     loop->ret = NULL;
@@ -2753,7 +2753,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
             goto fail;
         }
         idarr = PyArray_ARRAY(idarrWrap);
-        _Npy_INCREF(idarr);
+        Npy_INCREF(idarr);
         Py_DECREF(idarrWrap);
                 
         if (NpyArray_ITEMSIZE(idarr) > UFUNC_MAXIDENTITY) {
@@ -2761,11 +2761,11 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
                     "UFUNC_MAXIDENTITY (%d) is too small"\
                     "(needs to be at least %d)",
                     UFUNC_MAXIDENTITY, NpyArray_ITEMSIZE(idarr));
-            _Npy_DECREF(idarr);
+            Npy_DECREF(idarr);
             goto fail;
         }
         memcpy(loop->idptr, NpyArray_BYTES(idarr), NpyArray_ITEMSIZE(idarr));
-        _Npy_DECREF(idarr);
+        Npy_DECREF(idarr);
     }
 
     /* Construct return array */
@@ -4038,7 +4038,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
     if (NULL == self) {
         return NULL;
     }
-    _NpyObject_Init(self, &NpyUFunc_Type);
+    NpyObject_Init(self, &NpyUFunc_Type);
     self->magic_number = NPY_VALID_MAGIC;
     
     self->nin = nin;
@@ -4076,7 +4076,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
     self->core_signature = NULL;
     if (signature != NULL) {
         if (0 != _parse_signature(self, signature)) {
-            _Npy_DECREF(self);
+            Npy_DECREF(self);
             return NULL;
         }
     }
@@ -4127,7 +4127,7 @@ PyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
        When we decref the core to 0, it will decref the interface back to 1. */
     Py_INCREF(self);
     selfCore->nob_interface = self;
-    _Npy_DECREF(selfCore);
+    Npy_DECREF(selfCore);
     
     return (PyObject *)self;
 }
@@ -4239,7 +4239,7 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
         PyErr_SetString(PyExc_TypeError, "unknown user-defined type");
         return -1;
     }
-    _Npy_DECREF(descr);
+    Npy_DECREF(descr);
     
     if (ufunc->userloops == NULL) {
         ufunc->userloops = npy_create_userloops_table();
@@ -4365,7 +4365,7 @@ npy_ufunc_dealloc(NpyUFuncObject *self)
     free(self);
 }
 
-_NpyTypeObject NpyUFunc_Type = {
+NpyTypeObject NpyUFunc_Type = {
     /* TODO: Ready to move */
     (void (*)(_NpyObject *))npy_ufunc_dealloc
 };
@@ -4564,7 +4564,7 @@ _typecharfromnum(int num) {
 
     descr = NpyArray_DescrFromType(num);
     ret = descr->type;
-    _Npy_DECREF(descr);
+    Npy_DECREF(descr);
     return ret;
 }
 

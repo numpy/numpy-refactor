@@ -13,11 +13,11 @@ NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
     for (i=0; i<n; i++) {
         switch(index->type) {
         case NPY_INDEX_INTP_ARRAY:
-            _Npy_DECREF(index->index.intp_array);
+            Npy_DECREF(index->index.intp_array);
             index->index.intp_array = NULL;
             break;
         case NPY_INDEX_BOOL_ARRAY:
-            _Npy_DECREF(index->index.bool_array);
+            Npy_DECREF(index->index.bool_array);
             index->index.bool_array = NULL;
             break;
         default:
@@ -83,7 +83,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
             break;
         case NPY_INDEX_INTP_ARRAY:
             out_indexes[result++] = indexes[i];
-            _Npy_INCREF(indexes[i].index.intp_array);
+            Npy_INCREF(indexes[i].index.intp_array);
             break;
         case NPY_INDEX_BOOL:
             out_indexes[result].type = NPY_INDEX_INTP;
@@ -319,7 +319,7 @@ int NpyArray_IndexBind(NpyIndex* indexes, int n,
             }
 
             out_indexes[result++] = indexes[i];
-            _Npy_INCREF(indexes[i].index.intp_array);
+            Npy_INCREF(indexes[i].index.intp_array);
             break;
 
         case NPY_INDEX_NEWAXIS:
