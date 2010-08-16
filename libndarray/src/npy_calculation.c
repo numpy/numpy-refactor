@@ -39,7 +39,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         for (i = axis; i < ap->nd - 1; i++) dims[i] = i + 1;
         dims[ap->nd - 1] = axis;
         op = NpyArray_Transpose(ap, &newaxes);
-        _Npy_DECREF(ap);
+        Npy_DECREF(ap);
         if (op == NULL) {
             return NULL;
         }
@@ -50,7 +50,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
 
     /* Will get native-byte order contiguous copy. */
     ap = NpyArray_ContiguousFromArray(op, op->descr->type_num);
-    _Npy_DECREF(op);
+    Npy_DECREF(op);
     if (ap == NULL) {
         return NULL;
     }
@@ -102,19 +102,19 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
     }
     NPY_END_THREADS_DESCR(ap->descr);
 
-    _Npy_DECREF(ap);
+    Npy_DECREF(ap);
     if (copyret) {
         NpyArray *obj;
         obj = rp->base_arr;
-        _Npy_INCREF(obj);
-        _Npy_DECREF(rp);
+        Npy_INCREF(obj);
+        Npy_DECREF(rp);
         rp = obj;
     }
     return rp;
 
 fail:
-    _Npy_DECREF(ap);
-    _Npy_XDECREF(rp);
+    Npy_DECREF(ap);
+    Npy_XDECREF(rp);
     return NULL;
 }
 

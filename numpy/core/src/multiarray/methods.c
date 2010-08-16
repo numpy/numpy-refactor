@@ -782,7 +782,7 @@ array_wraparray(PyArrayObject *self, PyObject *args)
     }
 
     if (Py_TYPE(self) != Py_TYPE(arr)){
-        _Npy_INCREF(PyArray_DESCR(arr));
+        Npy_INCREF(PyArray_DESCR(arr));
         RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
                                         PyArray_NDIM(arr),
                                         PyArray_DIMS(arr),
@@ -815,7 +815,7 @@ array_preparearray(PyArrayObject *self, PyObject *args)
         return NULL;
     }
 
-    _Npy_INCREF(PyArray_DESCR(arr));
+    Npy_INCREF(PyArray_DESCR(arr));
     ASSIGN_TO_PYARRAY(ret,
         NpyArray_NewFromDescr(PyArray_DESCR(arr),
                               PyArray_NDIM(arr),
@@ -827,7 +827,7 @@ array_preparearray(PyArrayObject *self, PyObject *args)
         return NULL;
     }
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(arr);
-    _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+    Npy_INCREF(PyArray_BASE_ARRAY(ret));
 
     return (PyObject *)ret;
 }
@@ -848,7 +848,7 @@ array_getarray(PyArrayObject *self, PyObject *args)
     /* convert to PyArray_Type */
     if (!PyArray_CheckExact(self)) {
         PyArrayObject *new;
-        _Npy_INCREF(PyArray_DESCR(self));
+        Npy_INCREF(PyArray_DESCR(self));
         ASSIGN_TO_PYARRAY(new,
                           NpyArray_NewView(PyArray_DESCR(self),
                                            PyArray_NDIM(self),
@@ -1019,7 +1019,7 @@ array_sort(PyArrayObject *self, PyObject *args, PyObject *kwds)
 
     val = PyArray_Sort(self, axis, which);
     if (order != NULL) {
-        _Npy_XDECREF(PyArray_DESCR(self));
+        Npy_XDECREF(PyArray_DESCR(self));
         PyArray_DESCR(self) = saved->descr;
     }
     if (val < 0) {
@@ -1079,7 +1079,7 @@ array_argsort(PyArrayObject *self, PyObject *args, PyObject *kwds)
 
     res = PyArray_ArgSort(self, axis, which);
     if (order != NULL) {
-        _Npy_XDECREF(PyArray_DESCR(self));
+        Npy_XDECREF(PyArray_DESCR(self));
         PyArray_DESCR(self) = saved;
     }
     return _ARET(res);
@@ -1171,7 +1171,7 @@ array_deepcopy(PyArrayObject *self, PyObject *args)
             NpyArray_ITER_NEXT(it);
         }
         Py_DECREF(deepcopy);
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
     }
     return _ARET(ret);
 }
@@ -1192,7 +1192,7 @@ _getlist_pkl(PyArrayObject *self)
     }
     list = PyList_New(iter->size);
     if (list == NULL) {
-        _Npy_DECREF(iter);
+        Npy_DECREF(iter);
         return NULL;
     }
     while (iter->index < iter->size) {
@@ -1200,7 +1200,7 @@ _getlist_pkl(PyArrayObject *self)
         PyList_SET_ITEM(list, (int) iter->index, theobject);
         NpyArray_ITER_NEXT(iter);
     }
-    _Npy_DECREF(iter);
+    Npy_DECREF(iter);
     return list;
 }
 
@@ -1221,7 +1221,7 @@ _setlist_pkl(PyArrayObject *self, PyObject *list)
         setitem(theobject, iter->dataptr, PyArray_ARRAY(self));
         NpyArray_ITER_NEXT(iter);
     }
-    _Npy_XDECREF(iter);
+    Npy_XDECREF(iter);
     return 0;
 }
 
@@ -1344,9 +1344,9 @@ array_setstate(PyArrayObject *self, PyObject *args)
         return NULL;
     }
 
-    _Npy_XDECREF(PyArray_DESCR(self));
+    Npy_XDECREF(PyArray_DESCR(self));
     PyArray_DESCR(self) = typecode->descr;
-    _Npy_INCREF(typecode->descr);
+    Npy_INCREF(typecode->descr);
     nd = PyArray_IntpFromSequence(shape, dimensions, MAX_DIMS);
     if (nd < 0) {
         return NULL;
@@ -1402,7 +1402,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
         }
         PyArray_FLAGS(self) &= ~OWNDATA;
     }
-    _Npy_XDECREF(PyArray_BASE_ARRAY(self));
+    Npy_XDECREF(PyArray_BASE_ARRAY(self));
     Py_XDECREF(PyArray_BASE(self));
     PyArray_BASE_ARRAY(self) = NULL;
     PyArray_BASE(self) = NULL;
@@ -2056,7 +2056,7 @@ array_setflags(PyArrayObject *self, PyObject *args, PyObject *kwds)
             PyArray_FLAGS(self) &= ~UPDATEIFCOPY;
             Py_XDECREF(PyArray_BASE(self));
             PyArray_BASE(self) = NULL;
-            _Npy_XDECREF(PyArray_BASE_ARRAY(self));
+            Npy_XDECREF(PyArray_BASE_ARRAY(self));
             PyArray_BASE_ARRAY(self) = NULL;
         }
     }

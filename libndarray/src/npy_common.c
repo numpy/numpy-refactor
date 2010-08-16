@@ -103,7 +103,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
     int outtype_num, save_num;
 
     if (NpyArray_EquivTypes(chktype, mintype)) {
-        _Npy_INCREF(mintype);
+        Npy_INCREF(mintype);
         return mintype;
     }
 

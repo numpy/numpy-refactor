@@ -2229,7 +2229,7 @@ NpyArray_DescrFromType(int type)
                 "Invalid data-type for array");
     }
     else {
-        _Npy_INCREF(ret);
+        Npy_INCREF(ret);
     }
 
     /* Make sure dtype metadata is initialized for DATETIME */

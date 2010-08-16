@@ -58,7 +58,7 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, void *fun
     if (NULL == self) {
         return NULL;
     }
-    _NpyObject_Init(self, &NpyUFunc_Type);
+    NpyObject_Init(self, &NpyUFunc_Type);
     self->magic_number = NPY_VALID_MAGIC;
     
     self->userloops = NULL;
@@ -170,7 +170,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     self->func_obj = function;
     Py_INCREF(self);
     self->ufunc->nob_interface = self;
-    _Npy_DECREF(self->ufunc);
+    Npy_DECREF(self->ufunc);
     
     Py_INCREF(function);    
     Py_XDECREF(pyname);

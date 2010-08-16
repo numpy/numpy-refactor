@@ -269,7 +269,7 @@ array_data_set(PyArrayObject *self, PyObject *op)
             PyArray_BASE_ARRAY(self)->flags |= WRITEABLE;
             PyArray_FLAGS(self) &= ~UPDATEIFCOPY;
         }
-        _Npy_DECREF(PyArray_BASE_ARRAY(self));
+        Npy_DECREF(PyArray_BASE_ARRAY(self));
         PyArray_BASE_ARRAY(self) = NULL;
     }
     if (NULL != PyArray_BASE(self)) {
@@ -352,7 +352,7 @@ array_descr_set(PyArrayObject *self, PyObject *arg)
 
     PyArray_Descr_REF_TO_CORE(newtypeInterface, newtype);
     result = NpyArray_SetDescr(PyArray_ARRAY(self), newtype);
-    _Npy_DECREF(newtype);
+    Npy_DECREF(newtype);
     return result;
 }
 
@@ -400,7 +400,7 @@ array_struct_get(PyArrayObject *self)
                        npy_arraydescr_protocol_descr_get(PyArray_DESCR(self));
         if (NULL != wrap) {
             PyArray_DESCR(inter) = wrap->descr;
-            _Npy_INCREF(wrap->descr);
+            Npy_INCREF(wrap->descr);
             Py_DECREF(wrap);
             PyArray_FLAGS(inter) &= ARR_HAS_DESCR;
         } else {
@@ -419,7 +419,7 @@ static PyObject *
 array_base_get(PyArrayObject *self)
 {
     if (NULL != PyArray_BASE_ARRAY(self)) {
-        _Npy_INCREF(PyArray_BASE_ARRAY(self));
+        Npy_INCREF(PyArray_BASE_ARRAY(self));
         RETURN_PYARRAY(PyArray_BASE_ARRAY(self));
     } else if (NULL != PyArray_BASE(self)) {
         Py_INCREF(PyArray_BASE(self));
@@ -449,7 +449,7 @@ _get_part(PyArrayObject *self, int imag)
         NpyArray_Descr *new;
         new = NpyArray_DescrNew(type);
         new->byteorder = PyArray_DESCR(self)->byteorder;
-        _Npy_DECREF(type);
+        Npy_DECREF(type);
         type = new;
     }
     RETURN_PYARRAY(NpyArray_NewView(type,
@@ -522,7 +522,7 @@ array_imag_get(PyArrayObject *self)
         ret = _get_part(self, 1);
     }
     else {
-        _Npy_INCREF(PyArray_DESCR(self));
+        Npy_INCREF(PyArray_DESCR(self));
         ASSIGN_TO_PYARRAY(ret,
                           NpyArray_Alloc(PyArray_DESCR(self),
                                          PyArray_NDIM(self),
@@ -586,7 +586,7 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     PyArray_CopySwapFunc *copyswap;
 
     typecode = PyArray_DESCR(self);
-    _Npy_INCREF(typecode);
+    Npy_INCREF(typecode);
     arr = PyArray_FromAnyUnwrap(val, typecode,
                                 0, 0, FORCECAST | FORTRAN_IF(self), NULL);
     if (arr == NULL) {
@@ -641,8 +641,8 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     retval = 0;
 
  exit:
-    _Npy_XDECREF(selfit);
-    _Npy_XDECREF(arrit);
+    Npy_XDECREF(selfit);
+    Npy_XDECREF(arrit);
     Py_XDECREF(arr);
     return retval;
 }

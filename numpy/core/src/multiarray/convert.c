@@ -68,7 +68,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
     while (it->index < it->size) {
         obj = PyArray_DESCR(self)->f->getitem(it->dataptr, PyArray_ARRAY(self));
         if (obj == NULL) {
-            _Npy_DECREF(it);
+            Npy_DECREF(it);
             return -1;
         }
         if (n4 == 0) {
@@ -78,7 +78,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
             strobj = PyObject_Str(obj);
             Py_DECREF(obj);
             if (strobj == NULL) {
-                _Npy_DECREF(it);
+                Npy_DECREF(it);
                 return -1;
             }
         }
@@ -88,21 +88,21 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
              */
             tupobj = PyTuple_New(1);
             if (tupobj == NULL) {
-                _Npy_DECREF(it);
+                Npy_DECREF(it);
                 return -1;
             }
             PyTuple_SET_ITEM(tupobj,0,obj);
             obj = PyUString_FromString((const char *)format);
             if (obj == NULL) {
                 Py_DECREF(tupobj);
-                _Npy_DECREF(it);
+                Npy_DECREF(it);
                 return -1;
             }
             strobj = PyUString_Format(obj, tupobj);
             Py_DECREF(obj);
             Py_DECREF(tupobj);
             if (strobj == NULL) {
-                _Npy_DECREF(it);
+                Npy_DECREF(it);
                 return -1;
             }
         }
@@ -123,7 +123,7 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
                          "problem writing element %"INTP_FMT\
                          " to file", it->index);
             Py_DECREF(strobj);
-            _Npy_DECREF(it);
+            Npy_DECREF(it);
             return -1;
         }
         /* write separator for all but last one */
@@ -133,14 +133,14 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
                              "problem writing "\
                              "separator to file");
                 Py_DECREF(strobj);
-                _Npy_DECREF(it);
+                Npy_DECREF(it);
                 return -1;
             }
         }
         Py_DECREF(strobj);
         NpyArray_ITER_NEXT(it);
     }
-    _Npy_DECREF(it);
+    Npy_DECREF(it);
     return 0;
 }
 
@@ -214,7 +214,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
         }
         ret = PyBytes_FromStringAndSize(NULL, (Py_ssize_t) numbytes);
         if (ret == NULL) {
-            _Npy_DECREF(it);
+            Npy_DECREF(it);
             return NULL;
         }
         dptr = PyBytes_AS_STRING(ret);
@@ -225,7 +225,7 @@ PyArray_ToString(PyArrayObject *self, NPY_ORDER order)
             dptr += elsize;
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
     }
     return ret;
 }
@@ -249,7 +249,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     }
     else {
         descr = PyArray_DESCR(arr);
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         newarr = PyArray_FromAnyUnwrap(obj, descr, 0,0, ALIGNED, NULL);
         if (newarr == NULL) {
             return -1;
@@ -286,7 +286,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
             copyswap(iter->dataptr, fromptr, swap, PyArray_ARRAY(arr));
             NpyArray_ITER_NEXT(iter);
         }
-        _Npy_DECREF(iter);
+        Npy_DECREF(iter);
     }
     Py_XDECREF(newarr);
     return 0;

@@ -388,16 +388,16 @@ PyArray_PyIntAsInt(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     if (PyArray_IsScalar(o, Integer)) {
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((int *)NpyArray_DATA(arr));
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         return ret;
     }
 #if (PY_VERSION_HEX >= 0x02050000)
@@ -483,16 +483,16 @@ PyArray_PyIntAsIntp(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     else if (PyArray_IsScalar(o, Integer)) {
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((intp *)NpyArray_DATA(arr));
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         return ret;
     }
 
@@ -776,7 +776,7 @@ convert_sequence(PyObject* seq, NpyArray** parray)
     }
 
     *parray = PyArray_ARRAY(pyArray);
-    _Npy_INCREF(*parray);
+    Npy_INCREF(*parray);
     Py_DECREF(pyArray);
 
     return 0;

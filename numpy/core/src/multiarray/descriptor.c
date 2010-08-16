@@ -263,7 +263,7 @@ _convert_from_tuple(PyObject *obj)
 
         /* Move reference on type to core since that's what's stored in
            subarray->base */
-        _Npy_INCREF(type->descr);
+        Npy_INCREF(type->descr);
         Py_DECREF(type);
 
         assert((0 == newdescr->subarray->shape_num_dims &&
@@ -274,7 +274,7 @@ _convert_from_tuple(PyObject *obj)
         /* Move reference to newdescr to interface object for return. */
         type = PyArray_Descr_WRAP(newdescr);
         Py_INCREF(type);
-        _Npy_DECREF(newdescr);
+        Npy_DECREF(newdescr);
     }
     return type;
 
@@ -444,7 +444,7 @@ _convert_from_array_descr(PyObject *obj, int align)
                                        titleStr);
                 /* First DescrSetField call steals the reference,
                    need a second to steal. */
-                _Npy_INCREF(descr);
+                Npy_INCREF(descr);
                 NpyArray_DescrSetField(fields, titleStr, descr, offset,
                                        titleStr);
             }
@@ -468,7 +468,7 @@ _convert_from_array_descr(PyObject *obj, int align)
         new->alignment = maxalign;
     }
     Py_INCREF( Npy_INTERFACE(new) );
-    _Npy_DECREF(new);
+    Npy_DECREF(new);
     return PyArray_Descr_WRAP(new);
 
  fail:
@@ -571,7 +571,7 @@ _convert_from_list(PyObject *obj, int align)
     new->elsize = totalsize;
 
     Py_INCREF( Npy_INTERFACE(new) );
-    _Npy_DECREF( new );
+    Npy_DECREF( new );
     return PyArray_Descr_WRAP(new);
 
  fail:
@@ -1158,7 +1158,7 @@ _convert_from_dict(PyObject *obj, int align)
                     ret=PY_FAIL;
                 }
                 /* First DescrSetField stole the ref, need a second */
-                _Npy_INCREF(coredescr);
+                Npy_INCREF(coredescr);
                 NpyArray_DescrSetField(fields, PyString_AsString(item),
                                        coredescr, offset,
                                        PyString_AsString(item));
@@ -1188,7 +1188,7 @@ _convert_from_dict(PyObject *obj, int align)
     new->flags = dtypeflags;
 
     Py_INCREF( Npy_INTERFACE(new) );
-    _Npy_DECREF(new);
+    Npy_DECREF(new);
     return Npy_INTERFACE(new);
 
  fail:
@@ -1215,7 +1215,7 @@ PyArray_DescrNewFromType(int type_num)
     NpyArray_Descr *result = NpyArray_DescrNewFromType(type_num);
 
     Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
+    Npy_DECREF(result);
     return Npy_INTERFACE(result);
 }
 
@@ -1532,7 +1532,7 @@ PyArray_DescrNew(PyArray_Descr *base)
     NpyArray_Descr *result = NpyArray_DescrNew(base->descr);
 
     Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
+    Npy_DECREF(result);
     return Npy_INTERFACE(result);
 }
 
@@ -1998,7 +1998,7 @@ arraydescr_fields_from_pydict(PyObject *dict)
                 PyString_AsString(PyTuple_GetItem(value, 2)) : NULL;
 
         /* DescrSetField will incref subDescr, copy strings */
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         NpyArray_DescrSetField(fields, PyString_AsString(key), descr,
                                offset, title);
     }
@@ -2465,7 +2465,7 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
         selfCore->subarray = NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
         selfCore->subarray->base = ((PyArray_Descr *)
                                     PyTuple_GET_ITEM(subarray, 0))->descr;
-        _Npy_INCREF( selfCore->subarray->base );
+        Npy_INCREF( selfCore->subarray->base );
 
         shape = PyTuple_GET_ITEM(subarray, 1);
         len = PySequence_Check(shape) ? PySequence_Length(shape) : 1;
@@ -2621,7 +2621,7 @@ PyArray_DescrNewByteorder(PyArray_Descr *self, char newendian)
     NpyArray_Descr *result = NpyArray_DescrNewByteorder(self->descr, newendian);
 
     Py_INCREF( Npy_INTERFACE(result) );
-    _Npy_DECREF(result);
+    Npy_DECREF(result);
     return Npy_INTERFACE(result);
 }
 

@@ -19,7 +19,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op);
         if (a_ == NULL) return NULL;             \
         ret_ = Npy_INTERFACE(a_);                 \
         Py_INCREF(ret_);                         \
-        _Npy_DECREF(a_);                         \
+        Npy_DECREF(a_);                         \
         return (PyObject*) ret_;                 \
     } while (0)
 
@@ -31,7 +31,7 @@ array_richcompare(PyArrayObject *self, PyObject *other, int cmp_op);
         } else {                                \
             pya = Npy_INTERFACE(a_);            \
             Py_INCREF(pya);                     \
-            _Npy_DECREF(a_);                    \
+            Npy_DECREF(a_);                    \
         }                                       \
     } while (0)
 

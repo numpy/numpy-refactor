@@ -1219,7 +1219,7 @@ gentype_byteswap(PyObject *self, PyObject *args)
         descr = PyArray_DescrFromScalarUnwrap(self);
         newmem = _pya_malloc(descr->elsize);
         if (newmem == NULL) {
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return PyErr_NoMemory();
         }
         else {
@@ -1227,7 +1227,7 @@ gentype_byteswap(PyObject *self, PyObject *args)
         }
         new = PyArray_Scalar(newmem, PyArray_Descr_WRAP(descr), NULL);
         _pya_free(newmem);
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return new;
     }
 }
@@ -1273,7 +1273,7 @@ voidtype_getfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
             new = PyArray_DescrFromScalarUnwrap(ret);
             ptr = scalar_value(ret, new);
             byte_swap_vector(ptr, 1, new->elsize);
-            _Npy_DECREF(new);
+            Npy_DECREF(new);
         }
     }
     return ret;
@@ -1939,7 +1939,7 @@ gentype_getreadbuf(PyObject *self, Py_ssize_t segment, void **ptrptr)
         numbytes >>= 1;
     }
 #endif
-    _Npy_DECREF(outcode);
+    Npy_DECREF(outcode);
     return numbytes;
 }
 
@@ -1957,7 +1957,7 @@ gentype_getsegcount(PyObject *self, Py_ssize_t *lenp)
         }
 #endif
     }
-    _Npy_DECREF(outcode);
+    Npy_DECREF(outcode);
     return 1;
 }
 
@@ -2178,7 +2178,7 @@ static PyObject *
         Py_INCREF(Py_None);
         robj = Py_None;
 #endif
-        _Npy_DECREF(typecode);
+        Npy_DECREF(typecode);
         goto finish;
     }
 
@@ -2230,7 +2230,7 @@ finish:
     typecode = NpyArray_DescrFromType(PyArray_@TYPE@);
     dest = scalar_value(obj, typecode);
     src = scalar_value(robj, typecode);
-    _Npy_DECREF(typecode);
+    Npy_DECREF(typecode);
 #if @default@ == 0
     *((npy_@name@ *)dest) = *((npy_@name@ *)src);
 #elif @default@ == 1 /* unicode and strings */

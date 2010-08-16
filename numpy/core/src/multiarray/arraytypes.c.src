@@ -597,7 +597,7 @@ VOID_getitem(char *ip, NpyArray *ap)
         /* return an array of the basic type */
         PyArrayObject *ret;
 
-        _Npy_INCREF(descr->subarray->base);
+        Npy_INCREF(descr->subarray->base);
         ASSIGN_TO_PYARRAY(ret,
                           NpyArray_NewFromDescr(
                                 descr->subarray->base, descr->subarray->shape_num_dims, 
@@ -607,7 +607,7 @@ VOID_getitem(char *ip, NpyArray *ap)
             return NULL;
         }
         PyArray_BASE_ARRAY(ret) = ap;
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags(ret, UPDATE_ALL);
         return (PyObject *)ret;
@@ -636,7 +636,7 @@ finish:
                                  NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
                                  NPY_TRUE, NULL, NULL) );
         PyArray_BASE_ARRAY(u) = ap;
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(u) || NULL == PyArray_BASE(u));
     }
 #else
@@ -712,7 +712,7 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
         /* copy into an array of the same basic type */
         PyArrayObject *ret;
         
-        _Npy_INCREF(descr->subarray->base);
+        Npy_INCREF(descr->subarray->base);
         ASSIGN_TO_PYARRAY(ret, 
                           NpyArray_NewFromDescr(descr->subarray->base, 
                                     descr->subarray->shape_num_dims, 
@@ -722,7 +722,7 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
             return -1;
         }
         PyArray_BASE_ARRAY(ret) = ap;
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(ret) || NULL == PyArray_BASE(ret));
         PyArray_UpdateFlags((PyArrayObject *)ret, UPDATE_ALL);
         res = PyArray_CopyObject((PyArrayObject *)ret, op);

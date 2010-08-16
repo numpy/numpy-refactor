@@ -303,7 +303,7 @@ struct NpyArray_FunctionDefs {
     NpyArray_VectorUnaryFunc *cast_to_void[NPY_NTYPES];
 };
 
-extern _NpyTypeObject NpyArrayDescr_Type;
+extern NpyTypeObject NpyArrayDescr_Type;
 
 
 /* Descriptor API */

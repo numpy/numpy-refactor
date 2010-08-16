@@ -53,7 +53,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
     else {
         it->contiguous = 0;
     }
-    _Npy_INCREF(ao);
+    Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_SIZE(ao);
     it->nd_m1 = nd - 1;
@@ -83,7 +83,7 @@ static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
     Npy_INTERFACE(it) = NULL;
-    _Npy_XDECREF(it->ao);
+    Npy_XDECREF(it->ao);
     it->magic_number = NPY_INVALID_MAGIC;
 }
 
@@ -96,7 +96,7 @@ NpyArray_IterNew(NpyArray *ao)
     NpyArrayIterObject *it;
 
     it = (NpyArrayIterObject *)NpyArray_malloc(sizeof(NpyArrayIterObject));
-    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
+    NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
     if (it == NULL) {
         return NULL;
     }
@@ -105,7 +105,7 @@ NpyArray_IterNew(NpyArray *ao)
     array_iter_base_init(it, ao);
     if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
         Npy_INTERFACE(it) = NULL;
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
         return NULL;
     }
     return it;
@@ -141,11 +141,11 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     if (it == NULL) {
         return NULL;
     }
-    _NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
+    NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
     it->magic_number = NPY_VALID_MAGIC;
     if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
         Npy_INTERFACE(it) = NULL;
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
         return NULL;
     }
 
@@ -156,7 +156,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
     else {
         it->contiguous = 0;
     }
-    _Npy_INCREF(ao);
+    Npy_INCREF(ao);
     it->ao = ao;
     it->size = NpyArray_MultiplyList(dims, nd);
     it->nd_m1 = nd - 1;
@@ -195,7 +195,7 @@ NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
 
     if (index) {
         /* Returns a 0-d array with the value. */
-        _Npy_INCREF(self->ao->descr);
+        Npy_INCREF(self->ao->descr);
         result = NpyArray_Alloc(self->ao->descr, 0, NULL,
                                 NPY_FALSE, Npy_INTERFACE(self->ao));
         if (result == NULL) {
@@ -210,7 +210,7 @@ NpyArray_IterSubscriptBool(NpyArrayIterObject *self, npy_bool index)
     } else {
         /* Make an empty array. */
         npy_intp ii = 0;
-        _Npy_INCREF(self->ao->descr);
+        Npy_INCREF(self->ao->descr);
         result = NpyArray_Alloc(self->ao->descr, 7, &ii,
                                 NPY_FALSE, Npy_INTERFACE(self->ao));
         return result;
@@ -223,7 +223,7 @@ NpyArray_IterSubscriptIntp(NpyArrayIterObject *self, npy_intp index)
     NpyArray *result;
     int swap;
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     result = NpyArray_Alloc(self->ao->descr, 0, NULL,
                             NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
@@ -252,7 +252,7 @@ NpyArray_IterSubscriptAssignIntp(NpyArrayIterObject *self, npy_intp index,
         return -1;
     }
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     converted_value = NpyArray_FromArray(value, self->ao->descr, 0);
     if (converted_value == NULL) {
         return -1;
@@ -267,7 +267,7 @@ NpyArray_IterSubscriptAssignIntp(NpyArrayIterObject *self, npy_intp index,
                                  swap, self->ao);
     NpyArray_ITER_RESET(self);
 
-    _Npy_DECREF(converted_value);
+    Npy_DECREF(converted_value);
     return 0;
 }
 
@@ -283,7 +283,7 @@ NpyArray_IterSubscriptSlice(NpyArrayIterObject *self, NpyIndexSlice *slice)
     /* Build the result. */
     steps = NpyArray_SliceSteps(slice);
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     result = NpyArray_Alloc(self->ao->descr, 1, &steps,
                             NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
@@ -321,7 +321,7 @@ NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self,
     NpyArray_CopySwapFunc *copyswap;
     NpyArrayIterObject *value_iter = NULL;
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     converted_value = NpyArray_FromArray(value, self->ao->descr, 0);
     if (converted_value == NULL) {
         return -1;
@@ -330,7 +330,7 @@ NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self,
     /* Copy in the data. */
     value_iter = NpyArray_IterNew(converted_value);
     if (value_iter == NULL) {
-        _Npy_DECREF(converted_value);
+        Npy_DECREF(converted_value);
         return -1;
     }
 
@@ -355,8 +355,8 @@ NpyArray_IterSubscriptAssignSlice(NpyArrayIterObject *self,
         NpyArray_ITER_RESET(self);
     }
 
-    _Npy_DECREF(value_iter);
-    _Npy_DECREF(converted_value);
+    Npy_DECREF(value_iter);
+    Npy_DECREF(converted_value);
 
     return 0;
 }
@@ -402,7 +402,7 @@ NpyArray_IterSubscriptBoolArray(NpyArrayIterObject *self, NpyArray *index)
     }
 
     /* Build the result. */
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     result = NpyArray_Alloc(self->ao->descr, 1, &result_size,
                             NPY_FALSE, Npy_INTERFACE(self->ao));
     if (result == NULL) {
@@ -457,7 +457,7 @@ NpyArray_IterSubscriptAssignBoolArray(NpyArrayIterObject *self,
         return -1;
     }
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     converted_value = NpyArray_FromArray(value, self->ao->descr, 0);
     if (converted_value == NULL) {
         return -1;
@@ -465,7 +465,7 @@ NpyArray_IterSubscriptAssignBoolArray(NpyArrayIterObject *self,
 
     value_iter = NpyArray_IterNew(converted_value);
     if (value_iter == NULL) {
-        _Npy_DECREF(converted_value);
+        Npy_DECREF(converted_value);
         return -1;
     }
 
@@ -495,8 +495,8 @@ NpyArray_IterSubscriptAssignBoolArray(NpyArrayIterObject *self,
         NpyArray_ITER_RESET(self);
     }
 
-    _Npy_DECREF(value_iter);
-    _Npy_DECREF(converted_value);
+    Npy_DECREF(value_iter);
+    Npy_DECREF(converted_value);
 
     return 0;
 }
@@ -514,7 +514,7 @@ NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
     int swap;
 
     /* Build the result in the same shape as the index. */
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     result = NpyArray_Alloc(self->ao->descr,
                             index->nd, index->dimensions,
                             NPY_FALSE, Npy_INTERFACE(self->ao));
@@ -525,7 +525,7 @@ NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
     /* Copy in the data. */
     index_iter = NpyArray_IterNew(index);
     if (index_iter == NULL) {
-        _Npy_DECREF(result);
+        Npy_DECREF(result);
         return NULL;
     }
     copyswap = result->descr->f->copyswap;
@@ -546,8 +546,8 @@ NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
                     " 0<=index<%"NPY_INTP_FMT,
                     num, self->size);
             NpyErr_SetString(NpyExc_IndexError, msg);
-            _Npy_DECREF(index_iter);
-            _Npy_DECREF(result);
+            Npy_DECREF(index_iter);
+            Npy_DECREF(result);
             NpyArray_ITER_RESET(self);
             return NULL;
         }
@@ -556,7 +556,7 @@ NpyArray_IterSubscriptIntpArray(NpyArrayIterObject *self,
         optr += elsize;
         NpyArray_ITER_NEXT(index_iter);
     }
-    _Npy_DECREF(index_iter);
+    Npy_DECREF(index_iter);
     NpyArray_ITER_RESET(self);
 
     return result;
@@ -572,7 +572,7 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
     npy_intp i, num;
     int swap;
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     converted_value = NpyArray_FromArray(value, self->ao->descr, 0);
     if (converted_value == NULL) {
         return -1;
@@ -580,17 +580,17 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
 
     index_iter = NpyArray_IterNew(index);
     if (index_iter == NULL) {
-        _Npy_DECREF(converted_value);
+        Npy_DECREF(converted_value);
         return -1;
     }
 
     value_iter = NpyArray_IterNew(converted_value);
     if (value_iter == NULL) {
-        _Npy_DECREF(index_iter);
-        _Npy_DECREF(converted_value);
+        Npy_DECREF(index_iter);
+        Npy_DECREF(converted_value);
         return -1;
     }
-    _Npy_DECREF(converted_value);
+    Npy_DECREF(converted_value);
 
     if (value_iter->size > 0) {
 
@@ -611,8 +611,8 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
                         " 0<=index<%"NPY_INTP_FMT,
                         num, self->size);
                 NpyErr_SetString(NpyExc_IndexError, msg);
-                _Npy_DECREF(index_iter);
-                _Npy_DECREF(value_iter);
+                Npy_DECREF(index_iter);
+                Npy_DECREF(value_iter);
                 NpyArray_ITER_RESET(self);
                 return -1;
             }
@@ -626,8 +626,8 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
         }
         NpyArray_ITER_RESET(self);
     }
-    _Npy_DECREF(index_iter);
-    _Npy_DECREF(value_iter);
+    Npy_DECREF(index_iter);
+    Npy_DECREF(value_iter);
 
     return 0;
 }
@@ -639,7 +639,7 @@ NpyArray_IterSubscript(NpyArrayIterObject* self,
     NpyIndex *index;
 
     if (n == 0 || (n == 1 && indexes[0].type == NPY_INDEX_ELLIPSIS)) {
-        _Npy_INCREF(self->ao);
+        Npy_INCREF(self->ao);
         return self->ao;
     }
 
@@ -977,7 +977,7 @@ arrayiter_dealloc(NpyArrayIterObject *it)
 }
 
 
-_NpyTypeObject NpyArrayIter_Type = {
+NpyTypeObject NpyArrayIter_Type = {
     (npy_destructor)arrayiter_dealloc,
 };
 
@@ -989,13 +989,13 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
     assert(0 == multi->nob_refcnt);
 
     for (i = 0; i < multi->numiter; i++) {
-        _Npy_XDECREF(multi->iters[i]);
+        Npy_XDECREF(multi->iters[i]);
     }
     multi->magic_number = NPY_INVALID_MAGIC;
     NpyArray_free(multi);
 }
 
-_NpyTypeObject NpyArrayMultiIter_Type =   {
+NpyTypeObject NpyArrayMultiIter_Type =   {
     (npy_destructor)arraymultiter_dealloc,
 };
 
@@ -1021,7 +1021,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
-    _NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
+    NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
     multi->magic_number = NPY_VALID_MAGIC;
 
     for (i = 0; i < ntot; i++) {
@@ -1044,13 +1044,13 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         err = 1;
     }
     if (err) {
-        _Npy_DECREF(multi);
+        Npy_DECREF(multi);
         return NULL;
     }
     NpyArray_MultiIter_RESET(multi);
     if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(multi, &multi->nob_interface)) {
         Npy_INTERFACE(multi) = NULL;
-        _Npy_DECREF(multi);
+        Npy_DECREF(multi);
         return NULL;
     }
     return multi;
@@ -1067,11 +1067,11 @@ NpyArray_MultiIterNew()
         NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return NULL;
     }
-    _NpyObject_Init(ret, &NpyArrayMultiIter_Type);
+    NpyObject_Init(ret, &NpyArrayMultiIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
     if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret, &ret->nob_interface)) {
         Npy_INTERFACE(ret) = NULL;
-        _Npy_DECREF(ret);
+        Npy_DECREF(ret);
         return NULL;
     }
     return ret;
@@ -1240,11 +1240,11 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     if (ret == NULL) {
         goto fail;
     }
-    _NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
+    NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
 
     array_iter_base_init((NpyArrayIterObject *)ret, x->ao);
-    _Npy_INCREF(x);
+    Npy_INCREF(x);
     ret->_internal_iter = x;
 
     ret->nd = x->ao->nd;
@@ -1308,7 +1308,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
             (*fillfree)(fill);
         }
         Npy_INTERFACE(ret) = NULL;
-        _Npy_DECREF(ret);
+        Npy_DECREF(ret);
         return NULL;
     }
 
@@ -1319,7 +1319,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
         (*fillfree)(fill);
     }
     if (ret) {
-        _Npy_DECREF(ret->_internal_iter);
+        Npy_DECREF(ret->_internal_iter);
         /* TODO: Free ret here once we add a level of indirection */
     }
     return NULL;
@@ -1329,7 +1329,7 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 {
     assert(0 == iter->nob_refcnt);
 
-    _Npy_DECREF(iter->_internal_iter);
+    Npy_DECREF(iter->_internal_iter);
 
     if (iter->constant && iter->constant_free) {
         (*iter->constant_free)(iter->constant);
@@ -1339,6 +1339,6 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
     NpyArray_free(iter);
 }
 
-_NpyTypeObject NpyArrayNeighborhoodIter_Type = {
+NpyTypeObject NpyArrayNeighborhoodIter_Type = {
     (npy_destructor)neighiter_dealloc,
 };

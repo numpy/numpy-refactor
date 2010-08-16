@@ -42,7 +42,7 @@ struct NpyUFuncObject {
 
 typedef struct NpyUFuncObject NpyUFuncObject;
 
-extern _NpyTypeObject NpyUFunc_Type;
+extern NpyTypeObject NpyUFunc_Type;
 
 
 extern struct NpyDict_struct *npy_create_userloops_table();

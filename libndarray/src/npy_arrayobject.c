@@ -131,7 +131,7 @@ NpyArray_dealloc(NpyArray *self)
          */
         if (self->flags & NPY_UPDATEIFCOPY) {
             self->base_arr->flags |= NPY_WRITEABLE;
-            _Npy_INCREF(self); /* hold on to self in next call */
+            Npy_INCREF(self); /* hold on to self in next call */
             if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
                 /* NpyErr_Print(); */
                 NpyErr_Clear();
@@ -146,7 +146,7 @@ NpyArray_dealloc(NpyArray *self)
          * In any case base is pointing to something that we need
          * to DECREF -- either a view or a buffer object
          */
-        _Npy_DECREF(self->base_arr);
+        Npy_DECREF(self->base_arr);
         self->base_arr = NULL;
     } else if (NULL != self->base_obj) {
         NpyInterface_DECREF(self->base_obj);
@@ -156,7 +156,7 @@ NpyArray_dealloc(NpyArray *self)
     if ((self->flags & NPY_OWNDATA) && self->data) {
         /* Free internal references if an Object array */
         if (NpyDataType_FLAGCHK(self->descr, NPY_ITEM_REFCOUNT)) {
-            _Npy_INCREF(self); /* hold on to self in next call */
+            Npy_INCREF(self); /* hold on to self in next call */
             NpyArray_XDECREF(self);
             /*
              * Don't need to DECREF -- because we are deleting
@@ -170,7 +170,7 @@ NpyArray_dealloc(NpyArray *self)
     }
 
     NpyDimMem_FREE(self->dimensions);
-    _Npy_DECREF(self->descr);
+    Npy_DECREF(self->descr);
     /* Flag that this object is now deallocated. */
     self->magic_number = NPY_INVALID_MAGIC;
 
@@ -179,6 +179,6 @@ NpyArray_dealloc(NpyArray *self)
     return result;
 }
 
-_NpyTypeObject NpyArray_Type = {
+NpyTypeObject NpyArray_Type = {
     (npy_destructor)NpyArray_dealloc,
 };

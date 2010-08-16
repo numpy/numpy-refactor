@@ -68,7 +68,7 @@ array_slice(PyArrayObject *self, Py_ssize_t ilow,
     }
 
     PyArray_DIM(self, 0) = ihigh-ilow;
-    _Npy_INCREF(PyArray_DESCR(self));
+    Npy_INCREF(PyArray_DESCR(self));
     ASSIGN_TO_PYARRAY(r,
                       NpyArray_NewView(PyArray_DESCR(self),
                                        PyArray_NDIM(self), PyArray_DIMS(self),
@@ -177,7 +177,7 @@ array_any_nonzero(PyArrayObject *mp)
         }
         NpyArray_ITER_NEXT(it);
     }
-    _Npy_DECREF(it);
+    Npy_DECREF(it);
     return anyTRUE;
 }
 
