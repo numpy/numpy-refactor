@@ -298,7 +298,7 @@ static PyObject *
 array_size_get(PyArrayObject *self)
 {
     intp size=PyArray_SIZE(self);
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) size);
 #else
     if (size > MAX_LONG || size < MIN_LONG) {
@@ -314,7 +314,7 @@ static PyObject *
 array_nbytes_get(PyArrayObject *self)
 {
     intp nbytes = PyArray_NBYTES(self);
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) nbytes);
 #else
     if (nbytes > MAX_LONG || nbytes < MIN_LONG) {

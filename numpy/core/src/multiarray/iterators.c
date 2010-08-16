@@ -433,7 +433,7 @@ iter_base_get(PyArrayIterObject* self)
 static PyObject *
 iter_index_get(PyArrayIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->index);
 #else
     if (self->size < MAX_LONG) {
@@ -737,7 +737,7 @@ arraymultiter_dealloc(PyArrayMultiIterObject *multi)
 static PyObject *
 arraymultiter_size_get(PyArrayMultiIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->size);
 #else
     if (self->size < MAX_LONG) {
@@ -752,7 +752,7 @@ arraymultiter_size_get(PyArrayMultiIterObject *self)
 static PyObject *
 arraymultiter_index_get(PyArrayMultiIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->index);
 #else
     if (self->size < MAX_LONG) {

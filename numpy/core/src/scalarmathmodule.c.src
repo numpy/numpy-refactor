@@ -17,17 +17,17 @@
 
 /** numarray adapted routines.... **/
 
-#if SIZEOF_LONGLONG == 64 || SIZEOF_LONGLONG == 128
+#if NPY_SIZEOF_LONGLONG == 64 || NPY_SIZEOF_LONGLONG == 128
 static int ulonglong_overflow(ulonglong a, ulonglong b)
 {
     ulonglong ah, al, bh, bl, w, x, y, z;
 
-#if SIZEOF_LONGLONG == 64
+#if NPY_SIZEOF_LONGLONG == 64
     ah = (a >> 32);
     al = (a & 0xFFFFFFFFL);
     bh = (b >> 32);
     bl = (b & 0xFFFFFFFFL);
-#elif SIZEOF_LONGLONG == 128
+#elif NPY_SIZEOF_LONGLONG == 128
     ah = (a >> 64);
     al = (a & 0xFFFFFFFFFFFFFFFFL);
     bh = (b >> 64);
@@ -43,10 +43,10 @@ static int ulonglong_overflow(ulonglong a, ulonglong b)
     z = ah*bh;
 
     /* *c = ((x + y)<<32) + w; */
-#if SIZEOF_LONGLONG == 64
+#if NPY_SIZEOF_LONGLONG == 64
     return z || (x>>32) || (y>>32) ||
         (((x & 0xFFFFFFFFL) + (y & 0xFFFFFFFFL) + (w >> 32)) >> 32);
-#elif SIZEOF_LONGLONG == 128
+#elif NPY_SIZEOF_LONGLONG == 128
     return z || (x>>64) || (y>>64) ||
         (((x & 0xFFFFFFFFFFFFFFFFL) + (y & 0xFFFFFFFFFFFFFFFFL) + (w >> 64)) >> 64);
 #else
@@ -81,12 +81,12 @@ static int slonglong_overflow(longlong a0, longlong b0)
     }
 
 
-#if SIZEOF_LONGLONG == 64
+#if NPY_SIZEOF_LONGLONG == 64
     ah = (a >> 32);
     al = (a & 0xFFFFFFFFL);
     bh = (b >> 32);
     bl = (b & 0xFFFFFFFFL);
-#elif SIZEOF_LONGLONG == 128
+#elif NPY_SIZEOF_LONGLONG == 128
     ah = (a >> 64);
     al = (a & 0xFFFFFFFFFFFFFFFFL);
     bh = (b >> 64);
@@ -108,10 +108,10 @@ static int slonglong_overflow(longlong a0, longlong b0)
       *c = c
       */
 
-#if SIZEOF_LONGLONG == 64
+#if NPY_SIZEOF_LONGLONG == 64
     return z || (x>>31) || (y>>31) ||
         (((x & 0xFFFFFFFFL) + (y & 0xFFFFFFFFL) + (w >> 32)) >> 31);
-#elif SIZEOF_LONGLONG == 128
+#elif NPY_SIZEOF_LONGLONG == 128
     return z || (x>>63) || (y>>63) ||
         (((x & 0xFFFFFFFFFFFFFFFFL) + (y & 0xFFFFFFFFFFFFFFFFL) + (w >> 64)) >> 63);
 #else
@@ -182,8 +182,8 @@ static void
 }
 /**end repeat**/
 
-#ifndef SIZEOF_BYTE
-#define SIZEOF_BYTE 1
+#ifndef NPY_SIZEOF_BYTE
+#define NPY_SIZEOF_BYTE 1
 #endif
 
 /**begin repeat
@@ -195,7 +195,7 @@ static void
  * #SIZE = INT*4,LONGLONG*4#
  * #neg = (1,0)*4#
  */
-#if SIZEOF_@SIZE@ > SIZEOF_@SIZENAME@
+#if NPY_SIZEOF_@SIZE@ > NPY_SIZEOF_@SIZENAME@
 static void
 @name@_ctype_multiply(@name@ a, @name@ b, @name@ *out) {
     @big@ temp;
@@ -218,7 +218,7 @@ static void
  * #SIZE = INT*2, LONG*2, LONGLONG*2#
  * #char = (s,u)*3#
  */
-#if SIZEOF_LONGLONG == SIZEOF_@SIZE@
+#if NPY_SIZEOF_LONGLONG == NPY_SIZEOF_@SIZE@
 static void
 @name@_ctype_multiply(@name@ a, @name@ b, @name@ *out) {
     *out = a * b;
