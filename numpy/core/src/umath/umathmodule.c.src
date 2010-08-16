@@ -45,6 +45,12 @@
 static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
 
+/* From ufunc_object.c */
+NPY_NO_EXPORT int
+PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first);
+
+
+
 /* TODO: Ready to move */
 NpyUFuncObject *
 npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, void *function) {
@@ -356,6 +362,8 @@ PyMODINIT_FUNC initumath(void)
 
     InitOtherOperators(d);
 
+    NpyUFunc_SetFpErrHandler(PyUFunc_handlefperr);
+    
     PyDict_SetItemString(d, "pi", s = PyFloat_FromDouble(NPY_PI));
     Py_DECREF(s);
     PyDict_SetItemString(d, "e", s = PyFloat_FromDouble(exp(1.0)));

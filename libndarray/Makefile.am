@@ -50,6 +50,7 @@ LIBSOURCES = \
         src/npy_number.c \
         src/npy_refcount.c \
         src/npy_shape.c \
+        src/npy_ufunc_object.c \
         src/npy_usertypes.c \
         src/npy_os.c
 
