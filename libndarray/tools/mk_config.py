@@ -2,6 +2,10 @@ import re
 
 
 
+MAP = {
+    'HAVE_LONG_LONG_INT':    'NPY_HAVE_LONGLONG',
+}
+
 def define_repl(match):
     name = match.group(2)
 
@@ -9,6 +13,9 @@ def define_repl(match):
 HAVE_DECL_ISNAN HAVE_DECL_ISFINITE HAVE_DECL_ISINF
 '''.split():
         name = 'NPY_' + name
+
+    if name in MAP:
+        name = MAP[name]
 
     return match.group(1) + name + match.group(3)
 
