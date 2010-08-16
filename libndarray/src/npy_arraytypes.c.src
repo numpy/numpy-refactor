@@ -1890,7 +1890,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  * FIXME: check for PY3K
  */
 NpyArray_Descr @from@_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
     NpyArray_@from@LTR,
@@ -1982,7 +1982,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  * FIXME: check for PY3K
  */
 NpyArray_Descr @from@_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@kind@LTR,
     NpyArray_@from@LTR,
@@ -2029,7 +2029,7 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
 };
 
 NpyArray_Descr OBJECT_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_OBJECTLTR,
     NpyArray_OBJECTLTR,
