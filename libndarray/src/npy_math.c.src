@@ -1,5 +1,4 @@
 /*
- * vim:syntax=c
  * A small module to implement missing C99 math capabilities required by numpy
  *
  * Please keep this independant of python ! Only basic types (npy_longdouble)
@@ -64,7 +63,7 @@
  */
 
 /* Original code by Konrad Hinsen.  */
-#if !HAVE_DECL_EXPM1
+#if !NPY_HAVE_DECL_EXPM1
 double npy_expm1(double x)
 {
     const double u = npy_exp(x);
@@ -79,7 +78,7 @@ double npy_expm1(double x)
 }
 #endif
 
-#if !HAVE_DECL_LOG1P
+#if !NPY_HAVE_DECL_LOG1P
 double npy_log1p(double x)
 {
     const double u = 1.0 + x;
@@ -99,7 +98,7 @@ double npy_log1p(double x)
  * classification instead of calling npy_isinf/npy_isnan: we should have some
  * macros for this, though, instead of doing it manually
  */
-#if !HAVE_DECL_ATAN2
+#if !NPY_HAVE_DECL_ATAN2
 /* XXX: we should have this in npy_math.h */
 #define NPY_DBL_EPSILON 1.2246467991473531772E-16
 double npy_atan2(double y, double x)
@@ -180,7 +179,7 @@ double npy_atan2(double y, double x)
 
 #endif
 
-#if !HAVE_DECL_HYPOT
+#if !NPY_HAVE_DECL_HYPOT
 double npy_hypot(double x, double y)
 {
     double yx;
@@ -211,14 +210,14 @@ double npy_hypot(double x, double y)
 }
 #endif
 
-#if !HAVE_DECL_ACOSH
+#if !NPY_HAVE_DECL_ACOSH
 double npy_acosh(double x)
 {
     return 2 * npy_log(npy_sqrt((x + 1.0) / 2) + npy_sqrt((x - 1.0) / 2));
 }
 #endif
 
-#if !HAVE_DECL_ASINH
+#if !NPY_HAVE_DECL_ASINH
 double npy_asinh(double xx)
 {
     double x, d;
@@ -240,7 +239,7 @@ double npy_asinh(double xx)
 }
 #endif
 
-#if !HAVE_DECL_ATANH
+#if !NPY_HAVE_DECL_ATANH
 double npy_atanh(double x)
 {
     if (x > 0) {
@@ -252,7 +251,7 @@ double npy_atanh(double x)
 }
 #endif
 
-#if !HAVE_DECL_RINT
+#if !NPY_HAVE_DECL_RINT
 double npy_rint(double x)
 {
     double y, r;
@@ -275,21 +274,21 @@ double npy_rint(double x)
 }
 #endif
 
-#if !HAVE_DECL_TRUNC
+#if !NPY_HAVE_DECL_TRUNC
 double npy_trunc(double x)
 {
     return x < 0 ? npy_ceil(x) : npy_floor(x);
 }
 #endif
 
-#if !HAVE_DECL_EXP2
+#if !NPY_HAVE_DECL_EXP2
 double npy_exp2(double x)
 {
     return npy_exp(NPY_LOGE2 * x);
 }
 #endif
 
-#if !HAVE_DECL_LOG2
+#if !NPY_HAVE_DECL_LOG2
 double npy_log2(double x)
 {
     return NPY_LOG2E * npy_log(x);
@@ -333,7 +332,7 @@ double npy_log2(double x)
 #ifdef @kind@@c@
 #undef @kind@@c@
 #endif
-#if !HAVE_DECL_@KIND@@C@
+#if !NPY_HAVE_DECL_@KIND@@C@
 @type@ npy_@kind@@c@(@type@ x)
 {
     return (@type@) npy_@kind@((double)x);
@@ -349,7 +348,7 @@ double npy_log2(double x)
 #ifdef @kind@@c@
 #undef @kind@@c@
 #endif
-#if !HAVE_DECL_@KIND@@C@
+#if !NPY_HAVE_DECL_@KIND@@C@
 @type@ npy_@kind@@c@(@type@ x, @type@ y)
 {
     return (@type@) npy_@kind@((double)x, (double) y);
@@ -360,7 +359,7 @@ double npy_log2(double x)
 #ifdef modf@c@
 #undef modf@c@
 #endif
-#if !HAVE_DECL_MODF@C@
+#if !NPY_HAVE_DECL_MODF@C@
 @type@ npy_modf@c@(@type@ x, @type@ *iptr)
 {
     double niptr;
@@ -388,7 +387,7 @@ double npy_log2(double x)
  * #KIND = SIN,COS,TAN,SINH,COSH,TANH,FABS,FLOOR,CEIL,RINT,TRUNC,SQRT,LOG10,
  *         LOG,EXP,EXPM1,ASIN,ACOS,ATAN,ASINH,ACOSH,ATANH,LOG1P,EXP2,LOG2#
  */
-#if HAVE_DECL_@KIND@@C@
+#if NPY_HAVE_DECL_@KIND@@C@
 @type@ npy_@kind@@c@(@type@ x)
 {
     return @kind@@c@(x);
@@ -401,7 +400,7 @@ double npy_log2(double x)
  * #kind = atan2,hypot,pow,fmod,copysign#
  * #KIND = ATAN2,HYPOT,POW,FMOD,COPYSIGN#
  */
-#if HAVE_DECL_@KIND@@C@
+#if NPY_HAVE_DECL_@KIND@@C@
 @type@ npy_@kind@@c@(@type@ x, @type@ y)
 {
     return @kind@@c@(x, y);
@@ -409,7 +408,7 @@ double npy_log2(double x)
 #endif
 /**end repeat1**/
 
-#if HAVE_DECL_MODF@C@
+#if NPY_HAVE_DECL_MODF@C@
 @type@ npy_modf@c@(@type@ x, @type@ *iptr)
 {
     return modf@c@(x, iptr);

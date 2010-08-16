@@ -2,20 +2,8 @@ import re
 
 
 
-ADD_NPY = '''
-HAVE_DECL_ISNAN
-HAVE_DECL_ISFINITE
-HAVE_DECL_ISINF
-
-SIZEOF_SHORT
-SIZEOF_INT
-SIZEOF_LONG
-SIZEOF_FLOAT
-SIZEOF_DOUBLE
-'''.split()
-
-
 MAP = {
+    'VERSION':                    'NPY_DUMMY',
     'HAVE_LONG_LONG_INT':         'NPY_HAVE_LONGLONG',
     'SIZEOF_LONG_DOUBLE':         'NPY_SIZEOF_LONGDOUBLE',
     'SIZEOF_LONG_LONG':           'NPY_SIZEOF_LONGLONG',
@@ -29,12 +17,12 @@ MAP = {
 def define_repl(match):
     name = match.group(2)
 
-    if name in ADD_NPY:
-        name = 'NPY_' + name
-
     if name in MAP:
         name = MAP[name]
+    else:
+        name = 'NPY_' + name
 
+    assert name.startswith('NPY_')
     return match.group(1) + name + match.group(3)
 
 

@@ -410,7 +410,7 @@ do {                                                            \
  * complex or our own complex type independently on whether C99 complex
  * support is available
  */
-#if HAVE_COMPLEX_H
+#if NPY_HAVE_COMPLEX_H
 #include <complex.h>
 typedef union {
         npy_cdouble npy_z;
@@ -441,6 +441,6 @@ typedef union {
         npy_clongdouble npy_z;
         npy_clongdouble c99_z;
 } __npy_clongdouble_to_c99_cast;
-#endif
+#endif /* NPY_HAVE_COMPLEX_H */
 
 #endif /* !_NPY_MATH_PRIVATE_H_ */
