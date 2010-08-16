@@ -3,7 +3,7 @@ import re
 
 
 MAP = {
-    'VERSION':                    'NPY_DUMMY',
+    'VERSION':                    'DUMMY_VERSION',
     'HAVE_LONG_LONG_INT':         'NPY_HAVE_LONGLONG',
     'SIZEOF_LONG_DOUBLE':         'NPY_SIZEOF_LONGDOUBLE',
     'SIZEOF_LONG_LONG':           'NPY_SIZEOF_LONGLONG',
@@ -13,25 +13,21 @@ MAP = {
     'SIZEOF_LONG_DOUBLE_COMPLEX': 'NPY_SIZEOF_COMPLEX_LONGDOUBLE',
 }
 
-
 def define_repl(match):
     name = match.group(2)
-
     if name in MAP:
         name = MAP[name]
     else:
         name = 'NPY_' + name
-
-    assert name.startswith('NPY_')
     return match.group(1) + name + match.group(3)
-
 
 def rename_defs(data):
     p = re.compile(r'^(#\s*define\s+)([A-Z0-9_]+)(\s+\S+)$', re.M)
     return p.sub(define_repl, data)
 
 
-if __name__ == '__main__':
+
+def main():
     src = 'config.h'
     dst = 'src/npy_config.h'
 
@@ -46,3 +42,7 @@ if __name__ == '__main__':
     fo = open(dst, 'w')
     fo.write(data)
     fo.close()
+
+
+if __name__ == '__main__':
+    main()
