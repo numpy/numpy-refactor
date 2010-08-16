@@ -1057,10 +1057,10 @@ VOID_nonzero (char *ip, NpyArray *ap)
             ap->descr = new;
             ap->flags = savedflags;
             if ((new->alignment > 1) && !__ALIGNED(ip + value->offset, new->alignment)) {
-                ap->flags &= ~ALIGNED;
+                ap->flags &= ~NPY_ALIGNED;
             }
             else {
-                ap->flags |= ALIGNED;
+                ap->flags |= NPY_ALIGNED;
             }
             if (new->f->nonzero(ip + value->offset, ap)) {
                 nonz = NPY_TRUE;
