@@ -120,17 +120,6 @@
 #define ALLOW_C_API       NPY_ALLOW_C_API
 #define DISABLE_C_API     NPY_DISABLE_C_API
 
-#define PY_FAIL NPY_FAIL
-#define PY_SUCCEED NPY_SUCCEED
-
-#ifndef TRUE
-#define TRUE NPY_TRUE
-#endif
-
-#ifndef FALSE
-#define FALSE NPY_FALSE
-#endif
-
 #define LONGDOUBLE_FMT NPY_LONGDOUBLE_FMT
 
 #define CONTIGUOUS         NPY_CONTIGUOUS
@@ -171,17 +160,6 @@
 #define FARRAY_FLAGS_RO   NPY_FARRAY_RO
 #define DEFAULT_FLAGS     NPY_DEFAULT
 #define UPDATE_ALL_FLAGS  NPY_UPDATE_ALL_FLAGS
-
-#ifndef MIN
-#define MIN PyArray_MIN
-#endif
-#ifndef MAX
-#define MAX PyArray_MAX
-#endif
-#define MAX_INTP NPY_MAX_INTP
-#define MIN_INTP NPY_MIN_INTP
-#define MAX_UINTP NPY_MAX_UINTP
-#define INTP_FMT NPY_INTP_FMT
 
 #define REFCOUNT PyArray_REFCOUNT
 #define MAX_ELSIZE NPY_MAX_ELSIZE
