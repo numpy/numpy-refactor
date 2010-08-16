@@ -25,7 +25,6 @@ INSTINCLUDES = \
 OTHERINCLUDES = \
 	src/npy_fpmath.h \
 	src/npy_math_private.h \
-        src/npy_noprefix.h \
         src/npy_number.h \
         src/npy_internal.h
 
