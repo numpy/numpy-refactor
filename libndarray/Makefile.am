@@ -72,7 +72,7 @@ include_HEADERS = $(INSTINCLUDES)
 noinst_HEADERS = $(OTHERINCLUDES)
 
 
-src/npy_config.h: config.h
+src/npy_config.h: config.h tools/mk_config.py
 	python tools/mk_config.py
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src

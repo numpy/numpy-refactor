@@ -469,27 +469,27 @@ static void
         char *a, *b, c;
 
         a = (char *)dst;
-#if SIZEOF_@fsize@ == 2
+#if NPY_SIZEOF_@fsize@ == 2
         b = a + 1;
         c = *a; *a++ = *b; *b = c;
-#elif SIZEOF_@fsize@ == 4
+#elif NPY_SIZEOF_@fsize@ == 4
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 8
+#elif NPY_SIZEOF_@fsize@ == 8
         b = a + 7;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 10
+#elif NPY_SIZEOF_@fsize@ == 10
         b = a + 9;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 12
+#elif NPY_SIZEOF_@fsize@ == 12
         b = a + 11;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -497,7 +497,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 16
+#elif NPY_SIZEOF_@fsize@ == 16
         b = a + 15;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -598,7 +598,7 @@ static void
     if (swap) {
         char *a, *b, c;
         a = (char *)dst;
-#if SIZEOF_@fsize@ == 4
+#if NPY_SIZEOF_@fsize@ == 4
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
@@ -606,7 +606,7 @@ static void
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 8
+#elif NPY_SIZEOF_@fsize@ == 8
         b = a + 7;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -618,7 +618,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 10
+#elif NPY_SIZEOF_@fsize@ == 10
         b = a + 9;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -632,7 +632,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 12
+#elif NPY_SIZEOF_@fsize@ == 12
         b = a + 11;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -648,7 +648,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 16
+#elif NPY_SIZEOF_@fsize@ == 16
         b = a + 15;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
