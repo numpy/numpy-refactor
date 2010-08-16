@@ -2,8 +2,6 @@
 #define _NPY_NOPREFIX_H_
 
 
-#define MAX_DIMS NPY_MAXDIMS
-
 #define longlong    npy_longlong
 #define ulonglong   npy_ulonglong
 #define Bool        npy_bool
@@ -121,28 +119,10 @@
 #define DISABLE_C_API     NPY_DISABLE_C_API
 
 #define LONGDOUBLE_FMT NPY_LONGDOUBLE_FMT
-
-#define CONTIGUOUS         NPY_CONTIGUOUS
-#define C_CONTIGUOUS       NPY_C_CONTIGUOUS
-#define FORTRAN            NPY_FORTRAN
-#define F_CONTIGUOUS       NPY_F_CONTIGUOUS
-#define OWNDATA            NPY_OWNDATA
-#define FORCECAST          NPY_FORCECAST
-#define ENSURECOPY         NPY_ENSURECOPY
-#define ENSUREARRAY        NPY_ENSUREARRAY
 #define ELEMENTSTRIDES     NPY_ELEMENTSTRIDES
 #define ALIGNED            NPY_ALIGNED
 #define NOTSWAPPED         NPY_NOTSWAPPED
 #define WRITEABLE          NPY_WRITEABLE
-#define UPDATEIFCOPY       NPY_UPDATEIFCOPY
-#define ARR_HAS_DESCR      NPY_ARR_HAS_DESCR
-#define BEHAVED            NPY_BEHAVED
-#define BEHAVED_NS         NPY_BEHAVED_NS
-#define CARRAY             NPY_CARRAY
-#define CARRAY_RO          NPY_CARRAY_RO
-#define FARRAY             NPY_FARRAY
-#define FARRAY_RO          NPY_FARRAY_RO
-#define DEFAULT            NPY_DEFAULT
 #define IN_ARRAY           NPY_IN_ARRAY
 #define OUT_ARRAY          NPY_OUT_ARRAY
 #define INOUT_ARRAY        NPY_INOUT_ARRAY
@@ -150,18 +130,5 @@
 #define OUT_FARRAY         NPY_OUT_FARRAY
 #define INOUT_FARRAY       NPY_INOUT_FARRAY
 #define UPDATE_ALL         NPY_UPDATE_ALL
-
-#define OWN_DATA          NPY_OWNDATA
-#define BEHAVED_FLAGS     NPY_BEHAVED
-#define BEHAVED_FLAGS_NS  NPY_BEHAVED_NS
-#define CARRAY_FLAGS_RO   NPY_CARRAY_RO
-#define CARRAY_FLAGS      NPY_CARRAY
-#define FARRAY_FLAGS      NPY_FARRAY
-#define FARRAY_FLAGS_RO   NPY_FARRAY_RO
-#define DEFAULT_FLAGS     NPY_DEFAULT
-#define UPDATE_ALL_FLAGS  NPY_UPDATE_ALL_FLAGS
-
-#define REFCOUNT PyArray_REFCOUNT
-#define MAX_ELSIZE NPY_MAX_ELSIZE
 
 #endif
