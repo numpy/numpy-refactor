@@ -73,13 +73,13 @@ noinst_HEADERS = $(OTHERINCLUDES)
 
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
-	python src/conv_template.py src/npy_arraytypes.c.src
+	python tools/conv_template.py src/npy_arraytypes.c.src
 
 src/npy_ieee754.c: src/npy_ieee754.c.src
-	python src/conv_template.py src/npy_ieee754.c.src
+	python tools/conv_template.py src/npy_ieee754.c.src
 
 src/npy_math.c: src/npy_math.c.src
-	python src/conv_template.py src/npy_math.c.src
+	python tools/conv_template.py src/npy_math.c.src
 
 src/npy_math_complex.c: src/npy_math_complex.c.src
-	python src/conv_template.py src/npy_math_complex.c.src
+	python tools/conv_template.py src/npy_math_complex.c.src
