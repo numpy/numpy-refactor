@@ -2,16 +2,22 @@ import re
 
 
 
+ADD_NPY = '''
+HAVE_DECL_ISNAN
+HAVE_DECL_ISFINITE
+HAVE_DECL_ISINF
+'''.split()
+
+
 MAP = {
     'HAVE_LONG_LONG_INT':    'NPY_HAVE_LONGLONG',
 }
 
+
 def define_repl(match):
     name = match.group(2)
 
-    if name in '''
-HAVE_DECL_ISNAN HAVE_DECL_ISFINITE HAVE_DECL_ISINF
-'''.split():
+    if name in ADD_NPY:
         name = 'NPY_' + name
 
     if name in MAP:
