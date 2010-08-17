@@ -22,6 +22,15 @@ typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *
 
 
 
+
+
+typedef struct {
+    int nin;
+    int nout;
+    void *callable;
+} NpyUFunc_FuncData;
+
+
 struct NpyDict_struct;
 
 struct NpyUFuncObject {
@@ -56,7 +65,6 @@ struct NpyUFuncObject {
 
 typedef struct NpyUFuncObject NpyUFuncObject;
 
-extern NpyTypeObject NpyUFunc_Type;
 
 
 extern struct NpyDict_struct *npy_create_userloops_table();
@@ -248,13 +256,47 @@ NpyUFuncObject *
                              int nin, int nout, int identity,
                              char *name, char *doc, int check_return);
 
+NpyArray *
+NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
+                int axis, int otype, int bufsize, int errormask, void *errobj);
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                              int *rtypenums,
                              int bufsize, int errormask, void *errobj, 
                              int originalArgWasObjArray,
                              npy_prepare_outputs_func prepare_output_func, void *args);
+NpyArray *
+NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
+                    int axis, int otype, int bufsize, int errormask, void *errobj);
+NpyArray *
+NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
+                  NpyArray *out, int axis, int otype, 
+                  int bufsize, int errormas, void *errobj);
+
 int
 NpyUFunc_SetUsesArraysAsData(void **data, size_t i);
+int
+NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
+                             int usertype,
+                             NpyUFuncGenericFunction function,
+                             int *arg_types,
+                             void *data);
+NpyUFuncObject *
+NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                         char *types, int ntypes,
+                         int nin, int nout, int identity,
+                         char *name, char *doc, int check_return);
+NpyUFuncObject *
+NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
+                                     char *types, int ntypes,
+                                     int nin, int nout, int identity,
+                                     char *name, char *doc,
+                                     int check_return, const char *signature);
+NpyUFuncObject *
+npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, 
+                     NpyUFuncGenericFunction *gen_funcs, void *function);
+void
+npy_ufunc_dealloc(NpyUFuncObject *self);
+
 
 
 
@@ -270,6 +312,17 @@ int
 NpyUFunc_checkfperr(int errmask, void *errobj, int *first);
 void
 NpyUFunc_clearfperr();
+
+
+#define NpyUFunc_One 1
+#define NpyUFunc_Zero 0
+#define NpyUFunc_None -1
+
+#define UFUNC_REDUCE 0
+#define UFUNC_ACCUMULATE 1
+#define UFUNC_REDUCEAT 2
+#define UFUNC_OUTER 3
+
 
 
 #define UFUNC_ERR_IGNORE 0
