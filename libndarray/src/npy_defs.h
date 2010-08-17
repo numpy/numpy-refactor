@@ -320,8 +320,6 @@ typedef enum {
 #if NPY_SIZEOF_PTR == NPY_SIZEOF_INT
     #define NPY_INTP NPY_INT
     #define NPY_UINTP NPY_UINT
-    #define PyIntpArrType_Type PyIntArrType_Type
-    #define PyUIntpArrType_Type PyUIntArrType_Type
     #define NPY_MAX_INTP NPY_MAX_INT
     #define NPY_MIN_INTP NPY_MIN_INT
     #define NPY_MAX_UINTP NPY_MAX_UINT
@@ -329,8 +327,6 @@ typedef enum {
 #elif NPY_SIZEOF_PTR == NPY_SIZEOF_LONG
     #define NPY_INTP NPY_LONG
     #define NPY_UINTP NPY_ULONG
-    #define PyIntpArrType_Type PyLongArrType_Type
-    #define PyUIntpArrType_Type PyULongArrType_Type
     #define NPY_MAX_INTP NPY_MAX_LONG
     #define NPY_MIN_INTP MIN_LONG
     #define NPY_MAX_UINTP NPY_MAX_ULONG
@@ -338,8 +334,6 @@ typedef enum {
 #elif NPY_HAVE_LONGLONG && (NPY_SIZEOF_PTR == NPY_SIZEOF_LONGLONG)
     #define NPY_INTP NPY_LONGLONG
     #define NPY_UINTP NPY_ULONGLONG
-    #define PyIntpArrType_Type PyLongLongArrType_Type
-    #define PyUIntpArrType_Type PyULongLongArrType_Type
     #define NPY_MAX_INTP NPY_MAX_LONGLONG
     #define NPY_MIN_INTP NPY_MIN_LONGLONG
     #define NPY_MAX_UINTP NPY_MAX_ULONGLONG

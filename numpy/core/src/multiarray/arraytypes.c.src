@@ -25,6 +25,19 @@
 #include "npy_os.h"
 
 
+#if NPY_SIZEOF_PTR == NPY_SIZEOF_INT
+    #define PyIntpArrType_Type PyIntArrType_Type
+    #define PyUIntpArrType_Type PyUIntArrType_Type
+#elif NPY_SIZEOF_PTR == NPY_SIZEOF_LONG
+    #define PyIntpArrType_Type PyLongArrType_Type
+    #define PyUIntpArrType_Type PyULongArrType_Type
+#elif NPY_HAVE_LONGLONG && (NPY_SIZEOF_PTR == NPY_SIZEOF_LONGLONG)
+    #define PyIntpArrType_Type PyLongLongArrType_Type
+    #define PyUIntpArrType_Type PyULongLongArrType_Type
+#endif
+
+
+
 /* Defined in core */
 extern char _npy_letter_to_num[];
 
