@@ -20,9 +20,6 @@
 #include "arrayobject.h"
 #include "getset.h"
 
-#define ASSERT_ONE_BASE(r) \
-    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
-
 /*******************  array attribute get and set routines ******************/
 
 static PyObject *
