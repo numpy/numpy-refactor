@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
+<VisualStudioProject
+   ProjectType="Visual C++"
+   Version="9,00"
+   Name="libndarray"
+   ProjectGUID="{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
+   RootNamespace="libndarray"
+   TargetFrameworkVersion="131072"
+   >
+  <Platforms>
+    <Platform Name="Win32" />
+    <Platform Name="x64" />
+  </Platforms>
+  <ToolFiles>
+  </ToolFiles>
+  <Configurations>
+    <Configuration
+       Name="Release|Win32"
+       ConfigurationType="2"
+       UseOfMFC="0"
+       ATLMinimizesCRunTimeLibraryUsage="false"
+       >
+      <Tool Name="VCPreBuildEventTool" />
+      <Tool Name="VCCustomBuildTool" />
+      <Tool Name="VCXMLDataGeneratorTool" />
+      <Tool Name="VCCLCompilerTool"
+            AdditionalOptions="/Zm200 "
+            AdditionalIncludeDirectories="..\src"
+            PreprocessorDefinitions="_USRDLL;Py_ENABLE_SHARED;WIN32"
+            RuntimeLibrary="2"
+            />
+      <Tool Name="VCManagedResourceCompilerTool" />
+      <Tool Name="VCResourceCompilerTool"
+            PreprocessorDefinitions="NDEBUG"
+            Culture="1033"
+            AdditionalIncludeDirectories="..\src"
+            />
+      <Tool Name="VCPreLinkEventTool"
+            Description="Generate build information..."
+            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
+            />
+      <Tool Name="VCALinkTool" />
+      <Tool Name="VCManifestTool" />
+      <Tool Name="VCXDCMakeTool" />
+      <Tool Name="VCBscMakeTool" />
+      <Tool Name="VCFxCopTool" />
+      <Tool Name="VCAppVerifierTool" />
+      <Tool Name="VCPostBuildEventTool" />
+    </Configuration>
+    <Configuration
+       Name="Release|x64"
+       ConfigurationType="2"
+       UseOfMFC="0"
+       ATLMinimizesCRunTimeLibraryUsage="false"
+       >
+      <Tool Name="VCPreBuildEventTool" />
+      <Tool Name="VCCustomBuildTool" />
+      <Tool Name="VCXMLDataGeneratorTool" />
+      <Tool Name="VCCLCompilerTool"
+            AdditionalOptions="/Zm200 "
+            AdditionalIncludeDirectories="..\src"
+            PreprocessorDefinitions="_USRDLL;WIN32"
+            RuntimeLibrary="2"
+            />
+      <Tool Name="VCManagedResourceCompilerTool" />
+      <Tool Name="VCResourceCompilerTool"
+            PreprocessorDefinitions="NDEBUG"
+            Culture="1033"
+            AdditionalIncludeDirectories="..\src"
+            />
+      <Tool Name="VCPreLinkEventTool"
+            Description="Generate build information..."
+            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
+            />
+      <Tool Name="VCALinkTool" />
+      <Tool Name="VCManifestTool" />
+      <Tool Name="VCXDCMakeTool" />
+      <Tool Name="VCBscMakeTool" />
+      <Tool Name="VCFxCopTool" />
+      <Tool Name="VCAppVerifierTool" />
+      <Tool Name="VCPostBuildEventTool" />
+    </Configuration>
+  </Configurations>
+  <References>
+  </References>
+  <Files>
+    <Filter Name="Include">
+      <File RelativePath="..\src\_neighborhood_iterator_imp.h" />
+      <File RelativePath="..\src\npy_api.h" />
+      <File RelativePath="..\src\npy_arrayobject.h" />
+      <File RelativePath="..\src\npy_common.h" />
+      <File RelativePath="npy_config.h" />
+      <File RelativePath="..\src\npy_cpu.h" />
+      <File RelativePath="..\src\npy_defs.h" />
+      <File RelativePath="..\src\npy_descriptor.h" />
+      <File RelativePath="..\src\npy_dict.h" />
+      <File RelativePath="..\src\npy_endian.h" />
+      <File RelativePath="..\src\npy_fpmath.h" />
+      <File RelativePath="..\src\npy_index.h" />
+      <File RelativePath="..\src\npy_internal.h" />
+      <File RelativePath="..\src\npy_iterators.h" />
+      <File RelativePath="..\src\npy_math.h" />
+      <File RelativePath="..\src\npy_math_provate.h" />
+      <File RelativePath="..\src\npy_number.h" />
+      <File RelativePath="..\src\npy_object.h" />
+      <File RelativePath="..\src\npy_os.h" />
+      <File RelativePath="..\src\npy_ufunc_object.h" />
+      <File RelativePath="..\src\npy_utils.h" />
+    </Filter>
+    <Filter Name="Core">
+      <File RelativePath="..\src\npy_arrayobject.c" />
+      <File RelativePath="..\src\npy_arraytypes.c" />
+      <File RelativePath="..\src\npy_calculation.c" />
+      <File RelativePath="..\src\npy_common.c" />
+      <File RelativePath="..\src\npy_conversion_utils.c" />
+      <File RelativePath="..\src\npy_convert.c" />
+      <File RelativePath="..\src\npy_convert_datatype.c" />
+      <File RelativePath="..\src\npy_ctors.c" />
+      <File RelativePath="..\src\npy_datetime.c" />
+      <File RelativePath="..\src\npy_descriptor.c" />
+      <File RelativePath="..\src\npy_dict.c" />
+      <File RelativePath="..\src\npy_flagsobject.c" />
+      <File RelativePath="..\src\npy_getset.c" />
+      <File RelativePath="..\src\npy_ieee754.c" />
+      <File RelativePath="..\src\npy_index.c" />
+      <File RelativePath="..\src\npy_item_selection.c" />
+      <File RelativePath="..\src\npy_iterators.c" />
+      <File RelativePath="..\src\npy_mapping.c" />
+      <File RelativePath="..\src\npy_math.c" />
+      <File RelativePath="..\src\npy_math_complex.c" />
+      <File RelativePath="..\src\npy_methods.c" />
+      <File RelativePath="..\src\npy_multiarray.c" />
+      <File RelativePath="..\src\npy_number.c" />
+      <File RelativePath="..\src\npy_os.c" />
+      <File RelativePath="..\src\npy_refcount.c" />
+      <File RelativePath="..\src\npy_shape.c" />
+      <File RelativePath="..\src\npy_ufunc_object.c" />
+      <File RelativePath="..\src\npy_usertypes.c" />
+    </Filter>
+  </Files>
+  <Globals>
+  </Globals>
+</VisualStudioProject>

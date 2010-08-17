@@ -2,11 +2,22 @@
 #define _NPY_DEFS_H_
 
 #include <stdio.h>
-#include <stdint.h>
+
 #include "npy_common.h"
 #include "npy_endian.h"
 #include "npy_config.h"
 
+#if NPY_HAVE_STDINT_H
+#include <stdint.h>
+#else
+#  if NPY_SIZEOF_PTR == 8
+typedef unsigned long int    uintptr_t;
+typedef long int             intptr_t;
+#  else
+typedef unsigned int         uintptr_t;
+typedef int                  intptr_t;
+#  endif
+#endif
 
 /*
  * This file contains defines and basic types used by the core

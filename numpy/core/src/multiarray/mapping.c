@@ -147,7 +147,6 @@ count_new_axes_0d(PyObject *tuple)
 NPY_NO_EXPORT PyObject *
 add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
 {
-    PyArrayObject *other;
     intp dimensions[MAX_DIMS];
     int i;
 
@@ -192,17 +191,10 @@ is_multi_fields(NpyIndex *indexes, int n)
     }
 }
 
-NPY_NO_EXPORT PyObject *
-array_subscript(PyArrayObject *self, PyObject *op)
+static PyObject*
+PyArray_Subscript(PyArrayObject *self, NpyIndex* indexes, int n, PyObject* op)
 {
     NpyArray *result;
-    NpyIndex indexes[NPY_MAXDIMS];
-    int n;
-
-    n = PyArray_IndexConverter(op, indexes);
-    if (n < 0) {
-        return NULL;
-    }
 
     /*
      * Special case for multiple fields since we call into python.
@@ -216,22 +208,37 @@ array_subscript(PyArrayObject *self, PyObject *op)
 
         _numpy_internal = PyImport_ImportModule("numpy.core._internal");
         if (_numpy_internal == NULL) {
-            NpyArray_IndexDealloc(indexes, n);
             return NULL;
         }
         obj = PyObject_CallMethod(_numpy_internal,
                                   "_index_fields", "OO", self, op);
         Py_DECREF(_numpy_internal);
-        NpyArray_IndexDealloc(indexes, n);
         return obj;
     }
 
     /* Otherwise call NpyArray_Subscript. */
     result = NpyArray_Subscript(PyArray_ARRAY(self), indexes, n);
-    NpyArray_IndexDealloc(indexes, n);
     RETURN_PYARRAY(result);
 }
 
+
+NPY_NO_EXPORT PyObject *
+array_subscript(PyArrayObject *self, PyObject *op)
+{
+    PyObject *result;
+    NpyIndex indexes[NPY_MAXDIMS];
+    int n;
+
+    n = PyArray_IndexConverter(op, indexes);
+    if (n < 0) {
+        return NULL;
+    }
+
+    result = PyArray_Subscript(self, indexes, n, op);
+
+    NpyArray_IndexDealloc(indexes, n);
+    return result;
+}
 
 static int try_single_assign(NpyArray  *self, NpyIndex*  indexes,
                              int n, PyObject* val)
@@ -317,6 +324,23 @@ is_simple(NpyIndex *indexes, int n)
             break;
         default:
             break;
+        }
+    }
+
+    return NPY_TRUE;
+}
+
+static npy_bool
+is_single_item(NpyIndex *indexes, int n, int nd)
+{
+    int i;
+
+    if (n != nd) {
+        return NPY_FALSE;
+    }
+    for (i=0; i<n; i++) {
+        if (indexes[i].type != NPY_INDEX_INTP) {
+            return NPY_FALSE;
         }
     }
 
@@ -467,8 +491,9 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
 static PyObject *
 array_subscript_nice(PyArrayObject *self, PyObject *op)
 {
-
+    NpyIndex indexes[NPY_MAXDIMS];
     PyArrayObject *mp;
+    int n;
 
     if (PyInt_Check(op) || PyArray_IsScalar(op, Integer) ||
         PyLong_Check(op) || (PyIndex_Check(op) &&
@@ -483,7 +508,52 @@ array_subscript_nice(PyArrayObject *self, PyObject *op)
         }
     }
 
-    mp = (PyArrayObject *)array_subscript(self, op);
+    n = PyArray_IndexConverter(op, indexes);
+    if (n < 0) {
+        return NULL;
+    }
+
+    /* Optimization for single items. */
+    if (n > 0 && is_single_item(indexes, n, PyArray_NDIM(self))) {
+        NpyIndex bound_indexes[NPY_MAXDIMS];
+        int n_bound;
+        int i;
+        npy_intp offset = 0;
+        npy_intp *strides;
+
+        /* Bind the indexes.  */
+        n_bound = NpyArray_IndexBind(indexes, n, 
+                                     PyArray_DIMS(self), PyArray_NDIM(self),
+                                     bound_indexes);
+        NpyArray_IndexDealloc(indexes, n);
+        if (n_bound < 0) {
+            return NULL;
+        }
+        assert(n_bound == PyArray_NDIM(self));
+
+        /* Calculate the offset. */
+        strides = PyArray_STRIDES(self);
+        for (i=0; i<n_bound; i++) {
+            if (bound_indexes[i].type == NPY_INDEX_INTP) {
+#undef intp
+                offset += strides[i] * bound_indexes[i].index.intp;
+#define intp npy_intp
+            } else {
+                PyErr_SetString(PyExc_IndexError,
+                                "Illegal index.");
+                NpyArray_IndexDealloc(bound_indexes, n_bound);
+                return NULL;
+            }
+        }
+        NpyArray_IndexDealloc(bound_indexes, n_bound);
+
+        /* Return the item as a scalar. */
+        return PyArray_ToScalar(PyArray_BYTES(self)+offset, self);
+    }
+
+    mp = (PyArrayObject *)PyArray_Subscript(self, indexes, n, op);
+    NpyArray_IndexDealloc(indexes, n);
+
     /*
      * mp could be a scalar if op is not an Int, Scalar, Long or other Index
      * object and still convertable to an integer (so that the code goes to

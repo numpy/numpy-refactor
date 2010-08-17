@@ -196,7 +196,7 @@ npy_longdouble _nextl(npy_longdouble x, int p)
  * ====================================================
  */
 
-#ifndef HAVE_NEXTAFTER
+#if !NPY_HAVE_DECL_NEXTAFTER
 double npy_nextafter(double x, double y)
 {
     volatile double t;
@@ -261,7 +261,7 @@ double npy_nextafter(double x, double y)
 }
 #endif
 
-#ifndef HAVE_NEXTAFTERF
+#if !NPY_HAVE_DECL_NEXTAFTERF
 float npy_nextafterf(float x, float y)
 {
     volatile float t;
@@ -315,7 +315,7 @@ float npy_nextafterf(float x, float y)
 }
 #endif
 
-#ifndef HAVE_NEXTAFTERL
+#if !NPY_HAVE_DECL_NEXTAFTERL
 npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y)
 {
     volatile npy_longdouble t;
@@ -403,21 +403,21 @@ npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y)
  * Decorate all the math functions which are available on the current platform
  */
 
-#ifdef HAVE_NEXTAFTERF
+#if NPY_HAVE_DECL_NEXTAFTERF
 float npy_nextafterf(float x, float y)
 {
     return nextafterf(x, y);
 }
 #endif
 
-#ifdef HAVE_NEXTAFTER
+#if NPY_HAVE_DECL_NEXTAFTER
 double npy_nextafter(double x, double y)
 {
     return nextafter(x, y);
 }
 #endif
 
-#ifdef HAVE_NEXTAFTERL
+#if NPY_HAVE_DECL_NEXTAFTERL
 npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y)
 {
     return nextafterl(x, y);

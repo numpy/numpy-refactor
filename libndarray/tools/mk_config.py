@@ -70,12 +70,18 @@ def main():
 /* npy_config.h   Generated from config.h by tools/mk_config.py */
 ''' + rename_defs(data)
 
-    if sys.platform != 'darwin':
+    if sys.platform == 'darwin':
+        data += '''
+/* long double representation is not added by tools/mk_config.py on OSX
+   because NPY_LDOUBLE_??? is definied in src/npy_fpmath.h for OSX
+*/
+'''
+    else:
         ld_repr = check_long_double_repr()
         print "\tdetected long double representation:", ld_repr
         data += '''
 /* long double representation (added by tools/mk_config.py) */
-#define NPY_LDOUBLE_%s = 1
+#define NPY_LDOUBLE_%s 1
 ''' % ld_repr
 
     print "\twriting:", dst
