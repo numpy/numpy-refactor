@@ -163,3 +163,20 @@ int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 }
 
 
+#if 0
+NpyArray *
+NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
+{
+    assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
+    return PyObject_CallFunction(op, "OO", m1, m2);
+}
+
+NpyArray *
+NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
+{
+    assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
+    return PyObject_CallFunction(op, "(O)", m1);
+}
+#endif
+
+

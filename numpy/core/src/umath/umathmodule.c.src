@@ -36,6 +36,19 @@
  **                    INCLUDE GENERATED CODE                               **
  *****************************************************************************
  */
+static PyObject *
+npy_ObjectMax(PyObject *i1, PyObject *i2);
+static PyObject *
+npy_ObjectMin(PyObject *i1, PyObject *i2);
+static PyObject *
+npy_ObjectPower(PyObject *x, PyObject *y);
+static PyObject *
+Py_square(PyObject *o);
+static PyObject *
+Py_get_one(PyObject *NPY_UNUSED(o));
+static PyObject *
+Py_reciprocal(PyObject *o);
+
 #include "funcs.inc"
 #include "loops.h"
 #include "ufunc_object.h"
@@ -48,6 +61,93 @@ static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 /* From ufunc_object.c */
 NPY_NO_EXPORT int
 PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first);
+
+
+
+/*
+ *****************************************************************************
+ **                        PYTHON OBJECT FUNCTIONS                          **
+ *****************************************************************************
+ */
+
+static PyObject *
+Py_square(PyObject *o)
+{
+    return PyNumber_Multiply(o, o);
+}
+
+static PyObject *
+Py_get_one(PyObject *NPY_UNUSED(o))
+{
+    return PyInt_FromLong(1);
+}
+
+static PyObject *
+Py_reciprocal(PyObject *o)
+{
+    PyObject *one = PyInt_FromLong(1);
+    PyObject *result;
+    
+    if (!one) {
+        return NULL;
+    }
+#if defined(NPY_PY3K)
+    result = PyNumber_TrueDivide(one, o);
+#else
+    result = PyNumber_Divide(one, o);
+#endif
+    Py_DECREF(one);
+    return result;
+}
+
+/*
+ * Define numpy version of PyNumber_Power as binary function.
+ */
+static PyObject *
+npy_ObjectPower(PyObject *x, PyObject *y)
+{
+    return PyNumber_Power(x, y, Py_None);
+}
+
+static PyObject *
+npy_ObjectMax(PyObject *i1, PyObject *i2)
+{
+    PyObject *result;
+    int cmp;
+    
+    if (PyObject_Cmp(i1, i2, &cmp) < 0) {
+        return NULL;
+    }
+    if (cmp >= 0) {
+        result = i1;
+    }
+    else {
+        result = i2;
+    }
+    Py_INCREF(result);
+    return result;
+}
+
+static PyObject *
+npy_ObjectMin(PyObject *i1, PyObject *i2)
+{
+    PyObject *result;
+    int cmp;
+    
+    if (PyObject_Cmp(i1, i2, &cmp) < 0) {
+        return NULL;
+    }
+    if (cmp <= 0) {
+        result = i1;
+    }
+    else {
+        result = i2;
+    }
+    Py_INCREF(result);
+    return result;
+}
+/**end repeat**/
+
 
 
 
