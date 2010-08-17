@@ -194,7 +194,7 @@ _change_decimal_from_locale_to_dot(char* buffer)
 }
 
 /*
- * Check that the format string is a valid one for NumPyOS_ascii_format*
+ * Check that the format string is a valid one for NpyOS_ascii_format*
  */
 static int
 _check_ascii_format(const char *format)
@@ -277,7 +277,7 @@ int _npy_signbit_d(double x)
 
     u.d = x;
 
-#if SIZEOF_INT == 4
+#if NPY_SIZEOF_INT == 4
 
 #ifdef WORDS_BIGENDIAN /* defined in pyconfig.h */
     return u.i[0] < 0;
@@ -285,7 +285,7 @@ int _npy_signbit_d(double x)
     return u.i[1] < 0;
 #endif
 
-#else  /* SIZEOF_INT != 4 */
+#else  /* NPY_SIZEOF_INT != 4 */
 
 #ifdef WORDS_BIGENDIAN
     return u.s[0] < 0;
@@ -293,21 +293,12 @@ int _npy_signbit_d(double x)
     return u.s[3] < 0;
 #endif
 
-#endif  /* SIZEOF_INT */
+#endif  /* NPY_SIZEOF_INT */
 }
 
-int _npy_signbit_f(float x)
-{
-    return _npy_signbit_d((double) x);
-}
-
-int _npy_signbit_ld(long double x)
-{
-    return _npy_signbit_d((double) x);
-}
 
 /*
- * NumPyOS_ascii_format*:
+ * NpyOS_ascii_format*:
  *      - buffer: A buffer to place the resulting string in
  *      - buf_size: The length of the buffer.
  *      - format: The printf()-style format to use for the code to use for
@@ -328,15 +319,15 @@ int _npy_signbit_ld(long double x)
  */
 #define _ASCII_FORMAT(type, suffix, print_type)                         \
     char*                                                               \
-    NumPyOS_ascii_format ## suffix(char *buffer, size_t buf_size,       \
-                                   const char *format,                  \
-                                   type val, int decimal)               \
+    NpyOS_ascii_format ## suffix(char *buffer, size_t buf_size,         \
+                                 const char *format,                    \
+                                 type val, int decimal)                 \
     {                                                                   \
         if (npy_isfinite(val)) {                                        \
             if(_check_ascii_format(format)) {                           \
                 return NULL;                                            \
             }                                                           \
-            NumPyOS_snprintf(buffer, buf_size, format, (print_type)val);   \
+            NpyOS_snprintf(buffer, buf_size, format, (print_type)val);  \
             return _fix_ascii_format(buffer, buf_size, decimal);        \
         }                                                               \
         else if (npy_isnan(val)){                                       \
@@ -371,12 +362,12 @@ _ASCII_FORMAT(long double, l, double)
 #endif
 
 /*
- * NumPyOS_ascii_isspace:
+ * NpyOS_ascii_isspace:
  *
  * Same as isspace under C locale
  */
 int
-NumPyOS_ascii_isspace(char c)
+NpyOS_ascii_isspace(char c)
 {
     return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t'
                     || c == '\v';
@@ -384,48 +375,48 @@ NumPyOS_ascii_isspace(char c)
 
 
 /*
- * NumPyOS_ascii_isalpha:
+ * NpyOS_ascii_isalpha:
  *
  * Same as isalpha under C locale
  */
 static int
-NumPyOS_ascii_isalpha(char c)
+NpyOS_ascii_isalpha(char c)
 {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
 
 /*
- * NumPyOS_ascii_isdigit:
+ * NpyOS_ascii_isdigit:
  *
  * Same as isdigit under C locale
  */
 static int
-NumPyOS_ascii_isdigit(char c)
+NpyOS_ascii_isdigit(char c)
 {
     return (c >= '0' && c <= '9');
 }
 
 
 /*
- * NumPyOS_ascii_isalnum:
+ * NpyOS_ascii_isalnum:
  *
  * Same as isalnum under C locale
  */
 static int
-NumPyOS_ascii_isalnum(char c)
+NpyOS_ascii_isalnum(char c)
 {
-    return NumPyOS_ascii_isdigit(c) || NumPyOS_ascii_isalpha(c);
+    return NpyOS_ascii_isdigit(c) || NpyOS_ascii_isalpha(c);
 }
 
 
 /*
- * NumPyOS_ascii_tolower:
+ * NpyOS_ascii_tolower:
  *
  * Same as tolower under C locale
  */
 static char
-NumPyOS_ascii_tolower(char c)
+NpyOS_ascii_tolower(char c)
 {
     if (c >= 'A' && c <= 'Z') {
         return c + ('a'-'A');
@@ -435,17 +426,17 @@ NumPyOS_ascii_tolower(char c)
 
 
 /*
- * NumPyOS_ascii_strncasecmp:
+ * NpyOS_ascii_strncasecmp:
  *
  * Same as strncasecmp under C locale
  */
 static int
-NumPyOS_ascii_strncasecmp(const char* s1, const char* s2, size_t len)
+NpyOS_ascii_strncasecmp(const char* s1, const char* s2, size_t len)
 {
     int diff;
     while (len > 0 && *s1 != '\0' && *s2 != '\0') {
-        diff = ((int)NumPyOS_ascii_tolower(*s1)) -
-            ((int)NumPyOS_ascii_tolower(*s2));
+        diff = ((int)NpyOS_ascii_tolower(*s1)) -
+            ((int)NpyOS_ascii_tolower(*s2));
         if (diff != 0) {
             return diff;
         }
@@ -460,41 +451,41 @@ NumPyOS_ascii_strncasecmp(const char* s1, const char* s2, size_t len)
 }
 
 /*
- * _NumPyOS_ascii_strtod_plain:
+ * _NpyOS_ascii_strtod_plain:
  *
  * PyOS_ascii_strtod work-alike, with no enhanced features,
  * for forward compatibility with Python >= 2.7
  */
 static double
-NumPyOS_ascii_strtod_plain(const char *s, char** endptr)
+NpyOS_ascii_strtod_plain(const char *s, char** endptr)
 {
     double result;
-    /* TODO: This ends up being recursive back to NumPyOS_ascii_strtod. Huh?! */
+    /* TODO: This ends up being recursive back to NpyOS_ascii_strtod. Huh?! */
 #if PY_VERSION_HEX >= 0x02070000
     NPY_ALLOW_C_API_DEF
     NPY_ALLOW_C_API
     result = PyOS_string_to_double(s, endptr, NULL);
-    if (PyErr_Occurred()) {
+    if (NpyErr_Occurred()) {
         if (endptr) {
             *endptr = (char*)s;
         }
-        PyErr_Clear();
+        NpyErr_Clear();
     }
     NPY_DISABLE_C_API
 #else
-/*    result = NumPyOS_ascii_strtod(s, endptr); */
+/*    result = NpyOS_ascii_strtod(s, endptr); */
     result = strtod(s, endptr);
 #endif
     return result;
 }
 
 /*
- * NumPyOS_ascii_strtod:
+ * NpyOS_ascii_strtod:
  *
  * Work around bugs in PyOS_ascii_strtod
  */
 double
-NumPyOS_ascii_strtod(const char *s, char** endptr)
+NpyOS_ascii_strtod(const char *s, char** endptr)
 {
     struct lconv *locale_data = localeconv();
     const char *decimal_point = locale_data->decimal_point;
@@ -506,7 +497,7 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
     size_t n;
     double result;
 
-    while (NumPyOS_ascii_isspace(*s)) {
+    while (NpyOS_ascii_isspace(*s)) {
         ++s;
     }
 
@@ -524,11 +515,11 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
     else if (*p == '+') {
         ++p;
     }
-    if (NumPyOS_ascii_strncasecmp(p, "nan", 3) == 0) {
+    if (NpyOS_ascii_strncasecmp(p, "nan", 3) == 0) {
         p += 3;
         if (*p == '(') {
             ++p;
-            while (NumPyOS_ascii_isalnum(*p) || *p == '_') {
+            while (NpyOS_ascii_isalnum(*p) || *p == '_') {
                 ++p;
             }
             if (*p == ')') {
@@ -540,9 +531,9 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
         }
         return NPY_NAN;
     }
-    else if (NumPyOS_ascii_strncasecmp(p, "inf", 3) == 0) {
+    else if (NpyOS_ascii_strncasecmp(p, "inf", 3) == 0) {
         p += 3;
-        if (NumPyOS_ascii_strncasecmp(p, "inity", 5) == 0) {
+        if (NpyOS_ascii_strncasecmp(p, "inity", 5) == 0) {
             p += 5;
         }
         if (endptr != NULL) {
@@ -575,7 +566,7 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
             }
             memcpy(buffer, s, n);
             buffer[n] = '\0';
-            result = NumPyOS_ascii_strtod_plain(buffer, &q);
+            result = NpyOS_ascii_strtod_plain(buffer, &q);
             if (endptr != NULL) {
                 *endptr = (char*)(s + (q - buffer));
             }
@@ -584,12 +575,12 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
     }
     /* End of ##2 */
 
-    return NumPyOS_ascii_strtod_plain(s, endptr);
+    return NpyOS_ascii_strtod_plain(s, endptr);
 }
 
 
 /*
- * NumPyOS_ascii_ftolf:
+ * NpyOS_ascii_ftolf:
  *      * fp: FILE pointer
  *      * value: Place to store the value read
  *
@@ -604,7 +595,7 @@ NumPyOS_ascii_strtod(const char *s, char** endptr)
  *      * EOF if end-of-file met before reading anything.
  */
 int
-NumPyOS_ascii_ftolf(FILE *fp, double *value)
+NpyOS_ascii_ftolf(FILE *fp, double *value)
 {
     char buffer[FLOAT_FORMATBUFLEN + 1];
     char *endp;
@@ -663,7 +654,7 @@ NumPyOS_ascii_ftolf(FILE *fp, double *value)
         return EOF;
     }
     /* 2. consume leading whitespace unconditionally */
-    while (NumPyOS_ascii_isspace(c)) {
+    while (NpyOS_ascii_isspace(c)) {
         c = getc(fp);
     }
 
@@ -681,7 +672,7 @@ NumPyOS_ascii_ftolf(FILE *fp, double *value)
         /* accept nan([:alphanum:_]*), similarly to strtod */
         if (c == '(') {
             NEXT_CHAR();
-            MATCH_ZERO_OR_MORE(NumPyOS_ascii_isalnum(c) || c == '_');
+            MATCH_ZERO_OR_MORE(NpyOS_ascii_isalnum(c) || c == '_');
             if (c == ')') {
                 NEXT_CHAR();
             }
@@ -695,18 +686,18 @@ NumPyOS_ascii_ftolf(FILE *fp, double *value)
     }
 
     /* 4.3 mantissa */
-    MATCH_ZERO_OR_MORE(NumPyOS_ascii_isdigit(c));
+    MATCH_ZERO_OR_MORE(NpyOS_ascii_isdigit(c));
 
     if (c == '.') {
         NEXT_CHAR();
-        MATCH_ONE_OR_MORE(NumPyOS_ascii_isdigit(c));
+        MATCH_ONE_OR_MORE(NpyOS_ascii_isdigit(c));
     }
 
     /* 4.4 exponent */
     if (c == 'e' || c == 'E') {
         NEXT_CHAR();
         MATCH_ONE_OR_NONE(c == '+' || c == '-');
-        MATCH_ONE_OR_MORE(NumPyOS_ascii_isdigit(c));
+        MATCH_ONE_OR_MORE(NpyOS_ascii_isdigit(c));
     }
 
     END_MATCH();
@@ -717,7 +708,7 @@ buffer_filled:
     *endp = '\0';
 
     /* 5. try to convert buffer. */
-    *value = NumPyOS_ascii_strtod(buffer, &p);
+    *value = NpyOS_ascii_strtod(buffer, &p);
 
     /* return 1 if something read, else 0 */
     return (buffer == p) ? 0 : 1;

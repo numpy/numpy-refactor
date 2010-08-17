@@ -1,5 +1,5 @@
-#ifndef _NUMPY_API_H_
-#define _NUMPY_API_H_
+#ifndef _NPY_API_H_
+#define _NPY_API_H_
 
 #include "assert.h"
 #include "npy_defs.h"
@@ -17,7 +17,7 @@
     do {                                                          \
         NpyArray_Descr *_new_;                                    \
         _new_ = NpyArray_DescrNew(descr);                         \
-        _Npy_XDECREF(descr);                                      \
+        Npy_XDECREF(descr);                                      \
         descr = _new_;                                            \
     } while(0)
 
@@ -217,7 +217,7 @@ int NpyArray_CastTo(NpyArray *out, NpyArray *mp);
 int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp);
 int NpyArray_CanCastSafely(int fromtype, int totype);
 npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
-npy_bool NpyArray_CanCastScalar(_NpyTypeObject *from, _NpyTypeObject *to);
+npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
 int NpyArray_ValidType(int type);
 struct NpyArray_Descr *NpyArray_DescrFromType(int type);
 
@@ -253,6 +253,12 @@ NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
 NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
                        npy_intp *strides, void *data, int itemsize, int flags,
                        void *obj);
+NpyArray *NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                         npy_bool is_fortran, void *interfaceData);
+NpyArray * NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                            npy_intp *strides,
+                            NpyArray *array, npy_intp offset,
+                            npy_bool ensure_array);
 int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
 int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
@@ -276,34 +282,13 @@ NpyArray_GetNumusertypes(void);
  * Reference counting.
  */
 
-/* These operate on core data structures, NOT interface objects. */
-#define Npy_INCREF(a) {                                 \
-    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
-    Py_INCREF(a);   }
-
-#define Npy_DECREF(a) {                                 \
-    assert(NPY_VALID_MAGIC == (a)->magic_number);       \
-    (a)->ob_refcnt = (a)->ob_refcnt;                    \
-    Py_DECREF(a); }
-
-#define Npy_XINCREF(a) {                                                \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
-    Py_XINCREF(a); }
-
-#define Npy_XDECREF(a) {                                                \
-    assert(NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number);        \
-    if (NULL != (a)) (a)->ob_refcnt = (a)->ob_refcnt;                   \
-    Py_XDECREF(a); }
-
 /* TODO: This looks wrong. */
 #define NpyArray_XDECREF_ERR(obj)                                         \
         if (obj && (NpyArray_FLAGS(obj) & NPY_UPDATEIFCOPY)) {            \
             NpyArray_FLAGS(NpyArray_BASE_ARRAY(obj)) |= NPY_WRITEABLE;    \
             NpyArray_FLAGS(obj) &= ~NPY_UPDATEIFCOPY;                     \
         }                                                                 \
-        _Npy_XDECREF(obj)
+        Npy_XDECREF(obj)
 
 /*
  * Object model.

@@ -11,8 +11,61 @@
 #include "npy_internal.h"
 
 #include "npy_math.h"
-#include "npy_noprefix.h"
 #include "npy_utils.h"
+
+
+#define longlong    npy_longlong
+#define ulonglong   npy_ulonglong
+#define Bool        npy_bool
+#define longdouble  npy_longdouble
+#define byte        npy_byte
+
+#ifndef _BSD_SOURCE
+#define ushort      npy_ushort
+#define uint        npy_uint
+#define ulong       npy_ulong
+#endif
+
+#define ubyte       npy_ubyte
+#define ushort      npy_ushort
+#define uint        npy_uint
+#define ulong       npy_ulong
+#define cfloat      npy_cfloat
+#define cdouble     npy_cdouble
+#define clongdouble npy_clongdouble
+#define Int8        npy_int8
+#define UInt8       npy_uint8
+#define Int16       npy_int16
+#define UInt16      npy_uint16
+#define Int32       npy_int32
+#define UInt32      npy_uint32
+#define Int64       npy_int64
+#define UInt64      npy_uint64
+#define Int128      npy_int128
+#define UInt128     npy_uint128
+#define Int256      npy_int256
+#define UInt256     npy_uint256
+#define Float16     npy_float16
+#define Complex32   npy_complex32
+#define Float32     npy_float32
+#define Complex64   npy_complex64
+#define Float64     npy_float64
+#define Complex128  npy_complex128
+#define Float80     npy_float80
+#define Complex160  npy_complex160
+#define Float96     npy_float96
+#define Complex192  npy_complex192
+#define Float128    npy_float128
+#define Complex256  npy_complex256
+#define intp        npy_intp
+#define uintp       npy_uintp
+#define datetime    npy_datetime
+#define timedelta   npy_timedelta
+
+#define LONGLONG_FMT NPY_LONGLONG_FMT
+#define ULONGLONG_FMT NPY_ULONGLONG_FMT
+
+#define PyArray_UCS4 npy_ucs4
 
 
 
@@ -135,7 +188,7 @@ int
     double result;
     int ret;
 
-    ret = NumPyOS_ascii_ftolf(fp, &result);
+    ret = NpyOS_ascii_ftolf(fp, &result);
     *ip = (@type@) result;
     return ret;
 }
@@ -198,7 +251,7 @@ int
 {
     @btype@ result;
 
-    result = NumPyOS_strto@func@(str, endptr, 10);
+    result = NpyOS_strto@func@(str, endptr, 10);
     *ip = (@type@) result;
     return 0;
 }
@@ -214,7 +267,7 @@ int
 {
     double result;
 
-    result = NumPyOS_ascii_strtod(str, endptr);
+    result = NpyOS_ascii_strtod(str, endptr);
     *ip = (@type@) result;
     return 0;
 }
@@ -332,7 +385,7 @@ static void
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
-        *op++ = (Bool)(*ip++ != FALSE);
+        *op++ = (Bool)(*ip++ != NPY_FALSE);
     }
 }
 /**end repeat**/
@@ -347,7 +400,7 @@ static void
                NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
-        *op = (Bool)(((*ip).real != FALSE) || ((*ip).imag != FALSE));
+        *op = (Bool)(((*ip).real != NPY_FALSE) || ((*ip).imag != NPY_FALSE));
         op++;
         ip++;
     }
@@ -367,7 +420,7 @@ BOOL_to_@TOTYPE@(Bool *ip, @totype@ *op, npy_intp n,
              NpyArray *NPY_UNUSED(aip), NpyArray *NPY_UNUSED(aop))
 {
     while (n--) {
-        *op++ = (@totype@)(*ip++ != FALSE);
+        *op++ = (@totype@)(*ip++ != NPY_FALSE);
     }
 }
 /**end repeat**/
@@ -469,27 +522,27 @@ static void
         char *a, *b, c;
 
         a = (char *)dst;
-#if SIZEOF_@fsize@ == 2
+#if NPY_SIZEOF_@fsize@ == 2
         b = a + 1;
         c = *a; *a++ = *b; *b = c;
-#elif SIZEOF_@fsize@ == 4
+#elif NPY_SIZEOF_@fsize@ == 4
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 8
+#elif NPY_SIZEOF_@fsize@ == 8
         b = a + 7;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 10
+#elif NPY_SIZEOF_@fsize@ == 10
         b = a + 9;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 12
+#elif NPY_SIZEOF_@fsize@ == 12
         b = a + 11;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -497,7 +550,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 16
+#elif NPY_SIZEOF_@fsize@ == 16
         b = a + 15;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -598,7 +651,7 @@ static void
     if (swap) {
         char *a, *b, c;
         a = (char *)dst;
-#if SIZEOF_@fsize@ == 4
+#if NPY_SIZEOF_@fsize@ == 4
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
@@ -606,7 +659,7 @@ static void
         b = a + 3;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 8
+#elif NPY_SIZEOF_@fsize@ == 8
         b = a + 7;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -618,7 +671,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 10
+#elif NPY_SIZEOF_@fsize@ == 10
         b = a + 9;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -632,7 +685,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 12
+#elif NPY_SIZEOF_@fsize@ == 12
         b = a + 11;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -648,7 +701,7 @@ static void
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b   = c;
-#elif SIZEOF_@fsize@ == 16
+#elif NPY_SIZEOF_@fsize@ == 16
         b = a + 15;
         c = *a; *a++ = *b; *b-- = c;
         c = *a; *a++ = *b; *b-- = c;
@@ -967,11 +1020,11 @@ Npy_STRING_ISSPACE(char ch)
 {
     char white[] = WHITESPACE;
     int j;
-    Bool space = FALSE;
+    Bool space = NPY_FALSE;
 
     for (j = 0; j < WHITELEN; j++) {
         if (ch == white[j]) {
-            space = TRUE;
+            space = NPY_TRUE;
             break;
         }
     }
@@ -983,11 +1036,11 @@ STRING_nonzero (char *ip, NpyArray *ap)
 {
     int len = ap->descr->elsize;
     int i;
-    Bool nonz = FALSE;
+    Bool nonz = NPY_FALSE;
 
     for (i = 0; i < len; i++) {
         if (!Npy_STRING_ISSPACE(*ip)) {
-            nonz = TRUE;
+            nonz = NPY_TRUE;
             break;
         }
         ip++;
@@ -1001,7 +1054,7 @@ UNICODE_nonzero (npy_ucs4 *ip, NpyArray *ap)
 {
     int len = ap->descr->elsize >> 2;
     int i;
-    Bool nonz = FALSE;
+    Bool nonz = NPY_FALSE;
     char *buffer = NULL;
 
     if ((!NpyArray_ISNOTSWAPPED(ap)) || (!NpyArray_ISALIGNED(ap))) {
@@ -1018,7 +1071,7 @@ UNICODE_nonzero (npy_ucs4 *ip, NpyArray *ap)
 
     for (i = 0; i < len; i++) {
         if (!NpyArray_UCS4_ISSPACE(*ip)) {
-            nonz = TRUE;
+            nonz = NPY_TRUE;
             break;
         }
         ip++;
@@ -1037,7 +1090,7 @@ VOID_nonzero (char *ip, NpyArray *ap)
 {
     int i;
     int len;
-    Bool nonz = FALSE;
+    Bool nonz = NPY_FALSE;
 
     if (NpyArray_HASFIELDS(ap)) {
         NpyArray_Descr *descr, *new;
@@ -1057,13 +1110,13 @@ VOID_nonzero (char *ip, NpyArray *ap)
             ap->descr = new;
             ap->flags = savedflags;
             if ((new->alignment > 1) && !__ALIGNED(ip + value->offset, new->alignment)) {
-                ap->flags &= ~ALIGNED;
+                ap->flags &= ~NPY_ALIGNED;
             }
             else {
-                ap->flags |= ALIGNED;
+                ap->flags |= NPY_ALIGNED;
             }
             if (new->f->nonzero(ip + value->offset, ap)) {
-                nonz = TRUE;
+                nonz = NPY_TRUE;
                 break;
             }
         }
@@ -1074,7 +1127,7 @@ VOID_nonzero (char *ip, NpyArray *ap)
     len = ap->descr->elsize;
     for (i = 0; i < len; i++) {
         if (*ip != '\0') {
-            nonz = TRUE;
+            nonz = NPY_TRUE;
             break;
         }
         ip++;
@@ -1250,8 +1303,8 @@ UNICODE_compare(npy_ucs4 *ip1, npy_ucs4 *ip2,
         return 0;
     }
     while (itemsize-- > 0) {
-        PyArray_UCS4 c1 = *ip1++;
-        PyArray_UCS4 c2 = *ip2++;
+        npy_ucs4 c1 = *ip1++;
+        npy_ucs4 c2 = *ip2++;
         if (c1 != c2) {
             return (c1 < c2) ? -1 : 1;
         }
@@ -1424,12 +1477,12 @@ static void
 BOOL_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op, npy_intp n,
          void *NPY_UNUSED(ignore))
 {
-    Bool tmp = FALSE;
+    Bool tmp = NPY_FALSE;
     npy_intp i;
 
     for (i = 0; i < n; i++, ip1 += is1, ip2 += is2) {
         if ((*((Bool *)ip1) != 0) && (*((Bool *)ip2) != 0)) {
-            tmp = TRUE;
+            tmp = NPY_TRUE;
             break;
         }
     }
@@ -1890,7 +1943,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  * FIXME: check for PY3K
  */
 NpyArray_Descr @from@_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
     NpyArray_@from@LTR,
@@ -1982,7 +2035,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  * FIXME: check for PY3K
  */
 NpyArray_Descr @from@_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@kind@LTR,
     NpyArray_@from@LTR,
@@ -2029,7 +2082,7 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
 };
 
 NpyArray_Descr OBJECT_Descr = {
-    _NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
+    NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_OBJECTLTR,
     NpyArray_OBJECTLTR,
@@ -2229,7 +2282,7 @@ NpyArray_DescrFromType(int type)
                 "Invalid data-type for array");
     }
     else {
-        _Npy_INCREF(ret);
+        Npy_INCREF(ret);
     }
 
     /* Make sure dtype metadata is initialized for DATETIME */
@@ -2244,4 +2297,3 @@ NpyArray_DescrFromType(int type)
 
 
 #undef _MAX_LETTER
-

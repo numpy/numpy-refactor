@@ -274,7 +274,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
         }
     }
 
-    _Npy_INCREF(self->descr);
+    Npy_INCREF(self->descr);
     ret = NpyArray_NewFromDescr(self->descr,
                                 n, dimensions,
                                 strides,
@@ -286,7 +286,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
         goto fail;
     }
     if (incref) {
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
     }
     ret->base_arr = self;
     NpyArray_UpdateFlags(ret, NPY_CONTIGUOUS | NPY_FORTRAN);
@@ -295,7 +295,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
 
  fail:
     if (!incref) {
-        _Npy_DECREF(self);
+        Npy_DECREF(self);
     }
     return NULL;
 }
@@ -317,7 +317,7 @@ NpyArray_Squeeze(NpyArray *self)
     NpyArray *ret;
 
     if (nd == 0) {
-        _Npy_INCREF(self);
+        Npy_INCREF(self);
         return self;
     }
     for (j = 0, i = 0; i < nd; i++) {
@@ -330,20 +330,9 @@ NpyArray_Squeeze(NpyArray *self)
         }
     }
 
-    _Npy_INCREF(self->descr);
-    ret = NpyArray_NewFromDescr(self->descr,
-                                newnd, dimensions,
-                                strides, self->data,
-                                self->flags,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(self));
-    if (ret == NULL) {
-        return NULL;
-    }
-    NpyArray_FLAGS(ret) &= ~NPY_OWNDATA;
-    ret->base_arr = self;
-    _Npy_INCREF(self);
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
+    Npy_INCREF(self->descr);
+    ret = NpyArray_NewView(self->descr, newnd, dimensions, strides,
+                           self, 0, NPY_FALSE);
     return ret;
 }
 
@@ -359,13 +348,13 @@ NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
     NpyArray *ret;
 
     if (a1 == a2) {
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         return ap;
     }
 
     n = ap->nd;
     if (n <= 1) {
-        _Npy_INCREF(ap);
+        Npy_INCREF(ap);
         return ap;
     }
 
@@ -458,19 +447,12 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
      * this allocates memory for dimensions and strides (but fills them
      * incorrectly), sets up descr, and points data at ap->data.
      */
-    _Npy_INCREF(ap->descr);
-    ret = NpyArray_NewFromDescr(ap->descr,
-                                n, ap->dimensions,
-                                NULL, ap->data, ap->flags,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(ap));
+    Npy_INCREF(ap->descr);
+    ret = NpyArray_NewView(ap->descr, n, ap->dimensions, NULL,
+                           ap, 0, NPY_FALSE);
     if (ret == NULL) {
         return NULL;
     }
-    /* point at true owner of memory: */
-    ret->base_arr = ap;
-    assert(NULL == ret->base_arr || NULL == ret->base_obj);
-    _Npy_INCREF(ap);
 
     /* fix the dimensions and strides of the return-array */
     for (i = 0; i < n; i++) {
@@ -518,21 +500,14 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     if (order == NPY_ANYORDER) {
         order = NpyArray_ISFORTRAN(a);
     }
-    _Npy_INCREF(a->descr);
+    Npy_INCREF(a->descr);
     size = NpyArray_SIZE(a);
-    ret = NpyArray_NewFromDescr(a->descr,
-                                1, &size,
-                                NULL,
-                                NULL,
-                                0,
-                                NPY_FALSE, NULL,
-                                Npy_INTERFACE(a));
-
+    ret = NpyArray_Alloc(a->descr, 1, &size, NPY_FALSE, Npy_INTERFACE(a));
     if (ret == NULL) {
         return NULL;
     }
     if (_flat_copyinto(ret, a, order) < 0) {
-        _Npy_DECREF(ret);
+        Npy_DECREF(ret);
         return NULL;
     }
     return ret;

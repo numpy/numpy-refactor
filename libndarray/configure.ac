@@ -6,11 +6,15 @@ AC_INIT([libndarray], [1.0], [info@enthought.com])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_SRCDIR([src/npy_arrayobject.c])
-AC_CONFIG_HEADERS([npy_config.h])
+AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_LIBTOOL
+
+# Define version constants
+AC_DEFINE([API_VERSION], [2.0], [Core library API version])
+AC_DEFINE([ABI_VERSION], [2.0], [Core library ABI version])
 
 # Checks for header files.
 AC_CHECK_HEADERS([complex.h])
@@ -37,6 +41,21 @@ AC_TYPE_LONG_LONG_INT()
 
 # Other checks
 AC_CHECK_DECLS([isnan, isfinite, isinf])
+AC_CHECK_DECLS([sin, sinf, sinl, cos, cosf, cosl, tan, tanf, tanl,
+                sinh, sinhf, sinhl, cosh, coshf, coshl, tanh, tanhf, tanhl,
+                fabs, fabsf, fabsl, floor, floorf, floorl, ceil, ceilf, ceill,
+                rint, rintf, rintl, trunc, truncf, truncl, sqrt, sqrtf, sqrtl,
+                log10, log10f, log10l, log, logf, logl, exp, expf, expl,
+                expm1, expm1f, expm1l, asin, asinf, asinl, acos, acosf, acosl,
+                atan, atanf, atanl, asinh, asinhf, asinhl,
+                acosh, acoshf, acoshl, atanh, atanhf, atanhl,
+                log1p, log1pf, log1pl, exp2, exp2f, exp2l, log2, log2f, log2l,
+                atan2, atan2f, atan2l, hypot, hypotf, hypotl, pow, powf, powl,
+                fmod, fmodf, fmodl, copysign, copysignf, copysignl,
+                modf, modff, modfl],,, [#include <math.h>])
+AC_CHECK_DECLS([cabsf, cabsl, cargf, cargl, cexpf, cexpl,
+                clogf, clogl, csqrtf, csqrtl, cpowf, cpowl, ccosf, ccosl,
+                csinf, csinl],,, [#include <complex.h>])
 AC_WORDS_BIGENDIAN()
 
 # Checks for library functions.

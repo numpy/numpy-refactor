@@ -255,8 +255,8 @@ PyArray_ObjectType(PyObject *op, int minimum_type)
     }
     outtype = _array_find_type(op, intype, MAX_DIMS);
     ret = outtype->type_num;
-    _Npy_DECREF(outtype);
-    _Npy_XDECREF(intype);
+    Npy_DECREF(outtype);
+    Npy_XDECREF(intype);
     return ret;
 }
 
@@ -306,14 +306,14 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
         otmp = PySequence_GetItem(op, i);
         if (!PyArray_CheckAnyScalar(otmp)) {
             newtype = PyArray_DescrFromObjectUnwrap(otmp, intype);
-            _Npy_XDECREF(intype);
+            Npy_XDECREF(intype);
             intype = newtype;
             mps[i] = NULL;
             intypekind = PyArray_ScalarKind(intype->type_num, NULL);
         }
         else {
             newtype = PyArray_DescrFromObjectUnwrap(otmp, stype);
-            _Npy_XDECREF(stype);
+            Npy_XDECREF(stype);
             stype = newtype;
             scalarkind = PyArray_ScalarKind(newtype->type_num, NULL);
             mps[i] = (PyArrayObject *)Py_None;
@@ -325,7 +325,7 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
         /* all scalars */
         allscalars = 1;
         intype = stype;
-        _Npy_INCREF(intype);
+        Npy_INCREF(intype);
         for (i = 0; i < n; i++) {
             Py_XDECREF(mps[i]);
             mps[i] = NULL;
@@ -341,7 +341,7 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
                                      intype->type_num,
                                      scalarkind)) {
             newtype = NpyArray_SmallType(intype, stype);
-            _Npy_XDECREF(intype);
+            Npy_XDECREF(intype);
             intype = newtype;
         }
         for (i = 0; i < n; i++) {
@@ -363,7 +363,7 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
             flags |= FORCECAST;
             Py_DECREF(Py_None);
         }
-        _Npy_INCREF(intype);
+        Npy_INCREF(intype);
         mps[i] = (PyArrayObject*)
             PyArray_FromAnyUnwrap(otmp, intype, 0, 0, flags, NULL);
         Py_DECREF(otmp);
@@ -371,13 +371,13 @@ PyArray_ConvertToCommonType(PyObject *op, int *retn)
             goto fail;
         }
     }
-    _Npy_DECREF(intype);
-    _Npy_XDECREF(stype);
+    Npy_DECREF(intype);
+    Npy_XDECREF(stype);
     return mps;
 
  fail:
-    _Npy_XDECREF(intype);
-    _Npy_XDECREF(stype);
+    Npy_XDECREF(intype);
+    Npy_XDECREF(stype);
     *retn = 0;
     for (i = 0; i < n; i++) {
         Py_XDECREF(mps[i]);

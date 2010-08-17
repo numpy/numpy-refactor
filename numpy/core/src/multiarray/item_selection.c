@@ -83,7 +83,7 @@ PyArray_PutTo(PyArrayObject *self, PyObject* values0, PyObject *indices0,
         values = (PyArrayObject *) values0;
         Py_INCREF(values);
     } else {
-        _Npy_INCREF(PyArray_DESCR(self));
+        Npy_INCREF(PyArray_DESCR(self));
         values = (PyArrayObject *)PyArray_FromAnyUnwrap(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             goto fail;
@@ -122,7 +122,7 @@ PyArray_PutMask(PyArrayObject *self, PyObject* values0, PyObject* mask0)
         values = (PyArrayObject*) values0;
         Py_INCREF(values);
     } else {
-        _Npy_INCREF(PyArray_DESCR(self));
+        Npy_INCREF(PyArray_DESCR(self));
         values = (PyArrayObject *)PyArray_FromAnyUnwrap(values0, PyArray_DESCR(self), 0, 0, NPY_CARRAY, NULL);
         if (values == NULL) {
             return NULL;
@@ -286,7 +286,7 @@ PyArray_LexSort(PyObject *sort_keys, int axis)
             goto fail;
         }
         mps[i] = PyArray_ARRAY(arr);
-        _Npy_INCREF(mps[i]);
+        Npy_INCREF(mps[i]);
         Py_DECREF(arr);
     }
 
@@ -296,20 +296,20 @@ PyArray_LexSort(PyObject *sort_keys, int axis)
     }
 
     for (i = 0; i < n; i++) {
-        _Npy_XDECREF(mps[i]);
+        Npy_XDECREF(mps[i]);
     }
     _pya_free(mps);
 
     ret = Npy_INTERFACE(sorted);
     Py_INCREF(ret);
-    _Npy_DECREF(sorted);
+    Npy_DECREF(sorted);
     
     return (PyObject *)ret;
 
  fail:
-    _Npy_XDECREF(sorted);
+    Npy_XDECREF(sorted);
     for (i = 0; i < n; i++) {
-        _Npy_XDECREF(mps[i]);
+        Npy_XDECREF(mps[i]);
     }
     _pya_free(mps);
     return NULL;
@@ -335,7 +335,7 @@ PyArray_SearchSorted(PyArrayObject *op1, PyObject *op2, NPY_SEARCHSIDE side)
         ap2 = (PyArrayObject *)PyArray_FromAnyUnwrap(op2, dtype,
                                                      0, 0, NPY_DEFAULT, NULL);
         if (ap2 == NULL) {
-            _Npy_DECREF(dtype);
+            Npy_DECREF(dtype);
             goto finish;
         }
     }
@@ -482,7 +482,7 @@ PyArray_Diagonal(PyArrayObject *self, int offset, int axis1, int axis2)
             }
         }
         Py_DECREF(self);
-        _Npy_INCREF(typecode);
+        Npy_INCREF(typecode);
         ret =  PyArray_FromAnyUnwrap(mydiagonal, typecode, 0, 0, 0, NULL);
         Py_DECREF(mydiagonal);
         return ret;

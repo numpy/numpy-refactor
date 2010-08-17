@@ -51,7 +51,7 @@ scalar_value(PyObject *scalar, NpyArray_Descr *descr)
     if (descr == NULL) {
         descr = PyArray_DescrFromScalarUnwrap(scalar);
         type_num = descr->type_num;
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
     }
     else {
         type_num = descr->type_num;
@@ -192,7 +192,7 @@ PyArray_ScalarAsCtype(PyObject *scalar, void *ctypeptr)
     else {
         memcpy(ctypeptr, newptr, typecode->elsize);
     }
-    _Npy_DECREF(typecode);
+    Npy_DECREF(typecode);
     return;
 }
 
@@ -297,7 +297,7 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
 
         if (PyArray_Check(scalar)) {
             r->base_arr = PyArray_ARRAY(scalar);
-            _Npy_INCREF(PyArray_BASE_ARRAY(r->base_arr));
+            Npy_INCREF(PyArray_BASE_ARRAY(r->base_arr));
         } else {
             r->base_obj = scalar;
             Py_INCREF(scalar);
@@ -306,17 +306,15 @@ PyArray_FromScalarUnwrap(PyObject *scalar, NpyArray_Descr *outcode)
         return r;
     }
 
-    r = NpyArray_NewFromDescr(typecode,
-                              0, NULL,
-                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(typecode, 0, NULL, NPY_FALSE, NULL);
     if (r==NULL) {
-        _Npy_XDECREF(outcode);
+        Npy_XDECREF(outcode);
         return NULL;
     }
     if (NpyDataType_FLAGCHK(typecode, NPY_USE_SETITEM)) {
         if (typecode->f->setitem(scalar, NpyArray_DATA(r), r) < 0) {
-            _Npy_XDECREF(outcode); 
-            _Npy_DECREF(r);
+            Npy_XDECREF(outcode); 
+            Npy_DECREF(r);
             return NULL;
         }
         goto finish;
@@ -348,14 +346,14 @@ finish:
     if (outcode->type_num == typecode->type_num) {
         if (!NpyTypeNum_ISEXTENDED(typecode->type_num)
                 || (outcode->elsize == typecode->elsize)) {
-            _Npy_DECREF(outcode);
+            Npy_DECREF(outcode);
             return r;
         }
     }
 
     /* cast if necessary to desired output typecode */
     ret = NpyArray_CastToType(r, outcode, 0);
-    _Npy_DECREF(r);
+    Npy_DECREF(r);
     return ret;
 }
 
@@ -521,14 +519,14 @@ PyArray_DescrFromTypeObjectUnwrap(PyObject *type)
             
             NpyDict_IterInit(&pos);
             while (NpyDict_IterNext(conv->fields, &pos, (void **)&key, (void **)&value)) {
-                _Npy_INCREF(value->descr);
+                Npy_INCREF(value->descr);
                 NpyArray_DescrSetField(new->fields, key, value->descr, value->offset, value->title);
             }
             
             new->elsize = conv->elsize;
             new->subarray = conv->subarray;
             conv->subarray = NULL;
-            _Npy_DECREF(conv);
+            Npy_DECREF(conv);
         }
         Py_XDECREF( PyArray_Descr_WRAP(new)->typeobj );
         PyArray_Descr_WRAP(new)->typeobj = (PyTypeObject *)type;
@@ -596,7 +594,7 @@ PyArray_DescrFromScalarUnwrap(PyObject *sc)
 
     if (PyArray_IsScalar(sc, Void)) {
         descr = ((PyVoidScalarObject *)sc)->descr->descr;
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         return descr;
     }
 

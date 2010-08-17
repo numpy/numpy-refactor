@@ -32,7 +32,7 @@ extern "C" CONFUSE_EMACS
     else {                                          \
         assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (interface)->descr->magic_number); \
         (core) = (interface)->descr;                    \
-        _Npy_INCREF(core);                          \
+        Npy_INCREF(core);                          \
         Py_DECREF(interface);                       \
     }                                               
 
@@ -43,7 +43,7 @@ extern "C" CONFUSE_EMACS
         interface = PyArray_Descr_WRAP(core);       \
         assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
         Py_INCREF(interface);                       \
-        _Npy_DECREF(core);                          \
+        Npy_DECREF(core);                          \
     }                                               
 
 
@@ -57,7 +57,7 @@ extern "C" CONFUSE_EMACS
             wrapper = PyArray_Descr_WRAP(core);         \
             assert(NPY_VALID_MAGIC == (wrapper)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
             Py_INCREF(wrapper);                         \
-            _Npy_DECREF(core);                          \
+            Npy_DECREF(core);                          \
         }                                               \
         return wrapper;                                 \
     } while(0); 

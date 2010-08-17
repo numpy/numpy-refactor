@@ -154,21 +154,11 @@ add_new_axes_0d(PyArrayObject *arr,  int newaxis_count)
     for (i = 0; i < newaxis_count; ++i) {
         dimensions[i]  = 1;
     }
-    _Npy_INCREF(PyArray_DESCR(arr));
-    ASSIGN_TO_PYARRAY(other,
-                      NpyArray_NewFromDescr(PyArray_DESCR(arr),
-                                            newaxis_count, dimensions,
-                                            NULL, PyArray_BYTES(arr),
-                                            PyArray_FLAGS(arr), NPY_FALSE,
-                                            NULL, arr));
-    if (NULL == other) {
-        return NULL;
-    }
-
-    PyArray_BASE_ARRAY(other) = PyArray_ARRAY(arr);
-    _Npy_INCREF(PyArray_BASE_ARRAY(other));
-    ASSERT_ONE_BASE(other);
-    return (PyObject *)other;
+    Npy_INCREF(PyArray_DESCR(arr));
+    RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
+                                    newaxis_count, dimensions, NULL,
+                                    PyArray_ARRAY(arr), 0,
+                                    NPY_FALSE));
 }
 
 /*
@@ -436,7 +426,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
                 goto finish;
             }
             view = PyArray_ARRAY(tmp0);
-            _Npy_INCREF(view);
+            Npy_INCREF(view);
             Py_DECREF(tmp0);
         }
 
@@ -446,7 +436,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
         /* Use a MapIter to do the fancy indexing. */
         PyObject *converted_value;
 
-        _Npy_INCREF(PyArray_DESCR(self));
+        Npy_INCREF(PyArray_DESCR(self));
         converted_value = PyArray_FromAnyUnwrap(op, PyArray_DESCR(self),
                                                 0, 0, NPY_FORCECAST, NULL);
         if (converted_value == NULL) {
@@ -462,7 +452,7 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
 
  finish:
     NpyArray_IndexDealloc(indexes, n);
-    _Npy_XDECREF(view);
+    Npy_XDECREF(view);
 
     return result;
 }

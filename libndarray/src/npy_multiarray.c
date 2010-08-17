@@ -169,7 +169,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     if ((nd < 1) || (nd > 3)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "C arrays of only 1-3 dimensions available");
-        _Npy_XDECREF(typedescr);
+        Npy_XDECREF(typedescr);
         return -1;
     }
     if ((ap = NpyArray_FromArray(*apIn, typedescr, NPY_CARRAY)) == NULL) {
@@ -232,7 +232,7 @@ NpyArray_Free(NpyArray *ap, void *ptr)
                  free or something. */
         NpyArray_free(ptr);
     }
-    _Npy_DECREF(ap);
+    Npy_DECREF(ap);
     return 0;
 }
 
@@ -297,7 +297,7 @@ NpyArray_ScalarKind(int typenum, NpyArray **arr)
         else {
             retval = NPY_NOSCALAR;
         }
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return retval;
     }
     return NPY_OBJECT_SCALAR;
@@ -319,12 +319,12 @@ NpyArray_CanCoerceScalar(int thistype, int neededtype,
         && (castlist = from->f->cancastscalarkindto[scalar])) {
         while (*castlist != NPY_NOTYPE) {
             if (*castlist++ == neededtype) {
-                _Npy_DECREF(from);
+                Npy_DECREF(from);
                 return 1;
             }
         }
     }
-    _Npy_DECREF(from);
+    Npy_DECREF(from);
 
     switch(scalar) {
         case NPY_BOOL_SCALAR:
@@ -441,15 +441,15 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
         NpyArray_ITER_RESET(it2);
     }
     NPY_END_THREADS_DESCR(ap2->descr);
-    _Npy_DECREF(it1);
-    _Npy_DECREF(it2);
+    Npy_DECREF(it1);
+    Npy_DECREF(it2);
     if (NpyErr_Occurred()) {
         goto fail;
     }
     return ret;
 
  fail:
-    _Npy_DECREF(ret);
+    Npy_DECREF(ret);
     return NULL;
 }
 
@@ -537,15 +537,15 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
         NpyArray_ITER_RESET(it2);
     }
     NPY_END_THREADS_DESCR(ap2->descr);
-    _Npy_DECREF(it1);
-    _Npy_DECREF(it2);
+    Npy_DECREF(it1);
+    Npy_DECREF(it2);
     if (NpyErr_Occurred()) {
         goto fail;
     }
     return ret;
 
 fail:
-    _Npy_XDECREF(ret);
+    Npy_XDECREF(ret);
     return NULL;
 }
 
@@ -571,11 +571,11 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     nd = NpyArray_NDIM(arr);
     if (nd == 1) {
         /* we will give in to old behavior */
-        _Npy_DECREF(tmp);
+        Npy_DECREF(tmp);
         return arr;
     }
     else if (nd != 2) {
-        _Npy_DECREF(tmp);
+        Npy_DECREF(tmp);
         NpyErr_SetString(NpyExc_ValueError, "only 2-d arrays are allowed");
         return NULL;
     }
@@ -584,11 +584,10 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     dims[0] = NpyArray_DIM(arr, 1);
     dims[1] = NpyArray_DIM(arr, 0);
     eltsize = NpyArray_ITEMSIZE(arr);
-    _Npy_INCREF(NpyArray_DESCR(arr));
-    ret = NpyArray_NewFromDescr(NpyArray_DESCR(arr), 2, dims,
-                                NULL, NULL, 0, NPY_FALSE, NULL, NULL);
+    Npy_INCREF(arr->descr);
+    ret = NpyArray_Alloc(arr->descr, 2, dims, NPY_FALSE, NULL);
     if (ret == NULL) {
-        _Npy_DECREF(tmp);
+        Npy_DECREF(tmp);
         return NULL;
     }
 
@@ -607,7 +606,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     }
     NPY_END_ALLOW_THREADS;
 
-    _Npy_DECREF(tmp);
+    Npy_DECREF(tmp);
     return ret;
 }
 
@@ -713,7 +712,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     return ret;
 
 clean_ret:
-    _Npy_DECREF(ret);
+    Npy_DECREF(ret);
     return NULL;
 }
 
@@ -806,13 +805,13 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
     if (inverted) {
         status = _npyarray_revert(ret);
         if(status) {
-            _Npy_DECREF(ret);
+            Npy_DECREF(ret);
             ret = NULL;
             goto done;
         }
     }
  done:
-    _Npy_XDECREF(cap2);
+    Npy_XDECREF(cap2);
     return ret;
 }
 
@@ -929,8 +928,8 @@ NpyArray_EquivTypenums(int typenum1, int typenum2)
     d1 = NpyArray_DescrFromType(typenum1);
     d2 = NpyArray_DescrFromType(typenum2);
     ret = NpyArray_EquivTypes(d1, d2);
-    _Npy_DECREF(d1);
-    _Npy_DECREF(d2);
+    Npy_DECREF(d1);
+    Npy_DECREF(d2);
     return ret;
 }
 

@@ -28,8 +28,17 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#include "npy_math_common.h"
+
+#include "npy_config.h"
+#include "npy_os.h"
+#include "npy_math.h"
 #include "npy_math_private.h"
+
+/* XXX */
+#define FLT_MAX  1E6
+#define DBL_MAX  1E16
+#define LDBL_MAX 1E30
+
 
 /*==========================================================
  * Custom implementation of missing complex C99 functions
@@ -42,21 +51,21 @@
  * #C = F, , L#
  * #TMAX = FLT_MAX, DBL_MAX, LDBL_MAX#
  */
-#ifndef HAVE_CABS@C@
+#if !NPY_HAVE_DECL_CABS@C@
 @type@ npy_cabs@c@(@ctype@ z)
 {
     return npy_hypot@c@(npy_creal@c@(z), npy_cimag@c@(z));
 }
 #endif
 
-#ifndef HAVE_CARG@C@
+#if !NPY_HAVE_DECL_CARG@C@
 @type@ npy_carg@c@(@ctype@ z)
 {
     return npy_atan2@c@(npy_cimag@c@(z), npy_creal@c@(z));
 }
 #endif
 
-#ifndef HAVE_CEXP@C@
+#if !NPY_HAVE_DECL_CEXP@C@
 @ctype@ npy_cexp@c@(@ctype@ z)
 {
     @type@ x, c, s;
@@ -117,14 +126,14 @@
 }
 #endif
 
-#ifndef HAVE_CLOG@C@
+#if !NPY_HAVE_DECL_CLOG@C@
 @ctype@ npy_clog@c@(@ctype@ z)
 {
     return npy_cpack@c@(npy_log@c@ (npy_cabs@c@ (z)), npy_carg@c@ (z));
 }
 #endif
 
-#ifndef HAVE_CSQRT@C@
+#if !NPY_HAVE_DECL_CSQRT@C@
 
 /* We risk spurious overflow for components >= DBL_MAX / (1 + sqrt(2)). */
 #define THRESH  (@TMAX@ / (1 + NPY_SQRT2@c@))
@@ -192,7 +201,7 @@
 #undef THRESH
 #endif
 
-#ifndef HAVE_CPOW@C@
+#if !NPY_HAVE_DECL_CPOW@C@
 @ctype@ npy_cpow@c@ (@ctype@ x, @ctype@ y)
 {
     @ctype@ b;
@@ -208,7 +217,7 @@
 }
 #endif
 
-#ifndef HAVE_CCOS@C@
+#if !NPY_HAVE_DECL_CCOS@C@
 @ctype@ npy_ccos@c@(@ctype@ z)
 {
     @type@ x, y;
@@ -218,7 +227,7 @@
 }
 #endif
 
-#ifndef HAVE_CSIN@C@
+#if !NPY_HAVE_DECL_CSIN@C@
 @ctype@ npy_csin@c@(@ctype@ z)
 {
     @type@ x, y;
@@ -233,6 +242,10 @@
  * Decorate all the functions which are available natively
  *=========================================================*/
 
+#if NPY_HAVE_COMPLEX_H
+#include <complex.h>
+#endif
+
 /**begin repeat
  * #type = float, double, npy_longdouble#
  * #ctype = npy_cfloat, npy_cdouble, npy_clongdouble#
@@ -244,7 +257,7 @@
  * #kind = cabs,carg#
  * #KIND = CABS,CARG#
  */
-#ifdef HAVE_@KIND@@C@
+#if NPY_HAVE_DECL_@KIND@@C@
 @type@ npy_@kind@@c@(@ctype@ z)
 {
     __@ctype@_to_c99_cast z1 = {z};
@@ -257,7 +270,7 @@
  * #kind = cexp,clog,csqrt,ccos,csin#
  * #KIND = CEXP,CLOG,CSQRT,CCOS,CSIN#
  */
-#ifdef HAVE_@KIND@@C@
+#if NPY_HAVE_DECL_@KIND@@C@
 @ctype@ npy_@kind@@c@(@ctype@ z)
 {
     __@ctype@_to_c99_cast z1 = {z};
@@ -272,7 +285,7 @@
  * #kind = cpow#
  * #KIND = CPOW#
  */
-#ifdef HAVE_@KIND@@C@
+#if NPY_HAVE_DECL_@KIND@@C@
 @ctype@ npy_@kind@@c@(@ctype@ x, @ctype@ y)
 {
     __@ctype@_to_c99_cast x1 = {x};

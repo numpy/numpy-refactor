@@ -24,7 +24,7 @@
  * without loss of information.  Similarly for intptr_t, wrt a signed
  * integral type.
  */
-#ifdef HAVE_UINTPTR_T
+#ifdef NPY_HAVE_UINTPTR_T
 typedef uintptr_t       npy_uintp;
 typedef intptr_t        npy_intp;
 
@@ -43,7 +43,7 @@ typedef long long               npy_intp;
 
 #else
 #   error "NumPy needs a typedef for npy_uintp and npy_intp."
-#endif /* HAVE_UINTPTR_T */
+#endif /* NPY_HAVE_UINTPTR_T */
 
 
 /*

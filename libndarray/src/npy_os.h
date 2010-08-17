@@ -1,41 +1,44 @@
-#ifndef _NPY_NUMPYOS_H_
-#define _NPY_NUMPYOS_H_
+#ifndef _NPY_NPY_OS_H_
+#define _NPY_NPY_OS_H_
+
+#include <stdlib.h>
+#include <stdio.h>
 
 
-#define npy_signbit(x)                                         \
-    (sizeof(x) == sizeof(long double) ? _npy_signbit_ld(x)     \
-    : sizeof(x) == sizeof(double) ? _npy_signbit_d(x)          \
-    : _npy_signbit_f(x))
+int _npy_signbit_d(double x);
+
+#define npy_signbit(x)                                             \
+    (sizeof(x) == sizeof(double) ? _npy_signbit_d(x)               \
+     : _npy_signbit_d((double) x))
 
 
-/* TODO: Need definition of NumPyOS_snprintf */
-#define NumPyOS_snprintf snprintf
-#define NumPyOS_strtol strtol
-#define NumPyOS_strtoul strtoul
+#define NpyOS_snprintf snprintf
+#define NpyOS_strtol strtol
+#define NpyOS_strtoul strtoul
 
 
-char*
-NumPyOS_ascii_formatd(char *buffer, size_t buf_size,
+char *
+NpyOS_ascii_formatd(char *buffer, size_t buf_size,
                       const char *format,
                       double val, int decimal);
 
-char*
-NumPyOS_ascii_formatf(char *buffer, size_t buf_size,
+char *
+NpyOS_ascii_formatf(char *buffer, size_t buf_size,
                       const char *format,
                       float val, int decimal);
 
-char*
-NumPyOS_ascii_formatl(char *buffer, size_t buf_size,
+char *
+NpyOS_ascii_formatl(char *buffer, size_t buf_size,
                       const char *format,
                       long double val, int decimal);
 
 double
-NumPyOS_ascii_strtod(const char *s, char** endptr);
+NpyOS_ascii_strtod(const char *s, char** endptr);
 
 int
-NumPyOS_ascii_ftolf(FILE *fp, double *value);
+NpyOS_ascii_ftolf(FILE *fp, double *value);
 
 int
-NumPyOS_ascii_isspace(char c);
+NpyOS_ascii_isspace(char c);
 
 #endif

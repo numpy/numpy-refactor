@@ -390,7 +390,7 @@ format_@name@(char *buf, size_t buflen, @name@ val, unsigned int prec)
     size_t i, cnt;
 
     PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-    res = NumPyOS_ascii_format@type@(buf, buflen, format, val, 0);
+    res = NpyOS_ascii_format@type@(buf, buflen, format, val, 0);
     if (res == NULL) {
         fprintf(stderr, "Error while formatting\n");
         return;
@@ -424,7 +424,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
     if (val.real == 0.0) {
 #endif
         PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-        res = NumPyOS_ascii_format@type@(buf, buflen-1, format, val.imag, 0);
+        res = NpyOS_ascii_format@type@(buf, buflen-1, format, val.imag, 0);
         if (res == NULL) {
             fprintf(stderr, "Error while formatting\n");
             return;
@@ -440,7 +440,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
         char re[64], im[64];
         if (npy_isfinite(val.real)) {
                 PyOS_snprintf(format, sizeof(format), _FMT1, prec);
-                res = NumPyOS_ascii_format@type@(re, sizeof(re), format, val.real, 0);
+                res = NpyOS_ascii_format@type@(re, sizeof(re), format, val.real, 0);
                 if (res == NULL) {
                     fprintf(stderr, "Error while formatting\n");
                     return;
@@ -458,7 +458,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
 
         if (npy_isfinite(val.imag)) {
                 PyOS_snprintf(format, sizeof(format), _FMT2, prec);
-                res = NumPyOS_ascii_format@type@(im, sizeof(im), format, val.imag, 0);
+                res = NpyOS_ascii_format@type@(im, sizeof(im), format, val.imag, 0);
                 if (res == NULL) {
                     fprintf(stderr, "Error while formatting\n");
                     return;
@@ -529,7 +529,7 @@ static PyObject *
 #define FLOATPREC_STR 6
 #define DOUBLEPREC_REPR 17
 #define DOUBLEPREC_STR 12
-#if SIZEOF_LONGDOUBLE == SIZEOF_DOUBLE
+#if NPY_SIZEOF_LONGDOUBLE == NPY_SIZEOF_DOUBLE
 #define LONGDOUBLEPREC_REPR DOUBLEPREC_REPR
 #define LONGDOUBLEPREC_STR DOUBLEPREC_STR
 #else /* More than probably needed on Intel FP */
@@ -1219,7 +1219,7 @@ gentype_byteswap(PyObject *self, PyObject *args)
         descr = PyArray_DescrFromScalarUnwrap(self);
         newmem = _pya_malloc(descr->elsize);
         if (newmem == NULL) {
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return PyErr_NoMemory();
         }
         else {
@@ -1227,7 +1227,7 @@ gentype_byteswap(PyObject *self, PyObject *args)
         }
         new = PyArray_Scalar(newmem, PyArray_Descr_WRAP(descr), NULL);
         _pya_free(newmem);
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return new;
     }
 }
@@ -1273,7 +1273,7 @@ voidtype_getfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
             new = PyArray_DescrFromScalarUnwrap(ret);
             ptr = scalar_value(ret, new);
             byte_swap_vector(ptr, 1, new->elsize);
-            _Npy_DECREF(new);
+            Npy_DECREF(new);
         }
     }
     return ret;
@@ -1939,7 +1939,7 @@ gentype_getreadbuf(PyObject *self, Py_ssize_t segment, void **ptrptr)
         numbytes >>= 1;
     }
 #endif
-    _Npy_DECREF(outcode);
+    Npy_DECREF(outcode);
     return numbytes;
 }
 
@@ -1957,7 +1957,7 @@ gentype_getsegcount(PyObject *self, Py_ssize_t *lenp)
         }
 #endif
     }
-    _Npy_DECREF(outcode);
+    Npy_DECREF(outcode);
     return 1;
 }
 
@@ -2178,7 +2178,7 @@ static PyObject *
         Py_INCREF(Py_None);
         robj = Py_None;
 #endif
-        _Npy_DECREF(typecode);
+        Npy_DECREF(typecode);
         goto finish;
     }
 
@@ -2230,7 +2230,7 @@ finish:
     typecode = NpyArray_DescrFromType(PyArray_@TYPE@);
     dest = scalar_value(obj, typecode);
     src = scalar_value(robj, typecode);
-    _Npy_DECREF(typecode);
+    Npy_DECREF(typecode);
 #if @default@ == 0
     *((npy_@name@ *)dest) = *((npy_@name@ *)src);
 #elif @default@ == 1 /* unicode and strings */
@@ -2493,7 +2493,7 @@ static long
 }
 /**end repeat**/
 
-#if (SIZEOF_INT != SIZEOF_LONG) || defined(NPY_PY3K)
+#if (NPY_SIZEOF_INT != NPY_SIZEOF_LONG) || defined(NPY_PY3K)
 static long
 int_arrtype_hash(PyObject *obj)
 {
@@ -2510,8 +2510,8 @@ int_arrtype_hash(PyObject *obj)
  * #Char = ,U#
  * #ext = && (x >= LONG_MIN),#
  */
-#if SIZEOF_LONG != SIZEOF_LONGLONG
-/* we assume SIZEOF_LONGLONG=2*SIZEOF_LONG */
+#if NPY_SIZEOF_LONG != NPY_SIZEOF_LONGLONG
+/* we assume NPY_SIZEOF_LONGLONG=2*NPY_SIZEOF_LONG */
 static long
 @char@longlong_arrtype_hash(PyObject *obj)
 {
@@ -2555,7 +2555,7 @@ static long
  * #lname=datetime, timedelta#
  * #name=Datetime,Timedelta#
  */
-#if SIZEOF_LONG==SIZEOF_DATETIME
+#if NPY_SIZEOF_LONG==NPY_SIZEOF_DATETIME
 static long
 @lname@_arrtype_hash(PyObject *obj)
 {
@@ -2565,7 +2565,7 @@ static long
     }
     return x;
 }
-#elif SIZEOF_LONGLONG==SIZEOF_DATETIME
+#elif NPY_SIZEOF_LONGLONG==NPY_SIZEOF_DATETIME
 static long
 @lname@_arrtype_hash(PyObject *obj)
 {
@@ -3341,7 +3341,7 @@ initialize_numeric_types(void)
     Py@NAME@ArrType_Type.tp_hash = @name@_arrtype_hash;
     /**end repeat**/
 
-#if (SIZEOF_INT != SIZEOF_LONG) || defined(NPY_PY3K)
+#if (NPY_SIZEOF_INT != NPY_SIZEOF_LONG) || defined(NPY_PY3K)
     /* We won't be inheriting from Python Int type. */
     PyIntArrType_Type.tp_hash = int_arrtype_hash;
 #endif
@@ -3351,7 +3351,7 @@ initialize_numeric_types(void)
     PyLongArrType_Type.tp_hash = int_arrtype_hash;
 #endif
 
-#if (SIZEOF_LONG != SIZEOF_LONGLONG) || defined(NPY_PY3K)
+#if (NPY_SIZEOF_LONG != NPY_SIZEOF_LONGLONG) || defined(NPY_PY3K)
     /* We won't be inheriting from Python Int type. */
     PyLongLongArrType_Type.tp_hash = longlong_arrtype_hash;
 #endif

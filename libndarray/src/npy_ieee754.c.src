@@ -1,13 +1,16 @@
-/* -*- c -*- */
 /*
- * vim:syntax=c
- *
  * Low-level routines related to IEEE-754 format
  */
-#include "npy_math_common.h"
+
+#include <math.h>
+#include <float.h>
+
+#include "npy_config.h"
+#include "npy_math.h"
 #include "npy_math_private.h"
 
-#ifndef HAVE_COPYSIGN
+
+#if !NPY_HAVE_DECL_COPYSIGN
 double npy_copysign(double x, double y)
 {
     npy_uint32 hx, hy;
@@ -15,20 +18,6 @@ double npy_copysign(double x, double y)
     GET_HIGH_WORD(hy, y);
     SET_HIGH_WORD(x, (hx & 0x7fffffff) | (hy & 0x80000000));
     return x;
-}
-#endif
-
-#if !defined(HAVE_DECL_SIGNBIT)
-#include "_signbit.c"
-
-int _npy_signbit_f(float x)
-{
-    return _npy_signbit_d((double) x);
-}
-
-int _npy_signbit_ld(long double x)
-{
-    return _npy_signbit_d((double) x);
 }
 #endif
 
@@ -48,8 +37,9 @@ double _next(double x, int p)
     EXTRACT_WORDS(hx, lx, x);
     ix = hx & 0x7fffffff;       /* |x| */
 
-    if (((ix >= 0x7ff00000) && ((ix - 0x7ff00000) | lx) != 0))        /* x is nan */
+    if ((ix >= 0x7ff00000) && ((ix - 0x7ff00000) | lx) != 0)  /* x is nan */
         return x;
+
     if ((ix | lx) == 0) {       /* x == 0 */
         if (p >= 0) {
             INSERT_WORDS(x, 0x0, 1);    /* return +minsubnormal */
@@ -74,6 +64,7 @@ double _next(double x, int p)
     hy = hx & 0x7ff00000;
     if (hy >= 0x7ff00000)
         return x + x;           /* overflow  */
+
     if (hy < 0x00100000) {      /* underflow */
         t = x * x;
         if (t != x) {           /* raise underflow flag */
@@ -93,8 +84,9 @@ float _nextf(float x, int p)
     GET_FLOAT_WORD(hx, x);
     ix = hx & 0x7fffffff;       /* |x| */
 
-    if ((ix > 0x7f800000))      /* x is nan */
+    if (ix > 0x7f800000)        /* x is nan */
         return x;
+
     if (ix == 0) {              /* x == 0 */
         if (p >= 0) {
             SET_FLOAT_WORD(x, 0x0 | 1); /* return +minsubnormal */
@@ -115,6 +107,7 @@ float _nextf(float x, int p)
     hy = hx & 0x7f800000;
     if (hy >= 0x7f800000)
         return x + x;           /* overflow  */
+
     if (hy < 0x00800000) {      /* underflow */
         t = x * x;
         if (t != x) {           /* raise underflow flag */
@@ -133,8 +126,8 @@ npy_longdouble _nextl(npy_longdouble x, int p)
 
     ux.e = x;
 
-    if ((GET_LDOUBLE_EXP(ux) == 0x7fff &&
-         ((GET_LDOUBLE_MANH(ux) & ~LDBL_NBIT) | GET_LDOUBLE_MANL(ux)) != 0)) {
+    if (GET_LDOUBLE_EXP(ux) == 0x7fff &&
+        ((GET_LDOUBLE_MANH(ux) & ~LDBL_NBIT) | GET_LDOUBLE_MANL(ux)) != 0) {
         return ux.e;        /* x is nan */
     }
     if (ux.e == 0.0) {
@@ -215,11 +208,13 @@ double npy_nextafter(double x, double y)
     ix = hx & 0x7fffffff;       /* |x| */
     iy = hy & 0x7fffffff;       /* |y| */
 
-    if (((ix >= 0x7ff00000) && ((ix - 0x7ff00000) | lx) != 0) ||        /* x is nan */
-        ((iy >= 0x7ff00000) && ((iy - 0x7ff00000) | ly) != 0))  /* y is nan */
+    if (((ix >= 0x7ff00000) && ((ix - 0x7ff00000) | lx) != 0) || /* x is nan */
+        ((iy >= 0x7ff00000) && ((iy - 0x7ff00000) | ly) != 0))   /* y is nan */
         return x + y;
+
     if (x == y)
         return y;               /* x=y, return y */
+
     if ((ix | lx) == 0) {       /* x == 0 */
         INSERT_WORDS(x, hy & 0x80000000, 1);    /* return +-minsubnormal */
         t = x * x;
@@ -239,7 +234,8 @@ double npy_nextafter(double x, double y)
                 hx += 1;
         }
     } else {                    /* x < 0 */
-        if (hy >= 0 || hx > hy || ((hx == hy) && (lx > ly))) {  /* x < y, x -= ulp */
+        if (hy >= 0 || hx > hy || ((hx == hy) && (lx > ly))) {
+            /* x < y, x -= ulp */
             if (lx == 0)
                 hx -= 1;
             lx -= 1;
@@ -252,6 +248,7 @@ double npy_nextafter(double x, double y)
     hy = hx & 0x7ff00000;
     if (hy >= 0x7ff00000)
         return x + x;           /* overflow  */
+
     if (hy < 0x00100000) {      /* underflow */
         t = x * x;
         if (t != x) {           /* raise underflow flag */
@@ -278,8 +275,10 @@ float npy_nextafterf(float x, float y)
     if ((ix > 0x7f800000) ||    /* x is nan */
         (iy > 0x7f800000))      /* y is nan */
         return x + y;
+
     if (x == y)
         return y;               /* x=y, return y */
+
     if (ix == 0) {              /* x == 0 */
         SET_FLOAT_WORD(x, (hy & 0x80000000) | 1); /* return +-minsubnormal */
         t = x * x;

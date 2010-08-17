@@ -99,11 +99,11 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
      */
     if (PyArray_Check(op)) {
         chktype = PyArray_DESCR(op);
-        _Npy_INCREF(chktype);
+        Npy_INCREF(chktype);
         if (minitype == NULL) {
             return chktype;
         }
-        _Npy_INCREF(minitype);
+        Npy_INCREF(minitype);
         goto finish;
     }
 
@@ -112,7 +112,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
         if (minitype == NULL) {
             return chktype;
         }
-        _Npy_INCREF(minitype);
+        Npy_INCREF(minitype);
         goto finish;
     }
 
@@ -120,7 +120,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
         minitype = NpyArray_DescrFromType(PyArray_BOOL);
     }
     else {
-        _Npy_INCREF(minitype);
+        Npy_INCREF(minitype);
     }
     if (max < 0) {
         goto deflt;
@@ -222,7 +222,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
         ip = PyObject_CallMethod(op, "__array__", NULL);
         if(ip && PyArray_Check(ip)) {
             chktype = PyArray_DESCR(ip);
-            _Npy_INCREF(chktype);
+            Npy_INCREF(chktype);
             Py_DECREF(ip);
             goto finish;
         }
@@ -244,7 +244,7 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
             goto deflt;
         }
         if (l == 0 && minitype->type_num == PyArray_BOOL) {
-            _Npy_DECREF(minitype);
+            Npy_DECREF(minitype);
             minitype = NpyArray_DescrFromType(PyArray_DEFAULT);
         }
         while (--l >= 0) {
@@ -256,13 +256,13 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
             }
             chktype = _array_find_type(ip, minitype, max-1);
             newtype = NpyArray_SmallType(chktype, minitype);
-            _Npy_DECREF(minitype);
+            Npy_DECREF(minitype);
             minitype = newtype;
-            _Npy_DECREF(chktype);
+            Npy_DECREF(chktype);
             Py_DECREF(ip);
         }
         chktype = minitype;
-        _Npy_INCREF(minitype);
+        Npy_INCREF(minitype);
         goto finish;
     }
 
@@ -272,15 +272,15 @@ _array_find_type(PyObject *op, NpyArray_Descr *minitype, int max)
 
  finish:
     outtype = NpyArray_SmallType(chktype, minitype);
-    _Npy_DECREF(chktype);
-    _Npy_DECREF(minitype);
+    Npy_DECREF(chktype);
+    Npy_DECREF(minitype);
     /*
      * VOID Arrays should not occur by "default"
      * unless input was already a VOID
      */
     if (outtype->type_num == PyArray_VOID &&
         minitype->type_num != PyArray_VOID) {
-        _Npy_DECREF(outtype);
+        Npy_DECREF(outtype);
         return NpyArray_DescrFromType(PyArray_OBJECT);
     }
     return outtype;

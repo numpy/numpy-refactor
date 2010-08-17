@@ -105,7 +105,7 @@ PyArray_IterNew(PyObject *obj)
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
        interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
-    _Npy_DECREF( iter );
+    Npy_DECREF( iter );
 
     return (PyObject *)Npy_INTERFACE(iter);
 }
@@ -124,7 +124,7 @@ PyArray_BroadcastToShape(PyObject *obj, intp *dims, int nd)
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(iter) );
-    _Npy_DECREF( iter );
+    Npy_DECREF( iter );
 
     return (PyObject*)Npy_INTERFACE(iter);
 }
@@ -152,7 +152,7 @@ PyArray_IterAllButAxis(PyObject *obj, int *inaxis)
     /* Move reference from iter to Npy_INTERFACE(iter) since we are returning the
      interface object. Decref before incref would be unfortunate. */
     Py_INCREF( (PyArrayIterObject *)Npy_INTERFACE(iter) );
-    _Npy_DECREF( iter );
+    Npy_DECREF( iter );
 
     return (PyObject*)Npy_INTERFACE(iter);
 }
@@ -235,7 +235,7 @@ npy_iter_subscript(NpyArrayIterObject* self, PyObject* ind)
 
     /* Move the ref and return. */
     Py_INCREF(Npy_INTERFACE(result));
-    _Npy_DECREF(result);
+    Npy_DECREF(result);
 
     return PyArray_Return(Npy_INTERFACE(result));
 }
@@ -292,7 +292,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
         }
     }
 
-    _Npy_INCREF(self->ao->descr);
+    Npy_INCREF(self->ao->descr);
     arr_val = (PyArrayObject *)
         PyArray_FromAnyUnwrap(val, self->ao->descr, 0, 0, 0, NULL);
     if (arr_val == NULL) {
@@ -337,37 +337,27 @@ iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
      * to copy back to the old array
      */
     size = NpyArray_SIZE(it->ao);
-    _Npy_INCREF(it->ao->descr);
+    Npy_INCREF(it->ao->descr);
     if (NpyArray_ISCONTIGUOUS(it->ao)) {
-        r = NpyArray_NewFromDescr(it->ao->descr,
-                                  1, &size,
-                                  NULL, it->ao->data,
-                                  it->ao->flags,
-                                  NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
-        if (r == NULL) {
-            return NULL;
-        }
+        r = NpyArray_NewView(it->ao->descr, 1, &size, NULL, it->ao, 0,
+                             NPY_TRUE);
     }
     else {
-        r = NpyArray_NewFromDescr(it->ao->descr,
-                                  1, &size,
-                                  NULL, NULL,
-                                  0, NPY_TRUE, NULL, Npy_INTERFACE(it->ao));
+        r = NpyArray_Alloc(it->ao->descr, 1, &size, NPY_FALSE,
+                           Npy_INTERFACE(it->ao));
         if (r == NULL) {
             return NULL;
         }
         if (_flat_copyinto(r, it->ao,
                            PyArray_CORDER) < 0) {
-            _Npy_DECREF(r);
+            Npy_DECREF(r);
             return NULL;
         }
         NpyArray_FLAGS(r) |= UPDATEIFCOPY;
         it->ao->flags &= ~WRITEABLE;
+        Npy_INCREF(it->ao);
+        NpyArray_BASE_ARRAY(r) = it->ao;
     }
-    _Npy_INCREF(it->ao);
-    NpyArray_BASE_ARRAY(r) = it->ao;
-    assert(NULL == NpyArray_BASE_ARRAY(r) || NULL == NpyArray_BASE(r));
-
     ASSIGN_TO_PYARRAY(result, r);
     return (PyObject *)result;
 }
@@ -436,14 +426,14 @@ iter_coords_get(PyArrayIterObject *pself)
 static PyObject *
 iter_base_get(PyArrayIterObject* self)
 {
-    _Npy_INCREF(self->iter->ao);
+    Npy_INCREF(self->iter->ao);
     return (PyObject *)self->iter->ao;
 }
 
 static PyObject *
 iter_index_get(PyArrayIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->index);
 #else
     if (self->size < MAX_LONG) {
@@ -574,13 +564,13 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
             if (i < n) {
                 PyObject *tmp = PyArray_FROM_O(mps[i]);
                 arrays[i] = PyArray_ARRAY(tmp);
-                _Npy_INCREF(arrays[i]);
+                Npy_INCREF(arrays[i]);
                 Py_DECREF(tmp);
             } else {
                 PyObject* arg = va_arg(va, PyObject*);
                 PyObject *tmp = PyArray_FROM_O(arg);
                 arrays[i] = PyArray_ARRAY(tmp);
-                _Npy_INCREF(arrays[i]);
+                Npy_INCREF(arrays[i]);
                 Py_DECREF(tmp);
             }
             if (arrays[i] == NULL) {
@@ -601,12 +591,12 @@ PyArray_vMultiIterFromObjects(PyObject **mps, int n, int nadd, va_list va)
     /* Move the reference from the core object to the interface. */
     result = (PyArrayMultiIterObject *)Npy_INTERFACE(multi);
     Py_INCREF(result);
-    _Npy_DECREF(multi);
+    Npy_DECREF(multi);
 
 
   finish:
     for (i=0; i<ntot; i++) {
-        _Npy_XDECREF(arrays[i]);
+        Npy_XDECREF(arrays[i]);
     }
     return (PyObject*) result;
 }
@@ -692,7 +682,7 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
                 == NULL) {
             goto fail;
         }
-        Npy_DECREF(arr);
+        Py_DECREF(arr);
     }
     if (NpyArray_Broadcast(multi) < 0) {
         goto fail;
@@ -701,11 +691,11 @@ arraymultiter_new(PyTypeObject *NPY_UNUSED(subtype), PyObject *args, PyObject *k
 
     /* Move the reference from the core to the interface. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(multi) );
-    _Npy_DECREF( multi );
+    Npy_DECREF( multi );
     return (PyObject *)Npy_INTERFACE(multi);
 
  fail:
-    _Npy_DECREF(multi);
+    Npy_DECREF(multi);
     return NULL;
 }
 
@@ -747,7 +737,7 @@ arraymultiter_dealloc(PyArrayMultiIterObject *multi)
 static PyObject *
 arraymultiter_size_get(PyArrayMultiIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->size);
 #else
     if (self->size < MAX_LONG) {
@@ -762,7 +752,7 @@ arraymultiter_size_get(PyArrayMultiIterObject *self)
 static PyObject *
 arraymultiter_index_get(PyArrayMultiIterObject *self)
 {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_INTP <= NPY_SIZEOF_LONG
     return PyInt_FromLong((long) self->iter->index);
 #else
     if (self->size < MAX_LONG) {
@@ -1007,7 +997,7 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
 
     /* Move the reference from the core object to the interface obj. */
     Py_INCREF( (PyObject *)Npy_INTERFACE(coreRet) );
-    _Npy_DECREF( coreRet );
+    Npy_DECREF( coreRet );
 
     return (PyObject *)Npy_INTERFACE(coreRet);
 }

@@ -1,5 +1,4 @@
 /*
- *
  * ====================================================
  * Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
  *
@@ -18,16 +17,15 @@
 #ifndef _NPY_MATH_PRIVATE_H_
 #define _NPY_MATH_PRIVATE_H_
 
-#include <Python.h>
 #include <math.h>
 
 #include "npy_config.h"
-#include "numpy_fpmath.h"
-
 #include "npy_math.h"
-#include "numpy/npy_cpu.h"
+#include "npy_cpu.h"
 #include "npy_endian.h"
-#include "numpy/npy_common.h"
+#include "npy_common.h"
+#include "npy_fpmath.h"
+
 
 /*
  * The original fdlibm code used statements like:
@@ -213,6 +211,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE)
     /*
      * Intel extended 80 bits precision, 16 bytes alignment.. Bit representation is
@@ -250,6 +249,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_16_BYTES_BE) || \
       defined(HAVE_LDOUBLE_IEEE_DOUBLE_BE)
     /* 64 bits IEEE double precision aligned on 16 bytes: used by ppc arch on
@@ -289,6 +289,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_LE)
     /* 64 bits IEEE double precision, Little Endian. */
 
@@ -326,6 +327,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_man_t;
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
+
 #elif defined(HAVE_LDOUBLE_IEEE_QUAD_BE)
     /*
      * IEEE quad precision, Big Endian. Bit representation is
@@ -408,7 +410,8 @@ do {                                                            \
  * complex or our own complex type independently on whether C99 complex
  * support is available
  */
-#ifdef NPY_USE_C99_COMPLEX
+#if NPY_HAVE_COMPLEX_H
+#include <complex.h>
 typedef union {
         npy_cdouble npy_z;
         complex double c99_z;
@@ -438,6 +441,6 @@ typedef union {
         npy_clongdouble npy_z;
         npy_clongdouble c99_z;
 } __npy_clongdouble_to_c99_cast;
-#endif
+#endif /* NPY_HAVE_COMPLEX_H */
 
 #endif /* !_NPY_MATH_PRIVATE_H_ */

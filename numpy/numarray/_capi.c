@@ -27,7 +27,7 @@
         if (a_ == NULL) return NULL;             \
         ret_ = Npy_INTERFACE(a_);                 \
         Py_INCREF(ret_);                         \
-        _Npy_DECREF(a_);                         \
+        Npy_DECREF(a_);                         \
         return ret_;                 \
     } while (0)
 
@@ -39,7 +39,7 @@
         } else {                                \
             pya = Npy_INTERFACE(a_);            \
             Py_INCREF(pya);                     \
-            _Npy_DECREF(a_);                    \
+            Npy_DECREF(a_);                    \
         }                                       \
     } while (0)
 
@@ -1122,7 +1122,7 @@ NA_OutputArray(PyObject *a, NumarrayType t, int requires)
             dtype, 0);
     PyArray_FLAGS(ret) |= NPY_UPDATEIFCOPY;
     PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(a);
-    _Npy_INCREF(PyArray_ARRAY(a));
+    Npy_INCREF(PyArray_ARRAY(a));
     PyArray_FLAGS(a) &= ~NPY_WRITEABLE;
     assert(NULL == PyArray_BASE(ret));
     return ret;
@@ -2856,13 +2856,12 @@ NA_NewAllFromBuffer(int ndim, maybelong *shape, NumarrayType type,
 
     if (bufferObject == Py_None || bufferObject == NULL) {
         NpyArray_Descr *descr = dtype->descr;
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         Py_DECREF(dtype);
-        
+
         ASSIGN_TO_PYARRAY(self,
-            NpyArray_NewFromDescr(descr,
-                       ndim, shape, NULL, NULL,
-                       0, NPY_TRUE, NULL, NULL));
+                          NpyArray_Alloc(descr, ndim, shape,
+                                         NPY_FALSE, NULL));
     }
     else {
         npy_intp size = 1;
@@ -3186,10 +3185,10 @@ static PyArrayObject *
 NA_FromDimsStridesDescrAndData(int nd, maybelong *d, maybelong *s, PyArray_Descr *descr, char *data)
 {
     NpyArray_Descr *descrCore = descr->descr;
-    
-    _Npy_INCREF(descrCore);
+
+    Npy_INCREF(descrCore);
     Py_DECREF(descr);
-    
+
     RETURN_PYARRAY(
         NpyArray_NewFromDescr(descrCore, nd, d,
                 s, data, 0, NPY_TRUE, NULL, NULL));

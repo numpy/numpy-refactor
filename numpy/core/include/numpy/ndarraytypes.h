@@ -1,5 +1,5 @@
-#ifndef NDARRAYTYPES_H
-#define NDARRAYTYPES_H
+#ifndef _NDARRAYTYPES_H_
+#define _NDARRAYTYPES_H_
 
 #include <assert.h>
 #include <Python.h>
@@ -529,4 +529,4 @@ typedef struct {
                            */
 } PyArrayInterface;
 
-#endif /* NPY_ARRAYTYPES_H */
+#endif /* _NDARRAYTYPES_H_ */

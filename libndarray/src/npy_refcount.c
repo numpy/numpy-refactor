@@ -100,7 +100,7 @@ NpyArray_INCREF(NpyArray *mp)
             NpyArray_Item_INCREF(it->dataptr, NpyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
     } else if (NpyArray_ISONESEGMENT(mp)) {
         data = (void **)NpyArray_BYTES(mp);
         n = NpyArray_SIZE(mp);
@@ -128,7 +128,7 @@ NpyArray_INCREF(NpyArray *mp)
             NPY_COPY_PYOBJECT_PTR(it->dataptr, &temp);
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
     }
     return 0;
 }
@@ -156,7 +156,7 @@ NpyArray_XDECREF(NpyArray *mp)
             NpyArray_Item_XDECREF(it->dataptr, NpyArray_DESCR(mp));
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
 
     } else if (NpyArray_ISONESEGMENT(mp)) {
         data = (void **)NpyArray_BYTES(mp);
@@ -181,7 +181,7 @@ NpyArray_XDECREF(NpyArray *mp)
             NpyInterface_DECREF(temp);
             NpyArray_ITER_NEXT(it);
         }
-        _Npy_DECREF(it);
+        Npy_DECREF(it);
     }
     return 0;
 }

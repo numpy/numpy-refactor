@@ -97,7 +97,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     loop->bufsize = bufsize;
     loop->errormask = errormask;
     loop->errobj = errobj;
-    
+
     /* Setup the arrays */
     res = construct_arrays(loop, nargs, mps, rtypenums, 
                            prepare_outputs, prepare_out_args);
@@ -106,7 +106,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
         ufuncloop_dealloc(loop);
         return -1;
     }
-    
+
     /*
      * FAIL with NotImplemented if the other object has
      * the __r<op>__ method and has __array_priority__ as
@@ -119,7 +119,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
         ufuncloop_dealloc(loop);
         return -2;
     }
-    
+
     if (loop->notimplemented) {
         ufuncloop_dealloc(loop);
         return -2;
@@ -156,7 +156,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                 loop->function((char **)loop->bufptr, &(loop->bufcnt),
                                loop->steps, loop->funcdata);
                 UFUNC_CHECK_ERROR(loop);
-                
+
                 /* Adjust loop pointers */
                 for (i = 0; i < self->nargs; i++) {
                     NpyArray_ITER_NEXT(loop->iter->iters[i]);
@@ -172,7 +172,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                 loop->function((char **)loop->bufptr, loop->core_dim_sizes,
                                loop->core_strides, loop->funcdata);
                 UFUNC_CHECK_ERROR(loop);
-                
+
                 /* Adjust loop pointers */
                 for (i = 0; i < self->nargs; i++) {
                     NpyArray_ITER_NEXT(loop->iter->iters[i]);
@@ -204,7 +204,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
             int datasize[NPY_MAXARGS];
             int j, k, stopcondition;
             char *myptr1, *myptr2;
-            
+
             for (i = 0; i <self->nargs; i++) {
                 copyswapn[i] = NpyArray_DESCR(mps[i])->f->copyswapn;
                 mpselsize[i] = NpyArray_DESCR(mps[i])->elsize;
@@ -250,8 +250,8 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
              * update all data-pointers by strides*niter
              * }
              */
-            
-            
+
+
             /*
              * fprintf(stderr, "BUFFER...%d,%d,%d\n", loop->size,
              * loop->ninnerloops, loop->leftover);
@@ -279,7 +279,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                         dptr[i] = tptr[i];
                     }
                 }
-                
+
                 /* This is the inner function over the last dimension */
                 for (k = 1; k<=stopcondition; k++) {
                     if (k == ninnerloops) {
@@ -308,7 +308,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                                 myptr2 += laststrides[i];
                             }
                         }
-                        
+
                         /* swap the buffer if necessary */
                         if (swap[i]) {
                             /* fprintf(stderr, "swapping...\n");*/
@@ -324,11 +324,11 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                                           NULL, NULL);
                         }
                     }
-                    
+
                     bufcnt = (npy_intp) bufsize;
                     loop->function((char **)dptr, &bufcnt, steps, loop->funcdata);
                     UFUNC_CHECK_ERROR(loop);
-                    
+
                     for (i = self->nin; i < self->nargs; i++) {
                         if (!needbuffer[i]) {
                             continue;
@@ -380,7 +380,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                     }
                 }
                 /* end inner function over last dimension */
-                
+
                 if (loop->objfunc) {
                     /*
                      * DECREF castbuf when underlying function used
@@ -394,7 +394,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                             }
                             else {
                                 int size = loop->bufsize;
-                                
+
                                 void **objptr = (void **)castbuf[i];
                                 /*
                                  * size is loop->bufsize unless there
@@ -416,7 +416,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                 }
                 /* fixme -- probably not needed here*/
                 UFUNC_CHECK_ERROR(loop);
-                
+
                 for (i = 0; i < self->nargs; i++) {
                     NpyArray_ITER_NEXT(loop->iter->iters[i]);
                 }
@@ -428,7 +428,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     //    NPY_LOOP_END_THREADS;
     ufuncloop_dealloc(loop);
     return 0;
-    
+
 fail:
     //    NPY_LOOP_END_THREADS;
     if (loop) {
@@ -437,7 +437,7 @@ fail:
             npy_intp *steps = loop->steps;
             int ninnerloops = loop->ninnerloops;
             int j;
-            
+
             /*
              * DECREF castbuf when underlying function used
              * object arrays and casting was needed to get
@@ -450,7 +450,7 @@ fail:
                     }
                     else {
                         int size = loop->bufsize;
-                        
+
                         void **objptr = (void **)castbuf[i];
                         /*
                          * size is loop->bufsize unless there

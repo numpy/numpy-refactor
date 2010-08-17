@@ -116,7 +116,7 @@ PyArray_CopyObject(PyArrayObject *dest, PyObject *src_object)
         /* TODO: Once array is split we can probably drop the PyObject wrapper here */
         NpyArray_Descr* dtype;
         dtype = PyArray_ARRAY(dest)->descr;
-        _Npy_INCREF(dtype);
+        Npy_INCREF(dtype);
         src = (PyArrayObject *)PyArray_FromAnyUnwrap(src_object, dtype, 0,
                                     PyArray_NDIM(dest),
                                     FORTRAN_IF(dest),
@@ -765,7 +765,7 @@ _strings_richcompare(PyArrayObject *self, PyArrayObject *other, int cmp_op,
     }
 
  finish:
-    _Npy_DECREF(mit);
+    Npy_DECREF(mit);
     return result;
 }
 
@@ -1184,11 +1184,11 @@ array_new(PyTypeObject *subtype, PyObject *args, PyObject *kwds)
             goto fail;
         }
         PyArray_UpdateFlags(ret, UPDATE_ALL);
-        
+
         /* TODO: This will be an issue.  Probably need to split buffer.base or we have to unwrap it. */
         if (PyArray_Check(buffer.base)) {
             PyArray_BASE_ARRAY(ret) = PyArray_ARRAY(buffer.base);
-            _Npy_INCREF(PyArray_BASE_ARRAY(ret));
+            Npy_INCREF(PyArray_BASE_ARRAY(ret));
         } else {
             PyArray_BASE(ret) = buffer.base;
             Py_INCREF(buffer.base);

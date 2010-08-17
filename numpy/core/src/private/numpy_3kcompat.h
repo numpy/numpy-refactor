@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "npy_config.h"
-#include "numpy/npy_common.h"
+#include "npy_common.h"
 #include "numpy/ndarrayobject.h"
 
 /*

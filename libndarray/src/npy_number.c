@@ -25,7 +25,7 @@ NumericOps n_ops = {
 static NpyUFuncObject **get_op_loc(enum NpyArray_Ops op)
 {
     NpyUFuncObject **loc = NULL;
-    
+
     switch (op) {
         case npy_op_add:
             loc = &n_ops.add;
@@ -150,15 +150,15 @@ NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 {
     NpyUFuncObject **loc = get_op_loc(op);
-    
+
     assert(NPY_VALID_MAGIC == func->magic_number);
-    
+
     if (NULL == loc) {
         return -1;
     }
-    _Npy_XDECREF(*loc);
+    Npy_XDECREF(*loc);
     *loc = func;
-    _Npy_INCREF(*loc);
+    Npy_INCREF(*loc);
     return 0;
 }
 

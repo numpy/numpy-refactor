@@ -506,14 +506,14 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
         }
         else {
             my_descr = PyArray_DESCR(a);
-            _Npy_INCREF(my_descr);
+            Npy_INCREF(my_descr);
         }
 
         /* TODO: Ugly.
            Refactor PyArray_Empty into core once zero fill is refactored. */
         my_descr_wrap = PyArray_Descr_WRAP(my_descr);
         Py_INCREF(my_descr_wrap);
-        _Npy_DECREF(my_descr);
+        Npy_DECREF(my_descr);
         out = (PyArrayObject *)PyArray_Empty(PyArray_NDIM(a), PyArray_DIMS(a),
                                               my_descr_wrap,
                                               PyArray_ISFORTRAN(a));
@@ -551,7 +551,7 @@ PyArray_Round(PyArrayObject *a, int decimals, PyArrayObject *out)
     Py_DECREF(f);
     Py_DECREF(out);
     if (ret_int) {
-        _Npy_INCREF(PyArray_DESCR(a));
+        Npy_INCREF(PyArray_DESCR(a));
         tmp = Npy_INTERFACE(NpyArray_CastToType(PyArray_ARRAY(ret),
                                                 PyArray_DESCR(a),
                                                 PyArray_ISFORTRAN(a)));
@@ -719,7 +719,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
     }
     if (max != NULL) {
         newdescr = PyArray_DescrFromObjectUnwrap(max, indescr);
-        _Npy_XDECREF(indescr);
+        Npy_XDECREF(indescr);
         if (newdescr == NULL) {
             return NULL;
         }
@@ -745,14 +745,14 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
     }
     else {
         indescr = PyArray_DESCR(self);
-        _Npy_INCREF(indescr);
+        Npy_INCREF(indescr);
     }
-    _Npy_DECREF(newdescr);
+    Npy_DECREF(newdescr);
 
     if (!NpyArray_ISNBO(indescr->byteorder)) {
         NpyArray_Descr *descr2;
         descr2 = NpyArray_DescrNewByteorder(indescr, '=');
-        _Npy_DECREF(indescr);
+        Npy_DECREF(indescr);
         if (descr2 == NULL) {
             goto fail;
         }
@@ -769,7 +769,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
     }
     else {
         /* Side-effect of PyArray_FromAny */
-        _Npy_DECREF(indescr);
+        Npy_DECREF(indescr);
     }
 
     /*
@@ -802,7 +802,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
         }
 
         /* Convert min to an array */
-        _Npy_INCREF(indescr);
+        Npy_INCREF(indescr);
         mina = (NPY_AO *)PyArray_FromAnyUnwrap(min, indescr, 0, 0,
                                                NPY_DEFAULT, NULL);
         Py_DECREF(min);
@@ -829,7 +829,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
         else {
             flags = NPY_CARRAY;
         }
-        _Npy_INCREF(indescr);
+        Npy_INCREF(indescr);
         ASSIGN_TO_PYARRAY(newin,
                           NpyArray_FromArray(PyArray_ARRAY(self),
                                              indescr, flags));
@@ -864,13 +864,12 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
      * and usable
      */
     if (out == NULL) {
-        _Npy_INCREF(indescr);
+        Npy_INCREF(indescr);
         ASSIGN_TO_PYARRAY(out,
-            NpyArray_NewFromDescr(indescr, PyArray_NDIM(self),
-                                  PyArray_DIMS(self),
-                                  NULL, NULL,
-                                  PyArray_ISFORTRAN(self),
-                                  NPY_FALSE, Py_TYPE(self), self));
+                          NpyArray_Alloc(indescr, PyArray_NDIM(self),
+                                         PyArray_DIMS(self), 
+                                         PyArray_ISFORTRAN(self),
+                                         self));
         if (out == NULL) {
             goto fail;
         }
@@ -898,7 +897,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
         else
             oflags = NPY_CARRAY;
         oflags |= NPY_UPDATEIFCOPY | NPY_FORCECAST;
-        _Npy_INCREF(indescr);
+        Npy_INCREF(indescr);
         ASSIGN_TO_PYARRAY(newout,
                           NpyArray_FromArray(PyArray_ARRAY(out), indescr, oflags));
         if (newout == NULL) {
@@ -956,7 +955,7 @@ NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
     NpyArray *coreResult;
     
     coreResult = PyArray_ARRAY(result);
-    _Npy_INCREF(coreResult);
+    Npy_INCREF(coreResult);
     Py_DECREF(result);
     return coreResult;
 }

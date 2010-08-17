@@ -3,11 +3,11 @@ AUTOMAKE_OPTIONS = foreign
 
 # Headers which are installed to support the library
 INSTINCLUDES = \
-        npy_config.h \
         src/_neighborhood_iterator_imp.h \
         src/npy_api.h \
         src/npy_arrayobject.h \
         src/npy_common.h \
+        src/npy_config.h \
         src/npy_cpu.h \
         src/npy_defs.h \
         src/npy_descriptor.h \
@@ -23,7 +23,9 @@ INSTINCLUDES = \
 
 # Headers which are not installed
 OTHERINCLUDES = \
-        src/npy_noprefix.h \
+	src/npy_fpmath.h \
+	src/npy_math_private.h \
+        src/npy_number.h \
         src/npy_internal.h
 
 # Sources to build library
@@ -41,18 +43,21 @@ LIBSOURCES = \
         src/npy_dict.c \
         src/npy_flagsobject.c \
         src/npy_getset.c \
+        src/npy_ieee754.c \
         src/npy_index.c \
         src/npy_item_selection.c \
         src/npy_iterators.c \
         src/npy_mapping.c \
+        src/npy_math.c \
+        src/npy_math_complex.c \
         src/npy_methods.c \
         src/npy_multiarray.c \
         src/npy_number.c \
+        src/npy_os.c \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_ufunc_object.c \
-        src/npy_usertypes.c \
-        src/npy_os.c
+        src/npy_usertypes.c
 
 # libtool libraries to build
 lib_LTLIBRARIES = libndarray.la
@@ -67,5 +72,17 @@ include_HEADERS = $(INSTINCLUDES)
 noinst_HEADERS = $(OTHERINCLUDES)
 
 
+src/npy_config.h: config.h tools/mk_config.py
+	python tools/mk_config.py
+
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
-	python src/conv_template.py
+	python tools/conv_template.py src/npy_arraytypes.c.src
+
+src/npy_ieee754.c: src/npy_ieee754.c.src
+	python tools/conv_template.py src/npy_ieee754.c.src
+
+src/npy_math.c: src/npy_math.c.src
+	python tools/conv_template.py src/npy_math.c.src
+
+src/npy_math_complex.c: src/npy_math_complex.c.src
+	python tools/conv_template.py src/npy_math_complex.c.src

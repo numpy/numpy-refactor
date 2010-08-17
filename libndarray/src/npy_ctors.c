@@ -216,8 +216,8 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     maxdim = dest->dimensions[maxaxis];
 
     if ((dit == NULL) || (sit == NULL)) {
-        _Npy_XDECREF(dit);
-        _Npy_XDECREF(sit);
+        Npy_XDECREF(dit);
+        Npy_XDECREF(sit);
         return -1;
     }
     elsize = NpyArray_ITEMSIZE(dest);
@@ -243,8 +243,8 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     }
     NPY_END_THREADS;
 
-    _Npy_DECREF(sit);
-    _Npy_DECREF(dit);
+    Npy_DECREF(sit);
+    Npy_DECREF(dit);
     return 0;
 }
 
@@ -271,7 +271,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     if (multi->size != NpyArray_SIZE(dest)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "array dimensions are not compatible for copy");
-        _Npy_DECREF(multi);
+        Npy_DECREF(multi);
         return -1;
     }
 
@@ -319,7 +319,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     NpyArray_INCREF(dest);
     NpyArray_XDECREF(src);
 
-    _Npy_DECREF(multi);
+    Npy_DECREF(multi);
     return 0;
 }
 
@@ -411,7 +411,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
         NPY_END_THREADS;
         NpyArray_INCREF(dest);
         NpyArray_XDECREF(src);
-        _Npy_DECREF(dit);
+        Npy_DECREF(dit);
     }
     retval = 0;
 
@@ -471,7 +471,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     it = NpyArray_IterAllButAxis(src, &axis);
     if (it == NULL) {
         if (src != orig_src) {
-            _Npy_DECREF(src);
+            Npy_DECREF(src);
         }
         return -1;
     }
@@ -500,9 +500,9 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     NPY_END_THREADS;
 
     if (src != orig_src) {
-        _Npy_DECREF(src);
+        Npy_DECREF(src);
     }
-    _Npy_DECREF(it);
+    Npy_DECREF(it);
     return 0;
 }
 
@@ -617,8 +617,8 @@ _update_descr_and_dimensions(NpyArray_Descr **des, npy_intp *newdims,
     }
 
 finish:
-    _Npy_INCREF(*des);
-    _Npy_DECREF(old);
+    Npy_INCREF(*des);
+    Npy_DECREF(old);
     return newnd;
 }
 
@@ -742,7 +742,7 @@ NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
         !NpyArray_ElementStrides(obj)) {
         NpyArray *new;
         new = NpyArray_NewCopy(obj, NPY_ANYORDER);
-        _Npy_DECREF(obj);
+        Npy_DECREF(obj);
         obj = new;
     }
     return obj;
@@ -769,7 +769,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
         }
         else {
             temp1 = arr;
-            _Npy_INCREF(temp1);
+            Npy_INCREF(temp1);
             *axis = 0;
         }
         if (!flags && *axis == 0) {
@@ -778,11 +778,11 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
     }
     else {
         temp1 = arr;
-        _Npy_INCREF(temp1);
+        Npy_INCREF(temp1);
     }
     if (flags) {
         temp2 = NpyArray_CheckFromArray(temp1, NULL, flags);
-        _Npy_DECREF(temp1);
+        Npy_DECREF(temp1);
         if (temp2 == NULL) {
             return NULL;
         }
@@ -797,7 +797,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
     if ((*axis < 0) || (*axis >= n)) {
         sprintf(msg, "axis(=%d) out of bounds", *axis);
         NpyErr_SetString(NpyExc_ValueError, msg);
-        _Npy_DECREF(temp2);
+        Npy_DECREF(temp2);
         return NULL;
     }
     return temp2;
@@ -854,13 +854,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     if (nd < 0) {
         NpyErr_SetString(NpyExc_ValueError,
                         "number of dimensions must be >=0");
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return NULL;
     }
     if (nd > NPY_MAXDIMS) {
         sprintf(msg, "maximum number of dimensions is %d", NPY_MAXDIMS);
         NpyErr_SetString(NpyExc_ValueError, msg);
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return NULL;
     }
 
@@ -870,7 +870,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     if (sd == 0) {
         if (!NpyDataType_ISSTRING(descr)) {
             NpyErr_SetString(NpyExc_ValueError, "Empty data-type");
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return NULL;
         }
         NpyArray_DESCR_REPLACE(descr);
@@ -897,13 +897,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         if (dim < 0) {
             NpyErr_SetString(NpyExc_ValueError,
                             "negative dimensions are not allowed");
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return NULL;
         }
         if (dim > largest) {
             NpyErr_SetString(NpyExc_ValueError,
                             "array is too big.");
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return NULL;
         }
         size *= dim;
@@ -913,10 +913,10 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
 
     self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
     if (self == NULL) {
-        _Npy_DECREF(descr);
+        Npy_DECREF(descr);
         return NULL;
     }
-    _NpyObject_Init((_NpyObject *)self, &NpyArray_Type);
+    NpyObject_Init((_NpyObject *)self, &NpyArray_Type);
     self->magic_number = NPY_VALID_MAGIC;
     self->nd = nd;
     self->dimensions = NULL;
@@ -1007,7 +1007,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                                   subtype, interfaceData,
                                                   &self->nob_interface)) {
         Npy_INTERFACE(self) = NULL;
-        _Npy_DECREF(self);
+        Npy_DECREF(self);
         return NULL;
     }
     assert(NULL != self && NPY_VALID_MAGIC == self->magic_number &&
@@ -1015,7 +1015,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     return self;
 
 fail:
-    _Npy_DECREF(self);
+    Npy_DECREF(self);
     return NULL;
 }
 
@@ -1041,7 +1041,7 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
         if (itemsize < 1) {
             NpyErr_SetString(NpyExc_ValueError,
                              "data type must provide an itemsize");
-            _Npy_DECREF(descr);
+            Npy_DECREF(descr);
             return NULL;
         }
         NpyArray_DESCR_REPLACE(descr);
@@ -1054,6 +1054,50 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
     return new;
 }
 
+/*
+ * Creates an array allocating new data.
+ * Steals the reference to the descriptor.
+ */
+NpyArray *
+NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
+               npy_bool is_fortran, void *interfaceData)
+{
+    /* TODO: Have NpyArray_NewFromDescr call this instead of
+       vice versa. */
+    return NpyArray_NewFromDescr(descr, nd, dims,
+                                 NULL, NULL,
+                                 ( is_fortran ? NPY_FORTRAN : 0),
+                                 NPY_FALSE, NULL, interfaceData);
+}
+
+
+/*
+ * Creates a new array which is a view into the buffer of array.
+ * Steals the reference to the descriptor.
+ */
+NpyArray *
+NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                 npy_intp *strides, NpyArray *array, npy_intp offset,
+                 npy_bool ensure_array)
+{
+    /* TODO: Add some sanity checking. */
+    int flags = array->flags & NPY_WRITEABLE;
+    if (strides == NULL) {
+        flags |= (array->flags & (NPY_CONTIGUOUS | NPY_FORTRAN));
+    }
+    NpyArray *result = NpyArray_NewFromDescr(descr, nd, dims,
+                                             strides, array->data + offset,
+                                             flags,
+                                             ensure_array, NULL,
+                                             Npy_INTERFACE(array));
+    if (result == NULL) {
+        return NULL;
+    }
+    result->base_arr = array;
+    Npy_INCREF(array);
+    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
+    return result;
+}
 
 
 
@@ -1078,7 +1122,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     oldtype = NpyArray_DESCR(arr);
     if (newtype == NULL) {
         newtype = oldtype;
-        _Npy_INCREF(oldtype);
+        Npy_INCREF(oldtype);
     }
     itemsize = newtype->elsize;
     if (itemsize == 0) {
@@ -1096,7 +1140,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
      */
     if (!(flags & NPY_FORCECAST) && !NpyArray_NDIM(arr) == 0 &&
         !NpyArray_CanCastTo(oldtype, newtype)) {
-        _Npy_DECREF(newtype);
+        Npy_DECREF(newtype);
         NpyErr_SetString(NpyExc_TypeError,
                         "array cannot be safely cast to required type");
         return NULL;
@@ -1115,25 +1159,21 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
         if (copy) {
             if ((flags & NPY_UPDATEIFCOPY) &&
                 (!NpyArray_ISWRITEABLE(arr))) {
-                _Npy_DECREF(newtype);
+                Npy_DECREF(newtype);
                 NpyErr_SetString(NpyExc_ValueError, msg);
                 return NULL;
             }
             if ((flags & NPY_ENSUREARRAY)) {
                 ensureArray = NPY_TRUE;
             }
-            ret = NpyArray_NewFromDescr(newtype,
-                                        arr->nd,
-                                        arr->dimensions,
-                                        NULL, NULL,
-                                        flags & NPY_FORTRAN,
-                                        ensureArray, NULL,
-                                        Npy_INTERFACE(arr));
+            ret = NpyArray_Alloc(newtype, arr->nd, arr->dimensions,
+                                 flags & NPY_FORTRAN,
+                                 ensureArray ? NULL : Npy_INTERFACE(arr));
             if (ret == NULL) {
                 return NULL;
             }
             if (NpyArray_CopyInto(ret, arr) == -1) {
-                _Npy_DECREF(ret);
+                Npy_DECREF(ret);
                 return NULL;
             }
             if (flags & NPY_UPDATEIFCOPY)  {
@@ -1141,7 +1181,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
                 ret->base_arr = arr;
                 assert(NULL == ret->base_arr || NULL == ret->base_obj);
                 NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
-                _Npy_INCREF(arr);
+                Npy_INCREF(arr);
             }
         }
         /*
@@ -1149,27 +1189,21 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
          * count and return the input
          */
         else {
-            _Npy_DECREF(newtype);
+            Npy_DECREF(newtype);
             if ((flags & NPY_ENSUREARRAY) /*&&
                 !NpyArray_CheckExact(arr) -- TODO: Would be nice to check this in the future */ ) {
-                _Npy_INCREF(arr->descr);
-                ret = NpyArray_NewFromDescr(arr->descr,
-                                            arr->nd,
-                                            arr->dimensions,
-                                            arr->strides,
-                                            arr->data,
-                                            arr->flags,
-                                            NPY_TRUE, NULL, NULL);
+                Npy_INCREF(arr->descr);
+                ret = NpyArray_NewView(arr->descr,
+                                       arr->nd, arr->dimensions, arr->strides,
+                                       arr, 0, NPY_TRUE);
                 if (ret == NULL) {
                     return NULL;
                 }
-                ret->base_arr = arr;
-                assert(NULL == ret->base_arr || NULL == ret->base_obj);
             }
             else {
                 ret = arr;
+                Npy_INCREF(arr);
             }
-            _Npy_INCREF(arr);
         }
     }
 
@@ -1180,30 +1214,28 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
     else {
         if ((flags & NPY_UPDATEIFCOPY) &&
             (!NpyArray_ISWRITEABLE(arr))) {
-            _Npy_DECREF(newtype);
+            Npy_DECREF(newtype);
             NpyErr_SetString(NpyExc_ValueError, msg);
             return NULL;
         }
         if ((flags & NPY_ENSUREARRAY)) {
             ensureArray = NPY_TRUE;
         }
-        ret = NpyArray_NewFromDescr(newtype,
-                                    arr->nd, arr->dimensions,
-                                    NULL, NULL,
-                                    flags & NPY_FORTRAN,
-                                    ensureArray, NULL, Npy_INTERFACE(arr));
+        ret = NpyArray_Alloc(newtype, arr->nd, arr->dimensions,
+                             flags & NPY_FORTRAN,
+                             ensureArray ? NULL : Npy_INTERFACE(arr));
         if (ret == NULL) {
             return NULL;
         }
         if (NpyArray_CastTo(ret, arr) < 0) {
-            _Npy_DECREF(ret);
+            Npy_DECREF(ret);
             return NULL;
         }
         if (flags & NPY_UPDATEIFCOPY)  {
             ret->flags |= NPY_UPDATEIFCOPY;
             ret->base_arr = arr;
             NpyArray_FLAGS(ret->base_arr) &= ~NPY_WRITEABLE;
-            _Npy_INCREF(arr);
+            Npy_INCREF(arr);
         }
     }
     assert(NULL != ret && NPY_VALID_MAGIC == ret->magic_number &&
@@ -1272,7 +1304,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
     }
     isrc = NpyArray_IterNew(src);
     if (isrc == NULL) {
-        _Npy_DECREF(idest);
+        Npy_DECREF(idest);
         return -1;
     }
     elsize = dest->descr->elsize;
@@ -1287,8 +1319,8 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
         NpyArray_ITER_NEXT(isrc);
     }
     NPY_END_THREADS;
-    _Npy_DECREF(idest);
-    _Npy_DECREF(isrc);
+    Npy_DECREF(idest);
+    Npy_DECREF(isrc);
     return 0;
 }
 
@@ -1488,8 +1520,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     int err = 0;
 
     size = (num >= 0) ? num : FROM_BUFFER_SIZE;
-    r = NpyArray_NewFromDescr(dtype, 1, &size,
-                              NULL, NULL, 0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(dtype, 1, &size, NPY_FALSE, NULL);
     if (r == NULL) {
         return NULL;
     }
@@ -1536,7 +1567,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
         NpyErr_SetString(NpyExc_MemoryError, "no memory");
     }
     if (NpyErr_Occurred()) {
-        _Npy_DECREF(r);
+        Npy_DECREF(r);
         return NULL;
     }
     return r;
@@ -1558,25 +1589,25 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
     if (NpyDataType_REFCHK(dtype)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot read into object array");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if (dtype->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError,
                          "The elements are 0-sized.");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if ((sep == NULL) || (strlen(sep) == 0)) {
         NpyErr_SetString(NpyExc_ValueError,
                  "A separator must be specified when reading a text file.");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if (dtype->f->scanfunc == NULL) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Unable to read character files of that array type");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
 
@@ -1593,7 +1624,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
         char *tmp;
 
         if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
-            _Npy_DECREF(ret);
+            Npy_DECREF(ret);
             NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return NULL;
         }
@@ -1638,12 +1669,12 @@ NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot create an object array from a string");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if (dtype->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
 
@@ -1657,7 +1688,7 @@ NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
         if (dtype->f->scanfunc == NULL) {
             NpyErr_SetString(NpyExc_ValueError, "don't know how to read "
                              "character strings with that array type");
-            _Npy_DECREF(dtype);
+            Npy_DECREF(dtype);
             return NULL;
         }
         if (slen < 0) {
@@ -1704,15 +1735,12 @@ array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
         if (fail) {
             NpyErr_SetString(NpyExc_IOError,
                              "could not seek in file");
-            _Npy_DECREF(dtype);
+            Npy_DECREF(dtype);
             return NULL;
         }
         num = numbytes / dtype->elsize;
     }
-    r = NpyArray_NewFromDescr(dtype,
-                              1, &num,
-                              NULL, NULL,
-                              0, NPY_TRUE, NULL, NULL);
+    r = NpyArray_Alloc(dtype, 1, &num, NPY_FALSE, NULL);
     if (r == NULL) {
         return NULL;
     }
@@ -1734,19 +1762,19 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
     if (NpyDataType_REFCHK(dtype)) {
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot read into object array");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if (dtype->elsize == 0) {
         NpyErr_SetString(NpyExc_ValueError,
                          "The elements are 0-sized.");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
 
     ret = array_fromfile_binary(fp, dtype, num, &nread);
     if (ret == NULL) {
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     if (((npy_intp) nread) < num) {
@@ -1755,7 +1783,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
         char *tmp;
 
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
-            _Npy_DECREF(ret);
+            Npy_DECREF(ret);
             NpyErr_SetString(NpyExc_MemoryError, "no memory");
             return NULL;
         }
@@ -1781,13 +1809,13 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
         NpyErr_SetString(NpyExc_ValueError,
                          "Cannot create an object array from"
                          " a string");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
     itemsize = dtype->elsize;
     if (itemsize == 0) {
         NpyErr_SetString(NpyExc_ValueError, "zero-valued itemsize");
-        _Npy_DECREF(dtype);
+        Npy_DECREF(dtype);
         return NULL;
     }
 
@@ -1795,7 +1823,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
         if (slen % itemsize != 0) {
             NpyErr_SetString(NpyExc_ValueError,
                              "string size must be a multiple of element size");
-            _Npy_DECREF(dtype);
+            Npy_DECREF(dtype);
             return NULL;
         }
         num = slen/itemsize;
@@ -1804,15 +1832,13 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
         if (slen < num*itemsize) {
             NpyErr_SetString(NpyExc_ValueError,
                              "string is smaller than requested size");
-            _Npy_DECREF(dtype);
+            Npy_DECREF(dtype);
             return NULL;
         }
     }
 
 
-    ret = NpyArray_NewFromDescr(dtype,
-                                1, &num, NULL, NULL,
-                                0, NPY_TRUE, NULL, NULL);
+    ret = NpyArray_Alloc(dtype, 1, &num, NPY_FALSE, NULL);
     if (ret == NULL) {
         return NULL;
     }
@@ -1829,7 +1855,7 @@ NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype)
     NpyArray_Descr *result;
     if (mintype == NULL) {
         result = array->descr;
-        _Npy_INCREF(result);
+        Npy_INCREF(result);
     } else {
         result = NpyArray_SmallType(array->descr, mintype);
     }

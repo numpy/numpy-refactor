@@ -388,16 +388,16 @@ PyArray_PyIntAsInt(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     if (PyArray_IsScalar(o, Integer)) {
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((int *)NpyArray_DATA(arr));
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         return ret;
     }
 #if (PY_VERSION_HEX >= 0x02050000)
@@ -437,7 +437,7 @@ PyArray_PyIntAsInt(PyObject *o)
             return -1;
         }
 
-#if (SIZEOF_LONG > SIZEOF_INT)
+#if (NPY_SIZEOF_LONG > NPY_SIZEOF_INT)
     if ((long_value < INT_MIN) || (long_value > INT_MAX)) {
         PyErr_SetString(PyExc_ValueError, "integer won't fit into a C int");
         return -1;
@@ -469,9 +469,9 @@ PyArray_PyIntAsIntp(PyObject *o)
         goto finish;
     }
 
-#if SIZEOF_INTP == SIZEOF_LONG
+#if NPY_SIZEOF_PTR == NPY_SIZEOF_LONG
     descr = &LONG_Descr;
-#elif SIZEOF_INTP == SIZEOF_INT
+#elif NPY_SIZEOF_PTR == NPY_SIZEOF_INT
     descr = &INT_Descr;
 #else
     descr = &LONGLONG_Descr;
@@ -483,16 +483,16 @@ PyArray_PyIntAsIntp(PyObject *o)
             PyErr_SetString(PyExc_TypeError, msg);
             return -1;
         }
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = NpyArray_CastToType(PyArray_ARRAY((PyArrayObject *)o), descr, 0);
     }
     else if (PyArray_IsScalar(o, Integer)) {
-        _Npy_INCREF(descr);
+        Npy_INCREF(descr);
         arr = PyArray_FromScalarUnwrap(o, descr);
     }
     if (arr != NULL) {
         ret = *((intp *)NpyArray_DATA(arr));
-        _Npy_DECREF(arr);
+        Npy_DECREF(arr);
         return ret;
     }
 
@@ -535,7 +535,7 @@ PyArray_PyIntAsIntp(PyObject *o)
             return -1;
         }
 
-#if (SIZEOF_LONGLONG > SIZEOF_INTP)
+#if (NPY_SIZEOF_LONGLONG > NPY_SIZEOF_PTR)
     if ((long_value < MIN_INTP) || (long_value > MAX_INTP)) {
         PyErr_SetString(PyExc_ValueError,
                         "integer won't fit into a C intp");
@@ -562,7 +562,7 @@ PyArray_IntpFromSequence(PyObject *seq, intp *vals, int maxvals)
      */
     if ((nd=PySequence_Length(seq)) == -1) {
         if (PyErr_Occurred()) PyErr_Clear();
-#if SIZEOF_LONG >= SIZEOF_INTP && !defined(NPY_PY3K)
+#if NPY_SIZEOF_LONG >= NPY_SIZEOF_PTR && !defined(NPY_PY3K)
         if (!(op = PyNumber_Int(seq))) {
             return -1;
         }
@@ -572,7 +572,7 @@ PyArray_IntpFromSequence(PyObject *seq, intp *vals, int maxvals)
         }
 #endif
         nd = 1;
-#if SIZEOF_LONG >= SIZEOF_INTP
+#if NPY_SIZEOF_LONG >= NPY_SIZEOF_PTR
         vals[0] = (intp ) PyInt_AsLong(op);
 #else
         vals[0] = (intp ) PyLong_AsLongLong(op);
@@ -601,7 +601,7 @@ PyArray_IntpFromSequence(PyObject *seq, intp *vals, int maxvals)
             if (op == NULL) {
                 return -1;
             }
-#if SIZEOF_LONG >= SIZEOF_INTP
+#if NPY_SIZEOF_LONG >= NPY_SIZEOF_PTR
             vals[i]=(intp )PyInt_AsLong(op);
 #else
             vals[i]=(intp )PyLong_AsLongLong(op);
@@ -653,7 +653,7 @@ PyArray_IntTupleFromIntp(int len, intp *vals)
         goto fail;
     }
     for (i = 0; i < len; i++) {
-#if SIZEOF_INTP <= SIZEOF_LONG
+#if NPY_SIZEOF_PTR <= NPY_SIZEOF_LONG
         PyObject *o = PyInt_FromLong((long) vals[i]);
 #else
         PyObject *o = PyLong_FromLongLong((longlong) vals[i]);
@@ -776,7 +776,7 @@ convert_sequence(PyObject* seq, NpyArray** parray)
     }
 
     *parray = PyArray_ARRAY(pyArray);
-    _Npy_INCREF(*parray);
+    Npy_INCREF(*parray);
     Py_DECREF(pyArray);
 
     return 0;
