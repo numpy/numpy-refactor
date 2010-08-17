@@ -74,7 +74,7 @@ def main():
         ld_repr = check_long_double_repr()
         print "\tdetected long double representation:", ld_repr
         data += '''
-/* long double representation */
+/* long double representation (added by tools/mk_config.py) */
 #define NPY_LDOUBLE_%s = 1
 ''' % ld_repr
 
