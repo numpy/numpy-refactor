@@ -172,7 +172,7 @@ do {                                                            \
 /*
  * Long double support
  */
-#if defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE)
+#if defined(NPY_LDOUBLE_INTEL_EXT_12BYTES_LE)
     /*
      * Intel extended 80 bits precision. Bit representation is
      *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
@@ -212,7 +212,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
 
-#elif defined(HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE)
+#elif defined(NPY_LDOUBLE_INTEL_EXT_16BYTES_LE)
     /*
      * Intel extended 80 bits precision, 16 bytes alignment.. Bit representation is
      *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
@@ -250,10 +250,10 @@ do {                                                            \
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
 
-#elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_16_BYTES_BE) || \
-      defined(HAVE_LDOUBLE_IEEE_DOUBLE_BE)
+#elif defined(NPY_LDOUBLE_IEEE_DOUBLE_16BYTES_BE) || \
+      defined(NPY_LDOUBLE_IEEE_DOUBLE_BE)
     /* 64 bits IEEE double precision aligned on 16 bytes: used by ppc arch on
-     * Mac OS X */
+       Mac OS X */
 
     /*
      * IEEE double precision. Bit representation is
@@ -290,7 +290,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
 
-#elif defined(HAVE_LDOUBLE_IEEE_DOUBLE_LE)
+#elif defined(NPY_LDOUBLE_IEEE_DOUBLE_LE)
     /* 64 bits IEEE double precision, Little Endian. */
 
     /*
@@ -328,7 +328,7 @@ do {                                                            \
     typedef npy_uint32 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
 
-#elif defined(HAVE_LDOUBLE_IEEE_QUAD_BE)
+#elif defined(NPY_LDOUBLE_IEEE_QUAD_BE)
     /*
      * IEEE quad precision, Big Endian. Bit representation is
      *          |  s  |eeeeeeeeeee|mmmmmmmm................mmmmmmm|

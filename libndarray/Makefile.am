@@ -71,17 +71,23 @@ include_HEADERS = $(INSTINCLUDES)
 noinst_HEADERS = $(OTHERINCLUDES)
 
 
-src/npy_config.h: config.h tools/mk_config.py
-	python tools/mk_config.py
+src/npy_config.h: tools/mk_config.py config.h tools/long_double.o
+	python $<
+
+tools/long_double.o: tools/long_double.c
+	$(COMPILE) -c -o $@ $<
+
+
+CONV_TMPL = python tools/conv_template.py
 
 src/npy_arraytypes.c: src/npy_arraytypes.c.src
-	python tools/conv_template.py src/npy_arraytypes.c.src
+	$(CONV_TMPL) $<
 
 src/npy_ieee754.c: src/npy_ieee754.c.src
-	python tools/conv_template.py src/npy_ieee754.c.src
+	$(CONV_TMPL) $<
 
 src/npy_math.c: src/npy_math.c.src
-	python tools/conv_template.py src/npy_math.c.src
+	$(CONV_TMPL) $<
 
 src/npy_math_complex.c: src/npy_math_complex.c.src
-	python tools/conv_template.py src/npy_math_complex.c.src
+	$(CONV_TMPL) $<
