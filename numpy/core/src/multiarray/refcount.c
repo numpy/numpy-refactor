@@ -31,6 +31,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype);
 NPY_NO_EXPORT void *
 NpyInterface_Incref(void *obj)
 {
+    if (NULL == obj) return NULL;
     Py_INCREF(obj);
     return obj;
 }

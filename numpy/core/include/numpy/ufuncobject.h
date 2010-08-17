@@ -34,22 +34,6 @@ typedef struct {
 #define NPY_LOOP_END_THREADS
 #endif
 
-#define PyUFunc_One 1
-#define PyUFunc_Zero 0
-#define PyUFunc_None -1
-
-#define UFUNC_REDUCE 0
-#define UFUNC_ACCUMULATE 1
-#define UFUNC_REDUCEAT 2
-#define UFUNC_OUTER 3
-
-
-typedef struct {
-        int nin;
-        int nout;
-        PyObject *callable;
-} PyUFunc_PyFuncData;
-
 
     
 #include "__ufunc_api.h"

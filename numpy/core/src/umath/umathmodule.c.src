@@ -51,87 +51,6 @@ PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first);
 
 
 
-/* TODO: Ready to move */
-NpyUFuncObject *
-npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, void *function) {
-    NpyUFuncObject *self;
-    PyUFunc_PyFuncData *fdata;
-    char *str;
-    int i;
-    int offset[2];
-    
-    self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
-    if (NULL == self) {
-        return NULL;
-    }
-    NpyObject_Init(self, &NpyUFunc_Type);
-    self->magic_number = NPY_VALID_MAGIC;
-    
-    self->userloops = NULL;
-    self->nin = nin;
-    self->nout = nout;
-    self->nargs = nin + nout;
-    self->identity = PyUFunc_None;
-    self->functions = pyfunc_functions;
-    self->ntypes = 1;
-    self->check_return = 0;
-
-    /* generalized ufunc */
-    self->core_enabled = 0;
-    self->core_num_dim_ix = 0;
-    self->core_num_dims = NULL;
-    self->core_dim_ixs = NULL;
-    self->core_offsets = NULL;
-    self->core_signature = NULL;
-
-    /*
-     * self->ptr holds a pointer for enough memory for
-     * self->data[0] (fdata)
-     * self->data
-     * self->name
-     * self->types
-     *
-     * To be safest, all of these need their memory aligned on void * pointers
-     * Therefore, we may need to allocate extra space.
-     */
-    offset[0] = sizeof(PyUFunc_PyFuncData);
-    i = (sizeof(PyUFunc_PyFuncData) % sizeof(void *));
-    if (i) {
-        offset[0] += (sizeof(void *) - i);
-    }
-    offset[1] = self->nargs;
-    i = (self->nargs % sizeof(void *));
-    if (i) {
-        offset[1] += (sizeof(void *)-i);
-    }
-    self->ptr = malloc(offset[0] + offset[1] + sizeof(void *) +
-                       (fname_len + 14));
-    if (NULL == self->ptr) {
-        return NULL;
-    }
-    
-    fdata = (PyUFunc_PyFuncData *)(self->ptr);
-    fdata->nin = nin;
-    fdata->nout = nout;
-    fdata->callable = function;
-
-    self->data = (void **)(((char *)self->ptr) + offset[0]);
-    self->data[0] = (void *)fdata;
-    self->types = (char *)self->data + sizeof(void *);
-    for (i = 0; i < self->nargs; i++) {
-        self->types[i] = NPY_OBJECT;
-    }
-    str = self->types + offset[1];
-    memcpy(str, fname, fname_len);
-    memcpy(str+fname_len, " (vectorized)", 14);
-    self->name = str;
-
-    /* Do a better job someday */
-    self->doc = "dynamic ufunc based on a python function";
-
-    return self;
-}
-
 
 
 static PyObject *
@@ -172,7 +91,8 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
      the interface object.  This must be done in exactly this order: First inc ref the
      interface to 2, then set the interface on the core object, and then decref the core.
      When we decref the core to 0, it will decref the interface back to 1. */    
-    self->ufunc = npy_ufunc_frompyfunc(nin, nout, fname, fname_len, function);
+    self->ufunc = npy_ufunc_frompyfunc(nin, nout, fname, fname_len, 
+                                       pyfunc_functions, function);
     self->func_obj = function;
     Py_INCREF(self);
     self->ufunc->nob_interface = self;
@@ -246,7 +166,7 @@ InitOtherOperators(PyObject *dictionary) {
 #endif
     f = PyUFunc_FromFuncAndData(frexp_functions, blank3_data,
                                 frexp_signatures, num,
-                                1, 2, PyUFunc_None, "frexp",
+                                1, 2, NpyUFunc_None, "frexp",
                                 "Split the number, x, into a normalized"\
                                 " fraction (y1) and exponent (y2)",0);
     PyDict_SetItemString(dictionary, "frexp", f);
@@ -260,7 +180,7 @@ InitOtherOperators(PyObject *dictionary) {
     num += 1;
 #endif
     f = PyUFunc_FromFuncAndData(ldexp_functions, blank3_data, ldexp_signatures, num,
-                                2, 1, PyUFunc_None, "ldexp",
+                                2, 1, NpyUFunc_None, "ldexp",
                                 "Compute y = x1 * 2**x2.",0);
     PyDict_SetItemString(dictionary, "ldexp", f);
     Py_DECREF(f);

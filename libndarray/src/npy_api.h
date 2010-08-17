@@ -352,6 +352,13 @@ extern npy_interface_decref _NpyInterface_Decref;
 
 #define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? _NpyInterface_Incref(ptr) : NULL)
 #define NpyInterface_DECREF(ptr) (NULL != _NpyInterface_Decref ? _NpyInterface_Decref(ptr) : NULL)
+#define NpyInterface_CLEAR(ptr) \
+    do {                                    \
+        void *tmp = (void *)(ptr);          \
+        (ptr) = NULL;                       \
+        NpyInterface_DECREF(tmp);           \
+    } while(0);
+
 
 
 /*
