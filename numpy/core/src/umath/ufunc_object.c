@@ -970,7 +970,7 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
     }
     
     ASSIGN_TO_PYARRAY(ret,
-        NpyUFunc_Reduceat(self, PyArray_ARRAY(arr), PyArray_ARRAY(ind), 
+        NpyUFunc_Reduceat(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), PyArray_ARRAY(ind), 
                           PyArray_ARRAY(out), axis, otype, bufsize, errormask, errobj));
     return (PyObject *)ret;
 }

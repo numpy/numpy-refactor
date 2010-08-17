@@ -117,7 +117,8 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     int res;
     int i;
     
-    
+    assert(NPY_VALID_MAGIC == self->magic_number);
+
     /* Build the loop. */
     loop = construct_loop(self);
     if (loop == NULL) {
@@ -523,6 +524,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
 //    NPY_BEGIN_THREADS_DEF;
     
     assert(NULL == arr || (NPY_VALID_MAGIC == arr->magic_number && NPY_VALID_MAGIC == NpyArray_DESCR(arr)->magic_number));
+    assert(NPY_VALID_MAGIC == self->magic_number);
     
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype, UFUNC_REDUCE, 0,
@@ -695,6 +697,8 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     char *dptr;
 //    NPY_BEGIN_THREADS_DEF;
     
+    assert(NPY_VALID_MAGIC == self->magic_number);
+
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype,
                             UFUNC_ACCUMULATE, 0, "accumulate", bufsize, errormask, errobj);
@@ -883,6 +887,8 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     char *dptr;
 //    NPY_BEGIN_THREADS_DEF;
     
+    assert(NPY_VALID_MAGIC == self->magic_number);
+
     /* Check for out-of-bounds values in indices array */
     for (i = 0; i<nn; i++) {
         if ((*ptr < 0) || (*ptr > mm)) {
@@ -2025,6 +2031,8 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
         NPY_NOSCALAR };
     int i, j, nd;
     int flags;
+    
+    assert(NPY_VALID_MAGIC == self->magic_number);
     
     /* Reduce type is the type requested of the input during reduction */
     if (self->core_enabled) {
