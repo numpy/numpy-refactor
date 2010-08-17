@@ -9,14 +9,6 @@
 
 #if NPY_HAVE_STDINT_H
 #include <stdint.h>
-#else
-#  if NPY_SIZEOF_PTR == 8
-typedef unsigned long int    uintptr_t;
-typedef long int             intptr_t;
-#  else
-typedef unsigned int         uintptr_t;
-typedef int                  intptr_t;
-#  endif
 #endif
 
 /*

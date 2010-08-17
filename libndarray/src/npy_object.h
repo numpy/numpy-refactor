@@ -20,7 +20,7 @@ typedef struct NpyTypeObject {
     void *nob_interface;
 
 struct _NpyObject {
-    NpyObject_HEAD;
+    NpyObject_HEAD
 };
 
 #define Npy_INTERFACE(a) ((a)->nob_interface)

@@ -26,7 +26,7 @@
       <Tool Name="VCCLCompilerTool"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL;Py_ENABLE_SHARED;WIN32"
+            PreprocessorDefinitions="_USRDLL;WIN32"
             RuntimeLibrary="2"
             />
       <Tool Name="VCManagedResourceCompilerTool" />

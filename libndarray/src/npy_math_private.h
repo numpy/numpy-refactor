@@ -165,7 +165,7 @@ do {                                                            \
   (d) = sf_u.value;                                             \
 } while (0)
 
-#ifdef NPY_USE_C99_COMPLEX
+#if NPY_HAVE_COMPLEX_H
 #include <complex.h>
 #endif
 
