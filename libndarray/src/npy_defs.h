@@ -335,7 +335,7 @@ typedef enum {
     #define NPY_MIN_INTP MIN_LONG
     #define NPY_MAX_UINTP NPY_MAX_ULONG
     #define NPY_INTP_FMT "ld"
-#elif defined(PY_LONG_LONG) && (NPY_SIZEOF_PTR == NPY_SIZEOF_LONGLONG)
+#elif NPY_HAVE_LONGLONG && (NPY_SIZEOF_PTR == NPY_SIZEOF_LONGLONG)
     #define NPY_INTP NPY_LONGLONG
     #define NPY_UINTP NPY_ULONGLONG
     #define PyIntpArrType_Type PyLongLongArrType_Type
