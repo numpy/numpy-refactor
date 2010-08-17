@@ -937,6 +937,7 @@ def _test_nextafter(t):
     two = t(2)
     zero = t(0)
     eps = np.finfo(t).eps
+    print "Monkey: %s, %s, %s" % (repr(one), repr(zero), repr(np.nextafter(one, zero)))
     assert np.nextafter(one, two) - one == eps
     assert np.nextafter(one, zero) - one < 0
     assert np.isnan(np.nextafter(np.nan, one))

@@ -438,7 +438,6 @@ static PyArrayObject *
 _get_part(PyArrayObject *self, int imag)
 {
     NpyArray_Descr *type;
-    PyArrayObject *ret;
     int offset;
 
     type = NpyArray_DescrFromType(PyArray_TYPE(self) -

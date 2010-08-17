@@ -764,7 +764,6 @@ static PyObject *
 array_wraparray(PyArrayObject *self, PyObject *args)
 {
     PyObject *arr;
-    PyArrayObject *ret;
 
     if (PyTuple_Size(args) < 1) {
         PyErr_SetString(PyExc_TypeError,

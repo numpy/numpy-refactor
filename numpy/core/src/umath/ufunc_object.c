@@ -1021,9 +1021,9 @@ prepare_outputs(NpyUFuncObject *self, NpyArray **mps, PyObject* args)
                 result = -1;
                 break;
             }
-            _Npy_DECREF(mps[j]);
+            Npy_DECREF(mps[j]);
             mps[j] = PyArray_ARRAY(res);
-            _Npy_INCREF(mps[j]);
+            Npy_INCREF(mps[j]);
             Py_DECREF(res);
         }
     }
@@ -1167,7 +1167,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         if (NULL == mps[i]) mpsCore[i] = NULL;
         else {
             mpsCore[i] = PyArray_ARRAY(mps[i]);
-            _Npy_INCREF(mpsCore[i]);
+            Npy_INCREF(mpsCore[i]);
             Py_DECREF(mps[i]);
         }
     }
@@ -1181,7 +1181,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         else {
             mps[i] = PyArray_WRAP(mpsCore[i]);
             Py_INCREF(mps[i]);
-            _Npy_DECREF(mpsCore[i]);
+            Npy_DECREF(mpsCore[i]);
         }
     }
     return result;
