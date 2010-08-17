@@ -6,11 +6,6 @@ standard part of the distribution.
 */
 
 #ifdef _WIN64
-#define MS_WIN64
-#endif
-
-
-#ifdef MS_WIN64
 #define NPY_SIZEOF_DOUBLE 8
 #define NPY_SIZEOF_COMPLEX_DOUBLE 16
 #define NPY_SIZEOF_FLOAT 4
@@ -22,6 +17,7 @@ standard part of the distribution.
 #define NPY_SIZEOF_LONGLONG 8
 #define NPY_SIZEOF_SHORT 2
 #define NPY_SIZEOF_PTR 8
+#define NPY_LDOUBLE_IEEE_DOUBLE_LE 1
 #else
 #define NPY_SIZEOF_DOUBLE 8
 #define NPY_SIZEOF_COMPLEX_DOUBLE 16
@@ -34,6 +30,7 @@ standard part of the distribution.
 #define NPY_SIZEOF_LONGLONG 8
 #define NPY_SIZEOF_SHORT 2
 #define NPY_SIZEOF_PTR 4
+#define NPY_LDOUBLE_IEEE_DOUBLE_LE 1
 #endif
 
 
@@ -184,4 +181,6 @@ standard part of the distribution.
 #define NPY_STDC_HEADERS 1
 #define NPY_WORDS_BIGENDIAN 0
 
-#define NPY_LDOUBLE_INTEL_EXT_16BYTES_LE 1
+#ifndef __cplusplus
+#define inline __inline
+#endif
