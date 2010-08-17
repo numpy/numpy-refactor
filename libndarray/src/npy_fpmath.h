@@ -40,35 +40,30 @@
     #if NPY_BITSOF_LONGDOUBLE == NPY_BITSOF_DOUBLE
         /* This assumes that FPU and ALU have the same endianness */
         #if NPY_BYTE_ORDER == NPY_LITTLE_ENDIAN
-            #define HAVE_LDOUBLE_IEEE_DOUBLE_LE
+            #define NPY_LDOUBLE_IEEE_DOUBLE_LE
         #elif NPY_BYTE_ORDER == NPY_BIG_ENDIAN
-            #define HAVE_LDOUBLE_IEEE_DOUBLE_BE
+            #define NPY_LDOUBLE_IEEE_DOUBLE_BE
         #else
             #error Endianness undefined ?
         #endif
     #else
         #if defined(NPY_CPU_X86)
-            #define HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE
+            #define NPY_LDOUBLE_INTEL_EXT_12BYTES_LE
         #elif defined(NPY_CPU_AMD64)
-            #define HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE
+            #define NPY_LDOUBLE_INTEL_EXT_16BYTES_LE
         #elif defined(NPY_CPU_PPC) || defined(NPY_CPU_PPC64)
-            #define HAVE_LDOUBLE_IEEE_DOUBLE_16_BYTES_BE
+            #define NPY_LDOUBLE_IEEE_DOUBLE_16BYTES_BE
         #endif
     #endif
-#else
-    /* TODO: There is code in scons_support.py which checks for this, which
-             still need to be converted such that configure defines this.
-             Just use this definition for now */
-    #define HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE
 #endif
 
-#if !(defined(HAVE_LDOUBLE_IEEE_QUAD_BE) || \
-      defined(HAVE_LDOUBLE_IEEE_QUAD_LE) || \
-      defined(HAVE_LDOUBLE_IEEE_DOUBLE_LE) || \
-      defined(HAVE_LDOUBLE_IEEE_DOUBLE_BE) || \
-      defined(HAVE_LDOUBLE_IEEE_DOUBLE_16_BYTES_BE) || \
-      defined(HAVE_LDOUBLE_INTEL_EXTENDED_16_BYTES_LE) || \
-      defined(HAVE_LDOUBLE_INTEL_EXTENDED_12_BYTES_LE))
+#if !(defined(NPY_LDOUBLE_IEEE_QUAD_LE) || \
+      defined(NPY_LDOUBLE_IEEE_QUAD_BE) ||   \
+      defined(NPY_LDOUBLE_IEEE_DOUBLE_LE) || \
+      defined(NPY_LDOUBLE_IEEE_DOUBLE_BE) || \
+      defined(NPY_LDOUBLE_IEEE_DOUBLE_16BYTES_BE) || \
+      defined(NPY_LDOUBLE_INTEL_EXT_16BYTES_LE) || \
+      defined(NPY_LDOUBLE_INTEL_EXT_12BYTES_LE))
     #error No long double representation defined
 #endif
 
