@@ -1187,14 +1187,14 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     return result;
 }
 
-
-
-static PyArrayObject *
+static NpyArray *
 _getidentity(NpyUFuncObject *self, int otype, char *str)
 {
     /* TODO: Ready to move */
-    PyObject *obj, *arr;
-    PyArray_Descr *typecode = NULL;
+    NpyArray *arr;
+    NpyArray_Descr *descr, *indescr;
+    unsigned char identity;
+    NpyArray_VectorUnaryFunc *castfunc;
 
     if (self->identity == PyUFunc_None) {
         PyErr_Format(PyExc_ValueError,
@@ -1202,17 +1202,39 @@ _getidentity(NpyUFuncObject *self, int otype, char *str)
                      "without identity", str);
         return NULL;
     }
+
+    /* Get the identity as an unsigned char. */
     if (self->identity == PyUFunc_One) {
-        obj = PyInt_FromLong((long) 1);
+        identity = 1;
     } else {
-        obj = PyInt_FromLong((long) 0);
+        identity = 0;
     }
 
-    typecode = PyArray_DescrFromType(otype);
-    
-    arr = PyArray_FromAny(obj, typecode, 0, 0, CARRAY, NULL);
-    Py_DECREF(obj);
-    return (PyArrayObject *)arr;
+    /* Build the output 0-d array. */
+    descr = NpyArray_DescrFromType(otype);
+    if (descr == NULL) {
+        return NULL;
+    }
+    arr = NpyArray_Alloc(descr, 0, NULL, NPY_FALSE, NULL);
+    if (arr == NULL) {
+        return NULL;
+    }
+
+    indescr = NpyArray_DescrFromType(NPY_UBYTE);
+    assert(indescr != NULL);
+
+    castfunc = NpyArray_GetCastFunc(indescr, otype);
+    Npy_DECREF(indescr);
+    if (castfunc == NULL) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Can't cast identity to output type.");
+        return NULL;
+    }
+
+    /* Use the castfunc to fill in the array. */
+    castfunc(&identity, arr->data, 1, NULL, arr);
+
+    return arr;
 }
 
 
@@ -1599,15 +1621,11 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     if ((loop->meth == ZERO_EL_REDUCELOOP)
         || ((operation == UFUNC_REDUCEAT)
             && (loop->meth == BUFFER_UFUNCLOOP))) {
-        /* TODO: Refactor this, _getidentity calls PyArray_FromAny, need to make it core-safe. */    
-        PyArrayObject *idarrWrap = (PyArrayObject *)_getidentity(self, otype, str);
+        idarr = _getidentity(self, otype, str);
         if (idarr == NULL) {
             goto fail;
         }
-        idarr = PyArray_ARRAY(idarrWrap);
-        Npy_INCREF(idarr);
-        Py_DECREF(idarrWrap);
-                
+
         if (NpyArray_ITEMSIZE(idarr) > UFUNC_MAXIDENTITY) {
             PyErr_Format(PyExc_RuntimeError,
                     "UFUNC_MAXIDENTITY (%d) is too small"\

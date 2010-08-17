@@ -15,12 +15,7 @@
  * exponent.
  */
 
-/* We force 3 digits on windows for python < 2.6 for compatibility reason */
-#if defined(MS_WIN32) && (PY_VERSION_HEX < 0x02060000)
-#define MIN_EXPONENT_DIGITS 3
-#else
 #define MIN_EXPONENT_DIGITS 2
-#endif
 
 #define Npy_CHARMASK(c) ( (c) & 0xff )
 
@@ -450,34 +445,6 @@ NpyOS_ascii_strncasecmp(const char* s1, const char* s2, size_t len)
     return 0;
 }
 
-/*
- * _NpyOS_ascii_strtod_plain:
- *
- * PyOS_ascii_strtod work-alike, with no enhanced features,
- * for forward compatibility with Python >= 2.7
- */
-static double
-NpyOS_ascii_strtod_plain(const char *s, char** endptr)
-{
-    double result;
-    /* TODO: This ends up being recursive back to NpyOS_ascii_strtod. Huh?! */
-#if PY_VERSION_HEX >= 0x02070000
-    NPY_ALLOW_C_API_DEF
-    NPY_ALLOW_C_API
-    result = PyOS_string_to_double(s, endptr, NULL);
-    if (NpyErr_Occurred()) {
-        if (endptr) {
-            *endptr = (char*)s;
-        }
-        NpyErr_Clear();
-    }
-    NPY_DISABLE_C_API
-#else
-/*    result = NpyOS_ascii_strtod(s, endptr); */
-    result = strtod(s, endptr);
-#endif
-    return result;
-}
 
 /*
  * NpyOS_ascii_strtod:
@@ -566,7 +533,7 @@ NpyOS_ascii_strtod(const char *s, char** endptr)
             }
             memcpy(buffer, s, n);
             buffer[n] = '\0';
-            result = NpyOS_ascii_strtod_plain(buffer, &q);
+            result = strtod(buffer, &q);
             if (endptr != NULL) {
                 *endptr = (char*)(s + (q - buffer));
             }
@@ -575,7 +542,7 @@ NpyOS_ascii_strtod(const char *s, char** endptr)
     }
     /* End of ##2 */
 
-    return NpyOS_ascii_strtod_plain(s, endptr);
+    return strtod(s, endptr);
 }
 
 

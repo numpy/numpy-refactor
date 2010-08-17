@@ -19,11 +19,6 @@
 
 #include "common.h"
 
-#define ASSERT_ONE_BASE(r) \
-    assert(NULL == PyArray_BASE_ARRAY(r) || NULL == PyArray_BASE(r))
-
-
-
 NPY_NO_EXPORT NpyArray_Descr *
 PyArray_DescrFromTypeObjectUnwrap(PyObject *type);
 NPY_NO_EXPORT NpyArray_Descr *
