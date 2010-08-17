@@ -75,7 +75,7 @@ def main():
         print "\tdetected long double representation:", ld_repr
         data += '''
 /* long double representation (added by tools/mk_config.py) */
-#define NPY_LDOUBLE_%s = 1
+#define NPY_LDOUBLE_%s 1
 ''' % ld_repr
 
     print "\twriting:", dst
