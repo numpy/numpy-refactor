@@ -27,13 +27,6 @@ import SCons
 
 usr_dir = pjoin(pexpanduser('~'), 'usr')
 
-
-# Set to True to enable multiple file compilations (experimental)
-try:
-    os.environ['NPY_SEPARATE_COMPILATION']
-    ENABLE_SEPARATE_COMPILATION = True
-except KeyError:
-    ENABLE_SEPARATE_COMPILATION = False
 try:
     os.environ['NPY_BYPASS_SINGLE_EXTENDED']
     BYPASS_SINGLE_EXTENDED = True
@@ -234,12 +227,6 @@ inline = config.CheckInline()
 config.Define('inline', inline)
 
 
-if ENABLE_SEPARATE_COMPILATION:
-    config.Define("ENABLE_SEPARATE_COMPILATION", 1)
-    numpyconfig_sym.append(('DEFINE_NPY_ENABLE_SEPARATE_COMPILATION', '#define NPY_ENABLE_SEPARATE_COMPILATION 1'))
-else:
-    numpyconfig_sym.append(('DEFINE_NPY_ENABLE_SEPARATE_COMPILATION', ''))
-
 #-----------------------------
 # Checking for complex support
 #-----------------------------
@@ -422,8 +409,7 @@ env.Install('$distutils_installdir/lib/npy-pkg-config', mlib_ini)
 #-----------------
 # Build multiarray
 #-----------------
-if ENABLE_SEPARATE_COMPILATION:
-    multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule.c'),
+multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule.c'),
         pjoin('src', 'multiarray', 'hashdescr.c'),
         pjoin('src', 'multiarray', 'arrayobject.c'),
         pjoin('src', 'multiarray', 'datetime.c'),
@@ -448,12 +434,10 @@ if ENABLE_SEPARATE_COMPILATION:
         pjoin('src', 'multiarray', 'buffer.c'),
         pjoin('src', 'multiarray', 'numpymemoryview.c'),
         pjoin('src', 'multiarray', 'scalarapi.c')]
-    multiarray_src.extend(arraytypes_src)
-    multiarray_src.extend(scalartypes_src)
-    if PYTHON_HAS_UNICODE_WIDE:
+multiarray_src.extend(arraytypes_src)
+multiarray_src.extend(scalartypes_src)
+if PYTHON_HAS_UNICODE_WIDE:
         multiarray_src.extend([pjoin("src", "multiarray", "ucsnarrow.c")])
-else:
-    multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule_onefile.c')]
 
 multiarray = env.DistutilsPythonExtension(
          'multiarray',
@@ -474,12 +458,8 @@ sort = env.DistutilsPythonExtension(
 #-------------------
 # Build umath module
 #-------------------
-if ENABLE_SEPARATE_COMPILATION:
-    umathmodule_src.extend([pjoin('src', 'umath', 'ufunc_object.c')])
-    umathmodule_src.extend(umath_loops_src)
-else:
-    umathmodule_src = [pjoin('src', 'umath', 'umathmodule_onefile.c')]
-
+umathmodule_src.extend([pjoin('src', 'umath', 'ufunc_object.c')])
+umathmodule_src.extend(umath_loops_src)
 umathmodule = env.DistutilsPythonExtension(
          'umath',
          LIBS=['ndarray'],
