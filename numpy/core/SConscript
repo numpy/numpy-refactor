@@ -24,6 +24,10 @@ from scons_support import array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
 
 import SCons
 
+
+usr_dir = pjoin(pexpanduser('~'), 'usr')
+
+
 # Set to True to enable multiple file compilations (experimental)
 try:
     os.environ['NPY_SEPARATE_COMPILATION']
@@ -401,7 +405,7 @@ generated_headers.append(ufunc_api[0])
 # needed for __multiarray_api.c and __ufunc_api.c included from multiarray and
 # ufunc.
 env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
-                       pexpanduser('~/usr/include')])
+                       pjoin(usr_dir, 'include')])
 
 env.Prepend(LIBPATH=["."])
 
@@ -454,7 +458,7 @@ else:
 multiarray = env.DistutilsPythonExtension(
          'multiarray',
          LIBS=['ndarray'],
-         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
          source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
@@ -464,7 +468,7 @@ env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 sort = env.DistutilsPythonExtension(
          '_sort',
          LIBS=['ndarray'],
-         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
          source = sortmodule_src)
 
 #-------------------
@@ -479,7 +483,7 @@ else:
 umathmodule = env.DistutilsPythonExtension(
          'umath',
          LIBS=['ndarray'],
-         LIBPATH=[pexpanduser('~/usr/lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
          source = umathmodule_src)
 
 #------------------------
