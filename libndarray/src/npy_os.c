@@ -273,22 +273,18 @@ int _npy_signbit_d(double x)
     u.d = x;
 
 #if NPY_SIZEOF_INT == 4
-
-#if NPY_WORDS_BIGENDIAN
+  #if NPY_WORDS_BIGENDIAN
     return u.i[0] < 0;
-#else
+  #else
     return u.i[1] < 0;
-#endif
-
-#else  /* NPY_SIZEOF_INT != 4 */
-
-#if NPY_WORDS_BIGENDIAN
-    return u.s[0] < 0;
+  #endif
 #else
+  #if NPY_WORDS_BIGENDIAN
+    return u.s[0] < 0;
+  #else
     return u.s[3] < 0;
-#endif
-
-#endif  /* NPY_SIZEOF_INT */
+  #endif
+#endif  /* NPY_SIZEOF_INT == 4 */
 }
 
 
