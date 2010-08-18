@@ -24,12 +24,10 @@
 #include "numpy/arrayscalars.h"
 #include "npy_api.h"
 #include "npy_math.h"
-
 #include "npy_descriptor.h"
-
 #include "npy_config.h"
-
 #include "numpy_3kcompat.h"
+#include "numpy_config.h"
 
 
 /* TODO: remove this */
