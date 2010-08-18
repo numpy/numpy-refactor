@@ -21,8 +21,6 @@ arraydescr_seq_to_nameslist(PyObject *seq);
 NPY_NO_EXPORT NpyDict *
 arraydescr_fields_from_pydict(PyObject *dict);
 
-#ifdef NPY_ENABLE_SEPARATE_COMPILATION
 extern NPY_NO_EXPORT char *_datetime_strings[];
-#endif
 
 #endif
