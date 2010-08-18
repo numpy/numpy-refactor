@@ -211,10 +211,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT8 NPY_ULONG
         typedef long npy_int8;
         typedef unsigned long npy_uint8;
-#define PyInt8ScalarObject PyLongScalarObject
-#define PyInt8ArrType_Type PyLongArrType_Type
-#define PyUInt8ScalarObject PyULongScalarObject
-#define PyUInt8ArrType_Type PyULongArrType_Type
 #define NPY_INT8_FMT NPY_LONG_FMT
 #define NPY_UINT8_FMT NPY_ULONG_FMT
 #elif NPY_BITSOF_LONG == 16
@@ -222,10 +218,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT16 NPY_ULONG
         typedef long npy_int16;
         typedef unsigned long npy_uint16;
-#define PyInt16ScalarObject PyLongScalarObject
-#define PyInt16ArrType_Type PyLongArrType_Type
-#define PyUInt16ScalarObject PyULongScalarObject
-#define PyUInt16ArrType_Type PyULongArrType_Type
 #define NPY_INT16_FMT NPY_LONG_FMT
 #define NPY_UINT16_FMT NPY_ULONG_FMT
 #elif NPY_BITSOF_LONG == 32
@@ -234,10 +226,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef long npy_int32;
         typedef unsigned long npy_uint32;
         typedef unsigned long npy_ucs4;
-#define PyInt32ScalarObject PyLongScalarObject
-#define PyInt32ArrType_Type PyLongArrType_Type
-#define PyUInt32ScalarObject PyULongScalarObject
-#define PyUInt32ArrType_Type PyULongArrType_Type
 #define NPY_INT32_FMT NPY_LONG_FMT
 #define NPY_UINT32_FMT NPY_ULONG_FMT
 #elif NPY_BITSOF_LONG == 64
@@ -245,10 +233,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT64 NPY_ULONG
         typedef long npy_int64;
         typedef unsigned long npy_uint64;
-#define PyInt64ScalarObject PyLongScalarObject
-#define PyInt64ArrType_Type PyLongArrType_Type
-#define PyUInt64ScalarObject PyULongScalarObject
-#define PyUInt64ArrType_Type PyULongArrType_Type
 #define NPY_INT64_FMT NPY_LONG_FMT
 #define NPY_UINT64_FMT NPY_ULONG_FMT
 #define MyPyLong_FromInt64 PyLong_FromLong
@@ -258,10 +242,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT128 NPY_ULONG
         typedef long npy_int128;
         typedef unsigned long npy_uint128;
-#define PyInt128ScalarObject PyLongScalarObject
-#define PyInt128ArrType_Type PyLongArrType_Type
-#define PyUInt128ScalarObject PyULongScalarObject
-#define PyUInt128ArrType_Type PyULongArrType_Type
 #define NPY_INT128_FMT NPY_LONG_FMT
 #define NPY_UINT128_FMT NPY_ULONG_FMT
 #endif
