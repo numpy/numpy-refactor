@@ -503,10 +503,11 @@ NpyArray_DescrFieldsCopy(NpyDict *fields)
 
 /*NUMPY_API
  * base cannot be NULL
- * Allocates a new NpyDict contaning NpyArray_DescrField value object and performs a
- * deep-copy of the passed-in fields structure to populate them. The descriptor field
- * structure contains a pointer to another NpyArray_Descr instance, which must be
- * reference counted. */
+ * Allocates a new NpyDict contaning NpyArray_DescrField value object and
+ * performs a deep-copy of the passed-in fields structure to populate them.
+ * The descriptor field structure contains a pointer to another
+ * NpyArray_Descr instance, which must be reference counted.
+ */
 char **
 NpyArray_DescrNamesCopy(char **names)
 {
@@ -529,9 +530,11 @@ NpyArray_DescrNamesCopy(char **names)
 static NpyDict *npy_create_fields_table()
 {
     NpyDict *new = NpyDict_CreateTable(7);
-    NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))strcmp);
+    NpyDict_SetKeyComparisonFunction(new,
+                               (int (*)(const void *, const void *))strcmp);
     NpyDict_SetHashFunction(new, NpyDict_StringHashFunction);
-    NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key, npy_dealloc_fields_value);
+    NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key,
+                                     npy_dealloc_fields_value);
     return new;
 }
 
@@ -539,16 +542,13 @@ static NpyDict *npy_create_fields_table()
 /* Keys are c-strings */
 static void *npy_copy_fields_key(void *key)
 {
-    return strdup((const char *)key);
+    return (void *) strdup((const char *)key);
 }
 
 static void npy_dealloc_fields_key(void *key)
 {
     free(key);
 }
-
-
-
 
 
 /* Values are NpyArray_DescrField structures. */
