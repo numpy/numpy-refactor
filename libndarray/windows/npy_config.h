@@ -160,6 +160,13 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_TRUNC 0
 #define NPY_HAVE_DECL_TRUNCF 0
 #define NPY_HAVE_DECL_TRUNCL 0
+#define NPY_HAVE_DECL_FREXP 1
+#define NPY_HAVE_DECL_FREXPF 0
+#define NPY_HAVE_DECL_FREXPL 0
+#define NPY_HAVE_DECL_LDEXP 1
+#define NPY_HAVE_DECL_LDEXPF 0
+#define NPY_HAVE_DECL_LDEXPL 0
+
 
 #ifndef __cplusplus
 #define inline __inline
