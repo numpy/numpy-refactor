@@ -1667,12 +1667,12 @@ FLOAT_sign(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 NPY_NO_EXPORT void
 FLOAT_modf(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
 NPY_NO_EXPORT void
 FLOAT_frexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
 
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
 NPY_NO_EXPORT void
 FLOAT_ldexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
@@ -1819,12 +1819,12 @@ DOUBLE_sign(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 NPY_NO_EXPORT void
 DOUBLE_modf(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 
-#ifdef HAVE_FREXP
+#if NPY_HAVE_DECL_FREXP
 NPY_NO_EXPORT void
 DOUBLE_frexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
 
-#ifdef HAVE_LDEXP
+#if NPY_HAVE_DECL_LDEXP
 NPY_NO_EXPORT void
 DOUBLE_ldexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
@@ -1971,12 +1971,12 @@ LONGDOUBLE_sign(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(fun
 NPY_NO_EXPORT void
 LONGDOUBLE_modf(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
 NPY_NO_EXPORT void
 LONGDOUBLE_frexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
 
-#ifdef HAVE_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
 NPY_NO_EXPORT void
 LONGDOUBLE_ldexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif

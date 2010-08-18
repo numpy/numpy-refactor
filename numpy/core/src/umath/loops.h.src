@@ -7,6 +7,7 @@
 #define _NPY_UMATH_LOOPS_H_
 
 #include "npy_os.h"
+#include "npy_config.h"
 
 #define BOOL_invert BOOL_logical_not
 #define BOOL_negative BOOL_logical_not
@@ -262,12 +263,12 @@ NPY_NO_EXPORT void
 NPY_NO_EXPORT void
 @TYPE@_modf(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 
-#ifdef HAVE_FREXP@C@
+#if NPY_HAVE_DECL_FREXP@C@
 NPY_NO_EXPORT void
 @TYPE@_frexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
 
-#ifdef HAVE_LDEXP@C@
+#if NPY_HAVE_DECL_LDEXP@C@
 NPY_NO_EXPORT void
 @TYPE@_ldexp(char **args, intp *dimensions, intp *steps, void *NPY_UNUSED(func));
 #endif
