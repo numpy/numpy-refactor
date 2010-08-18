@@ -269,7 +269,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
 {
     int result;
     NpyIndex indexes[NPY_MAXDIMS];
-    PyArrayObject *arr_val;
+    PyArrayObject *arr_val = NULL;
     int n;
 
     n = PyArray_IndexConverter(ind, indexes);
@@ -306,7 +306,7 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
                                           PyArray_ARRAY(arr_val));
 
  finish:
-    Py_DECREF(arr_val);
+    Py_XDECREF(arr_val);
     NpyArray_IndexDealloc(indexes, n);
 
     return result;
