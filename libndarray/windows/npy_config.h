@@ -165,7 +165,7 @@ standard part of the distribution.
 #define NPY_HAVE_STDLIB_H 1
 #define NPY_HAVE_STRDUP 1
 #define NPY_HAVE_STRINGS_H 1
-#define NPY_HAVE_STRING_H 1
+#define NPY_HAVE_STRING_H 0
 #define NPY_HAVE_STRPBRK 1
 #define NPY_HAVE_SYS_STAT_H 1
 #define NPY_HAVE_SYS_TYPES_H 1

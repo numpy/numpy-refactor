@@ -35,10 +35,6 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCPreLinkEventTool"
-            Description="Generate build information..."
-            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
-            />
       <Tool Name="VCALinkTool" />
       <Tool Name="VCManifestTool" />
       <Tool Name="VCXDCMakeTool" />
@@ -67,10 +63,6 @@
             PreprocessorDefinitions="NDEBUG"
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
-            />
-      <Tool Name="VCPreLinkEventTool"
-            Description="Generate build information..."
-            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
             />
       <Tool Name="VCALinkTool" />
       <Tool Name="VCManifestTool" />
