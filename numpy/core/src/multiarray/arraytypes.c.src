@@ -36,6 +36,17 @@
     #define PyUIntpArrType_Type PyULongLongArrType_Type
 #endif
 
+#if NPY_BITSOF_LONG == 64 || NPY_BITSOF_INT == 64 || \
+    NPY_BITSOF_SHORT == 64 || NPY_BITSOF_CHAR == 64
+#define MyPyLong_FromInt64 PyLong_FromLong
+#define MyPyLong_AsInt64 PyLong_AsLong
+#endif
+
+#if NPY_BITSOF_LONGLONG == 64
+#define MyPyLong_FromInt64 PyLong_FromLongLong
+#define MyPyLong_AsInt64 PyLong_AsLongLong
+#endif
+
 
 
 /* Defined in core */

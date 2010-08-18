@@ -235,8 +235,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef unsigned long npy_uint64;
 #define NPY_INT64_FMT NPY_LONG_FMT
 #define NPY_UINT64_FMT NPY_ULONG_FMT
-#define MyPyLong_FromInt64 PyLong_FromLong
-#define MyPyLong_AsInt64 PyLong_AsLong
 #elif NPY_BITSOF_LONG == 128
 #define NPY_INT128 NPY_LONG
 #define NPY_UINT128 NPY_ULONG
@@ -291,8 +289,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef npy_ulonglong npy_uint64;
 #define NPY_INT64_FMT NPY_LONGLONG_FMT
 #define NPY_UINT64_FMT NPY_ULONGLONG_FMT
-#    define MyPyLong_FromInt64 PyLong_FromLongLong
-#    define MyPyLong_AsInt64 PyLong_AsLongLong
 #  endif
 #  define NPY_MAX_LONGLONG NPY_MAX_INT64
 #  define NPY_MIN_LONGLONG NPY_MIN_INT64
@@ -357,8 +353,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef unsigned int npy_uint64;
 #define NPY_INT64_FMT NPY_INT_FMT
 #define NPY_UINT64_FMT NPY_UINT_FMT
-#    define MyPyLong_FromInt64 PyLong_FromLong
-#    define MyPyLong_AsInt64 PyLong_AsLong
 #endif
 #elif NPY_BITSOF_INT == 128
 #ifndef NPY_INT128
@@ -407,8 +401,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef unsigned short npy_uint64;
 #define NPY_INT64_FMT NPY_SHORT_FMT
 #define NPY_UINT64_FMT NPY_USHORT_FMT
-#    define MyPyLong_FromInt64 PyLong_FromLong
-#    define MyPyLong_AsInt64 PyLong_AsLong
 #endif
 #elif NPY_BITSOF_SHORT == 128
 #ifndef NPY_INT128
@@ -420,7 +412,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT128_FMT NPY_USHORT_FMT
 #endif
 #endif
-
 
 #if NPY_BITSOF_CHAR == 8
 #ifndef NPY_INT8
@@ -458,8 +449,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
         typedef unsigned char npy_uint64;
 #define NPY_INT64_FMT NPY_BYTE_FMT
 #define NPY_UINT64_FMT NPY_UBYTE_FMT
-#    define MyPyLong_FromInt64 PyLong_FromLong
-#    define MyPyLong_AsInt64 PyLong_AsLong
 #endif
 #elif NPY_BITSOF_CHAR == 128
 #ifndef NPY_INT128
@@ -471,8 +460,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_UINT128_FMT NPY_UBYTE_FMT
 #endif
 #endif
-
-
 
 #if NPY_BITSOF_DOUBLE == 16
 #ifndef NPY_FLOAT16
@@ -531,7 +518,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #endif
 
 
-
 #if NPY_BITSOF_FLOAT == 16
 #ifndef NPY_FLOAT16
 #define NPY_FLOAT16 NPY_FLOAT
@@ -587,7 +573,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_COMPLEX256_FMT NPY_CFLOAT_FMT
 #endif
 #endif
-
 
 #if NPY_BITSOF_LONGDOUBLE == 16
 #ifndef NPY_FLOAT16
