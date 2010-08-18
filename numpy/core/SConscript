@@ -458,7 +458,7 @@ else:
 multiarray = env.DistutilsPythonExtension(
          'multiarray',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib')],
          source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
@@ -468,7 +468,7 @@ env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 sort = env.DistutilsPythonExtension(
          '_sort',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib')],
          source = sortmodule_src)
 
 #-------------------
@@ -483,7 +483,7 @@ else:
 umathmodule = env.DistutilsPythonExtension(
          'umath',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib'), os.getcwd()],
+         LIBPATH=[pjoin(usr_dir, 'lib')],
          source = umathmodule_src)
 
 #------------------------
