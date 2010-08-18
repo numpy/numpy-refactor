@@ -583,10 +583,6 @@ typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 #define NPY_COMPLEX256 NPY_CFLOAT
         typedef float npy_float128;
         typedef npy_cfloat npy_complex256;
-#    define PyFloat128ScalarObject PyFloatScalarObject
-#    define PyComplex256ScalarObject PyCFloatScalarObject
-#    define PyFloat128ArrType_Type PyFloatArrType_Type
-#    define PyComplex256ArrType_Type PyCFloatArrType_Type
 #define NPY_FLOAT128_FMT NPY_FLOAT_FMT
 #define NPY_COMPLEX256_FMT NPY_CFLOAT_FMT
 #endif
