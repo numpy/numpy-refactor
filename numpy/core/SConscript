@@ -227,10 +227,6 @@ inline = config.CheckInline()
 config.Define('inline', inline)
 
 
-config.Define("ENABLE_SEPARATE_COMPILATION", 1)
-numpyconfig_sym.append(('DEFINE_NPY_ENABLE_SEPARATE_COMPILATION',
-                        '#define NPY_ENABLE_SEPARATE_COMPILATION 1'))
-
 #-----------------------------
 # Checking for complex support
 #-----------------------------
