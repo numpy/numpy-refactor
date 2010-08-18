@@ -72,7 +72,7 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     char *buffers[2];
     NpyArray_CopySwapNFunc *ocopyfunc, *icopyfunc;
     char *obptr;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     delsize = NpyArray_ITEMSIZE(out);
     selsize = NpyArray_ITEMSIZE(in);
@@ -229,7 +229,7 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
     NpyArray_VectorUnaryFunc *castfunc = NULL;
     npy_intp mpsize = NpyArray_SIZE(mp);
     int iswap, oswap;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     if (mpsize == 0) {
         return 0;

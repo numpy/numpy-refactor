@@ -73,7 +73,7 @@ def main():
     if sys.platform == 'darwin':
         data += '''
 /* long double representation is not added by tools/mk_config.py on OSX
-   because NPY_LDOUBLE_??? is definied in src/npy_fpmath.h for OSX
+   because NPY_LDOUBLE_??? is definied in src/npy_math_private.h on OSX
 */
 '''
     else:

@@ -684,7 +684,7 @@ _new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
     int elsize;
     npy_intp astride;
     NpyArray_SortFunc *sort;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     it = NpyArray_IterAllButAxis(op, &axis);
     swap = !NpyArray_ISNOTSWAPPED(op);
@@ -753,7 +753,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
     int elsize, swap;
     npy_intp astride, rstride, *iptr;
     NpyArray_ArgSortFunc *argsort;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     ret = NpyArray_New(NULL, op->nd,
                        op->dimensions, NPY_INTP,
@@ -1096,7 +1096,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
     npy_intp astride, rstride, *iptr;
     int object = 0;
     NpyArray_ArgSortFunc *argsort;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
     char msg[1024];
 
     its = (NpyArrayIterObject **) NpyDataMem_NEW(n*sizeof(NpyArrayIterObject*));
@@ -1366,7 +1366,7 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
     NpyArray *ap2 = NULL;
     NpyArray *ret = NULL;
     NpyArray_Descr *dtype;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     dtype = NpyArray_DescrFromArray(op2, op1->descr);
     /* need ap1 as contiguous array and of right type */

@@ -8,9 +8,9 @@ sys.path.insert(0, os.path.dirname(__file__))
 import ufunc_docstrings as docstrings
 sys.path.pop(0)
 
-Zero = "PyUFunc_Zero"
-One = "PyUFunc_One"
-None_ = "PyUFunc_None"
+Zero = "NpyUFunc_Zero"
+One = "NpyUFunc_One"
+None_ = "NpyUFunc_None"
 
 # Sentinel value to specify that the loop for the given TypeDescription uses the
 # pointer to arrays as its func_data.

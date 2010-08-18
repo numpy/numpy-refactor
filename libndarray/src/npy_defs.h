@@ -2,11 +2,14 @@
 #define _NPY_DEFS_H_
 
 #include <stdio.h>
-#include <stdint.h>
+
 #include "npy_common.h"
 #include "npy_endian.h"
 #include "npy_config.h"
 
+#if NPY_HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 /*
  * This file contains defines and basic types used by the core

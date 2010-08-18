@@ -10,7 +10,7 @@
 #include "npy_arrayobject.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
-
+#include "npy_os.h"
 
 
 npy_tp_error_set NpyErr_SetString;
@@ -389,7 +389,7 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     char *op;
     npy_intp dimensions[NPY_MAXDIMS];
     NpyArray_DotFunc *dot;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     l = ap1->dimensions[ap1->nd - 1];
     if (ap2->dimensions[ap2->nd - 1] != l) {
@@ -467,7 +467,7 @@ NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
     int nd, axis, matchDim;
     char *op;
     NpyArray_DotFunc *dot;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     if (ap2->nd > 1) {
         matchDim = ap2->nd - 2;
@@ -625,7 +625,7 @@ _npyarray_correlate(NpyArray *ap1, NpyArray *ap2,
     npy_intp length, i, n1, n2, n, n_left, n_right, is1, is2, os;
     char *ip1, *ip2, *op;
     NpyArray_DotFunc *dot;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     n1 = NpyArray_DIM(ap1, 0);
     n2 = NpyArray_DIM(ap2, 0);
@@ -766,9 +766,16 @@ _npyarray_revert(NpyArray *ret)
     return 0;
 }
 
-
 /* TODO: Remove this declaration once PyArray_Conjugate is refactored */
+#ifdef NPY_OS_WIN32
+NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
+{
+    /* XXX: currently only a dummy function */
+    return self;
+}
+#else
 extern NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out);
+#endif
 
 /*NUMPY_API
  * correlate(a1, a2 ,typenum, mode)
