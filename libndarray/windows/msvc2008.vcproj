@@ -81,13 +81,12 @@
       <File RelativePath="..\src\npy_api.h" />
       <File RelativePath="..\src\npy_arrayobject.h" />
       <File RelativePath="..\src\npy_common.h" />
-      <File RelativePath="npy_config.h" />
+      <File RelativePath="..\src\npy_config.h" />
       <File RelativePath="..\src\npy_cpu.h" />
       <File RelativePath="..\src\npy_defs.h" />
       <File RelativePath="..\src\npy_descriptor.h" />
       <File RelativePath="..\src\npy_dict.h" />
       <File RelativePath="..\src\npy_endian.h" />
-      <File RelativePath="..\src\npy_fpmath.h" />
       <File RelativePath="..\src\npy_index.h" />
       <File RelativePath="..\src\npy_internal.h" />
       <File RelativePath="..\src\npy_iterators.h" />
