@@ -1079,15 +1079,17 @@ NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
                  npy_bool ensure_array)
 {
     /* TODO: Add some sanity checking. */
+    NpyArray *result;
     int flags = array->flags & NPY_WRITEABLE;
+
     if (strides == NULL) {
         flags |= (array->flags & (NPY_CONTIGUOUS | NPY_FORTRAN));
     }
-    NpyArray *result = NpyArray_NewFromDescr(descr, nd, dims,
-                                             strides, array->data + offset,
-                                             flags,
-                                             ensure_array, NULL,
-                                             Npy_INTERFACE(array));
+    result = NpyArray_NewFromDescr(descr, nd, dims,
+                                   strides, array->data + offset,
+                                   flags,
+                                   ensure_array, NULL,
+                                   Npy_INTERFACE(array));
     if (result == NULL) {
         return NULL;
     }
