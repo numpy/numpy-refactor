@@ -3480,6 +3480,7 @@ NpyInterface_DescrNewFromType(int type, NpyArray_Descr *descr, void **interfaceR
     result->magic_number = NPY_VALID_MAGIC;
     result->descr = descr;
     result->typeobj = typeobjects[type];
+    Py_INCREF(result->typeobj);
     
     *interfaceRet = result;
     return NPY_TRUE;
