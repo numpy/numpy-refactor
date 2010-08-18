@@ -5,8 +5,8 @@
 #include "npy_index.h"
 
 
-struct NpyUFuncObject;
 
+struct NpyUFuncObject;
 
 
 struct NumericOps {
@@ -46,12 +46,6 @@ struct NumericOps {
     struct NpyUFuncObject *conjugate;
 };
 typedef struct NumericOps NumericOps;
-
-
-#ifdef NPY_ENABLE_SEPARATE_COMPILATION
-extern NPY_NO_EXPORT NumericOps n_ops;
-//extern NPY_NO_EXPORT PyNumberMethods array_as_number;
-#endif
 
 
 #endif

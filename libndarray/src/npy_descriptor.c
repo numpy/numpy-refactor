@@ -73,7 +73,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new;
 
-    assert(NULL != base && NPY_VALID_MAGIC == base->magic_number);
+    assert(base != NULL && NPY_VALID_MAGIC == base->magic_number);
 
     new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
     if (new == NULL) {
@@ -87,10 +87,12 @@ NpyArray_DescrNew(NpyArray_Descr *base)
            (char *)base + sizeof(struct _NpyObject),
            sizeof(NpyArray_Descr) - sizeof(struct _NpyObject));
 
-    assert((NULL == new->fields && NULL == new->names) || (NULL != new->fields && NULL != new->names));
-    if (NULL != new->fields) {
+    assert((NULL == new->fields && NULL == new->names) ||
+           (NULL != new->fields && NULL != new->names));
+    if (new->fields != NULL) {
         new->names = NpyArray_DescrNamesCopy(new->names);
-        new->fields = NpyDict_Copy(new->fields, npy_copy_fields_key, npy_copy_fields_value);
+        new->fields = NpyDict_Copy(new->fields, npy_copy_fields_key,
+                                   npy_copy_fields_value);
     }
     if (new->subarray) {
         new->subarray = NpyArray_DupSubarray(base->subarray);
@@ -102,18 +104,19 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     }
 
     /* Allocate the interface wrapper object. */
-    if (NPY_FALSE == NpyInterface_DescrNewFromWrapper(Npy_INTERFACE(base), new, &new->nob_interface)) {
+    if (NPY_FALSE == NpyInterface_DescrNewFromWrapper(Npy_INTERFACE(base),
+                                                 new, &new->nob_interface)) {
         Npy_INTERFACE(new) = NULL;
         Npy_DECREF(new);
         return NULL;
     }
 
-    /* Note on reference counts: At this point if there is an inteface object, it's refcnt should
-       be == 1 because the refcnt on the core object == 1. That is, the core object is holding a
-       single reference to the interface object. */
+    /* Note on reference counts: At this point if there is an inteface object,
+       it's refcnt should be == 1 because the refcnt on the core object == 1.
+       That is, the core object is holding a single reference to the interface
+       object. */
     return new;
 }
-
 
 
 /*
@@ -192,7 +195,6 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
 }
 
 
-
 /*
  * op is an object to be converted to an ndarray.
  *
@@ -234,27 +236,31 @@ NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
 }
 
 
-
-
 /* Duplicates an array descr structure and the sub-structures. */
 NpyArray_ArrayDescr *
 NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
 {
-    NpyArray_ArrayDescr *dest = (NpyArray_ArrayDescr *)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
-    assert((0 == src->shape_num_dims && NULL == src->shape_dims) || (0 < src->shape_num_dims && NULL != src->shape_dims));
+    NpyArray_ArrayDescr *dest;
+
+    dest = (NpyArray_ArrayDescr *)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+    assert((0 == src->shape_num_dims && NULL == src->shape_dims) ||
+           (0 < src->shape_num_dims && NULL != src->shape_dims));
 
     dest->base = src->base;
     Npy_INCREF(dest->base);
 
     dest->shape_num_dims = src->shape_num_dims;
     if (0 < dest->shape_num_dims) {
-        dest->shape_dims = (npy_intp *)NpyArray_malloc(dest->shape_num_dims * sizeof(npy_intp *));
-        memcpy(dest->shape_dims, src->shape_dims, dest->shape_num_dims * sizeof(npy_intp *));
+        dest->shape_dims = (npy_intp *)
+                 NpyArray_malloc(dest->shape_num_dims * sizeof(npy_intp *));
+        memcpy(dest->shape_dims, src->shape_dims,
+               dest->shape_num_dims * sizeof(npy_intp *));
     } else {
         dest->shape_dims = NULL;
     }
     return dest;
 }
+
 
 /*NUMPY_API
  * self cannot be NULL
@@ -364,19 +370,21 @@ NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
 
 
 /*NUMPY_API
- * Allocates a new names array. Since this array is NULL-terminated, this function is just
- * a bit safer because it makes sure size is n+1 and zeros all of memory.
+ * Allocates a new names array. Since this array is NULL-terminated,
+ * this function is just a bit safer because it makes sure size is n+1
+ * and zeros all of memory.
  */
 char **
 NpyArray_DescrAllocNames(int n)
 {
-    char **nameslist = (char **)malloc((n+1) * sizeof(char *));
+    char **nameslist;
+
+    nameslist = (char **)malloc((n+1) * sizeof(char *));
     if (NULL != nameslist) {
         memset(nameslist, 0, (n+1)*sizeof(char *));
     }
     return nameslist;
 }
-
 
 
 /*NUMPY_API
@@ -388,7 +396,6 @@ NpyArray_DescrAllocFields()
 {
     return npy_create_fields_table();
 }
-
 
 
 /*NUMPY_API
@@ -413,6 +420,7 @@ NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
         self->fields = NULL;
     }
 }
+
 
 /*NUMPY_API
  * self cannot be NULL
@@ -468,7 +476,8 @@ NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist)
 
 /*NUMPY_API
  * base cannot be NULL
- * Adds the tripple of { descriptor, offset, [title] } to the given field dictionary.
+ * Adds the tripple of { descriptor, offset, [title] } to the given field
+ * dictionary.
  *
  * NOTE: This routine steals a reference to descr!
  */
@@ -478,15 +487,13 @@ NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
 {
     NpyArray_DescrField *field;
 
-    field = (NpyArray_DescrField *)malloc(sizeof(NpyArray_DescrField));
+    field = (NpyArray_DescrField *) malloc(sizeof(NpyArray_DescrField));
     field->descr = descr;
     field->offset = offset;
-    field->title = (NULL == title) ? NULL : strdup(title);
+    field->title = (NULL == title) ? NULL : (char *) strdup(title);
 
     NpyDict_Put(self, (void *) strdup(key), field);
 }
-
-
 
 
 /*NUMPY_API
@@ -500,25 +507,25 @@ NpyArray_DescrFieldsCopy(NpyDict *fields)
 }
 
 
-
 /*NUMPY_API
  * base cannot be NULL
- * Allocates a new NpyDict contaning NpyArray_DescrField value object and performs a
- * deep-copy of the passed-in fields structure to populate them. The descriptor field
- * structure contains a pointer to another NpyArray_Descr instance, which must be
- * reference counted. */
+ * Allocates a new NpyDict contaning NpyArray_DescrField value object and
+ * performs a deep-copy of the passed-in fields structure to populate them.
+ * The descriptor field structure contains a pointer to another
+ * NpyArray_Descr instance, which must be reference counted.
+ */
 char **
 NpyArray_DescrNamesCopy(char **names)
 {
     char **copy = NULL;
     int n, i;
 
-    if (NULL != names) {
-        for (n=0; NULL != names[n]; n++) ;
+    if (names != NULL) {
+        for (n=0; NULL != names[n]; n++);
 
         copy = malloc((n+1) * sizeof(char *));
         for (i=0; i < n; i++) {
-            copy[i] = strdup(names[i]);
+            copy[i] = (char *) strdup(names[i]);
         }
         copy[n] = NULL;
     }
@@ -529,9 +536,11 @@ NpyArray_DescrNamesCopy(char **names)
 static NpyDict *npy_create_fields_table()
 {
     NpyDict *new = NpyDict_CreateTable(7);
-    NpyDict_SetKeyComparisonFunction(new, (int (*)(const void *, const void *))strcmp);
+    NpyDict_SetKeyComparisonFunction(new,
+                               (int (*)(const void *, const void *))strcmp);
     NpyDict_SetHashFunction(new, NpyDict_StringHashFunction);
-    NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key, npy_dealloc_fields_value);
+    NpyDict_SetDeallocationFunctions(new, npy_dealloc_fields_key,
+                                     npy_dealloc_fields_value);
     return new;
 }
 
@@ -539,7 +548,7 @@ static NpyDict *npy_create_fields_table()
 /* Keys are c-strings */
 static void *npy_copy_fields_key(void *key)
 {
-    return strdup((const char *)key);
+    return (void *) strdup((const char *)key);
 }
 
 static void npy_dealloc_fields_key(void *key)
@@ -548,29 +557,29 @@ static void npy_dealloc_fields_key(void *key)
 }
 
 
-
-
-
 /* Values are NpyArray_DescrField structures. */
 static void *npy_copy_fields_value(void *value_tmp)
 {
-    NpyArray_DescrField *value = (NpyArray_DescrField *)value_tmp;
-    NpyArray_DescrField *copy = (NpyArray_DescrField *)malloc(sizeof(NpyArray_DescrField));
+    NpyArray_DescrField *value;
+    NpyArray_DescrField *copy;
+
+    value = (NpyArray_DescrField *) value_tmp;
+    copy = (NpyArray_DescrField *) malloc(sizeof(NpyArray_DescrField));
 
     copy->descr = value->descr;
     Npy_XINCREF(copy->descr);
     copy->offset = value->offset;
-    copy->title = (NULL == value->title) ? NULL : strdup(value->title);
-
+    copy->title = (value->title == NULL) ?
+                          NULL : (char *) strdup(value->title);
     return copy;
 }
 
 static void npy_dealloc_fields_value(void *value_tmp)
 {
-    NpyArray_DescrField *value = (NpyArray_DescrField *)value_tmp;
+    NpyArray_DescrField *value = (NpyArray_DescrField *) value_tmp;
 
     Npy_XDECREF(value->descr);
-    if (NULL != value->title) free(value->title);
+    if (value->title != NULL)
+        free(value->title);
     free(value);
 }
-
