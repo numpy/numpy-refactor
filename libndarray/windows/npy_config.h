@@ -36,7 +36,14 @@ standard part of the distribution.
 
 #define NPY_ABI_VERSION 2.0
 #define NPY_API_VERSION 2.0
+
+#define NPY_HAVE_LONGLONG 1
+#define NPY_HAVE_UINTPTR_T 1
+#define NPY_WORDS_BIGENDIAN 0
 #define NPY_HAVE_COMPLEX_H 0
+#define NPY_HAVE_STDINT_H 0
+#define NPY_HAVE_STDLIB_H 1
+#define NPY_HAVE_STRINGS_H 0
 
 #define NPY_HAVE_DECL_ACOS 1
 #define NPY_HAVE_DECL_ACOSF 0
@@ -153,13 +160,6 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_TRUNC 0
 #define NPY_HAVE_DECL_TRUNCF 0
 #define NPY_HAVE_DECL_TRUNCL 0
-
-#define NPY_HAVE_LONGLONG 1
-#define NPY_HAVE_STDINT_H 0
-#define NPY_HAVE_STDLIB_H 1
-#define NPY_HAVE_STRINGS_H 0
-#define NPY_HAVE_UINTPTR_T 1
-#define NPY_WORDS_BIGENDIAN 0
 
 #ifndef __cplusplus
 #define inline __inline
