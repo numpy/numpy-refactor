@@ -785,8 +785,6 @@ fail:
  * parser
  */
 
-/* #include "datetime.c" --- now included in multiarray_onefile */
-
 
 /* DateTime Objects in Python only keep microsecond resolution.
  *
