@@ -478,15 +478,13 @@ NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
 {
     NpyArray_DescrField *field;
 
-    field = (NpyArray_DescrField *)malloc(sizeof(NpyArray_DescrField));
+    field = (NpyArray_DescrField *) malloc(sizeof(NpyArray_DescrField));
     field->descr = descr;
     field->offset = offset;
-    field->title = (NULL == title) ? NULL : strdup(title);
+    field->title = (NULL == title) ? NULL : (char *) strdup(title);
 
     NpyDict_Put(self, (void *) strdup(key), field);
 }
-
-
 
 
 /*NUMPY_API
@@ -498,8 +496,6 @@ NpyArray_DescrFieldsCopy(NpyDict *fields)
 {
     return NpyDict_Copy(fields, npy_copy_fields_key, npy_copy_fields_value);
 }
-
-
 
 /*NUMPY_API
  * base cannot be NULL
@@ -519,7 +515,7 @@ NpyArray_DescrNamesCopy(char **names)
 
         copy = malloc((n+1) * sizeof(char *));
         for (i=0; i < n; i++) {
-            copy[i] = strdup(names[i]);
+            copy[i] = (char *) strdup(names[i]);
         }
         copy[n] = NULL;
     }
@@ -560,8 +556,8 @@ static void *npy_copy_fields_value(void *value_tmp)
     copy->descr = value->descr;
     Npy_XINCREF(copy->descr);
     copy->offset = value->offset;
-    copy->title = (NULL == value->title) ? NULL : strdup(value->title);
-
+    copy->title = (NULL == value->title) ?
+                          NULL : (char *) strdup(value->title);
     return copy;
 }
 
