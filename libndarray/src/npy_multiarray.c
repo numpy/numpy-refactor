@@ -10,7 +10,7 @@
 #include "npy_arrayobject.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
-
+#include "npy_os.h"
 
 
 npy_tp_error_set NpyErr_SetString;
@@ -766,9 +766,16 @@ _npyarray_revert(NpyArray *ret)
     return 0;
 }
 
-
 /* TODO: Remove this declaration once PyArray_Conjugate is refactored */
+#ifdef NPY_OS_WIN32
+NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
+{
+    /* XXX: currently only a dummy function */
+    return self;
+}
+#else
 extern NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out);
+#endif
 
 /*NUMPY_API
  * correlate(a1, a2 ,typenum, mode)

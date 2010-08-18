@@ -39,7 +39,12 @@ int _npy_signbit_d(double x);
      : _npy_signbit_d((double) x))
 
 
-#define NpyOS_snprintf snprintf
+#ifdef NPY_OS_WIN32
+    #define NpyOS_snprintf sprintf
+#else
+    #define NpyOS_snprintf snprintf
+#endif
+
 #define NpyOS_strtol strtol
 #define NpyOS_strtoul strtoul
 
