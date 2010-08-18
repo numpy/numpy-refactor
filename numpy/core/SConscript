@@ -62,69 +62,6 @@ config = env.NumpyConfigure(custom_tests = {'CheckBrokenMathlib' : CheckBrokenMa
 # - string: #define definition value
 numpyconfig_sym = []
 
-#---------------
-# Checking Types
-#---------------
-if not config.CheckHeader("Python.h"):
-    errmsg = []
-    for line in config.GetLastError():
-        errmsg.append("%s " % line)
-    print """
-Error: Python.h header cannot be compiled (or cannot be found).
-On linux, check that you have python-dev/python-devel packages. On windows,
-check that you have he platform SDK. You may also use unsupported cflags.
-Configuration error log says: \n\n%s""" % ''.join(errmsg)
-    Exit(-1)
-
-def check_type(type, include = None):
-    st = config.CheckTypeSize(type, includes = include)
-    type = type.replace(' ', '_')
-    if st:
-        numpyconfig_sym.append(('SIZEOF_%s' % type.upper(), '%d' % st))
-    else:
-        numpyconfig_sym.append(('SIZEOF_%s' % type.upper(), 0))
-
-for type in ('short', 'int', 'long'):
-    # SIZEOF_LONG defined on darwin
-    if type == "long":
-        if not config.CheckDeclaration("SIZEOF_LONG", includes="#include <Python.h>"):
-            check_type(type)
-        else:
-            numpyconfig_sym.append(('SIZEOF_LONG', 'SIZEOF_LONG'))
-    else:
-        check_type(type)
-
-for type in ('float', 'double', 'long double'):
-    sz = config.CheckTypeSize(type)
-    numpyconfig_sym.append(('SIZEOF_%s' % type2def(type), str(sz)))
-
-    # Compute size of corresponding complex type: used to check that our
-    # definition is binary compatible with C99 complex type (check done at
-    # build time in npy_common.h)
-    complex_def = "struct {%s __x; %s __y;}" % (type, type)
-    sz = config.CheckTypeSize(complex_def)
-    numpyconfig_sym.append(('SIZEOF_COMPLEX_%s' % type2def(type), str(sz)))
-
-for type in ('Py_intptr_t',):
-    check_type(type, include = "#include <Python.h>\n")
-
-# We check declaration AND type because that's how distutils does it.
-if config.CheckDeclaration('PY_LONG_LONG', includes = '#include <Python.h>\n'):
-    st = config.CheckTypeSize('PY_LONG_LONG',
-                              includes = '#include <Python.h>\n')
-    assert not st == 0
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG',
-                            '#define NPY_SIZEOF_LONGLONG %d' % st))
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG',
-                            '#define NPY_SIZEOF_PY_LONG_LONG %d' % st))
-else:
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG', ''))
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG', ''))
-
-if not config.CheckDeclaration('CHAR_BIT', includes= '#include <Python.h>\n'):
-    raise RuntimeError(\
-"""Config wo CHAR_BIT is not supported with scons: please contact the
-maintainer (cdavid)""")
 
 #----------------------
 # Checking signal stuff
