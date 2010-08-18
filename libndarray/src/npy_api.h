@@ -344,7 +344,7 @@ extern npy_tp_cmp_priority Npy_CmpPriority;
  * collected systems. Primarily, INCREF returns a possibly different handle.
  */
 typedef void *(*npy_interface_incref)(void *);
-typedef void (*npy_interface_decref)(void *);
+typedef void *(*npy_interface_decref)(void *);
 
 /* Do not call directly, use macros below because interface does not have to provide these. */
 extern npy_interface_incref _NpyInterface_Incref;
