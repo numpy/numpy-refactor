@@ -281,14 +281,16 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     if (n == 1) {
         if (indexes[0].type == NPY_INDEX_INTP) {
 #undef intp
-            return npy_iter_ass_single(self, indexes[0].index.intp, val);
+            result = npy_iter_ass_single(self, indexes[0].index.intp, val);
 #define intp npy_intp
+            goto finish;
         } else if (indexes[0].type == NPY_INDEX_BOOL) {
             if (indexes[0].index.boolean) {
-                return npy_iter_ass_single(self, 0, val);
+                result = npy_iter_ass_single(self, 0, val);
             } else {
-                return 0;
+                result = 0;
             }
+            goto finish;
         }
     }
 
@@ -296,12 +298,16 @@ npy_iter_ass_subscript(NpyArrayIterObject* self, PyObject* ind, PyObject* val)
     arr_val = (PyArrayObject *)
         PyArray_FromAnyUnwrap(val, self->ao->descr, 0, 0, 0, NULL);
     if (arr_val == NULL) {
-        return -1;
+        result = -1;
+        goto finish;
     }
 
     result = NpyArray_IterSubscriptAssign(self, indexes, n, 
                                           PyArray_ARRAY(arr_val));
+
+ finish:
     Py_DECREF(arr_val);
+    NpyArray_IndexDealloc(indexes, n);
 
     return result;
 }
