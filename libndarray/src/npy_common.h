@@ -47,7 +47,7 @@ typedef unsigned long long    npy_ulonglong;
            #define ULONGLONG_FMT  "llu"
 
            #define LONGLONG_FMT   "qd"   -- BSD perhaps?
-           #define ULONGLONG_FMT   "qu"
+           #define ULONGLONG_FMT  "qu"
         */
 #    define NPY_LONGLONG_FMT         "Ld"
 #    define NPY_ULONGLONG_FMT        "Lu"
@@ -94,42 +94,43 @@ typedef long npy_long;
  * able to do .real/.imag. Will have to convert code first.
  */
 #if 0
-#if defined(NPY_USE_C99_COMPLEX) && defined(NPY_HAVE_COMPLEX_DOUBLE)
+#if NPY_HAVE_COMPLEX_H && defined(NPY_HAVE_COMPLEX_DOUBLE)
 typedef complex npy_cdouble;
 #else
 typedef struct { double real, imag; } npy_cdouble;
 #endif
 
-#if defined(NPY_USE_C99_COMPLEX) && defined(NPY_HAVE_COMPLEX_FLOAT)
+#if NPY_HAVE_COMPLEX_H && defined(NPY_HAVE_COMPLEX_FLOAT)
 typedef complex float npy_cfloat;
 #else
 typedef struct { float real, imag; } npy_cfloat;
 #endif
 
-#if defined(NPY_USE_C99_COMPLEX) && defined(NPY_HAVE_COMPLEX_LONG_DOUBLE)
+#if NPY_HAVE_COMPLEX_H && defined(NPY_HAVE_COMPLEX_LONG_DOUBLE)
 typedef complex long double npy_clongdouble;
 #else
 typedef struct {npy_longdouble real, imag;} npy_clongdouble;
 #endif
 #endif
+
 #if NPY_SIZEOF_COMPLEX_DOUBLE != 2 * NPY_SIZEOF_DOUBLE
 #error npy_cdouble definition is not compatible with C99 complex definition ! \
-        Please contact Numpy maintainers and give detailed information about your \
-        compiler and platform
+        Please contact Numpy maintainers and give detailed information about \
+        your compiler and platform
 #endif
 typedef struct { double real, imag; } npy_cdouble;
 
 #if NPY_SIZEOF_COMPLEX_FLOAT != 2 * NPY_SIZEOF_FLOAT
 #error npy_cfloat definition is not compatible with C99 complex definition ! \
-        Please contact Numpy maintainers and give detailed information about your \
-        compiler and platform
+        Please contact Numpy maintainers and give detailed information about \
+        your compiler and platform
 #endif
 typedef struct { float real, imag; } npy_cfloat;
 
 #if NPY_SIZEOF_COMPLEX_LONGDOUBLE != 2 * NPY_SIZEOF_LONGDOUBLE
-#error npy_clongdouble definition is not compatible with C99 complex definition ! \
-        Please contact Numpy maintainers and give detailed information about your \
-        compiler and platform
+#error npy_clongdouble definition is not compatible with C99 complex \
+        definition !  Please contact Numpy maintainers and give detailed \
+        information about your compiler and platform
 #endif
 typedef struct { npy_longdouble real, imag; } npy_clongdouble;
 
