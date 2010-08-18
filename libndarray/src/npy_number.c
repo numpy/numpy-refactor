@@ -9,7 +9,7 @@
 #include "npy_ufunc_object.h"
 #include "npy_number.h"
 
-#if HAVE_STRINGS_H
+#if NPY_HAVE_STRINGS_H
 #include <strings.h>
 #endif
 

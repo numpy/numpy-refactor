@@ -11,7 +11,7 @@
 #include "npy_arrayobject.h"
 #include "npy_descriptor.h"
 
-#if HAVE_STRINGS_H
+#if NPY_HAVE_STRINGS_H
 #include <strings.h>
 #endif
 

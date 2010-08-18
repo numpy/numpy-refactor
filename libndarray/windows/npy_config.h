@@ -37,6 +37,7 @@ standard part of the distribution.
 #define NPY_ABI_VERSION 2.0
 #define NPY_API_VERSION 2.0
 #define NPY_HAVE_COMPLEX_H 0
+
 #define NPY_HAVE_DECL_ACOS 1
 #define NPY_HAVE_DECL_ACOSF 0
 #define NPY_HAVE_DECL_ACOSH 0
@@ -152,33 +153,12 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_TRUNC 0
 #define NPY_HAVE_DECL_TRUNCF 0
 #define NPY_HAVE_DECL_TRUNCL 0
-#define NPY_HAVE_DLFCN_H 1
-#define NPY_HAVE_INTTYPES_H 1
-#define NPY_HAVE_LOCALECONV 1
+
 #define NPY_HAVE_LONGLONG 1
-#define NPY_HAVE_MALLOC 1
-#define NPY_HAVE_MEMMOVE 1
-#define NPY_HAVE_MEMORY_H 1
-#define NPY_HAVE_MEMSET 1
-#define NPY_HAVE_REALLOC 1
 #define NPY_HAVE_STDINT_H 0
 #define NPY_HAVE_STDLIB_H 1
-#define NPY_HAVE_STRDUP 1
-#define NPY_HAVE_STRINGS_H 1
-#define NPY_HAVE_STRING_H 0
-#define NPY_HAVE_STRPBRK 1
-#define NPY_HAVE_SYS_STAT_H 1
-#define NPY_HAVE_SYS_TYPES_H 1
+#define NPY_HAVE_STRINGS_H 0
 #define NPY_HAVE_UINTPTR_T 1
-#define NPY_HAVE_UNISTD_H 1
-#define NPY_LT_OBJDIR ".libs/"
-#define NPY_PACKAGE "libndarray"
-#define NPY_PACKAGE_BUGREPORT "info@enthought.com"
-#define NPY_PACKAGE_NAME "libndarray"
-#define PACKAGE_STRING "libndarray 1.0"
-#define NPY_PACKAGE_TARNAME "libndarray"
-#define NPY_PACKAGE_VERSION "1.0"
-#define NPY_STDC_HEADERS 1
 #define NPY_WORDS_BIGENDIAN 0
 
 #ifndef __cplusplus
