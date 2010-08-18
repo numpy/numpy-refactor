@@ -416,10 +416,11 @@ NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
 
 /*NUMPY_API
  * self cannot be NULL
- * Replaces the existing list of names with a new set of names.  This also re-keys the
- * fields dictionary.  The passed in nameslist must be exactly the same length as the
- * existing names array.  All memory in nameslist, including the string points, will
- * be managed by the NpyArray_Descr instance as it's own.
+ * Replaces the existing list of names with a new set of names.
+ * This also re-keys the fields dictionary.  The passed in nameslist
+ * must be exactly the same length as the existing names array.  All
+ * memory in nameslist, including the string points, will be managed
+ * by the NpyArray_Descr instance as it's own.
  *
  * Returns: 1 on success, 0 on error.
  */
@@ -434,7 +435,8 @@ NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist)
     }
 
     for (i = 0; i < n; i++) {
-        NpyDict_Rekey(self->fields, self->names[i], strdup(nameslist[i]));
+        NpyDict_Rekey(self->fields, self->names[i],
+                      (void *) strdup(nameslist[i]));
         free(self->names[i]);
     }
     free(self->names);
@@ -442,8 +444,6 @@ NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist)
     self->names = nameslist;
     return 1;
 }
-
-
 
 
 /*NUMPY_API
@@ -483,7 +483,7 @@ NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
     field->offset = offset;
     field->title = (NULL == title) ? NULL : strdup(title);
 
-    NpyDict_Put(self, strdup(key), field);
+    NpyDict_Put(self, (void *) strdup(key), field);
 }
 
 
