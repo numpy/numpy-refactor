@@ -833,6 +833,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     
     /* Convert args to arrays in mps. */
     if ((i=convert_args(self, args, mps)) < 0) {
+        Py_XDECREF(errobj);
         return i;
     }
 
