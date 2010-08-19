@@ -7,6 +7,7 @@
 #define _NPY_LOOPS_H_
 
 #include "npy_os.h"
+#include "npy_utils.h"
 
 #define BOOL_invert BOOL_logical_not
 #define BOOL_negative BOOL_logical_not
