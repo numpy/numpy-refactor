@@ -24,6 +24,7 @@
       <Tool Name="VCCustomBuildTool" />
       <Tool Name="VCXMLDataGeneratorTool" />
       <Tool Name="VCCLCompilerTool"
+            InlineFunctionExpansion="1"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
             PreprocessorDefinitions="_USRDLL;WIN32"
@@ -35,12 +36,10 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCALinkTool" />
-      <Tool Name="VCManifestTool" />
+      <Tool Name="VCLinkerTool" />
       <Tool Name="VCXDCMakeTool" />
       <Tool Name="VCBscMakeTool" />
       <Tool Name="VCFxCopTool" />
-      <Tool Name="VCAppVerifierTool" />
       <Tool Name="VCPostBuildEventTool" />
     </Configuration>
     <Configuration
@@ -53,6 +52,7 @@
       <Tool Name="VCCustomBuildTool" />
       <Tool Name="VCXMLDataGeneratorTool" />
       <Tool Name="VCCLCompilerTool"
+            InlineFunctionExpansion="1"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
             PreprocessorDefinitions="_USRDLL;WIN32"
@@ -64,12 +64,10 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCALinkTool" />
-      <Tool Name="VCManifestTool" />
+      <Tool Name="VCLinkerTool" />
       <Tool Name="VCXDCMakeTool" />
       <Tool Name="VCBscMakeTool" />
       <Tool Name="VCFxCopTool" />
-      <Tool Name="VCAppVerifierTool" />
       <Tool Name="VCPostBuildEventTool" />
     </Configuration>
   </Configurations>
