@@ -60,7 +60,9 @@ LIBSOURCES = \
         src/npy_refcount.c \
         src/npy_shape.c \
         src/npy_ufunc_object.c \
-        src/npy_usertypes.c
+        src/npy_usertypes.c \
+        tools/mk_config.py \
+        tools/long_double.c
 
 # libtool libraries to build
 lib_LTLIBRARIES = libndarray.la
