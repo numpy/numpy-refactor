@@ -310,6 +310,7 @@ struct NpyArrayMapIterObject {
 
         int                   consec;
         char                  *dataptr;
+        NpyArray_CopySwapFunc *copyswap;
 
 };
 

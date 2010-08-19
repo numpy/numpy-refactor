@@ -91,6 +91,11 @@ NpyArray_MapIterNew(NpyIndex *indexes, int n)
         }
     }
     mit->numiter = j;
+    if (j > 0) {
+        mit->copyswap = mit->iters[0]->ao->descr->f->copyswap;
+    } else {
+        mit->copyswap = NULL;
+    }
 
     /* Broadcast the index iterators. */
     if (NpyArray_Broadcast((NpyArrayMultiIterObject *)mit) < 0) {
@@ -298,7 +303,7 @@ NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
 
     mit->index = 0;
 
-    copyswap = mit->iters[0]->ao->descr->f->copyswap;
+    copyswap = mit->copyswap;
 
     if (mit->subspace != NULL) {
         memcpy(coord, mit->bscoord, sizeof(npy_intp)*mit->ait->ao->nd);
@@ -348,7 +353,7 @@ NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
     if (mit->index >= mit->size) {
         return;
     }
-    copyswap = mit->iters[0]->ao->descr->f->copyswap;
+    copyswap = mit->copyswap;
     /* Sub-space iteration */
     if (mit->subspace != NULL) {
         NpyArray_ITER_NEXT(mit->subspace);
