@@ -61,6 +61,15 @@ LIBSOURCES = \
         src/npy_shape.c \
         src/npy_ufunc_object.c \
         src/npy_usertypes.c \
+        src/npy_arraytypes.c.src \
+        src/npy_ieee754.c.src \
+        src/npy_math.c.src \
+        src/npy_math_complex.c.src \
+        src/npy_funcs.c.src \
+        src/npy_funcs.h.src \
+        src/npy_loops.c.src \
+        src/npy_loops.h.src \
+        tools/conv_template.py \
         tools/mk_config.py \
         tools/long_double.c
 
