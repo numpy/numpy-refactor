@@ -19,9 +19,12 @@ import __builtin__
 import os
 import sys
 import subprocess
+import platform
 
 
-if sys.platform == 'win32':
+if (sys.platform == 'win32' or
+    platform.platform() == 'Linux-2.6.24-11-pve-i686-with-redhat-4.7-Final'
+    ):
     pass
 else:
     # During development, we update the core library every time we build
