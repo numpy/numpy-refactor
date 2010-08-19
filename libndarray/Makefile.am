@@ -1,7 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 
-# Headers which are installed to support the library
+# Headers which are installed to support  the library
 INSTINCLUDES = \
         src/_neighborhood_iterator_imp.h \
         src/npy_api.h \
