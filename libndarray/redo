@@ -4,7 +4,7 @@ make clean
 
 autoreconf -fvi
 
-./configure --prefix="$HOME/usr"
+./configure --disable-static --prefix="$HOME/usr"
 
 make
 
