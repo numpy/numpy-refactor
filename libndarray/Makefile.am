@@ -101,7 +101,7 @@ src/npy_funcs.c: src/npy_funcs.c.src
 src/npy_funcs.h: src/npy_funcs.h.src
 	$(CONV_TMPL) $<
 
-src/npy_loops.c: src/npy_loops.c.src
+src/npy_loops.c: src/npy_loops.c.src src/npy_loops.h
 	$(CONV_TMPL) $<
 
 src/npy_loops.h: src/npy_loops.h.src
