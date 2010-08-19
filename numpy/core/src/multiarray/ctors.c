@@ -329,6 +329,51 @@ discover_depth(PyObject *s, int max, int stop_at_string, int stop_at_tuple)
     if(max < 1) {
         return -1;
     }
+
+    /* Fast path for lists. */
+    if (PyList_CheckExact(s)) {
+        if (PyList_GET_SIZE(s) == 0) {
+            return 1;
+        }
+        else {
+            e = PyList_GET_ITEM(s, 0);
+            if (e == NULL) {
+                return -1;
+            }
+            if (e != s) {
+                d = discover_depth(e, max - 1, stop_at_string, stop_at_tuple);
+                if (d >= 0) {
+                    d++;
+                }
+            }
+            return d;
+        }
+    }
+
+    /* Fast path for tuples. */
+    if (PyTuple_CheckExact(s)) {
+        if (stop_at_tuple) {
+            return 0;
+        }
+        if (PyTuple_GET_SIZE(s) == 0) {
+            return 1;
+        }
+        else {
+            e = PyTuple_GET_ITEM(s, 0);
+            if (e == NULL) {
+                return -1;
+            }
+            if (e != s) {
+                d = discover_depth(e, max - 1, stop_at_string, stop_at_tuple);
+                if (d >= 0) {
+                    d++;
+                }
+            }
+            return d;
+        }
+    }
+
+
     if(!PySequence_Check(s) ||
 #if defined(NPY_PY3K)
        /* FIXME: XXX -- what is the correct thing to do here? */
@@ -879,6 +924,11 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
     PyObject *r = NULL;
     int seq = FALSE;
 
+    /* Fast path for lists and tuples. */
+    if (PyList_CheckExact(op) || PyTuple_CheckExact(op)) {
+        goto normal;
+    }
+
     /*
      * Is input object already an array?
      * This is where the flags are used
@@ -925,7 +975,10 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
         }
     }
     else {
-        int isobject = 0;
+        int isobject;
+
+    normal:
+        isobject = 0;
 
         if (flags & UPDATEIFCOPY) {
             goto err;
@@ -937,8 +990,9 @@ PyArray_FromAnyUnwrap(PyObject *op, NpyArray_Descr *newtype, int min_depth,
             isobject = 1;
         }
         if (PySequence_Check(op)) {
-            PyObject *thiserr = NULL;
+            PyObject *thiserr;
 
+            thiserr = NULL;
             /* necessary but not sufficient */
             Npy_INCREF(newtype);
             r = Array_FromSequence(op, newtype, flags & FORTRAN,
