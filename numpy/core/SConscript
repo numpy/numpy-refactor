@@ -2,8 +2,7 @@
 # vim:syntax=python
 import os
 import sys
-from os.path import join as pjoin, basename as pbasename, dirname as pdirname
-from os.path import expanduser as pexpanduser
+from os.path import join as pjoin, expanduser as pexpanduser
 from copy import deepcopy
 
 from numscons import get_pythonlib_dir
@@ -17,7 +16,7 @@ from code_generators.numpy_api import \
 
 from setup_common import *
 from scons_support import CheckBrokenMathlib, define_no_smp, \
-    check_mlib, check_mlibs, is_npy_no_signal, CheckInline
+              check_mlibs, is_npy_no_signal, CheckInline
 from scons_support import array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
                           umath_bld, CheckGCC4, check_api_version, \
                           CheckLongDoubleRepresentation
@@ -27,11 +26,6 @@ import SCons
 
 usr_dir = pjoin(pexpanduser('~'), 'usr')
 
-try:
-    os.environ['NPY_BYPASS_SINGLE_EXTENDED']
-    BYPASS_SINGLE_EXTENDED = True
-except KeyError:
-    BYPASS_SINGLE_EXTENDED = False
 
 env = GetNumpyEnvironment(ARGUMENTS)
 env.Append(CPPPATH = env["PYEXTCPPPATH"])
@@ -62,69 +56,6 @@ config = env.NumpyConfigure(custom_tests = {'CheckBrokenMathlib' : CheckBrokenMa
 # - string: #define definition value
 numpyconfig_sym = []
 
-#---------------
-# Checking Types
-#---------------
-if not config.CheckHeader("Python.h"):
-    errmsg = []
-    for line in config.GetLastError():
-        errmsg.append("%s " % line)
-    print """
-Error: Python.h header cannot be compiled (or cannot be found).
-On linux, check that you have python-dev/python-devel packages. On windows,
-check that you have he platform SDK. You may also use unsupported cflags.
-Configuration error log says: \n\n%s""" % ''.join(errmsg)
-    Exit(-1)
-
-def check_type(type, include = None):
-    st = config.CheckTypeSize(type, includes = include)
-    type = type.replace(' ', '_')
-    if st:
-        numpyconfig_sym.append(('SIZEOF_%s' % type.upper(), '%d' % st))
-    else:
-        numpyconfig_sym.append(('SIZEOF_%s' % type.upper(), 0))
-
-for type in ('short', 'int', 'long'):
-    # SIZEOF_LONG defined on darwin
-    if type == "long":
-        if not config.CheckDeclaration("SIZEOF_LONG", includes="#include <Python.h>"):
-            check_type(type)
-        else:
-            numpyconfig_sym.append(('SIZEOF_LONG', 'SIZEOF_LONG'))
-    else:
-        check_type(type)
-
-for type in ('float', 'double', 'long double'):
-    sz = config.CheckTypeSize(type)
-    numpyconfig_sym.append(('SIZEOF_%s' % type2def(type), str(sz)))
-
-    # Compute size of corresponding complex type: used to check that our
-    # definition is binary compatible with C99 complex type (check done at
-    # build time in npy_common.h)
-    complex_def = "struct {%s __x; %s __y;}" % (type, type)
-    sz = config.CheckTypeSize(complex_def)
-    numpyconfig_sym.append(('SIZEOF_COMPLEX_%s' % type2def(type), str(sz)))
-
-for type in ('Py_intptr_t',):
-    check_type(type, include = "#include <Python.h>\n")
-
-# We check declaration AND type because that's how distutils does it.
-if config.CheckDeclaration('PY_LONG_LONG', includes = '#include <Python.h>\n'):
-    st = config.CheckTypeSize('PY_LONG_LONG',
-                              includes = '#include <Python.h>\n')
-    assert not st == 0
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG',
-                            '#define NPY_SIZEOF_LONGLONG %d' % st))
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG',
-                            '#define NPY_SIZEOF_PY_LONG_LONG %d' % st))
-else:
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_LONGLONG', ''))
-    numpyconfig_sym.append(('DEFINE_NPY_SIZEOF_PY_LONG_LONG', ''))
-
-if not config.CheckDeclaration('CHAR_BIT', includes= '#include <Python.h>\n'):
-    raise RuntimeError(\
-"""Config wo CHAR_BIT is not supported with scons: please contact the
-maintainer (cdavid)""")
 
 #----------------------
 # Checking signal stuff
@@ -167,75 +98,9 @@ mlib = check_mlibs(config, mlibs)
 numpyconfig_sym.append(('MATHLIB', ','.join(mlib)))
 
 
-#----------------------------------
-# Checking the math funcs available
-#----------------------------------
-
-# Check for mandatory funcs: we barf if a single one of those is not there
-if not config.CheckFuncsAtOnce(MANDATORY_FUNCS):
-    raise SystemError("One of the required function to build numpy is not"
-            " available (the list is %s)." % str(MANDATORY_FUNCS))
-
-# Standard functions which may not be available and for which we have a
-# replacement implementation
-#
-def check_funcs(funcs):
-    # Use check_funcs_once first, and if it does not work, test func per
-    # func. Return success only if all the functions are available
-    st = config.CheckFuncsAtOnce(funcs)
-    if not st:
-        # Global check failed, check func per func
-        for f in funcs:
-            st = config.CheckFunc(f, language = 'C')
-
-for f in OPTIONAL_STDFUNCS_MAYBE:
-    if config.CheckDeclaration(fname2def(f),
-                includes="#include <Python.h>\n#include <math.h>"):
-        OPTIONAL_STDFUNCS.remove(f)
-check_funcs(OPTIONAL_STDFUNCS)
-
-# C99 functions: float and long double versions
-if not BYPASS_SINGLE_EXTENDED:
-    check_funcs(C99_FUNCS_SINGLE)
-    check_funcs(C99_FUNCS_EXTENDED)
-
-f = "isfinite"
-numpyconfig_sym.append(('DEFINE_NPY_HAVE_DECL_%s' % f.upper(), ''))
-
 inline = config.CheckInline()
 config.Define('inline', inline)
 
-
-#-----------------------------
-# Checking for complex support
-#-----------------------------
-if config.CheckHeader('complex.h'):
-    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_COMPLEX', '#define NPY_USE_C99_COMPLEX 1'))
-
-    for t in C99_COMPLEX_TYPES:
-        st = config.CheckType(t, includes='#include <complex.h>')
-        if st:
-            numpyconfig_sym.append(('DEFINE_NPY_HAVE_%s' % type2def(t),
-                                    '#define NPY_HAVE_%s' % type2def(t)))
-        else:
-            numpyconfig_sym.append(('DEFINE_NPY_HAVE_%s' % type2def(t), ''))
-
-    def check_prec(prec):
-        flist = [f + prec for f in C99_COMPLEX_FUNCS]
-        st = config.CheckFuncsAtOnce(flist)
-        if not st:
-            # Global check failed, check func per func
-            for f in flist:
-                config.CheckFunc(f, language='C')
-
-    check_prec('')
-    check_prec('f')
-    check_prec('l')
-
-else:
-    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_COMPLEX', ''))
-    for t in C99_COMPLEX_TYPES:
-        numpyconfig_sym.append(('DEFINE_NPY_HAVE_%s' % type2def(t), ''))
 
 def visibility_define():
     if config.CheckGCC4():
@@ -250,20 +115,11 @@ numpyconfig_sym.append(('NPY_ABI_VERSION', '0x%.8X' % C_ABI_VERSION))
 numpyconfig_sym.append(('NPY_API_VERSION', '0x%.8X' % C_API_VERSION))
 
 # Check whether we need our own wide character support
-if not config.CheckDeclaration('Py_UNICODE_WIDE', includes='#include <Python.h>'):
+if not config.CheckDeclaration('Py_UNICODE_WIDE',
+                                includes='#include <Python.h>'):
     PYTHON_HAS_UNICODE_WIDE = True
 else:
     PYTHON_HAS_UNICODE_WIDE = False
-
-#-------------------------------------------------------
-# Define the function PyOS_ascii_strod if not available
-#-------------------------------------------------------
-if not config.CheckDeclaration('PyOS_ascii_strtod',
-                               includes = "#include <Python.h>"):
-    if config.CheckFunc('strtod'):
-        config.Define('PyOS_ascii_strtod', 'strtod',
-                      "Define to a function to use as a replacement for "\
-                      "PyOS_ascii_strtod if not available in python header")
 
 #------------------------------------
 # DISTUTILS Hack on AMD64 on windows
@@ -337,7 +193,6 @@ env.Append(BUILDERS = {'GenerateMultiarrayApi' : array_api_gen_bld,
 #------------------------
 scalartypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'scalartypes.c.src'))
-umath_funcs_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'funcs.inc.src'))
 umath_loops_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'loops.c.src'))
 arraytypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'arraytypes.c.src'))

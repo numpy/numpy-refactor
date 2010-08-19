@@ -40,7 +40,7 @@ int _npy_signbit_d(double x);
 
 
 #ifdef NPY_OS_WIN32
-    #define NpyOS_snprintf sprintf
+    #define NpyOS_snprintf _snprintf
 #else
     #define NpyOS_snprintf snprintf
 #endif

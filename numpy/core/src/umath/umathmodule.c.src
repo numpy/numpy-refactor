@@ -23,31 +23,240 @@
 #define PY_ARRAY_UNIQUE_SYMBOL _npy_umathmodule_ARRAY_API
 
 #include <npy_ufunc_object.h>
+#include <npy_math.h>
+#include <npy_funcs.h>
+
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "abstract.h"
 
 #include "npy_math.h"
+#include "npy_config.h"
 
 /*
  *****************************************************************************
  **                    INCLUDE GENERATED CODE                               **
  *****************************************************************************
  */
-#include "funcs.inc"
-#include "loops.h"
+static PyObject *
+npy_ObjectMax(PyObject *i1, PyObject *i2);
+static PyObject *
+npy_ObjectMin(PyObject *i1, PyObject *i2);
+static PyObject *
+npy_ObjectPower(PyObject *x, PyObject *y);
+static PyObject *
+Py_square(PyObject *o);
+static PyObject *
+Py_get_one(PyObject *NPY_UNUSED(o));
+static PyObject *
+Py_reciprocal(PyObject *o);
+
+#include <npy_loops.h>
+#include <npy_funcs.h>
 #include "ufunc_object.h"
-#include "__umath_generated.c"
+#include "numpy_3kcompat.h"
 #include "__ufunc_api.c"
 
-static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
+void
+PyUFunc_On_Om(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
+
+/* From loops.c.src */
+void
+OBJECT_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_not_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_greater(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_greater_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_less(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_less_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 
 /* From ufunc_object.c */
 NPY_NO_EXPORT int
 PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first);
+NPY_NO_EXPORT PyObject *
+PyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                        char *types, int ntypes,
+                        int nin, int nout, int identity,
+                        char *name, char *doc, int check_return);
+NPY_NO_EXPORT int
+PyUFunc_SetUsesArraysAsData(void **data, size_t i);
+
+static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
 
+
+/*
+ *****************************************************************************
+ **                        PYTHON OBJECT FUNCTIONS                          **
+ *****************************************************************************
+ */
+
+static PyObject *
+Py_square(PyObject *o)
+{
+    return PyNumber_Multiply(o, o);
+}
+
+static PyObject *
+Py_get_one(PyObject *NPY_UNUSED(o))
+{
+    return PyInt_FromLong(1);
+}
+
+static PyObject *
+Py_reciprocal(PyObject *o)
+{
+    PyObject *one = PyInt_FromLong(1);
+    PyObject *result;
+    
+    if (!one) {
+        return NULL;
+    }
+#if defined(NPY_PY3K)
+    result = PyNumber_TrueDivide(one, o);
+#else
+    result = PyNumber_Divide(one, o);
+#endif
+    Py_DECREF(one);
+    return result;
+}
+
+/*
+ * Define numpy version of PyNumber_Power as binary function.
+ */
+static PyObject *
+npy_ObjectPower(PyObject *x, PyObject *y)
+{
+    return PyNumber_Power(x, y, Py_None);
+}
+
+static PyObject *
+npy_ObjectMax(PyObject *i1, PyObject *i2)
+{
+    PyObject *result;
+    int cmp;
+    
+    if (PyObject_Cmp(i1, i2, &cmp) < 0) {
+        return NULL;
+    }
+    if (cmp >= 0) {
+        result = i1;
+    }
+    else {
+        result = i2;
+    }
+    Py_INCREF(result);
+    return result;
+}
+
+static PyObject *
+npy_ObjectMin(PyObject *i1, PyObject *i2)
+{
+    PyObject *result;
+    int cmp;
+    
+    if (PyObject_Cmp(i1, i2, &cmp) < 0) {
+        return NULL;
+    }
+    if (cmp <= 0) {
+        result = i1;
+    }
+    else {
+        result = i2;
+    }
+    Py_INCREF(result);
+    return result;
+}
+
+
+
+/******************************************************************************
+ **                         GENERIC OBJECT lOOPS                             **
+ *****************************************************************************/
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    unaryfunc f = (unaryfunc)func;
+    UNARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = f(in1);
+        if ((ret == NULL) || PyErr_Occurred()) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    UNARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = PyObject_CallMethod(in1, meth, NULL);
+        if (ret == NULL) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    binaryfunc f = (binaryfunc)func;
+    BINARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject *in2 = *(PyObject **)ip2;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = f(in1, in2);
+        if (PyErr_Occurred()) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    BINARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject *in2 = *(PyObject **)ip2;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = PyObject_CallMethod(in1, meth, "(O)", in2);
+        if (ret == NULL) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+#include "__umath_generated.c"
+
+/*
+ * A general-purpose ufunc that deals with general-purpose Python callable.
+ * func is a structure with nin, nout, and a Python callable function
+ */
 
 
 
@@ -102,6 +311,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     return (PyObject *)self;
 }
 
+
 /*
  *****************************************************************************
  **                            SETUP UFUNCS                                 **
@@ -111,42 +321,42 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 /* Less automated additions to the ufuncs */
 
 static NpyUFuncGenericFunction frexp_functions[] = {
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     FLOAT_frexp,
 #endif
     DOUBLE_frexp
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     ,LONGDOUBLE_frexp
 #endif
 };
 
 static void * blank3_data[] = { (void *)NULL, (void *)NULL, (void *)NULL};
 static char frexp_signatures[] = {
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     PyArray_FLOAT, PyArray_FLOAT, PyArray_INT,
 #endif
     PyArray_DOUBLE, PyArray_DOUBLE, PyArray_INT
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     ,PyArray_LONGDOUBLE, PyArray_LONGDOUBLE, PyArray_INT
 #endif
 };
 
 static NpyUFuncGenericFunction ldexp_functions[] = {
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     FLOAT_ldexp,
 #endif
     DOUBLE_ldexp
-#ifdef HAVE_LDEXPL
+#ifdef NPY_HAVE_DECL_LDEXPL
     ,LONGDOUBLE_ldexp
 #endif
 };
 
 static char ldexp_signatures[] = {
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     PyArray_FLOAT, PyArray_INT, PyArray_FLOAT,
 #endif
     PyArray_DOUBLE, PyArray_LONG, PyArray_DOUBLE
-#ifdef HAVE_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
     ,PyArray_LONGDOUBLE, PyArray_LONG, PyArray_LONGDOUBLE
 #endif
 };
@@ -156,10 +366,10 @@ InitOtherOperators(PyObject *dictionary) {
     PyObject *f;
     int num=1;
 
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     num += 1;
 #endif
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     num += 1;
 #endif
     f = PyUFunc_FromFuncAndData(frexp_functions, blank3_data,
@@ -171,10 +381,10 @@ InitOtherOperators(PyObject *dictionary) {
     Py_DECREF(f);
 
     num = 1;
-#ifdef HAVE_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
     num += 1;
 #endif
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     num += 1;
 #endif
     f = PyUFunc_FromFuncAndData(ldexp_functions, blank3_data, ldexp_signatures, num,

@@ -801,8 +801,6 @@ def configuration(parent_package='',top_path=None):
         multiarray_src.append(join('src', 'multiarray', 'ucsnarrow.c'))
 
     umath_src = [join('src', 'umath', 'umathmodule.c.src'),
-            join('src', 'umath', 'funcs.inc.src'),
-            join('src', 'umath', 'loops.c.src'),
             join('src', 'umath', 'ufunc_object.c')]
 
     umath_deps = [generate_umath_py,
@@ -819,7 +817,6 @@ def configuration(parent_package='',top_path=None):
         umath_deps.extend(umath_src)
         umath_src = [join('src', 'umath', 'umathmodule_onefile.c')]
         umath_src.append(generate_umath_templated_sources)
-        umath_src.append(join('src', 'umath', 'funcs.inc.src'))
 
     config.add_extension('multiarray',
                          sources = multiarray_src +

@@ -119,12 +119,12 @@ typedef struct NpyArray_ArrFuncs PyArray_ArrFuncs;
  * We can only use C99 formats for npy_int_p if it is the same as
  * intp_t, hence the condition on HAVE_UNITPTR_T
  */
-#if (NPY_USE_C99_FORMATS) == 1 \
+#if NPY_USE_C99_FORMATS == 1 \
         && (defined HAVE_UINTPTR_T) \
         && (defined HAVE_INTTYPES_H)
-        #include <inttypes.h>
-        #undef NPY_INTP_FMT
-        #define NPY_INTP_FMT PRIdPTR
+    #include <inttypes.h>
+    #undef NPY_INTP_FMT
+    #define NPY_INTP_FMT PRIdPTR
 #endif
 
 #define NPY_ERR(str) fprintf(stderr, #str); fflush(stderr);

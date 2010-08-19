@@ -51,7 +51,7 @@ class TypeDescription(object):
         assert len(self.out) == nout
 
 _fdata_map = dict(f='npy_%sf', d='npy_%s', g='npy_%sl',
-                  F='nc_%sf', D='nc_%s', G='nc_%sl')
+                  F='npy_nc_%sf', D='npy_nc_%s', G='npy_nc_%sl')
 def build_func_data(types, f):
     func_data = []
     for t in types:
@@ -739,7 +739,7 @@ def make_arrays(funcdict):
         for t in uf.type_descriptions:
             if t.func_data not in (None, UsesArraysAsData):
                 funclist.append('NULL')
-                astr = '%s_functions[%d] = PyUFunc_%s;' % \
+                astr = '%s_functions[%d] = NpyUFunc_%s;' % \
                        (name, k, thedict[t.type])
                 code2list.append(astr)
                 if t.type == 'O':

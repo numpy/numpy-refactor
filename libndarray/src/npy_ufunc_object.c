@@ -6,12 +6,14 @@
 #include <memory.h>
 #include "npy_config.h"
 
+#include "npy_common.h"
 #include "npy_dict.h"
 #include "npy_api.h"
 #include "npy_arrayobject.h"
 #include "npy_iterators.h"
 #include "npy_ufunc_object.h"
 #include "npy_os.h"
+#include "npy_math.h"
 
 
 /* 
