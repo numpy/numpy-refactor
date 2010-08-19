@@ -1,6 +1,8 @@
 #ifndef _NPY_UFUNC_OBJECT_H_
 #define _NPY_UFUNC_OBJECT_H_
 
+#include <math.h>
+
 #include "npy_object.h"
 #include "npy_iterators.h"
 
@@ -504,14 +506,15 @@ static void generate_divbyzero_error(void) {
 
 #if !defined(generate_overflow_error)
 static double numeric_two = 2.0;
-static void generate_overflow_error(void) {
+static void generate_overflow_error(void)
+{
     double dummy;
-    dummy = pow(numeric_two,1000);
+
+    dummy = pow(numeric_two, 1000.0);
     if (dummy)
         return;
     else
         numeric_two += 0.1;
-    return;
     return;
 }
 #endif
