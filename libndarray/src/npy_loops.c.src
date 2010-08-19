@@ -1089,7 +1089,7 @@ void
     }
 }
 
-#ifdef HAVE_FREXP@C@
+#if NPY_HAVE_DECL_FREXP@C@
 void
 @TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
@@ -1100,7 +1100,7 @@ void
 }
 #endif
 
-#ifdef HAVE_LDEXP@C@
+#if NPY_HAVE_DECL_LDEXP@C@
 void
 @TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
