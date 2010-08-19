@@ -26,11 +26,6 @@ import SCons
 
 usr_dir = pjoin(pexpanduser('~'), 'usr')
 
-try:
-    os.environ['NPY_BYPASS_SINGLE_EXTENDED']
-    BYPASS_SINGLE_EXTENDED = True
-except KeyError:
-    BYPASS_SINGLE_EXTENDED = False
 
 env = GetNumpyEnvironment(ARGUMENTS)
 env.Append(CPPPATH = env["PYEXTCPPPATH"])
