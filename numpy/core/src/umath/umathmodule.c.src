@@ -25,11 +25,13 @@
 #endif
 
 #include <npy_ufunc_object.h>
+#include <npy_math.h>
+#include <npy_funcs.h>
+
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "abstract.h"
 
-#include "npy_math.h"
 
 /*
  *****************************************************************************
@@ -49,18 +51,27 @@ Py_get_one(PyObject *NPY_UNUSED(o));
 static PyObject *
 Py_reciprocal(PyObject *o);
 
-#include "funcs.inc"
+#include <npy_loops.h>
 #include "loops.h"
 #include "ufunc_object.h"
-#include "__umath_generated.c"
+#include "numpy_3kcompat.h"
 #include "__ufunc_api.c"
 
-static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
-
+void
+PyUFunc_On_Om(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
 
 /* From ufunc_object.c */
 NPY_NO_EXPORT int
 PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first);
+NPY_NO_EXPORT PyObject *
+PyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
+                        char *types, int ntypes,
+                        int nin, int nout, int identity,
+                        char *name, char *doc, int check_return);
+NPY_NO_EXPORT int
+PyUFunc_SetUsesArraysAsData(void **data, size_t i);
+
+static NpyUFuncGenericFunction pyfunc_functions[] = {PyUFunc_On_Om};
 
 
 
@@ -146,10 +157,89 @@ npy_ObjectMin(PyObject *i1, PyObject *i2)
     Py_INCREF(result);
     return result;
 }
-/**end repeat**/
 
 
 
+/******************************************************************************
+ **                         GENERIC OBJECT lOOPS                             **
+ *****************************************************************************/
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    unaryfunc f = (unaryfunc)func;
+    UNARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = f(in1);
+        if ((ret == NULL) || PyErr_Occurred()) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    UNARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = PyObject_CallMethod(in1, meth, NULL);
+        if (ret == NULL) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    binaryfunc f = (binaryfunc)func;
+    BINARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject *in2 = *(PyObject **)ip2;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = f(in1, in2);
+        if (PyErr_Occurred()) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    BINARY_LOOP {
+        PyObject *in1 = *(PyObject **)ip1;
+        PyObject *in2 = *(PyObject **)ip2;
+        PyObject **out = (PyObject **)op1;
+        PyObject *ret = PyObject_CallMethod(in1, meth, "(O)", in2);
+        if (ret == NULL) {
+            return;
+        }
+        Py_XDECREF(*out);
+        *out = ret;
+    }
+}
+
+#include "__umath_generated.c"
+
+/*
+ * A general-purpose ufunc that deals with general-purpose Python callable.
+ * func is a structure with nin, nout, and a Python callable function
+ */
 
 
 

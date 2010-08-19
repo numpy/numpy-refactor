@@ -13,8 +13,10 @@ INSTINCLUDES = \
         src/npy_descriptor.h \
         src/npy_dict.h \
         src/npy_endian.h \
+        src/npy_funcs.h \
         src/npy_index.h \
         src/npy_iterators.h \
+        src/npy_loops.h \
         src/npy_math.h \
         src/npy_object.h \
         src/npy_os.h \
@@ -23,8 +25,8 @@ INSTINCLUDES = \
 
 # Headers which are not installed
 OTHERINCLUDES = \
-	src/npy_fpmath.h \
-	src/npy_math_private.h \
+        src/npy_fpmath.h \
+        src/npy_math_private.h \
         src/npy_number.h \
         src/npy_internal.h
 
@@ -42,11 +44,13 @@ LIBSOURCES = \
         src/npy_descriptor.c \
         src/npy_dict.c \
         src/npy_flagsobject.c \
+        src/npy_funcs.c \
         src/npy_getset.c \
         src/npy_ieee754.c \
         src/npy_index.c \
         src/npy_item_selection.c \
         src/npy_iterators.c \
+        src/npy_loops.c \
         src/npy_mapping.c \
         src/npy_math.c \
         src/npy_math_complex.c \
@@ -71,6 +75,7 @@ include_HEADERS = $(INSTINCLUDES)
 # Other distributed headers
 noinst_HEADERS = $(OTHERINCLUDES)
 
+src/npy_ufunc_object.c: src/npy_funcs.inc
 
 src/npy_config.h: tools/mk_config.py config.h tools/long_double.o
 	python $<
@@ -91,4 +96,16 @@ src/npy_math.c: src/npy_math.c.src
 	$(CONV_TMPL) $<
 
 src/npy_math_complex.c: src/npy_math_complex.c.src
+	$(CONV_TMPL) $<
+
+src/npy_funcs.c: src/npy_funcs.c.src src/npy_funcs.h
+	$(CONV_TMPL) $<
+
+src/npy_funcs.h: src/npy_funcs.h.src
+	$(CONV_TMPL) $<
+
+src/npy_loops.c: src/npy_loops.c.src src/npy_loops.h
+	$(CONV_TMPL) $<
+
+src/npy_loops.h: src/npy_loops.h.src
 	$(CONV_TMPL) $<

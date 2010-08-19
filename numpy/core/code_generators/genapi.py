@@ -58,7 +58,7 @@ def remove_whitespace(s):
     return ''.join(s.split())
 
 def _repl(str):
-    return str.replace('intp', 'npy_intp').replace('Bool','npy_bool')
+    return str.replace(' intp', ' npy_intp').replace('Bool','npy_bool')
 
 class Function(object):
     def __init__(self, name, return_type, args, doc=''):

@@ -367,7 +367,6 @@ env.Append(BUILDERS = {'GenerateMultiarrayApi' : array_api_gen_bld,
 #------------------------
 scalartypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'scalartypes.c.src'))
-umath_funcs_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'funcs.inc.src'))
 umath_loops_src = env.GenerateFromTemplate(pjoin('src', 'umath', 'loops.c.src'))
 arraytypes_src = env.GenerateFromTemplate(
     pjoin('src', 'multiarray', 'arraytypes.c.src'))
