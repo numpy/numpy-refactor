@@ -74,6 +74,19 @@ include_HEADERS = $(INSTINCLUDES)
 # Other distributed headers
 noinst_HEADERS = $(OTHERINCLUDES)
 
+CLEANFILES = \
+        src/npy_arraytypes.c \
+        src/npy_ieee754.c \
+        src/npy_funcs.c \
+        src/npy_funcs.h \
+        src/npy_loops.c \
+        src/npy_loops.h \
+        src/npy_math.c \
+        src/npy_math_complex.c \
+        src/npy_config.c \
+        tools/long_double.o
+
+
 src/npy_config.h: tools/mk_config.py config.h tools/long_double.o
 	python $<
 

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-rm -f src/npy_config.h tools/long_double.o
 make clean
 
 autoreconf -fvi
