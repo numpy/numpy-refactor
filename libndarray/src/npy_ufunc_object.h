@@ -1,6 +1,5 @@
-
-#if !defined(NPY_UFUNC_OBJECT_H)
-#define NPY_UFUNC_OBJECT_H
+#ifndef _NPY_UFUNC_OBJECT_H_
+#define _NPY_UFUNC_OBJECT_H_
 
 #include "npy_object.h"
 #include "npy_iterators.h"
