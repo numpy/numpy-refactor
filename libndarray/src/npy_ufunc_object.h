@@ -7,7 +7,8 @@
 #include "npy_iterators.h"
 
 
-typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *);
+typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *,
+                                         npy_intp *, void *);
 
 
 
@@ -264,10 +265,14 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                              int *rtypenums,
                              int bufsize, int errormask, void *errobj, 
                              int originalArgWasObjArray,
-                             npy_prepare_outputs_func prepare_output_func, void *args);
+                             npy_prepare_outputs_func prepare_output_func,
+                             void *args);
+
 NpyArray *
 NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
-                    int axis, int otype, int bufsize, int errormask, void *errobj);
+                    int axis, int otype, int bufsize, int errormask,
+                    void *errobj);
+
 NpyArray *
 NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
                   NpyArray *out, int axis, int otype, 
@@ -354,7 +359,7 @@ NpyUFunc_clearfperr();
 #define UFUNC_FPE_UNDERFLOW     4
 #define UFUNC_FPE_INVALID       8
 
-#define UFUNC_ERR_DEFAULT  0      /* Error mode that avoids look-up (no checking) */
+#define UFUNC_ERR_DEFAULT 0 /* Error mode that avoids look-up (no checking) */
 
 #define UFUNC_OBJ_ISOBJECT      1
 #define UFUNC_OBJ_NEEDS_API     2
@@ -368,12 +373,12 @@ NpyUFunc_clearfperr();
 
 
 
-#define UFUNC_CHECK_ERROR(arg)                                          \
-        do {if ((((arg)->obj & UFUNC_OBJ_NEEDS_API) && NpyErr_Occurred()) ||                         \
-            ((arg)->errormask &&                                        \
-             NpyUFunc_checkfperr((arg)->errormask,                       \
-                                (arg)->errobj,                          \
-                                &(arg)->first)))                        \
+#define UFUNC_CHECK_ERROR(arg)                                               \
+        do {if ((((arg)->obj & UFUNC_OBJ_NEEDS_API) && NpyErr_Occurred()) || \
+            ((arg)->errormask &&                                             \
+             NpyUFunc_checkfperr((arg)->errormask,                           \
+                                (arg)->errobj,                               \
+                                &(arg)->first)))                             \
                 goto fail;} while (0)
 
 /* This code checks the IEEE status flags in a platform-dependent way */
@@ -388,16 +393,15 @@ NpyUFunc_clearfperr();
 
 #include <machine/fpu.h>
 
-#define UFUNC_CHECK_STATUS(ret) {               \
-        unsigned long fpstatus;                 \
-                                                \
-        fpstatus = ieee_get_fp_control();                               \
-        /* clear status bits as well as disable exception mode if on */ \
-        ieee_set_fp_control( 0 );                                       \
-        ret = ((IEEE_STATUS_DZE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
-                | ((IEEE_STATUS_OVF & fpstatus) ? UFUNC_FPE_OVERFLOW : 0) \
-                | ((IEEE_STATUS_UNF & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
-                | ((IEEE_STATUS_INV & fpstatus) ? UFUNC_FPE_INVALID : 0); \
+#define UFUNC_CHECK_STATUS(ret) {                                           \
+        unsigned long fpstatus;                                             \
+        fpstatus = ieee_get_fp_control();                                   \
+        /* clear status bits as well as disable exception mode if on */     \
+        ieee_set_fp_control( 0 );                                           \
+        ret = ((IEEE_STATUS_DZE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)   \
+                | ((IEEE_STATUS_OVF & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
+                | ((IEEE_STATUS_UNF & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0)  \
+                | ((IEEE_STATUS_INV & fpstatus) ? UFUNC_FPE_INVALID : 0);   \
         }
 
 /* MS Windows -----------------------------------------------------*/
@@ -410,9 +414,8 @@ NpyUFunc_clearfperr();
 #define UFUNC_NOFPE _control87(MCW_EM, MCW_EM);
 #endif
 
-#define UFUNC_CHECK_STATUS(ret) {                \
-        int fpstatus = (int) _clearfp();                        \
-                                                                        \
+#define UFUNC_CHECK_STATUS(ret) {                                       \
+        int fpstatus = (int) _clearfp();                                \
         ret = ((SW_ZERODIVIDE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
                 | ((SW_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
                 | ((SW_UNDERFLOW & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
@@ -422,12 +425,12 @@ NpyUFunc_clearfperr();
 /* Solaris --------------------------------------------------------*/
 /* --------ignoring SunOS ieee_flags approach, someone else can
 **         deal with that! */
-#elif defined(sun) || defined(__BSD__) || defined(__OpenBSD__) || (defined(__FreeBSD__) && (__FreeBSD_version < 502114)) || defined(__NetBSD__)
+#elif defined(sun) || defined(__BSD__) || defined(__OpenBSD__) || \
+  (defined(__FreeBSD__) && (__FreeBSD_version < 502114)) || defined(__NetBSD__)
 #include <ieeefp.h>
 
-#define UFUNC_CHECK_STATUS(ret) {                               \
-        int fpstatus;                                           \
-                                                                \
+#define UFUNC_CHECK_STATUS(ret) {                                       \
+        int fpstatus;                                                   \
         fpstatus = (int) fpgetsticky();                                 \
         ret = ((FP_X_DZ  & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)      \
                 | ((FP_X_OFL & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)      \
@@ -436,23 +439,25 @@ NpyUFunc_clearfperr();
         (void) fpsetsticky(0);                                          \
         }
 
-#elif defined(__GLIBC__) || defined(__APPLE__) || defined(__CYGWIN__) || defined(__MINGW32__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
+#elif defined(__GLIBC__) || defined(__APPLE__) || defined(__CYGWIN__) || \
+ defined(__MINGW32__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
 
-#if defined(__GLIBC__) || defined(__APPLE__) || defined(__MINGW32__) || defined(__FreeBSD__)
+#if defined(__GLIBC__) || defined(__APPLE__) || defined(__MINGW32__) || \
+  defined(__FreeBSD__)
 #include <fenv.h>
 #elif defined(__CYGWIN__)
 #include "fenv/fenv.c"
 #endif
 
-#define UFUNC_CHECK_STATUS(ret) {                                       \
-        int fpstatus = (int) fetestexcept(FE_DIVBYZERO | FE_OVERFLOW |  \
-                                          FE_UNDERFLOW | FE_INVALID);   \
-        ret = ((FE_DIVBYZERO  & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
-                | ((FE_OVERFLOW   & fpstatus) ? UFUNC_FPE_OVERFLOW : 0) \
+#define UFUNC_CHECK_STATUS(ret) {                                        \
+        int fpstatus = (int) fetestexcept(FE_DIVBYZERO | FE_OVERFLOW |   \
+                                          FE_UNDERFLOW | FE_INVALID);    \
+        ret = ((FE_DIVBYZERO  & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)  \
+                | ((FE_OVERFLOW   & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)  \
                 | ((FE_UNDERFLOW  & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
-                | ((FE_INVALID    & fpstatus) ? UFUNC_FPE_INVALID : 0); \
-        (void) feclearexcept(FE_DIVBYZERO | FE_OVERFLOW |               \
-                             FE_UNDERFLOW | FE_INVALID);                \
+                | ((FE_INVALID    & fpstatus) ? UFUNC_FPE_INVALID : 0);  \
+        (void) feclearexcept(FE_DIVBYZERO | FE_OVERFLOW |                \
+                             FE_UNDERFLOW | FE_INVALID);                 \
 }
 
 #define generate_divbyzero_error() feraiseexcept(FE_DIVBYZERO)
@@ -463,15 +468,15 @@ NpyUFunc_clearfperr();
 #include <float.h>
 #include <fpxcp.h>
 
-#define UFUNC_CHECK_STATUS(ret) { \
-        fpflag_t fpstatus; \
-                                                \
-        fpstatus = fp_read_flag(); \
-        ret = ((FP_DIV_BY_ZERO & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
-                | ((FP_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
-                | ((FP_UNDERFLOW & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
-                | ((FP_INVALID & fpstatus) ? UFUNC_FPE_INVALID : 0); \
-        fp_swap_flag(0); \
+#define UFUNC_CHECK_STATUS(ret) {                                         \
+        fpflag_t fpstatus;                                                \
+                                                                          \
+        fpstatus = fp_read_flag();                                        \
+        ret = ((FP_DIV_BY_ZERO & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)  \
+                | ((FP_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)     \
+                | ((FP_UNDERFLOW & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0)   \
+                | ((FP_INVALID & fpstatus) ? UFUNC_FPE_INVALID : 0);      \
+        fp_swap_flag(0);                                                  \
 }
 
 #define generate_divbyzero_error() fp_raise_xcp(FP_DIV_BY_ZERO)
@@ -480,9 +485,7 @@ NpyUFunc_clearfperr();
 #else
 
 #define NO_FLOATING_POINT_SUPPORT
-#define UFUNC_CHECK_STATUS(ret) { \
-    ret = 0;                                                         \
-  }
+#define UFUNC_CHECK_STATUS(ret) { ret = 0; }
 
 #endif
 
@@ -493,8 +496,10 @@ NpyUFunc_clearfperr();
 
 #if !defined(generate_divbyzero_error)
 static int numeric_zero2 = 0;
-static void generate_divbyzero_error(void) {
+static void generate_divbyzero_error(void)
+{
     double dummy;
+
     dummy = 1./numeric_zero2;
     if (dummy) /* to prevent optimizer from eliminating expression */
         return;
