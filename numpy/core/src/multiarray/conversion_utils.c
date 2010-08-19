@@ -802,6 +802,36 @@ convert_single_index(PyObject* obj, NpyIndex* index)
         index->type = NPY_INDEX_BOOL;
         index->index.boolean = PyObject_IsTrue(obj);
     }
+    /* Try as int. */
+    else if (PyInt_Check(obj)) {
+        longlong long_value = (longlong) PyInt_AS_LONG(obj);
+#if (NPY_SIZEOF_LONGLONG > NPY_SIZEOF_PTR)
+        if ((long_value < MIN_INTP) || (long_value > MAX_INTP)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "integer won't fit into a C intp");
+            return -1;
+        }
+#endif
+        index->type = NPY_INDEX_INTP;
+#undef intp
+        index->index.intp = (npy_intp) long_value;
+#define intp npy_intp
+    }
+    /* Try as long. */
+    else if (PyLong_Check(obj)) {
+        longlong long_value = (longlong) PyLong_AsLongLong(obj);
+#if (NPY_SIZEOF_LONGLONG > NPY_SIZEOF_PTR)
+        if ((long_value < MIN_INTP) || (long_value > MAX_INTP)) {
+            PyErr_SetString(PyExc_ValueError,
+                            "integer won't fit into a C intp");
+            return -1;
+        }
+#endif
+        index->type = NPY_INDEX_INTP;
+#undef intp
+        index->index.intp = (npy_intp) long_value;
+#define intp npy_intp
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {

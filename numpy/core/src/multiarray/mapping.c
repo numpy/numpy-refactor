@@ -515,38 +515,32 @@ array_subscript_nice(PyArrayObject *self, PyObject *op)
 
     /* Optimization for single items. */
     if (n > 0 && is_single_item(indexes, n, PyArray_NDIM(self))) {
-        NpyIndex bound_indexes[NPY_MAXDIMS];
-        int n_bound;
-        int i;
         npy_intp offset = 0;
         npy_intp *strides;
+        npy_intp *dims;
+        int i;
 
-        /* Bind the indexes.  */
-        n_bound = NpyArray_IndexBind(indexes, n, 
-                                     PyArray_DIMS(self), PyArray_NDIM(self),
-                                     bound_indexes);
-        NpyArray_IndexDealloc(indexes, n);
-        if (n_bound < 0) {
-            return NULL;
-        }
-        assert(n_bound == PyArray_NDIM(self));
-
-        /* Calculate the offset. */
+        dims = PyArray_DIMS(self);
         strides = PyArray_STRIDES(self);
-        for (i=0; i<n_bound; i++) {
-            if (bound_indexes[i].type == NPY_INDEX_INTP) {
+
+        for (i=0; i<n; i++) {
 #undef intp
-                offset += strides[i] * bound_indexes[i].index.intp;
+            npy_intp val = indexes[i].index.intp;
 #define intp npy_intp
-            } else {
-                PyErr_SetString(PyExc_IndexError,
-                                "Illegal index.");
-                NpyArray_IndexDealloc(bound_indexes, n_bound);
+            if (val < 0) {
+                val += dims[i];
+            }
+            if ((val < 0) || (val >= dims[i])) {
+                PyErr_Format(PyExc_IndexError,
+                             "index (%"INTP_FMT") out of range "\
+                             "(0<=index<%"INTP_FMT") in dimension %d",
+                             val, dims[i], i);
                 return NULL;
             }
+            offset += strides[i] * val;
         }
-        NpyArray_IndexDealloc(bound_indexes, n_bound);
-
+        /* NOTE: We don't need to dealloc the indexes since we know
+           they are all intps. */
         /* Return the item as a scalar. */
         return PyArray_ToScalar(PyArray_BYTES(self)+offset, self);
     }
