@@ -794,11 +794,11 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     else if (obj == Py_Ellipsis) {
         index->type = NPY_INDEX_ELLIPSIS;
     }
-    /* Try as a boolean. */
-    else if (PyBool_Check(obj) ||
-             PyArray_IsScalar(obj, Bool) ||
-             (PyArray_Check(obj) && PyArray_NDIM(obj) == 0 &&
-              PyArray_ISBOOL(obj))) {
+    else if (obj == Py_True) {
+        index->type = NPY_INDEX_BOOL;
+        index->index.boolean = PyObject_IsTrue(obj);
+    }
+    else if (obj == Py_False) {
         index->type = NPY_INDEX_BOOL;
         index->index.boolean = PyObject_IsTrue(obj);
     }
@@ -832,6 +832,37 @@ convert_single_index(PyObject* obj, NpyIndex* index)
         index->index.intp = (npy_intp) long_value;
 #define intp npy_intp
     }
+    /* Slices are converted. */
+    else if (PySlice_Check(obj)) {
+        PySliceObject* slice = (PySliceObject*)obj;
+
+        if (slice->stop == Py_None) {
+            index->type = NPY_INDEX_SLICE_NOSTOP;
+            if (convert_slice_nostop(slice, &index->index.slice_nostop) < 0) {
+                return -1;
+            }
+        } else {
+            index->type = NPY_INDEX_SLICE;
+            if (convert_slice(slice, &index->index.slice) < 0) {
+                return -1;
+            }
+        }
+    }
+    /* Try as a boolean scalar. */
+    else if (PyArray_IsScalar(obj, Bool) ||
+             (PyArray_Check(obj) && PyArray_NDIM(obj) == 0 &&
+              PyArray_ISBOOL(obj))) {
+        index->type = NPY_INDEX_BOOL;
+        index->index.boolean = PyObject_IsTrue(obj);
+    }
+    /* Strings and unicode. */
+    else if (PyString_Check(obj) || PyUnicode_Check(obj)) {
+        index->type = NPY_INDEX_STRING;
+        index->index.string = PyString_AsString(obj);
+        if (index->index.string == NULL) {
+            return -1;
+        }
+    }
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {
@@ -861,30 +892,6 @@ convert_single_index(PyObject* obj, NpyIndex* index)
             PyErr_SetString(PyExc_IndexError,
                             "arrays used as indices must be of "
                             "integer (or boolean) type");
-            return -1;
-        }
-    }
-    /* Slices are converted. */
-    else if (PySlice_Check(obj)) {
-        PySliceObject* slice = (PySliceObject*)obj;
-
-        if (slice->stop == Py_None) {
-            index->type = NPY_INDEX_SLICE_NOSTOP;
-            if (convert_slice_nostop(slice, &index->index.slice_nostop) < 0) {
-                return -1;
-            }
-        } else {
-            index->type = NPY_INDEX_SLICE;
-            if (convert_slice(slice, &index->index.slice) < 0) {
-                return -1;
-            }
-        }
-    }
-    /* Strings and unicode. */
-    else if (PyString_Check(obj) || PyUnicode_Check(obj)) {
-        index->type = NPY_INDEX_STRING;
-        index->index.string = PyString_AsString(obj);
-        if (index->index.string == NULL) {
             return -1;
         }
     }
