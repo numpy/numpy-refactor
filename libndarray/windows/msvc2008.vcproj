@@ -27,8 +27,9 @@
             InlineFunctionExpansion="1"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL;WIN32"
+            PreprocessorDefinitions="_USRDLL"
             RuntimeLibrary="2"
+            EnableFunctionLevelLinking="TRUE"
             />
       <Tool Name="VCManagedResourceCompilerTool" />
       <Tool Name="VCResourceCompilerTool"
@@ -55,8 +56,9 @@
             InlineFunctionExpansion="1"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL;WIN32"
+            PreprocessorDefinitions="_USRDLL"
             RuntimeLibrary="2"
+            EnableFunctionLevelLinking="TRUE"
             />
       <Tool Name="VCManagedResourceCompilerTool" />
       <Tool Name="VCResourceCompilerTool"
