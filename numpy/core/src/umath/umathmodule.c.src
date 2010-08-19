@@ -29,7 +29,6 @@
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "abstract.h"
-#include "loops.h"
 
 #include "npy_math.h"
 #include "npy_config.h"
@@ -53,13 +52,30 @@ static PyObject *
 Py_reciprocal(PyObject *o);
 
 #include <npy_loops.h>
-#include "loops.h"
+#include <npy_funcs.h>
 #include "ufunc_object.h"
 #include "numpy_3kcompat.h"
 #include "__ufunc_api.c"
 
 void
 PyUFunc_On_Om(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
+
+/* From loops.c.src */
+void
+OBJECT_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_not_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_greater(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_greater_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_less(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_less_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+void
+OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+
 
 /* From ufunc_object.c */
 NPY_NO_EXPORT int

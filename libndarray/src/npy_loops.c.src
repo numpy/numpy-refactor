@@ -9,13 +9,6 @@
 #include "npy_os.h"
 #include "npy_loops.h"
 
-#define HAVE_FREXP 1
-#define HAVE_LDEXP 1
-#define HAVE_FREXPL 1
-#define HAVE_LDEXPL 1
-#define HAVE_FREXPF 1
-#define HAVE_LDEXPF 1
-
 
 /*
  *****************************************************************************
