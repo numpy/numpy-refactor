@@ -1,12 +1,11 @@
 
 #include <Python.h>
 
-#include "npy_config.h"
-#include "npy_defs.h"
-#include "npy_ufunc_object.h"
-#include "npy_math.h"
-#include "npy_os.h"
-#include "npy_loops.h"
+#include <npy_common.h>
+#include <npy_defs.h>
+#include <npy_loops.h>
+#include <npy_ufunc_object.h>
+
 
 void
 NpyUFunc_O_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func);

@@ -20,7 +20,7 @@ typedef struct NpyTypeObject {
     void *nob_interface;
 
 struct _NpyObject {
-    NpyObject_HEAD;
+    NpyObject_HEAD
 };
 
 #define Npy_INTERFACE(a) ((a)->nob_interface)
@@ -31,14 +31,15 @@ struct _NpyObject {
             if (0 == (a)->nob_refcnt && NULL != Npy_INTERFACE(a))     \
                 NpyInterface_INCREF(Npy_INTERFACE(a));                \
             (a)->nob_refcnt++;                                        \
-       } while(0)                                                     \
+       } while(0)
 
 
 #define Npy_DECREF(a)                                          \
         if (--(a)->nob_refcnt == 0) {                           \
             if (NULL != Npy_INTERFACE(a))                       \
                 NpyInterface_DECREF(Npy_INTERFACE(a));          \
-            else (a)->nob_type->ntp_dealloc((_NpyObject*)a);    \
+            else                                                \
+                (a)->nob_type->ntp_dealloc((_NpyObject*)a);     \
         }
 
 

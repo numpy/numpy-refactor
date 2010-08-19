@@ -24,12 +24,10 @@
 #include "numpy/arrayscalars.h"
 #include "npy_api.h"
 #include "npy_math.h"
-
 #include "npy_descriptor.h"
-
 #include "npy_config.h"
-
 #include "numpy_3kcompat.h"
+#include "numpy_config.h"
 
 
 /* TODO: remove this */
@@ -789,6 +787,7 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
     intp newdims[MAX_DIMS];
     intp newstrides[MAX_DIMS];
     int i, k, num;
+    NpyArray* result;
 
     num = ndmin - nd;
     for (i = 0; i < num; i++) {
@@ -801,10 +800,13 @@ _prepend_ones(PyArrayObject *arr, int nd, int ndmin)
         newstrides[i] = PyArray_STRIDE(arr, k);
     }
     Npy_INCREF(PyArray_DESCR(arr));
-    RETURN_PYARRAY(NpyArray_NewView(PyArray_DESCR(arr),
-                                    ndmin, newdims, newstrides,
-                                    PyArray_ARRAY(arr), 0,
-                                    NPY_FALSE));
+    result = NpyArray_NewView(PyArray_DESCR(arr),
+                              ndmin, newdims, newstrides,
+                              PyArray_ARRAY(arr), 0,
+                              NPY_FALSE);
+    Py_DECREF(arr);
+    RETURN_PYARRAY(result);
+
 }
 
 

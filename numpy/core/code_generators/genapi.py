@@ -273,11 +273,7 @@ class TypeApi:
 
     def internal_define(self):
         astr = """\
-#ifdef NPY_ENABLE_SEPARATE_COMPILATION
-    extern NPY_NO_EXPORT PyTypeObject %(type)s;
-#else
-    NPY_NO_EXPORT PyTypeObject %(type)s;
-#endif
+extern NPY_NO_EXPORT PyTypeObject %(type)s;
 """ % {'type': self.name}
         return astr
 
@@ -299,11 +295,7 @@ class GlobalVarApi:
 
     def internal_define(self):
         astr = """\
-#ifdef NPY_ENABLE_SEPARATE_COMPILATION
-    extern NPY_NO_EXPORT %(type)s %(name)s;
-#else
-    NPY_NO_EXPORT %(type)s %(name)s;
-#endif
+extern NPY_NO_EXPORT %(type)s %(name)s;
 """ % {'type': self.type, 'name': self.name}
         return astr
 
@@ -327,11 +319,7 @@ class BoolValuesApi:
 
     def internal_define(self):
         astr = """\
-#ifdef NPY_ENABLE_SEPARATE_COMPILATION
 extern NPY_NO_EXPORT PyBoolScalarObject _PyArrayScalar_BoolValues[2];
-#else
-NPY_NO_EXPORT PyBoolScalarObject _PyArrayScalar_BoolValues[2];
-#endif
 """
         return astr
 

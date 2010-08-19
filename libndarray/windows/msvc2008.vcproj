@@ -26,7 +26,7 @@
       <Tool Name="VCCLCompilerTool"
             AdditionalOptions="/Zm200 "
             AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL;Py_ENABLE_SHARED;WIN32"
+            PreprocessorDefinitions="_USRDLL;WIN32"
             RuntimeLibrary="2"
             />
       <Tool Name="VCManagedResourceCompilerTool" />
@@ -34,10 +34,6 @@
             PreprocessorDefinitions="NDEBUG"
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
-            />
-      <Tool Name="VCPreLinkEventTool"
-            Description="Generate build information..."
-            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
             />
       <Tool Name="VCALinkTool" />
       <Tool Name="VCManifestTool" />
@@ -68,10 +64,6 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCPreLinkEventTool"
-            Description="Generate build information..."
-            CommandLine="&quot;$(SolutionDir)make_buildinfo.exe&quot; Release"
-            />
       <Tool Name="VCALinkTool" />
       <Tool Name="VCManifestTool" />
       <Tool Name="VCXDCMakeTool" />
@@ -89,18 +81,17 @@
       <File RelativePath="..\src\npy_api.h" />
       <File RelativePath="..\src\npy_arrayobject.h" />
       <File RelativePath="..\src\npy_common.h" />
-      <File RelativePath="npy_config.h" />
+      <File RelativePath="..\src\npy_config.h" />
       <File RelativePath="..\src\npy_cpu.h" />
       <File RelativePath="..\src\npy_defs.h" />
       <File RelativePath="..\src\npy_descriptor.h" />
       <File RelativePath="..\src\npy_dict.h" />
       <File RelativePath="..\src\npy_endian.h" />
-      <File RelativePath="..\src\npy_fpmath.h" />
       <File RelativePath="..\src\npy_index.h" />
       <File RelativePath="..\src\npy_internal.h" />
       <File RelativePath="..\src\npy_iterators.h" />
       <File RelativePath="..\src\npy_math.h" />
-      <File RelativePath="..\src\npy_math_provate.h" />
+      <File RelativePath="..\src\npy_math_private.h" />
       <File RelativePath="..\src\npy_number.h" />
       <File RelativePath="..\src\npy_object.h" />
       <File RelativePath="..\src\npy_os.h" />

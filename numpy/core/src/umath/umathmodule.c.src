@@ -20,9 +20,7 @@
 #include "Python.h"
 
 #include "numpy_config.h"
-#ifdef ENABLE_SEPARATE_COMPILATION
 #define PY_ARRAY_UNIQUE_SYMBOL _npy_umathmodule_ARRAY_API
-#endif
 
 #include <npy_ufunc_object.h>
 #include <npy_math.h>
@@ -31,7 +29,10 @@
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
 #include "abstract.h"
+#include "loops.h"
 
+#include "npy_math.h"
+#include "npy_config.h"
 
 /*
  *****************************************************************************
@@ -294,6 +295,7 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
     return (PyObject *)self;
 }
 
+
 /*
  *****************************************************************************
  **                            SETUP UFUNCS                                 **
@@ -303,42 +305,42 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 /* Less automated additions to the ufuncs */
 
 static NpyUFuncGenericFunction frexp_functions[] = {
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     FLOAT_frexp,
 #endif
     DOUBLE_frexp
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     ,LONGDOUBLE_frexp
 #endif
 };
 
 static void * blank3_data[] = { (void *)NULL, (void *)NULL, (void *)NULL};
 static char frexp_signatures[] = {
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     PyArray_FLOAT, PyArray_FLOAT, PyArray_INT,
 #endif
     PyArray_DOUBLE, PyArray_DOUBLE, PyArray_INT
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     ,PyArray_LONGDOUBLE, PyArray_LONGDOUBLE, PyArray_INT
 #endif
 };
 
 static NpyUFuncGenericFunction ldexp_functions[] = {
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     FLOAT_ldexp,
 #endif
     DOUBLE_ldexp
-#ifdef HAVE_LDEXPL
+#ifdef NPY_HAVE_DECL_LDEXPL
     ,LONGDOUBLE_ldexp
 #endif
 };
 
 static char ldexp_signatures[] = {
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     PyArray_FLOAT, PyArray_INT, PyArray_FLOAT,
 #endif
     PyArray_DOUBLE, PyArray_LONG, PyArray_DOUBLE
-#ifdef HAVE_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
     ,PyArray_LONGDOUBLE, PyArray_LONG, PyArray_LONGDOUBLE
 #endif
 };
@@ -348,10 +350,10 @@ InitOtherOperators(PyObject *dictionary) {
     PyObject *f;
     int num=1;
 
-#ifdef HAVE_FREXPL
+#if NPY_HAVE_DECL_FREXPL
     num += 1;
 #endif
-#ifdef HAVE_FREXPF
+#if NPY_HAVE_DECL_FREXPF
     num += 1;
 #endif
     f = PyUFunc_FromFuncAndData(frexp_functions, blank3_data,
@@ -363,10 +365,10 @@ InitOtherOperators(PyObject *dictionary) {
     Py_DECREF(f);
 
     num = 1;
-#ifdef HAVE_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
     num += 1;
 #endif
-#ifdef HAVE_LDEXPF
+#if NPY_HAVE_DECL_LDEXPF
     num += 1;
 #endif
     f = PyUFunc_FromFuncAndData(ldexp_functions, blank3_data, ldexp_signatures, num,

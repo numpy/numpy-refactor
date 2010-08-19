@@ -208,7 +208,7 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     int maxaxis = -1, elsize;
     npy_intp maxdim;
     NpyArrayIterObject *dit, *sit;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     dit = NpyArray_IterAllButAxis(dest, &maxaxis);
     sit = NpyArray_IterAllButAxis(src, &maxaxis);
@@ -260,7 +260,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
     NpyArrayMultiIterObject *multi;
     int maxaxis;
     npy_intp maxdim;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     elsize = NpyArray_ITEMSIZE(dest);
     multi = NpyArray_MultiIterFromArrays(NULL, 0, 2, dest, src);
@@ -332,7 +332,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     npy_intp numcopies, nbytes;
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
     int retval = -1;
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     numcopies = NpyArray_SIZE(dest);
     if (numcopies < 1) {
@@ -441,8 +441,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
     int axis;
     int elsize;
     npy_intp nbytes;
-    NPY_BEGIN_THREADS_DEF;
-
+    NPY_BEGIN_THREADS_DEF
 
     orig_src = src;
     if (NpyArray_NDIM(src) == 0) {
@@ -641,8 +640,7 @@ _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
     int simple;
     int same;
-    NPY_BEGIN_THREADS_DEF;
-
+    NPY_BEGIN_THREADS_DEF
 
     if (!NpyArray_EquivArrTypes(dest, src)) {
         return NpyArray_CastTo(dest, src);
@@ -1081,15 +1079,17 @@ NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
                  npy_bool ensure_array)
 {
     /* TODO: Add some sanity checking. */
+    NpyArray *result;
     int flags = array->flags & NPY_WRITEABLE;
+
     if (strides == NULL) {
         flags |= (array->flags & (NPY_CONTIGUOUS | NPY_FORTRAN));
     }
-    NpyArray *result = NpyArray_NewFromDescr(descr, nd, dims,
-                                             strides, array->data + offset,
-                                             flags,
-                                             ensure_array, NULL,
-                                             Npy_INTERFACE(array));
+    result = NpyArray_NewFromDescr(descr, nd, dims,
+                                   strides, array->data + offset,
+                                   flags,
+                                   ensure_array, NULL,
+                                   Npy_INTERFACE(array));
     if (result == NULL) {
         return NULL;
     }
@@ -1255,7 +1255,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
     int elsize, simple;
     NpyArrayIterObject *idest, *isrc;
     void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
 
     if (!NpyArray_EquivArrTypes(dest, src)) {
         return NpyArray_CastAnyTo(dest, src);

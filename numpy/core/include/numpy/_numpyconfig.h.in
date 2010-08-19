@@ -5,11 +5,9 @@
 @DEFINE_NPY_NO_SIGNAL@
 #define NPY_NO_SMP       @NPY_NO_SMP@
 
-@DEFINE_NPY_ENABLE_SEPARATE_COMPILATION@
 #define NPY_VISIBILITY_HIDDEN @VISIBILITY_HIDDEN@
 
 @DEFINE_NPY_USE_C99_FORMATS@
-@DEFINE_NPY_USE_C99_COMPLEX@
 
 /* Ugly, but we can't test this in a proper manner without requiring a C++
  * compiler at the configuration stage of numpy ? */

@@ -1,11 +1,15 @@
 # Last Change: Wed Nov 19 09:00 PM 2008 J
 # vim:syntax=python
 import os
-from os.path import expanduser as pexpanduser
+from os.path import expanduser as pexpanduser, join as pjoin
 
 from numscons import GetNumpyEnvironment, scons_get_mathlib
 
 from setup import needs_mingw_ftime_workaround
+
+
+usr_lib_dir = pjoin(pexpanduser('~'), 'usr', 'lib')
+usr_inc_dir = pjoin(pexpanduser('~'), 'usr', 'include')
 
 def CheckWincrypt(context):
     from copy import deepcopy
@@ -30,7 +34,7 @@ int main(int argc, char *argv[])
     return st[0]
     
 env = GetNumpyEnvironment(ARGUMENTS)
-env.Prepend(CPPPATH=[pexpanduser('~/usr/include')])
+env.Prepend(CPPPATH=[usr_inc_dir])
 
 mlib = scons_get_mathlib(env)
 env.AppendUnique(LIBS = mlib)
@@ -52,5 +56,5 @@ sources = [os.path.join('mtrand', x) for x in
 env.NumpyPythonExtension(
         'mtrand',
         LIBS=['ndarray'],
-        LIBPATH=[pexpanduser('~/usr/lib')],
+        LIBPATH=[usr_lib_dir],
         source = sources)

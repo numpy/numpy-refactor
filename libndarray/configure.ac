@@ -53,6 +53,7 @@ AC_CHECK_DECLS([sin, sinf, sinl, cos, cosf, cosl, tan, tanf, tanl,
                 atan2, atan2f, atan2l, hypot, hypotf, hypotl, pow, powf, powl,
                 fmod, fmodf, fmodl, copysign, copysignf, copysignl,
                 modf, modff, modfl,
+                frexp, frexpf, frexpl, ldexp, ldexpl, ldexpf,
                 nextafter, nextafterf, nextafterl],,, [#include <math.h>])
 AC_CHECK_DECLS([cabsf, cabsl, cargf, cargl, cexpf, cexpl,
                 clogf, clogl, csqrtf, csqrtl, cpowf, cpowl, ccosf, ccosl,

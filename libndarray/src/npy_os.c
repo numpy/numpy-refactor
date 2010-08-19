@@ -14,10 +14,9 @@
  * two digits, and only as many more digits as necessary to represent the
  * exponent.
  */
-
 #define MIN_EXPONENT_DIGITS 2
 
-#define Npy_CHARMASK(c) ( (c) & 0xff )
+#define Npy_CHARMASK(c)  ((c) & 0xff)
 
 /*
  * Ensure that any exponent, if present, is at least MIN_EXPONENT_DIGITS
@@ -93,6 +92,7 @@ _ensure_minimum_exponent_length(char* buffer, size_t buf_size)
         }
     }
 }
+
 
 /*
  * Ensure that buffer has a decimal point in it.  The decimal point
@@ -188,6 +188,7 @@ _change_decimal_from_locale_to_dot(char* buffer)
     }
 }
 
+
 /*
  * Check that the format string is a valid one for NpyOS_ascii_format*
  */
@@ -228,6 +229,7 @@ _check_ascii_format(const char *format)
 
     return 0;
 }
+
 
 /*
  * Fix the generated string: make sure the decimal is ., that exponent has a
@@ -273,22 +275,18 @@ int _npy_signbit_d(double x)
     u.d = x;
 
 #if NPY_SIZEOF_INT == 4
-
-#ifdef WORDS_BIGENDIAN /* defined in pyconfig.h */
+  #if NPY_WORDS_BIGENDIAN
     return u.i[0] < 0;
-#else
+  #else
     return u.i[1] < 0;
-#endif
-
-#else  /* NPY_SIZEOF_INT != 4 */
-
-#ifdef WORDS_BIGENDIAN
-    return u.s[0] < 0;
+  #endif
 #else
+  #if NPY_WORDS_BIGENDIAN
+    return u.s[0] < 0;
+  #else
     return u.s[3] < 0;
-#endif
-
-#endif  /* NPY_SIZEOF_INT */
+  #endif
+#endif  /* NPY_SIZEOF_INT == 4 */
 }
 
 

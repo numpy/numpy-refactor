@@ -805,7 +805,19 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     /* Arrays must be bool or integeter and will be converted to
        intp or bool arrays. */
     else if (PyArray_Check(obj)) {
-        if (PyArray_ISINTEGER(obj)) {
+        if (PyArray_NDIM(obj) == 0 &&
+            PyArray_ISINTEGER(obj)) {
+            /* We treat 0-d arrays as scalars.  */
+            npy_intp val = PyArray_PyIntAsIntp(obj);
+            if (val == -1 && PyErr_Occurred()) {
+                return -1;
+            }
+            index->type = NPY_INDEX_INTP;
+#undef intp
+            index->index.intp = val;
+#define intp npy_intp
+        }
+        else if (PyArray_ISINTEGER(obj)) {
             index->type = NPY_INDEX_INTP_ARRAY;
             if (convert_array(obj, NPY_INTP, &index->index.intp_array) < 0) {
                 return -1;

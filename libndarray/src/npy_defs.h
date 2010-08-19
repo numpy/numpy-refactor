@@ -9,14 +9,6 @@
 
 #if NPY_HAVE_STDINT_H
 #include <stdint.h>
-#else
-#  if NPY_SIZEOF_PTR == 8
-typedef unsigned long int    uintptr_t;
-typedef long int             intptr_t;
-#  else
-typedef unsigned int         uintptr_t;
-typedef int                  intptr_t;
-#  endif
 #endif
 
 /*
@@ -51,7 +43,6 @@ typedef long            npy_intp;
 typedef unsigned long long      npy_uintp;
 typedef long long               npy_intp;
 
-
 #else
 #   error "NumPy needs a typedef for npy_uintp and npy_intp."
 #endif /* NPY_HAVE_UINTPTR_T */
@@ -69,7 +60,6 @@ typedef long long               npy_intp;
 
 #define NPY_MAXDIMS 32
 #define NPY_MAXARGS 32
-
 
 
 
@@ -160,7 +150,6 @@ enum NPY_TYPECHAR { NPY_BOOLLTR = '?',
 };
 
 
-
 enum NPY_TYPES {    NPY_BOOL=0,
     NPY_BYTE, NPY_UBYTE,
     NPY_SHORT, NPY_USHORT,
@@ -178,7 +167,6 @@ enum NPY_TYPES {    NPY_BOOL=0,
     NPY_CHAR,      /* special flag */
     NPY_USERDEF=256  /* leave room for characters */
 };
-
 
 
 typedef enum {
@@ -207,6 +195,7 @@ typedef enum {
 } NPY_SCALARKIND;
 #define NPY_NSCALARKINDS (NPY_OBJECT_SCALAR + 1)
 
+
 typedef enum {
     NPY_ANYORDER=-1,
     NPY_CORDER=0,
@@ -219,6 +208,7 @@ typedef enum {
     NPY_WRAP=1,
     NPY_RAISE=2
 } NPY_CLIPMODE;
+
 
 typedef enum {
     NPY_FR_Y,
@@ -236,6 +226,7 @@ typedef enum {
     NPY_FR_fs,
     NPY_FR_as
 } NPY_DATETIMEUNIT;
+
 
 #define NPY_DATETIME_NUMUNITS (NPY_FR_as + 1)
 #define NPY_DATETIME_DEFAULTUNIT NPY_FR_us
@@ -257,50 +248,48 @@ typedef enum {
 
 
 
-
-
 #define NpyTypeNum_ISBOOL(type) ((type) == NPY_BOOL)
 
-#define NpyTypeNum_ISUNSIGNED(type) (((type) == NPY_UBYTE) ||  \
-                                     ((type) == NPY_USHORT) || \
-                                     ((type) == NPY_UINT) ||   \
-                                     ((type) == NPY_ULONG) ||  \
+#define NpyTypeNum_ISUNSIGNED(type) (((type) == NPY_UBYTE) ||        \
+                                     ((type) == NPY_USHORT) ||       \
+                                     ((type) == NPY_UINT) ||         \
+                                     ((type) == NPY_ULONG) ||        \
                                      ((type) == NPY_ULONGLONG))
 
-#define NpyTypeNum_ISSIGNED(type) (((type) == NPY_BYTE) ||      \
-                               ((type) == NPY_SHORT) ||        \
-                               ((type) == NPY_INT) ||          \
-                               ((type) == NPY_LONG) ||         \
-                               ((type) == NPY_LONGLONG))
+#define NpyTypeNum_ISSIGNED(type) (((type) == NPY_BYTE) ||           \
+                                   ((type) == NPY_SHORT) ||          \
+                                   ((type) == NPY_INT) ||            \
+                                   ((type) == NPY_LONG) ||           \
+                                   ((type) == NPY_LONGLONG))
 
-#define NpyTypeNum_ISINTEGER(type) (((type) >= NPY_BYTE) &&     \
+#define NpyTypeNum_ISINTEGER(type) (((type) >= NPY_BYTE) &&          \
                                     ((type) <= NPY_ULONGLONG))
 
-#define NpyTypeNum_ISFLOAT(type) (((type) >= NPY_FLOAT) &&      \
+#define NpyTypeNum_ISFLOAT(type) (((type) >= NPY_FLOAT) &&           \
                                   ((type) <= NPY_LONGDOUBLE))
 
 #define NpyTypeNum_ISNUMBER(type) ((type) <= NPY_CLONGDOUBLE)
 
-#define NpyTypeNum_ISSTRING(type) (((type) == NPY_STRING) ||    \
+#define NpyTypeNum_ISSTRING(type) (((type) == NPY_STRING) ||         \
                                    ((type) == NPY_UNICODE))
 
-#define NpyTypeNum_ISCOMPLEX(type) (((type) >= NPY_CFLOAT) &&   \
+#define NpyTypeNum_ISCOMPLEX(type) (((type) >= NPY_CFLOAT) &&        \
                                     ((type) <= NPY_CLONGDOUBLE))
 
-#define NpyTypeNum_ISPYTHON(type) (((type) == NPY_LONG) ||      \
-                                   ((type) == NPY_DOUBLE) ||    \
-                                   ((type) == NPY_CDOUBLE) ||   \
-                                   ((type) == NPY_BOOL) ||      \
+#define NpyTypeNum_ISPYTHON(type) (((type) == NPY_LONG) ||           \
+                                   ((type) == NPY_DOUBLE) ||         \
+                                   ((type) == NPY_CDOUBLE) ||        \
+                                   ((type) == NPY_BOOL) ||           \
                                    ((type) == NPY_OBJECT ))
 
-#define NpyTypeNum_ISFLEXIBLE(type) (((type) >=NPY_STRING) &&  \
+#define NpyTypeNum_ISFLEXIBLE(type) (((type) >=NPY_STRING) &&        \
                                      ((type) <=NPY_VOID))
 
-#define NpyTypeNum_ISDATETIME(type) (((type) >=NPY_DATETIME) &&  \
+#define NpyTypeNum_ISDATETIME(type) (((type) >=NPY_DATETIME) &&      \
                                      ((type) <=NPY_TIMEDELTA))
 
-#define NpyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) && \
-                                    ((type) < NPY_USERDEF+     \
+#define NpyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) &&       \
+                                    ((type) < NPY_USERDEF+           \
                                      NpyArray_GetNumusertypes()))
 
 #define NpyTypeNum_ISEXTENDED(type) (NpyTypeNum_ISFLEXIBLE(type) ||  \
@@ -325,7 +314,6 @@ typedef enum {
 
 #define NpyArray_ISNBO(arg) ((arg) != NPY_OPPBYTE)
 #define NpyArray_IsNativeByteOrder NpyArray_ISNBO
-
 
 
 #if NPY_SIZEOF_PTR == NPY_SIZEOF_INT
@@ -380,13 +368,12 @@ typedef enum {
  *These are inherited for global data-type if any data-types in the
  * field have them
  */
-#define NPY_FROM_FIELDS    (NPY_NEEDS_INIT | NPY_LIST_PICKLE |             \
-    NPY_ITEM_REFCOUNT | NPY_NEEDS_PYAPI)
+#define NPY_FROM_FIELDS  (NPY_NEEDS_INIT | NPY_LIST_PICKLE |             \
+                          NPY_ITEM_REFCOUNT | NPY_NEEDS_PYAPI)
 
-#define NPY_OBJECT_DTYPE_FLAGS (NPY_LIST_PICKLE | NPY_USE_GETITEM |       \
-    NPY_ITEM_IS_POINTER | NPY_ITEM_REFCOUNT | \
-    NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
-
+#define NPY_OBJECT_DTYPE_FLAGS  (NPY_LIST_PICKLE | NPY_USE_GETITEM |     \
+                          NPY_ITEM_IS_POINTER | NPY_ITEM_REFCOUNT | \
+                          NPY_NEEDS_INIT | NPY_NEEDS_PYAPI)
 
 
 /*
@@ -500,11 +487,11 @@ typedef enum {
 #define NPY_BEGIN_THREADS _save = PyEval_SaveThread();
 #define NPY_END_THREADS   do {if (_save) PyEval_RestoreThread(_save);} while (0);
 
-#define NPY_BEGIN_THREADS_DESCR(dtype)                          \
+#define NPY_BEGIN_THREADS_DESCR(dtype)                           \
     do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
     NPY_BEGIN_THREADS;} while (0);
 
-#define NPY_END_THREADS_DESCR(dtype)                            \
+#define NPY_END_THREADS_DESCR(dtype)                             \
     do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
     NPY_END_THREADS; } while (0);
 
