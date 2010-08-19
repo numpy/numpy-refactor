@@ -1,7 +1,5 @@
 /* -*- c -*- */
 
-#define _UMATHMODULE
-
 #include "npy_config.h"
 #include "npy_defs.h"
 #include "npy_ufunc_object.h"
@@ -517,7 +515,7 @@ void
     BINARY_LOOP {
         const double in1 = (double)(*(@s@@type@ *)ip1);
         const double in2 = (double)(*(@s@@type@ *)ip2);
-        *((double *)op1) = in1/in2;
+        *((double *)op1) = in1 / in2;
     }
 }
 
