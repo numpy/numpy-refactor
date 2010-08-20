@@ -1431,6 +1431,7 @@ construct_loop(NpyUFuncObject *self)
         NpyErr_SetString(NpyExc_MemoryError, "no memory");
         return loop;
     }
+    loop->magic_number = NPY_VALID_MAGIC;
     
     loop->iter = NpyArray_MultiIterNew();
     if (loop->iter == NULL) {
@@ -1452,6 +1453,7 @@ construct_loop(NpyUFuncObject *self)
     loop->first = 1;
     loop->core_dim_sizes = NULL;
     loop->core_strides = NULL;
+    loop->leftover = 0;
     
     if (self->core_enabled) {
         int num_dim_ix = 1 + self->core_num_dim_ix;
@@ -1619,14 +1621,14 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
         if (!out_dims) {
             return -1;
         }
-        if (NpyArray_NDIM(mps[i]) != out_nd
-            || !NpyArray_CompareLists(NpyArray_DIMS(mps[i]), out_dims, out_nd)) {
+        if (NULL != mps[i] && (NpyArray_NDIM(mps[i]) != out_nd ||
+                               !NpyArray_CompareLists(NpyArray_DIMS(mps[i]), out_dims, out_nd))) {
             NpyErr_SetString(NpyExc_ValueError, "invalid return array shape");
             Npy_DECREF(mps[i]);
             mps[i] = NULL;
             return -1;
         }
-        if (!NpyArray_ISWRITEABLE(mps[i])) {
+        if (NULL != mps[i] && !NpyArray_ISWRITEABLE(mps[i])) {
             NpyErr_SetString(NpyExc_ValueError, "return array is not writeable");
             Npy_DECREF(mps[i]);
             mps[i] = NULL;

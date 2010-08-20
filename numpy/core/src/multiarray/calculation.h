@@ -1,5 +1,5 @@
-#ifndef _NPY_CALCULATION_H_
-#define _NPY_CALCULATION_H_
+#ifndef _CALCULATION_H_
+#define _CALCULATION_H_
 
 NPY_NO_EXPORT PyObject*
 PyArray_ArgMax(PyArrayObject* self, int axis, PyArrayObject *out);

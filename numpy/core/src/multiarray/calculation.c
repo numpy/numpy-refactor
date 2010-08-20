@@ -4,8 +4,10 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include <npy_api.h>
+#include <npy_calculation.h>
+
 #include "numpy/arrayobject.h"
-#include "npy_api.h"
 
 #include "npy_config.h"
 
@@ -949,16 +951,7 @@ PyArray_Clip(PyArrayObject *self, PyObject *min, PyObject *max,
 }
 
 
-NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
-{
-    PyObject *result = PyArray_Conjugate(Npy_INTERFACE(self), (NULL != out) ? Npy_INTERFACE(out) : NULL);
-    NpyArray *coreResult;
-    
-    coreResult = PyArray_ARRAY(result);
-    Npy_INCREF(coreResult);
-    Py_DECREF(result);
-    return coreResult;
-}
+
 
 /*NUMPY_API
  * Conjugate
@@ -966,31 +959,7 @@ NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
 NPY_NO_EXPORT PyObject *
 PyArray_Conjugate(PyArrayObject *self, PyArrayObject *out)
 {
-    if (PyArray_ISCOMPLEX(self)) {
-        if (out == NULL) {
-            return PyArray_GenericUnaryFunction(self,
-                                                PyArray_GetNumericOp(npy_op_conjugate));
-        }
-        else {
-            return PyArray_GenericBinaryFunction(self,
-                                                 (PyObject *)out,
-                                                 PyArray_GetNumericOp(npy_op_conjugate));
-        }
-    }
-    else {
-        PyArrayObject *ret;
-        if (out) {
-            if (PyArray_CopyAnyInto(out, self) < 0) {
-                return NULL;
-            }
-            ret = out;
-        }
-        else {
-            ret = self;
-        }
-        Py_INCREF(ret);
-        return (PyObject *)ret;
-    }
+    RETURN_PYARRAY(NpyArray_Conjugate(PyArray_ARRAY(self), PyArray_ARRAY(out)));
 }
 
 

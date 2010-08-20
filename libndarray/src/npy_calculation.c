@@ -6,6 +6,8 @@
 #include "npy_config.h"
 #include "npy_api.h"
 #include "npy_arrayobject.h"
+#include "npy_ufunc_object.h"
+
 
 
 NpyArray *
@@ -118,4 +120,35 @@ fail:
     return NULL;
 }
 
+
+
+
+
+NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
+{
+    if (NpyArray_ISCOMPLEX(self)) {
+        if (out == NULL) {
+            return NpyArray_GenericUnaryFunction(self,
+                                                 NpyArray_GetNumericOp(npy_op_conjugate));
+        }
+        else {
+            return NpyArray_GenericBinaryFunction(self, out,
+                                                  NpyArray_GetNumericOp(npy_op_conjugate));
+        }
+    }
+    else {
+        NpyArray *ret;
+        if (NULL != out) {
+            if (NpyArray_CopyAnyInto(out, self) < 0) {
+                return NULL;
+            }
+            ret = out;
+        }
+        else {
+            ret = self;
+        }
+        Npy_INCREF(ret);
+        return ret;
+    }
+}
 

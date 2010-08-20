@@ -6,6 +6,7 @@ INSTINCLUDES = \
         src/_neighborhood_iterator_imp.h \
         src/npy_api.h \
         src/npy_arrayobject.h \
+        src/npy_calculation.h \
         src/npy_common.h \
         src/npy_config.h \
         src/npy_cpu.h \

@@ -6,8 +6,9 @@
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include <npy_ufunc_object.h>
+
 #include "numpy/ufuncobject.h"
-#include "numpy/arrayobject.h"
+#include "arrayobject.h"
 #include "npy_api.h"
 
 #include "npy_config.h"
@@ -256,6 +257,21 @@ PyArray_GenericInplaceUnaryFunction(PyArrayObject *m1, PyObject *op)
 static PyObject *
 array_add(PyArrayObject *m1, PyObject *m2)
 {
+    NpyArray *ret = NULL;
+    /* TODO: This version breaks some tests. Don't know why yet... */
+#if 0    
+    // If m2 is an array, use the faster core routines.
+    if (PyArray_Check(m2)) {
+        ret = NpyArray_GenericBinaryFunction(PyArray_ARRAY(m1), 
+                                             PyArray_ARRAY(m2), 
+                                             NpyArray_GetNumericOp(npy_op_add)));
+        Py_INCREF(Npy_INTERFACE(ret));
+        Npy_DECREF(ret);
+        return (PyObject *)Npy_INTERFACE(ret);
+    }
+#endif
+    
+    // Fall back to calling into Python.
     return PyArray_GenericBinaryFunction(m1, m2, PyArray_GetNumericOp(npy_op_add));
 }
 

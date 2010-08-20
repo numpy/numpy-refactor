@@ -248,6 +248,11 @@ enum NpyArray_Ops {
 
 typedef int (*npy_prepare_outputs_func)(NpyUFuncObject* self, NpyArray **mps,
                                         void* data);
+NpyArray *
+NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op);
+
+NpyArray *
+NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op);
 
 
 NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
