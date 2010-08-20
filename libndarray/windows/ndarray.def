@@ -1,0 +1,4 @@
+LIBRARY
+
+EXPORTS
+NpyArray_MapIterBind

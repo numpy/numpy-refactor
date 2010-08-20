@@ -2,9 +2,9 @@
 <VisualStudioProject
    ProjectType="Visual C++"
    Version="9,00"
-   Name="libndarray"
+   Name="ndarray"
    ProjectGUID="{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
-   RootNamespace="libndarray"
+   RootNamespace="ndarray"
    TargetFrameworkVersion="131072"
    >
   <Platforms>
@@ -37,7 +37,11 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCLinkerTool" />
+      <Tool Name="VCLinkerTool"
+            AdditionalOptions="/def:ndarray.def"
+            LinkIncremental="2"
+            />
+      <Tool Name="VCALinkTool" />
       <Tool Name="VCXDCMakeTool" />
       <Tool Name="VCBscMakeTool" />
       <Tool Name="VCFxCopTool" />
@@ -66,7 +70,10 @@
             Culture="1033"
             AdditionalIncludeDirectories="..\src"
             />
-      <Tool Name="VCLinkerTool" />
+      <Tool Name="VCLinkerTool"
+            AdditionalOptions="/def:ndarray.def"
+            LinkIncremental="2"
+            />
       <Tool Name="VCXDCMakeTool" />
       <Tool Name="VCBscMakeTool" />
       <Tool Name="VCFxCopTool" />

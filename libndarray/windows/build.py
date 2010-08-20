@@ -30,13 +30,14 @@ def install():
 
     usr_lib_dir = join(usr_dir, 'lib')
     os.makedirs(usr_lib_dir)
-    shutil.copy(r'Release\libndarray.dll', usr_lib_dir)
+    for fn in ['ndarray.dll', 'ndarray.lib']:
+        shutil.copy(r'Release\%s' % fn, usr_lib_dir)
 
 
 def main():
     convert_templates()
     shutil.copy('npy_config.h', src_dir)
-    os.system("msbuild")
+    os.system("msbuild /v:diag")
     install()
 
 
