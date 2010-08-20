@@ -41,7 +41,8 @@ env.AppendUnique(LIBS = mlib)
 
 # On windows, see if we should use Advapi32
 if os.name == 'nt':
-    config = env.NumpyConfigure(custom_tests = {'CheckWincrypt' : CheckWincrypt})
+    config = env.NumpyConfigure(custom_tests =
+                                    {'CheckWincrypt' : CheckWincrypt})
     if config.CheckWincrypt:
         config.env.AppendUnique(LIBS = 'Advapi32')
     config.Finish()
@@ -52,9 +53,10 @@ if needs_mingw_ftime_workaround():
 sources = [os.path.join('mtrand', x) for x in 
            ['mtrand.c', 'randomkit.c', 'initarray.c', 'distributions.c']]
 
+env.Prepend(LIBPATH=[usr_lib_dir])
+env.Prepend(LIBS=['ndarray'])
+
 # XXX: Pyrex dependency
 env.NumpyPythonExtension(
         'mtrand',
-        LIBS=['ndarray'],
-        LIBPATH=[usr_lib_dir],
         source = sources)
