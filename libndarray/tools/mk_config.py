@@ -42,9 +42,8 @@ LD_MAP = {
     _INTEL_EXT_16_LE:      'INTEL_EXT_16BYTES_LE',
 }
 
-def check_long_double_repr():
-    path = 'tools/long_double.o'
-    print "\treading:", path
+def check_long_double_repr(path):
+    print "\tcheck_long_double_repr:", path
     data = open(path, 'rb').read()
 
     p = re.compile('\0{8}aR8qyb1W(.+)z7pLC3Si')
@@ -56,7 +55,9 @@ def check_long_double_repr():
     if content not in LD_MAP:
         raise ValueError("Unrecognized format: %r" % content)
 
-    return LD_MAP[content]
+    res = LD_MAP[content]
+    print "\tdetected:", res
+    return res
 
 
 def main():
@@ -77,12 +78,10 @@ def main():
 */
 '''
     else:
-        ld_repr = check_long_double_repr()
-        print "\tdetected long double representation:", ld_repr
         data += '''
 /* long double representation (added by tools/mk_config.py) */
 #define NPY_LDOUBLE_%s 1
-''' % ld_repr
+''' % check_long_double_repr('tools/long_double.o')
 
     print "\twriting:", dst
     fo = open(dst, 'w')

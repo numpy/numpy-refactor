@@ -17,7 +17,6 @@ standard part of the distribution.
 #define NPY_SIZEOF_LONGLONG 8
 #define NPY_SIZEOF_SHORT 2
 #define NPY_SIZEOF_PTR 8
-#define NPY_LDOUBLE_IEEE_DOUBLE_LE 1
 #else
 #define NPY_SIZEOF_DOUBLE 8
 #define NPY_SIZEOF_COMPLEX_DOUBLE 16
@@ -30,7 +29,6 @@ standard part of the distribution.
 #define NPY_SIZEOF_LONGLONG 8
 #define NPY_SIZEOF_SHORT 2
 #define NPY_SIZEOF_PTR 4
-#define NPY_LDOUBLE_IEEE_DOUBLE_LE 1
 #endif
 
 
