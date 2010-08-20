@@ -157,7 +157,7 @@ typedef struct NpyUFuncLoopObject {
 
 
 /* Could make this more clever someday */
-#define UFUNC_MAXIDENTITY 32
+#define NPY_UFUNC_MAXIDENTITY 32
 
 typedef struct {
     NpyObject_HEAD
@@ -169,7 +169,7 @@ typedef struct {
     int  outsize;
     npy_intp  index;
     npy_intp  size;
-    char idptr[UFUNC_MAXIDENTITY];
+    char idptr[NPY_UFUNC_MAXIDENTITY];
     
     /* The ufunc */
     NpyUFuncObject *ufunc;
@@ -324,57 +324,57 @@ NpyUFunc_clearfperr();
 #define NpyUFunc_Zero 0
 #define NpyUFunc_None -1
 
-#define UFUNC_REDUCE 0
-#define UFUNC_ACCUMULATE 1
-#define UFUNC_REDUCEAT 2
-#define UFUNC_OUTER 3
+#define NPY_UFUNC_REDUCE 0
+#define NPY_UFUNC_ACCUMULATE 1
+#define NPY_UFUNC_REDUCEAT 2
+#define NPY_UFUNC_OUTER 3
 
 
 
-#define UFUNC_ERR_IGNORE 0
-#define UFUNC_ERR_WARN   1
-#define UFUNC_ERR_RAISE  2
-#define UFUNC_ERR_CALL   3
-#define UFUNC_ERR_PRINT  4
-#define UFUNC_ERR_LOG    5
+#define NPY_UFUNC_ERR_IGNORE 0
+#define NPY_UFUNC_ERR_WARN   1
+#define NPY_UFUNC_ERR_RAISE  2
+#define NPY_UFUNC_ERR_CALL   3
+#define NPY_UFUNC_ERR_PRINT  4
+#define NPY_UFUNC_ERR_LOG    5
 
 /* Python side integer mask */
 
-#define UFUNC_MASK_DIVIDEBYZERO 0x07
-#define UFUNC_MASK_OVERFLOW 0x3f
-#define UFUNC_MASK_UNDERFLOW 0x1ff
-#define UFUNC_MASK_INVALID 0xfff
+#define NPY_UFUNC_MASK_DIVIDEBYZERO 0x07
+#define NPY_UFUNC_MASK_OVERFLOW 0x3f
+#define NPY_UFUNC_MASK_UNDERFLOW 0x1ff
+#define NPY_UFUNC_MASK_INVALID 0xfff
 
-#define UFUNC_SHIFT_DIVIDEBYZERO 0
-#define UFUNC_SHIFT_OVERFLOW     3
-#define UFUNC_SHIFT_UNDERFLOW    6
-#define UFUNC_SHIFT_INVALID      9
+#define NPY_UFUNC_SHIFT_DIVIDEBYZERO 0
+#define NPY_UFUNC_SHIFT_OVERFLOW     3
+#define NPY_UFUNC_SHIFT_UNDERFLOW    6
+#define NPY_UFUNC_SHIFT_INVALID      9
 
 
 /* platform-dependent code translates floating point
  status to an integer sum of these values
  */
-#define UFUNC_FPE_DIVIDEBYZERO  1
-#define UFUNC_FPE_OVERFLOW      2
-#define UFUNC_FPE_UNDERFLOW     4
-#define UFUNC_FPE_INVALID       8
+#define NPY_UFUNC_FPE_DIVIDEBYZERO  1
+#define NPY_UFUNC_FPE_OVERFLOW      2
+#define NPY_UFUNC_FPE_UNDERFLOW     4
+#define NPY_UFUNC_FPE_INVALID       8
 
-#define UFUNC_ERR_DEFAULT 0 /* Error mode that avoids look-up (no checking) */
+#define NPY_UFUNC_ERR_DEFAULT 0 /* Error mode that avoids look-up (no checking) */
 
-#define UFUNC_OBJ_ISOBJECT      1
-#define UFUNC_OBJ_NEEDS_API     2
+#define NPY_UFUNC_OBJ_ISOBJECT      1
+#define NPY_UFUNC_OBJ_NEEDS_API     2
 
 /* Default user error mode */
-#define UFUNC_ERR_DEFAULT2                               \
-        (UFUNC_ERR_PRINT << UFUNC_SHIFT_DIVIDEBYZERO) +  \
-        (UFUNC_ERR_PRINT << UFUNC_SHIFT_OVERFLOW) +      \
-        (UFUNC_ERR_PRINT << UFUNC_SHIFT_INVALID)
+#define NPY_UFUNC_ERR_DEFAULT2                               \
+        (NPY_UFUNC_ERR_PRINT << NPY_UFUNC_SHIFT_DIVIDEBYZERO) +  \
+        (NPY_UFUNC_ERR_PRINT << NPY_UFUNC_SHIFT_OVERFLOW) +      \
+        (NPY_UFUNC_ERR_PRINT << NPY_UFUNC_SHIFT_INVALID)
 
 
 
 
-#define UFUNC_CHECK_ERROR(arg)                                               \
-        do {if ((((arg)->obj & UFUNC_OBJ_NEEDS_API) && NpyErr_Occurred()) || \
+#define NPY_UFUNC_CHECK_ERROR(arg)                                           \
+        do {if ((((arg)->obj & NPY_UFUNC_OBJ_NEEDS_API) && NpyErr_Occurred()) || \
             ((arg)->errormask &&                                             \
              NpyUFunc_checkfperr((arg)->errormask,                           \
                                 (arg)->errobj,                               \
@@ -393,7 +393,7 @@ NpyUFunc_clearfperr();
 
 #include <machine/fpu.h>
 
-#define UFUNC_CHECK_STATUS(ret) {                                           \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                           \
         unsigned long fpstatus;                                             \
         fpstatus = ieee_get_fp_control();                                   \
         /* clear status bits as well as disable exception mode if on */     \
@@ -411,10 +411,10 @@ NpyUFunc_clearfperr();
 
   /* Clear the floating point exception default of Borland C++ */
 #if defined(__BORLANDC__)
-#define UFUNC_NOFPE _control87(MCW_EM, MCW_EM);
+#define NPY_UFUNC_NOFPE _control87(MCW_EM, MCW_EM);
 #endif
 
-#define UFUNC_CHECK_STATUS(ret) {                                       \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                       \
         int fpstatus = (int) _clearfp();                                \
         ret = ((SW_ZERODIVIDE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
                 | ((SW_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
@@ -429,13 +429,13 @@ NpyUFunc_clearfperr();
   (defined(__FreeBSD__) && (__FreeBSD_version < 502114)) || defined(__NetBSD__)
 #include <ieeefp.h>
 
-#define UFUNC_CHECK_STATUS(ret) {                                       \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                       \
         int fpstatus;                                                   \
         fpstatus = (int) fpgetsticky();                                 \
-        ret = ((FP_X_DZ  & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)      \
-                | ((FP_X_OFL & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)      \
-                | ((FP_X_UFL & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0)     \
-                | ((FP_X_INV & fpstatus) ? UFUNC_FPE_INVALID : 0);      \
+        ret = ((FP_X_DZ  & fpstatus) ? NPY_UFUNC_FPE_DIVIDEBYZERO : 0)      \
+                | ((FP_X_OFL & fpstatus) ? NPY_UFUNC_FPE_OVERFLOW : 0)      \
+                | ((FP_X_UFL & fpstatus) ? NPY_UFUNC_FPE_UNDERFLOW : 0)     \
+                | ((FP_X_INV & fpstatus) ? NPY_UFUNC_FPE_INVALID : 0);      \
         (void) fpsetsticky(0);                                          \
         }
 
@@ -449,13 +449,13 @@ NpyUFunc_clearfperr();
 #include "fenv/fenv.c"
 #endif
 
-#define UFUNC_CHECK_STATUS(ret) {                                        \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                        \
         int fpstatus = (int) fetestexcept(FE_DIVBYZERO | FE_OVERFLOW |   \
                                           FE_UNDERFLOW | FE_INVALID);    \
-        ret = ((FE_DIVBYZERO  & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)  \
-                | ((FE_OVERFLOW   & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)  \
-                | ((FE_UNDERFLOW  & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
-                | ((FE_INVALID    & fpstatus) ? UFUNC_FPE_INVALID : 0);  \
+        ret = ((FE_DIVBYZERO  & fpstatus) ? NPY_UFUNC_FPE_DIVIDEBYZERO : 0)  \
+                | ((FE_OVERFLOW   & fpstatus) ? NPY_UFUNC_FPE_OVERFLOW : 0)  \
+                | ((FE_UNDERFLOW  & fpstatus) ? NPY_UFUNC_FPE_UNDERFLOW : 0) \
+                | ((FE_INVALID    & fpstatus) ? NPY_UFUNC_FPE_INVALID : 0);  \
         (void) feclearexcept(FE_DIVBYZERO | FE_OVERFLOW |                \
                              FE_UNDERFLOW | FE_INVALID);                 \
 }
@@ -468,14 +468,14 @@ NpyUFunc_clearfperr();
 #include <float.h>
 #include <fpxcp.h>
 
-#define UFUNC_CHECK_STATUS(ret) {                                         \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                         \
         fpflag_t fpstatus;                                                \
                                                                           \
         fpstatus = fp_read_flag();                                        \
-        ret = ((FP_DIV_BY_ZERO & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)  \
-                | ((FP_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)     \
-                | ((FP_UNDERFLOW & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0)   \
-                | ((FP_INVALID & fpstatus) ? UFUNC_FPE_INVALID : 0);      \
+        ret = ((FP_DIV_BY_ZERO & fpstatus) ? NPY_UFUNC_FPE_DIVIDEBYZERO : 0)  \
+                | ((FP_OVERFLOW & fpstatus) ? NPY_UFUNC_FPE_OVERFLOW : 0)     \
+                | ((FP_UNDERFLOW & fpstatus) ? NPY_UFUNC_FPE_UNDERFLOW : 0)   \
+                | ((FP_INVALID & fpstatus) ? NPY_UFUNC_FPE_INVALID : 0);      \
         fp_swap_flag(0);                                                  \
 }
 
@@ -485,7 +485,7 @@ NpyUFunc_clearfperr();
 #else
 
 #define NO_FLOATING_POINT_SUPPORT
-#define UFUNC_CHECK_STATUS(ret) { ret = 0; }
+#define NPY_UFUNC_CHECK_STATUS(ret) { ret = 0; }
 
 #endif
 

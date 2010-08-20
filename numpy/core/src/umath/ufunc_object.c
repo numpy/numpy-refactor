@@ -93,17 +93,17 @@ _error_handler(int method, PyObject *errobj, char *errtype, int retstatus, int *
 
     ALLOW_C_API;
     switch(method) {
-    case UFUNC_ERR_WARN:
+    case NPY_UFUNC_ERR_WARN:
         PyOS_snprintf(msg, sizeof(msg), "%s encountered in %s", errtype, name);
         if (PyErr_Warn(PyExc_RuntimeWarning, msg) < 0) {
             goto fail;
         }
         break;
-    case UFUNC_ERR_RAISE:
+    case NPY_UFUNC_ERR_RAISE:
         PyErr_Format(PyExc_FloatingPointError, "%s encountered in %s",
                 errtype, name);
         goto fail;
-    case UFUNC_ERR_CALL:
+    case NPY_UFUNC_ERR_CALL:
         pyfunc = PyTuple_GET_ITEM(errobj, 1);
         if (pyfunc == Py_None) {
             PyErr_Format(PyExc_NameError,
@@ -124,13 +124,13 @@ _error_handler(int method, PyObject *errobj, char *errtype, int retstatus, int *
         }
         Py_DECREF(ret);
         break;
-    case UFUNC_ERR_PRINT:
+    case NPY_UFUNC_ERR_PRINT:
         if (*first) {
             fprintf(stderr, "Warning: %s encountered in %s\n", errtype, name);
             *first = 0;
         }
         break;
-    case UFUNC_ERR_LOG:
+    case NPY_UFUNC_ERR_LOG:
         if (first) {
             *first = 0;
             pyfunc = PyTuple_GET_ITEM(errobj, 1);
@@ -167,10 +167,10 @@ PyUFunc_getfperr(void)
     return NpyUFunc_getfperr();
 }
 
-#define HANDLEIT(NAME, str) {if (retstatus & UFUNC_FPE_##NAME) {        \
-            handle = errmask & UFUNC_MASK_##NAME;                       \
+#define HANDLEIT(NAME, str) {if (retstatus & NPY_UFUNC_FPE_##NAME) {        \
+            handle = errmask & NPY_UFUNC_MASK_##NAME;                       \
             if (handle &&                                               \
-                _error_handler(handle >> UFUNC_SHIFT_##NAME,            \
+                _error_handler(handle >> NPY_UFUNC_SHIFT_##NAME,            \
                                errobj, str, retstatus, first) < 0)      \
                 return -1;                                              \
         }}
@@ -441,7 +441,7 @@ _extract_pyvals(PyObject *ref, char *name, int *bufsize,
     *errobj = NULL;
     if (!PyList_Check(ref) || (PyList_GET_SIZE(ref)!=3)) {
         PyErr_Format(PyExc_TypeError, "%s must be a length 3 list.",
-                     UFUNC_PYVALS_NAME);
+                     NPY_UFUNC_PYVALS_NAME);
         return -1;
     }
 
@@ -505,7 +505,7 @@ PyUFunc_GetPyValues(char *name, int *bufsize, int *errmask, PyObject **errobj)
     if (PyUFunc_NUM_NODEFAULTS != 0) {
 #endif
         if (PyUFunc_PYVALS_NAME == NULL) {
-            PyUFunc_PYVALS_NAME = PyUString_InternFromString(UFUNC_PYVALS_NAME);
+            PyUFunc_PYVALS_NAME = PyUString_InternFromString(NPY_UFUNC_PYVALS_NAME);
         }
         thedict = PyThreadState_GetDict();
         if (thedict == NULL) {
@@ -516,7 +516,7 @@ PyUFunc_GetPyValues(char *name, int *bufsize, int *errmask, PyObject **errobj)
     }
 #endif
     if (ref == NULL) {
-        *errmask = UFUNC_ERR_DEFAULT;
+        *errmask = NPY_UFUNC_ERR_DEFAULT;
         *errobj = Py_BuildValue("NO", PyBytes_FromString(name), Py_None);
         *bufsize = PyArray_BUFSIZE;
         return 0;
@@ -1021,7 +1021,7 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
         return NULL;
     }
 
-    if (operation == UFUNC_REDUCEAT) {
+    if (operation == NPY_UFUNC_REDUCEAT) {
         PyArray_Descr *indtype;
         indtype = PyArray_DescrFromType(PyArray_INTP);
         if(!PyArg_ParseTupleAndKeywords(args, kwds, "OO|iO&O&", kwlist2,
@@ -1129,15 +1129,15 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
 
 
     switch(operation) {
-    case UFUNC_REDUCE:
+    case NPY_UFUNC_REDUCE:
         ret = (PyArrayObject *)PyUFunc_Reduce(self, mp, out, axis,
                                               otype->descr->type_num);
         break;
-    case UFUNC_ACCUMULATE:
+    case NPY_UFUNC_ACCUMULATE:
         ret = (PyArrayObject *)PyUFunc_Accumulate(self, mp, out, axis,
                                                   otype->descr->type_num);
         break;
-    case UFUNC_REDUCEAT:
+    case NPY_UFUNC_REDUCEAT:
         ret = (PyArrayObject *)PyUFunc_Reduceat(self, mp, indices, out,
                                                 axis, otype->descr->type_num);
         Py_DECREF(indices);
@@ -1412,7 +1412,7 @@ ufunc_geterr(PyObject *NPY_UNUSED(dummy), PyObject *args)
         return NULL;
     }
     if (PyUFunc_PYVALS_NAME == NULL) {
-        PyUFunc_PYVALS_NAME = PyUString_InternFromString(UFUNC_PYVALS_NAME);
+        PyUFunc_PYVALS_NAME = PyUString_InternFromString(NPY_UFUNC_PYVALS_NAME);
     }
     thedict = PyThreadState_GetDict();
     if (thedict == NULL) {
@@ -1429,7 +1429,7 @@ ufunc_geterr(PyObject *NPY_UNUSED(dummy), PyObject *args)
         return NULL;
     }
     PyList_SET_ITEM(res, 0, PyInt_FromLong(PyArray_BUFSIZE));
-    PyList_SET_ITEM(res, 1, PyInt_FromLong(UFUNC_ERR_DEFAULT));
+    PyList_SET_ITEM(res, 1, PyInt_FromLong(NPY_UFUNC_ERR_DEFAULT));
     PyList_SET_ITEM(res, 2, Py_None); Py_INCREF(Py_None);
     return res;
 }
@@ -1455,7 +1455,7 @@ ufunc_update_use_defaults(void)
         Py_XDECREF(errobj);
         return -1;
     }
-    if ((errmask != UFUNC_ERR_DEFAULT) || (bufsize != PyArray_BUFSIZE)
+    if ((errmask != NPY_UFUNC_ERR_DEFAULT) || (bufsize != PyArray_BUFSIZE)
             || (PyTuple_GET_ITEM(errobj, 1) != Py_None)) {
         PyUFunc_NUM_NODEFAULTS += 1;
     }
@@ -1483,7 +1483,7 @@ ufunc_seterr(PyObject *NPY_UNUSED(dummy), PyObject *args)
         return NULL;
     }
     if (PyUFunc_PYVALS_NAME == NULL) {
-        PyUFunc_PYVALS_NAME = PyUString_InternFromString(UFUNC_PYVALS_NAME);
+        PyUFunc_PYVALS_NAME = PyUString_InternFromString(NPY_UFUNC_PYVALS_NAME);
     }
     thedict = PyThreadState_GetDict();
     if (thedict == NULL) {
@@ -1796,19 +1796,19 @@ ufunc_outer(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 ufunc_reduce(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
-    return PyUFunc_GenericReduction(self, args, kwds, UFUNC_REDUCE);
+    return PyUFunc_GenericReduction(self, args, kwds, NPY_UFUNC_REDUCE);
 }
 
 static PyObject *
 ufunc_accumulate(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
-    return PyUFunc_GenericReduction(self, args, kwds, UFUNC_ACCUMULATE);
+    return PyUFunc_GenericReduction(self, args, kwds, NPY_UFUNC_ACCUMULATE);
 }
 
 static PyObject *
 ufunc_reduceat(PyUFuncObject *self, PyObject *args, PyObject *kwds)
 {
-    return PyUFunc_GenericReduction(self, args, kwds, UFUNC_REDUCEAT);
+    return PyUFunc_GenericReduction(self, args, kwds, NPY_UFUNC_REDUCEAT);
 }
 
 

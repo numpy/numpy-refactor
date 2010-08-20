@@ -38,7 +38,7 @@ typedef struct {
     
 #include "__ufunc_api.h"
 
-#define UFUNC_PYVALS_NAME "UFUNC_PYVALS"
+#define NPY_UFUNC_PYVALS_NAME "UFUNC_PYVALS"
 
 
   /* Make sure it gets defined if it isn't already */
