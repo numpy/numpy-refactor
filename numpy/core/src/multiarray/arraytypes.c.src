@@ -1672,7 +1672,7 @@ OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *NP
  *         DATETIME,TIMEDELTA#
  */
 
-extern NpyArray_Descr @name@_Descr;
+extern NpyArray_Descr npy_@name@_Descr;
 /**end repeat**/
 
 
@@ -1703,7 +1703,7 @@ set_typeinfo(PyObject *dict)
   *         CFLOAT, CDOUBLE, CLONGDOUBLE, OBJECT, STRING, UNICODE, VOID,
   *         DATETIME, TIMEDELTA#
 */
-    @name@_Descr.fields = NULL;
+    npy_@name@_Descr.fields = NULL;
 /**end repeat**/
 
     /* Set a dictionary with type information */

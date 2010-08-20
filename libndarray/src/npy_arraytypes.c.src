@@ -1942,7 +1942,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NpyArray_Descr @from@_Descr = {
+NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
@@ -2034,7 +2034,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NpyArray_Descr @from@_Descr = {
+NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_@kind@LTR,
@@ -2081,7 +2081,7 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
     }
 };
 
-NpyArray_Descr OBJECT_Descr = {
+NpyArray_Descr npy_OBJECT_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NPY_VALID_MAGIC,
     NpyArray_OBJECTLTR,
@@ -2127,29 +2127,29 @@ _init_datetime_descr(NpyArray_Descr *descr)
 char _npy_letter_to_num[_MAX_LETTER];
 
 static NpyArray_Descr *_builtin_descrs[] = {
-    &BOOL_Descr,
-    &BYTE_Descr,
-    &UBYTE_Descr,
-    &SHORT_Descr,
-    &USHORT_Descr,
-    &INT_Descr,
-    &UINT_Descr,
-    &LONG_Descr,
-    &ULONG_Descr,
-    &LONGLONG_Descr,
-    &ULONGLONG_Descr,
-    &FLOAT_Descr,
-    &DOUBLE_Descr,
-    &LONGDOUBLE_Descr,
-    &CFLOAT_Descr,
-    &CDOUBLE_Descr,
-    &CLONGDOUBLE_Descr,
-    &DATETIME_Descr,
-    &TIMEDELTA_Descr,
-    &OBJECT_Descr,
-    &STRING_Descr,
-    &UNICODE_Descr,
-    &VOID_Descr,
+    &npy_BOOL_Descr,
+    &npy_BYTE_Descr,
+    &npy_UBYTE_Descr,
+    &npy_SHORT_Descr,
+    &npy_USHORT_Descr,
+    &npy_INT_Descr,
+    &npy_UINT_Descr,
+    &npy_LONG_Descr,
+    &npy_ULONG_Descr,
+    &npy_LONGLONG_Descr,
+    &npy_ULONGLONG_Descr,
+    &npy_FLOAT_Descr,
+    &npy_DOUBLE_Descr,
+    &npy_LONGDOUBLE_Descr,
+    &npy_CFLOAT_Descr,
+    &npy_CDOUBLE_Descr,
+    &npy_CLONGDOUBLE_Descr,
+    &npy_DATETIME_Descr,
+    &npy_TIMEDELTA_Descr,
+    &npy_OBJECT_Descr,
+    &npy_STRING_Descr,
+    &npy_UNICODE_Descr,
+    &npy_VOID_Descr,
 };
 
 
