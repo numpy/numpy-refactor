@@ -346,7 +346,7 @@ static NpyUFuncGenericFunction ldexp_functions[] = {
     FLOAT_ldexp,
 #endif
     DOUBLE_ldexp
-#ifdef NPY_HAVE_DECL_LDEXPL
+#if NPY_HAVE_DECL_LDEXPL
     ,LONGDOUBLE_ldexp
 #endif
 };
