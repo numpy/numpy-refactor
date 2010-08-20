@@ -763,8 +763,6 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     int *rtypenums = NULL;
     int res = 0;
     char* name = PyUFunc_UFUNC(pySelf)->name ? PyUFunc_UFUNC(pySelf)->name : "";
-    int bufsize, errormask;
-    PyObject *errobj;
     PyObject *obj;
     int originalArgWasObjArray = 0;
 
@@ -811,7 +809,9 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     
     
     /* Setup error handling. */
-    if (extobj == NULL) {
+    /* TODO: Is extobj ever used? */
+    assert(NULL == extobj);
+/*    if (extobj == NULL) {
         if (PyUFunc_GetPyValues(name,
                                 &bufsize, &errormask,
                                 &errobj) < 0) {
@@ -827,13 +827,13 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
             return -1;
         }
     }
-    PyUFunc_clearfperr();
+    PyUFunc_clearfperr(); */
     
     self = PyUFunc_UFUNC(pySelf);
     
     /* Convert args to arrays in mps. */
     if ((i=convert_args(self, args, mps)) < 0) {
-        Py_XDECREF(errobj);
+/*        Py_XDECREF(errobj); */
         return i;
     }
 
@@ -868,7 +868,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     }
     
     result = NpyUFunc_GenericFunction(self, nargs, mpsCore, rtypenums,
-                                      bufsize, errormask, errobj, originalArgWasObjArray,
+                                      originalArgWasObjArray,
                                       (npy_prepare_outputs_func)prepare_outputs, args);    
     
     for (i=0; i < self->nargs; i++) {

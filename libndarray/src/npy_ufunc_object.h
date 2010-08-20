@@ -263,7 +263,6 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
                 int axis, int otype, int bufsize, int errormask, void *errobj);
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                              int *rtypenums,
-                             int bufsize, int errormask, void *errobj, 
                              int originalArgWasObjArray,
                              npy_prepare_outputs_func prepare_output_func,
                              void *args);
@@ -311,7 +310,8 @@ npy_ufunc_dealloc(NpyUFuncObject *self);
  */
 
 void 
-NpyUFunc_SetFpErrHandler(void (*handler)(int, void *, int, int *));
+NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **), 
+                       void (*handler)(int, void *, int, int *));
 int
 NpyUFunc_getfperr(void);
 int

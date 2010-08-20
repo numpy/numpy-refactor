@@ -83,6 +83,13 @@ static void NpyErr_NoMemory()
 }
 
 
+static void default_fp_error_state(char *name, int *bufsizeRet, int *errormaskRet, void **errobjRet)
+{
+    *bufsizeRet = NPY_BUFSIZE;
+    *errormaskRet = NPY_UFUNC_ERR_DEFAULT;
+    *errobjRet = NULL;
+}
+
 /* Global floating-point error handling.  This is set by the interface layer or, if NULL
    defaults to a trival internal one. */
 static void default_fp_error_handler(int errormask, void *errobj, int retstatus, int *first)
@@ -102,6 +109,7 @@ static void default_fp_error_handler(int errormask, void *errobj, int retstatus,
     printf("libndarray floating point %s warning.", msg);
 }
 
+static void (*fp_error_state)(char *, int *, int *, void **) = &default_fp_error_state;
 static void (*fp_error_handler)(int, void *, int, int*) = &default_fp_error_handler;
 
 
@@ -111,11 +119,11 @@ static void (*fp_error_handler)(int, void *, int, int*) = &default_fp_error_hand
 
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                              int *rtypenums,
-                             int bufsize, int errormask, void *errobj, 
                              int originalArgWasObjArray, npy_prepare_outputs_func prepare_outputs,
                              void *prepare_out_args)
 {
     NpyUFuncLoopObject *loop;
+    char *name = (NULL != self->name) ? self->name : "";
     int res;
     int i;
     
@@ -126,9 +134,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     if (loop == NULL) {
         return -1;
     }
-    loop->bufsize = bufsize;
-    loop->errormask = errormask;
-    loop->errobj = errobj;
+    fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
 
     /* Setup the arrays */
     res = construct_arrays(loop, nargs, mps, rtypenums, 
@@ -1339,7 +1345,6 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                      char *name, char *doc,
                                      int check_return, const char *signature)
 {
-    /* TODO: Ready to move */
     NpyUFuncObject *self;
     
     self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
@@ -3200,8 +3205,10 @@ _does_loop_use_arrays(void *data)
  */
 
 void 
-NpyUFunc_SetFpErrHandler(void (*handler)(int, void *, int, int *))
+NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **), 
+                       void (*handler)(int, void *, int, int *))
 {
+    fp_error_state = state;
     fp_error_handler = handler;
 }
 
