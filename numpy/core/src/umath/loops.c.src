@@ -179,7 +179,7 @@ PyUFunc_GG_G(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
  * #OP = EQ, NE, GT, GE, LT, LE#
  */
 void
-OBJECT_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func)) {
+npy_OBJECT_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func)) {
     BINARY_LOOP {
         PyObject *in1 = *(PyObject **)ip1;
         PyObject *in2 = *(PyObject **)ip2;
@@ -193,7 +193,7 @@ OBJECT_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUS
 /**end repeat**/
 
 void
-OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
 #if defined(NPY_PY3K)
     PyObject *zero = PyLong_FromLong(0);

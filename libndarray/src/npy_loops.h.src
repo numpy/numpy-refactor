@@ -9,16 +9,16 @@
 #include "npy_os.h"
 #include "npy_utils.h"
 
-#define BOOL_invert BOOL_logical_not
-#define BOOL_negative BOOL_logical_not
-#define BOOL_add BOOL_logical_or
-#define BOOL_bitwise_and BOOL_logical_and
-#define BOOL_bitwise_or BOOL_logical_or
-#define BOOL_bitwise_xor BOOL_logical_xor
-#define BOOL_multiply BOOL_logical_and
-#define BOOL_subtract BOOL_logical_xor
-#define BOOL_fmax BOOL_maximum
-#define BOOL_fmin BOOL_minimum
+#define npy_BOOL_invert npy_BOOL_logical_not
+#define npy_BOOL_negative npy_BOOL_logical_not
+#define npy_BOOL_add npy_BOOL_logical_or
+#define npy_BOOL_bitwise_and npy_BOOL_logical_and
+#define npy_BOOL_bitwise_or npy_BOOL_logical_or
+#define npy_BOOL_bitwise_xor npy_BOOL_logical_xor
+#define npy_BOOL_multiply npy_BOOL_logical_and
+#define npy_BOOL_subtract npy_BOOL_logical_xor
+#define npy_BOOL_fmax npy_BOOL_maximum
+#define npy_BOOL_fmin npy_BOOL_minimum
 
 
 #define OUTPUT_LOOP\
@@ -113,7 +113,7 @@ NpyUFunc_gg_g(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
  **/
 
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
 /**begin repeat
@@ -121,7 +121,7 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
  * #OP =  >, <#
  **/
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
 /**begin repeat
@@ -129,11 +129,11 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
  * #OP =  !=, ==#
  **/
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
 void
-BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 /*
  *****************************************************************************
@@ -153,30 +153,30 @@ BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
  * #S = , U#
  */
 
-#define @S@@TYPE@_floor_divide @S@@TYPE@_divide
-#define @S@@TYPE@_fmax @S@@TYPE@_maximum
-#define @S@@TYPE@_fmin @S@@TYPE@_minimum
+#define npy_@S@@TYPE@_floor_divide npy_@S@@TYPE@_divide
+#define npy_@S@@TYPE@_fmax npy_@S@@TYPE@_maximum
+#define npy_@S@@TYPE@_fmin npy_@S@@TYPE@_minimum
 
 void
-@S@@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_@S@@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-@S@@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_@S@@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-@S@@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_@S@@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-@S@@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@S@@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@S@@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat2
  * Arithmetic
@@ -185,7 +185,7 @@ void
  * #OP = +, -,*, &, |, ^, <<, >>#
  */
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat2**/
 
@@ -195,54 +195,54 @@ void
  * #OP =  ==, !=, >, >=, <, <=, &&, ||#
  */
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat2**/
 
 void
-@S@@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat2
  * #kind = maximum, minimum#
  * #OP =  >, <#
  **/
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat2**/
 
 void
-@S@@TYPE@_true_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_true_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@S@@TYPE@_power(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_power(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@S@@TYPE@_fmod(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@S@@TYPE@_fmod(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat1**/
 
 void
-U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
 /*
@@ -267,7 +267,7 @@ U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
  * # OP = +, -, *, /#
  */
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 /**begin repeat1
@@ -276,21 +276,21 @@ void
  * #OP = ==, !=, <, <=, >, >=, &&, ||#
  */
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 void
-@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind = isnan, isinf, isfinite, signbit, copysign, nextafter, spacing#
  * #func = npy_isnan, npy_isinf, npy_isfinite, npy_signbit, npy_copysign, nextafter, spacing#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 /**begin repeat1
@@ -298,7 +298,7 @@ void
  * #OP =  >=, <=#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 /**begin repeat1
@@ -306,53 +306,53 @@ void
  * #OP =  >=, <=#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 void
-@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
-
-
-void
-@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
-
-void
-@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
-
-void
-@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
-
-void
-@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 
 void
-@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+
+void
+npy_@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+
+void
+npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+
+void
+npy_@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 
 void
-@TYPE@_modf(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+
+
+void
+npy_@TYPE@_modf(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 #if NPY_HAVE_DECL_FREXP@C@
 void
-@TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 #endif
 
 #if NPY_HAVE_DECL_LDEXP@C@
 void
-@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 #endif
 
-#define @TYPE@_true_divide @TYPE@_divide
+#define npy_@TYPE@_true_divide npy_@TYPE@_divide
 
 /**end repeat**/
 
@@ -384,25 +384,25 @@ void
  * #OP = +, -#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat1**/
 
 void
-C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind= greater, greater_equal, less, less_equal, equal, not_equal#
  * #OP = CGT, CGE, CLT, CLE, CEQ, CNE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 /**begin repeat1
@@ -411,50 +411,50 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
    #OP2 = &&, ||#
 */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 void
-C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**begin repeat1
  * #kind = isnan, isinf, isfinite#
  * #func = npy_isnan, npy_isinf, npy_isfinite#
  * #OP = ||, ||, &&#
  **/
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 void
-C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
+npy_C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 void
-C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind = maximum, minimum#
  * #OP = CGE, CLE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
 /**begin repeat1
@@ -462,10 +462,10 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
  * #OP = CGE, CLE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
-#define C@TYPE@_true_divide C@TYPE@_divide
+#define npy_C@TYPE@_true_divide npy_C@TYPE@_divide
 
 /**end repeat**/
 
@@ -485,8 +485,8 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 /**begin repeat
  * #TYPE = DATETIME, TIMEDELTA#
  */
-#define @TYPE@_fmax @TYPE@_maximum
-#define @TYPE@_fmin @TYPE@_minimum
+#define npy_@TYPE@_fmax npy_@TYPE@_maximum
+#define npy_@TYPE@_fmin npy_@TYPE@_minimum
 /**end repeat**/
 
 /**begin repeat
@@ -495,29 +495,29 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
  *      minimum, negative, ones_like, sign#
  */
 void
-DATETIME_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_DATETIME_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-TIMEDELTA_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_TIMEDELTA_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
 void
-DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 void
-TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /*
  *****************************************************************************
