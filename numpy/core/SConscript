@@ -323,6 +323,8 @@ if build_blasdot:
     # dependency, and then builds the extension. This is more likely a bug in
     # our PythonExtension builder, but I cannot see how to solve it.
     dotblas_o = env.PythonObject('_dotblas', source = dotblas_src)
+    if sys.platform == 'win32':
+        env.Prepend(LIBS=['ndarray'])
     env.Depends(dotblas_o, pjoin("blasdot", "cblas.h"))
     dotblas = env.DistutilsPythonExtension('_dotblas', dotblas_o)
 
