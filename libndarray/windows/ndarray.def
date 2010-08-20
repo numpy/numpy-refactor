@@ -30,6 +30,7 @@ NpyArray_Choose
 NpyArray_CompareLists
 NpyArray_CompareString
 NpyArray_CompareUCS4
+NpyArray_Conjugate
 NpyArray_CopyAndTranspose
 NpyArray_CopyAnyInto
 NpyArray_CopyInto
@@ -791,7 +792,7 @@ NpyUFunc_GG_G
 NpyUFunc_Reduce
 NpyUFunc_Reduceat
 NpyUFunc_RegisterLoopForType
-NpyUFunc_SetFpErrHandler
+NpyUFunc_SetFpErrFuncs
 NpyUFunc_SetUsesArraysAsData
 npy_UINT_absolute
 npy_UINT_add
