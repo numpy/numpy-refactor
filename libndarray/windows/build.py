@@ -11,8 +11,22 @@ assert sys.platform == 'win32'
 sys.path.insert(0, r'..\tools')
 
 from conv_template import process_file
+from mk_config import check_long_double_repr
 
 src_dir = r'..\src'
+
+
+def write_config():
+    os.system(r"cl ..\tools\long_double.c")
+    data = open('npy_config.h').read()
+    data += '''
+/* long double representation */
+#define NPY_LDOUBLE_%s 1
+''' % check_long_double_repr('long_double.obj')
+    fo = open(join(src_dir, 'npy_config.h'), 'w')
+    fo.write(data)
+    fo.close()
+
 
 def convert_templates():
     for path in glob(join(src_dir, '*.src')):
@@ -37,7 +51,7 @@ def install():
 
 def main():
     convert_templates()
-    shutil.copy('npy_config.h', src_dir)
+    write_config()
     os.system("msbuild /v:diag")
     install()
 

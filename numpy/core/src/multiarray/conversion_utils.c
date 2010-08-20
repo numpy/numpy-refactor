@@ -381,7 +381,7 @@ PyArray_PyIntAsInt(PyObject *o)
         goto finish;
     }
 
-    descr = &INT_Descr;
+    descr = &npy_INT_Descr;
     arr = NULL;
     if (PyArray_Check(o)) {
         if (PyArray_SIZE(o)!=1 || !PyArray_ISINTEGER(o)) {
@@ -470,11 +470,11 @@ PyArray_PyIntAsIntp(PyObject *o)
     }
 
 #if NPY_SIZEOF_PTR == NPY_SIZEOF_LONG
-    descr = &LONG_Descr;
+    descr = &npy_LONG_Descr;
 #elif NPY_SIZEOF_PTR == NPY_SIZEOF_INT
-    descr = &INT_Descr;
+    descr = &npy_INT_Descr;
 #else
-    descr = &LONGLONG_Descr;
+    descr = &npy_LONGLONG_Descr;
 #endif
     arr = NULL;
 

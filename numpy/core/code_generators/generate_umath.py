@@ -759,12 +759,12 @@ def make_arrays(funcdict):
             elif t.func_data is UsesArraysAsData:
                 tname = english_upper(chartoname[t.type])
                 datalist.append('(void *)NULL')
-                funclist.append('%s_%s_%s_%s' % (tname, t.in_, t.out, name))
+                funclist.append('npy_%s_%s_%s_%s' % (tname, t.in_, t.out, name))
                 code2list.append('PyUFunc_SetUsesArraysAsData(%s_data, %s);' % (name, k))
             else:
                 datalist.append('(void *)NULL')
                 tname = english_upper(chartoname[t.type])
-                funclist.append('%s_%s' % (tname, name))
+                funclist.append('npy_%s_%s' % (tname, name))
 
             for x in t.in_ + t.out:
                 siglist.append('PyArray_%s' % (english_upper(chartoname[x]),))

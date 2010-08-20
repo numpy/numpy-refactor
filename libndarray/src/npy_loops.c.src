@@ -260,7 +260,7 @@ NpyUFunc_GG_G(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
  **/
 
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         npy_bool in1 = *((npy_bool *)ip1) != 0;
@@ -278,7 +278,7 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
  **/
 
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     if(IS_BINARY_REDUCE) {
         BINARY_REDUCE_LOOP(npy_bool) {
@@ -302,7 +302,7 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
 
 
 void
-BOOL_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_BOOL_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         npy_bool in1 = *((npy_bool *)ip1) != 0;
@@ -316,7 +316,7 @@ BOOL_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_U
  * #OP =  >, <#
  **/
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         npy_bool in1 = *((npy_bool *)ip1) != 0;
@@ -331,7 +331,7 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
  * #OP =  !=, ==#
  **/
 void
-BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         npy_bool in1 = *(npy_bool *)ip1;
@@ -341,7 +341,7 @@ BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED
 /**end repeat**/
 
 void
-BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     OUTPUT_LOOP {
         *((npy_bool *)op1) = 1;
@@ -377,12 +377,12 @@ BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
  * #S = , U#
  */
 
-#define @S@@TYPE@_floor_divide @S@@TYPE@_divide
-#define @S@@TYPE@_fmax @S@@TYPE@_maximum
-#define @S@@TYPE@_fmin @S@@TYPE@_minimum
+#define npy_@S@@TYPE@_floor_divide npy_@S@@TYPE@_divide
+#define npy_@S@@TYPE@_fmax npy_@S@@TYPE@_maximum
+#define npy_@S@@TYPE@_fmin npy_@S@@TYPE@_minimum
 
 void
-@S@@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@S@@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     OUTPUT_LOOP {
         *((@s@@type@ *)op1) = 1;
@@ -390,7 +390,7 @@ void
 }
 
 void
-@S@@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@S@@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -399,7 +399,7 @@ void
 }
 
 void
-@S@@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@S@@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -408,7 +408,7 @@ void
 }
 
 void
-@S@@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -417,7 +417,7 @@ void
 }
 
 void
-@S@@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -426,7 +426,7 @@ void
 }
 
 void
-@S@@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -435,7 +435,7 @@ void
 }
 
 void
-@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -450,7 +450,7 @@ void
  * #OP = +, -,*, &, |, ^, <<, >>#
  */
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     if(IS_BINARY_REDUCE) {
         BINARY_REDUCE_LOOP(@s@@type@) {
@@ -474,7 +474,7 @@ void
  * #OP =  ==, !=, >, >=, <, <=, &&, ||#
  */
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -485,7 +485,7 @@ void
 /**end repeat2**/
 
 void
-@S@@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -499,7 +499,7 @@ void
  * #OP =  >, <#
  **/
 void
-@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -510,7 +510,7 @@ void
 /**end repeat2**/
 
 void
-@S@@TYPE@_true_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_true_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const double in1 = (double)(*(@s@@type@ *)ip1);
@@ -520,7 +520,7 @@ void
 }
 
 void
-@S@@TYPE@_power(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_power(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @ftype@ in1 = (@ftype@)*(@s@@type@ *)ip1;
@@ -530,7 +530,7 @@ void
 }
 
 void
-@S@@TYPE@_fmod(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@S@@TYPE@_fmod(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @s@@type@ in1 = *(@s@@type@ *)ip1;
@@ -549,7 +549,7 @@ void
 /**end repeat1**/
 
 void
-U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const u@type@ in1 = *(u@type@ *)ip1;
@@ -558,7 +558,7 @@ U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_U
 }
 
 void
-@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -567,7 +567,7 @@ void
 }
 
 void
-U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const u@type@ in1 = *(u@type@ *)ip1;
@@ -576,7 +576,7 @@ U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSE
 }
 
 void
-@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -585,7 +585,7 @@ void
 }
 
 void
-@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -611,7 +611,7 @@ void
 }
 
 void
-U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const u@type@ in1 = *(u@type@ *)ip1;
@@ -627,7 +627,7 @@ U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 }
 
 void
-@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -650,7 +650,7 @@ void
 }
 
 void
-U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const u@type@ in1 = *(u@type@ *)ip1;
@@ -684,7 +684,7 @@ U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
  */
 
 void
-@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     OUTPUT_LOOP {
         *((@type@ *)op1) = 1;
@@ -692,7 +692,7 @@ void
 }
 
 void
-@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -701,7 +701,7 @@ void
 }
 
 void
-@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -716,7 +716,7 @@ void
  * #OP =  ==, !=, >, >=, <, <=, &&, ||#
  */
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -727,7 +727,7 @@ void
 /**end repeat1**/
 
 void
-@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -741,7 +741,7 @@ void
  * #OP =  >, <#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -752,7 +752,7 @@ void
 /**end repeat1**/
 
 void
-@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -761,7 +761,7 @@ void
 }
 
 void
-@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -775,7 +775,7 @@ void
    sequence of ndarrays in the same order as args.
  */
 void
-DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     BINARY_LOOP {
         const npy_datetime in1 = *(npy_datetime *)ip1;
@@ -785,7 +785,7 @@ DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
 }
 
 void
-DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const npy_timedelta in1 = *(npy_timedelta *)ip1;
@@ -795,7 +795,7 @@ DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
 }
 
 void
-TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const npy_timedelta in1 = *(npy_timedelta *)ip1;
@@ -805,7 +805,7 @@ TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
 }
 
 void
-DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const npy_datetime in1 = *(npy_datetime *)ip1;
@@ -815,7 +815,7 @@ DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void 
 }
 
 void
-DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const npy_datetime in1 = *(npy_datetime *)ip1;
@@ -825,7 +825,7 @@ DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void 
 }
 
 void
-TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const npy_timedelta in1 = *(npy_timedelta *)ip1;
@@ -857,7 +857,7 @@ TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void
  * # OP = +, -, *, /#
  */
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     if(IS_BINARY_REDUCE) {
         BINARY_REDUCE_LOOP(@type@) {
@@ -883,7 +883,7 @@ void
  * #OP = ==, !=, <, <=, >, >=, &&, ||#
  */
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -894,7 +894,7 @@ void
 /**end repeat1**/
 
 void
-@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -904,7 +904,7 @@ void
 }
 
 void
-@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -917,7 +917,7 @@ void
  * #func = npy_isnan, npy_isinf, npy_isfinite, npy_signbit#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -927,7 +927,7 @@ void
 /**end repeat1**/
 
 void
-@TYPE@_spacing(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_spacing(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -936,7 +936,7 @@ void
 }
 
 void
-@TYPE@_copysign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_copysign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -946,7 +946,7 @@ void
 }
 
 void
-@TYPE@_nextafter(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_nextafter(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -960,7 +960,7 @@ void
  * #OP =  >=, <=#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     /*  */
     BINARY_LOOP {
@@ -976,7 +976,7 @@ void
  * #OP =  >=, <=#
  **/
 void
-@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     /*  */
     BINARY_LOOP {
@@ -988,7 +988,7 @@ void
 /**end repeat1**/
 
 void
-@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -998,7 +998,7 @@ void
 }
 
 void
-@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1014,7 +1014,7 @@ void
 }
 
 void
-@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1023,7 +1023,7 @@ void
 }
 
 void
-@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1032,7 +1032,7 @@ void
 }
 
 void
-@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     OUTPUT_LOOP {
         *((@type@ *)op1) = 1;
@@ -1040,7 +1040,7 @@ void
 }
 
 void
-@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1049,7 +1049,7 @@ void
 }
 
 void
-@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1060,7 +1060,7 @@ void
 }
 
 void
-@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1069,7 +1069,7 @@ void
 }
 
 void
-@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     /* Sign of nan is nan */
     UNARY_LOOP {
@@ -1079,7 +1079,7 @@ void
 }
 
 void
-@TYPE@_modf(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_modf(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP_TWO_OUT {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1089,7 +1089,7 @@ void
 
 #if NPY_HAVE_DECL_FREXP@C@
 void
-@TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP_TWO_OUT {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1100,7 +1100,7 @@ void
 
 #if NPY_HAVE_DECL_LDEXP@C@
 void
-@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1 = *(@type@ *)ip1;
@@ -1142,7 +1142,7 @@ void
  * #OP = +, -#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1156,7 +1156,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 /**end repeat1**/
 
 void
-C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1169,7 +1169,7 @@ C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_U
 }
 
 void
-C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1192,7 +1192,7 @@ C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 }
 
 void
-C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1217,7 +1217,7 @@ C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *N
  * #OP = CGT, CGE, CLT, CLE, CEQ, CNE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1235,7 +1235,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
    #OP2 = &&, ||#
 */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1248,7 +1248,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 /**end repeat1**/
 
 void
-C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1262,7 +1262,7 @@ C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NP
 }
 
 void
-C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1277,7 +1277,7 @@ C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NP
  * #OP = ||, ||, &&#
  **/
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1288,7 +1288,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 /**end repeat1**/
 
 void
-C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1299,7 +1299,7 @@ C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 }
 
 void
-C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1319,7 +1319,7 @@ C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
 }
 
 void
-C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
+npy_C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data))
 {
     OUTPUT_LOOP {
         ((@type@ *)op1)[0] = 1;
@@ -1328,7 +1328,7 @@ C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
 }
 
 void
-C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func)) {
+npy_C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func)) {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
         const @type@ in1i = ((@type@ *)ip1)[1];
@@ -1338,7 +1338,7 @@ C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
 }
 
 void
-C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1348,7 +1348,7 @@ C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_U
 }
 
 void
-C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     UNARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1358,7 +1358,7 @@ C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSE
 }
 
 void
-C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     /* fixme: sign of nan is currently 0 */
     UNARY_LOOP {
@@ -1376,7 +1376,7 @@ C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSE
  * #OP = CGE, CLE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1400,7 +1400,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
  * #OP = CGE, CLE#
  */
 void
-C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
+npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func))
 {
     BINARY_LOOP {
         const @type@ in1r = ((@type@ *)ip1)[0];
@@ -1419,7 +1419,7 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 }
 /**end repeat1**/
 
-#define C@TYPE@_true_divide C@TYPE@_divide
+#define npy_C@TYPE@_true_divide npy_C@TYPE@_divide
 
 /**end repeat**/
 
@@ -1429,5 +1429,3 @@ C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNU
 #undef CLT
 #undef CEQ
 #undef CNE
-
-

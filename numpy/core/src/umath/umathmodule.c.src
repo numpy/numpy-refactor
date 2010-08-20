@@ -66,19 +66,19 @@ PyUFunc_On_Om(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
 
 /* From loops.c.src */
 void
-OBJECT_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_not_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_not_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_greater(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_greater(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_greater_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_greater_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_less(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_less(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_less_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_less_equal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 void
-OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
+npy_OBJECT_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 
 /* From ufunc_object.c */
@@ -326,11 +326,11 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 
 static NpyUFuncGenericFunction frexp_functions[] = {
 #if NPY_HAVE_DECL_FREXPF
-    FLOAT_frexp,
+    npy_FLOAT_frexp,
 #endif
-    DOUBLE_frexp
+    npy_DOUBLE_frexp
 #if NPY_HAVE_DECL_FREXPL
-    ,LONGDOUBLE_frexp
+    , npy_LONGDOUBLE_frexp
 #endif
 };
 
@@ -347,11 +347,11 @@ static char frexp_signatures[] = {
 
 static NpyUFuncGenericFunction ldexp_functions[] = {
 #if NPY_HAVE_DECL_LDEXPF
-    FLOAT_ldexp,
+    npy_FLOAT_ldexp,
 #endif
-    DOUBLE_ldexp
+    npy_DOUBLE_ldexp
 #if NPY_HAVE_DECL_LDEXPL
-    ,LONGDOUBLE_ldexp
+    , npy_LONGDOUBLE_ldexp
 #endif
 };
 

@@ -31,13 +31,13 @@ struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
 
 /* Initializes the library at startup.
    This functions must be called exactly once by the interface layer.*/
-void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
-                  struct NpyInterface_WrapperFuncs *wrapperFuncs,
-                  npy_tp_error_set error_set,
-                  npy_tp_error_occurred error_occurred,
-                  npy_tp_error_clear error_clear,
-                  npy_tp_cmp_priority cmp_priority,
-                  npy_interface_incref incref, npy_interface_decref decref)
+void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
+                 struct NpyInterface_WrapperFuncs *wrapperFuncs,
+                 npy_tp_error_set error_set,
+                 npy_tp_error_occurred error_occurred,
+                 npy_tp_error_clear error_clear,
+                 npy_tp_cmp_priority cmp_priority,
+                 npy_interface_incref incref, npy_interface_decref decref)
 {
     if (NULL != wrapperFuncs) {
         memmove(&_NpyArrayWrapperFuncs, wrapperFuncs, sizeof(struct NpyInterface_WrapperFuncs));

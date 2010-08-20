@@ -327,7 +327,7 @@ typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);
 typedef int (*npy_tp_error_occurred)(void);
 typedef void (*npy_tp_error_clear)(void);
 
-/* these functions are set in initlibnumpy */
+/* these functions are set in npy_initlib */
 extern npy_tp_error_set NpyErr_SetString;
 extern npy_tp_error_occurred NpyErr_Occurred;
 extern npy_tp_error_clear NpyErr_Clear;
@@ -396,14 +396,14 @@ struct NpyInterface_WrapperFuncs {
 
 
 
-extern void initlibnumpy(struct NpyArray_FunctionDefs *functionDefs,
-                         struct NpyInterface_WrapperFuncs *wrapperFuncs,
-                         npy_tp_error_set error_set,
-                         npy_tp_error_occurred error_occurred,
-                         npy_tp_error_clear error_clear,
-                         npy_tp_cmp_priority cmp_priority,
-                         npy_interface_incref incref, npy_interface_decref decref);
-
+extern void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
+                        struct NpyInterface_WrapperFuncs *wrapperFuncs,
+                        npy_tp_error_set error_set,
+                        npy_tp_error_occurred error_occurred,
+                        npy_tp_error_clear error_clear,
+                        npy_tp_cmp_priority cmp_priority,
+                        npy_interface_incref incref,
+                        npy_interface_decref decref);
 
 
 /*
