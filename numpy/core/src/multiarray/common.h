@@ -1,6 +1,8 @@
 #ifndef _NPY_PRIVATE_COMMON_H_
 #define _NPY_PRIVATE_COMMON_H_
 
+#include <numpy/noprefix.h>
+
 #define error_converting(x)  (((x) == -1) && PyErr_Occurred())
 
 
