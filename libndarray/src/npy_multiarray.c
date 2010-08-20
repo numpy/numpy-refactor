@@ -11,6 +11,7 @@
 #include "npy_dict.h"
 #include "npy_internal.h"
 #include "npy_os.h"
+#include "npy_calculation.h"
 
 
 npy_tp_error_set NpyErr_SetString;

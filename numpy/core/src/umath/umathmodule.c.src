@@ -494,7 +494,8 @@ PyMODINIT_FUNC initumath(void)
 
     InitOtherOperators(d);
 
-    NpyUFunc_SetFpErrFuncs(PyUFunc_GetPyValues, PyUFunc_handlefperr);
+    NpyUFunc_SetFpErrFuncs( (void (*)(char *, int *, int *, void **))PyUFunc_GetPyValues, 
+                            (void (*)(int, void *, int, int *))PyUFunc_handlefperr );
     
     PyDict_SetItemString(d, "pi", s = PyFloat_FromDouble(NPY_PI));
     Py_DECREF(s);

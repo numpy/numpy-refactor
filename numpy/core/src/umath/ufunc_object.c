@@ -893,22 +893,14 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
  */
 static PyObject *
 PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
-        int axis, int otype)
+               int axis, int otype)
 {
     PyArrayObject *ret;
-    int bufsize, errormask;
-    PyObject *errobj;
-    
-    /* get looping parameters from Python */
-    if (PyUFunc_GetPyValues("reduce", &bufsize, &errormask,
-                            &errobj) < 0) {
-        return NULL;
-    }
     
     /* Construct loop object */
     ASSIGN_TO_PYARRAY(ret, 
-        NpyUFunc_Reduce(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), PyArray_ARRAY(out), axis, otype,
-                        bufsize, errormask, errobj));
+        NpyUFunc_Reduce(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), 
+                        PyArray_ARRAY(out), axis, otype));
     return (PyObject *)ret;
 }
 
@@ -918,19 +910,11 @@ PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
                    int axis, int otype)
 {
     PyArrayObject *ret = NULL;
-    int bufsize, errormask;
-    PyObject *errobj;
-    
-    /* get looping parameters from Python */
-    if (PyUFunc_GetPyValues("accumulate", &bufsize, &errormask,
-                            &errobj) < 0) {
-        return NULL;
-    }
     
     /* Construct loop object */
     ASSIGN_TO_PYARRAY(ret, 
-        NpyUFunc_Accumulate(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), PyArray_ARRAY(out), axis, otype,
-                            bufsize, errormask, errobj));
+        NpyUFunc_Accumulate(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), 
+                            PyArray_ARRAY(out), axis, otype));
     return (PyObject *)ret;
 }
 
@@ -960,18 +944,10 @@ PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
                  PyArrayObject *out, int axis, int otype)
 {
     PyArrayObject *ret;
-    int bufsize, errormask;
-    PyObject *errobj;
-    
-    /* get looping parameters from Python */
-    if (PyUFunc_GetPyValues("reduceat", &bufsize, &errormask,
-                            &errobj) < 0) {
-        return NULL;
-    }
     
     ASSIGN_TO_PYARRAY(ret,
         NpyUFunc_Reduceat(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), PyArray_ARRAY(ind), 
-                          PyArray_ARRAY(out), axis, otype, bufsize, errormask, errobj));
+                          PyArray_ARRAY(out), axis, otype));
     return (PyObject *)ret;
 }
 

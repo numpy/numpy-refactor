@@ -265,7 +265,7 @@ NpyUFuncObject *
 
 NpyArray *
 NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
-                int axis, int otype, int bufsize, int errormask, void *errobj);
+                int axis, int otype);
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
                              int *rtypenums,
                              int originalArgWasObjArray,
@@ -274,13 +274,11 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
 
 NpyArray *
 NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
-                    int axis, int otype, int bufsize, int errormask,
-                    void *errobj);
+                    int axis, int otype);
 
 NpyArray *
 NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
-                  NpyArray *out, int axis, int otype, 
-                  int bufsize, int errormas, void *errobj);
+                  NpyArray *out, int axis, int otype);
 
 int
 NpyUFunc_SetUsesArraysAsData(void **data, size_t i);

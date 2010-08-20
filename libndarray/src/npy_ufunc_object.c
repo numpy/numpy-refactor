@@ -26,8 +26,7 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
                  int *rtypenums, npy_prepare_outputs_func prepare, void *prepare_data);
 static NpyUFuncReduceObject *
 construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
-                 int axis, int otype, int operation, npy_intp ind_size, 
-                 char *str, int bufsize, int errormask, void *errobj);
+                 int axis, int otype, int operation, npy_intp ind_size); 
 static int
 select_types(NpyUFuncObject *self, int *arg_types,
              NpyUFuncGenericFunction *function, void **data,
@@ -523,7 +522,7 @@ fail:
  */
 NpyArray *
 NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
-               int axis, int otype, int bufsize, int errormask, void *errobj)
+               int axis, int otype)
 {
     NpyArray *ret = NULL;
     NpyUFuncReduceObject *loop;
@@ -535,8 +534,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     assert(NPY_VALID_MAGIC == self->magic_number);
     
     /* Construct loop object */
-    loop = construct_reduce(self, &arr, out, axis, otype, NPY_UFUNC_REDUCE, 0,
-                            "reduce", bufsize, errormask, errobj);
+    loop = construct_reduce(self, &arr, out, axis, otype, NPY_UFUNC_REDUCE, 0);
     if (!loop) {
         return NULL;
     }
@@ -697,7 +695,7 @@ fail:
 
 NpyArray *
 NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
-                    int axis, int otype, int bufsize, int errormask, void *errobj)
+                    int axis, int otype)
 {
     NpyArray *ret = NULL;
     NpyUFuncReduceObject *loop;
@@ -709,7 +707,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
 
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype,
-                            NPY_UFUNC_ACCUMULATE, 0, "accumulate", bufsize, errormask, errobj);
+                            NPY_UFUNC_ACCUMULATE, 0);
     if (!loop) {
         return NULL;
     }
@@ -883,8 +881,7 @@ fail:
  */
 NpyArray *
 NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
-                  NpyArray *out, int axis, int otype, 
-                  int bufsize, int errormask, void *errobj)
+                  NpyArray *out, int axis, int otype)
 {
     NpyArray *ret;
     NpyUFuncReduceObject *loop;
@@ -912,7 +909,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     ptr = (npy_intp *)NpyArray_BYTES(ind);
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype,
-                            NPY_UFUNC_REDUCEAT, nn, "reduceat", bufsize, errormask, errobj);
+                            NPY_UFUNC_REDUCEAT, nn);
     if (!loop) {
         return NULL;
     }
@@ -2028,8 +2025,7 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
 
 static NpyUFuncReduceObject *
 construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
-                 int axis, int otype, int operation, npy_intp ind_size, 
-                 char *str, int bufsize, int errormask, void *errobj)
+                 int axis, int otype, int operation, npy_intp ind_size)
 {
     NpyUFuncReduceObject *loop;
     NpyArray *idarr;
@@ -2038,6 +2034,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     int arg_types[3];
     NPY_SCALARKIND scalars[3] = { NPY_NOSCALAR, NPY_NOSCALAR,
         NPY_NOSCALAR };
+    char *name = (NULL != self->name) ? self->name : NULL;
     int i, j, nd;
     int flags;
     
@@ -2075,13 +2072,12 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     loop->decref_arr = NULL;
     loop->N = NpyArray_DIM(*arr,axis);
     loop->instrides = NpyArray_STRIDE(*arr, axis);
-    loop->bufsize = bufsize;
-    loop->errormask = errormask;
-    loop->errobj = errobj;
+    fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
     if (select_types(loop->ufunc, arg_types, &(loop->function),
                      &(loop->funcdata), scalars, NULL) == -1) {
         goto fail;
     }
+
     /*
      * output type may change -- if it does
      * reduction is forced into that type
@@ -2136,7 +2132,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     if ((loop->meth == ZERO_EL_REDUCELOOP)
         || ((operation == NPY_UFUNC_REDUCEAT)
             && (loop->meth == BUFFER_UFUNCLOOP))) {
-            idarr = _getidentity(self, otype, str);
+            idarr = _getidentity(self, otype, name);
             if (idarr == NULL) {
                 goto fail;
             }
