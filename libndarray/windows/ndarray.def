@@ -1,7 +1,6 @@
 LIBRARY
 
 EXPORTS
-_array_fill_strides
 byte_swap_vector
 _flat_copyinto
 npy_acos
@@ -10,6 +9,7 @@ npy_acosh
 npy_acoshf
 npy_acoshl
 npy_acosl
+npy_array_fill_strides
 NpyArray_Alloc
 NpyArray_ArgMax
 NpyArray_ArgSort

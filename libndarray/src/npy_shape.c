@@ -132,8 +132,8 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
 
     /* make new_strides variable */
     sd = (size_t) self->descr->elsize;
-    sd = (size_t) _array_fill_strides(new_strides, new_dimensions, new_nd, sd,
-            self->flags, &(self->flags));
+    sd = (size_t) npy_array_fill_strides(new_strides, new_dimensions, new_nd,
+                                         sd, self->flags, &(self->flags));
     memmove(self->dimensions, new_dimensions, new_nd*sizeof(npy_intp));
     memmove(self->strides, new_strides, new_nd*sizeof(npy_intp));
     return 0;

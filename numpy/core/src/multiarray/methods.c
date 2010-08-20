@@ -1421,10 +1421,10 @@ array_setstate(PyArrayObject *self, PyObject *args)
         PyArray_DIMS(self) = PyDimMem_NEW(nd * 2);
         PyArray_STRIDES(self) = PyArray_DIMS(self) + nd;
         memcpy(PyArray_DIMS(self), dimensions, sizeof(intp)*nd);
-        (void) _array_fill_strides(PyArray_STRIDES(self), dimensions, nd,
-                                   (size_t) PyArray_ITEMSIZE(self),
-                                   (fortran ? FORTRAN : CONTIGUOUS),
-                                   &(PyArray_FLAGS(self)));
+        (void) npy_array_fill_strides(PyArray_STRIDES(self), dimensions, nd,
+                                      (size_t) PyArray_ITEMSIZE(self),
+                                      (fortran ? FORTRAN : CONTIGUOUS),
+                                      &(PyArray_FLAGS(self)));
     }
 
     if (!PyDataType_FLAGCHK(typecode, NPY_LIST_PICKLE)) {

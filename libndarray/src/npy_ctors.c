@@ -524,8 +524,8 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
  * array is desired.
  */
 size_t
-_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
-                    int inflag, int *objflags)
+npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
+                       size_t itemsize, int inflag, int *objflags)
 {
     int i;
     /* Only make Fortran strides if not contiguous as well */
@@ -946,8 +946,8 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         self->strides = self->dimensions + nd;
         memcpy(self->dimensions, dims, sizeof(npy_intp)*nd);
         if (strides == NULL) { /* fill it in */
-            sd = _array_fill_strides(self->strides, dims, nd, sd,
-                                     flags, &(self->flags));
+            sd = npy_array_fill_strides(self->strides, dims, nd, sd,
+                                        flags, &(self->flags));
         }
         else {
             /*
