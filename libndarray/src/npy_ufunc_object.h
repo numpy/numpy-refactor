@@ -393,15 +393,15 @@ NpyUFunc_clearfperr();
 
 #include <machine/fpu.h>
 
-#define NPY_UFUNC_CHECK_STATUS(ret) {                                           \
-        unsigned long fpstatus;                                             \
-        fpstatus = ieee_get_fp_control();                                   \
-        /* clear status bits as well as disable exception mode if on */     \
-        ieee_set_fp_control( 0 );                                           \
-        ret = ((IEEE_STATUS_DZE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0)   \
-                | ((IEEE_STATUS_OVF & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
-                | ((IEEE_STATUS_UNF & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0)  \
-                | ((IEEE_STATUS_INV & fpstatus) ? UFUNC_FPE_INVALID : 0);   \
+#define NPY_UFUNC_CHECK_STATUS(ret) {                                          \
+        unsigned long fpstatus;                                                \
+        fpstatus = ieee_get_fp_control();                                      \
+        /* clear status bits as well as disable exception mode if on */        \
+        ieee_set_fp_control( 0 );                                              \
+        ret = ((IEEE_STATUS_DZE & fpstatus) ? NPY_UFUNC_FPE_DIVIDEBYZERO : 0)  \
+                | ((IEEE_STATUS_OVF & fpstatus) ? NPY_UFUNC_FPE_OVERFLOW : 0)  \
+                | ((IEEE_STATUS_UNF & fpstatus) ? NPY_UFUNC_FPE_UNDERFLOW : 0) \
+                | ((IEEE_STATUS_INV & fpstatus) ? NPY_UFUNC_FPE_INVALID : 0);  \
         }
 
 /* MS Windows -----------------------------------------------------*/
@@ -415,11 +415,11 @@ NpyUFunc_clearfperr();
 #endif
 
 #define NPY_UFUNC_CHECK_STATUS(ret) {                                       \
-        int fpstatus = (int) _clearfp();                                \
-        ret = ((SW_ZERODIVIDE & fpstatus) ? UFUNC_FPE_DIVIDEBYZERO : 0) \
-                | ((SW_OVERFLOW & fpstatus) ? UFUNC_FPE_OVERFLOW : 0)   \
-                | ((SW_UNDERFLOW & fpstatus) ? UFUNC_FPE_UNDERFLOW : 0) \
-                | ((SW_INVALID & fpstatus) ? UFUNC_FPE_INVALID : 0);    \
+        int fpstatus = (int) _clearfp();                                    \
+        ret = ((SW_ZERODIVIDE & fpstatus) ? NPY_UFUNC_FPE_DIVIDEBYZERO : 0) \
+                | ((SW_OVERFLOW & fpstatus) ? NPY_UFUNC_FPE_OVERFLOW : 0)   \
+                | ((SW_UNDERFLOW & fpstatus) ? NPY_UFUNC_FPE_UNDERFLOW : 0) \
+                | ((SW_INVALID & fpstatus) ? NPY_UFUNC_FPE_INVALID : 0);    \
         }
 
 /* Solaris --------------------------------------------------------*/
