@@ -17,13 +17,13 @@ src_dir = r'..\src'
 
 
 def write_config():
-    os.system(r"..\tools\long_double.c")
+    os.system(r"cl ..\tools\long_double.c")
     data = open('npy_config.h').read()
     data += '''
 /* long double representation */
 #define NPY_LDOUBLE_%s 1
 ''' % check_long_double_repr('long_double.obj')
-    fo = open(join(src_dir, 'npy_config.h'))
+    fo = open(join(src_dir, 'npy_config.h'), 'w')
     fo.write(data)
     fo.close()
 
