@@ -2465,13 +2465,13 @@ PyMODINIT_FUNC initmultiarray(void) {
     /* Initialize the core libnumpy library. Basically this is just providing
        pointers to functions that it can use for coverting type-to-object,
        object-to-type, and similar operations. */
-    initlibnumpy(&_array_function_defs,
-                 &_wrapper_funcs,
-                 (npy_tp_error_set) error_set,
-                 (npy_tp_error_occurred) error_occurred,
-                 (npy_tp_error_clear) error_clear,
-                 (npy_tp_cmp_priority) cmp_priority,
-                 NpyInterface_Incref, NpyInterface_Decref);
+    npy_initlib(&_array_function_defs,
+                &_wrapper_funcs,
+                (npy_tp_error_set) error_set,
+                (npy_tp_error_occurred) error_occurred,
+                (npy_tp_error_clear) error_clear,
+                (npy_tp_cmp_priority) cmp_priority,
+                NpyInterface_Incref, NpyInterface_Decref);
 
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)
