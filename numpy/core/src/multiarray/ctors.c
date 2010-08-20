@@ -136,7 +136,7 @@ copy_and_swap(void *dst, void *src, int itemsize, intp numitems,
     }
 
     if (swap) {
-        byte_swap_vector(d1, numitems, itemsize);
+        npy_byte_swap_vector(d1, numitems, itemsize);
     }
 }
 

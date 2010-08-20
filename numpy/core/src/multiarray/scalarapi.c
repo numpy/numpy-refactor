@@ -787,7 +787,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
 #ifdef Py_UNICODE_WIDE
             memcpy(destptr, data, itemsize);
             if (swap) {
-                byte_swap_vector(destptr, length, 4);
+                npy_byte_swap_vector(destptr, length, 4);
             }
 #else
             /* need aligned data buffer */
@@ -799,7 +799,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
                 alloc = 1;
                 memcpy(buffer, data, itemsize);
                 if (swap) {
-                    byte_swap_vector(buffer, itemsize >> 2, 4);
+                    npy_byte_swap_vector(buffer, itemsize >> 2, 4);
                 }
             }
             else {

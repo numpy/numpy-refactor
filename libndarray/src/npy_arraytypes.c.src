@@ -1064,7 +1064,7 @@ UNICODE_nonzero (npy_ucs4 *ip, NpyArray *ap)
         }
         memcpy(buffer, ip, ap->descr->elsize);
         if (!NpyArray_ISNOTSWAPPED(ap)) {
-            byte_swap_vector(buffer, len, 4);
+            npy_byte_swap_vector(buffer, len, 4);
         }
         ip = (npy_ucs4 *)buffer;
     }

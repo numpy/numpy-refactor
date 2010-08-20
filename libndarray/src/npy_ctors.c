@@ -192,7 +192,7 @@ _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 
 
 void
-byte_swap_vector(void *p, npy_intp n, int size)
+npy_byte_swap_vector(void *p, npy_intp n, int size)
 {
     _strided_byte_swap(p, (npy_intp) size, n, size);
     return;
@@ -285,7 +285,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
         NpyArray_XDECREF(dest);
         memcpy(dest->data, src->data, elsize);
         if (swap) {
-            byte_swap_vector(dest->data, 1, elsize);
+            npy_byte_swap_vector(dest->data, 1, elsize);
         }
         return 0;
     }

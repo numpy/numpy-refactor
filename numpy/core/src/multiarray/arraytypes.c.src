@@ -256,7 +256,7 @@ int
     }
     memcpy(ov, &temp, NpyArray_ITEMSIZE(ap));
     if (!NpyArray_ISNOTSWAPPED(ap)) {
-        byte_swap_vector(ov, 2, sizeof(@type@));
+        npy_byte_swap_vector(ov, 2, sizeof(@type@));
     }
     rsize = sizeof(@type@);
     copy_and_swap(ov, &temp, rsize, 2, rsize, !NpyArray_ISNOTSWAPPED(ap));
@@ -325,7 +325,7 @@ UNICODE_getitem(char *ip, NpyArray *ap)
         alloc = 1;
         memcpy(buffer, ip, elsize);
         if (!NpyArray_ISNOTSWAPPED(ap)) {
-            byte_swap_vector(buffer, mysize, sizeof(PyArray_UCS4));
+            npy_byte_swap_vector(buffer, mysize, sizeof(PyArray_UCS4));
         }
     }
     else {
@@ -429,7 +429,7 @@ UNICODE_setitem(PyObject *op, char *ov, NpyArray *ap)
         memset(ov + datalen, 0, (NpyArray_ITEMSIZE(ap) - datalen));
     }
     if (!NpyArray_ISNOTSWAPPED(ap)) {
-        byte_swap_vector(ov, NpyArray_ITEMSIZE(ap) >> 2, 4);
+        npy_byte_swap_vector(ov, NpyArray_ITEMSIZE(ap) >> 2, 4);
     }
     Py_DECREF(temp);
     return 0;

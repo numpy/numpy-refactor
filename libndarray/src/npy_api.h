@@ -89,7 +89,7 @@ NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 
 void
-byte_swap_vector(void *p, npy_intp n, int size);
+npy_byte_swap_vector(void *p, npy_intp n, int size);
 
 
 
