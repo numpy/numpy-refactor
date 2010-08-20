@@ -228,7 +228,7 @@ generated_headers.append(ufunc_api[0])
 env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
                        pjoin(usr_dir, 'include')])
 
-env.Prepend(LIBPATH=["."])
+env.Prepend(LIBPATH=[".", pjoin(usr_dir, 'lib')])
 
 subst_dict = {'@prefix@': '$distutils_install_prefix',
     '@pkgname@': 'numpy.core', '@sep@': os.path.sep}
@@ -297,7 +297,6 @@ umathmodule_src.extend(umath_loops_src)
 umathmodule = env.DistutilsPythonExtension(
          'umath',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib')],
          source = umathmodule_src)
 
 #------------------------
