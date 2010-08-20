@@ -32,6 +32,7 @@ def install():
     os.makedirs(usr_lib_dir)
     for fn in ['ndarray.dll', 'ndarray.lib']:
         shutil.copy(r'Release\%s' % fn, usr_lib_dir)
+    shutil.copy(join(sys.prefix, 'libs', 'python26.lib'), usr_lib_dir)
 
 
 def main():
