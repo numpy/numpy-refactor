@@ -754,7 +754,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
 {
     int i, result;
     NpyArray *mpsCore[NPY_MAXARGS];
-    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF
     Py_ssize_t nargs=0;
     PyObject *extobj = NULL;
     PyObject *typetup = NULL;
