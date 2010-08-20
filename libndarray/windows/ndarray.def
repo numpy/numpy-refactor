@@ -4,7 +4,6 @@ EXPORTS
 _array_fill_strides
 byte_swap_vector
 _flat_copyinto
-initlibnumpy
 npy_acos
 npy_acosf
 npy_acosh
@@ -418,6 +417,7 @@ npy_fmodl
 npy_hypot
 npy_hypotf
 npy_hypotl
+npy_initlib
 npy_INT_absolute
 npy_INT_add
 npy_INT_bitwise_and
