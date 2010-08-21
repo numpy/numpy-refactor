@@ -31,7 +31,7 @@ NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
  * Returns the number of non-new indices.  Boolean arrays are
  * counted as if they are expanded.
  */
-int count_nonnew(NpyIndex* indexes, int n)
+static int count_nonnew(NpyIndex* indexes, int n)
 {
     int i;
     int result = 0;
