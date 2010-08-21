@@ -246,8 +246,9 @@ BOOL_scan(FILE *fp, npy_bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_
  * #func = (l, ul)*5, l, l#
  * #btype = (long, ulong)*5, long, long#
  */
-int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
+static int
+@fname@_fromstr(char *str, @type@ *ip, char **endptr,
+                NpyArray_Descr *NPY_UNUSED(ignore))
 {
     @btype@ result;
 
@@ -262,8 +263,9 @@ int
  * #fname=FLOAT,DOUBLE,LONGDOUBLE#
  * #type=float,double,longdouble#
  */
-int
-@fname@_fromstr(char *str, @type@ *ip, char **endptr, NpyArray_Descr *NPY_UNUSED(ignore))
+static int
+@fname@_fromstr(char *str, @type@ *ip, char **endptr,
+                NpyArray_Descr *NPY_UNUSED(ignore))
 {
     double result;
 
@@ -2204,10 +2206,14 @@ void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
 
 
     /* Just copy the provided function arrays into the descriptors. */
-    memmove(_NpyObject_ArrFuncs.cast, externDefs->cast_from_obj, NPY_NTYPES * sizeof(void *));
-    memmove(_NpyString_ArrFuncs.cast, externDefs->cast_from_string, NPY_NTYPES * sizeof(void *));
-    memmove(_NpyUnicode_ArrFuncs.cast, externDefs->cast_from_unicode, NPY_NTYPES * sizeof(void *));
-    memmove(_NpyVoid_ArrFuncs.cast, externDefs->cast_from_void, NPY_NTYPES * sizeof(void *));
+    memmove(_NpyObject_ArrFuncs.cast, externDefs->cast_from_obj,
+            NPY_NTYPES * sizeof(void *));
+    memmove(_NpyString_ArrFuncs.cast, externDefs->cast_from_string,
+            NPY_NTYPES * sizeof(void *));
+    memmove(_NpyUnicode_ArrFuncs.cast, externDefs->cast_from_unicode,
+            NPY_NTYPES * sizeof(void *));
+    memmove(_NpyVoid_ArrFuncs.cast, externDefs->cast_from_void,
+            NPY_NTYPES * sizeof(void *));
 
     /* All object methods must be provided by the interface. */
     _NpyObject_ArrFuncs.copyswapn = externDefs->OBJECT_copyswapn;
