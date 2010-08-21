@@ -28,7 +28,7 @@ double npy_copysign(double x, double y)
  * p >= 0, returnx x + nulp
  * p < 0, returnx x - nulp
  */
-double _next(double x, int p)
+static double _next(double x, int p)
 {
     volatile double t;
     npy_int32 hx, hy, ix;
@@ -76,7 +76,7 @@ double _next(double x, int p)
     return x;
 }
 
-float _nextf(float x, int p)
+static float _nextf(float x, int p)
 {
     volatile float t;
     npy_int32 hx, hy, ix;
@@ -119,7 +119,7 @@ float _nextf(float x, int p)
     return x;
 }
 
-npy_longdouble _nextl(npy_longdouble x, int p)
+static npy_longdouble _nextl(npy_longdouble x, int p)
 {
     volatile npy_longdouble t;
     union IEEEl2bitsrep ux;
