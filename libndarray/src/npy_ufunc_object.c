@@ -3,9 +3,10 @@
  *
  */
 #include <stdlib.h>
+#include <string.h>
 #include <memory.h>
-#include "npy_config.h"
 
+#include "npy_config.h"
 #include "npy_common.h"
 #include "npy_dict.h"
 #include "npy_api.h"
