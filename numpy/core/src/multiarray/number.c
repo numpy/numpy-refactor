@@ -257,11 +257,11 @@ PyArray_GenericInplaceUnaryFunction(PyArrayObject *m1, PyObject *op)
 static PyObject *
 array_add(PyArrayObject *m1, PyObject *m2)
 {
-    NpyArray *ret = NULL;
     /* TODO: This version breaks some tests. Don't know why yet... */
 #if 0    
     // If m2 is an array, use the faster core routines.
     if (PyArray_Check(m2)) {
+        NpyArray *ret = NULL;
         ret = NpyArray_GenericBinaryFunction(PyArray_ARRAY(m1), 
                                              PyArray_ARRAY(m2), 
                                              NpyArray_GetNumericOp(npy_op_add)));

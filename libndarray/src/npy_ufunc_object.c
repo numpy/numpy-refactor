@@ -1125,14 +1125,14 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
     else {
         context = NULL;
     }
-    
+
     mp = (PyArrayObject *)PyArray_FromAny(op, NULL, 0, 0, 0, context);
     Py_XDECREF(context);
     if (mp == NULL) {
         return NULL;
     }
-    assert( PyArray_ISVALID(mp) );
-    
+    assert(PyArray_ISVALID(mp));
+
     /* Check to see if input is zero-dimensional */
     if (PyArray_NDIM(mp) == 0) {
         PyErr_Format(PyExc_TypeError, "cannot %s on a scalar",

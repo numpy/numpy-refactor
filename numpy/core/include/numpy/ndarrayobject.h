@@ -47,23 +47,27 @@ extern "C" CONFUSE_EMACS
     }                                               
 
 
-/* Takes a core NpyArray_Descr object and moves the reference to the interface object, 
-   returning the interface wrapper object. */
+/* Takes a core NpyArray_Descr object and moves the reference to the
+   interface object, returning the interface wrapper object. */
 #define PyArray_Descr_RETURN(core)                      \
     do {                                                \
         PyArray_Descr *wrapper = NULL;                  \
         if (NULL == (core)) wrapper = NULL;             \
         else {                                          \
             wrapper = PyArray_Descr_WRAP(core);         \
-            assert(NPY_VALID_MAGIC == (wrapper)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+            assert(NPY_VALID_MAGIC == (wrapper)->magic_number &&       \
+                   NPY_VALID_MAGIC == (core)->magic_number);           \
             Py_INCREF(wrapper);                         \
-            Npy_DECREF(core);                          \
+            Npy_DECREF(core);                           \
         }                                               \
         return wrapper;                                 \
     } while(0); 
 
 
-#define PyArray_ISVALID(a) (NULL == (a) || NPY_VALID_MAGIC == (a)->magic_number && NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->magic_number)
+#define PyArray_ISVALID(a) (                                         \
+        (a) == NULL ||                                               \
+        (NPY_VALID_MAGIC == (a)->magic_number &&                     \
+         NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->magic_number))
 
 
 /* C-API that requries previous API to be defined */
