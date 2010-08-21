@@ -172,7 +172,8 @@ Npy_STRING_ISSPACE(char ch);
  * #format = "hd", "hu", "d", "u", "ld", "lu", LONGLONG_FMT, ULONGLONG_FMT#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
+             NpyArray_Descr *NPY_UNUSED(ignored))
 {
     return fscanf(fp, "%"@format@, ip);
 }
@@ -183,7 +184,8 @@ int
  * #type = float, double, longdouble#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignored))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
+             NpyArray_Descr *NPY_UNUSED(ignored))
 {
     double result;
     int ret;
@@ -201,7 +203,8 @@ int
  * #format = "d", "u"#
  */
 int
-@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
+@fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
+             NpyArray_Descr *NPY_UNUSED(ignore2))
 {
     @btype@ temp;
     int num;
@@ -213,7 +216,8 @@ int
 /**end repeat**/
 
 int
-BOOL_scan(FILE *fp, npy_bool *ip, void *NPY_UNUSED(ignore), NpyArray_Descr *NPY_UNUSED(ignore2))
+BOOL_scan(FILE *fp, npy_bool *ip, void *NPY_UNUSED(ignore),
+          NpyArray_Descr *NPY_UNUSED(ignore2))
 {
     int temp;
     int num;
@@ -284,10 +288,7 @@ static int
 /**end repeat**/
 
 
-
-
 #define BOOL_fill NULL
-
 
 
 #define _NPY_UNUSEDBOOL  NPY_UNUSED
@@ -312,7 +313,6 @@ static int
 #define _NPY_UNUSEDSTRING
 #define _NPY_UNUSEDVOID
 #define _NPY_UNUSEDUNICODE
-
 
 
 /*
@@ -586,7 +586,8 @@ static void
  * #type = Bool, byte, ubyte#
  */
 static void
-@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride, npy_intp n,
+@fname@_copyswapn (void *dst, npy_intp dstride, void *src,
+                   npy_intp sstride, npy_intp n,
                    int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
 {
     if (src != NULL) {
@@ -602,7 +603,8 @@ static void
 }
 
 static void
-@fname@_copyswap (void *dst, void *src, int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
+@fname@_copyswap (void *dst, void *src, int NPY_UNUSED(swap),
+                  void *NPY_UNUSED(arr))
 {
     if (src != NULL) {
         /* copy first if needed */
@@ -622,8 +624,8 @@ static void
  * #fsize = FLOAT, DOUBLE, LONGDOUBLE#
 */
 static void
-@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride, npy_intp n,
-                   int swap, void *NPY_UNUSED(arr))
+@fname@_copyswapn (void *dst, npy_intp dstride, void *src, npy_intp sstride,
+                   npy_intp n, int swap, void *NPY_UNUSED(arr))
 {
 
     if (src != NULL) {
@@ -785,7 +787,8 @@ VOID_copyswapn (char *dst, npy_intp dstride, char *src, npy_intp sstride,
 
         descr = arr->descr;
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key,
+                                (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -842,7 +845,8 @@ VOID_copyswap (char *dst, char *src, int swap, NpyArray *arr)
 
         descr = arr->descr;
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key,
+                                (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -954,12 +958,12 @@ UNICODE_copyswap (char *dst, char *src, int swap, NpyArray *arr)
 }
 
 
-
 /*
  *****************************************************************************
  **                                 NONZERO                                 **
  *****************************************************************************
  */
+
 
 /**begin repeat
  *
@@ -1104,14 +1108,16 @@ VOID_nonzero (char *ip, NpyArray *ap)
         descr = ap->descr;
         savedflags = ap->flags;
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key,
+                                (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
             new = value->descr;
             ap->descr = new;
             ap->flags = savedflags;
-            if ((new->alignment > 1) && !__ALIGNED(ip + value->offset, new->alignment)) {
+            if ((new->alignment > 1) &&
+                !__ALIGNED(ip + value->offset, new->alignment)) {
                 ap->flags &= ~NPY_ALIGNED;
             }
             else {
@@ -1415,7 +1421,8 @@ finish:
  * #incr = ip++*14, ip+=2*3, ip++*2#
  */
 static int
-@fname@_argmax(@type@ *ip, npy_intp n, npy_intp *max_ind, NpyArray *NPY_UNUSED(aip))
+@fname@_argmax(@type@ *ip, npy_intp n, npy_intp *max_ind,
+               NpyArray *NPY_UNUSED(aip))
 {
     npy_intp i;
     @type@ mp = *ip;
@@ -1504,8 +1511,8 @@ BOOL_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op, npy_intp n,
  *        datetime, timedelta#
  */
 static void
-@name@_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op, npy_intp n,
-           void *NPY_UNUSED(ignore))
+@name@_dot(char *ip1, npy_intp is1, char *ip2, npy_intp is2, char *op,
+           npy_intp n, void *NPY_UNUSED(ignore))
 {
     @out@ tmp = (@out@)0;
     npy_intp i;
@@ -1604,7 +1611,8 @@ static void
  * #typ = Bool, byte, ubyte#
  */
 static void
-@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value, void *NPY_UNUSED(ignored))
+@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value,
+                      void *NPY_UNUSED(ignored))
 {
     memset(buffer, *value, length);
 }
@@ -1620,7 +1628,8 @@ static void
  *        datetime, timedelta#
  */
 static void
-@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value, void *NPY_UNUSED(ignored))
+@NAME@_fillwithscalar(@typ@ *buffer, npy_intp length, @typ@ *value,
+                      void *NPY_UNUSED(ignored))
 {
     npy_intp i;
     @typ@ val = *value;
@@ -1753,7 +1762,8 @@ static void
  *         cfloat, cdouble, clongdouble, datetime, timedelta#
 */
 static void
-@name@_fastputmask(@type@ *in, Bool *mask, npy_intp ni, @type@ *vals, npy_intp nv)
+@name@_fastputmask(@type@ *in, Bool *mask, npy_intp ni, @type@ *vals,
+                   npy_intp nv)
 {
     npy_intp i;
     @type@ s_val;
@@ -2231,14 +2241,13 @@ void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
     _NpyObject_ArrFuncs.fastputmask = externDefs->OBJECT_fastputmask;
     _NpyObject_ArrFuncs.fasttake = externDefs->OBJECT_fasttake;
 
-
-
     for (type=0; type < NPY_NTYPES; type++) {
-        assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) ); /* Should only ever be called once. */
-        NpyInterface_DescrNewFromType(type, _builtin_descrs[type], &_builtin_descrs[type]->nob_interface);
+        /* Should only ever be called once. */
+        assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) );
+        NpyInterface_DescrNewFromType(type, _builtin_descrs[type],
+                                      &_builtin_descrs[type]->nob_interface);
     }
 }
-
 
 
 /* Get the NpyArray_Descr structure for a type.

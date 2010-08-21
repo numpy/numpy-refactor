@@ -771,7 +771,7 @@ npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UN
 
 /**end repeat**/
 
-/* FIXME: implement the following correctly using the metadata:  data is the 
+/* FIXME: implement the following correctly using the metadata:  data is the
    sequence of ndarrays in the same order as args.
  */
 void

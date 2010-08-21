@@ -171,10 +171,10 @@ NpyArray *
 NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
-    
+
     assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
-    
+
     mps[0] = m1;
     mps[1] = m2;
     mps[2] = NULL;
@@ -189,10 +189,10 @@ NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
-    
+
     assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
-    
+
     mps[0] = m1;
     mps[1] = NULL;
     if (0 > NpyUFunc_GenericFunction(op, 2, mps, NULL, NPY_FALSE, NULL, NULL)) {
