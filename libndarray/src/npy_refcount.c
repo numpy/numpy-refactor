@@ -4,7 +4,7 @@
  */
 
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 
 #include "npy_config.h"
 #include "npy_api.h"
