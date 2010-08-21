@@ -1,3 +1,4 @@
+/* npy_arrayobject.c */
 
 #include <stdlib.h>
 #include "npy_config.h"
@@ -5,7 +6,9 @@
 #include "npy_arrayobject.h"
 #include "npy_internal.h"
 
-extern int PyArray_INCREF(void *);     /* TODO: Make these into interface functions */
+
+/* TODO: Make these into interface functions */
+extern int PyArray_INCREF(void *);
 extern int PyArray_XDECREF(void *);
 
 
@@ -103,8 +106,6 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
 }
 
 
-
-
 /* Deallocs & destroy's the array object.
  *  Returns whether or not we did an artificial incref
  *  so we can keep track of the total refcount for debugging.
@@ -178,6 +179,7 @@ NpyArray_dealloc(NpyArray *self)
 
     return result;
 }
+
 
 NpyTypeObject NpyArray_Type = {
     (npy_destructor)NpyArray_dealloc,

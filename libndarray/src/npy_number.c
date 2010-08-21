@@ -140,7 +140,6 @@ static NpyUFuncObject **get_op_loc(enum NpyArray_Ops op)
 }
 
 
-
 /* Returns the ufunc function associated with the specified operator. */
 NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 {
@@ -149,8 +148,8 @@ NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 }
 
 
-/* Sets the provided function as the global implementation of the specified operation. Any
-   existing operator is replaced. */
+/* Sets the provided function as the global implementation of the specified
+   operation. Any existing operator is replaced. */
 int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 {
     NpyUFuncObject **loc = get_op_loc(op);
@@ -200,6 +199,3 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
     }
     return mps[op->nin];
 }
-
-
-

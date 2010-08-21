@@ -347,7 +347,8 @@ NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
         NpyDict_Iter pos;
 
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(new->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(new->fields, &pos, (void **)&key,
+                                (void **)&value)) {
             if (NULL != value->title && !strcmp(key, value->title)) {
                 continue;
             }
@@ -362,7 +363,8 @@ NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
     }
     if (NULL != new->subarray) {
         NpyArray_Descr *old = new->subarray->base;
-        new->subarray->base = NpyArray_DescrNewByteorder(self->subarray->base, newendian);
+        new->subarray->base = NpyArray_DescrNewByteorder(self->subarray->base,
+                                                         newendian);
         Npy_DECREF(old);
     }
     return new;
@@ -573,6 +575,7 @@ static void *npy_copy_fields_value(void *value_tmp)
                           NULL : (char *) strdup(value->title);
     return copy;
 }
+
 
 static void npy_dealloc_fields_value(void *value_tmp)
 {

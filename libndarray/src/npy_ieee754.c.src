@@ -14,12 +14,14 @@
 double npy_copysign(double x, double y)
 {
     npy_uint32 hx, hy;
+
     GET_HIGH_WORD(hx, x);
     GET_HIGH_WORD(hy, y);
     SET_HIGH_WORD(x, (hx & 0x7fffffff) | (hy & 0x80000000));
     return x;
 }
 #endif
+
 
 /*
  * FIXME: There is a lot of redundancy between _next* and npy_nextafter*.
@@ -76,6 +78,7 @@ static double _next(double x, int p)
     return x;
 }
 
+
 static float _nextf(float x, int p)
 {
     volatile float t;
@@ -118,6 +121,7 @@ static float _nextf(float x, int p)
     SET_FLOAT_WORD(x, hx);
     return x;
 }
+
 
 static npy_longdouble _nextl(npy_longdouble x, int p)
 {
@@ -181,6 +185,7 @@ static npy_longdouble _nextl(npy_longdouble x, int p)
 
     return ux.e;
 }
+
 
 /*
  * nextafter code taken from BSD math lib, the code contains the following
@@ -261,6 +266,7 @@ double npy_nextafter(double x, double y)
 }
 #endif
 
+
 #if !NPY_HAVE_DECL_NEXTAFTERF
 float npy_nextafterf(float x, float y)
 {
@@ -314,6 +320,7 @@ float npy_nextafterf(float x, float y)
     return x;
 }
 #endif
+
 
 #if !NPY_HAVE_DECL_NEXTAFTERL
 npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y)
@@ -382,6 +389,7 @@ npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y)
     return ux.e;
 }
 #endif
+
 
 /**begin repeat
  * #suff = f,,l#

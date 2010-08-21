@@ -1,4 +1,4 @@
-
+/* npy_shape.c */
 
 #include <stdlib.h>
 #include <memory.h>
@@ -89,7 +89,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         if ((refcnt > 0)
             || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
-                    "cannot resize an array references or is referenced\n"\
+                    "cannot resize an array references or is referenced\n"
                     "by another array in this way.  Use the resize function");
             return -1;
         }
@@ -696,8 +696,7 @@ _fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original)
             }
             else {
                 NpyErr_SetString(NpyExc_ValueError,
-                                 "can only specify one" \
-                                 " unknown dimension");
+                                 "can only specify one unknown dimension");
                 return -1;
             }
         }
@@ -721,4 +720,3 @@ _fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original)
     }
     return 0;
 }
-

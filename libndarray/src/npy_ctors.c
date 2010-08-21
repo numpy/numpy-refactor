@@ -107,13 +107,13 @@ _strided_byte_copy(char *dst, npy_intp outstrides, char *src, npy_intp instrides
     char *tout = dst;
     char *tin = src;
 
-#define _FAST_MOVE(_type_)                      \
-for(i=0; i<N; i++) {                            \
-((_type_ *)tout)[0] = ((_type_ *)tin)[0];       \
-tin += instrides;                               \
-tout += outstrides;                             \
-}                                               \
-return
+#define _FAST_MOVE(_type_)                              \
+    for(i=0; i<N; i++) {                                \
+        ((_type_ *)tout)[0] = ((_type_ *)tin)[0];       \
+        tin += instrides;                               \
+        tout += outstrides;                             \
+    }                                                   \
+    return
 
     switch(elsize) {
         case 8:
@@ -199,7 +199,6 @@ npy_byte_swap_vector(void *p, npy_intp n, int size)
 }
 
 
-
 static int
 _copy_from_same_shape(NpyArray *dest, NpyArray *src,
         void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int),
@@ -247,8 +246,6 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
     Npy_DECREF(dit);
     return 0;
 }
-
-
 
 
 static int
@@ -421,8 +418,6 @@ finish:
     }
     return retval;
 }
-
-
 
 
 /*
@@ -623,15 +618,15 @@ finish:
 
 
 /* If destination is not the right type, then src
- will be cast to destination -- this requires
- src and dest to have the same shape
- */
+   will be cast to destination -- this requires
+   src and dest to have the same shape
+*/
 
 /* Requires arrays to have broadcastable shapes
 
- The arrays are assumed to have the same number of elements
- They can be different sizes and have different types however.
- */
+   The arrays are assumed to have the same number of elements
+   They can be different sizes and have different types however.
+*/
 
 static int
 _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
@@ -851,7 +846,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     }
     if (nd < 0) {
         NpyErr_SetString(NpyExc_ValueError,
-                        "number of dimensions must be >=0");
+                         "number of dimensions must be >=0");
         Npy_DECREF(descr);
         return NULL;
     }
@@ -894,13 +889,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         }
         if (dim < 0) {
             NpyErr_SetString(NpyExc_ValueError,
-                            "negative dimensions are not allowed");
+                             "negative dimensions are not allowed");
             Npy_DECREF(descr);
             return NULL;
         }
         if (dim > largest) {
             NpyErr_SetString(NpyExc_ValueError,
-                            "array is too big.");
+                             "array is too big.");
             Npy_DECREF(descr);
             return NULL;
         }
@@ -1100,7 +1095,6 @@ NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
 }
 
 
-
 /*NUMPY_API
  * steals reference to newtype --- acc. NULL
  */
@@ -1190,8 +1184,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
          */
         else {
             Npy_DECREF(newtype);
-            if ((flags & NPY_ENSUREARRAY) /*&&
-                !NpyArray_CheckExact(arr) -- TODO: Would be nice to check this in the future */ ) {
+            if ((flags & NPY_ENSUREARRAY) /* &&
+                !NpyArray_CheckExact(arr) --
+                TODO: Would be nice to check this in the future */ ) {
                 Npy_INCREF(arr->descr);
                 ret = NpyArray_NewView(arr->descr,
                                        arr->nd, arr->dimensions, arr->strides,
@@ -1807,8 +1802,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
-                         "Cannot create an object array from"
-                         " a string");
+                         "Cannot create an object array from a string");
         Npy_DECREF(dtype);
         return NULL;
     }

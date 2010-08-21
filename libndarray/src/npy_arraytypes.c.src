@@ -2243,7 +2243,7 @@ void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
 
     for (type=0; type < NPY_NTYPES; type++) {
         /* Should only ever be called once. */
-        assert( NULL == Npy_INTERFACE(_builtin_descrs[type]) );
+        assert(Npy_INTERFACE(_builtin_descrs[type]) == NULL);
         NpyInterface_DescrNewFromType(type, _builtin_descrs[type],
                                       &_builtin_descrs[type]->nob_interface);
     }
