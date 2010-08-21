@@ -76,14 +76,6 @@ NpyTypeObject NpyUFunc_Type = {
 
 
 
-
-
-static void NpyErr_NoMemory()
-{
-    NpyErr_SetString(NpyExc_MemoryError, "no memory");
-}
-
-
 static void default_fp_error_state(char *name, int *bufsizeRet,
                                    int *errormaskRet, void **errobjRet)
 {
@@ -1344,7 +1336,8 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
 fail:
     free(funcdata);
     free(newtypes);
-    if (!NpyErr_Occurred()) NpyErr_NoMemory();
+    if (!NpyErr_Occurred())
+        NpyErr_MEMORY;
     return -1;
 }
 
@@ -1440,7 +1433,7 @@ construct_loop(NpyUFuncObject *self)
         return NULL;
     }
     if ((loop = malloc(sizeof(NpyUFuncLoopObject))) == NULL) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return loop;
     }
     loop->magic_number = NPY_VALID_MAGIC;
@@ -1475,7 +1468,7 @@ construct_loop(NpyUFuncObject *self)
         loop->core_dim_sizes = malloc(sizeof(npy_intp)*num_dim_ix);
         loop->core_strides = malloc(sizeof(npy_intp)*nstrides);
         if (loop->core_dim_sizes == NULL || loop->core_strides == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             goto fail;
         }
         memset(loop->core_strides, 0, sizeof(npy_intp) * nstrides);
@@ -1983,7 +1976,7 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
          *               loop->buffer[0], loop->bufsize * (cnt + cntcast), cnt, cntcast);
          */
         if (loop->buffer[0] == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return -1;
         }
         if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
@@ -2068,7 +2061,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     arg_types[1] = otype;
     arg_types[2] = otype;
     if ((loop = malloc(sizeof(NpyUFuncReduceObject))) == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_MEMORY;
         return loop;
     }
     loop->magic_number = NPY_VALID_MAGIC;
@@ -3046,7 +3039,7 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
     /* Allocate sufficient memory to store pointers to all dimension names */
     var_names = malloc(sizeof(char const*) * len);
     if (var_names == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_MEMORY;
         return -1;
     }
 
@@ -3057,7 +3050,7 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
     self->core_offsets = malloc(sizeof(int) * self->nargs);
     if (self->core_num_dims == NULL || self->core_dim_ixs == NULL
         || self->core_offsets == NULL) {
-        NpyErr_NoMemory();
+        NpyErr_MEMORY;
         goto fail;
     }
 
@@ -3159,7 +3152,7 @@ fail:
             free(buf);
         }
         else {
-            NpyErr_NoMemory();
+            NpyErr_MEMORY;
         }
     }
     return -1;

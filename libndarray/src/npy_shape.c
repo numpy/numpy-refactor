@@ -64,7 +64,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         }
         newsize *= new_dimensions[k];
         if (newsize <= 0 || newsize > largest) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return -1;
         }
     }
@@ -103,8 +103,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         /* Reallocate space if needed */
         new_data = NpyDataMem_RENEW(self->data, sd);
         if (new_data == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError,
-                    "cannot allocate memory for array");
+            NpyErr_MEMORY;
             return -1;
         }
         self->data = new_data;
@@ -122,8 +121,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         /* Need new dimensions and strides arrays */
         dimptr = NpyDimMem_RENEW(self->dimensions, 2*new_nd);
         if (dimptr == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError,
-                    "cannot allocate memory for array");
+            NpyErr_MEMORY;
             return -1;
         }
         self->dimensions = dimptr;

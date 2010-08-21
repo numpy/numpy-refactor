@@ -340,7 +340,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     if (!NpyArray_ISALIGNED(src)) {
         aligned = malloc((size_t)nbytes);
         if (aligned == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return -1;
         }
         memcpy(aligned, src->data, (size_t) nbytes);
@@ -935,7 +935,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     if (nd > 0) {
         self->dimensions = NpyDimMem_NEW(2*nd);
         if (self->dimensions == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             goto fail;
         }
         self->strides = self->dimensions + nd;
@@ -968,7 +968,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
             sd = descr->elsize;
         }
         if ((data = NpyDataMem_NEW(sd)) == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             goto fail;
         }
         self->flags |= NPY_OWNDATA;
@@ -1559,7 +1559,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     NPY_END_ALLOW_THREADS;
     free(clean_sep);
     if (err == 1) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
     }
     if (NpyErr_Occurred()) {
         Npy_DECREF(r);
@@ -1620,7 +1620,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
         if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
             Npy_DECREF(ret);
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return NULL;
         }
         NpyArray_BYTES(ret) = tmp;
@@ -1779,7 +1779,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
             Npy_DECREF(ret);
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return NULL;
         }
         ret->data = tmp;

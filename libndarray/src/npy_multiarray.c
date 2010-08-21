@@ -211,7 +211,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     return 0;
 
 fail:
-    NpyErr_SetString(NpyExc_MemoryError, "no memory");
+    NpyErr_MEMORY;
     return -1;
 }
 

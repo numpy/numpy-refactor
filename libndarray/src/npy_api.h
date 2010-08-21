@@ -332,6 +332,8 @@ extern npy_tp_error_set NpyErr_SetString;
 extern npy_tp_error_occurred NpyErr_Occurred;
 extern npy_tp_error_clear NpyErr_Clear;
 
+#define NpyErr_MEMORY  NpyErr_SetString(NpyExc_MemoryError, "memory error")
+
 
 typedef int (*npy_tp_cmp_priority)(void *, void *);
 
@@ -339,19 +341,23 @@ extern npy_tp_cmp_priority Npy_CmpPriority;
 
 
 /*
- * Interface-provided reference management.  Note that even though these mirror the
- * Python routines they are slightly different because they also work w/ garbage
- * collected systems. Primarily, INCREF returns a possibly different handle.
+ * Interface-provided reference management.  Note that even though these
+ * mirror the Python routines they are slightly different because they also
+ * work w/ garbage collected systems. Primarily, INCREF returns a possibly
+ * different handle.
  */
 typedef void *(*npy_interface_incref)(void *);
 typedef void *(*npy_interface_decref)(void *);
 
-/* Do not call directly, use macros below because interface does not have to provide these. */
+/* Do not call directly, use macros below because interface does not have
+   to provide these. */
 extern npy_interface_incref _NpyInterface_Incref;
 extern npy_interface_decref _NpyInterface_Decref;
 
-#define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? _NpyInterface_Incref(ptr) : NULL)
-#define NpyInterface_DECREF(ptr) (NULL != _NpyInterface_Decref ? _NpyInterface_Decref(ptr) : NULL)
+#define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? \
+                                  _NpyInterface_Incref(ptr) : NULL)
+#define NpyInterface_DECREF(ptr) (NULL != _NpyInterface_Decref ? \
+                                  _NpyInterface_Decref(ptr) : NULL)
 #define NpyInterface_CLEAR(ptr) \
     do {                                    \
         void *tmp = (void *)(ptr);          \
@@ -361,10 +367,10 @@ extern npy_interface_decref _NpyInterface_Decref;
 
 
 
-/*
- * Interface wrapper-generators.  These allows the interface the option of wrapping each
- * core object with another structure, such as a PyObject derivative.
- */
+/* Interface wrapper-generators.  These allows the interface the option of
+   wrapping each core object with another structure, such as a PyObject
+   derivative.
+*/
 
 typedef int (*npy_interface_array_new_wrapper)(
         NpyArray *newArray, int ensureArray,
