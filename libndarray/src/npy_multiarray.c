@@ -4,7 +4,9 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <memory.h>
+
 #include "npy_config.h"
 #include "npy_api.h"
 #include "npy_arrayobject.h"
