@@ -171,7 +171,7 @@ Npy_STRING_ISSPACE(char ch);
  * #type = short, ushort, int, uint, long, ulong, longlong, ulonglong#
  * #format = "hd", "hu", "d", "u", "ld", "lu", LONGLONG_FMT, ULONGLONG_FMT#
  */
-int
+static int
 @fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
              NpyArray_Descr *NPY_UNUSED(ignored))
 {
@@ -183,7 +183,7 @@ int
  * #fname = FLOAT, DOUBLE, LONGDOUBLE#
  * #type = float, double, longdouble#
  */
-int
+static int
 @fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
              NpyArray_Descr *NPY_UNUSED(ignored))
 {
@@ -202,7 +202,7 @@ int
  * #btype = int, uint#
  * #format = "d", "u"#
  */
-int
+static int
 @fname@_scan(FILE *fp, @type@ *ip, void *NPY_UNUSED(ignore),
              NpyArray_Descr *NPY_UNUSED(ignore2))
 {
@@ -215,7 +215,7 @@ int
 }
 /**end repeat**/
 
-int
+static int
 BOOL_scan(FILE *fp, npy_bool *ip, void *NPY_UNUSED(ignore),
           NpyArray_Descr *NPY_UNUSED(ignore2))
 {
