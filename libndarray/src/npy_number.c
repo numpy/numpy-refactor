@@ -11,10 +11,6 @@
 #include "npy_arrayobject.h"
 
 
-#if NPY_HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
 NumericOps n_ops = {
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL,
