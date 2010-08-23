@@ -105,6 +105,11 @@ src/npy_config.h: tools/mk_config.py config.h tools/long_double.o
 tools/long_double.o: tools/long_double.c
 	$(COMPILE) -c -o $@ $<
 
+# this rule is neened to ensure src/npy_config.h is created before anything
+# gets compiled
+src/npy_arrayobject.c: src/npy_config.h
+	echo "src/npy_config.h created"
+
 
 CONV_TMPL = python tools/conv_template.py
 
