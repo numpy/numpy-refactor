@@ -90,13 +90,13 @@ typedef struct NpyUFuncLoopObject {
      to work with PyArray_Broadcast */
     NpyObject_HEAD
     int magic_number;
-    
+
     /* The iterators. */
     struct NpyArrayMultiIterObject *iter;
-    
+
     /* The ufunc */
     struct NpyUFuncObject *ufunc;
-    
+
     /* The error handling.  These fields are primary used by the interface
        layer to store info about what errors have occured. */
     int errormask;         /* Integer showing desired error handling */
@@ -104,49 +104,49 @@ typedef struct NpyUFuncLoopObject {
                             (string, func or obj with write method or None) */
     int first;
 
-    
+
     /* Specific function and data to use */
     NpyUFuncGenericFunction function;
     void *funcdata;
-    
+
     /* Loop method */
     int meth;
-    
+
     /* Whether we need to copy to a buffer or not.*/
     int needbuffer[NPY_MAXARGS];
     int leftover;
     int ninnerloops;
     int lastdim;
-    
+
     /* Whether or not to swap */
     int swap[NPY_MAXARGS];
-    
+
     /* Buffers for the loop */
     char *buffer[NPY_MAXARGS];
     int bufsize;
     npy_intp bufcnt;
     char *dptr[NPY_MAXARGS];
-    
+
     /* For casting */
     char *castbuf[NPY_MAXARGS];
     NpyArray_VectorUnaryFunc *cast[NPY_MAXARGS];
-    
+
     /* usually points to buffer but when a cast is to be
      done it switches for that argument to castbuf.
      */
     char *bufptr[NPY_MAXARGS];
-    
+
     /* Steps filled in from iters or sizeof(item)
      depending on loop method.
      */
     npy_intp steps[NPY_MAXARGS];
-    
+
     int obj;  /* This loop uses object arrays or needs the Python API */
     /* Flags: UFUNC_OBJ_ISOBJECT, UFUNC_OBJ_NEEDS_API */
     int notimplemented; /* The loop caused notimplemented */
     int objfunc; /* This loop calls object functions
                   (an inner-loop function with argument types */
-    
+
     /* generalized ufunc */
     npy_intp *core_dim_sizes;   /* stores sizes of core dimensions;
                                  contains 1 + core_num_dim_ix elements */
@@ -162,7 +162,7 @@ typedef struct NpyUFuncLoopObject {
 typedef struct {
     NpyObject_HEAD
     int magic_number;
-    
+
     NpyArrayIterObject *it;
     NpyArray *ret;
     NpyArrayIterObject *rit;   /* Needed for Accumulate */
@@ -170,40 +170,40 @@ typedef struct {
     npy_intp  index;
     npy_intp  size;
     char idptr[NPY_UFUNC_MAXIDENTITY];
-    
+
     /* The ufunc */
     NpyUFuncObject *ufunc;
-    
+
     /* The error handling */
     int errormask;
     void *errobj;
     int first;
-    
+
     NpyUFuncGenericFunction function;
     void *funcdata;
     int meth;
     int swap;
-    
+
     char *buffer;
     int bufsize;
-    
+
     char *castbuf;
     NpyArray_VectorUnaryFunc *cast;
-    
+
     char *bufptr[3];
     npy_intp steps[3];
-    
+
     npy_intp N;
     int  instrides;
     int  insize;
     char *inptr;
-    
+
     /* For copying small arrays */
     NpyArray *decref_arr;
-    
+
     int obj;
     int retbase;
-    
+
 } NpyUFuncReduceObject;
 
 
@@ -304,7 +304,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
                                      char *name, char *doc,
                                      int check_return, const char *signature);
 NpyUFuncObject *
-npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len, 
+npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
                      NpyUFuncGenericFunction *gen_funcs, void *function);
 void
 npy_ufunc_dealloc(NpyUFuncObject *self);
@@ -316,8 +316,8 @@ npy_ufunc_dealloc(NpyUFuncObject *self);
  * Platform-dependent floating point error handling
  */
 
-void 
-NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **), 
+void
+NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **),
                        void (*handler)(int, void *, int, int *));
 int
 NpyUFunc_getfperr(void);

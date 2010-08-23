@@ -1272,7 +1272,7 @@ voidtype_getfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
         if (!NpyArray_ISNBO(self->descr->descr->byteorder)) {
             new = PyArray_DescrFromScalarUnwrap(ret);
             ptr = scalar_value(ret, new);
-            byte_swap_vector(ptr, 1, new->elsize);
+            npy_byte_swap_vector(ptr, 1, new->elsize);
             Npy_DECREF(new);
         }
     }

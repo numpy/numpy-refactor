@@ -1,8 +1,10 @@
+/* npy_index.c */
 
 #include "npy_index.h"
 #include "npy_object.h"
 #include "npy_arrayobject.h"
 #include "npy_api.h"
+
 
 void
 NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
@@ -27,11 +29,13 @@ NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
     }
 }
 
+
 /*
  * Returns the number of non-new indices.  Boolean arrays are
  * counted as if they are expanded.
  */
-int count_nonnew(NpyIndex* indexes, int n)
+static int
+count_non_new(NpyIndex* indexes, int n)
 {
     int i;
     int result = 0;
@@ -50,6 +54,7 @@ int count_nonnew(NpyIndex* indexes, int n)
     }
     return result;
 }
+
 
 /*
  * Expands any boolean arrays in the index into intp arrays of the
@@ -99,6 +104,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
     return result;
 }
 
+
 /*
  * Converts indexes int out_indexes appropriate for an array by:
  *
@@ -110,9 +116,9 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
  *
  * Returns the number of indices in out_indexes, or -1 on error.
  */
-int NpyArray_IndexBind(NpyIndex* indexes, int n,
-                       npy_intp *dimensions, int nd,
-                       NpyIndex* out_indexes)
+int
+NpyArray_IndexBind(NpyIndex* indexes, int n, npy_intp *dimensions, int nd,
+                   NpyIndex* out_indexes)
 {
     int i;
     int result = 0;
@@ -132,7 +138,7 @@ int NpyArray_IndexBind(NpyIndex* indexes, int n,
                 /* Expand the ellipsis. */
                 int j, n2;
                 n2 = nd + n_new -
-                    count_nonnew(&indexes[i+1], n-i-1) - result;
+                    count_non_new(&indexes[i+1], n-i-1) - result;
                 if (n2 < 0) {
                     NpyErr_SetString(NpyExc_IndexError,
                                      "too many indices");
@@ -337,12 +343,14 @@ int NpyArray_IndexBind(NpyIndex* indexes, int n,
     return result;
 }
 
+
 /*
  * Converts a bound index into dimensions, strides, and an offset_ptr.
  */
-int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
-                            npy_intp *dimensions, npy_intp* strides,
-                            npy_intp* offset_ptr, npy_bool allow_arrays)
+int
+NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
+                        npy_intp *dimensions, npy_intp* strides,
+                        npy_intp* offset_ptr, npy_bool allow_arrays)
 {
     int i;
     int iDim = 0;
@@ -431,6 +439,7 @@ int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
     *offset_ptr = offset;
     return nd_new;
 }
+
 
 npy_intp
 NpyArray_SliceSteps(NpyIndexSlice *slice)

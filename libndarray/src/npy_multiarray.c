@@ -4,10 +4,13 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <memory.h>
+
 #include "npy_config.h"
 #include "npy_api.h"
 #include "npy_arrayobject.h"
+#include "npy_calculation.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
 #include "npy_os.h"
@@ -211,7 +214,7 @@ NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
     return 0;
 
 fail:
-    NpyErr_SetString(NpyExc_MemoryError, "no memory");
+    NpyErr_MEMORY;
     return -1;
 }
 

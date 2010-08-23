@@ -1000,7 +1000,6 @@ NpyTypeObject NpyArrayMultiIter_Type =   {
 };
 
 
-
 NpyArrayMultiIterObject *
 NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 {
@@ -1018,7 +1017,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
     }
     multi = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (multi == NULL) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return NULL;
     }
     NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
@@ -1048,7 +1047,8 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         return NULL;
     }
     NpyArray_MultiIter_RESET(multi);
-    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(multi, &multi->nob_interface)) {
+    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(multi,
+                                                      &multi->nob_interface)) {
         Npy_INTERFACE(multi) = NULL;
         Npy_DECREF(multi);
         return NULL;
@@ -1064,12 +1064,13 @@ NpyArray_MultiIterNew()
 
     ret = NpyArray_malloc(sizeof(NpyArrayMultiIterObject));
     if (NULL == ret) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return NULL;
     }
     NpyObject_Init(ret, &NpyArrayMultiIter_Type);
     ret->magic_number = NPY_VALID_MAGIC;
-    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret, &ret->nob_interface)) {
+    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret,
+                                                      &ret->nob_interface)) {
         Npy_INTERFACE(ret) = NULL;
         Npy_DECREF(ret);
         return NULL;

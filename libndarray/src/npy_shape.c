@@ -1,4 +1,4 @@
-
+/* npy_shape.c */
 
 #include <stdlib.h>
 #include <memory.h>
@@ -64,7 +64,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         }
         newsize *= new_dimensions[k];
         if (newsize <= 0 || newsize > largest) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return -1;
         }
     }
@@ -89,7 +89,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         if ((refcnt > 0)
             || (self->base_arr != NULL) || (NULL != self->base_obj)) {
             NpyErr_SetString(NpyExc_ValueError,
-                    "cannot resize an array references or is referenced\n"\
+                    "cannot resize an array references or is referenced\n"
                     "by another array in this way.  Use the resize function");
             return -1;
         }
@@ -103,8 +103,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         /* Reallocate space if needed */
         new_data = NpyDataMem_RENEW(self->data, sd);
         if (new_data == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError,
-                    "cannot allocate memory for array");
+            NpyErr_MEMORY;
             return -1;
         }
         self->data = new_data;
@@ -122,8 +121,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         /* Need new dimensions and strides arrays */
         dimptr = NpyDimMem_RENEW(self->dimensions, 2*new_nd);
         if (dimptr == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError,
-                    "cannot allocate memory for array");
+            NpyErr_MEMORY;
             return -1;
         }
         self->dimensions = dimptr;
@@ -132,8 +130,8 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
 
     /* make new_strides variable */
     sd = (size_t) self->descr->elsize;
-    sd = (size_t) _array_fill_strides(new_strides, new_dimensions, new_nd, sd,
-            self->flags, &(self->flags));
+    sd = (size_t) npy_array_fill_strides(new_strides, new_dimensions, new_nd,
+                                         sd, self->flags, &(self->flags));
     memmove(self->dimensions, new_dimensions, new_nd*sizeof(npy_intp));
     memmove(self->strides, new_strides, new_nd*sizeof(npy_intp));
     return 0;
@@ -696,8 +694,7 @@ _fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original)
             }
             else {
                 NpyErr_SetString(NpyExc_ValueError,
-                                 "can only specify one" \
-                                 " unknown dimension");
+                                 "can only specify one unknown dimension");
                 return -1;
             }
         }
@@ -721,4 +718,3 @@ _fix_unknown_dimension(NpyArray_Dims *newshape, npy_intp s_original)
     }
     return 0;
 }
-

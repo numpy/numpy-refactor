@@ -2478,10 +2478,10 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
             return PY_FAIL;
         }
         selfCore->subarray->shape_num_dims = len;
-        assert(0 == selfCore->subarray->shape_num_dims &&
-               NULL == selfCore->subarray->shape_dims ||
-               0 < selfCore->subarray->shape_num_dims &&
-               NULL != selfCore->subarray->shape_dims);
+        assert((selfCore->subarray->shape_num_dims == 0 &&
+                selfCore->subarray->shape_dims == NULL) ||
+               (selfCore->subarray->shape_num_dims > 0 &&
+                selfCore->subarray->shape_dims != NULL));
     }
 
     if (fields != Py_None) {
@@ -2504,7 +2504,6 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
     if (version < 3) {
         self->descr->flags = _descr_find_object(self->descr);
     }
-
 
     if (PyDataType_ISDATETIME(self)
         && (dtinfo != Py_None)

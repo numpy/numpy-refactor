@@ -11,10 +11,6 @@
 #include "npy_arrayobject.h"
 
 
-#if NPY_HAVE_STRINGS_H
-#include <strings.h>
-#endif
-
 NumericOps n_ops = {
     NULL, NULL, NULL, NULL, NULL,
     NULL, NULL, NULL, NULL, NULL,
@@ -140,7 +136,6 @@ static NpyUFuncObject **get_op_loc(enum NpyArray_Ops op)
 }
 
 
-
 /* Returns the ufunc function associated with the specified operator. */
 NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 {
@@ -149,8 +144,8 @@ NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 }
 
 
-/* Sets the provided function as the global implementation of the specified operation. Any
-   existing operator is replaced. */
+/* Sets the provided function as the global implementation of the specified
+   operation. Any existing operator is replaced. */
 int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 {
     NpyUFuncObject **loc = get_op_loc(op);
@@ -171,10 +166,10 @@ NpyArray *
 NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
-    
+
     assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
-    
+
     mps[0] = m1;
     mps[1] = m2;
     mps[2] = NULL;
@@ -189,10 +184,10 @@ NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
-    
+
     assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
-    
+
     mps[0] = m1;
     mps[1] = NULL;
     if (0 > NpyUFunc_GenericFunction(op, 2, mps, NULL, NPY_FALSE, NULL, NULL)) {
@@ -200,6 +195,3 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
     }
     return mps[op->nin];
 }
-
-
-

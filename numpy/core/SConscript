@@ -231,7 +231,7 @@ env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
 env.Prepend(LIBPATH=[".", pjoin(usr_dir, 'lib')])
 
 subst_dict = {'@prefix@': '$distutils_install_prefix',
-    '@pkgname@': 'numpy.core', '@sep@': os.path.sep}
+              '@pkgname@': 'numpy.core', '@sep@': os.path.sep}
 
 subst_dict = {'@posix_mathlib@': " ".join(['-l%s' % l for l in mlib]),
               '@msvc_mathlib@': " ".join(['%s.mlib' % l for l in mlib])}
@@ -271,7 +271,7 @@ multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule.c'),
 multiarray_src.extend(arraytypes_src)
 multiarray_src.extend(scalartypes_src)
 if PYTHON_HAS_UNICODE_WIDE:
-        multiarray_src.extend([pjoin("src", "multiarray", "ucsnarrow.c")])
+    multiarray_src.extend([pjoin("src", "multiarray", "ucsnarrow.c")])
 
 multiarray = env.DistutilsPythonExtension(
          'multiarray',

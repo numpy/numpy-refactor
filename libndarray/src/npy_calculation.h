@@ -1,6 +1,6 @@
-
-#if !defined(_NPY_CALCULATION_H_)
+#ifndef _NPY_CALCULATION_H_
 #define _NPY_CALCULATION_H_
+
 
 struct NpyArray;
 

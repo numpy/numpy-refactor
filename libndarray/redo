@@ -2,9 +2,13 @@
 
 make clean
 
+rm -rf src/npy_config.h
+rm -rf src/.deps src/.dirstamp stamp-h1 autom4te.cache aclocal.m4
+rm -rf tools/.deps tools/.dirstamp Makefile Makefile.in
+
 autoreconf -fvi
 
-./configure --disable-static --prefix="$HOME/usr"
+bash configure --disable-static --prefix="$HOME/usr"
 
 make
 

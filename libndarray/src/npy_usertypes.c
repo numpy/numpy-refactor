@@ -199,7 +199,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
     npy_userdescrs = realloc(npy_userdescrs,
                              (numusertypes + 1) * sizeof(void *));
     if (npy_userdescrs == NULL) {
-        NpyErr_SetString(NpyExc_MemoryError, "RegisterDataType");
+        NpyErr_MEMORY;
         return -1;
     }
     npy_userdescrs[numusertypes++] = descr;

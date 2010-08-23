@@ -107,13 +107,13 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
     }
     buffers[0] = malloc(N*delsize);
     if (buffers[0] == NULL) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return -1;
     }
     buffers[1] = malloc(N*selsize);
     if (buffers[1] == NULL) {
         free(buffers[0]);
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return -1;
     }
     if (NpyDataType_FLAGCHK(out->descr, NPY_NEEDS_INIT)) {

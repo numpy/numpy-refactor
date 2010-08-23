@@ -761,7 +761,6 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     NpyUFuncObject *self;
     int typenumbuf[NPY_MAXARGS];
     int *rtypenums = NULL;
-    int res = 0;
     char* name = PyUFunc_UFUNC(pySelf)->name ? PyUFunc_UFUNC(pySelf)->name : "";
     PyObject *obj;
     int originalArgWasObjArray = 0;
@@ -970,7 +969,7 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
     if (mp == NULL) {
         return NULL;
     }
-    assert( PyArray_ISVALID(mp) );
+    assert(PyArray_ISVALID(mp));
     
     /* Check to see if input is zero-dimensional */
     if (PyArray_NDIM(mp) == 0) {

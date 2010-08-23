@@ -107,13 +107,13 @@ _strided_byte_copy(char *dst, npy_intp outstrides, char *src, npy_intp instrides
     char *tout = dst;
     char *tin = src;
 
-#define _FAST_MOVE(_type_)                      \
-for(i=0; i<N; i++) {                            \
-((_type_ *)tout)[0] = ((_type_ *)tin)[0];       \
-tin += instrides;                               \
-tout += outstrides;                             \
-}                                               \
-return
+#define _FAST_MOVE(_type_)                              \
+    for(i=0; i<N; i++) {                                \
+        ((_type_ *)tout)[0] = ((_type_ *)tin)[0];       \
+        tin += instrides;                               \
+        tout += outstrides;                             \
+    }                                                   \
+    return
 
     switch(elsize) {
         case 8:
@@ -192,12 +192,11 @@ _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 
 
 void
-byte_swap_vector(void *p, npy_intp n, int size)
+npy_byte_swap_vector(void *p, npy_intp n, int size)
 {
     _strided_byte_swap(p, (npy_intp) size, n, size);
     return;
 }
-
 
 
 static int
@@ -249,8 +248,6 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
 }
 
 
-
-
 static int
 _broadcast_copy(NpyArray *dest, NpyArray *src,
            void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int),
@@ -285,7 +282,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
         NpyArray_XDECREF(dest);
         memcpy(dest->data, src->data, elsize);
         if (swap) {
-            byte_swap_vector(dest->data, 1, elsize);
+            npy_byte_swap_vector(dest->data, 1, elsize);
         }
         return 0;
     }
@@ -343,7 +340,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     if (!NpyArray_ISALIGNED(src)) {
         aligned = malloc((size_t)nbytes);
         if (aligned == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return -1;
         }
         memcpy(aligned, src->data, (size_t) nbytes);
@@ -421,8 +418,6 @@ finish:
     }
     return retval;
 }
-
-
 
 
 /*
@@ -524,8 +519,8 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
  * array is desired.
  */
 size_t
-_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd, size_t itemsize,
-                    int inflag, int *objflags)
+npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
+                       size_t itemsize, int inflag, int *objflags)
 {
     int i;
     /* Only make Fortran strides if not contiguous as well */
@@ -623,15 +618,15 @@ finish:
 
 
 /* If destination is not the right type, then src
- will be cast to destination -- this requires
- src and dest to have the same shape
- */
+   will be cast to destination -- this requires
+   src and dest to have the same shape
+*/
 
 /* Requires arrays to have broadcastable shapes
 
- The arrays are assumed to have the same number of elements
- They can be different sizes and have different types however.
- */
+   The arrays are assumed to have the same number of elements
+   They can be different sizes and have different types however.
+*/
 
 static int
 _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
@@ -851,7 +846,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     }
     if (nd < 0) {
         NpyErr_SetString(NpyExc_ValueError,
-                        "number of dimensions must be >=0");
+                         "number of dimensions must be >=0");
         Npy_DECREF(descr);
         return NULL;
     }
@@ -894,13 +889,13 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         }
         if (dim < 0) {
             NpyErr_SetString(NpyExc_ValueError,
-                            "negative dimensions are not allowed");
+                             "negative dimensions are not allowed");
             Npy_DECREF(descr);
             return NULL;
         }
         if (dim > largest) {
             NpyErr_SetString(NpyExc_ValueError,
-                            "array is too big.");
+                             "array is too big.");
             Npy_DECREF(descr);
             return NULL;
         }
@@ -940,14 +935,14 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     if (nd > 0) {
         self->dimensions = NpyDimMem_NEW(2*nd);
         if (self->dimensions == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             goto fail;
         }
         self->strides = self->dimensions + nd;
         memcpy(self->dimensions, dims, sizeof(npy_intp)*nd);
         if (strides == NULL) { /* fill it in */
-            sd = _array_fill_strides(self->strides, dims, nd, sd,
-                                     flags, &(self->flags));
+            sd = npy_array_fill_strides(self->strides, dims, nd, sd,
+                                        flags, &(self->flags));
         }
         else {
             /*
@@ -973,7 +968,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
             sd = descr->elsize;
         }
         if ((data = NpyDataMem_NEW(sd)) == NULL) {
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             goto fail;
         }
         self->flags |= NPY_OWNDATA;
@@ -1100,7 +1095,6 @@ NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
 }
 
 
-
 /*NUMPY_API
  * steals reference to newtype --- acc. NULL
  */
@@ -1190,8 +1184,9 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
          */
         else {
             Npy_DECREF(newtype);
-            if ((flags & NPY_ENSUREARRAY) /*&&
-                !NpyArray_CheckExact(arr) -- TODO: Would be nice to check this in the future */ ) {
+            if ((flags & NPY_ENSUREARRAY) /* &&
+                !NpyArray_CheckExact(arr) --
+                TODO: Would be nice to check this in the future */ ) {
                 Npy_INCREF(arr->descr);
                 ret = NpyArray_NewView(arr->descr,
                                        arr->nd, arr->dimensions, arr->strides,
@@ -1564,7 +1559,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     NPY_END_ALLOW_THREADS;
     free(clean_sep);
     if (err == 1) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
     }
     if (NpyErr_Occurred()) {
         Npy_DECREF(r);
@@ -1625,7 +1620,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 
         if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
             Npy_DECREF(ret);
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return NULL;
         }
         NpyArray_BYTES(ret) = tmp;
@@ -1784,7 +1779,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 
         if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
             Npy_DECREF(ret);
-            NpyErr_SetString(NpyExc_MemoryError, "no memory");
+            NpyErr_MEMORY;
             return NULL;
         }
         ret->data = tmp;
@@ -1807,8 +1802,7 @@ NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
     }
     if (NpyDataType_FLAGCHK(dtype, NPY_ITEM_IS_POINTER)) {
         NpyErr_SetString(NpyExc_ValueError,
-                         "Cannot create an object array from"
-                         " a string");
+                         "Cannot create an object array from a string");
         Npy_DECREF(dtype);
         return NULL;
     }

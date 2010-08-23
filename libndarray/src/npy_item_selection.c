@@ -1101,7 +1101,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
 
     its = (NpyArrayIterObject **) NpyDataMem_NEW(n*sizeof(NpyArrayIterObject*));
     if (its == NULL) {
-        NpyErr_SetString(NpyExc_MemoryError, "no memory");
+        NpyErr_MEMORY;
         return NULL;
     }
     for (i = 0; i < n; i++) {

@@ -30,13 +30,13 @@ typedef struct NpyDict_Iter NpyDict_Iter;
 
 
 
-
 /*
  * Dictionary APIs
  */
 NpyDict *NpyDict_CreateTable(long numOfBuckets);
 void NpyDict_Destroy(NpyDict *hashTable);
-NpyDict *NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(void *));
+NpyDict *NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *),
+                      void *(*copyValue)(void *));
 int NpyDict_ContainsKey(const NpyDict *hashTable, const void *key);
 int NpyDict_ContainsValue(const NpyDict *hashTable, const void *value);
 int NpyDict_Put(NpyDict *hashTable, const void *key, void *value);
@@ -46,23 +46,26 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey);
 void NpyDict_Remove(NpyDict *hashTable, const void *key);
 void NpyDict_RemoveAll(NpyDict *hashTable);
 void NpyDict_IterInit(NpyDict_Iter *iter);
-int NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key, void **value);
+int NpyDict_IterNext(NpyDict *hashTable, NpyDict_Iter *iter, void **key,
+                     void **value);
 int NpyDict_IsEmpty(const NpyDict *hashTable);
 long NpyDict_Size(const NpyDict *hashTable);
 long NpyDict_GetNumBuckets(const NpyDict *hashTable);
-void NpyDict_SetKeyComparisonFunction(NpyDict *hashTable,
-                                      int (*keycmp)(const void *key1, const void *key2));
-void NpyDict_SetValueComparisonFunction(NpyDict *hashTable,
-                                        int (*valuecmp)(const void *value1, const void *value2));
+void NpyDict_SetKeyComparisonFunction(
+    NpyDict *hashTable,
+    int (*keycmp)(const void *key1, const void *key2));
+void NpyDict_SetValueComparisonFunction(
+    NpyDict *hashTable,
+    int (*valuecmp)(const void *value1, const void *value2));
 void NpyDict_SetHashFunction(NpyDict *hashTable,
                              unsigned long (*hashFunction)(const void *key));
 void NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets);
 void NpyDict_SetIdealRatio(NpyDict *hashTable, float idealRatio,
-                           float lowerRehashThreshold, float upperRehashThreshold);
+                           float lowerRehashThreshold,
+                           float upperRehashThreshold);
 void NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
                                       void (*keyDeallocator)(void *key),
                                       void (*valueDeallocator)(void *value));
 unsigned long NpyDict_StringHashFunction(const void *key);
 
 #endif
-

@@ -210,17 +210,15 @@ do {                                                            \
  * Long double support
  */
 #if defined(NPY_LDOUBLE_INTEL_EXT_12BYTES_LE)
-    /*
-     * Intel extended 80 bits precision. Bit representation is
-     *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
-     *          | 16 bits|  1 bit |    15 bits    |            64 bits            |
-     *          |             a[2]                |     a[1]     |    a[0]        |
-     *
-     * 16 stronger bits of a[2] are junk
-     */
+/*
+ * Intel extended 80 bits precision. Bit representation is
+ *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
+ *          | 16 bits|  1 bit |    15 bits    |            64 bits            |
+ *          |             a[2]                |     a[1]     |    a[0]        |
+ *
+ * 16 stronger bits of a[2] are junk
+ */
     typedef npy_uint32 IEEEl2bitsrep_part;
-
-/* my machine */
 
     union IEEEl2bitsrep {
         npy_longdouble     e;
@@ -250,14 +248,14 @@ do {                                                            \
     typedef npy_uint32 ldouble_sign_t;
 
 #elif defined(NPY_LDOUBLE_INTEL_EXT_16BYTES_LE)
-    /*
-     * Intel extended 80 bits precision, 16 bytes alignment.. Bit representation is
-     *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
-     *          | 16 bits|  1 bit |    15 bits    |            64 bits            |
-     *          |             a[2]                |     a[1]     |    a[0]        |
-     *
-     * a[3] and 16 stronger bits of a[2] are junk
-     */
+/*
+ * Intel extended 80 bits precision, 16 bytes alignment.. Bit representation is
+ *          |  junk  |     s  |eeeeeeeeeeeeeee|mmmmmmmm................mmmmmmm|
+ *          | 16 bits|  1 bit |    15 bits    |            64 bits            |
+ *          |             a[2]                |     a[1]     |    a[0]        |
+ *
+ * a[3] and 16 stronger bits of a[2] are junk
+ */
     typedef npy_uint32 IEEEl2bitsrep_part;
 
     union IEEEl2bitsrep {

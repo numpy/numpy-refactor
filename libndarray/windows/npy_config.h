@@ -41,7 +41,6 @@ standard part of the distribution.
 #define NPY_HAVE_COMPLEX_H 0
 #define NPY_HAVE_STDINT_H 0
 #define NPY_HAVE_STDLIB_H 1
-#define NPY_HAVE_STRINGS_H 0
 
 #define NPY_HAVE_DECL_ACOS 1
 #define NPY_HAVE_DECL_ACOSF 0

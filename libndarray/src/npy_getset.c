@@ -39,12 +39,14 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
         NpyArray_DIMS(self) = NpyDimMem_NEW(2 * nd);
         if (NpyArray_DIMS(self) == NULL) {
             Npy_XDECREF(ret);
-            NpyErr_SetString(NpyExc_MemoryError,"");
+            NpyErr_MEMORY;
             return -1;
         }
         NpyArray_STRIDES(self) = NpyArray_DIMS(self) + nd;
-        memcpy(NpyArray_DIMS(self), NpyArray_DIMS(ret), nd * sizeof(npy_intp));
-        memcpy(NpyArray_STRIDES(self), NpyArray_STRIDES(ret), nd * sizeof(npy_intp));
+        memcpy(NpyArray_DIMS(self), NpyArray_DIMS(ret),
+               nd * sizeof(npy_intp));
+        memcpy(NpyArray_STRIDES(self), NpyArray_STRIDES(ret),
+               nd * sizeof(npy_intp));
     }
     else {
         NpyArray_DIMS(self) = NULL;
@@ -88,7 +90,7 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
 #else
     if (new->base_obj != NULL) {
         NpyErr_SetString(NpyExc_ValueError,
-                         "strides cannot be set on array created from a buffer.");
+                     "strides cannot be set on array created from a buffer.");
         return -1;
     }
 #endif

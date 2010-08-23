@@ -34,6 +34,13 @@ else:
         assert subprocess.call(cmd, cwd=library_dir) == 0
 
 
+if 1:
+    import subprocess
+    cmd = ['cython', 'mtrand.pyx']
+    cwd = os.path.join('numpy', 'random', 'mtrand')
+    assert subprocess.call(cmd, cwd=cwd) == 0
+
+
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
 Intended Audience :: Science/Research
