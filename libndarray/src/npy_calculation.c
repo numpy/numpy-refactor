@@ -152,3 +152,156 @@ NpyArray *NpyArray_Conjugate(NpyArray *self, NpyArray *out)
     }
 }
 
+
+
+NpyArray *
+NpyArray_Max(NpyArray *self, int axis, NpyArray *out)
+{
+    NpyArray *new = NULL;
+    NpyArray *ret = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_maximum), 
+                                    new, NULL, out, axis,
+                                    new->descr,
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+
+
+NpyArray *
+NpyArray_Min(NpyArray *self, int axis, NpyArray *out)
+{
+    NpyArray *new = NULL;
+    NpyArray *ret = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_minimum), 
+                                    new, NULL, out, axis,
+                                    new->descr,
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+
+NpyArray *
+NpyArray_Sum(NpyArray *self, int axis, int rtype, NpyArray *out)
+{
+    NpyArray *new = NULL;
+    NpyArray *ret = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_add), 
+                                    new, NULL, out, axis,
+                                    NpyArray_DescrFromType(rtype),
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+NpyArray *
+NpyArray_Prod(NpyArray *self, int axis, int rtype, NpyArray *out)
+{
+    NpyArray *new = NULL;
+    NpyArray *ret = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_multiply), 
+                                    new, NULL, out, axis,
+                                    NpyArray_DescrFromType(rtype),
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+
+
+
+/* Cumulative summation
+ */
+NpyArray *
+NpyArray_CumSum(NpyArray *self, int axis, int rtype, NpyArray *out)
+{
+    NpyArray *ret = NULL;
+    NpyArray *new = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_add), 
+                                    new, NULL, out, axis, 
+                                    NpyArray_DescrFromType(rtype), 
+                                    NPY_UFUNC_ACCUMULATE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+
+
+/* Cumulative product */
+NpyArray *
+NpyArray_CumProd(NpyArray *self, int axis, int rtype, NpyArray *out)
+{
+    NpyArray *ret = NULL;
+    NpyArray *new = NULL;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_multiply), 
+                                    new, NULL, out, axis, 
+                                    NpyArray_DescrFromType(rtype), 
+                                    NPY_UFUNC_ACCUMULATE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+
+
+/*NUMPY_API
+ * Any
+ */
+NpyArray *
+NpyArray_Any(NpyArray *self, int axis, NpyArray *out)
+{
+    NpyArray *new, *ret;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_logical_or), 
+                                    new, NULL, out, axis, 
+                                    NpyArray_DescrFromType(NPY_BOOL), 
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+NpyArray *
+NpyArray_All(NpyArray *self, int axis, NpyArray *out)
+{
+    NpyArray *new, *ret;
+    
+    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+        return NULL;
+    }
+    ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_logical_and), 
+                                    new, NULL, out, axis, 
+                                    NpyArray_DescrFromType(NPY_BOOL), 
+                                    NPY_UFUNC_REDUCE);
+    Npy_DECREF(new);
+    return ret;
+}
+
+

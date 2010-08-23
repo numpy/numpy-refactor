@@ -262,6 +262,10 @@ NpyUFuncObject *
                              char *types, int ntypes,
                              int nin, int nout, int identity,
                              char *name, char *doc, int check_return);
+NpyArray *
+NpyUFunc_GenericReduction(NpyUFuncObject *self, NpyArray *arr, 
+                          NpyArray *indicies, NpyArray *out, int axis, 
+                          NpyArray_Descr *otype, int operation);
 
 NpyArray *
 NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,

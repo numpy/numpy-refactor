@@ -513,6 +513,99 @@ fail:
 
 
 
+NpyArray *
+NpyUFunc_GenericReduction(NpyUFuncObject *self, NpyArray *arr, NpyArray *indices,
+                          NpyArray *out, int axis, NpyArray_Descr *otype, int operation)
+{
+    static char *_reduce_type[] = {"reduce", "accumulate", "reduceat", NULL};
+
+    NpyArray *ret = NULL;
+    
+    /* Check to see if input is zero-dimensional */
+    if (NpyArray_NDIM(arr) == 0) {
+        char buf[256];
+        
+        sprintf(buf, "cannot %s on a scalar",
+                _reduce_type[operation]);
+        NpyErr_SetString(NpyExc_TypeError, buf);
+        Npy_DECREF(arr);
+        return NULL;
+    }
+    /* Check to see that type (and otype) is not FLEXIBLE */
+    if (NpyArray_ISFLEXIBLE(arr) ||
+        (NULL != otype && NpyTypeNum_ISFLEXIBLE(otype->type_num))) {
+        char buf[256];
+        
+        sprintf(buf, "cannot perform %s with flexible type",
+                _reduce_type[operation]);
+        NpyErr_SetString(NpyExc_TypeError, buf);
+        return NULL;
+    }
+    
+    if (axis < 0) {
+        axis += NpyArray_NDIM(arr);
+    }
+    if (axis < 0 || axis >= NpyArray_NDIM(arr)) {
+        NpyErr_SetString(NpyExc_ValueError, "axis not in array");
+        return NULL;
+    }
+    
+    /*
+     * If out is specified it determines otype
+     * unless otype already specified.
+     */
+    if (otype == NULL && out != NULL) {
+        otype = NpyArray_DESCR(out);
+        Npy_INCREF(otype);
+    }
+    if (otype == NULL) {
+        /*
+         * For integer types --- make sure at least a long
+         * is used for add and multiply reduction to avoid overflow
+         */
+        int typenum = NpyArray_TYPE(arr);
+        if ((typenum < NPY_FLOAT)
+            && ((strcmp(self->name,"add") == 0)
+                || (strcmp(self->name,"multiply") == 0))) {
+                if (NpyTypeNum_ISBOOL(typenum)) {
+                    typenum = NPY_LONG;
+                }
+                else if ((size_t)NpyArray_ITEMSIZE(arr) < sizeof(long)) {
+                    if (NpyTypeNum_ISUNSIGNED(typenum)) {
+                        typenum = NPY_ULONG;
+                    }
+                    else {
+                        typenum = NPY_LONG;
+                    }
+                }
+            }
+        otype = NpyArray_DescrFromType(typenum);
+    }
+        
+    
+    switch(operation) {
+        case NPY_UFUNC_REDUCE:
+            ret = NpyUFunc_Reduce(self, arr, out, axis,
+                                  otype->type_num);
+            break;
+        case NPY_UFUNC_ACCUMULATE:
+            ret = NpyUFunc_Accumulate(self, arr, out, axis,
+                                      otype->type_num);
+            break;
+        case NPY_UFUNC_REDUCEAT:
+            ret = NpyUFunc_Reduceat(self, arr, indices, out,
+                                    axis, otype->type_num);
+            Npy_DECREF(indices);
+            break;
+        default:
+            assert(0);
+            break;
+    }
+    return ret;
+}
+
+
+
 /*
  * We have two basic kinds of loops. One is used when arr is not-swapped
  * and aligned and output type is the same as input type.  The other uses

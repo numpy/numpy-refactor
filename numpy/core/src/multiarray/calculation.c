@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include <npy_api.h>
 #include <npy_calculation.h>
+#include <npy_ufunc_object.h>
 
 #include "numpy/arrayobject.h"
 
@@ -365,16 +366,13 @@ PyArray_Prod(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_CumSum(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 {
-    PyObject *new, *ret;
-
-    if ((new = _check_axis(self, &axis, 0)) == NULL) {
-        return NULL;
-    }
-    ret = PyArray_GenericAccumulateFunction((PyAO *)new, PyArray_GetNumericOp(npy_op_add), axis,
-                                            rtype, out);
-    Py_DECREF(new);
-    return ret;
+    PyArrayObject *ret = NULL;
+    
+    ASSIGN_TO_PYARRAY(ret, NpyArray_CumSum(PyArray_ARRAY(self), axis, rtype, 
+                                           (NULL != out) ? PyArray_ARRAY(out) : NULL));
+    return (PyObject *)ret;
 }
+
 
 /*NUMPY_API
  * CumProd
@@ -382,17 +380,11 @@ PyArray_CumSum(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_CumProd(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 {
-    PyObject *new, *ret;
-
-    if ((new = _check_axis(self, &axis, 0)) == NULL) {
-        return NULL;
-    }
-
-    ret = PyArray_GenericAccumulateFunction((PyAO *)new,
-                                            PyArray_GetNumericOp(npy_op_multiply), axis,
-                                            rtype, out);
-    Py_DECREF(new);
-    return ret;
+    PyArrayObject *ret = NULL;
+    
+    ASSIGN_TO_PYARRAY(ret, NpyArray_CumProd(PyArray_ARRAY(self), axis, rtype, 
+                                            (NULL != out) ? PyArray_ARRAY(out) : NULL));
+    return (PyObject *)ret;
 }
 
 /*NUMPY_API
@@ -606,16 +598,11 @@ PyArray_Mean(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_Any(PyArrayObject *self, int axis, PyArrayObject *out)
 {
-    PyObject *new, *ret;
-
-    if ((new = _check_axis(self, &axis, 0)) == NULL) {
-        return NULL;
-    }
-    ret = PyArray_GenericReduceFunction((PyAO *)new,
-                                        PyArray_GetNumericOp(npy_op_logical_or), axis,
-                                        PyArray_BOOL, out);
-    Py_DECREF(new);
-    return ret;
+    PyArrayObject *ret = NULL;
+    
+    ASSIGN_TO_PYARRAY(ret, NpyArray_Any(PyArray_ARRAY(self), axis,
+                                        (NULL != out) ? PyArray_ARRAY(out) : NULL));
+    return (PyObject *)ret;
 }
 
 /*NUMPY_API
@@ -624,17 +611,14 @@ PyArray_Any(PyArrayObject *self, int axis, PyArrayObject *out)
 NPY_NO_EXPORT PyObject *
 PyArray_All(PyArrayObject *self, int axis, PyArrayObject *out)
 {
-    PyObject *new, *ret;
-
-    if ((new = _check_axis(self, &axis, 0)) == NULL) {
-        return NULL;
-    }
-    ret = PyArray_GenericReduceFunction((PyAO *)new,
-                                        PyArray_GetNumericOp(npy_op_logical_and), axis,
-                                        PyArray_BOOL, out);
-    Py_DECREF(new);
-    return ret;
+    PyArrayObject *ret = NULL;
+    
+    ASSIGN_TO_PYARRAY(ret, NpyArray_All(PyArray_ARRAY(self), axis,
+                                        (NULL != out) ? PyArray_ARRAY(out) : NULL));
+    return (PyObject *)ret;
 }
+
+
 
 
 static PyObject *

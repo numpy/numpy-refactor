@@ -883,77 +883,6 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
 }
 
 
-
-/*
- * We have two basic kinds of loops. One is used when arr is not-swapped
- * and aligned and output type is the same as input type.  The other uses
- * buffers when one of these is not satisfied.
- *
- *  Zero-length and one-length axes-to-be-reduced are handled separately.
- */
-static PyObject *
-PyUFunc_Reduce(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
-               int axis, int otype)
-{
-    PyArrayObject *ret;
-    
-    /* Construct loop object */
-    ASSIGN_TO_PYARRAY(ret, 
-        NpyUFunc_Reduce(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), 
-                        PyArray_ARRAY(out), axis, otype));
-    return (PyObject *)ret;
-}
-
-
-static PyObject *
-PyUFunc_Accumulate(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *out,
-                   int axis, int otype)
-{
-    PyArrayObject *ret = NULL;
-    
-    /* Construct loop object */
-    ASSIGN_TO_PYARRAY(ret, 
-        NpyUFunc_Accumulate(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), 
-                            PyArray_ARRAY(out), axis, otype));
-    return (PyObject *)ret;
-}
-
-
-
-/*
- * Reduceat performs a reduce over an axis using the indices as a guide
- *
- * op.reduceat(array,indices)  computes
- * op.reduce(array[indices[i]:indices[i+1]]
- * for i=0..end with an implicit indices[i+1]=len(array)
- * assumed when i=end-1
- *
- * if indices[i+1] <= indices[i]+1
- * then the result is array[indices[i]] for that value
- *
- * op.accumulate(array) is the same as
- * op.reduceat(array,indices)[::2]
- * where indices is range(len(array)-1) with a zero placed in every other sample
- * indices = zeros(len(array)*2-1)
- * indices[1::2] = range(1,len(array))
- *
- * output shape is based on the size of indices
- */
-static PyObject *
-PyUFunc_Reduceat(PyUFuncObject *self, PyArrayObject *arr, PyArrayObject *ind,
-                 PyArrayObject *out, int axis, int otype)
-{
-    PyArrayObject *ret;
-    
-    ASSIGN_TO_PYARRAY(ret,
-        NpyUFunc_Reduceat(PyUFunc_UFUNC(self), PyArray_ARRAY(arr), PyArray_ARRAY(ind), 
-                          PyArray_ARRAY(out), axis, otype));
-    return (PyObject *)ret;
-}
-
-
-
-
 /*
  * This code handles reduce, reduceat, and accumulate
  * (accumulate and reduce are special cases of the more general reduceat
@@ -1062,65 +991,20 @@ PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
         return NULL;
     }
 
-    if (axis < 0) {
-        axis += PyArray_NDIM(mp);
-    }
-    if (axis < 0 || axis >= PyArray_NDIM(mp)) {
-        PyErr_SetString(PyExc_ValueError, "axis not in array");
-        Py_XDECREF(otype);
-        Py_DECREF(mp);
-        return NULL;
-    }
-     /*
-      * If out is specified it determines otype
-      * unless otype already specified.
-      */
-    if (otype == NULL && out != NULL) {
-        otype = PyArray_Descr_WRAP( PyArray_DESCR(out) );
-        Py_INCREF(otype);
-    }
-    if (otype == NULL) {
-        /*
-         * For integer types --- make sure at least a long
-         * is used for add and multiply reduction to avoid overflow
-         */
-        int typenum = PyArray_TYPE(mp);
-        if ((typenum < NPY_FLOAT)
-            && ((strcmp(PyUFunc_UFUNC(self)->name,"add") == 0)
-                || (strcmp(PyUFunc_UFUNC(self)->name,"multiply") == 0))) {
-            if (NpyTypeNum_ISBOOL(typenum)) {
-                typenum = PyArray_LONG;
-            }
-            else if ((size_t)PyArray_ITEMSIZE(mp) < sizeof(long)) {
-                if (NpyTypeNum_ISUNSIGNED(typenum)) {
-                    typenum = PyArray_ULONG;
-                }
-                else {
-                    typenum = PyArray_LONG;
-                }
-            }
-        }
-        otype = PyArray_DescrFromType(typenum);
-    }
-
-
-    switch(operation) {
-    case NPY_UFUNC_REDUCE:
-        ret = (PyArrayObject *)PyUFunc_Reduce(self, mp, out, axis,
-                                              otype->descr->type_num);
-        break;
-    case NPY_UFUNC_ACCUMULATE:
-        ret = (PyArrayObject *)PyUFunc_Accumulate(self, mp, out, axis,
-                                                  otype->descr->type_num);
-        break;
-    case NPY_UFUNC_REDUCEAT:
-        ret = (PyArrayObject *)PyUFunc_Reduceat(self, mp, indices, out,
-                                                axis, otype->descr->type_num);
+    if (indices) {
+        /* Move reference to core */
+        Npy_INCREF(PyArray_ARRAY(indices));
         Py_DECREF(indices);
-        break;
     }
+    ASSIGN_TO_PYARRAY(ret,
+        NpyUFunc_GenericReduction(PyUFunc_UFUNC(self), 
+                                  PyArray_ARRAY(mp), 
+                                  (NULL != indices ? PyArray_ARRAY(indices) : NULL), 
+                                  (NULL != out ? PyArray_ARRAY(out) : NULL), 
+                                  axis, (NULL != otype) ? otype->descr : NULL, operation));
+    
     Py_DECREF(mp);
-    Py_DECREF(otype);
+    Py_XDECREF(otype);
     if (ret == NULL) {
         return NULL;
     }
