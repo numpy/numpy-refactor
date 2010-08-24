@@ -10,7 +10,9 @@ npy_acoshl
 npy_acosl
 npy_array_fill_strides
 npy_byte_swap_vector
+NpyArray_All
 NpyArray_Alloc
+NpyArray_Any
 NpyArray_ArgMax
 NpyArray_ArgSort
 NpyArray_ArrayItem
@@ -36,6 +38,8 @@ NpyArray_CopyAnyInto
 NpyArray_CopyInto
 NpyArray_Correlate
 NpyArray_Correlate2
+NpyArray_CumSum
+NpyArray_CumProd
 NpyArray_DatetimeStructToDatetime
 NpyArray_DatetimeToDatetimeStruct
 NpyArray_dealloc
@@ -784,6 +788,7 @@ NpyUFunc_FF_F
 NpyUFunc_FromFuncAndDataAndSignature
 npy_ufunc_frompyfunc
 NpyUFunc_GenericFunction
+NpyUFunc_GenericReduction
 NpyUFunc_getfperr
 NpyUFunc_g_g
 NpyUFunc_G_G
