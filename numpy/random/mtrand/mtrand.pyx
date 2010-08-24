@@ -77,7 +77,8 @@ cdef extern from "distributions.h":
     double rk_chisquare(rk_state *state, double df)
     double rk_noncentral_chisquare(rk_state *state, double df, double nonc)
     double rk_f(rk_state *state, double dfnum, double dfden)
-    double rk_noncentral_f(rk_state *state, double dfnum, double dfden, double nonc)
+    double rk_noncentral_f(rk_state *state, double dfnum, double dfden,
+                           double nonc)
     double rk_standard_cauchy(rk_state *state)
     double rk_standard_t(rk_state *state, double df)
     double rk_vonmises(rk_state *state, double mu, double kappa)
@@ -90,7 +91,8 @@ cdef extern from "distributions.h":
     double rk_lognormal(rk_state *state, double mode, double sigma)
     double rk_rayleigh(rk_state *state, double mode)
     double rk_wald(rk_state *state, double mean, double scale)
-    double rk_triangular(rk_state *state, double left, double mode, double right)
+    double rk_triangular(rk_state *state, double left, double mode,
+                         double right)
 
     long rk_binomial(rk_state *state, long n, double p)
     long rk_binomial_btpe(rk_state *state, long n, double p)

@@ -4,11 +4,12 @@
 cdef extern from "numpy/arrayobject.h":
     pass
 
+
 cdef extern from "npy_iterators.h":
     pass
 
 
-cdef extern from "numpy/ndarraytypes.h":
+cdef extern from "npy_defs.h":
 
     cdef enum NPY_TYPES:
         NPY_BOOL
@@ -69,6 +70,9 @@ cdef extern from "numpy/ndarraytypes.h":
     cdef enum defines:
         NPY_MAXDIMS
 
+
+cdef extern from "numpy/ndarraytypes.h":
+
     ctypedef struct npy_cdouble:
         double real
         double imag
@@ -95,7 +99,7 @@ cdef extern from "numpy/ndarraytypes.h":
         cdef NpyArray *array
 
     ctypedef struct NpyArrayIterObject:
-        int  nd_m1
+        int nd_m1
         npy_intp index, size
         char *dataptr
 
