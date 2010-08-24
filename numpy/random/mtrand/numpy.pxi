@@ -1,10 +1,6 @@
 # :Author:    Travis Oliphant
 
 
-cdef extern from "numpy/arrayobject.h":
-    pass
-
-
 cdef extern from "npy_defs.h":
 
     cdef enum NPY_TYPES:
@@ -69,6 +65,16 @@ cdef extern from "npy_defs.h":
     ctypedef int npy_intp
 
 
+cdef extern from "npy_arrayobject.h":
+
+    ctypedef struct NpyArray:
+        char *data
+        int nd
+        npy_intp *dimensions
+        npy_intp *strides
+        int flags
+
+
 cdef extern from "npy_iterators.h":
 
     ctypedef struct NpyArrayIterObject:
@@ -76,13 +82,15 @@ cdef extern from "npy_iterators.h":
         npy_intp index, size
         char *dataptr
 
-
     ctypedef struct NpyArrayMultiIterObject:
         int numiter
         npy_intp size, index
         int nd
         npy_intp *dimensions
         void **iters
+
+    NpyArrayIterObject NpyArray_IterNew(NpyArray *ao)
+    NpyArrayMultiIterObject NpyArray_MultiIterNew()
 
 
 cdef extern from "npy_common.h":
@@ -94,16 +102,6 @@ cdef extern from "npy_common.h":
     ctypedef struct npy_cfloat:
         double real
         double imag
-
-
-cdef extern from "npy_arrayobject.h":
-
-    ctypedef struct NpyArray:
-        char *data
-        int nd
-        npy_intp *dimensions
-        npy_intp *strides
-        int flags
 
 
 cdef extern from "numpy/ndarraytypes.h":
@@ -130,14 +128,14 @@ cdef extern from "numpy/ndarraytypes.h":
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
     int PyArray_Check(object obj)
     object PyArray_ContiguousFromAny(object obj, NPY_TYPES type,
-        int mindim, int maxdim)
+                                     int mindim, int maxdim)
     object PyArray_ContiguousFromObject(object obj, NPY_TYPES type,
-        int mindim, int maxdim)
+                                        int mindim, int maxdim)
     npy_intp PyArray_SIZE(ndarray arr)
     npy_intp PyArray_NBYTES(ndarray arr)
     void *PyArray_DATA(ndarray arr)
     object PyArray_FromAny(object obj, dtype newtype, int mindim, int maxdim,
-                            int requirements, object context)
+                           int requirements, object context)
     object PyArray_FROMANY(object obj, NPY_TYPES type_num, int min,
                            int max, int requirements)
     object PyArray_NewFromDescr(object subtype, dtype newtype, int nd,
@@ -146,7 +144,6 @@ cdef extern from "numpy/ndarraytypes.h":
 
     object PyArray_FROM_OTF(object obj, NPY_TYPES type, int flags)
     object PyArray_EnsureArray(object)
-
     object PyArray_MultiIterNew(int n, ...)
 
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
@@ -160,4 +157,8 @@ cdef extern from "numpy/ndarraytypes.h":
 
 
 cdef extern from "npy_descriptor.h":
+    pass
+
+
+cdef extern from "numpy/arrayobject.h":
     pass
