@@ -5,10 +5,6 @@ cdef extern from "numpy/arrayobject.h":
     pass
 
 
-cdef extern from "npy_iterators.h":
-    pass
-
-
 cdef extern from "npy_defs.h":
 
     cdef enum NPY_TYPES:
@@ -70,8 +66,26 @@ cdef extern from "npy_defs.h":
     cdef enum defines:
         NPY_MAXDIMS
 
+    ctypedef int npy_intp
 
-cdef extern from "numpy/ndarraytypes.h":
+
+cdef extern from "npy_iterators.h":
+
+    ctypedef struct NpyArrayIterObject:
+        int nd_m1
+        npy_intp index, size
+        char *dataptr
+
+
+    ctypedef struct NpyArrayMultiIterObject:
+        int numiter
+        npy_intp size, index
+        int nd
+        npy_intp *dimensions
+        void **iters
+
+
+cdef extern from "npy_common.h":
 
     ctypedef struct npy_cdouble:
         double real
@@ -81,12 +95,8 @@ cdef extern from "numpy/ndarraytypes.h":
         double real
         double imag
 
-    ctypedef int npy_intp
 
-    ctypedef extern class numpy.dtype [object PyArray_Descr]:
-        cdef int type_num, elsize, alignment
-        cdef char type, kind, byteorder, flags
-        cdef object fields, typeobj
+cdef extern from "npy_arrayobject.h":
 
     ctypedef struct NpyArray:
         char *data
@@ -95,23 +105,19 @@ cdef extern from "numpy/ndarraytypes.h":
         npy_intp *strides
         int flags
 
+
+cdef extern from "numpy/ndarraytypes.h":
+
+    ctypedef extern class numpy.dtype [object PyArray_Descr]:
+        cdef int type_num, elsize, alignment
+        cdef char type, kind, byteorder, flags
+        cdef object fields, typeobj
+
     ctypedef extern class numpy.ndarray [object PyArrayObject]:
         cdef NpyArray *array
 
-    ctypedef struct NpyArrayIterObject:
-        int nd_m1
-        npy_intp index, size
-        char *dataptr
-
     ctypedef extern class numpy.flatiter [object PyArrayIterObject]:
         cdef NpyArrayIterObject *iter
-
-    ctypedef struct NpyArrayMultiIterObject:
-        int numiter
-        npy_intp size, index
-        int nd
-        npy_intp *dimensions
-        void **iters
 
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
