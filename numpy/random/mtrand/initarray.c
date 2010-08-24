@@ -107,7 +107,8 @@ init_genrand(rk_state *self, unsigned long s)
  * key_length is its length
  */
 extern void
-init_by_array(rk_state *self, unsigned long init_key[], unsigned long key_length)
+init_by_array(rk_state *self, unsigned long init_key[],
+              unsigned long key_length)
 {
     /* was signed in the original code. RDH 12/16/2002 */
     unsigned int i = 1;

@@ -3,10 +3,10 @@
 
 cdef extern from "numpy/arrayobject.h":
     pass
-    
+
 cdef extern from "npy_iterators.h":
     pass
-    
+
 
 cdef extern from "numpy/ndarraytypes.h":
 
@@ -98,7 +98,7 @@ cdef extern from "numpy/ndarraytypes.h":
         int  nd_m1
         npy_intp index, size
         char *dataptr
-    
+
     ctypedef extern class numpy.flatiter [object PyArrayIterObject]:
         cdef NpyArrayIterObject *iter
 
@@ -112,8 +112,10 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
 
-    object PyArray_ZEROS(int ndims, npy_intp* dims, NPY_TYPES type_num, int fortran)
-    object PyArray_EMPTY(int ndims, npy_intp* dims, NPY_TYPES type_num, int fortran)
+    object PyArray_ZEROS(int ndims, npy_intp* dims, NPY_TYPES type_num,
+                         int fortran)
+    object PyArray_EMPTY(int ndims, npy_intp* dims, NPY_TYPES type_num,
+                         int fortran)
     dtype PyArray_DescrFromTypeNum(NPY_TYPES type_num)
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
     int PyArray_Check(object obj)
@@ -145,7 +147,7 @@ cdef extern from "numpy/ndarraytypes.h":
     void PyArray_ITER_NEXT(flatiter it)
 
     void import_array()
-    
-    
+
+
 cdef extern from "npy_descriptor.h":
     pass
