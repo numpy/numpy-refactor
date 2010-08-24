@@ -554,7 +554,7 @@ cdef class RandomState:
     """
     cdef rk_state *internal_state
 
-    def __init__(self, seed=None):
+    def __cinit__(self, seed=None):
         self.internal_state = <rk_state*>PyMem_Malloc(sizeof(rk_state))
 
         self.seed(seed)
