@@ -104,12 +104,14 @@ cdef extern from "npy_common.h":
         double imag
 
 
-cdef extern from "numpy/ndarraytypes.h":
+cdef extern from "npy_descriptor.h":
 
-    ctypedef extern class numpy.dtype [object PyArray_Descr]:
-        cdef int type_num, elsize, alignment
-        cdef char type, kind, byteorder, flags
-        cdef object fields, typeobj
+    ctypedef struct NpyArray_Descr:
+        int type_num, elsize, alignment
+        char type, kind, byteorder, flags
+
+
+cdef extern from "numpy/ndarraytypes.h":
 
     ctypedef extern class numpy.ndarray [object PyArrayObject]:
         cdef NpyArray *array
@@ -124,7 +126,7 @@ cdef extern from "numpy/ndarraytypes.h":
                          int fortran)
     object PyArray_EMPTY(int ndims, npy_intp* dims, NPY_TYPES type_num,
                          int fortran)
-    dtype PyArray_DescrFromTypeNum(NPY_TYPES type_num)
+    NpyArray_Descr PyArray_DescrFromTypeNum(NPY_TYPES type_num)
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
     int PyArray_Check(object obj)
     object PyArray_ContiguousFromAny(object obj, NPY_TYPES type,
@@ -134,11 +136,11 @@ cdef extern from "numpy/ndarraytypes.h":
     npy_intp PyArray_SIZE(ndarray arr)
     npy_intp PyArray_NBYTES(ndarray arr)
     void *PyArray_DATA(ndarray arr)
-    object PyArray_FromAny(object obj, dtype newtype, int mindim, int maxdim,
-                           int requirements, object context)
+    object PyArray_FromAny(object obj, NpyArray_Descr newtype, int mindim,
+                           int maxdim, int requirements, object context)
     object PyArray_FROMANY(object obj, NPY_TYPES type_num, int min,
                            int max, int requirements)
-    object PyArray_NewFromDescr(object subtype, dtype newtype, int nd,
+    object PyArray_NewFromDescr(object subtype, NpyArray_Descr newtype, int nd,
                                 npy_intp* dims, npy_intp* strides, void* data,
                                 int flags, object parent)
 
@@ -154,10 +156,6 @@ cdef extern from "numpy/ndarraytypes.h":
     void PyArray_ITER_NEXT(flatiter it)
 
     void import_array()
-
-
-cdef extern from "npy_descriptor.h":
-    pass
 
 
 cdef extern from "numpy/arrayobject.h":
