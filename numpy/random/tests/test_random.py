@@ -101,5 +101,14 @@ class TestSetState(TestCase):
         self.prng.negative_binomial(0.5, 0.5)
 
 
+class Test_MTRand(TestCase):
+
+    def test_binomial(self):
+        n, p, N = 10, 0.5, 1000
+        sample = np.random.binomial(n, p, N)
+        avg = 1.0 * sum(sample) / N / n
+        assert 0.45 < avg < 0.55
+
+
 if __name__ == "__main__":
     run_module_suite()
