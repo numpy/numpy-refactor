@@ -107,7 +107,10 @@ class Test_MTRand(TestCase):
         n, p, N = 10, 0.5, 1000
         sample = np.random.binomial(n, p, N)
         avg = 1.0 * sum(sample) / N / n
-        assert 0.45 < avg < 0.55
+        self.assert_(0.45 < avg < 0.55)
+        self.assertRaises(ValueError, np.random.binomial, -1, 0.5)
+        self.assertRaises(ValueError, np.random.binomial, 10, -0.1)
+        self.assertRaises(ValueError, np.random.binomial, 10, 1.1)
 
 
 if __name__ == "__main__":
