@@ -89,8 +89,9 @@ cdef extern from "npy_iterators.h":
         npy_intp *dimensions
         void **iters
 
-    NpyArrayIterObject NpyArray_IterNew(NpyArray *ao)
+    NpyArrayIterObject *NpyArray_IterNew(NpyArray *ao)
     NpyArrayMultiIterObject NpyArray_MultiIterNew()
+    void NpyArray_ITER_NEXT(NpyArrayIterObject *it)
 
 
 cdef extern from "npy_common.h":
