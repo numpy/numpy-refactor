@@ -120,27 +120,12 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
 
-    object PyArray_ZEROS(int ndims, npy_intp* dims, NPY_TYPES type_num,
-                         int fortran)
-    object PyArray_EMPTY(int ndims, npy_intp* dims, NPY_TYPES type_num,
-                         int fortran)
-    NpyArray_Descr PyArray_DescrFromTypeNum(NPY_TYPES type_num)
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
-    int PyArray_Check(object obj)
-    object PyArray_ContiguousFromAny(object obj, NPY_TYPES type,
-                                     int mindim, int maxdim)
     object PyArray_ContiguousFromObject(object obj, NPY_TYPES type,
                                         int mindim, int maxdim)
     npy_intp PyArray_SIZE(ndarray arr)
-    npy_intp PyArray_NBYTES(ndarray arr)
-    void *PyArray_DATA(ndarray arr)
     object PyArray_FromAny(object obj, NpyArray_Descr newtype, int mindim,
                            int maxdim, int requirements, object context)
-    object PyArray_FROMANY(object obj, NPY_TYPES type_num, int min,
-                           int max, int requirements)
-    object PyArray_NewFromDescr(object subtype, NpyArray_Descr newtype, int nd,
-                                npy_intp* dims, npy_intp* strides, void* data,
-                                int flags, object parent)
 
     object PyArray_FROM_OTF(object obj, NPY_TYPES type, int flags)
     object PyArray_EnsureArray(object)
