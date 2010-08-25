@@ -506,17 +506,17 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
-    cdef flatiter itera
+    cdef NpyArrayIterObject *itera
 
     if size is None:
         array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
                                            NPY_LONG)
         length = PyArray_SIZE(array)
         array_data = <long *>array.array.data
-        itera = <flatiter>PyArray_IterNew(<object>oa)
+        itera = NpyArray_IterNew(oa.array)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.iter.dataptr))[0])
-            PyArray_ITER_NEXT(itera)
+            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            NpyArray_ITER_NEXT(itera)
     else:
         array = <ndarray>np.empty(size, int)
         array_data = <long *>array.array.data

@@ -117,9 +117,6 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef extern class numpy.ndarray [object PyArrayObject]:
         cdef NpyArray *array
 
-    ctypedef extern class numpy.flatiter [object PyArrayIterObject]:
-        cdef NpyArrayIterObject *iter
-
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
 
@@ -152,9 +149,6 @@ cdef extern from "numpy/ndarraytypes.h":
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
     void PyArray_MultiIter_NEXTi(broadcast multi, int i)
     void PyArray_MultiIter_NEXT(broadcast multi)
-
-    object PyArray_IterNew(object arr)
-    void PyArray_ITER_NEXT(flatiter it)
 
     void import_array()
 
