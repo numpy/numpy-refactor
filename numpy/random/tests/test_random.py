@@ -112,6 +112,15 @@ class Test_MTRand(TestCase):
         self.assertRaises(ValueError, np.random.binomial, 10, -0.1)
         self.assertRaises(ValueError, np.random.binomial, 10, 1.1)
 
+    def test_binomial_array(self):
+        # See if first argument can also be an array
+        a = np.array([10, 20, 5])
+        np.random.binomial(n, 0.4)
+
+        self.assertRaises(ValueError, np.random.binomial, a, -0.1)
+        a = np.array([10, -20, 5])
+        self.assertRaises(ValueError, np.random.binomial, a, 0.4)
+
 
 if __name__ == "__main__":
     run_module_suite()
