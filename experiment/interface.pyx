@@ -32,17 +32,28 @@ cdef extern from "npy_object.h":
 
 
 
-def get_new():
+def create_new():
     cdef npy_intp dimensions[1]
     cdef NpyArray *a
 
     dimensions[0] = 10
 
-    a = NpyArray_New(NULL, 1, dimensions,
-                     NPY_DOUBLE,
+    a = NpyArray_New(NULL, 1, dimensions, NPY_DOUBLE,
                      NULL, NULL, 0, 0, NULL)
     return Npy_INTERFACE(a)
 
+
+ctypedef struct PyArrayObject:
+    NpyArray *array
+
+
+def receive_array(object o):
+    cdef PyArrayObject *v
+    cdef NpyArray *a
+
+    v = <PyArrayObject *> o
+    a = v.array
+    # print a.nd   # When I try this a get a seg fault
 
 
 def sqr(x):
