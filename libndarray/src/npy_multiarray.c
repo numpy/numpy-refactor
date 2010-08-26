@@ -55,7 +55,9 @@ void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
     _NpyInterface_Decref = decref;
 
     /* Must be last because it uses some of the above functions. */
-    _init_builtin_descr_wrappers(functionDefs);
+	if (NULL != functionDefs) {
+		_init_builtin_descr_wrappers(functionDefs);
+	}
 }
 
 
