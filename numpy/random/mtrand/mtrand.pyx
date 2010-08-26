@@ -337,15 +337,18 @@ cdef object discnp_array_sc(rk_state *state, rk_discnp func, object size,
         return array
 
 cdef object discnp_array(rk_state *state, rk_discnp func, object size,
-                         ndarray on, ndarray op):
+                         object n, object p):
     cdef long *array_data
     cdef ndarray array "arrayObject"
+    cdef ndarray on, op
     cdef npy_intp length
     cdef npy_intp i
     cdef double *op_data
     cdef long *on_data
     cdef broadcast multi
 
+    on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
+    op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -3425,7 +3428,6 @@ cdef class RandomState:
         answer = 0.38885, or 38%.
 
         """
-        cdef ndarray on, op
         cdef long ln
         cdef double fp
         cdef int sc = 0
@@ -3447,15 +3449,13 @@ cdef class RandomState:
             return discnp_array_sc(self.internal_state, rk_binomial, size,
                                    ln, fp)
 
-        on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
-        op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
         if np.any(np.less_equal(n, 0)):
             raise ValueError("n <= 0")
         if np.any(np.less(p, 0)):
             raise ValueError("p < 0")
         if np.any(np.greater(p, 1)):
             raise ValueError("p > 1")
-        return discnp_array(self.internal_state, rk_binomial, size, on, op)
+        return discnp_array(self.internal_state, rk_binomial, size, n, p)
 
 
     def negative_binomial(self, n, p, size=None):
