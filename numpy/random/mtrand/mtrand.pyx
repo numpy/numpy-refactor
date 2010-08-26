@@ -393,15 +393,18 @@ cdef object discdd_array_sc(rk_state *state, rk_discdd func, object size,
         return array
 
 cdef object discdd_array(rk_state *state, rk_discdd func, object size,
-                         ndarray on, ndarray op):
+                         object n, object p):
     cdef long *array_data
     cdef ndarray array "arrayObject"
+    cdef ndarray on, op
     cdef npy_intp length
     cdef npy_intp i
     cdef double *op_data
     cdef double *on_data
     cdef broadcast multi
 
+    on = <ndarray>PyArray_FROM_OTF(n, NPY_DOUBLE, NPY_ALIGNED)
+    op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -3546,16 +3549,14 @@ cdef class RandomState:
             return discdd_array_sc(self.internal_state, rk_negative_binomial,
                                    size, fn, fp)
 
-        on = <ndarray>PyArray_FROM_OTF(n, NPY_DOUBLE, NPY_ALIGNED)
-        op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
         if np.any(np.less_equal(n, 0)):
             raise ValueError("n <= 0")
         if np.any(np.less(p, 0)):
             raise ValueError("p < 0")
         if np.any(np.greater(p, 1)):
             raise ValueError("p > 1")
-        return discdd_array(self.internal_state, rk_negative_binomial, size,
-                            on, op)
+        return discdd_array(self.internal_state, rk_negative_binomial,
+                            size, n, p)
 
     def poisson(self, lam=1.0, size=None):
         """
