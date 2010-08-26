@@ -77,7 +77,8 @@ cdef extern from "distributions.h":
     double rk_chisquare(rk_state *state, double df)
     double rk_noncentral_chisquare(rk_state *state, double df, double nonc)
     double rk_f(rk_state *state, double dfnum, double dfden)
-    double rk_noncentral_f(rk_state *state, double dfnum, double dfden, double nonc)
+    double rk_noncentral_f(rk_state *state, double dfnum, double dfden,
+                           double nonc)
     double rk_standard_cauchy(rk_state *state)
     double rk_standard_t(rk_state *state, double df)
     double rk_vonmises(rk_state *state, double mu, double kappa)
@@ -90,7 +91,8 @@ cdef extern from "distributions.h":
     double rk_lognormal(rk_state *state, double mode, double sigma)
     double rk_rayleigh(rk_state *state, double mode)
     double rk_wald(rk_state *state, double mean, double scale)
-    double rk_triangular(rk_state *state, double left, double mode, double right)
+    double rk_triangular(rk_state *state, double left, double mode,
+                         double right)
 
     long rk_binomial(rk_state *state, long n, double p)
     long rk_binomial_btpe(rk_state *state, long n, double p)
@@ -166,7 +168,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
     cdef ndarray array "arrayObject"
     cdef npy_intp length
     cdef npy_intp i
-    cdef flatiter itera
+    cdef NpyArrayIterObject *itera
     cdef broadcast multi
 
     if size is None:
@@ -174,10 +176,10 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
                                            NPY_DOUBLE)
         length = PyArray_SIZE(array)
         array_data = <double *>array.array.data
-        itera = <flatiter>PyArray_IterNew(<object>oa)
+        itera = NpyArray_IterNew(oa.array)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.iter.dataptr))[0])
-            PyArray_ITER_NEXT(itera)
+            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            NpyArray_ITER_NEXT(itera)
     else:
         array = <ndarray>np.empty(size, np.float64)
         array_data = <double *>array.array.data
@@ -504,17 +506,17 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
-    cdef flatiter itera
+    cdef NpyArrayIterObject *itera
 
     if size is None:
         array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
                                            NPY_LONG)
         length = PyArray_SIZE(array)
         array_data = <long *>array.array.data
-        itera = <flatiter>PyArray_IterNew(<object>oa)
+        itera = NpyArray_IterNew(oa.array)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.iter.dataptr))[0])
-            PyArray_ITER_NEXT(itera)
+            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            NpyArray_ITER_NEXT(itera)
     else:
         array = <ndarray>np.empty(size, int)
         array_data = <long *>array.array.data

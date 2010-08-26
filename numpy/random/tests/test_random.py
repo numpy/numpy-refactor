@@ -101,5 +101,26 @@ class TestSetState(TestCase):
         self.prng.negative_binomial(0.5, 0.5)
 
 
+class Test_MTRand(TestCase):
+
+    def test_binomial(self):
+        n, p, N = 10, 0.5, 1000
+        sample = np.random.binomial(n, p, N)
+        avg = 1.0 * sum(sample) / N / n
+        self.assert_(0.45 < avg < 0.55)
+        self.assertRaises(ValueError, np.random.binomial, -1, 0.5)
+        self.assertRaises(ValueError, np.random.binomial, 10, -0.1)
+        self.assertRaises(ValueError, np.random.binomial, 10, 1.1)
+
+    def test_binomial_array(self):
+        # See if first argument can also be an array
+        a = np.array([10, 20, 5])
+        np.random.binomial(n, 0.4)
+
+        self.assertRaises(ValueError, np.random.binomial, a, -0.1)
+        a = np.array([10, -20, 5])
+        self.assertRaises(ValueError, np.random.binomial, a, 0.4)
+
+
 if __name__ == "__main__":
     run_module_suite()
