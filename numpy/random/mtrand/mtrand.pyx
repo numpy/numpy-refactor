@@ -3444,18 +3444,18 @@ cdef class RandomState:
                 raise ValueError("p < 0")
             elif fp > 1:
                 raise ValueError("p > 1")
-            return discnp_array_sc(self.internal_state, rk_binomial, size, ln,
-                                   fp)
-        else:
-            on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
-            op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
-            if np.any(np.less_equal(n, 0)):
-                raise ValueError("n <= 0")
-            if np.any(np.less(p, 0)):
-                raise ValueError("p < 0")
-            if np.any(np.greater(p, 1)):
-                raise ValueError("p > 1")
-            return discnp_array(self.internal_state, rk_binomial, size, on, op)
+            return discnp_array_sc(self.internal_state, rk_binomial, size,
+                                   ln, fp)
+
+        on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
+        op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
+        if np.any(np.less_equal(n, 0)):
+            raise ValueError("n <= 0")
+        if np.any(np.less(p, 0)):
+            raise ValueError("p < 0")
+        if np.any(np.greater(p, 1)):
+            raise ValueError("p > 1")
+        return discnp_array(self.internal_state, rk_binomial, size, on, op)
 
 
     def negative_binomial(self, n, p, size=None):
