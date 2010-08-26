@@ -43,6 +43,8 @@ void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
                  npy_tp_cmp_priority cmp_priority,
                  npy_interface_incref incref, npy_interface_decref decref)
 {
+    int s = sizeof(functionDefs);
+
     if (NULL != wrapperFuncs) {
         memmove(&_NpyArrayWrapperFuncs, wrapperFuncs, sizeof(struct NpyInterface_WrapperFuncs));
     }

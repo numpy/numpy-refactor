@@ -178,25 +178,25 @@ namespace NumpyDotNet
 
         #region C API Definitions
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NpyArray_DescrFromType(Int32 type);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void SimpleArray_initCallbacks(IntPtr setupBinOp, IntPtr performBinOp, IntPtr tearDownOp, IntPtr releaseMemPressure);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr SimpleArray_create(UInt32 size, int dtype);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int SimpleArray_isValid(IntPtr a);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void SimpleArray_incRef(IntPtr a);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr SimpleArray_create(UInt32 size);
 
-        [DllImport("ndarray")]
+        [DllImport("ndarray", CallingConvention=CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
@@ -210,12 +210,14 @@ namespace NumpyDotNet
         /* This structure must match the NpyObject_HEAD structure in npy_object.h
          * exactly as it is used to determine the platform-specific offsets. The
          * offsets allow the C# code to access these fields directly. */
+        [StructLayout(LayoutKind.Sequential)]
         struct NpyObject_HEAD {
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
         };
 
+        [StructLayout(LayoutKind.Sequential)]
         struct NpyInterface_WrapperFuncs {
             internal IntPtr array_new_wrapper;
             internal IntPtr iter_new_wrapper;
@@ -238,6 +240,9 @@ namespace NumpyDotNet
         /// <param name="ptr">Address of native object</param>
         /// <returns>Managed wrapper object</returns>
         private static TResult ToInterface<TResult>(IntPtr ptr) {
+            if (ptr == IntPtr.Zero) {
+                return default(TResult);
+            }
             IntPtr wrapper = Marshal.ReadIntPtr(ptr, (int)Offset_InterfacePtr);
             return (TResult)GCHandle.FromIntPtr(wrapper).Target;
         }
@@ -300,11 +305,15 @@ namespace NumpyDotNet
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.descr_new_from_type = IntPtr.Zero;
             wrapFuncs.descr_new_from_wrapper = IntPtr.Zero;
+            int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
 
-            GCHandle wrapHandle = GCHandle.Alloc(wrapFuncs, GCHandleType.Pinned);
+            IntPtr wrapHandle = IntPtr.Zero;
             try {
+                wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
+                Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
+
                 npy_initlib(IntPtr.Zero,
-                    GCHandle.ToIntPtr(wrapHandle),
+                    wrapHandle,
                     IntPtr.Zero,
                     IntPtr.Zero,
                     IntPtr.Zero,
@@ -312,7 +321,7 @@ namespace NumpyDotNet
                     Marshal.GetFunctionPointerForDelegate(new del_Incref(Incref)),
                     Marshal.GetFunctionPointerForDelegate(new del_Decref(Decref)));
             } finally {
-                wrapHandle.Free();
+                Marshal.FreeHGlobal(wrapHandle);
             }
         }
 
