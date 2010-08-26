@@ -271,17 +271,20 @@ cdef object cont3_array_sc(rk_state *state, rk_cont3 func, object size,
         return array
 
 cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
-                        ndarray oa, ndarray ob, ndarray oc):
-
+                        object a, object b, object c):
     cdef double *array_data
     cdef double *oa_data
     cdef double *ob_data
     cdef double *oc_data
     cdef ndarray array "arrayObject"
+    cdef ndarray oa, ob, oc
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
 
+    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
+    ob = <ndarray>PyArray_FROM_OTF(b, NPY_DOUBLE, NPY_ALIGNED)
+    oc = <ndarray>PyArray_FROM_OTF(c, NPY_DOUBLE, NPY_ALIGNED)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>oa, <void *>ob,
                                                  <void *>oc)
@@ -438,7 +441,7 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size,
     return array
 
 cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,
-    long n, long m, long N):
+                             long n, long m, long N):
     cdef long *array_data
     cdef ndarray array "arrayObject"
     cdef long length
@@ -455,16 +458,20 @@ cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,
         return array
 
 cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
-    ndarray on, ndarray om, ndarray oN):
+                          object n, object m, object N):
     cdef long *array_data
     cdef long *on_data
     cdef long *om_data
     cdef long *oN_data
     cdef ndarray array "arrayObject"
+    cdef ndarray on, om, oN
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
 
+    on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
+    om = <ndarray>PyArray_FROM_OTF(m, NPY_LONG, NPY_ALIGNED)
+    oN = <ndarray>PyArray_FROM_OTF(N, NPY_LONG, NPY_ALIGNED)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>on, <void *>om,
                                                  <void *>oN)
@@ -1824,7 +1831,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray odfnum, odfden, ononc
         cdef double fdfnum, fdfden, fnonc
         cdef int sc = 0
 
@@ -1846,18 +1852,14 @@ cdef class RandomState:
             return cont3_array_sc(self.internal_state, rk_noncentral_f, size,
                                   fdfnum, fdfden, fnonc)
 
-        odfnum = <ndarray>PyArray_FROM_OTF(dfnum, NPY_DOUBLE, NPY_ALIGNED)
-        odfden = <ndarray>PyArray_FROM_OTF(dfden, NPY_DOUBLE, NPY_ALIGNED)
-        ononc = <ndarray>PyArray_FROM_OTF(nonc, NPY_DOUBLE, NPY_ALIGNED)
-
-        if np.any(np.less_equal(odfnum, 1.0)):
+        if np.any(np.less_equal(dfnum, 1.0)):
             raise ValueError("dfnum <= 1")
-        if np.any(np.less_equal(odfden, 0.0)):
+        if np.any(np.less_equal(dfden, 0.0)):
             raise ValueError("dfden <= 0")
-        if np.any(np.less(ononc, 0.0)):
+        if np.any(np.less(nonc, 0.0)):
             raise ValueError("nonc < 0")
-        return cont3_array(self.internal_state, rk_noncentral_f, size, odfnum,
-            odfden, ononc)
+        return cont3_array(self.internal_state, rk_noncentral_f, size,
+                           dfnum, dfden, nonc)
 
     def chisquare(self, df, size=None):
         """
@@ -3266,7 +3268,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oleft, omode, oright
         cdef double fleft, fmode, fright
         cdef int sc = 0
 
@@ -3288,18 +3289,14 @@ cdef class RandomState:
             return cont3_array_sc(self.internal_state, rk_triangular, size,
                                   fleft, fmode, fright)
 
-        oleft = <ndarray>PyArray_FROM_OTF(left, NPY_DOUBLE, NPY_ALIGNED)
-        omode = <ndarray>PyArray_FROM_OTF(mode, NPY_DOUBLE, NPY_ALIGNED)
-        oright = <ndarray>PyArray_FROM_OTF(right, NPY_DOUBLE, NPY_ALIGNED)
-
-        if np.any(np.greater(oleft, omode)):
+        if np.any(np.greater(left, mode)):
             raise ValueError("left > mode")
-        if np.any(np.greater(omode, oright)):
+        if np.any(np.greater(mode, right)):
             raise ValueError("mode > right")
-        if np.any(np.equal(oleft, oright)):
+        if np.any(np.equal(left, right)):
             raise ValueError("left == right")
-        return cont3_array(self.internal_state, rk_triangular, size, oleft,
-            omode, oright)
+        return cont3_array(self.internal_state, rk_triangular, size,
+                           left, mode, right)
 
     # Complicated, discrete distributions:
     def binomial(self, n, p, size=None):
@@ -3819,7 +3816,6 @@ cdef class RandomState:
         #   answer = 0.003 ... pretty unlikely!
 
         """
-        cdef ndarray ongood, onbad, onsample
         cdef long lngood, lnbad, lnsample
         cdef int sc
 
@@ -3843,19 +3839,17 @@ cdef class RandomState:
             return discnmN_array_sc(self.internal_state, rk_hypergeometric, size,
                                     lngood, lnbad, lnsample)
 
-        ongood = <ndarray>PyArray_FROM_OTF(ngood, NPY_LONG, NPY_ALIGNED)
-        onbad = <ndarray>PyArray_FROM_OTF(nbad, NPY_LONG, NPY_ALIGNED)
-        onsample = <ndarray>PyArray_FROM_OTF(nsample, NPY_LONG, NPY_ALIGNED)
-        if np.any(np.less(ongood, 1)):
+        if np.any(np.less(ngood, 1)):
             raise ValueError("ngood < 1")
-        if np.any(np.less(onbad, 1)):
+        if np.any(np.less(nbad, 1)):
             raise ValueError("nbad < 1")
-        if np.any(np.less(onsample, 1)):
+        if np.any(np.less(nsample, 1)):
             raise ValueError("nsample < 1")
-        if np.any(np.less(np.add(ongood, onbad),onsample)):
+        if np.any(np.less(np.add(ngood, nbad), nsample)):
             raise ValueError("ngood + nbad < nsample")
         return discnmN_array(self.internal_state, rk_hypergeometric, size,
-            ongood, onbad, onsample)
+                             ngood, nbad, nsample)
+
 
     def logseries(self, p, size=None):
         """
