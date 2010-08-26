@@ -43,8 +43,10 @@ def create_new():
     return Npy_INTERFACE(a)
 
 
-ctypedef struct PyArrayObject:
-    NpyArray *array
+cdef extern from "numpy/ndarraytypes.h":
+
+    ctypedef struct PyArrayObject:
+        NpyArray *array
 
 
 def receive_array(object o):
@@ -53,7 +55,7 @@ def receive_array(object o):
 
     v = <PyArrayObject *> o
     a = v.array
-    # print a.nd   # When I try this a get a seg fault
+    print a.nd
 
 
 def sqr(x):
