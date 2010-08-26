@@ -505,15 +505,17 @@ cdef object discd_array_sc(rk_state *state, rk_discd func, object size,
         return array
 
 cdef object discd_array(rk_state *state, rk_discd func, object size,
-                        ndarray oa):
+                        object a):
     cdef long *array_data
     cdef double *oa_data
     cdef ndarray array "arrayObject"
+    cdef ndarray oa
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
     cdef NpyArrayIterObject *itera
 
+    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
     if size is None:
         array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
                                            NPY_LONG)
@@ -3606,7 +3608,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray olam
         cdef double flam
         cdef int sc = 0
 
@@ -3621,10 +3622,9 @@ cdef class RandomState:
                 raise ValueError("lam < 0")
             return discd_array_sc(self.internal_state, rk_poisson, size, flam)
 
-        olam = <ndarray>PyArray_FROM_OTF(lam, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less(olam, 0)):
+        if np.any(np.less(lam, 0)):
             raise ValueError("lam < 0")
-        return discd_array(self.internal_state, rk_poisson, size, olam)
+        return discd_array(self.internal_state, rk_poisson, size, lam)
 
     def zipf(self, a, size=None):
         """
@@ -3702,7 +3702,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oa
         cdef double fa
         cdef int sc = 0
 
@@ -3717,10 +3716,9 @@ cdef class RandomState:
                 raise ValueError("a <= 1.0")
             return discd_array_sc(self.internal_state, rk_zipf, size, fa)
 
-        oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oa, 1.0)):
+        if np.any(np.less_equal(a, 1.0)):
             raise ValueError("a <= 1.0")
-        return discd_array(self.internal_state, rk_zipf, size, oa)
+        return discd_array(self.internal_state, rk_zipf, size, a)
 
     def geometric(self, p, size=None):
         """
@@ -3767,7 +3765,6 @@ cdef class RandomState:
         0.34889999999999999 #random
 
         """
-        cdef ndarray op
         cdef double fp
         cdef int sc = 0
 
@@ -3784,12 +3781,11 @@ cdef class RandomState:
                 raise ValueError("p > 1.0")
             return discd_array_sc(self.internal_state, rk_geometric, size, fp)
 
-        op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less(op, 0.0)):
+        if np.any(np.less(p, 0.0)):
             raise ValueError("p < 0.0")
-        if np.any(np.greater(op, 1.0)):
+        if np.any(np.greater(p, 1.0)):
             raise ValueError("p > 1.0")
-        return discd_array(self.internal_state, rk_geometric, size, op)
+        return discd_array(self.internal_state, rk_geometric, size, p)
 
     def hypergeometric(self, ngood, nbad, nsample, size=None):
         """
@@ -3987,7 +3983,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray op
         cdef double fp
         cdef int sc = 0
 
@@ -4004,12 +3999,11 @@ cdef class RandomState:
                 raise ValueError("p >= 1.0")
             return discd_array_sc(self.internal_state, rk_logseries, size, fp)
 
-        op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(op, 0.0)):
+        if np.any(np.less_equal(p, 0.0)):
             raise ValueError("p <= 0.0")
-        if np.any(np.greater_equal(op, 1.0)):
+        if np.any(np.greater_equal(p, 1.0)):
             raise ValueError("p >= 1.0")
-        return discd_array(self.internal_state, rk_logseries, size, op)
+        return discd_array(self.internal_state, rk_logseries, size, p)
 
     # Multivariate distributions:
     def multivariate_normal(self, mean, cov, size=None):
