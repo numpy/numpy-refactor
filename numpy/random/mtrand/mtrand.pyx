@@ -1,4 +1,4 @@
-# mtrand.pyx -- A Pyrex wrapper of Jean-Sebastien Roy's RandomKit
+# mtrad.pyx -- A Pyrex wrapper of Jean-Sebastien Roy's RandomKit
 #
 # Copyright 2005 Robert Kern (robert.kern@gmail.com)
 #
@@ -212,15 +212,18 @@ cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
 
 
 cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
-                        ndarray oa, ndarray ob):
+                        object a, object b):
     cdef double *array_data
     cdef double *oa_data
     cdef double *ob_data
     cdef ndarray array "arrayObject"
+    cdef ndarray oa, ob
     cdef npy_intp length
     cdef npy_intp i
     cdef broadcast multi
 
+    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
+    ob = <ndarray>PyArray_FROM_OTF(b, NPY_DOUBLE, NPY_ALIGNED)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>oa, <void *>ob)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -994,7 +997,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray olow, ohigh, odiff
         cdef double flow, fhigh
         cdef object temp
         cdef int sc = 0
@@ -1007,17 +1009,11 @@ cdef class RandomState:
             pass
 
         if sc:
-            return cont2_array_sc(self.internal_state, rk_uniform, size, flow,
-                                  fhigh - flow)
+            return cont2_array_sc(self.internal_state, rk_uniform, size,
+                                  flow, fhigh - flow)
 
-        olow = <ndarray>PyArray_FROM_OTF(low, NPY_DOUBLE, NPY_ALIGNED)
-        ohigh = <ndarray>PyArray_FROM_OTF(high, NPY_DOUBLE, NPY_ALIGNED)
-        temp = np.subtract(ohigh, olow)
-        Py_INCREF(temp) # needed to get around Pyrex's automatic
-                        # reference-counting rules because EnsureArray
-                        # steals a reference
-        odiff = <ndarray>PyArray_EnsureArray(temp)
-        return cont2_array(self.internal_state, rk_uniform, size, olow, odiff)
+        return cont2_array(self.internal_state, rk_uniform, size,
+                           low, high - low)
 
     def rand(self, *args):
         """
@@ -1311,7 +1307,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oloc, oscale
         cdef double floc, fscale
         cdef int sc = 0
 
@@ -1328,11 +1323,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_normal, size, floc,
                                   fscale)
 
-        oloc = <ndarray>PyArray_FROM_OTF(loc, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = <ndarray>PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oscale, 0)):
+        if np.any(np.less_equal(scale, 0)):
             raise ValueError("scale <= 0")
-        return cont2_array(self.internal_state, rk_normal, size, oloc, oscale)
+        return cont2_array(self.internal_state, rk_normal, size, loc, scale)
 
     def beta(self, a, b, size=None):
         """
@@ -1371,7 +1364,6 @@ cdef class RandomState:
             Beta distribution.
 
         """
-        cdef ndarray oa, ob
         cdef double fa, fb
         cdef int sc = 0
 
@@ -1389,13 +1381,11 @@ cdef class RandomState:
                 raise ValueError("b <= 0")
             return cont2_array_sc(self.internal_state, rk_beta, size, fa, fb)
 
-        oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
-        ob = <ndarray>PyArray_FROM_OTF(b, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oa, 0)):
+        if np.any(np.less_equal(a, 0)):
             raise ValueError("a <= 0")
-        if np.any(np.less_equal(ob, 0)):
+        if np.any(np.less_equal(b, 0)):
             raise ValueError("b <= 0")
-        return cont2_array(self.internal_state, rk_beta, size, oa, ob)
+        return cont2_array(self.internal_state, rk_beta, size, a, b)
 
     def exponential(self, scale=1.0, size=None):
         """
@@ -1642,7 +1632,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oshape, oscale
         cdef double fshape, fscale
         cdef int sc = 0
 
@@ -1661,13 +1650,11 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_gamma, size,
                                   fshape, fscale)
 
-        oshape = <ndarray>PyArray_FROM_OTF(shape, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = <ndarray>PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oshape, 0.0)):
+        if np.any(np.less_equal(shape, 0.0)):
             raise ValueError("shape <= 0")
-        if np.any(np.less_equal(oscale, 0.0)):
+        if np.any(np.less_equal(scale, 0.0)):
             raise ValueError("scale <= 0")
-        return cont2_array(self.internal_state, rk_gamma, size, oshape, oscale)
+        return cont2_array(self.internal_state, rk_gamma, size, shape, scale)
 
     def f(self, dfnum, dfden, size=None):
         """
@@ -1750,7 +1737,6 @@ cdef class RandomState:
         level.
 
         """
-        cdef ndarray odfnum, odfden
         cdef double fdfnum, fdfden
         cdef int sc = 0
 
@@ -1769,13 +1755,11 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_f, size, fdfnum,
                                   fdfden)
 
-        odfnum = <ndarray>PyArray_FROM_OTF(dfnum, NPY_DOUBLE, NPY_ALIGNED)
-        odfden = <ndarray>PyArray_FROM_OTF(dfden, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(odfnum, 0.0)):
+        if np.any(np.less_equal(dfnum, 0.0)):
             raise ValueError("dfnum <= 0")
-        if np.any(np.less_equal(odfden, 0.0)):
+        if np.any(np.less_equal(dfden, 0.0)):
             raise ValueError("dfden <= 0")
-        return cont2_array(self.internal_state, rk_f, size, odfnum, odfden)
+        return cont2_array(self.internal_state, rk_f, size, dfnum, dfden)
 
     def noncentral_f(self, dfnum, dfden, nonc, size=None):
         """
@@ -2029,7 +2013,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray odf, ononc
         cdef double fdf, fnonc
         cdef int sc = 0
 
@@ -2048,14 +2031,12 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_noncentral_chisquare,
                                   size, fdf, fnonc)
 
-        odf = <ndarray>PyArray_FROM_OTF(df, NPY_DOUBLE, NPY_ALIGNED)
-        ononc = <ndarray>PyArray_FROM_OTF(nonc, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(odf, 0.0)):
+        if np.any(np.less_equal(df, 0.0)):
             raise ValueError("df <= 1")
-        if np.any(np.less_equal(ononc, 0.0)):
+        if np.any(np.less_equal(nonc, 0.0)):
             raise ValueError("nonc < 0")
         return cont2_array(self.internal_state, rk_noncentral_chisquare, size,
-            odf, ononc)
+                           df, nonc)
 
     def standard_cauchy(self, size=None):
         """
@@ -2301,7 +2282,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray omu, okappa
         cdef double fmu, fkappa
         cdef int sc = 0
 
@@ -2318,11 +2298,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_vonmises, size, fmu,
                                   fkappa)
 
-        omu = <ndarray> PyArray_FROM_OTF(mu, NPY_DOUBLE, NPY_ALIGNED)
-        okappa = <ndarray> PyArray_FROM_OTF(kappa, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less(okappa, 0.0)):
+        if np.any(np.less(kappa, 0.0)):
             raise ValueError("kappa < 0")
-        return cont2_array(self.internal_state, rk_vonmises, size, omu, okappa)
+        return cont2_array(self.internal_state, rk_vonmises, size, mu, kappa)
 
     def pareto(self, a, size=None):
         """
@@ -2707,7 +2685,6 @@ cdef class RandomState:
         >>> plt.plot(x,g)
 
         """
-        cdef ndarray oloc, oscale
         cdef double floc, fscale
         cdef int sc = 0
 
@@ -2724,11 +2701,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_laplace, size,
                                   floc, fscale)
 
-        oloc = PyArray_FROM_OTF(loc, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oscale, 0.0)):
+        if np.any(np.less_equal(scale, 0.0)):
             raise ValueError("scale <= 0")
-        return cont2_array(self.internal_state, rk_laplace, size, oloc, oscale)
+        return cont2_array(self.internal_state, rk_laplace, size, loc, scale)
 
 
     def gumbel(self, loc=0.0, scale=1.0, size=None):
@@ -2838,7 +2813,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oloc, oscale
         cdef double floc, fscale
         cdef int sc = 0
 
@@ -2855,11 +2829,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_gumbel, size,
                                   floc, fscale)
 
-        oloc = PyArray_FROM_OTF(loc, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oscale, 0.0)):
+        if np.any(np.less_equal(scale, 0.0)):
             raise ValueError("scale <= 0")
-        return cont2_array(self.internal_state, rk_gumbel, size, oloc, oscale)
+        return cont2_array(self.internal_state, rk_gumbel, size, loc, scale)
 
     def logistic(self, loc=0.0, scale=1.0, size=None):
         """
@@ -2932,7 +2904,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray oloc, oscale
         cdef double floc, fscale
         cdef int sc = 0
 
@@ -2949,11 +2920,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_logistic, size,
                                   floc, fscale)
 
-        oloc = PyArray_FROM_OTF(loc, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(oscale, 0.0)):
+        if np.any(np.less_equal(scale, 0.0)):
             raise ValueError("scale <= 0")
-        return cont2_array(self.internal_state, rk_logistic, size, oloc, oscale)
+        return cont2_array(self.internal_state, rk_logistic, size, loc, scale)
 
     def lognormal(self, mean=0.0, sigma=1.0, size=None):
         """
@@ -3067,7 +3036,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray omean, osigma
         cdef double fmean, fsigma
         cdef int sc = 0
 
@@ -3084,12 +3052,10 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_lognormal, size,
                                   fmean, fsigma)
 
-        omean = PyArray_FROM_OTF(mean, NPY_DOUBLE, NPY_ALIGNED)
-        osigma = PyArray_FROM_OTF(sigma, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(osigma, 0.0)):
+        if np.any(np.less_equal(sigma, 0.0)):
             raise ValueError("sigma <= 0.0")
-        return cont2_array(self.internal_state, rk_lognormal, size, omean,
-                           osigma)
+        return cont2_array(self.internal_state, rk_lognormal, size,
+                           mean, sigma)
 
     def rayleigh(self, scale=1.0, size=None):
         """
@@ -3230,7 +3196,6 @@ cdef class RandomState:
         >>> plt.show()
 
         """
-        cdef ndarray omean, oscale
         cdef double fmean, fscale
         cdef int sc = 0
 
@@ -3249,13 +3214,11 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_wald, size,
                                   fmean, fscale)
 
-        omean = PyArray_FROM_OTF(mean, NPY_DOUBLE, NPY_ALIGNED)
-        oscale = PyArray_FROM_OTF(scale, NPY_DOUBLE, NPY_ALIGNED)
-        if np.any(np.less_equal(omean,0.0)):
+        if np.any(np.less_equal(mean,0.0)):
             raise ValueError("mean <= 0.0")
-        elif np.any(np.less_equal(oscale,0.0)):
+        elif np.any(np.less_equal(scale,0.0)):
             raise ValueError("scale <= 0.0")
-        return cont2_array(self.internal_state, rk_wald, size, omean, oscale)
+        return cont2_array(self.internal_state, rk_wald, size, mean, scale)
 
 
 
@@ -3528,8 +3491,6 @@ cdef class RandomState:
         ...    print i, "wells drilled, probability of one success =", probability
 
         """
-        cdef ndarray on
-        cdef ndarray op
         cdef double fn
         cdef double fp
         cdef int sc = 0
