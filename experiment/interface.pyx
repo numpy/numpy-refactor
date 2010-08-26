@@ -44,7 +44,8 @@ def create_new():
 
 
 cdef extern from "numpy/ndarraytypes.h":
-
+    # This is the C-Cython version, eventually we need
+    # something else for C#-Cython
     ctypedef struct PyArrayObject:
         NpyArray *array
 
@@ -56,10 +57,6 @@ def receive_array(object o):
     v = <PyArrayObject *> o
     a = v.array
     print a.nd
-
-
-def sqr(x):
-    return x * x
 
 
 # this import is necessary to do the initiallization of the core library
