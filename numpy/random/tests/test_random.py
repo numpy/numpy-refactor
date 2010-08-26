@@ -114,13 +114,21 @@ class Test_MTRand(TestCase):
 
     def test_binomial_array(self):
         # See if first argument can also be an array
-        a = np.array([10, 20, 5])
-        b = np.random.binomial(a, 0.4)
+        n = np.array([10, 20, 5])
+        p = np.array([0.4, 0.7, 0.2])
+
+        b = np.random.binomial(n, 0.4)
         self.assert_(b.shape, (3,))
 
-        self.assertRaises(ValueError, np.random.binomial, a, -0.1)
-        a = np.array([10, -20, 5])
-        self.assertRaises(ValueError, np.random.binomial, a, 0.4)
+        b = np.random.binomial(5, p)
+        self.assert_(b.shape, (3,))
+
+        b = np.random.binomial(n, p)
+        self.assert_(b.shape, (3,))
+
+        self.assertRaises(ValueError, np.random.binomial, n, -0.1)
+        n = np.array([10, -20, 5])
+        self.assertRaises(ValueError, np.random.binomial, n, 0.4)
 
 
 if __name__ == "__main__":
