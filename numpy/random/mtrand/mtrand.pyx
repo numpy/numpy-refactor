@@ -3817,7 +3817,7 @@ cdef class RandomState:
 
         """
         cdef long lngood, lnbad, lnsample
-        cdef int sc
+        cdef int sc = 0
 
         try:
             lngood = <long>ngood
