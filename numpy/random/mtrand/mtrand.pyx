@@ -564,9 +564,9 @@ def flat_array(o, dtype):
     a = np.array(o, dtype=dtype)
     if len(a.shape) == 1:
         return a
-    else:        
+    else:
         return a.flatten()
-    
+
 
 cdef class RandomState:
     """
