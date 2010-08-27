@@ -175,8 +175,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
 
     oa = np.array(a, np.double)
     if size is None:
-        array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
-                                           NPY_DOUBLE)
+        array = np.empty_like(oa)
         length = array.size
         array_data = <double *>array.array.data
         itera = NpyArray_IterNew(oa.array)
@@ -530,8 +529,7 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
 
     oa = np.array(a, np.double)
     if size is None:
-        array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
-                                           NPY_LONG)
+        array = np.empty(oa.shape, dtype=np.long)
         length = array.size
         array_data = <long *>array.array.data
         itera = NpyArray_IterNew(oa.array)
@@ -565,9 +563,10 @@ cdef double kahan_sum(double *darr, long n):
 
 def flat_array(o, dtype):
     a = np.array(o, dtype=dtype)
-    if len(a.shape) != 1:
-        a.flatten()
-    return a
+    if len(a.shape) == 1:
+        return a
+    else:        
+        return a.flatten()
     
 
 cdef class RandomState:
