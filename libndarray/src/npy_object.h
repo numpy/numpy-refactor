@@ -1,6 +1,10 @@
 #ifndef _NPY_OBJECT_H_
 #define _NPY_OBJECT_H_
 
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
+
 #include "npy_defs.h"
 
 /* Simple object model for numpy objects.
@@ -26,18 +30,32 @@ struct _NpyObject {
 #define Npy_INTERFACE(a) ((a)->nob_interface)
 
 
-#define Npy_INCREF(a)                                                \
+/* These are platform-dependent macros implementing thread-safe
+ * atomic increment/decrement behavior to make the reference counting
+ * re-entrant. Both macros return the modified value. */
+#if defined(_WIN32)
+#define AtomicIncrement(i) InterlockedIncrement(&(i))
+#define AtomicDecrement(i) InterlockedDecrement(&(i))
+
+#else
+/* NOT THREAD SAFE! */
+#define AtomicIncrement(i) (++(i))
+#define AtomicDecrement(i) (--(i))
+
+#endif
+
+
+#define Npy_INCREF(a)                                                 \
        do {                                                           \
-            if (0 == (a)->nob_refcnt && NULL != Npy_INTERFACE(a))     \
-                NpyInterface_INCREF(Npy_INTERFACE(a));                \
-            (a)->nob_refcnt++;                                        \
+            if (1 == AtomicIncrement((a)->nob_refcnt) && NULL != Npy_INTERFACE(a))   \
+                _NpyInterface_Incref(Npy_INTERFACE(a), &((a)->nob_interface));  \
        } while(0)
 
 
-#define Npy_DECREF(a)                                          \
-        if (--(a)->nob_refcnt == 0) {                           \
+#define Npy_DECREF(a)                                           \
+        if (0 == AtomicDecrement((a)->nob_refcnt)) {            \
             if (NULL != Npy_INTERFACE(a))                       \
-                NpyInterface_DECREF(Npy_INTERFACE(a));          \
+                _NpyInterface_Decref(Npy_INTERFACE(a), &((a)->nob_interface));      \
             else                                                \
                 (a)->nob_type->ntp_dealloc((_NpyObject*)a);     \
         }

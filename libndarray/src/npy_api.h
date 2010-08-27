@@ -344,10 +344,15 @@ extern npy_tp_cmp_priority Npy_CmpPriority;
  * Interface-provided reference management.  Note that even though these
  * mirror the Python routines they are slightly different because they also
  * work w/ garbage collected systems. Primarily, INCREF returns a possibly
- * different handle.
+ * different handle. This is the typical case and the second argument will
+ * be NULL. When these are called from Npy_INCREF or Npy_DECREF and the
+ * core object refcnt is going 0->1 or 1->0 the second argument is a pointer
+ * to the nob_interface field.  This allows the interface routine to change
+ * the interface pointer.  This is done instead of using the return value
+ * to ensure that the switch is atomic.
  */
-typedef void *(*npy_interface_incref)(void *);
-typedef void *(*npy_interface_decref)(void *);
+typedef void *(*npy_interface_incref)(void *, void **);
+typedef void *(*npy_interface_decref)(void *, void **);
 
 /* Do not call directly, use macros below because interface does not have
    to provide these. */
@@ -355,9 +360,9 @@ extern npy_interface_incref _NpyInterface_Incref;
 extern npy_interface_decref _NpyInterface_Decref;
 
 #define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? \
-                                  _NpyInterface_Incref(ptr) : NULL)
+                                  _NpyInterface_Incref(ptr, NULL) : NULL)
 #define NpyInterface_DECREF(ptr) (NULL != _NpyInterface_Decref ? \
-                                  _NpyInterface_Decref(ptr) : NULL)
+                                  _NpyInterface_Decref(ptr, NULL) : NULL)
 #define NpyInterface_CLEAR(ptr) \
     do {                                    \
         void *tmp = (void *)(ptr);          \

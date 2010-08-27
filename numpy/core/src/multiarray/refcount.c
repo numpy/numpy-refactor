@@ -29,7 +29,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype);
 /* Returns a new handle to the object.  For garbage collected systems this will be different than
    the incoming object.  For refcounted systems such as CPython we just return the original ptr. */
 NPY_NO_EXPORT void *
-NpyInterface_Incref(void *obj)
+NpyInterface_Incref(void *obj, void **unused)
 {
     if (NULL == obj) return NULL;
     Py_INCREF(obj);
@@ -37,9 +37,9 @@ NpyInterface_Incref(void *obj)
 }
 
 NPY_NO_EXPORT void
-NpyInterface_Decref(void *obj)
+NpyInterface_Decref(void *obj, void **unused)
 {
-    /* Used XDECREF, so this function cleanly handles NULL. */
+    /* Use XDECREF, so this function cleanly handles NULL. */
     Py_XDECREF(obj);
 }
 
