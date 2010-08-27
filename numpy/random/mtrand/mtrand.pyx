@@ -185,8 +185,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
     else:
         array = <ndarray>np.empty(size, np.float64)
         array_data = <double *>array.array.data
-        multi = <broadcast>PyArray_MultiIterNew(2, <void *>array,
-                                                <void *>oa)
+        multi = <broadcast>PyArray_MultiIterNew(2, <void *>array, <void *>oa)
         if multi.size != array.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
@@ -194,6 +193,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
             array_data[i] = func(state, oa_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
     return array
+
 
 cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
                            double a, double b):
@@ -253,7 +253,6 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
 
 cdef object cont3_array_sc(rk_state *state, rk_cont3 func, object size,
                            double a, double b, double c):
-
     cdef double *array_data
     cdef ndarray array "arrayObject"
     cdef long length
@@ -299,7 +298,7 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
     else:
         array = <ndarray>np.empty(size, np.float64)
         array_data = <double *>array.array.data
-        multi = <broadcast>PyArray_MultiIterNew(4, <void*>array, <void *>oa,
+        multi = <broadcast>PyArray_MultiIterNew(4, <void *>array, <void *>oa,
                                                 <void *>ob, <void *>oc)
         if multi.size != array.size:
             raise ValueError("size is not compatible with inputs")
@@ -370,7 +369,7 @@ cdef object discnp_array(rk_state *state, rk_discnp func, object size,
     else:
         array = <ndarray>np.empty(size, int)
         array_data = <long *>array.array.data
-        multi = <broadcast>PyArray_MultiIterNew(3, <void*>array, <void *>on,
+        multi = <broadcast>PyArray_MultiIterNew(3, <void *>array, <void *>on,
                                                 <void *>op)
         if multi.size != array.size:
             raise ValueError("size is not compatible with inputs")
@@ -426,7 +425,7 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size,
     else:
         array = <ndarray>np.empty(size, int)
         array_data = <long *>array.array.data
-        multi = <broadcast>PyArray_MultiIterNew(3, <void*>array, <void *>on,
+        multi = <broadcast>PyArray_MultiIterNew(3, <void *>array, <void *>on,
                                                 <void *>op)
         if multi.size != array.size:
             raise ValueError("size is not compatible with inputs")
@@ -486,7 +485,7 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
     else:
         array = <ndarray>np.empty(size, int)
         array_data = <long *>array.array.data
-        multi = <broadcast>PyArray_MultiIterNew(4, <void*>array, <void *>on,
+        multi = <broadcast>PyArray_MultiIterNew(4, <void *>array, <void *>on,
                                                 <void *>om, <void *>oN)
         if multi.size != array.size:
             raise ValueError("size is not compatible with inputs")
@@ -681,7 +680,7 @@ cdef class RandomState:
         """
         cdef ndarray state "arrayObject_state"
         state = <ndarray>np.empty(624, np.uint)
-        memcpy(<void*>(state.array.data), <void*>(self.internal_state.key),
+        memcpy(<void *>(state.array.data), <void *>(self.internal_state.key),
                 624*sizeof(long))
         state = <ndarray>np.asarray(state, np.uint32)
         return ('MT19937', state, self.internal_state.pos,
@@ -749,7 +748,7 @@ cdef class RandomState:
         obj = flat_array(key, np.long)
         if obj.array.dimensions[0] != 624:
             raise ValueError("state must be 624 longs")
-        memcpy(<void*>(self.internal_state.key), <void*>(obj.array.data),
+        memcpy(<void *>(self.internal_state.key), <void *>(obj.array.data),
                 624*sizeof(long))
         self.internal_state.pos = pos
         self.internal_state.has_gauss = has_gauss
@@ -4147,7 +4146,7 @@ cdef class RandomState:
 
         d = len(pvals)
         parr = flat_array(pvals, np.double)
-        pix = <double*>parr.array.data
+        pix = <double *>parr.array.data
 
         if kahan_sum(pix, d-1) > (1.0 + 1e-12):
             raise ValueError("sum(pvals[:-1]) > 1.0")
@@ -4161,7 +4160,7 @@ cdef class RandomState:
 
         multin = np.zeros(shape, int)
         mnarr = <ndarray>multin
-        mnix = <long*>mnarr.array.data
+        mnix = <long *>mnarr.array.data
         i = 0
         while i < mnarr.size:
             Sum = 1.0
@@ -4245,7 +4244,7 @@ cdef class RandomState:
 
         k           = len(alpha)
         alpha_arr   = flat_array(alpha, np.double, 1, 1)
-        alpha_data  = <double*>alpha_arr.array.data
+        alpha_data  = <double *>alpha_arr.array.data
 
         if size is None:
             shape = (k,)
@@ -4256,7 +4255,7 @@ cdef class RandomState:
 
         diric   = np.zeros(shape, np.float64)
         val_arr = <ndarray>diric
-        val_data= <double*>val_arr.array.data
+        val_data= <double *>val_arr.array.data
 
         i = 0
         totsize = val_arr.size
