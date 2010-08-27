@@ -124,11 +124,7 @@ cdef extern from "numpy/ndarraytypes.h":
     object PyArray_ContiguousFromObject(object obj, NPY_TYPES type,
                                         int mindim, int maxdim)
     npy_intp PyArray_SIZE(ndarray arr)
-    object PyArray_FromAny(object obj, NpyArray_Descr newtype, int mindim,
-                           int maxdim, int requirements, object context)
 
-    object PyArray_FROM_OTF(object obj, NPY_TYPES type, int flags)
-    object PyArray_EnsureArray(object)
     object PyArray_MultiIterNew(int n, ...)
 
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
