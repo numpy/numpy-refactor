@@ -123,8 +123,6 @@ cdef extern from "numpy/ndarraytypes.h":
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
     object PyArray_ContiguousFromObject(object obj, NPY_TYPES type,
                                         int mindim, int maxdim)
-    npy_intp PyArray_SIZE(ndarray arr)
-
     object PyArray_MultiIterNew(int n, ...)
 
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
