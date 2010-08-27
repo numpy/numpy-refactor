@@ -173,7 +173,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
     cdef NpyArrayIterObject *itera
     cdef broadcast multi
 
-    oa = <ndarray> PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
+    oa = np.array(a, np.double)
     if size is None:
         array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
                                            NPY_DOUBLE)
@@ -225,8 +225,8 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
     cdef npy_intp i
     cdef broadcast multi
 
-    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
-    ob = <ndarray>PyArray_FROM_OTF(b, NPY_DOUBLE, NPY_ALIGNED)
+    oa = np.array(a, np.double)
+    ob = np.array(b, np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>oa, <void *>ob)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -282,9 +282,9 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
     cdef npy_intp i
     cdef broadcast multi
 
-    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
-    ob = <ndarray>PyArray_FROM_OTF(b, NPY_DOUBLE, NPY_ALIGNED)
-    oc = <ndarray>PyArray_FROM_OTF(c, NPY_DOUBLE, NPY_ALIGNED)
+    oa = np.array(a, np.double)
+    ob = np.array(b, np.double)
+    oc = np.array(c, np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>oa, <void *>ob,
                                                  <void *>oc)
@@ -356,8 +356,8 @@ cdef object discnp_array(rk_state *state, rk_discnp func, object size,
     cdef long *on_data
     cdef broadcast multi
 
-    on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
-    op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
+    on = np.array(n, dtype=np.long)
+    op = np.array(p, dtype=np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -412,8 +412,8 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size,
     cdef double *on_data
     cdef broadcast multi
 
-    on = <ndarray>PyArray_FROM_OTF(n, NPY_DOUBLE, NPY_ALIGNED)
-    op = <ndarray>PyArray_FROM_OTF(p, NPY_DOUBLE, NPY_ALIGNED)
+    on = np.array(n, np.double)
+    op = np.array(p, np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
         array = <ndarray> PyArray_SimpleNew(multi.iter.nd,
@@ -469,9 +469,9 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
     cdef npy_intp i
     cdef broadcast multi
 
-    on = <ndarray>PyArray_FROM_OTF(n, NPY_LONG, NPY_ALIGNED)
-    om = <ndarray>PyArray_FROM_OTF(m, NPY_LONG, NPY_ALIGNED)
-    oN = <ndarray>PyArray_FROM_OTF(N, NPY_LONG, NPY_ALIGNED)
+    on = np.array(n, np.long)
+    om = np.array(m, np.long)
+    oN = np.array(N, np.long)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>on, <void *>om,
                                                  <void *>oN)
@@ -528,7 +528,7 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
     cdef broadcast multi
     cdef NpyArrayIterObject *itera
 
-    oa = <ndarray>PyArray_FROM_OTF(a, NPY_DOUBLE, NPY_ALIGNED)
+    oa = np.array(a, np.double)
     if size is None:
         array = <ndarray>PyArray_SimpleNew(oa.nd, oa.array.dimensions,
                                            NPY_LONG)
