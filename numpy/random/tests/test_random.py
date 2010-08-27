@@ -130,6 +130,12 @@ class Test_MTRand(TestCase):
         n = np.array([10, -20, 5])
         self.assertRaises(ValueError, np.random.binomial, n, 0.4)
 
+    def test2_randn(self):
+        np.random.seed(0)
+        a = np.random.randn(3)
+        self.assertEqual(repr(a),
+                         'array([ 1.76405235,  0.40015721,  0.97873798])')
+
 
 if __name__ == "__main__":
     run_module_suite()

@@ -1,3 +1,6 @@
+# this import is necessary to do the initiallization of the core library
+import numpy.core.multiarray
+from numpy import array
 
 
 cdef extern from "npy_defs.h":
@@ -59,9 +62,6 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef struct PyArrayObject:
         NpyArray *array
 
-cdef extern from "numpy/arrayobject.h":
-    object PyArray_FROM_OTF(object obj, NPY_TYPES type, int flags)
-
 
 def receive_array(object o):
     cdef PyArrayObject *v
@@ -78,11 +78,7 @@ def receive_array(object o):
     if success:
         print "Object is a float:", x
     else:
-        #PyArray_FROM_OTF(o, NPY_DOUBLE, NPY_ALIGNED)
+        o = array(o)
         v = <PyArrayObject *> o
-        a = v.array
+        a = v.array    
         print "Object is array with nd =", a.nd
-
-
-# this import is necessary to do the initiallization of the core library
-import numpy.core.multiarray

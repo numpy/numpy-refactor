@@ -4,63 +4,8 @@
 cdef extern from "npy_defs.h":
 
     cdef enum NPY_TYPES:
-        NPY_BOOL
-        NPY_BYTE
-        NPY_UBYTE
-        NPY_SHORT
-        NPY_USHORT
-        NPY_INT
-        NPY_UINT
         NPY_LONG
-        NPY_ULONG
-        NPY_LONGLONG
-        NPY_ULONGLONG
-        NPY_FLOAT
         NPY_DOUBLE
-        NPY_LONGDOUBLE
-        NPY_CFLOAT
-        NPY_CDOUBLE
-        NPY_CLONGDOUBLE
-        NPY_OBJECT
-        NPY_STRING
-        NPY_UNICODE
-        NPY_VOID
-        NPY_NTYPES
-        NPY_NOTYPE
-
-    cdef enum requirements:
-        NPY_CONTIGUOUS
-        NPY_FORTRAN
-        NPY_OWNDATA
-        NPY_FORCECAST
-        NPY_ENSURECOPY
-        NPY_ENSUREARRAY
-        NPY_ELEMENTSTRIDES
-        NPY_ALIGNED
-        NPY_NOTSWAPPED
-        NPY_WRITEABLE
-        NPY_UPDATEIFCOPY
-        NPY_ARR_HAS_DESCR
-
-        NPY_BEHAVED
-        NPY_BEHAVED_NS
-        NPY_CARRAY
-        NPY_CARRAY_RO
-        NPY_FARRAY
-        NPY_FARRAY_RO
-        NPY_DEFAULT
-
-        NPY_IN_ARRAY
-        NPY_OUT_ARRAY
-        NPY_INOUT_ARRAY
-        NPY_IN_FARRAY
-        NPY_OUT_FARRAY
-        NPY_INOUT_FARRAY
-
-        NPY_UPDATE_ALL
-
-    cdef enum defines:
-        NPY_MAXDIMS
 
     ctypedef int npy_intp
 
@@ -121,14 +66,6 @@ cdef extern from "numpy/ndarraytypes.h":
         cdef NpyArrayMultiIterObject *iter
 
     object PyArray_SimpleNew(int ndims, npy_intp* dims, NPY_TYPES type_num)
-    object PyArray_ContiguousFromObject(object obj, NPY_TYPES type,
-                                        int mindim, int maxdim)
-    npy_intp PyArray_SIZE(ndarray arr)
-    object PyArray_FromAny(object obj, NpyArray_Descr newtype, int mindim,
-                           int maxdim, int requirements, object context)
-
-    object PyArray_FROM_OTF(object obj, NPY_TYPES type, int flags)
-    object PyArray_EnsureArray(object)
     object PyArray_MultiIterNew(int n, ...)
 
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
