@@ -226,11 +226,11 @@ extern "C" CONFUSE_EMACS
 
 #define PyArray_FromObject(op, type, min_depth, max_depth)                    \
         PyArray_FromAny(op, PyArray_DescrFromType(type), min_depth,           \
-                              max_depth, NPY_BEHAVED | NPY_ENSUREARRAY, NULL)
+                        max_depth, NPY_BEHAVED | NPY_ENSUREARRAY, NULL)
 
 #define PyArray_ContiguousFromObject(op, type, min_depth, max_depth)          \
         PyArray_FromAny(op, PyArray_DescrFromType(type), min_depth,           \
-                              max_depth, NPY_DEFAULT | NPY_ENSUREARRAY, NULL)
+                        max_depth, NPY_DEFAULT | NPY_ENSUREARRAY, NULL)
 
 #define PyArray_CopyFromObject(op, type, min_depth, max_depth)                \
         PyArray_FromAny(op, PyArray_DescrFromType(type), min_depth,           \

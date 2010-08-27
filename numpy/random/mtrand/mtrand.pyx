@@ -562,6 +562,14 @@ cdef double kahan_sum(double *darr, long n):
         sum = t
     return sum
 
+
+def flat_array(o, dtype):
+    a = np.array(o, dtype=dtype)
+    if len(a.shape) != 1:
+        a.flatten()
+    return a
+    
+
 cdef class RandomState:
     """
     RandomState(seed=None)
@@ -628,6 +636,7 @@ cdef class RandomState:
         """
         cdef rk_error errcode
         cdef ndarray obj "arrayObject_obj"
+
         if seed is None:
             errcode = rk_randomseed(self.internal_state)
         elif type(seed) is int:
@@ -636,7 +645,7 @@ cdef class RandomState:
             iseed = int(seed)
             rk_seed(iseed, self.internal_state)
         else:
-            obj = <ndarray>PyArray_ContiguousFromObject(seed, NPY_LONG, 1, 1)
+            obj = flat_array(seed, np.long)
             init_by_array(self.internal_state,
                           <unsigned long *>(obj.array.data),
                           obj.array.dimensions[0])
@@ -737,11 +746,8 @@ cdef class RandomState:
             cached_gaussian = 0.0
         else:
             has_gauss, cached_gaussian = state[3:5]
-        try:
-            obj = <ndarray>PyArray_ContiguousFromObject(key, NPY_ULONG, 1, 1)
-        except TypeError:
-            # compatibility -- could be an older pickle
-            obj = <ndarray>PyArray_ContiguousFromObject(key, NPY_LONG, 1, 1)
+
+        obj = flat_array(key, np.long)
         if obj.array.dimensions[0] != 624:
             raise ValueError("state must be 624 longs")
         memcpy(<void*>(self.internal_state.key), <void*>(obj.array.data),
@@ -4141,7 +4147,7 @@ cdef class RandomState:
         cdef double Sum
 
         d = len(pvals)
-        parr = <ndarray>PyArray_ContiguousFromObject(pvals, NPY_DOUBLE, 1, 1)
+        parr = flat_array(pvals, np.double)
         pix = <double*>parr.array.data
 
         if kahan_sum(pix, d-1) > (1.0 + 1e-12):
@@ -4239,8 +4245,7 @@ cdef class RandomState:
         cdef double     acc, invacc
 
         k           = len(alpha)
-        alpha_arr   = <ndarray>PyArray_ContiguousFromObject(alpha, NPY_DOUBLE,
-                                                            1, 1)
+        alpha_arr   = flat_array(alpha, np.double, 1, 1)
         alpha_data  = <double*>alpha_arr.array.data
 
         if size is None:
