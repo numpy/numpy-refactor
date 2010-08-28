@@ -129,7 +129,7 @@ import numpy as np
 
 cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
     cdef double *data
-    cdef long length, i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state)
@@ -145,7 +145,7 @@ cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
 cdef object cont1_array_sc(rk_state *state, rk_cont1 func, object size,
                            double a):
     cdef double *data
-    cdef long length, i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, a)
@@ -162,7 +162,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
                         object a):
     cdef double *array_data
     cdef double *oa_data
-    cdef long length, i
+    cdef npy_intp length, i
     cdef NpyArrayIterObject *itera
     cdef broadcast multi
 
@@ -191,7 +191,7 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
 cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
                            double a, double b):
     cdef double *data
-    cdef long length, i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, a, b)
@@ -209,8 +209,8 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
     cdef double *array_data
     cdef double *oa_data
     cdef double *ob_data
-    cdef npy_intp length, i
     cdef broadcast multi
+    cdef npy_intp length, i
 
     oa = np.array(a, np.double)
     ob = np.array(b, np.double)
@@ -242,8 +242,7 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
 cdef object cont3_array_sc(rk_state *state, rk_cont3 func, object size,
                            double a, double b, double c):
     cdef double *array_data
-    cdef long length
-    cdef long i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, a, b, c)
@@ -261,9 +260,8 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
     cdef double *oa_data
     cdef double *ob_data
     cdef double *oc_data
-    cdef npy_intp length
-    cdef npy_intp i
     cdef broadcast multi
+    cdef npy_intp length, i
 
     oa = np.array(a, np.double)
     ob = np.array(b, np.double)
@@ -297,7 +295,7 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
 
 cdef object disc0_array(rk_state *state, rk_disc0 func, object size):
     cdef long *array_data
-    cdef long length, i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state)
@@ -312,7 +310,7 @@ cdef object disc0_array(rk_state *state, rk_disc0 func, object size):
 cdef object discnp_array_sc(rk_state *state, rk_discnp func, object size,
                             long n, double p):
     cdef long *array_data
-    cdef long length, i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, n, p)
@@ -327,11 +325,10 @@ cdef object discnp_array_sc(rk_state *state, rk_discnp func, object size,
 cdef object discnp_array(rk_state *state, rk_discnp func, object size,
                          object n, object p):
     cdef long *array_data
-    cdef npy_intp length
-    cdef npy_intp i
     cdef double *op_data
     cdef long *on_data
     cdef broadcast multi
+    cdef npy_intp length, i
 
     on = np.array(n, dtype=np.long)
     op = np.array(p, dtype=np.double)
@@ -364,8 +361,7 @@ cdef object discnp_array(rk_state *state, rk_discnp func, object size,
 cdef object discdd_array_sc(rk_state *state, rk_discdd func, object size,
                             double n, double p):
     cdef long *array_data
-    cdef long length
-    cdef long i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, n, p)
@@ -380,11 +376,10 @@ cdef object discdd_array_sc(rk_state *state, rk_discdd func, object size,
 cdef object discdd_array(rk_state *state, rk_discdd func, object size,
                          object n, object p):
     cdef long *array_data
-    cdef npy_intp length
-    cdef npy_intp i
     cdef double *op_data
     cdef double *on_data
     cdef broadcast multi
+    cdef npy_intp length, i
 
     on = np.array(n, np.double)
     op = np.array(p, np.double)
@@ -417,8 +412,7 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size,
 cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,
                              long n, long m, long N):
     cdef long *array_data
-    cdef long length
-    cdef long i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, n, m, N)
@@ -436,9 +430,8 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
     cdef long *on_data
     cdef long *om_data
     cdef long *oN_data
-    cdef npy_intp length
-    cdef npy_intp i
     cdef broadcast multi
+    cdef npy_intp length, i
 
     on = np.array(n, np.long)
     om = np.array(m, np.long)
@@ -474,8 +467,7 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
 cdef object discd_array_sc(rk_state *state, rk_discd func, object size,
                            double a):
     cdef long *array_data
-    cdef long length
-    cdef long i
+    cdef npy_intp length, i
 
     if size is None:
         return func(state, a)
@@ -491,10 +483,9 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
                         object a):
     cdef long *array_data
     cdef double *oa_data
-    cdef npy_intp length
-    cdef npy_intp i
     cdef broadcast multi
     cdef NpyArrayIterObject *itera
+    cdef npy_intp length, i
 
     oa = np.array(a, np.double)
     if size is None:
@@ -859,8 +850,7 @@ cdef class RandomState:
         """
         cdef long lo, hi, diff
         cdef long *array_data
-        cdef long length
-        cdef long i
+        cdef npy_intp length, i
 
         if high is None:
             lo = 0
