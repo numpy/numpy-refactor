@@ -140,6 +140,19 @@ class Test_MTRand(TestCase):
         random.seed(101)
         self.assertEqual(random.bytes(10), '_\xb32\x84\x0bFs\x8dQE')
 
+    def test_randint(self):
+        self.assertEqual(random.randint(1), 0)
+        for dum in xrange(10):
+            self.assert_(0 <= random.randint(5) < 5)
+        a = random.randint(5, size=100)
+        self.assert_(np.all(np.less(a, 5)))
+        self.assert_(np.all(np.greater_equal(a, 0)))
+        self.assertEqual(min(a), 0)
+        self.assertEqual(max(a), 4)
+        spahe = 3, 4, 2
+        a = random.randint(5, size=shape)
+        self.assertEqual(a.shape, shape)
+
     def test_random_integers(self):
         self.assertEqual(random.random_integers(1), 1)
         a = random.random_integers(10, size=(4, 5))

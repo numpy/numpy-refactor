@@ -1208,7 +1208,7 @@ cdef class RandomState:
         if high is None:
             high = low
             low = 1
-        return self.randint(low, high+1, size)
+        return self.randint(low, high + 1, size)
 
     # Complicated, continuous distributions:
     def standard_normal(self, size=None):
