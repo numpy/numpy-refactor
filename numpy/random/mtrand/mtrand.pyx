@@ -550,6 +550,7 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
 cdef double kahan_sum(double *darr, long n):
     cdef double c, y, t, sum
     cdef long i
+
     sum = darr[0]
     c = 0.0
     for i from 1 <= i < n:
@@ -679,6 +680,7 @@ cdef class RandomState:
 
         """
         cdef ndarray state "arrayObject_state"
+
         state = <ndarray>np.empty(624, np.uint)
         memcpy(<void *>(state.array.data), <void *>(self.internal_state.key),
                 624*sizeof(long))
@@ -735,6 +737,7 @@ cdef class RandomState:
         """
         cdef ndarray obj "arrayObject_obj"
         cdef int pos
+
         algorithm_name = state[0]
         if algorithm_name != 'MT19937':
             raise ValueError("algorithm must be 'MT19937'")
@@ -4236,16 +4239,14 @@ cdef class RandomState:
 
         #return val
 
-        cdef long       k
-        cdef long       totsize
-        cdef ndarray    alpha_arr, val_arr
-        cdef double     *alpha_data, *val_data
-        cdef long       i, j
-        cdef double     acc, invacc
+        cdef long k, i, j, totsize
+        cdef ndarray alpha_arr, val_arr
+        cdef double *alpha_data, *val_data
+        cdef double acc, invacc
 
-        k           = len(alpha)
-        alpha_arr   = flat_array(alpha, np.double, 1, 1)
-        alpha_data  = <double *>alpha_arr.array.data
+        k = len(alpha)
+        alpha_arr = flat_array(alpha, np.double, 1, 1)
+        alpha_data = <double *>alpha_arr.array.data
 
         if size is None:
             shape = (k,)
@@ -4263,9 +4264,9 @@ cdef class RandomState:
         while i < totsize:
             acc = 0.0
             for j from 0 <= j < k:
-                val_data[i+j]   = rk_standard_gamma(self.internal_state,
-                                                    alpha_data[j])
-                acc             = acc + val_data[i+j]
+                val_data[i+j] = rk_standard_gamma(self.internal_state,
+                                                  alpha_data[j])
+                acc = acc + val_data[i+j]
             invacc  = 1/acc
             for j from 0 <= j < k:
                 val_data[i+j]   = val_data[i+j] * invacc
@@ -4290,7 +4291,7 @@ cdef class RandomState:
         except:
             j = 0
 
-        if (j == 0):
+        if j == 0:
             # adaptation of random.shuffle()
             while i > 0:
                 j = rk_interval(i, self.internal_state)

@@ -105,41 +105,46 @@ class Test_MTRand(TestCase):
 
     def test_binomial(self):
         n, p, N = 10, 0.5, 1000
-        sample = np.random.binomial(n, p, N)
+        sample = random.binomial(n, p, N)
         avg = 1.0 * sum(sample) / N / n
         self.assert_(0.45 < avg < 0.55)
-        self.assertRaises(ValueError, np.random.binomial, -1, 0.5)
-        self.assertRaises(ValueError, np.random.binomial, 10, -0.1)
-        self.assertRaises(ValueError, np.random.binomial, 10, 1.1)
+        self.assertRaises(ValueError, random.binomial, -1, 0.5)
+        self.assertRaises(ValueError, random.binomial, 10, -0.1)
+        self.assertRaises(ValueError, random.binomial, 10, 1.1)
 
     def test_binomial_array(self):
         # See if first argument can also be an array
         n = np.array([10, 20, 5])
         p = np.array([0.4, 0.7, 0.2])
 
-        b = np.random.binomial(n, 0.4)
+        b = random.binomial(n, 0.4)
         self.assert_(b.shape, (3,))
 
-        b = np.random.binomial(5, p)
+        b = random.binomial(5, p)
         self.assert_(b.shape, (3,))
 
-        b = np.random.binomial(n, p)
+        b = random.binomial(n, p)
         self.assert_(b.shape, (3,))
 
-        self.assertRaises(ValueError, np.random.binomial, n, -0.1)
+        self.assertRaises(ValueError, random.binomial, n, -0.1)
         n = np.array([10, -20, 5])
-        self.assertRaises(ValueError, np.random.binomial, n, 0.4)
+        self.assertRaises(ValueError, random.binomial, n, 0.4)
 
     def test_randn(self):
-        np.random.seed(0)
-        a = np.random.randn(3)
+        random.seed(0)
+        a = random.randn(3)
         self.assertEqual(repr(a),
                          'array([ 1.76405235,  0.40015721,  0.97873798])')
 
     def test_bytes(self):
-        np.random.seed(101)
-        self.assertEqual(np.random.bytes(10), '_\xb32\x84\x0bFs\x8dQE')
+        random.seed(101)
+        self.assertEqual(random.bytes(10), '_\xb32\x84\x0bFs\x8dQE')
 
+    def test_random_integers(self):
+        self.assertEqual(random.random_integers(1), 1)
+        a = random.random_integers(10, size=(4, 5))
+        self.assertEqual(a.shape, (4, 5))
+        
 
 if __name__ == "__main__":
     run_module_suite()
