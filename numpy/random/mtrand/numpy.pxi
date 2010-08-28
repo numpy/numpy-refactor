@@ -59,11 +59,8 @@ cdef extern from "npy_descriptor.h":
 
 cdef extern from "numpy/ndarraytypes.h":
 
-    ctypedef extern class numpy.ndarray [object PyArrayObject]:
-        cdef NpyArray *array
-
-#    ctypedef struct PyArrayObject:
-#        NpyArray *array
+    ctypedef struct PyArrayObject:
+        NpyArray *array
 
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
