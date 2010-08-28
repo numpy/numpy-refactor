@@ -1,6 +1,7 @@
 # this import is necessary to do the initiallization of the core library
 import numpy.core.multiarray
 from numpy import array
+import numpy as np
 
 
 cdef extern from "npy_defs.h":
@@ -45,6 +46,13 @@ cdef extern from "npy_descriptor.h":
         char type, kind, byteorder, flags
 
 
+cdef extern from "numpy/ndarraytypes.h":
+    # This is the C-Cython version, eventually we need
+    # something else for C#-Cython
+    ctypedef struct PyArrayObject:
+        NpyArray *array
+
+
 def create_new():
     cdef npy_intp dimensions[1]
     cdef NpyArray *a
@@ -56,11 +64,15 @@ def create_new():
     return Npy_INTERFACE(a)
 
 
-cdef extern from "numpy/ndarraytypes.h":
-    # This is the C-Cython version, eventually we need
-    # something else for C#-Cython
-    ctypedef struct PyArrayObject:
-        NpyArray *array
+def create_new2():
+    cdef long i
+    cdef double *data
+
+    o = np.empty(20, np.double)
+    data = <double *>(<PyArrayObject *>o).array.data
+    for i from 0 <= i < o.size:
+        data[i] = <double> (i + 0.1)
+    return o
 
 
 def receive_array(object o):
