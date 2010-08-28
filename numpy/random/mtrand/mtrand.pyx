@@ -62,7 +62,7 @@ cdef extern from "randomkit.h":
     void rk_fill(void *buffer, size_t size, rk_state *state)
     rk_error rk_devfill(void *buffer, size_t size, int strong)
     rk_error rk_altfill(void *buffer, size_t size, int strong,
-            rk_state *state)
+                        rk_state *state)
     double rk_gauss(rk_state *state)
 
 cdef extern from "distributions.h":
@@ -936,6 +936,7 @@ cdef class RandomState:
 
         """
         cdef void *bytes
+
         bytestring = empty_py_bytes(length, &bytes)
         rk_fill(bytes, length, self.internal_state)
         return bytestring
