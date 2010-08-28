@@ -144,7 +144,13 @@ class Test_MTRand(TestCase):
         self.assertEqual(random.random_integers(1), 1)
         a = random.random_integers(10, size=(4, 5))
         self.assertEqual(a.shape, (4, 5))
-        
+
+    def test_multivariate_normal(self):
+        mean = [0, 0]
+        cov = [[1, 0], [0, 100]]
+        a = np.random.multivariate_normal(mean, cov, 100)
+        self.assertEqual(a.shape, (100, 2))
+
 
 if __name__ == "__main__":
     run_module_suite()

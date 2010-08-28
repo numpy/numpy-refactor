@@ -4070,7 +4070,7 @@ cdef class RandomState:
         # numbers. The matrix has rows with the same length as mean and as
         # many rows are necessary to form a matrix of shape final_shape.
         x = self.standard_normal(np.multiply.reduce(final_shape))
-        x.shape = (np.multiply.reduce(final_shape[0:len(final_shape)-1]),
+        x.shape = (np.multiply.reduce(final_shape[0:len(final_shape) - 1]),
                    mean.shape[0])
         # Transform matrix of standard normals into matrix where each row
         # contains multivariate normals with the desired covariance.
@@ -4081,11 +4081,11 @@ cdef class RandomState:
 
         from numpy.dual import svd
         # XXX: we really should be doing this by Cholesky decomposition
-        (u,s,v) = svd(cov)
-        x = np.dot(x*np.sqrt(s),v)
+        u, s, v = svd(cov)
+        x = np.dot(x * np.sqrt(s), v)
         # The rows of x now have the correct covariance but mean 0. Add
         # mean to each row. Then each row will have mean mean.
-        np.add(mean,x,x)
+        np.add(mean, x, x)
         x.shape = tuple(final_shape)
         return x
 
