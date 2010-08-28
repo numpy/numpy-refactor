@@ -149,7 +149,7 @@ class Test_MTRand(TestCase):
         self.assert_(np.all(np.greater_equal(a, 0)))
         self.assertEqual(min(a), 0)
         self.assertEqual(max(a), 4)
-        spahe = 3, 4, 2
+        shape = 3, 4, 2
         a = random.randint(5, size=shape)
         self.assertEqual(a.shape, shape)
 
