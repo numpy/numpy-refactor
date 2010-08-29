@@ -134,7 +134,7 @@ cdef object cont0_array(rk_state *state, rk_cont0 func, object size):
     if size is None:
         return func(state)
     else:
-        arr = np.empty(size, np.float64)
+        arr = np.empty(size, np.double)
         length = arr.size
         data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
@@ -150,7 +150,7 @@ cdef object cont1_array_sc(rk_state *state, rk_cont1 func, object size,
     if size is None:
         return func(state, a)
     else:
-        arr = np.empty(size, np.float64)
+        arr = np.empty(size, np.double)
         length = arr.size
         data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
@@ -160,7 +160,7 @@ cdef object cont1_array_sc(rk_state *state, rk_cont1 func, object size,
 
 cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
                         object a):
-    cdef double *array_data
+    cdef double *arr_data
     cdef double *oa_data
     cdef npy_intp length, i
     cdef NpyArrayIterObject *itera
@@ -168,24 +168,24 @@ cdef object cont1_array(rk_state *state, rk_cont1 func, object size,
 
     oa = np.array(a, np.double)
     if size is None:
-        array = np.empty_like(oa)
-        length = array.size
-        array_data = <double *>(<PyArrayObject *>array).array.data
+        arr = np.empty_like(oa)
+        length = arr.size
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
         itera = NpyArray_IterNew((<PyArrayObject *>oa).array)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            arr_data[i] = func(state, (<double *>(itera.dataptr))[0])
             NpyArray_ITER_NEXT(itera)
     else:
-        array = np.empty(size, np.float64)
-        array_data = <double *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(2, <void *>array, <void *>oa)
-        if multi.size != array.size:
+        arr = np.empty(size, np.double)
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(2, <void *>arr, <void *>oa)
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 1)
-            array_data[i] = func(state, oa_data[0])
+            arr_data[i] = func(state, oa_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
-    return array
+    return arr
 
 
 cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
@@ -196,7 +196,7 @@ cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
     if size is None:
         return func(state, a, b)
     else:
-        arr = np.empty(size, np.float64)
+        arr = np.empty(size, np.double)
         length = arr.size
         data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
@@ -206,7 +206,7 @@ cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,
 
 cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
                         object a, object b):
-    cdef double *array_data
+    cdef double *arr_data
     cdef double *oa_data
     cdef double *ob_data
     cdef broadcast multi
@@ -216,47 +216,49 @@ cdef object cont2_array(rk_state *state, rk_cont2 func, object size,
     ob = np.array(b, np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>oa, <void *>ob)
-        array = PyArray_SimpleNew(multi.iter.nd,
-                                  multi.iter.dimensions, NPY_DOUBLE)
-        array_data = <double *>(<PyArrayObject *>array).array.data
+        arr = PyArray_SimpleNew(multi.iter.nd,
+                                multi.iter.dimensions, NPY_DOUBLE)
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < multi.iter.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 0)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 1)
-            array_data[i] = func(state, oa_data[0], ob_data[0])
+            arr_data[i] = func(state, oa_data[0], ob_data[0])
             PyArray_MultiIter_NEXT(multi)
     else:
-        array = np.empty(size, np.float64)
-        array_data = <double *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(3, <void *>array, <void *>oa,
+        arr = np.empty(size, np.double)
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(3, <void *>arr, <void *>oa,
                                                 <void *>ob)
-        if multi.size != array.size:
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 2)
-            array_data[i] = func(state, oa_data[0], ob_data[0])
+            arr_data[i] = func(state, oa_data[0], ob_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
             PyArray_MultiIter_NEXTi(multi, 2)
-    return array
+    return arr
+
 
 cdef object cont3_array_sc(rk_state *state, rk_cont3 func, object size,
                            double a, double b, double c):
-    cdef double *array_data
+    cdef double *arr_data
     cdef npy_intp length, i
 
     if size is None:
         return func(state, a, b, c)
     else:
-        array = np.empty(size, np.float64)
-        length = array.size
-        array_data = <double *>(<PyArrayObject *>array).array.data
+        arr = np.empty(size, np.double)
+        length = arr.size
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state, a, b, c)
-        return array
+            arr_data[i] = func(state, a, b, c)
+        return arr
+
 
 cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
                         object a, object b, object c):
-    cdef double *array_data
+    cdef double *arr_data
     cdef double *oa_data
     cdef double *ob_data
     cdef double *oc_data
@@ -269,62 +271,65 @@ cdef object cont3_array(rk_state *state, rk_cont3 func, object size,
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>oa, <void *>ob,
                                                  <void *>oc)
-        array = PyArray_SimpleNew(multi.iter.nd,
-                                  multi.iter.dimensions, NPY_DOUBLE)
-        array_data = <double *>(<PyArrayObject *>array).array.data
+        arr = PyArray_SimpleNew(multi.iter.nd,
+                                multi.iter.dimensions, NPY_DOUBLE)
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < multi.iter.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 0)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             oc_data = <double *>PyArray_MultiIter_DATA(multi, 2)
-            array_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
+            arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
             PyArray_MultiIter_NEXT(multi)
     else:
-        array = np.empty(size, np.float64)
-        array_data = <double *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(4, <void *>array, <void *>oa,
+        arr = np.empty(size, np.double)
+        arr_data = <double *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(4, <void *>arr, <void *>oa,
                                                 <void *>ob, <void *>oc)
-        if multi.size != array.size:
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             ob_data = <double *>PyArray_MultiIter_DATA(multi, 2)
             oc_data = <double *>PyArray_MultiIter_DATA(multi, 3)
-            array_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
+            arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
             PyArray_MultiIter_NEXT(multi)
-    return array
+    return arr
+
 
 cdef object disc0_array(rk_state *state, rk_disc0 func, object size):
-    cdef long *array_data
+    cdef long *data
     cdef npy_intp length, i
 
     if size is None:
         return func(state)
     else:
-        array = np.empty(size, int)
-        length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = np.empty(size, int)
+        length = arr.size
+        data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state)
-        return array
+            data[i] = func(state)
+        return arr
+
 
 cdef object discnp_array_sc(rk_state *state, rk_discnp func, object size,
                             long n, double p):
-    cdef long *array_data
+    cdef long *data
     cdef npy_intp length, i
 
     if size is None:
         return func(state, n, p)
     else:
-        array = np.empty(size, int)
-        length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = np.empty(size, int)
+        length = arr.size
+        data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state, n, p)
-        return array
+            data[i] = func(state, n, p)
+        return arr
+
 
 cdef object discnp_array(rk_state *state, rk_discnp func, object size,
                          object n, object p):
-    cdef long *array_data
+    cdef long *arr_data
     cdef double *op_data
     cdef long *on_data
     cdef broadcast multi
@@ -334,48 +339,50 @@ cdef object discnp_array(rk_state *state, rk_discnp func, object size,
     op = np.array(p, dtype=np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
-        array = PyArray_SimpleNew(multi.iter.nd,
-                                  multi.iter.dimensions, NPY_LONG)
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = PyArray_SimpleNew(multi.iter.nd,
+                                multi.iter.dimensions, NPY_LONG)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 0)
             op_data = <double *>PyArray_MultiIter_DATA(multi, 1)
-            array_data[i] = func(state, on_data[0], op_data[0])
+            arr_data[i] = func(state, on_data[0], op_data[0])
             PyArray_MultiIter_NEXT(multi)
     else:
-        array = np.empty(size, int)
-        array_data = <long *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(3, <void *>array, <void *>on,
+        arr = np.empty(size, int)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(3, <void *>arr, <void *>on,
                                                 <void *>op)
-        if multi.size != array.size:
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 1)
             op_data = <double *>PyArray_MultiIter_DATA(multi, 2)
-            array_data[i] = func(state, on_data[0], op_data[0])
+            arr_data[i] = func(state, on_data[0], op_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
             PyArray_MultiIter_NEXTi(multi, 2)
 
-    return array
+    return arr
+
 
 cdef object discdd_array_sc(rk_state *state, rk_discdd func, object size,
                             double n, double p):
-    cdef long *array_data
+    cdef long *data
     cdef npy_intp length, i
 
     if size is None:
         return func(state, n, p)
     else:
-        array = np.empty(size, int)
-        length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = np.empty(size, int)
+        length = arr.size
+        data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state, n, p)
-        return array
+            data[i] = func(state, n, p)
+        return arr
+
 
 cdef object discdd_array(rk_state *state, rk_discdd func, object size,
                          object n, object p):
-    cdef long *array_data
+    cdef long *arr_data
     cdef double *op_data
     cdef double *on_data
     cdef broadcast multi
@@ -385,33 +392,33 @@ cdef object discdd_array(rk_state *state, rk_discdd func, object size,
     op = np.array(p, np.double)
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(2, <void *>on, <void *>op)
-        array = PyArray_SimpleNew(multi.iter.nd,
+        arr = PyArray_SimpleNew(multi.iter.nd,
                                   multi.iter.dimensions, NPY_LONG)
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < multi.size:
             on_data = <double *>PyArray_MultiIter_DATA(multi, 0)
             op_data = <double *>PyArray_MultiIter_DATA(multi, 1)
-            array_data[i] = func(state, on_data[0], op_data[0])
+            arr_data[i] = func(state, on_data[0], op_data[0])
             PyArray_MultiIter_NEXT(multi)
     else:
-        array = np.empty(size, int)
-        array_data = <long *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(3, <void *>array, <void *>on,
+        arr = np.empty(size, int)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(3, <void *>arr, <void *>on,
                                                 <void *>op)
-        if multi.size != array.size:
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             on_data = <double *>PyArray_MultiIter_DATA(multi, 1)
             op_data = <double *>PyArray_MultiIter_DATA(multi, 2)
-            array_data[i] = func(state, on_data[0], op_data[0])
+            arr_data[i] = func(state, on_data[0], op_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
             PyArray_MultiIter_NEXTi(multi, 2)
+    return arr
 
-    return array
 
 cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,
                              long n, long m, long N):
-    cdef long *array_data
+    cdef long *data
     cdef npy_intp length, i
 
     if size is None:
@@ -419,14 +426,15 @@ cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,
     else:
         array = np.empty(size, int)
         length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        data = <long *>(<PyArrayObject *>array).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state, n, m, N)
+            data[i] = func(state, n, m, N)
         return array
+
 
 cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
                           object n, object m, object N):
-    cdef long *array_data
+    cdef long *arr_data
     cdef long *on_data
     cdef long *om_data
     cdef long *oN_data
@@ -439,49 +447,51 @@ cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,
     if size is None:
         multi = <broadcast> PyArray_MultiIterNew(3, <void *>on, <void *>om,
                                                  <void *>oN)
-        array = PyArray_SimpleNew(multi.iter.nd,
-                                  multi.iter.dimensions, NPY_LONG)
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = PyArray_SimpleNew(multi.iter.nd,
+                                multi.iter.dimensions, NPY_LONG)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 0)
             om_data = <long *>PyArray_MultiIter_DATA(multi, 1)
             oN_data = <long *>PyArray_MultiIter_DATA(multi, 2)
-            array_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
+            arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
             PyArray_MultiIter_NEXT(multi)
     else:
-        array = np.empty(size, int)
-        array_data = <long *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(4, <void *>array, <void *>on,
+        arr = np.empty(size, int)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(4, <void *>arr, <void *>on,
                                                 <void *>om, <void *>oN)
-        if multi.size != array.size:
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             on_data = <long *>PyArray_MultiIter_DATA(multi, 1)
             om_data = <long *>PyArray_MultiIter_DATA(multi, 2)
             oN_data = <long *>PyArray_MultiIter_DATA(multi, 3)
-            array_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
+            arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
             PyArray_MultiIter_NEXT(multi)
 
-    return array
+    return arr
+
 
 cdef object discd_array_sc(rk_state *state, rk_discd func, object size,
                            double a):
-    cdef long *array_data
+    cdef long *arr_data
     cdef npy_intp length, i
 
     if size is None:
         return func(state, a)
     else:
-        array = np.empty(size, int)
-        length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr = np.empty(size, int)
+        length = arr.size
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
         for i from 0 <= i < length:
-            array_data[i] = func(state, a)
-        return array
+            arr_data[i] = func(state, a)
+        return arr
+
 
 cdef object discd_array(rk_state *state, rk_discd func, object size,
                         object a):
-    cdef long *array_data
+    cdef long *arr_data
     cdef double *oa_data
     cdef broadcast multi
     cdef NpyArrayIterObject *itera
@@ -491,22 +501,23 @@ cdef object discd_array(rk_state *state, rk_discd func, object size,
     if size is None:
         array = np.empty(oa.shape, dtype=np.long)
         length = array.size
-        array_data = <long *>(<PyArrayObject *>array).array.data
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
         itera = NpyArray_IterNew((<PyArrayObject *>oa).array)
         for i from 0 <= i < length:
-            array_data[i] = func(state, (<double *>(itera.dataptr))[0])
+            arr_data[i] = func(state, (<double *>(itera.dataptr))[0])
             NpyArray_ITER_NEXT(itera)
     else:
-        array = np.empty(size, int)
-        array_data = <long *>(<PyArrayObject *>array).array.data
-        multi = <broadcast>PyArray_MultiIterNew(2, <void *>array, <void *>oa)
-        if multi.size != array.size:
+        arr = np.empty(size, int)
+        arr_data = <long *>(<PyArrayObject *>arr).array.data
+        multi = <broadcast>PyArray_MultiIterNew(2, <void *>arr, <void *>oa)
+        if multi.size != arr.size:
             raise ValueError("size is not compatible with inputs")
         for i from 0 <= i < multi.size:
             oa_data = <double *>PyArray_MultiIter_DATA(multi, 1)
-            array_data[i] = func(state, oa_data[0])
+            arr_data[i] = func(state, oa_data[0])
             PyArray_MultiIter_NEXTi(multi, 1)
-    return array
+    return arr
+
 
 cdef double kahan_sum(double *darr, long n):
     cdef double c, y, t, sum
@@ -517,7 +528,7 @@ cdef double kahan_sum(double *darr, long n):
     for i from 1 <= i < n:
         y = darr[i] - c
         t = sum + y
-        c = (t-sum) - y
+        c = (t - sum) - y
         sum = t
     return sum
 
@@ -849,7 +860,7 @@ cdef class RandomState:
 
         """
         cdef long lo, hi, diff
-        cdef long *array_data
+        cdef long *arr_data
         cdef npy_intp length, i
 
         if high is None:
@@ -866,12 +877,12 @@ cdef class RandomState:
         if size is None:
             return <long>rk_interval(diff, self.internal_state) + lo
         else:
-            array = np.empty(size, int)
-            length = array.size
-            array_data = <long *>(<PyArrayObject *>array).array.data
+            arr = np.empty(size, int)
+            length = arr.size
+            arr_data = <long *>(<PyArrayObject *>arr).array.data
             for i from 0 <= i < length:
-                array_data[i] = lo + <long>rk_interval(diff, self.internal_state)
-            return array
+                arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)
+            return arr
 
     def bytes(self, unsigned int length):
         """
@@ -4209,7 +4220,7 @@ cdef class RandomState:
         else:
             shape = size + (k,)
 
-        diric = np.zeros(shape, np.float64)
+        diric = np.zeros(shape, np.double)
         val_data = <double *>(<PyArrayObject *>diric).array.data
 
         i = 0
