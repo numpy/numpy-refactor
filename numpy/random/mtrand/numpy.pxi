@@ -37,6 +37,9 @@ cdef extern from "npy_iterators.h":
     NpyArrayIterObject *NpyArray_IterNew(NpyArray *ao)
     NpyArrayMultiIterObject NpyArray_MultiIterNew()
     void NpyArray_ITER_NEXT(NpyArrayIterObject *it)
+    void *NpyArray_MultiIter_NEXT(NpyArrayMultiIterObject *it)
+    void *NpyArray_MultiIter_NEXTi(NpyArrayMultiIterObject *it, npy_intp i)
+    void *NpyArray_MultiIter_DATA(NpyArrayMultiIterObject *it, npy_intp i)
 
 
 cdef extern from "npy_common.h":
@@ -62,12 +65,8 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef struct PyArrayObject:
         NpyArray *array
 
-    ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
-        cdef NpyArrayMultiIterObject *iter
-
-    char *PyArray_MultiIter_DATA(broadcast multi, int i)
-    void PyArray_MultiIter_NEXTi(broadcast multi, int i)
-    void PyArray_MultiIter_NEXT(broadcast multi)
+    ctypedef struct PyArrayMultiIterObject:
+        NpyArrayMultiIterObject *iter
 
     void import_array()
 
