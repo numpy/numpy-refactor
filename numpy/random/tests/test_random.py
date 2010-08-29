@@ -140,6 +140,20 @@ class Test_MTRand(TestCase):
         random.seed(101)
         self.assertEqual(random.bytes(10), '_\xb32\x84\x0bFs\x8dQE')
 
+    def test_uniform(self):
+        a = random.uniform(size=1000)
+        self.assertEqual(a.shape, (1000,))
+        self.assert_(450 < sum(a) < 550)
+        a = random.uniform(high=[1, 10])
+        self.assertEqual(a.shape, (2,))
+        self.assertRaises(ValueError, random.uniform, 0, [1, 10], (25,))
+        high = [1, 5, 10]
+        a = random.uniform(high=high, size=(1000, len(high)))
+        for i, h in enumerate(high):
+            self.assert_(450 * h < sum(a[..., i]) < 550 * h)
+        a = random.uniform(high=[[1, 10], [2, 20]])
+        self.assertEqual(a.shape, (2, 2))
+
     def test_randint(self):
         self.assertEqual(random.randint(1), 0)
         for dum in xrange(10):

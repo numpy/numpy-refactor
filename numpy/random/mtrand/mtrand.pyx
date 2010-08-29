@@ -1007,8 +1007,9 @@ cdef class RandomState:
             return cont2_array_sc(self.internal_state, rk_uniform, size,
                                   flow, fhigh - flow)
 
+        diff = np.array(high) - np.array(low)
         return cont2_array(self.internal_state, rk_uniform, size,
-                           low, high - low)
+                           low, diff)
 
     def rand(self, *args):
         """
