@@ -31,6 +31,10 @@ cdef extern from "math.h":
     double sin(double x)
     double cos(double x)
 
+cdef extern from "memory.h":
+    void *malloc(long)
+    void free(void *)
+
 cdef extern from "mtrand_py_helper.h":
     object empty_py_bytes(unsigned long length, void **bytes)
 
@@ -577,13 +581,13 @@ cdef class RandomState:
     cdef rk_state *internal_state
 
     def __cinit__(self, seed=None):
-        self.internal_state = <rk_state *>PyMem_Malloc(sizeof(rk_state))
+        self.internal_state = <rk_state *>malloc(sizeof(rk_state))
 
         self.seed(seed)
 
     def __dealloc__(self):
         if self.internal_state != NULL:
-            PyMem_Free(self.internal_state)
+            free(self.internal_state)
             self.internal_state = NULL
 
     def seed(self, seed=None):
