@@ -65,8 +65,6 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef extern class numpy.broadcast [object PyArrayMultiIterObject]:
         cdef NpyArrayMultiIterObject *iter
 
-    object PyArray_MultiIterNew(int n, ...)
-
     char *PyArray_MultiIter_DATA(broadcast multi, int i)
     void PyArray_MultiIter_NEXTi(broadcast multi, int i)
     void PyArray_MultiIter_NEXT(broadcast multi)
