@@ -709,11 +709,11 @@ cdef class RandomState:
             has_gauss, cached_gaussian = state[3:5]
 
         obj = flat_array(key, np.long)
-        if (<PyArrayObject *>obj).array.dimensions[0] != 624:
+        if obj.shape[0] != 624:
             raise ValueError("state must be 624 longs")
         memcpy(<void *>(self.internal_state.key),
                <void *>dataptr(obj),
-               624*sizeof(long))
+               624 * sizeof(long))
         self.internal_state.pos = pos
         self.internal_state.has_gauss = has_gauss
         self.internal_state.gauss = cached_gaussian
