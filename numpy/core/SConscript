@@ -3,7 +3,6 @@
 import os
 import sys
 from os.path import join as pjoin, expanduser as pexpanduser
-from copy import deepcopy
 
 from numscons import get_pythonlib_dir
 from numscons import GetNumpyEnvironment
@@ -15,10 +14,10 @@ from code_generators.numpy_api import \
     ufunc_api as ufunc_api_dict
 
 from setup_common import C_ABI_VERSION, C_API_VERSION
-from scons_support import CheckBrokenMathlib, define_no_smp, \
-                          check_mlibs, is_npy_no_signal, CheckInline, \
-                          array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
-                          umath_bld, CheckGCC4, check_api_version
+from scons_support import (CheckBrokenMathlib, define_no_smp,
+                           check_mlibs, is_npy_no_signal, CheckInline,
+                           array_api_gen_bld, ufunc_api_gen_bld, template_bld,
+                           umath_bld, CheckGCC4, check_api_version)
 
 import SCons
 
@@ -216,7 +215,7 @@ umath = env.GenerateUmath('__umath_generated',
                           pjoin('code_generators', 'generate_umath.py'))
 
 multiarray_api = env.GenerateMultiarrayApi('include/numpy/multiarray_api',
-                        [SCons.Node.Python.Value(d) for d in multiarray_api_dict])
+                     [SCons.Node.Python.Value(d) for d in multiarray_api_dict])
 generated_headers.append(multiarray_api[0])
 
 ufunc_api = env.GenerateUfuncApi('include/numpy/ufunc_api',

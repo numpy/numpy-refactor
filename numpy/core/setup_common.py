@@ -2,10 +2,6 @@
 import sys
 from os.path import join
 import warnings
-import copy
-import binascii
-
-from distutils.ccompiler import CompileError
 
 #-------------------
 # Versioning support
