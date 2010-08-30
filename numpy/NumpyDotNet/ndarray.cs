@@ -9,33 +9,83 @@ using NumpyDotNet;
 
 namespace NumpyDotNet
 {
+    /// <summary>
+    /// Implements the Numpy python 'ndarray' object and acts as an interface to
+    /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
+    /// instance of this class.
+    /// </summary>
     public class ndarray
     {
+        private static String[] ndarryArgNames = { "object", "dtype", "copy",
+                                                     "order", "subok", "ndwin" };
+
         public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs)
         {
-            String[] unsupportedArgs = { "buffer", "offset", "strides", "order" };
+            Object[] posArgs = { };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1, a2 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1, a2, a3 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1, a2, a3, a4 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
+            Object a5, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1, a2, a3, a4, a5 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
+            Object a5, Object a6, [ParamDictionary] IAttributesCollection kwargs) {
+            Object[] posArgs = { a1, a2, a3, a4, a5, a6 };
+            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
+
+            Construct(cntx, args);
+        }
+
+
+        /// <summary>
+        /// Arguments are: object, dtype, copy, order, subok
+        /// </summary>
+        /// <param name="cntx"></param>
+        /// <param name="args"></param>
+        private void Construct(CodeContext cntx, Object[] args) {
             if (pyContext == null && cntx != null) pyContext = (PythonContext)cntx.LanguageContext;
 
-            Dictionary<String, Object> y = kwargs
-                .Select(kvPair => new KeyValuePair<String, Object>(kvPair.Key.ToString(), kvPair.Value))
-                .ToDictionary((kvPair => kvPair.Key), (kvPair => kvPair.Value));
-
-            y.Iter(kvPair => Console.WriteLine("{0} = {1}", kvPair.Key, kvPair.Value));
-
-            foreach(String bad in unsupportedArgs) {
-                if (y.ContainsKey(bad))
-                    throw new NotImplementedException(String.Format("ndarray argument '%s' is not yet implemented.", bad));
-            }
-
-            Object dims;
-            Object descr;
-            
-            if (!y.TryGetValue("shape", out dims)) dims = null;
-            if (!y.TryGetValue("dtype", out descr)) descr = null;
+            Object dims = args[0];
+            dtype type = (dtype)args[1];
 
             array = IntPtr.Zero;
         }
+
 
         // Creates a wrapper for an array created on the native side, such as the result of a slice operation.
         internal ndarray(IntPtr a)
@@ -65,6 +115,9 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+        public dtype Descr {
+            get { return null; }
+        }
 
         public bool IsContiguous {
             get { return true; }        // TODO: Need real value

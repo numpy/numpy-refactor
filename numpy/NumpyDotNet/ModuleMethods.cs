@@ -7,6 +7,9 @@ using IronPython.Modules;
 using Microsoft.Scripting;
 
 namespace NumpyDotNet {
+    /// <summary>
+    /// ModuleMethods implements the module-level numpy functions.
+    /// </summary>
     public static class ModuleMethods {
         private static String[] arrayKwds = { "object", "dtype", "copy", "order", "subok", "ndmin" };
 
@@ -56,7 +59,12 @@ namespace NumpyDotNet {
 
             if (args[1] != null) type = (dtype)args[1];
             if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
-            if (args[3] != null) order = (NpyArray.NPY_ORDER)args[3];   // TODO: Order converter here
+
+            if (args[3] != null && args[3] is string &&
+                String.Compare((String)args[3], "Fortran", true) == 0)
+                order = NpyArray.NPY_ORDER.NPY_FORTRANORDER;
+            else order = NpyArray.NPY_ORDER.NPY_CORDER;
+
             if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
             if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
@@ -65,6 +73,11 @@ namespace NumpyDotNet {
                     String.Format("ndmin ({0} bigger than allowable number of dimension ({1}).", 
                     ndmin, NpyArray.NPY_MAXDIMS-1));
             }
+
+            Console.WriteLine("copy = {0}, order = {1}, subok = {2}, ndmin = {3}",
+                copy, order, subok, ndmin);
+            Console.WriteLine("magic_offset = {0}, descr offset = {1}",
+                NpyArray.ArrayOffsets.off_magic_number, NpyArray.ArrayOffsets.off_descr);
 
             // TODO: Check that the first is equiv to PyArray_Check() and the
             // second is equiv to PyArray_CheckExact().
@@ -78,7 +91,8 @@ namespace NumpyDotNet {
                         result = NpyArray.NewCopy(arr, order);
                     }
                 } else {
-                    result = null;
+                    dtype oldType = arr.Descr;
+
                 }
             }
             return null;

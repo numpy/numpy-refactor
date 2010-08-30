@@ -12,8 +12,17 @@ using Microsoft.Scripting.Utils;
 
 namespace NumpyDotNet
 {
+    /// <summary>
+    /// NpyArray class wraps the interactions with the NpyArray core library. It
+    /// also makes use of NpyAccessLib.dll for a few functions that must be
+    /// implemented in native code.
+    /// 
+    /// TODO: This class is going to get very large.  Not sure if it's better to
+    /// try to break it up or just use partial classes and split it across 
+    /// multiple files.
+    /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    internal static class NpyArray {
+    public static class NpyArray {
         #region ConstantDefs
         internal enum NPY_TYPES {
             NPY_BOOL = 0,
@@ -224,6 +233,14 @@ namespace NumpyDotNet
 
         #endregion
 
+        #region NpyAccessLib functions
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        unsafe internal static extern void NpyArray_GetOffsets(int *magicNumOffset,
+            int *descrOffset, int *flagsOffset);
+
+
+        #endregion
 
 
         #region Callbacks and native access
@@ -236,7 +253,7 @@ namespace NumpyDotNet
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
-        };
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         struct NpyInterface_WrapperFuncs {
@@ -246,9 +263,22 @@ namespace NumpyDotNet
             internal IntPtr neighbor_iter_new_wrapper;
             internal IntPtr descr_new_from_type;
             internal IntPtr descr_new_from_wrapper;
-        };
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct NpyArrayOffsets {
+            internal int off_magic_number;
+            internal int off_descr;
+            internal int off_flags;
+        }
 
 
+        internal static readonly NpyArrayOffsets ArrayOffsets;
+
+        /// <summary>
+        /// Used for synchronizing modifications to interface pointer.
+        /// </summary>
+        private static object interfaceSyncRoot = new Object();
 
         /// <summary>
         /// Offset to the interface pointer.
@@ -287,15 +317,27 @@ namespace NumpyDotNet
         /// an additional GCHandle to the same object.  This effectively
         /// does an "incref" on the object.  Used in cases where an array
         /// of objects is being copied.
+        /// 
+        /// Usually wrapPtr is NULL meaning that we just allocate a new
+        /// handle and return it.  If wrapPtr != NULL then we assign the
+        /// new handle to it as well.  Must be done atomically.
         /// </summary>
         /// <param name="ptr">Pointer to GCHandle of object to reference</param>
         /// <returns>New handle to the input object</returns>
-        private static IntPtr Incref(IntPtr ptr) {
+        private static IntPtr Incref(IntPtr ptr, IntPtr wrapPtr) {
             object obj = GCHandle.FromIntPtr(ptr).Target;
-            return GCHandle.ToIntPtr(GCHandle.Alloc(obj));
+            IntPtr retval = GCHandle.ToIntPtr(GCHandle.Alloc(obj));
+            if (wrapPtr != IntPtr.Zero) {
+                lock (interfaceSyncRoot) {
+                    GCHandle old = GCHandle.FromIntPtr(wrapPtr);
+                    wrapPtr = retval;
+                    old.Free();
+                }
+            }
+            return retval;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr del_Incref(IntPtr ptr);
+        public delegate IntPtr del_Incref(IntPtr ptr, IntPtr wrapPtr);
 
 
         /// <summary>
@@ -304,11 +346,27 @@ namespace NumpyDotNet
         /// not be used again.
         /// </summary>
         /// <param name="ptr">Interface object to 'decref'</param>
-        private static void Decref(IntPtr ptr) {
-            GCHandle.FromIntPtr(ptr).Free();
+        private static void Decref(IntPtr ptr, IntPtr wrapPtr) {
+            if (wrapPtr != IntPtr.Zero) {
+                // Deferencing the interface wrapper.  We can't just null the
+                // wrapPtr because we have to have maintain the link so we
+                // allocate a weak reference instead.
+                GCHandle handle = GCHandle.FromIntPtr(ptr);
+                Object target = handle.Target;
+                lock (interfaceSyncRoot) {
+                    if (ptr == wrapPtr) {
+                        wrapPtr = GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Weak));
+                    } else {
+                        Console.WriteLine("Unexpected decref where wrapPtr != ptr.");
+                    }
+                    handle.Free();
+                }
+            } else {
+                GCHandle.FromIntPtr(ptr).Free();
+            }
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate void del_Decref(IntPtr ptr);
+        public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
 
 
         /// <summary>
@@ -343,6 +401,17 @@ namespace NumpyDotNet
                     Marshal.GetFunctionPointerForDelegate(new del_Decref(Decref)));
             } finally {
                 Marshal.FreeHGlobal(wrapHandle);
+            }
+
+            // Initialize the offsets to each structure type for fast access
+            // TODO: Not sure if this is a great way to do this, but for now it's
+            // a convenient way to get hard field offsets from the core.
+            unsafe {
+                fixed (int* magicOffset = &ArrayOffsets.off_magic_number,
+                           descrOffset = &ArrayOffsets.off_descr,
+                            flagsOffset = &ArrayOffsets.off_flags) {
+                    NpyArray_GetOffsets(magicOffset, descrOffset, flagsOffset);
+                }
             }
         }
 

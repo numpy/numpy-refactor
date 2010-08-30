@@ -3,8 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NumpyDotNet", "NumpyDotNet.csproj", "{9D8FA516-085C-40B2-93CA-F3A419B2FCED}"
 	ProjectSection(ProjectDependencies) = postProject
+		{1B601FD0-B1EA-41DC-A899-07093F298467} = {1B601FD0-B1EA-41DC-A899-07093F298467}
 		{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26} = {CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NpyAccessLib", "NpyAccessLib\NpyAccessLib.vcxproj", "{1B601FD0-B1EA-41DC-A899-07093F298467}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ndarray", "..\..\libndarray\windows\msvc2008.vcxproj", "{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
 EndProject
@@ -32,6 +35,18 @@ Global
 		{9D8FA516-085C-40B2-93CA-F3A419B2FCED}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9D8FA516-085C-40B2-93CA-F3A419B2FCED}.Release|Win32.ActiveCfg = Release|Any CPU
 		{9D8FA516-085C-40B2-93CA-F3A419B2FCED}.Release|x64.ActiveCfg = Release|Any CPU
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|Win32.Build.0 = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Debug|x64.ActiveCfg = Debug|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|Any CPU.ActiveCfg = Release|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|Win32.ActiveCfg = Release|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|Win32.Build.0 = Release|Win32
+		{1B601FD0-B1EA-41DC-A899-07093F298467}.Release|x64.ActiveCfg = Release|Win32
 		{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}.Debug|Any CPU.ActiveCfg = Release|x64
 		{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
 		{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}.Debug|Mixed Platforms.Build.0 = Debug|Win32
