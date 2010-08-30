@@ -23,6 +23,8 @@
 
 include "numpy.pxi"
 
+from python cimport bytes as bytes_type
+
 cdef extern from "string.h":
     void *memcpy(void *s1, void *s2, int n)
 
@@ -865,7 +867,7 @@ cdef class RandomState:
                 arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)
             return arr
 
-    def raw_bytes(self, unsigned int length):
+    def bytes(self, unsigned int length):
         """
         bytes(length)
 
@@ -887,7 +889,7 @@ cdef class RandomState:
         ' eh\\x85\\x022SZ\\xbf\\xa4' #random
 
         """
-        cdef bytes res = b'x' * length
+        cdef bytes_type res = b'x' * length
         cdef char *bytes_ptr = res
 
         rk_fill(bytes_ptr, length, self.internal_state)
@@ -4298,7 +4300,7 @@ get_state = _rand.get_state
 set_state = _rand.set_state
 random_sample = _rand.random_sample
 randint = _rand.randint
-raw_bytes = _rand.raw_bytes
+bytes = _rand.bytes
 uniform = _rand.uniform
 rand = _rand.rand
 randn = _rand.randn
