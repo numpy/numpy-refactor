@@ -14,10 +14,10 @@ from code_generators.numpy_api import \
     multiarray_api as multiarray_api_dict, \
     ufunc_api as ufunc_api_dict
 
-from setup_common import *
+from setup_common import C_ABI_VERSION, C_API_VERSION
 from scons_support import CheckBrokenMathlib, define_no_smp, \
-              check_mlibs, is_npy_no_signal, CheckInline
-from scons_support import array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
+                          check_mlibs, is_npy_no_signal, CheckInline, \
+                          array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
                           umath_bld, CheckGCC4, check_api_version
 
 import SCons
@@ -117,7 +117,7 @@ numpyconfig_sym.append(('NPY_API_VERSION', '0x%.8X' % C_API_VERSION))
 
 # Check whether we need our own wide character support
 if not config.CheckDeclaration('Py_UNICODE_WIDE',
-                                includes='#include <Python.h>'):
+                               includes='#include <Python.h>'):
     PYTHON_HAS_UNICODE_WIDE = True
 else:
     PYTHON_HAS_UNICODE_WIDE = False
