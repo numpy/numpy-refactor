@@ -127,8 +127,6 @@ cdef extern from "initarray.h":
                       unsigned long key_length)
 
 # Initialize numpy
-import_array()
-
 import numpy as np
 
 

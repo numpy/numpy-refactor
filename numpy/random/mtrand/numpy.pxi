@@ -68,8 +68,6 @@ cdef extern from "numpy/ndarraytypes.h":
     ctypedef struct PyArrayMultiIterObject:
         NpyArrayMultiIterObject *iter
 
-    void import_array()
-
 
 cdef extern from "numpy/arrayobject.h":
     pass
