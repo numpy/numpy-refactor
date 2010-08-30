@@ -23,15 +23,14 @@
 
 include "numpy.pxi"
 
+from python cimport bytes as bytes_type
+
 cdef extern from "string.h":
     void *memcpy(void *s1, void *s2, int n)
 
 cdef extern from "memory.h":
     void *malloc(long)
     void free(void *)
-
-cdef extern from "mtrand_py_helper.h":
-    object empty_py_bytes(unsigned long length, void **bytes)
 
 cdef extern from "randomkit.h":
 
@@ -890,11 +889,11 @@ cdef class RandomState:
         ' eh\\x85\\x022SZ\\xbf\\xa4' #random
 
         """
-        cdef void *bytes
+        cdef bytes_type res = b'x' * length
+        cdef char *bytes_ptr = res
 
-        bytestring = empty_py_bytes(length, &bytes)
-        rk_fill(bytes, length, self.internal_state)
-        return bytestring
+        rk_fill(bytes_ptr, length, self.internal_state)
+        return res
 
     def uniform(self, low=0.0, high=1.0, size=None):
         """
