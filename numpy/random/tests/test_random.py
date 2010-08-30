@@ -138,7 +138,7 @@ class Test_MTRand(TestCase):
 
     def test_bytes(self):
         random.seed(101)
-        self.assertEqual(random.raw_bytes(10), '_\xb32\x84\x0bFs\x8dQE')
+        self.assertEqual(random.bytes(10), '_\xb32\x84\x0bFs\x8dQE')
 
     def test_uniform(self):
         a = random.uniform(size=1000)
