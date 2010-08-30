@@ -34,6 +34,15 @@ namespace NumpyDotNet
             NPY_USERDEF = 256  /* leave room for characters */
         };
 
+        public enum NPY_ORDER {
+            NPY_ANYORDER = -1,
+            NPY_CORDER = 0,
+            NPY_FORTRANORDER = 1
+        };
+
+        internal const int NPY_MAXDIMS = 32;
+        internal const int NPY_MAXARGS = 32;
+
         /* The item must be reference counted when it is inserted or extracted. */
         internal const int NPY_ITEM_REFCOUNT = 0x01;
         /* Same as needing REFCOUNT */
@@ -171,6 +180,18 @@ namespace NumpyDotNet
         internal static dtype DescrFromType(Int32 type) {
             IntPtr descr = NpyArray_DescrFromType(type);
             return ToInterface<dtype>(descr);
+        }
+
+
+        /// <summary>
+        /// Returns a copy of the passed array in the specified order (C, Fortran)
+        /// </summary>
+        /// <param name="arr">Array to copy</param>
+        /// <param name="order">Desired order</param>
+        /// <returns>New array</returns>
+        internal static ndarray NewCopy(ndarray arr, NPY_ORDER order) {
+            // TODO: NewCopy is not implemented.
+            return arr;
         }
 
         #endregion

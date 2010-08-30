@@ -18,8 +18,10 @@ namespace NumpyDotNet
             if (pyContext == null && cntx != null) pyContext = (PythonContext)cntx.LanguageContext;
 
             Dictionary<String, Object> y = kwargs
-                .Select((k, v) => new KeyValuePair<String, Object>(k.ToString(), v))
+                .Select(kvPair => new KeyValuePair<String, Object>(kvPair.Key.ToString(), kvPair.Value))
                 .ToDictionary((kvPair => kvPair.Key), (kvPair => kvPair.Value));
+
+            y.Iter(kvPair => Console.WriteLine("{0} = {1}", kvPair.Key, kvPair.Value));
 
             foreach(String bad in unsupportedArgs) {
                 if (y.ContainsKey(bad))
@@ -30,8 +32,7 @@ namespace NumpyDotNet
             Object descr;
             
             if (!y.TryGetValue("shape", out dims)) dims = null;
-            if (!y.TryGetValue("dtype", out descr))
-                descr = NpyArray.DescrFromType(NpyArray.NPY_DEFAULT);
+            if (!y.TryGetValue("dtype", out descr)) descr = null;
 
             array = IntPtr.Zero;
         }
@@ -65,7 +66,21 @@ namespace NumpyDotNet
         }
 
 
+        public bool IsContiguous {
+            get { return true; }        // TODO: Need real value
+        }
 
+        public bool IsFortran {
+            get { return false; }       // TODO: Need real value
+        }
+
+
+        public bool StridingOk(NpyArray.NPY_ORDER order) {
+            return order == NpyArray.NPY_ORDER.NPY_ANYORDER ||
+                order == NpyArray.NPY_ORDER.NPY_CORDER && IsContiguous ||
+                order == NpyArray.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
+        }
+                    
         private static PythonContext pyContext = null;
 
         /// <summary>

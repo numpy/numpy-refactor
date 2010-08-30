@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Include">
+      <UniqueIdentifier>{2efac8cf-49d4-4f78-a5d6-dba2c904a3b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{b0c8292e-4b60-4be8-8498-ae52663f6268}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\_neighborhood_iterator_imp.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_api.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_arrayobject.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_common.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_config.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_cpu.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_defs.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_descriptor.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_dict.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_endian.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_funcs.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_index.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_internal.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_iterators.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_loops.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_math.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_math_private.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_number.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_object.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_os.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_ufunc_object.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_utils.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\npy_arrayobject.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_arraytypes.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_calculation.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_common.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_conversion_utils.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_convert.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_convert_datatype.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_ctors.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_datetime.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_descriptor.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_dict.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_flagsobject.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_funcs.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_getset.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_ieee754.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_index.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_item_selection.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_iterators.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_loops.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_mapping.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_math.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_math_complex.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_methods.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_multiarray.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_number.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_os.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_refcount.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_shape.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_ufunc_object.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_usertypes.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

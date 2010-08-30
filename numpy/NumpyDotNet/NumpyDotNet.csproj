@@ -57,8 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="dtype.cs" />
+    <Compile Include="ModuleMethods.cs" />
     <Compile Include="ndarray.cs" />
     <Compile Include="NpyArray.cs" />
+    <Compile Include="NpyUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

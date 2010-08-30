@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>ndarray</ProjectName>
+    <ProjectGuid>{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}</ProjectGuid>
+    <RootNamespace>ndarray</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\_neighborhood_iterator_imp.h" />
+    <ClInclude Include="..\src\npy_api.h" />
+    <ClInclude Include="..\src\npy_arrayobject.h" />
+    <ClInclude Include="..\src\npy_common.h" />
+    <ClInclude Include="..\src\npy_config.h" />
+    <ClInclude Include="..\src\npy_cpu.h" />
+    <ClInclude Include="..\src\npy_defs.h" />
+    <ClInclude Include="..\src\npy_descriptor.h" />
+    <ClInclude Include="..\src\npy_dict.h" />
+    <ClInclude Include="..\src\npy_endian.h" />
+    <ClInclude Include="..\src\npy_funcs.h" />
+    <ClInclude Include="..\src\npy_index.h" />
+    <ClInclude Include="..\src\npy_internal.h" />
+    <ClInclude Include="..\src\npy_iterators.h" />
+    <ClInclude Include="..\src\npy_loops.h" />
+    <ClInclude Include="..\src\npy_math.h" />
+    <ClInclude Include="..\src\npy_math_private.h" />
+    <ClInclude Include="..\src\npy_number.h" />
+    <ClInclude Include="..\src\npy_object.h" />
+    <ClInclude Include="..\src\npy_os.h" />
+    <ClInclude Include="..\src\npy_ufunc_object.h" />
+    <ClInclude Include="..\src\npy_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\npy_arrayobject.c" />
+    <ClCompile Include="..\src\npy_arraytypes.c" />
+    <ClCompile Include="..\src\npy_calculation.c" />
+    <ClCompile Include="..\src\npy_common.c" />
+    <ClCompile Include="..\src\npy_conversion_utils.c" />
+    <ClCompile Include="..\src\npy_convert.c" />
+    <ClCompile Include="..\src\npy_convert_datatype.c" />
+    <ClCompile Include="..\src\npy_ctors.c" />
+    <ClCompile Include="..\src\npy_datetime.c" />
+    <ClCompile Include="..\src\npy_descriptor.c" />
+    <ClCompile Include="..\src\npy_dict.c" />
+    <ClCompile Include="..\src\npy_flagsobject.c" />
+    <ClCompile Include="..\src\npy_funcs.c" />
+    <ClCompile Include="..\src\npy_getset.c" />
+    <ClCompile Include="..\src\npy_ieee754.c" />
+    <ClCompile Include="..\src\npy_index.c" />
+    <ClCompile Include="..\src\npy_item_selection.c" />
+    <ClCompile Include="..\src\npy_iterators.c" />
+    <ClCompile Include="..\src\npy_loops.c" />
+    <ClCompile Include="..\src\npy_mapping.c" />
+    <ClCompile Include="..\src\npy_math.c" />
+    <ClCompile Include="..\src\npy_math_complex.c" />
+    <ClCompile Include="..\src\npy_methods.c" />
+    <ClCompile Include="..\src\npy_multiarray.c" />
+    <ClCompile Include="..\src\npy_number.c" />
+    <ClCompile Include="..\src\npy_os.c" />
+    <ClCompile Include="..\src\npy_refcount.c" />
+    <ClCompile Include="..\src\npy_shape.c" />
+    <ClCompile Include="..\src\npy_ufunc_object.c" />
+    <ClCompile Include="..\src\npy_usertypes.c" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
