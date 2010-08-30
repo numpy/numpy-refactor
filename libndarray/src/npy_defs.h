@@ -27,7 +27,7 @@
  * without loss of information.  Similarly for intptr_t, wrt a signed
  * integral type.
  */
-#ifdef NPY_HAVE_UINTPTR_T
+#if NPY_HAVE_UINTPTR_T
 typedef uintptr_t       npy_uintp;
 typedef intptr_t        npy_intp;
 
@@ -39,7 +39,7 @@ typedef int             npy_intp;
 typedef unsigned long   npy_uintp;
 typedef long            npy_intp;
 
-#elif defined(NPY_HAVE_LONGLONG) && (NPY_SIZEOF_PTR <= NPY_SIZEOF_LONGLONG)
+#elif NPY_HAVE_LONGLONG && (NPY_SIZEOF_PTR <= NPY_SIZEOF_LONGLONG)
 typedef unsigned long long      npy_uintp;
 typedef long long               npy_intp;
 
