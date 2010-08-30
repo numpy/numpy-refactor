@@ -30,9 +30,6 @@ cdef extern from "memory.h":
     void *malloc(long)
     void free(void *)
 
-cdef extern from "mtrand_py_helper.h":
-    object empty_py_bytes(unsigned long length, void **bytes)
-
 cdef extern from "randomkit.h":
 
     ctypedef struct rk_state:
@@ -868,7 +865,7 @@ cdef class RandomState:
                 arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)
             return arr
 
-    def bytes(self, unsigned int length):
+    def raw_bytes(self, unsigned int length):
         """
         bytes(length)
 
@@ -890,11 +887,11 @@ cdef class RandomState:
         ' eh\\x85\\x022SZ\\xbf\\xa4' #random
 
         """
-        cdef void *bytes
+        cdef bytes res = b'x' * length
+        cdef char *bytes_ptr = res
 
-        bytestring = empty_py_bytes(length, &bytes)
-        rk_fill(bytes, length, self.internal_state)
-        return bytestring
+        rk_fill(bytes_ptr, length, self.internal_state)
+        return res
 
     def uniform(self, low=0.0, high=1.0, size=None):
         """
@@ -4301,7 +4298,7 @@ get_state = _rand.get_state
 set_state = _rand.set_state
 random_sample = _rand.random_sample
 randint = _rand.randint
-bytes = _rand.bytes
+raw_bytes = _rand.raw_bytes
 uniform = _rand.uniform
 rand = _rand.rand
 randn = _rand.randn
