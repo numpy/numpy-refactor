@@ -24,6 +24,9 @@
 include "Python.pxi"
 include "numpy.pxi"
 
+cdef extern from "string.h":
+    void *memcpy(void *s1, void *s2, int n)
+
 cdef extern from "math.h":
     double exp(double x)
     double log(double x)

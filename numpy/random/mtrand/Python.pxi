@@ -49,9 +49,3 @@ cdef extern from "Python.h":
     # Error API
     int PyErr_Occurred()
     void PyErr_Clear()
-
-cdef extern from "string.h":
-    void *memcpy(void *s1, void *s2, int n)
-
-cdef extern from "math.h":
-    double fabs(double x)
