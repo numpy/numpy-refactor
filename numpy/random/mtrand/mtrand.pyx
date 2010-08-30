@@ -865,7 +865,7 @@ cdef class RandomState:
                 arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)
             return arr
 
-    def raw_bytes(self, unsigned int length):
+    def bytes(self, unsigned int length):
         """
         bytes(length)
 
@@ -4298,7 +4298,14 @@ get_state = _rand.get_state
 set_state = _rand.set_state
 random_sample = _rand.random_sample
 randint = _rand.randint
-raw_bytes = _rand.raw_bytes
+
+# we cannot say
+#   bytes = _rand.bytes
+# here because it will cause Cython compile errors, so we define
+raw_bytes = _rand.bytes
+# and in ../__init__.py we say:
+#   bytes = raw_bytes
+
 uniform = _rand.uniform
 rand = _rand.rand
 randn = _rand.randn

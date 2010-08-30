@@ -86,6 +86,8 @@ set_state            Set state of generator.
 from info import __doc__, __all__
 from mtrand import *
 
+bytes = raw_bytes
+
 # Some aliases:
 ranf = random = sample = random_sample
 __all__.extend(['ranf','random','sample'])
