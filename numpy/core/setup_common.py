@@ -112,7 +112,7 @@ C99_FUNCS_EXTENDED = [f + 'l' for f in C99_FUNCS]
 C99_COMPLEX_TYPES = ['complex double', 'complex float', 'complex long double']
 
 C99_COMPLEX_FUNCS = ['creal', 'cimag', 'cabs', 'carg', 'cexp', 'csqrt', 'clog',
-                  'ccos', 'csin', 'cpow']
+                     'ccos', 'csin', 'cpow']
 
 def fname2def(name):
     return "HAVE_%s" % name.upper()
@@ -124,84 +124,3 @@ def sym2def(symbol):
 def type2def(symbol):
     define = symbol.replace(' ', '_')
     return define.upper()
-
-# Code to detect long double representation taken from MPFR m4 macro
-def check_long_double_representation(cmd):
-    cmd._check_compiler()
-    body = LONG_DOUBLE_REPRESENTATION_SRC % {'type': 'long double'}
-
-    # We need to use _compile because we need the object filename
-    src, object = cmd._compile(body, None, None, 'c')
-    try:
-        type = long_double_representation(pyod(object))
-        return type
-    finally:
-        cmd._clean()
-
-LONG_DOUBLE_REPRESENTATION_SRC = r"""
-/* "before" is 16 bytes to ensure there's no padding between it and "x".
- *    We're not expecting any "long double" bigger than 16 bytes or with
- *       alignment requirements stricter than 16 bytes.  */
-typedef %(type)s test_type;
-
-struct {
-        char         before[16];
-        test_type    x;
-        char         after[8];
-} foo = {
-        { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0',
-          '\001', '\043', '\105', '\147', '\211', '\253', '\315', '\357' },
-        -123456789.0,
-        { '\376', '\334', '\272', '\230', '\166', '\124', '\062', '\020' }
-};
-"""
-
-def pyod(filename):
-    """Python implementation of the od UNIX utility (od -b, more exactly).
-
-    Parameters
-    ----------
-    filename: str
-        name of the file to get the dump from.
-
-    Returns
-    -------
-    out: seq
-        list of lines of od output
-    Note
-    ----
-    We only implement enough to get the necessary information for long double
-    representation, this is not intended as a compatible replacement for od.
-    """
-    def _pyod2():
-        out = []
-
-        fid = open(filename, 'r')
-        try:
-            yo = [int(oct(int(binascii.b2a_hex(o), 16))) for o in fid.read()]
-            for i in range(0, len(yo), 16):
-                line = ['%07d' % int(oct(i))]
-                line.extend(['%03d' % c for c in yo[i:i+16]])
-                out.append(" ".join(line))
-            return out
-        finally:
-            fid.close()
-
-    def _pyod3():
-        out = []
-
-        fid = open(filename, 'rb')
-        try:
-            yo2 = [oct(o)[2:] for o in fid.read()]
-            for i in range(0, len(yo2), 16):
-                line = ['%07d' % int(oct(i)[2:])]
-                line.extend(['%03d' % int(c) for c in yo2[i:i+16]])
-                out.append(" ".join(line))
-            return out
-        finally:
-            fid.close()
-
-    if sys.version_info[0] < 3:
-        return _pyod2()
-    else:
-        return _pyod3()

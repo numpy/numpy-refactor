@@ -18,8 +18,7 @@ from setup_common import *
 from scons_support import CheckBrokenMathlib, define_no_smp, \
               check_mlibs, is_npy_no_signal, CheckInline
 from scons_support import array_api_gen_bld, ufunc_api_gen_bld, template_bld, \
-                          umath_bld, CheckGCC4, check_api_version, \
-                          CheckLongDoubleRepresentation
+                          umath_bld, CheckGCC4, check_api_version
 
 import SCons
 
@@ -42,10 +41,12 @@ check_api_version(C_API_VERSION)
 #=======================
 # Starting Configuration
 #=======================
-config = env.NumpyConfigure(custom_tests = {'CheckBrokenMathlib' : CheckBrokenMathlib,
-    'CheckCBLAS' : CheckCBLAS, 'CheckInline': CheckInline, 'CheckGCC4' : CheckGCC4,
-    'CheckLongDoubleRepresentation': CheckLongDoubleRepresentation},
-    config_h = pjoin('config.h'))
+config = env.NumpyConfigure(custom_tests = {
+    'CheckBrokenMathlib' : CheckBrokenMathlib,
+    'CheckCBLAS' : CheckCBLAS,
+    'CheckInline': CheckInline,
+    'CheckGCC4' : CheckGCC4,
+}, config_h = pjoin('config.h'))
 
 # numpyconfig_sym will keep the values of some configuration variables, the one
 # needed for the public numpy API.

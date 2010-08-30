@@ -15,7 +15,6 @@ from code_generators.generate_numpy_api import \
 from code_generators.generate_ufunc_api import \
      do_generate_api as nowrap_do_generate_ufunc_api
 from setup_common import check_api_version as _check_api_version
-from setup_common import pyod
 
 from numscons.numdist import process_c_str as process_str
 
@@ -236,26 +235,6 @@ static %(inline)s int static_func (void)
         context.Result(0)
     return inline
 
-def CheckLongDoubleRepresentation(context):
-    msg = {
-        'INTEL_EXTENDED_12_BYTES_LE': "Intel extended, little endian",
-        'INTEL_EXTENDED_16_BYTES_LE': "Intel extended, little endian",
-        'IEEE_QUAD_BE': "IEEE Quad precision, big endian",
-        'IEEE_QUAD_LE': "IEEE Quad precision, little endian",
-        'IEEE_DOUBLE_LE': "IEEE Double precision, little endian",
-        'IEEE_DOUBLE_BE': "IEEE Double precision, big endian"
-    }
-
-    context.Message("Checking for long double representation... ")
-    body = LONG_DOUBLE_REPRESENTATION_SRC % {'type': 'long double'}
-    st = context.TryCompile(body, '.c')
-    if st:
-        obj = str(context.sconf.lastTarget)
-        tp = long_double_representation(pyod(obj))
-        context.Result(msg[tp])
-        return tp
-    if not st:
-        context.Result(0)
 
 array_api_gen_bld = Builder(action = Action(do_generate_numpy_api,
                                             '$ARRAYPIGENCOMSTR'),
