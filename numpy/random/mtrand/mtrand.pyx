@@ -26,13 +26,6 @@ include "numpy.pxi"
 cdef extern from "string.h":
     void *memcpy(void *s1, void *s2, int n)
 
-cdef extern from "math.h":
-    double exp(double x)
-    double log(double x)
-    double floor(double x)
-    double sin(double x)
-    double cos(double x)
-
 cdef extern from "memory.h":
     void *malloc(long)
     void free(void *)
@@ -4300,6 +4293,7 @@ cdef class RandomState:
             arr = np.array(x)
         self.shuffle(arr)
         return arr
+
 
 _rand = RandomState()
 seed = _rand.seed

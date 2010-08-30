@@ -61,13 +61,9 @@ cdef extern from "npy_descriptor.h":
 
 
 cdef extern from "numpy/ndarraytypes.h":
-
+    # This is the C-Cython version, we need something else for C#-Cython
     ctypedef struct PyArrayObject:
         NpyArray *array
 
     ctypedef struct PyArrayMultiIterObject:
         NpyArrayMultiIterObject *iter
-
-
-cdef extern from "numpy/arrayobject.h":
-    pass
