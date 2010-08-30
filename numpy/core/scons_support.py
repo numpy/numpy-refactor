@@ -15,8 +15,7 @@ from code_generators.generate_numpy_api import \
 from code_generators.generate_ufunc_api import \
      do_generate_api as nowrap_do_generate_ufunc_api
 from setup_common import check_api_version as _check_api_version
-from setup_common import \
-        LONG_DOUBLE_REPRESENTATION_SRC, pyod, long_double_representation
+from setup_common import pyod
 
 from numscons.numdist import process_c_str as process_str
 
@@ -258,14 +257,17 @@ def CheckLongDoubleRepresentation(context):
     if not st:
         context.Result(0)
 
-array_api_gen_bld = Builder(action = Action(do_generate_numpy_api, '$ARRAYPIGENCOMSTR'),
+array_api_gen_bld = Builder(action = Action(do_generate_numpy_api,
+                                            '$ARRAYPIGENCOMSTR'),
                             emitter = generate_api_emitter)
 
 
-ufunc_api_gen_bld = Builder(action = Action(do_generate_ufunc_api, '$UFUNCAPIGENCOMSTR'),
+ufunc_api_gen_bld = Builder(action = Action(do_generate_ufunc_api,
+                                            '$UFUNCAPIGENCOMSTR'),
                             emitter = generate_api_emitter)
 
-template_bld = Builder(action = Action(generate_from_template, '$TEMPLATECOMSTR'),
+template_bld = Builder(action = Action(generate_from_template,
+                                       '$TEMPLATECOMSTR'),
                        emitter = generate_from_template_emitter)
 
 umath_bld = Builder(action = Action(generate_umath, '$UMATHCOMSTR'),
