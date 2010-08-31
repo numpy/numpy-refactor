@@ -46,20 +46,21 @@ typedef struct _NpyObject NpyObject;
 #endif
 
 
-#define Npy_INCREF(a)                                                 \
-       do {                                                           \
-            if (1 == AtomicIncrement((a)->nob_refcnt) && NULL != Npy_INTERFACE(a))   \
-                _NpyInterface_Incref(Npy_INTERFACE(a), &((a)->nob_interface));  \
-       } while(0)
+#define Npy_INCREF(a)                                                      \
+    do {                                                                   \
+        if (1 == AtomicIncrement((a)->nob_refcnt) &&                       \
+                  NULL != Npy_INTERFACE(a))                                \
+           _NpyInterface_Incref(Npy_INTERFACE(a), &((a)->nob_interface));  \
+    } while(0)
 
 
-#define Npy_DECREF(a)                                           \
-        if (0 == AtomicDecrement((a)->nob_refcnt)) {            \
-            if (NULL != Npy_INTERFACE(a))                       \
-                _NpyInterface_Decref(Npy_INTERFACE(a), &((a)->nob_interface));      \
-            else                                                \
-                (a)->nob_type->ntp_dealloc((_NpyObject*)a);     \
-        }
+#define Npy_DECREF(a)                                                       \
+    if (0 == AtomicDecrement((a)->nob_refcnt)) {                            \
+        if (NULL != Npy_INTERFACE(a))                                       \
+            _NpyInterface_Decref(Npy_INTERFACE(a), &((a)->nob_interface));  \
+        else                                                                \
+           (a)->nob_type->ntp_dealloc((_NpyObject*)a);                      \
+    }
 
 
 #define Npy_XINCREF(a) if ((a) == NULL) ; else Npy_INCREF(a)
