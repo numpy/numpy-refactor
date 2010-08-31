@@ -64,7 +64,6 @@ class nptool:
         "Build numpy with gcov enabled."
 
         p = Popen( """/usr/bin/env \
- NPY_SEPARATE_COMPILATION=1 \
  CFLAGS=\"-DDEBUG -g -Wall --coverage\" \
  LDFLAGS=\"-g --coverage\" \
  \

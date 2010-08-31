@@ -11,12 +11,6 @@ import re
 
 from setup_common import *
 
-# Set to True to enable multiple file compilations (experimental)
-try:
-    os.environ['NPY_SEPARATE_COMPILATION']
-    ENABLE_SEPARATE_COMPILATION = True
-except KeyError:
-    ENABLE_SEPARATE_COMPILATION = False
 
 # XXX: ugly, we use a class to avoid calling twice some expensive functions in
 # config.h/numpyconfig.h. I don't see a better way because distutils force
@@ -419,9 +413,6 @@ def configuration(parent_package='',top_path=None):
             else:
                 PYTHON_HAS_UNICODE_WIDE = False
                 
-            if ENABLE_SEPARATE_COMPILATION:
-                moredefs.append(('ENABLE_SEPARATE_COMPILATION', 1))
-
             # Get long double representation
             if sys.platform != 'darwin':
                 rep = check_long_double_representation(config_cmd)
@@ -514,9 +505,6 @@ def configuration(parent_package='',top_path=None):
             mathlibs = check_mathlib(config_cmd)
             moredefs.extend(cocache.check_ieee_macros(config_cmd)[1])
             moredefs.extend(cocache.check_complex(config_cmd, mathlibs)[1])
-
-            if ENABLE_SEPARATE_COMPILATION:
-                moredefs.append(('NPY_ENABLE_SEPARATE_COMPILATION', 1))
 
             # Check wether we can use inttypes (C99) formats
             if config_cmd.check_decl('PRIdPTR', headers = ['inttypes.h']):
@@ -805,18 +793,6 @@ def configuration(parent_package='',top_path=None):
 
     umath_deps = [generate_umath_py,
             join(codegen_dir,'generate_ufunc_api.py')]
-
-    if not ENABLE_SEPARATE_COMPILATION:
-        multiarray_deps.extend(multiarray_src)
-        multiarray_src = [join('src', 'multiarray', 'multiarraymodule_onefile.c')]
-        multiarray_src.append(generate_multiarray_templated_sources)
- 
-        libnumpy_deps.extend(libnumpy_src)
-        libnumpy_src.append(generate_libnumpy_templated_sources)
- 
-        umath_deps.extend(umath_src)
-        umath_src = [join('src', 'umath', 'umathmodule_onefile.c')]
-        umath_src.append(generate_umath_templated_sources)
 
     config.add_extension('multiarray',
                          sources = multiarray_src +
