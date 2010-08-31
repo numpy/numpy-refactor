@@ -635,14 +635,12 @@ def configuration(parent_package='',top_path=None):
         return []
 
     config.add_data_files('include/numpy/*.h')
-    config.add_include_dirs(join('src', 'npymath'))
     config.add_include_dirs(join('src', 'multiarray'))
     config.add_include_dirs(join('src', 'umath'))
 
     config.numpy_include_dirs.extend(config.paths('include'))
 
-    deps = [join('src','npymath','_signbit.c'),
-            join('include','numpy','*object.h'),
+    deps = [join('include','numpy','*object.h'),
             'include/numpy/fenv/fenv.c',
             'include/numpy/fenv/fenv.h',
             join(codegen_dir,'genapi.py'),
@@ -685,17 +683,6 @@ def configuration(parent_package='',top_path=None):
         msvc_mlib = ' '.join(['%s.lib' % l for l in mlibs])
         subst_dict["posix_mathlib"] = posix_mlib
         subst_dict["msvc_mathlib"] = msvc_mlib
-
-    config.add_installed_library('npymath',
-            sources=[join('src', 'npymath', 'npy_math.c.src'),
-                     join('src', 'npymath', 'ieee754.c.src'),
-                     join('src', 'npymath', 'npy_math_complex.c.src'),
-                     get_mathlib_info],
-            install_dir='lib')
-    config.add_npy_pkg_config("npymath.ini.in", "lib/npy-pkg-config",
-            subst_dict)
-    config.add_npy_pkg_config("mlib.ini.in", "lib/npy-pkg-config",
-            subst_dict)
 
     libnumpy_deps = [
         join('include', 'numpy', 'numpy_api.h'),
@@ -802,7 +789,7 @@ def configuration(parent_package='',top_path=None):
                                  join(codegen_dir,'generate_numpy_api.py'),
                                  join('*.py')],
                          depends = deps + multiarray_deps + libnumpy_source,
-                         libraries=['npymath','numpy'])
+                         libraries=['ndarray'])
 
     config.add_extension('umath',
                          sources = [generate_config_h,
@@ -811,7 +798,7 @@ def configuration(parent_package='',top_path=None):
                                     generate_ufunc_api,
                                     ] + umath_src,
                          depends = deps + umath_deps,
-                         libraries=['npymath'],
+                         libraries=['ndarray'],
                          )
 
     config.add_extension('scalarmath',
