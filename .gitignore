@@ -7,6 +7,8 @@
 *~
 \#*
 __*
+*.sdf
+*.obj
 
 build
 /dist
