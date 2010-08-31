@@ -92,7 +92,14 @@ namespace NumpyDotNet {
                     }
                 } else {
                     dtype oldType = arr.Descr;
-
+                    if (dtype.EquivTypes(oldType, type)) {
+                        result = arr;
+                    } else {
+                        result = NpyArray.NewCopy(arr, order);
+                        if (oldType != type) {
+                            arr.Descr = oldType;
+                        }
+                    }
                 }
             }
             return null;

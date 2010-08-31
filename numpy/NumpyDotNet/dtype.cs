@@ -48,12 +48,15 @@ namespace NumpyDotNet {
         }
 
 
+        public static bool EquivTypes(dtype t1, dtype t2) {
+            return (NpyArray.NpyArray_EquivTypes(t1.descr, t2.descr) != 0);
+        }
 
         private static PythonContext pyContext = null;
 
         /// <summary>
         ///  Pointer to the native object 
         /// </summary>
-        private IntPtr descr;
+        internal IntPtr descr;
     }
 }

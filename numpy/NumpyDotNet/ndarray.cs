@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using IronPython.Runtime;
 using IronPython.Modules;
 using Microsoft.Scripting;
@@ -115,16 +117,32 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+
+        /// <summary>
+        /// The type descriptor object for this array
+        /// </summary>
         public dtype Descr {
-            get { return null; }
+            get {
+                IntPtr descr = Marshal.ReadIntPtr(array, NpyArray.ArrayOffsets.off_descr);
+                return NpyArray.ToInterface<dtype>(descr);
+            }
+            set {
+                NpyArray.ArraySetDescr(array, value.descr);
+            }
         }
 
+        /// <summary>
+        /// True if memory layout of array is contiguous
+        /// </summary>
         public bool IsContiguous {
-            get { return true; }        // TODO: Need real value
+            get { return ChkFlags(NpyArray.NPY_CONTIGUOUS); }
         }
 
+        /// <summary>
+        /// True if memory layout is Fortran order, false implies C order
+        /// </summary>
         public bool IsFortran {
-            get { return false; }       // TODO: Need real value
+            get { return ChkFlags(NpyArray.NPY_FORTRAN) && Ndim > 1; }
         }
 
 
@@ -133,7 +151,20 @@ namespace NumpyDotNet
                 order == NpyArray.NPY_ORDER.NPY_CORDER && IsContiguous ||
                 order == NpyArray.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
         }
-                    
+
+
+        /// <summary>
+        /// Number of dimensions in the array
+        /// </summary>
+        public int Ndim {
+            get { return Marshal.ReadInt32(array, NpyArray.ArrayOffsets.off_nd); }
+        }
+
+        private bool ChkFlags(int flag) {
+            int curFlags = Marshal.ReadInt32(array, NpyArray.ArrayOffsets.off_flags);
+            return ((curFlags & flag) == flag);
+        }
+
         private static PythonContext pyContext = null;
 
         /// <summary>
@@ -141,8 +172,5 @@ namespace NumpyDotNet
         /// </summary>
         private IntPtr array;
 
-        public static void Main(String[] args) {
-            NpyArray.SimpleArray_create(42);
-        }
     }
 }

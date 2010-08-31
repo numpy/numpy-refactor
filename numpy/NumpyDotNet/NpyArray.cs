@@ -188,7 +188,7 @@ namespace NumpyDotNet
          * types */
         internal static dtype DescrFromType(Int32 type) {
             IntPtr descr = NpyArray_DescrFromType(type);
-            return ToInterface<dtype>(descr);
+            return DecrefToInterface<dtype>(descr);
         }
 
 
@@ -209,22 +209,10 @@ namespace NumpyDotNet
         #region C API Definitions
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        private static extern IntPtr NpyArray_DescrFromType(Int32 type);
+        internal static extern IntPtr NpyArray_DescrFromType(Int32 type);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void SimpleArray_initCallbacks(IntPtr setupBinOp, IntPtr performBinOp, IntPtr tearDownOp, IntPtr releaseMemPressure);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr SimpleArray_create(UInt32 size, int dtype);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int SimpleArray_isValid(IntPtr a);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void SimpleArray_incRef(IntPtr a);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr SimpleArray_create(UInt32 size);
+        internal static extern byte NpyArray_EquivTypes(IntPtr t1, IntPtr typ2);
 
         [DllImport("ndarray", CallingConvention=CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
@@ -235,9 +223,22 @@ namespace NumpyDotNet
 
         #region NpyAccessLib functions
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        unsafe internal static extern void NpyArray_GetOffsets(int *magicNumOffset,
-            int *descrOffset, int *flagsOffset);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint="NpyArrayAccess_ArrayGetOffsets")]
+        unsafe internal static extern void ArrayGetOffsets(int *magicNumOffset,
+            int *descrOffset, int *ndOffset, int *flagsOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint="NpyArrayAccess_ArraySetDescr")]
+        internal static extern void ArraySetDescr(IntPtr array, IntPtr newDescr);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint="NpyArrayAccess_Incref")]
+        internal static extern void Incref(IntPtr obj);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint="NpyArrayAccess_Decref")]
+        internal static extern void Decref(IntPtr obj);
 
 
         #endregion
@@ -269,6 +270,7 @@ namespace NumpyDotNet
         internal struct NpyArrayOffsets {
             internal int off_magic_number;
             internal int off_descr;
+            internal int off_nd;
             internal int off_flags;
         }
 
@@ -290,12 +292,27 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="ptr">Address of native object</param>
         /// <returns>Managed wrapper object</returns>
-        private static TResult ToInterface<TResult>(IntPtr ptr) {
+        internal static TResult ToInterface<TResult>(IntPtr ptr) {
             if (ptr == IntPtr.Zero) {
                 return default(TResult);
             }
             IntPtr wrapper = Marshal.ReadIntPtr(ptr, (int)Offset_InterfacePtr);
             return (TResult)GCHandle.FromIntPtr(wrapper).Target;
+        }
+
+        /// <summary>
+        /// Same as ToInterface but releases the core reference. 
+        /// </summary>
+        /// <typeparam name="TResult">Type of the expected object</typeparam>
+        /// <param name="ptr">Pointer to the core object</param>
+        /// <returns>Wrapper instance corresponding to ptr</returns>
+        internal static TResult DecrefToInterface<TResult>(IntPtr ptr) {
+            if (ptr == IntPtr.Zero) {
+                return default(TResult);
+            }
+            TResult result = ToInterface<TResult>(ptr);
+            Decref(ptr);
+            return result;
         }
 
 
@@ -324,7 +341,7 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="ptr">Pointer to GCHandle of object to reference</param>
         /// <returns>New handle to the input object</returns>
-        private static IntPtr Incref(IntPtr ptr, IntPtr wrapPtr) {
+        private static IntPtr IncrefCallback(IntPtr ptr, IntPtr wrapPtr) {
             object obj = GCHandle.FromIntPtr(ptr).Target;
             IntPtr retval = GCHandle.ToIntPtr(GCHandle.Alloc(obj));
             if (wrapPtr != IntPtr.Zero) {
@@ -346,7 +363,7 @@ namespace NumpyDotNet
         /// not be used again.
         /// </summary>
         /// <param name="ptr">Interface object to 'decref'</param>
-        private static void Decref(IntPtr ptr, IntPtr wrapPtr) {
+        private static void DecrefCallback(IntPtr ptr, IntPtr wrapPtr) {
             if (wrapPtr != IntPtr.Zero) {
                 // Deferencing the interface wrapper.  We can't just null the
                 // wrapPtr because we have to have maintain the link so we
@@ -397,8 +414,8 @@ namespace NumpyDotNet
                     IntPtr.Zero,
                     IntPtr.Zero,
                     IntPtr.Zero,
-                    Marshal.GetFunctionPointerForDelegate(new del_Incref(Incref)),
-                    Marshal.GetFunctionPointerForDelegate(new del_Decref(Decref)));
+                    Marshal.GetFunctionPointerForDelegate(new del_Incref(IncrefCallback)),
+                    Marshal.GetFunctionPointerForDelegate(new del_Decref(DecrefCallback)));
             } finally {
                 Marshal.FreeHGlobal(wrapHandle);
             }
@@ -408,9 +425,11 @@ namespace NumpyDotNet
             // a convenient way to get hard field offsets from the core.
             unsafe {
                 fixed (int* magicOffset = &ArrayOffsets.off_magic_number,
-                           descrOffset = &ArrayOffsets.off_descr,
-                            flagsOffset = &ArrayOffsets.off_flags) {
-                    NpyArray_GetOffsets(magicOffset, descrOffset, flagsOffset);
+                            descrOffset = &ArrayOffsets.off_descr,
+                            flagsOffset = &ArrayOffsets.off_flags,
+                            ndOffset = &ArrayOffsets.off_nd) {
+                    ArrayGetOffsets(magicOffset, descrOffset, 
+                                                   ndOffset, flagsOffset);
                 }
             }
         }

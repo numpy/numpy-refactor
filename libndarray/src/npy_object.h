@@ -19,13 +19,14 @@ typedef struct NpyTypeObject {
 } NpyTypeObject;
 
 #define NpyObject_HEAD                          \
-    npy_intp nob_refcnt;                        \
+    npy_uintp nob_refcnt;                        \
     NpyTypeObject* nob_type;                   \
     void *nob_interface;
 
 struct _NpyObject {
     NpyObject_HEAD
 };
+typedef struct _NpyObject NpyObject;
 
 #define Npy_INTERFACE(a) ((a)->nob_interface)
 
