@@ -20,14 +20,14 @@ extern "C" {
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_Incref(NpyObject *obj)
 {
-    //assert(NPY_VALID_MAGIC == obj->nob_magic_number);
+    assert(NPY_VALID_MAGIC == obj->nob_magic_number);
     Npy_INCREF(obj);
 }
 
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_Decref(NpyObject *obj)
 {
-    //assert(NPY_VALID_MAGIC == obj->nob_magic_number);
+    assert(NPY_VALID_MAGIC == obj->nob_magic_number);
     Npy_DECREF(obj);
 }
 
@@ -37,7 +37,7 @@ void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *n
 {
     NpyArray *ptr = NULL;
 
-    *magic_number = offsetof(NpyArray, magic_number);
+    *magic_number = offsetof(NpyArray, nob_magic_number);
     *descr = offsetof(NpyArray, descr);
     *nd = offsetof(NpyArray, nd);
     *flags = offsetof(NpyArray, flags);
@@ -49,8 +49,8 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 {
     NpyArray *arr = (NpyArray *)arrTmp;
     NpyArray_Descr *newDescr = (NpyArray_Descr *)newDescrTmp;
-    assert(NPY_VALID_MAGIC == arr->magic_number);
-    assert(NPY_VALID_MAGIC == newDescr->magic_number);
+    assert(NPY_VALID_MAGIC == arr->nob_magic_number);
+    assert(NPY_VALID_MAGIC == newDescr->nob_magic_number);
 
     NpyArray_Descr *oldDescr = arr->descr;
     Npy_INCREF(newDescr);
