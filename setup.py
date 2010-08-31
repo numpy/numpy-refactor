@@ -54,7 +54,7 @@ AUTHOR              = "Travis E. Oliphant, et.al."
 AUTHOR_EMAIL        = "oliphant@enthought.com"
 PLATFORMS           = ["Windows", "Linux", "Solaris", "Mac OS-X", "Unix"]
 MAJOR               = 2
-MINOR               = 0 
+MINOR               = 0
 MICRO               = 0
 ISRELEASED          = False
 VERSION             = '%d.%d.%d' % (MAJOR, MINOR, MICRO)
@@ -72,7 +72,8 @@ def svn_version():
         env['LANGUAGE'] = 'C'
         env['LANG'] = 'C'
         env['LC_ALL'] = 'C'
-        out = subprocess.Popen(cmd, stdout = subprocess.PIPE, env=env).communicate()[0]
+        out = subprocess.Popen(cmd,
+                               stdout=subprocess.PIPE, env=env).communicate()[0]
         return out
 
     try:
@@ -201,7 +202,8 @@ def setup_package():
             author=AUTHOR,
             author_email=AUTHOR_EMAIL,
             platforms=PLATFORMS,
-            configuration=configuration )
+            configuration=configuration,
+        )
     finally:
         del sys.path[0]
         os.chdir(old_path)

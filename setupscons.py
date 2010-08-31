@@ -88,7 +88,8 @@ except ImportError, e:
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
 
-    config = Configuration(None, parent_package, top_path, setup_name = 'setupscons.py')
+    config = Configuration(None, parent_package, top_path,
+                           setup_name='setupscons.py')
     config.set_options(ignore_setup_xxx_py=True,
                        assume_default_configuration=True,
                        delegate_options_to_subpackages=True,
