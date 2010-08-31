@@ -117,9 +117,9 @@ NpyArray_dealloc(NpyArray *self)
 {
     int result = 0;
 
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
     assert(NULL == self->base_arr ||
-           NPY_VALID_MAGIC == self->base_arr->magic_number);
+           NPY_VALID_MAGIC == self->base_arr->nob_magic_number);
 
     if (self->base_arr) {
         /*
@@ -173,7 +173,7 @@ NpyArray_dealloc(NpyArray *self)
     NpyDimMem_FREE(self->dimensions);
     Npy_DECREF(self->descr);
     /* Flag that this object is now deallocated. */
-    self->magic_number = NPY_INVALID_MAGIC;
+    self->nob_magic_number = NPY_INVALID_MAGIC;
 
     NpyArray_free(self);
 

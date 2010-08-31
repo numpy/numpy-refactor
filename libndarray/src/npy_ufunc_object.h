@@ -37,7 +37,6 @@ struct NpyDict_struct;
 
 struct NpyUFuncObject {
     NpyObject_HEAD
-    int magic_number;
 
     int nin, nout, nargs;
     int identity;
@@ -89,7 +88,6 @@ typedef struct NpyUFuncLoopObject {
     /* Multi-iterator portion --- needs to be present in this order
      to work with PyArray_Broadcast */
     NpyObject_HEAD
-    int magic_number;
 
     /* The iterators. */
     struct NpyArrayMultiIterObject *iter;
@@ -161,7 +159,6 @@ typedef struct NpyUFuncLoopObject {
 
 typedef struct {
     NpyObject_HEAD
-    int magic_number;
 
     NpyArrayIterObject *it;
     NpyArray *ret;

@@ -129,7 +129,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     int res;
     int i;
 
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     /* Build the loop. */
     loop = construct_loop(self);
@@ -626,9 +626,9 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
 //    NPY_BEGIN_THREADS_DEF
 
     assert(arr == NULL ||
-           (NPY_VALID_MAGIC == arr->magic_number &&
-            NPY_VALID_MAGIC == NpyArray_DESCR(arr)->magic_number));
-    assert(NPY_VALID_MAGIC == self->magic_number);
+           (NPY_VALID_MAGIC == arr->nob_magic_number &&
+            NPY_VALID_MAGIC == NpyArray_DESCR(arr)->nob_magic_number));
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype, NPY_UFUNC_REDUCE, 0);
@@ -801,7 +801,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     char *dptr;
 //    NPY_BEGIN_THREADS_DEF
 
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     /* Construct loop object */
     loop = construct_reduce(self, &arr, out, axis, otype,
@@ -991,7 +991,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     char *dptr;
 //    NPY_BEGIN_THREADS_DEF;
 
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     /* Check for out-of-bounds values in indices array */
     for (i = 0; i<nn; i++) {
@@ -1452,7 +1452,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func,
         return NULL;
     }
     NpyObject_Init(self, &NpyUFunc_Type);
-    self->magic_number = NPY_VALID_MAGIC;
+    self->nob_magic_number = NPY_VALID_MAGIC;
 
     self->nin = nin;
     self->nout = nout;
@@ -1532,7 +1532,7 @@ construct_loop(NpyUFuncObject *self)
         NpyErr_MEMORY;
         return loop;
     }
-    loop->magic_number = NPY_VALID_MAGIC;
+    loop->nob_magic_number = NPY_VALID_MAGIC;
 
     loop->iter = NpyArray_MultiIterNew();
     if (loop->iter == NULL) {
@@ -2143,7 +2143,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     int i, j, nd;
     int flags;
 
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     /* Reduce type is the type requested of the input during reduction */
     if (self->core_enabled) {
@@ -2160,7 +2160,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
         NpyErr_MEMORY;
         return loop;
     }
-    loop->magic_number = NPY_VALID_MAGIC;
+    loop->nob_magic_number = NPY_VALID_MAGIC;
 
     loop->retbase = 0;
     loop->swap = 0;
@@ -2543,7 +2543,7 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
         return NULL;
     }
     NpyObject_Init(self, &NpyUFunc_Type);
-    self->magic_number = NPY_VALID_MAGIC;
+    self->nob_magic_number = NPY_VALID_MAGIC;
 
     self->userloops = NULL;
     self->nin = nin;
@@ -2709,7 +2709,7 @@ npy_ufunc_dealloc(NpyUFuncObject *self)
     if (NULL != self->userloops) {
         NpyDict_Destroy(self->userloops);
     }
-    self->magic_number = NPY_INVALID_MAGIC;
+    self->nob_magic_number = NPY_INVALID_MAGIC;
     free(self);
 }
 
@@ -2732,7 +2732,7 @@ ufuncloop_dealloc(NpyUFuncLoopObject *self)
         NpyInterface_DECREF(self->errobj);
         Npy_DECREF(self->ufunc);
     }
-    self->magic_number = NPY_INVALID_MAGIC;
+    self->nob_magic_number = NPY_INVALID_MAGIC;
     free(self);
 }
 
@@ -2751,7 +2751,7 @@ ufuncreduce_dealloc(NpyUFuncReduceObject *self)
         }
         Npy_DECREF(self->ufunc);
     }
-    self->magic_number = NPY_INVALID_MAGIC;
+    self->nob_magic_number = NPY_INVALID_MAGIC;
     free(self);
 }
 

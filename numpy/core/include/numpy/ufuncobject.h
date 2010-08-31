@@ -19,9 +19,10 @@ typedef struct {
 
 #define PyUFunc_Check(obj) (&PyUFunc_Type == (obj)->ob_type)
 #define PyUFunc_UFUNC(obj) \
-    (assert(NPY_VALID_MAGIC == (obj)->magic_number && NPY_VALID_MAGIC == (obj)->ufunc->magic_number), (obj)->ufunc)
+    (assert(NPY_VALID_MAGIC == (obj)->magic_number &&   \
+    NPY_VALID_MAGIC == (obj)->ufunc->nob_magic_number), (obj)->ufunc)
 #define PyUFunc_WRAP(obj) \
-    (assert(NPY_VALID_MAGIC == (obj)->magic_number), (PyUFuncObject *)Npy_INTERFACE(obj))
+    (assert(NPY_VALID_MAGIC == (obj)->nob_magic_number), (PyUFuncObject *)Npy_INTERFACE(obj))
     
 #include "arrayobject.h"
 

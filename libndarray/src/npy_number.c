@@ -150,7 +150,7 @@ int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 {
     NpyUFuncObject **loc = get_op_loc(op);
 
-    assert(NPY_VALID_MAGIC == func->magic_number);
+    assert(NPY_VALID_MAGIC == func->nob_magic_number);
 
     if (NULL == loc) {
         return -1;
@@ -167,8 +167,8 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
 
-    assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
-    assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
+    assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
+    assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
 
     mps[0] = m1;
     mps[1] = m2;
@@ -185,8 +185,8 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
 
-    assert(NULL != op && NPY_VALID_MAGIC == op->magic_number);
-    assert(NULL != m1 && NPY_VALID_MAGIC == m1->magic_number);
+    assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
+    assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
 
     mps[0] = m1;
     mps[1] = NULL;

@@ -18,10 +18,12 @@ typedef struct NpyTypeObject {
     npy_destructor ntp_dealloc;
 } NpyTypeObject;
 
-#define NpyObject_HEAD                          \
-    npy_uintp nob_refcnt;                        \
+#define NpyObject_HEAD                         \
+    npy_uintp nob_refcnt;                      \
     NpyTypeObject* nob_type;                   \
-    void *nob_interface;
+    void *nob_interface;                       \
+    int nob_magic_number;        /* Initialized to NPY_VALID_MAGIC initialization
+                                    and NPY_INVALID_MAGIC on dealloc */
 
 struct _NpyObject {
     NpyObject_HEAD

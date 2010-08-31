@@ -6,8 +6,6 @@
 
 struct NpyArray {
     NpyObject_HEAD
-    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization
-                               and NPY_INVALID_MAGIC on dealloc */
     char *data;             /* pointer to raw data buffer */
     int nd;                 /* number of dimensions, also called ndim */
     npy_intp *dimensions;   /* size in each dimension */

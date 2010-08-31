@@ -75,14 +75,14 @@ NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new;
 
-    assert(base != NULL && NPY_VALID_MAGIC == base->magic_number);
+    assert(base != NULL && NPY_VALID_MAGIC == base->nob_magic_number);
 
     new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
     if (new == NULL) {
         return NULL;
     }
     NpyObject_Init(new, &NpyArrayDescr_Type);
-    new->magic_number = NPY_VALID_MAGIC;
+    new->nob_magic_number = NPY_VALID_MAGIC;
 
     /* Don't copy NpyObject_HEAD part */
     memcpy((char *)new + sizeof(struct _NpyObject),
@@ -133,8 +133,8 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
     int outtype_num, save_num;
 
     assert(NULL != chktype && NULL != mintype &&
-           NPY_VALID_MAGIC == chktype->magic_number &&
-           NPY_VALID_MAGIC == mintype->magic_number);
+           NPY_VALID_MAGIC == chktype->nob_magic_number &&
+           NPY_VALID_MAGIC == mintype->nob_magic_number);
 
     if (NpyArray_EquivTypes(chktype, mintype)) {
         Npy_INCREF(mintype);
@@ -211,8 +211,8 @@ NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
     NpyArray_Descr *outtype = NULL;
 
     assert(NULL != ap &&
-           NPY_VALID_MAGIC == ap->magic_number &&
-           (NULL == mintype || NPY_VALID_MAGIC == mintype->magic_number));
+           NPY_VALID_MAGIC == ap->nob_magic_number &&
+           (NULL == mintype || NPY_VALID_MAGIC == mintype->nob_magic_number));
 
     chktype = NpyArray_DESCR(ap);
     Npy_INCREF(chktype);
@@ -271,7 +271,7 @@ NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
 void
 NpyArray_DescrDestroy(NpyArray_Descr *self)
 {
-    assert(NPY_VALID_MAGIC == self->magic_number);
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
     NpyArray_DescrDeallocNamesAndFields(self);
 
@@ -283,7 +283,7 @@ NpyArray_DescrDestroy(NpyArray_Descr *self)
         NpyArray_free(self->dtinfo);
     }
 
-    self->magic_number = NPY_INVALID_MAGIC;
+    self->nob_magic_number = NPY_INVALID_MAGIC;
 
     free(self);
 }

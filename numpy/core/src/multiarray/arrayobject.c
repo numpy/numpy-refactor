@@ -176,7 +176,7 @@ PyArray_TypeNumFromName(char *str)
 static void
 array_dealloc(PyArrayObject *self) {
     assert(NPY_VALID_MAGIC == self->magic_number);
-    assert(NULL == PyArray_BASE_ARRAY(self) || NPY_VALID_MAGIC == PyArray_BASE_ARRAY(self)->magic_number);
+    assert(NULL == PyArray_BASE_ARRAY(self) || NPY_VALID_MAGIC == PyArray_BASE_ARRAY(self)->nob_magic_number);
 
     _array_dealloc_buffer_info(self);
 

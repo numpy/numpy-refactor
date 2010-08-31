@@ -32,8 +32,6 @@ struct NpyArray_DateTimeInfo {
 struct NpyArray_Descr {
     NpyObject_HEAD
 
-    int magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and
-                               NPY_INVALID_MAGIC on dealloc */
     char kind;              /* kind for this type */
     char type;              /* unique-character representing this type */
     char byteorder;         /*

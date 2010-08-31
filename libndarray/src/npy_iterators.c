@@ -44,7 +44,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
     int nd, i;
 
     Npy_INTERFACE(it) = NULL;
-    it->magic_number = NPY_VALID_MAGIC;
+    it->nob_magic_number = NPY_VALID_MAGIC;
     nd = ao->nd;
     NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
     if (NpyArray_ISCONTIGUOUS(ao)) {
@@ -84,7 +84,7 @@ array_iter_base_dealloc(NpyArrayIterObject *it)
 {
     Npy_INTERFACE(it) = NULL;
     Npy_XDECREF(it->ao);
-    it->magic_number = NPY_INVALID_MAGIC;
+    it->nob_magic_number = NPY_INVALID_MAGIC;
 }
 
 /*
@@ -100,7 +100,7 @@ NpyArray_IterNew(NpyArray *ao)
     if (it == NULL) {
         return NULL;
     }
-    it->magic_number = NPY_VALID_MAGIC;
+    it->nob_magic_number = NPY_VALID_MAGIC;
 
     array_iter_base_init(it, ao);
     if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
@@ -142,7 +142,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
         return NULL;
     }
     NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
-    it->magic_number = NPY_VALID_MAGIC;
+    it->nob_magic_number = NPY_VALID_MAGIC;
     if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
         Npy_INTERFACE(it) = NULL;
         Npy_DECREF(it);
@@ -991,7 +991,7 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
     for (i = 0; i < multi->numiter; i++) {
         Npy_XDECREF(multi->iters[i]);
     }
-    multi->magic_number = NPY_INVALID_MAGIC;
+    multi->nob_magic_number = NPY_INVALID_MAGIC;
     NpyArray_free(multi);
 }
 
@@ -1021,7 +1021,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         return NULL;
     }
     NpyObject_Init((_NpyObject *)multi, &NpyArrayMultiIter_Type);
-    multi->magic_number = NPY_VALID_MAGIC;
+    multi->nob_magic_number = NPY_VALID_MAGIC;
 
     for (i = 0; i < ntot; i++) {
         multi->iters[i] = NULL;
@@ -1068,7 +1068,7 @@ NpyArray_MultiIterNew()
         return NULL;
     }
     NpyObject_Init(ret, &NpyArrayMultiIter_Type);
-    ret->magic_number = NPY_VALID_MAGIC;
+    ret->nob_magic_number = NPY_VALID_MAGIC;
     if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret,
                                                       &ret->nob_interface)) {
         Npy_INTERFACE(ret) = NULL;
@@ -1242,7 +1242,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
         goto fail;
     }
     NpyObject_Init((_NpyObject *)ret, &NpyArrayNeighborhoodIter_Type);
-    ret->magic_number = NPY_VALID_MAGIC;
+    ret->nob_magic_number = NPY_VALID_MAGIC;
 
     array_iter_base_init((NpyArrayIterObject *)ret, x->ao);
     Npy_INCREF(x);

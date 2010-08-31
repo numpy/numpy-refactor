@@ -30,7 +30,8 @@ extern "C" CONFUSE_EMACS
 #define PyArray_Descr_REF_TO_CORE(interface, core)      \
     if (NULL == (interface)) (core) = NULL;             \
     else {                                          \
-        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (interface)->descr->magic_number); \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && \
+               NPY_VALID_MAGIC == (interface)->descr->nob_magic_number); \
         (core) = (interface)->descr;                    \
         Npy_INCREF(core);                          \
         Py_DECREF(interface);                       \
@@ -41,7 +42,7 @@ extern "C" CONFUSE_EMACS
     if (NULL == (core)) (interface) = NULL;             \
     else {                                          \
         interface = PyArray_Descr_WRAP(core);       \
-        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (core)->magic_number); \
+        assert(NPY_VALID_MAGIC == (interface)->magic_number && NPY_VALID_MAGIC == (core)->nob_magic_number); \
         Py_INCREF(interface);                       \
         Npy_DECREF(core);                          \
     }                                               
@@ -56,7 +57,7 @@ extern "C" CONFUSE_EMACS
         else {                                          \
             wrapper = PyArray_Descr_WRAP(core);         \
             assert(NPY_VALID_MAGIC == (wrapper)->magic_number &&       \
-                   NPY_VALID_MAGIC == (core)->magic_number);           \
+                   NPY_VALID_MAGIC == (core)->nob_magic_number);           \
             Py_INCREF(wrapper);                         \
             Npy_DECREF(core);                           \
         }                                               \
@@ -67,7 +68,7 @@ extern "C" CONFUSE_EMACS
 #define PyArray_ISVALID(a) (                                         \
         (a) == NULL ||                                               \
         (NPY_VALID_MAGIC == (a)->magic_number &&                     \
-         NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->magic_number))
+         NPY_VALID_MAGIC == PyArray_ARRAY(a)->descr->nob_magic_number))
 
 
 /* C-API that requries previous API to be defined */
