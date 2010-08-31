@@ -52,7 +52,7 @@ def install():
 def main():
     convert_templates()
     write_config()
-    os.system("msbuild /v:diag")
+    os.system("msbuild /v:diag msvc2008.vcproj")
     install()
 
 
