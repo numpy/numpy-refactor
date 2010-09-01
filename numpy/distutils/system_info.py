@@ -5,6 +5,7 @@ information about various resources (libraries, library directories,
 include directories, etc.) in the system. Currently, the following
 classes are available:
 
+  ndarray_info
   atlas_info
   atlas_threads_info
   atlas_blas_info
@@ -247,14 +248,15 @@ def get_standard_file(fname):
 
     return filenames
 
-def get_info(name,notfound_action=0):
+def get_info(name, notfound_action=0):
     """
     notfound_action:
       0 - do nothing
       1 - display warning message
       2 - raise error
     """
-    cl = {'atlas':atlas_info,  # use lapack_opt or blas_opt instead
+    cl = {'ndarray': ndarray_info,
+          'atlas':atlas_info,  # use lapack_opt or blas_opt instead
           'atlas_threads':atlas_threads_info,                # ditto
           'atlas_blas':atlas_blas_info,
           'atlas_blas_threads':atlas_blas_threads_info,
@@ -812,13 +814,46 @@ class djbfft_info(system_info):
                 return
         return
 
+
+class ndarray_info(system_info):
+    section = 'ndarray'
+
+    def __init__(self):
+        system_info.__init__(self,
+            default_lib_dirs=['libndarray/.libs'],
+            default_include_dirs=['libndarray/src'],
+        )
+
+    def calc_info(self):
+        lib_dirs = self.get_lib_dirs()
+        incl_dirs = self.get_include_dirs()
+        ndarray_libs = ['ndarray']
+
+        info = {'libraries': ndarray_libs}
+        for d in lib_dirs:
+            if self.check_libs2(d, ndarray_libs) is not None:
+                info['library_dirs'] = [d]
+                break
+        else:
+            return
+
+        for d in incl_dirs:
+            if self.combine_paths(d, 'npy_api.h'):
+                info['include_dirs'] = [d]
+                break
+        else:
+            return
+
+        self.set_info(**info)
+
+
 class mkl_info(system_info):
     section = 'mkl'
     dir_env_var = 'MKL'
     _lib_mkl = ['mkl','vml','guide']
 
     def get_mkl_rootdir(self):
-        mklroot = os.environ.get('MKLROOT',None)
+        mklroot = os.environ.get('MKLROOT', None)
         if mklroot is not None:
             return mklroot
         paths = os.environ.get('LD_LIBRARY_PATH','').split(os.pathsep)
@@ -922,7 +957,7 @@ class atlas_info(system_info):
         dirs = []
         for d in pre_dirs:
             dirs.extend(self.combine_paths(d,['atlas*','ATLAS*',
-                                         'sse','3dnow','sse2'])+[d])
+                                              'sse','3dnow','sse2'])+[d])
         return [ d for d in dirs if os.path.isdir(d) ]
 
     def calc_info(self):
@@ -1172,10 +1207,10 @@ class lapack_src_info(system_info):
         oclasrc = ' icmax1 scsum1 '                # *.f
         ozlasrc = ' izmax1 dzsum1 '                # *.f
         sources = ['s%s.f'%f for f in (sclaux+slasrc).split()] \
-                  + ['d%s.f'%f for f in (dzlaux+dlasrc).split()] \
-                  + ['c%s.f'%f for f in (clasrc).split()] \
-                  + ['z%s.f'%f for f in (zlasrc).split()] \
-                  + ['%s.f'%f for f in (allaux+oclasrc+ozlasrc).split()]
+            + ['d%s.f'%f for f in (dzlaux+dlasrc).split()] \
+            + ['c%s.f'%f for f in (clasrc).split()] \
+            + ['z%s.f'%f for f in (zlasrc).split()] \
+            + ['%s.f'%f for f in (allaux+oclasrc+ozlasrc).split()]
         sources = [os.path.join(src_dir,f) for f in sources]
         # Lapack 3.1:
         src_dir2 = os.path.join(src_dir,'..','INSTALL')
@@ -1299,7 +1334,7 @@ class lapack_opt_info(system_info):
                 atlas_info['define_macros'].append(('NO_ATLAS_INFO',4))
             l = atlas_info.get('define_macros',[])
             if ('ATLAS_WITH_LAPACK_ATLAS',None) in l \
-                   or ('ATLAS_WITHOUT_LAPACK',None) in l:
+                    or ('ATLAS_WITHOUT_LAPACK',None) in l:
                 need_lapack = 1
             info = atlas_info
         else:
@@ -1357,7 +1392,7 @@ class blas_opt_info(system_info):
                 else:
                     args.extend(['-faltivec'])
                 args.extend([
-                    '-I/System/Library/Frameworks/vecLib.framework/Headers'])
+                        '-I/System/Library/Frameworks/vecLib.framework/Headers'])
                 link_args.extend(['-Wl,-framework','-Wl,Accelerate'])
             elif os.path.exists('/System/Library/Frameworks/vecLib.framework/'):
                 if intel:
@@ -1365,7 +1400,7 @@ class blas_opt_info(system_info):
                 else:
                     args.extend(['-faltivec'])
                 args.extend([
-                    '-I/System/Library/Frameworks/vecLib.framework/Headers'])
+                        '-I/System/Library/Frameworks/vecLib.framework/Headers'])
                 link_args.extend(['-Wl,-framework','-Wl,vecLib'])
             if args:
                 self.set_info(extra_compile_args=args,
@@ -1482,7 +1517,7 @@ class blas_src_info(system_info):
         ssyr2k zherk ztrmm cherk ctrmm dsyr2k ssyrk zgemm zsymm ztrsm
         '''
         sources = [os.path.join(src_dir,f+'.f') \
-                   for f in (blas1+blas2+blas3).split()]
+                       for f in (blas1+blas2+blas3).split()]
         #XXX: should we check here actual existence of source files?
         sources = [f for f in sources if os.path.isfile(f)]
         info = {'sources':sources,'language':'f77'}
@@ -1540,7 +1575,7 @@ class _numpy_info(system_info):
                 pass
 
             include_dirs.append(distutils.sysconfig.get_python_inc(
-                                        prefix=os.sep.join(prefix)))
+                    prefix=os.sep.join(prefix)))
         except ImportError:
             pass
         py_incl_dir = distutils.sysconfig.get_python_inc()
@@ -1565,7 +1600,7 @@ class _numpy_info(system_info):
             if vrs is None:
                 continue
             macros = [(self.modulename.upper()+'_VERSION',
-                      '"\\"%s\\""' % (vrs)),
+                       '"\\"%s\\""' % (vrs)),
                       (self.modulename.upper(),None)]
             break
 ##         try:
@@ -1738,7 +1773,7 @@ class _pkg_config_info(system_info):
         config_exe = find_executable(self.get_config_exe())
         if not config_exe:
             log.warn('File not found: %s. Cannot determine %s info.' \
-                  % (config_exe, self.section))
+                         % (config_exe, self.section))
             return
         info = {}
         macros = []
@@ -1928,7 +1963,7 @@ class umfpack_info(system_info):
 
 def combine_paths(*args,**kws):
     """ Return a list of existing paths composed by all combinations of
-        items from arguments.
+    items from arguments.
     """
     r = []
     for a in args:
@@ -2014,3 +2049,4 @@ def show_all(argv=None):
 
 if __name__ == "__main__":
     show_all()
+    #print get_info('ndarray')
