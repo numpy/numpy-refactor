@@ -82,13 +82,6 @@ def check_api_version(apiversion, codegen_dir):
                              __file__),
                       MismatchCAPIWarning)
 
-def fname2def(name):
-    return "HAVE_%s" % name.upper()
-
 def sym2def(symbol):
     define = symbol.replace(' ', '')
-    return define.upper()
-
-def type2def(symbol):
-    define = symbol.replace(' ', '_')
     return define.upper()

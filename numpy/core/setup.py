@@ -1,16 +1,16 @@
 import imp
 import os
 import sys
-import shutil
+import warnings
 from os.path import dirname, exists, join, isdir
-from numpy.distutils import log
-from numpy.distutils.system_info import get_info
 from distutils.dep_util import newer
 from distutils.sysconfig import get_config_var
-import warnings
-import re
 
-from setup_common import *
+from numpy.distutils import log
+from numpy.distutils.system_info import get_info
+
+from setup_common import (is_released, check_api_version,
+                          C_API_VERSION, C_ABI_VERSION, sym2def)
 
 
 # XXX: ugly, we use a class to avoid calling twice some expensive functions in
@@ -28,7 +28,6 @@ import copy
 class CallOnceOnly(object):
     def __init__(self):
         self._check_types = None
-        self._check_ieee_macros = None
 
     def check_types(self, *a, **kw):
         if self._check_types is None:
@@ -150,11 +149,11 @@ def check_types(config_cmd, ext, build_dir):
             raise SystemError("Checking sizeof (%s) failed !" % 'PY_LONG_LONG')
 
     if not config_cmd.check_decl('CHAR_BIT', headers=['Python.h']):
-        raise RuntimeError(
-            "Config wo CHAR_BIT is not supported"\
-            ", please contact the maintainers")
+        raise RuntimeError("Config wo CHAR_BIT is not supported, "
+                           "please contact the maintainers")
 
     return private_defines, public_defines
+
 
 def check_mathlib(config_cmd):
     # Testing the C math library
@@ -173,6 +172,7 @@ def check_mathlib(config_cmd):
                                "MATHLIB env variable")
     return mathlibs
 
+
 def visibility_define(config):
     """Return the define value to use for NPY_VISIBILITY_HIDDEN (may be empty
     string)."""
@@ -180,6 +180,7 @@ def visibility_define(config):
         return '__attribute__((visibility("hidden")))'
     else:
         return ''
+
 
 def configuration(parent_package='', top_path=None):
     from numpy.distutils.misc_util import Configuration,dot_join
