@@ -819,10 +819,14 @@ class ndarray_info(system_info):
     section = 'ndarray'
 
     def __init__(self):
-        system_info.__init__(self,
-            default_lib_dirs=['libndarray/.libs'],
-            default_include_dirs=['libndarray/src'],
-        )
+        if sys.platform == 'win32':
+            lib_dir = 'libndarray/windows/Release'
+            # TODO: x64: 'libndarray/windows/x64/Release'
+        else:
+            lib_dir = 'libndarray/.libs'
+
+        system_info.__init__(self, default_lib_dirs=[lib_dir],
+                             default_include_dirs=['libndarray/src'])
 
     def calc_info(self):
         lib_dirs = self.get_lib_dirs()
