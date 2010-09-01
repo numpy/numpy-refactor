@@ -512,7 +512,8 @@ def configuration(parent_package='', top_path=None):
             join('src', 'multiarray', 'ucsnarrow.h'),
             join('src', 'multiarray', 'usertypes.h')]
 
-    multiarray_src = [join('src', 'multiarray', 'multiarraymodule.c'),
+    multiarray_src = [
+        join('src', 'multiarray', 'multiarraymodule.c'),
         join('src', 'multiarray', 'hashdescr.c'),
         join('src', 'multiarray', 'arrayobject.c'),
         join('src', 'multiarray', 'numpymemoryview.c'),
@@ -554,10 +555,10 @@ def configuration(parent_package='', top_path=None):
                                 [generate_config_h,
                                  generate_numpyconfig_h,
                                  generate_numpy_api,
-                                 join(codegen_dir,'generate_numpy_api.py'),
+                                 join(codegen_dir, 'generate_numpy_api.py'),
                                  join('*.py')],
                          depends = deps + multiarray_deps,
-                         library_dirs=[ndarray_lib_dir],
+                         library_dirs=[ndarray_lib_dir()],
                          libraries=['ndarray'])
 
     config.add_extension('umath',
@@ -567,6 +568,7 @@ def configuration(parent_package='', top_path=None):
                                     generate_ufunc_api,
                                     ] + umath_src,
                          depends = deps + umath_deps,
+                         library_dirs=[ndarray_lib_dir()],
                          libraries=['ndarray'],
                          )
 
