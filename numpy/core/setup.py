@@ -28,7 +28,6 @@ class CallOnceOnly(object):
     def __init__(self):
         self._check_types = None
         self._check_ieee_macros = None
-        self._check_complex = None
 
     def check_types(self, *a, **kw):
         if self._check_types is None:
@@ -44,14 +43,6 @@ class CallOnceOnly(object):
             self._check_ieee_macros = _pik.dumps(out)
         else:
             out = copy.deepcopy(_pik.loads(self._check_ieee_macros))
-        return out
-
-    def check_complex(self, *a, **kw):
-        if self._check_complex is None:
-            out = check_complex(*a, **kw)
-            self._check_complex = _pik.dumps(out)
-        else:
-            out = copy.deepcopy(_pik.loads(self._check_complex))
         return out
 
 PYTHON_HAS_UNICODE_WIDE = True
@@ -93,6 +84,7 @@ def is_npy_no_smp():
             nosmp = 0
     return nosmp == 1
 
+
 def win32_checks(deflist):
     from numpy.distutils.misc_util import get_build_architecture
     a = get_build_architecture()
@@ -109,88 +101,6 @@ def win32_checks(deflist):
     if a == "Intel" or a == "AMD64":
         deflist.append('FORCE_NO_LONG_DOUBLE_FORMATTING')
 
-def check_math_capabilities(config, moredefs, mathlibs):
-    def check_func(func_name):
-        return config.check_func(func_name, libraries=mathlibs,
-                                 decl=True, call=True)
-
-    def check_funcs_once(funcs_name):
-        decl = dict([(f, True) for f in funcs_name])
-        st = config.check_funcs_once(funcs_name, libraries=mathlibs,
-                                     decl=decl, call=decl)
-        if st:
-            moredefs.extend([fname2def(f) for f in funcs_name])
-        return st
-
-    def check_funcs(funcs_name):
-        # Use check_funcs_once first, and if it does not work, test func per
-        # func. Return success only if all the functions are available
-        if not check_funcs_once(funcs_name):
-            # Global check failed, check func per func
-            for f in funcs_name:
-                if check_func(f):
-                    moredefs.append(fname2def(f))
-            return 0
-        else:
-            return 1
-
-    #use_msvc = config.check_decl("_MSC_VER")
-
-    if not check_funcs_once(MANDATORY_FUNCS):
-        raise SystemError("One of the required function to build numpy is not"
-                " available (the list is %s)." % str(MANDATORY_FUNCS))
-
-    # Standard functions which may not be available and for which we have a
-    # replacement implementation. Note that some of these are C99 functions.
-
-    # XXX: hack to circumvent cpp pollution from python: python put its
-    # config.h in the public namespace, so we have a clash for the common
-    # functions we test. We remove every function tested by python's
-    # autoconf, hoping their own test are correct
-    if sys.version_info[:2] >= (2, 5):
-        for f in OPTIONAL_STDFUNCS_MAYBE:
-            if config.check_decl(fname2def(f),
-                        headers=["Python.h", "math.h"]):
-                OPTIONAL_STDFUNCS.remove(f)
-
-    check_funcs(OPTIONAL_STDFUNCS)
-
-    # C99 functions: float and long double versions
-    check_funcs(C99_FUNCS_SINGLE)
-    check_funcs(C99_FUNCS_EXTENDED)
-
-def check_complex(config, mathlibs):
-    priv = []
-    pub = []
-
-    # Check for complex support
-    st = config.check_header('complex.h')
-    if st:
-        priv.append('HAVE_COMPLEX_H')
-        pub.append('NPY_USE_C99_COMPLEX')
-
-        for t in C99_COMPLEX_TYPES:
-            st = config.check_type(t, headers=["complex.h"])
-            if st:
-                pub.append(('NPY_HAVE_%s' % type2def(t), 1))
-
-        def check_prec(prec):
-            flist = [f + prec for f in C99_COMPLEX_FUNCS]
-            decl = dict([(f, True) for f in flist])
-            if not config.check_funcs_once(flist, call=decl, decl=decl,
-                                           libraries=mathlibs):
-                for f in flist:
-                    if config.check_func(f, call=True, decl=True,
-                                         libraries=mathlibs):
-                        priv.append(fname2def(f))
-            else:
-                priv.extend([fname2def(f) for f in flist])
-
-        check_prec('')
-        check_prec('f')
-        check_prec('l')
-
-    return priv, pub
 
 def check_ieee_macros(config):
     priv = []
@@ -392,9 +302,7 @@ def configuration(parent_package='',top_path=None):
             mathlibs = check_mathlib(config_cmd)
             moredefs.append(('MATHLIB',','.join(mathlibs)))
 
-            check_math_capabilities(config_cmd, moredefs, mathlibs)
             moredefs.extend(cocache.check_ieee_macros(config_cmd)[0])
-            moredefs.extend(cocache.check_complex(config_cmd, mathlibs)[0])
 
             # Signal check
             if is_npy_no_signal():
@@ -413,17 +321,6 @@ def configuration(parent_package='',top_path=None):
             else:
                 PYTHON_HAS_UNICODE_WIDE = False
                 
-            # Get long double representation
-            if sys.platform != 'darwin':
-                rep = check_long_double_representation(config_cmd)
-                if rep in ['INTEL_EXTENDED_12_BYTES_LE',
-                           'INTEL_EXTENDED_16_BYTES_LE',
-                           'IEEE_QUAD_LE', 'IEEE_QUAD_BE',
-                           'IEEE_DOUBLE_LE', 'IEEE_DOUBLE_BE']:
-                    moredefs.append(('HAVE_LDOUBLE_%s' % rep, 1))
-                else:
-                    raise ValueError("Unrecognized long double format: %s" % rep)
-
             # Py3K check
             if sys.version_info[0] == 3:
                 moredefs.append(('NPY_PY3K', 1))
@@ -504,7 +401,6 @@ def configuration(parent_package='',top_path=None):
 
             mathlibs = check_mathlib(config_cmd)
             moredefs.extend(cocache.check_ieee_macros(config_cmd)[1])
-            moredefs.extend(cocache.check_complex(config_cmd, mathlibs)[1])
 
             # Check wether we can use inttypes (C99) formats
             if config_cmd.check_decl('PRIdPTR', headers = ['inttypes.h']):
