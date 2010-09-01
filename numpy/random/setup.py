@@ -37,24 +37,22 @@ def configuration(parent_package='',top_path=None):
         defs.append(("NPY_NEEDS_MINGW_TIME_WORKAROUND", None))
 
     # Configure mtrand
-    ndarray_lib_dir = get_info('ndarray')['library_dirs'][0]
     config.add_extension('mtrand',
                          sources=[join('mtrand', x) for x in
                                   ['mtrand.c', 'randomkit.c', 'initarray.c',
                                    'distributions.c']]+[generate_libraries],
-                         library_dirs=[ndarray_lib_dir],
-                         libraries=['ndarray'],
                          depends = [join('mtrand','*.h'),
                                     join('mtrand','*.pyx'),
                                     join('mtrand','*.pxi'),
                                     ],
                          define_macros = defs,
-                        )
+                         **get_info('ndarray'))
 
     config.add_data_files(('.', join('mtrand', 'randomkit.h')))
     config.add_data_dir('tests')
 
     return config
+
 
 def testcode_wincrypt():
     return """\

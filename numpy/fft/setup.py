@@ -8,12 +8,9 @@ def configuration(parent_package='',top_path=None):
     config.add_data_dir('tests')
 
     # Configure fftpack_lite
-    ndarray_lib_dir = get_info('ndarray')['library_dirs'][0]
     config.add_extension('fftpack_lite',
                          sources=['fftpack_litemodule.c', 'fftpack.c'],
-                         library_dirs=[ndarray_lib_dir],
-                         libraries=['ndarray'],
-                         )
+                         **get_info('ndarray'))
 
     return config
 
