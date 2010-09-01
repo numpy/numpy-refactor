@@ -164,40 +164,6 @@ def check_types(config_cmd, ext, build_dir):
                 "Cannot compile 'Python.h'. Perhaps you need to "\
                 "install python-dev|python-devel.")
 
-    # Check basic types sizes
-    for type in ('short', 'int', 'long'):
-        res = config_cmd.check_decl("SIZEOF_%s" % sym2def(type), headers = ["Python.h"])
-        if res:
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def(type), "SIZEOF_%s" % sym2def(type)))
-        else:
-            res = config_cmd.check_type_size(type, expected=expected[type])
-            if res >= 0:
-                public_defines.append(('NPY_SIZEOF_%s' % sym2def(type), '%d' % res))
-            else:
-                raise SystemError("Checking sizeof (%s) failed !" % type)
-
-    for type in ('float', 'double', 'long double'):
-        already_declared = config_cmd.check_decl("SIZEOF_%s" % sym2def(type),
-                                                 headers = ["Python.h"])
-        res = config_cmd.check_type_size(type, expected=expected[type])
-        if res >= 0:
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def(type), '%d' % res))
-            if not already_declared and not type == 'long double':
-                private_defines.append(('SIZEOF_%s' % sym2def(type), '%d' % res))
-        else:
-            raise SystemError("Checking sizeof (%s) failed !" % type)
-
-        # Compute size of corresponding complex type: used to check that our
-        # definition is binary compatible with C99 complex type (check done at
-        # build time in npy_common.h)
-        complex_def = "struct {%s __x; %s __y;}" % (type, type)
-        res = config_cmd.check_type_size(complex_def, expected=2*expected[type])
-        if res >= 0:
-            public_defines.append(('NPY_SIZEOF_COMPLEX_%s' % sym2def(type), '%d' % res))
-        else:
-            raise SystemError("Checking sizeof (%s) failed !" % complex_def)
-
-
     for type in ('Py_intptr_t',):
         res = config_cmd.check_type_size(type, headers=["Python.h"],
                 library_dirs=[pythonlib_dir()],
@@ -215,16 +181,18 @@ def check_types(config_cmd, ext, build_dir):
                 library_dirs=[pythonlib_dir()],
                 expected=expected['PY_LONG_LONG'])
         if res >= 0:
-            private_defines.append(('SIZEOF_%s' % sym2def('PY_LONG_LONG'), '%d' % res))
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def('PY_LONG_LONG'), '%d' % res))
+            private_defines.append(('SIZEOF_%s' % sym2def('PY_LONG_LONG'),
+                                    '%d' % res))
+            public_defines.append(('NPY_SIZEOF_%s' % sym2def('PY_LONG_LONG'),
+                                   '%d' % res))
         else:
             raise SystemError("Checking sizeof (%s) failed !" % 'PY_LONG_LONG')
 
         res = config_cmd.check_type_size('long long',
                 expected=expected['long long'])
         if res >= 0:
-            #private_defines.append(('SIZEOF_%s' % sym2def('long long'), '%d' % res))
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def('long long'), '%d' % res))
+            public_defines.append(('NPY_SIZEOF_%s' % sym2def('long long'),
+                                   '%d' % res))
         else:
             raise SystemError("Checking sizeof (%s) failed !" % 'long long')
 
@@ -278,7 +246,8 @@ def configuration(parent_package='',top_path=None):
     generate_umath_py = join(codegen_dir,'generate_umath.py')
     n = dot_join(config.name,'generate_umath')
     generate_umath = imp.load_module('_'.join(n.split('.')),
-                                     open(generate_umath_py,'U'),generate_umath_py,
+                                     open(generate_umath_py,'U'),
+                                     generate_umath_py,
                                      ('.py','U',1))
 
     header_dir = 'include/numpy' # this is relative to config.path_in_package
@@ -316,7 +285,8 @@ def configuration(parent_package='',top_path=None):
             inline = config_cmd.check_inline()
 
             # Check whether we need our own wide character support
-            if not config_cmd.check_decl('Py_UNICODE_WIDE', headers=['Python.h']):
+            if not config_cmd.check_decl('Py_UNICODE_WIDE',
+                                         headers=['Python.h']):
                 PYTHON_HAS_UNICODE_WIDE = True
             else:
                 PYTHON_HAS_UNICODE_WIDE = False
@@ -446,7 +416,8 @@ def configuration(parent_package='',top_path=None):
             try:
                 m = __import__(module_name)
                 log.info('executing %s', script)
-                h_file, c_file, doc_file = m.generate_api(os.path.join(build_dir, header_dir))
+                h_file, c_file, doc_file = m.generate_api(
+                    os.path.join(build_dir, header_dir))
             finally:
                 del sys.path[0]
             config.add_data_files((header_dir, h_file),
@@ -554,7 +525,8 @@ def configuration(parent_package='',top_path=None):
         # compiler does not work).
         st = config_cmd.try_link('int main(void) { return 0;}')
         if not st:
-            raise RuntimeError("Broken toolchain: cannot link a simple C program")
+            raise RuntimeError(
+                     "Broken toolchain: cannot link a simple C program")
         mlibs = check_mathlib(config_cmd)
 
         posix_mlib = ' '.join(['-l%s' % l for l in mlibs])
@@ -659,7 +631,8 @@ def configuration(parent_package='',top_path=None):
     def get_dotblas_sources(ext, build_dir):
         if blas_info:
             if ('NO_ATLAS_INFO',1) in blas_info.get('define_macros',[]):
-                return None # dotblas needs ATLAS, Fortran compiled blas will not be sufficient.
+            # dotblas needs ATLAS, Fortran compiled blas will not be sufficient.
+                return None
             return ext.depends[:1]
         return None # no extension module will be built
 
@@ -676,7 +649,8 @@ def configuration(parent_package='',top_path=None):
                     sources = [join('src','umath', 'umath_tests.c.src')])
 
     config.add_extension('multiarray_tests',
-                    sources = [join('src', 'multiarray', 'multiarray_tests.c.src')])
+                    sources = [join('src', 'multiarray',
+                                    'multiarray_tests.c.src')])
 
     config.add_data_dir('tests')
     config.add_data_dir('tests/data')
