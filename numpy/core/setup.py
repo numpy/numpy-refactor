@@ -2,7 +2,7 @@ import imp
 import os
 import sys
 import shutil
-from os.path import join
+from os.path import dirname, exists, join, isdir
 from numpy.distutils import log
 from distutils.dep_util import newer
 from distutils.sysconfig import get_config_var
@@ -50,7 +50,7 @@ PYTHON_HAS_UNICODE_WIDE = True
 def pythonlib_dir():
     """return path where libpython* is."""
     if sys.platform == 'win32':
-        return os.path.join(sys.prefix, "libs")
+        return join(sys.prefix, "libs")
     else:
         return get_config_var('LIBDIR')
 
@@ -256,8 +256,8 @@ def configuration(parent_package='',top_path=None):
 
     def generate_config_h(ext, build_dir):
         target = join(build_dir,header_dir,'config.h')
-        d = os.path.dirname(target)
-        if not os.path.exists(d):
+        d = dirname(target)
+        if not exists(d):
             os.makedirs(d)
 
         if newer(__file__,target):
@@ -342,7 +342,7 @@ def configuration(parent_package='',top_path=None):
         if hasattr(ext, 'libraries'):
             ext.libraries.extend(mathlibs)
 
-        incl_dir = os.path.dirname(target)
+        incl_dir = dirname(target)
         if incl_dir not in config.numpy_include_dirs:
             config.numpy_include_dirs.append(incl_dir)
 
@@ -351,8 +351,8 @@ def configuration(parent_package='',top_path=None):
     def generate_numpyconfig_h(ext, build_dir):
         """Depends on config.h: generate_config_h has to be called before !"""
         target = join(build_dir,header_dir,'_numpyconfig.h')
-        d = os.path.dirname(target)
-        if not os.path.exists(d):
+        d = dirname(target)
+        if not exists(d):
             os.makedirs(d)
         if newer(__file__,target):
             config_cmd = config.get_config_cmd()
@@ -417,7 +417,7 @@ def configuration(parent_package='',top_path=None):
                 m = __import__(module_name)
                 log.info('executing %s', script)
                 h_file, c_file, doc_file = m.generate_api(
-                    os.path.join(build_dir, header_dir))
+                    join(build_dir, header_dir))
             finally:
                 del sys.path[0]
             config.add_data_files((header_dir, h_file),
@@ -431,6 +431,14 @@ def configuration(parent_package='',top_path=None):
     config.add_include_dirs(join(local_dir, "src", "private"))
     config.add_include_dirs(join(local_dir, "src"))
     config.add_include_dirs(join(local_dir))
+
+    def ndarray_include_dir():
+        info = get_info('ndarray')
+        path = info['include_dirs'][0]
+        assert isdir(path)
+        return path
+    config.add_include_dirs(ndarray_include_dir())
+
     # Multiarray version: this function is needed to build foo.c from foo.c.src
     # when foo.c is included in another file and as such not in the src
     # argument of build_ext command
@@ -472,8 +480,8 @@ def configuration(parent_package='',top_path=None):
 
     def generate_umath_c(ext,build_dir):
         target = join(build_dir,header_dir,'__umath_generated.c')
-        dir = os.path.dirname(target)
-        if not os.path.exists(dir):
+        dir = dirname(target)
+        if not exists(dir):
             os.makedirs(dir)
         script = generate_umath_py
         if newer(script,target):
