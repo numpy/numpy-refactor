@@ -11,12 +11,6 @@ import re
 
 from setup_common import *
 
-# Set to True to enable multiple file compilations (experimental)
-try:
-    os.environ['NPY_SEPARATE_COMPILATION']
-    ENABLE_SEPARATE_COMPILATION = True
-except KeyError:
-    ENABLE_SEPARATE_COMPILATION = False
 
 # XXX: ugly, we use a class to avoid calling twice some expensive functions in
 # config.h/numpyconfig.h. I don't see a better way because distutils force
@@ -34,7 +28,6 @@ class CallOnceOnly(object):
     def __init__(self):
         self._check_types = None
         self._check_ieee_macros = None
-        self._check_complex = None
 
     def check_types(self, *a, **kw):
         if self._check_types is None:
@@ -50,14 +43,6 @@ class CallOnceOnly(object):
             self._check_ieee_macros = _pik.dumps(out)
         else:
             out = copy.deepcopy(_pik.loads(self._check_ieee_macros))
-        return out
-
-    def check_complex(self, *a, **kw):
-        if self._check_complex is None:
-            out = check_complex(*a, **kw)
-            self._check_complex = _pik.dumps(out)
-        else:
-            out = copy.deepcopy(_pik.loads(self._check_complex))
         return out
 
 PYTHON_HAS_UNICODE_WIDE = True
@@ -99,6 +84,7 @@ def is_npy_no_smp():
             nosmp = 0
     return nosmp == 1
 
+
 def win32_checks(deflist):
     from numpy.distutils.misc_util import get_build_architecture
     a = get_build_architecture()
@@ -115,88 +101,6 @@ def win32_checks(deflist):
     if a == "Intel" or a == "AMD64":
         deflist.append('FORCE_NO_LONG_DOUBLE_FORMATTING')
 
-def check_math_capabilities(config, moredefs, mathlibs):
-    def check_func(func_name):
-        return config.check_func(func_name, libraries=mathlibs,
-                                 decl=True, call=True)
-
-    def check_funcs_once(funcs_name):
-        decl = dict([(f, True) for f in funcs_name])
-        st = config.check_funcs_once(funcs_name, libraries=mathlibs,
-                                     decl=decl, call=decl)
-        if st:
-            moredefs.extend([fname2def(f) for f in funcs_name])
-        return st
-
-    def check_funcs(funcs_name):
-        # Use check_funcs_once first, and if it does not work, test func per
-        # func. Return success only if all the functions are available
-        if not check_funcs_once(funcs_name):
-            # Global check failed, check func per func
-            for f in funcs_name:
-                if check_func(f):
-                    moredefs.append(fname2def(f))
-            return 0
-        else:
-            return 1
-
-    #use_msvc = config.check_decl("_MSC_VER")
-
-    if not check_funcs_once(MANDATORY_FUNCS):
-        raise SystemError("One of the required function to build numpy is not"
-                " available (the list is %s)." % str(MANDATORY_FUNCS))
-
-    # Standard functions which may not be available and for which we have a
-    # replacement implementation. Note that some of these are C99 functions.
-
-    # XXX: hack to circumvent cpp pollution from python: python put its
-    # config.h in the public namespace, so we have a clash for the common
-    # functions we test. We remove every function tested by python's
-    # autoconf, hoping their own test are correct
-    if sys.version_info[:2] >= (2, 5):
-        for f in OPTIONAL_STDFUNCS_MAYBE:
-            if config.check_decl(fname2def(f),
-                        headers=["Python.h", "math.h"]):
-                OPTIONAL_STDFUNCS.remove(f)
-
-    check_funcs(OPTIONAL_STDFUNCS)
-
-    # C99 functions: float and long double versions
-    check_funcs(C99_FUNCS_SINGLE)
-    check_funcs(C99_FUNCS_EXTENDED)
-
-def check_complex(config, mathlibs):
-    priv = []
-    pub = []
-
-    # Check for complex support
-    st = config.check_header('complex.h')
-    if st:
-        priv.append('HAVE_COMPLEX_H')
-        pub.append('NPY_USE_C99_COMPLEX')
-
-        for t in C99_COMPLEX_TYPES:
-            st = config.check_type(t, headers=["complex.h"])
-            if st:
-                pub.append(('NPY_HAVE_%s' % type2def(t), 1))
-
-        def check_prec(prec):
-            flist = [f + prec for f in C99_COMPLEX_FUNCS]
-            decl = dict([(f, True) for f in flist])
-            if not config.check_funcs_once(flist, call=decl, decl=decl,
-                                           libraries=mathlibs):
-                for f in flist:
-                    if config.check_func(f, call=True, decl=True,
-                                         libraries=mathlibs):
-                        priv.append(fname2def(f))
-            else:
-                priv.extend([fname2def(f) for f in flist])
-
-        check_prec('')
-        check_prec('f')
-        check_prec('l')
-
-    return priv, pub
 
 def check_ieee_macros(config):
     priv = []
@@ -398,9 +302,7 @@ def configuration(parent_package='',top_path=None):
             mathlibs = check_mathlib(config_cmd)
             moredefs.append(('MATHLIB',','.join(mathlibs)))
 
-            check_math_capabilities(config_cmd, moredefs, mathlibs)
             moredefs.extend(cocache.check_ieee_macros(config_cmd)[0])
-            moredefs.extend(cocache.check_complex(config_cmd, mathlibs)[0])
 
             # Signal check
             if is_npy_no_signal():
@@ -419,20 +321,6 @@ def configuration(parent_package='',top_path=None):
             else:
                 PYTHON_HAS_UNICODE_WIDE = False
                 
-            if ENABLE_SEPARATE_COMPILATION:
-                moredefs.append(('ENABLE_SEPARATE_COMPILATION', 1))
-
-            # Get long double representation
-            if sys.platform != 'darwin':
-                rep = check_long_double_representation(config_cmd)
-                if rep in ['INTEL_EXTENDED_12_BYTES_LE',
-                           'INTEL_EXTENDED_16_BYTES_LE',
-                           'IEEE_QUAD_LE', 'IEEE_QUAD_BE',
-                           'IEEE_DOUBLE_LE', 'IEEE_DOUBLE_BE']:
-                    moredefs.append(('HAVE_LDOUBLE_%s' % rep, 1))
-                else:
-                    raise ValueError("Unrecognized long double format: %s" % rep)
-
             # Py3K check
             if sys.version_info[0] == 3:
                 moredefs.append(('NPY_PY3K', 1))
@@ -513,10 +401,6 @@ def configuration(parent_package='',top_path=None):
 
             mathlibs = check_mathlib(config_cmd)
             moredefs.extend(cocache.check_ieee_macros(config_cmd)[1])
-            moredefs.extend(cocache.check_complex(config_cmd, mathlibs)[1])
-
-            if ENABLE_SEPARATE_COMPILATION:
-                moredefs.append(('NPY_ENABLE_SEPARATE_COMPILATION', 1))
 
             # Check wether we can use inttypes (C99) formats
             if config_cmd.check_decl('PRIdPTR', headers = ['inttypes.h']):
@@ -595,24 +479,6 @@ def configuration(parent_package='',top_path=None):
 
         cmd.template_sources(sources, ext)
 
-    # libnumpy version: this function is needed to build foo.c from foo.c.src
-    # when foo.c is included in another file and as such not in the src
-    # argument of build_ext command
-    def generate_libnumpy_templated_sources(ext, build_dir):
-        from numpy.distutils.misc_util import get_cmd
-
-        subpath = join('src', 'libnumpy')
-        sources = [join(local_dir, subpath, 'npy_arraytypes.c.src')]
-
-        # numpy.distutils generate .c from .c.src in weird directories, we have
-        # to add them there as they depend on the build_dir
-        config.add_include_dirs(join(build_dir, subpath))
-
-        cmd = get_cmd('build_src')
-        cmd.ensure_finalized()
-
-        cmd.template_sources(sources, ext)
-
     # umath version: this function is needed to build foo.c from foo.c.src
     # when foo.c is included in another file and as such not in the src
     # argument of build_ext command
@@ -647,14 +513,12 @@ def configuration(parent_package='',top_path=None):
         return []
 
     config.add_data_files('include/numpy/*.h')
-    config.add_include_dirs(join('src', 'npymath'))
     config.add_include_dirs(join('src', 'multiarray'))
     config.add_include_dirs(join('src', 'umath'))
 
     config.numpy_include_dirs.extend(config.paths('include'))
 
-    deps = [join('src','npymath','_signbit.c'),
-            join('include','numpy','*object.h'),
+    deps = [join('include','numpy','*object.h'),
             'include/numpy/fenv/fenv.c',
             'include/numpy/fenv/fenv.h',
             join(codegen_dir,'genapi.py'),
@@ -698,51 +562,6 @@ def configuration(parent_package='',top_path=None):
         subst_dict["posix_mathlib"] = posix_mlib
         subst_dict["msvc_mathlib"] = msvc_mlib
 
-    config.add_installed_library('npymath',
-            sources=[join('src', 'npymath', 'npy_math.c.src'),
-                     join('src', 'npymath', 'ieee754.c.src'),
-                     join('src', 'npymath', 'npy_math_complex.c.src'),
-                     get_mathlib_info],
-            install_dir='lib')
-    config.add_npy_pkg_config("npymath.ini.in", "lib/npy-pkg-config",
-            subst_dict)
-    config.add_npy_pkg_config("mlib.ini.in", "lib/npy-pkg-config",
-            subst_dict)
-
-    libnumpy_deps = [
-        join('include', 'numpy', 'numpy_api.h'),
-        join('include', 'numpy', 'npy_defs.h'),
-        join('include', 'numpy', 'npy_iterators.h'),
-        join('include', 'numpy', 'npy_object.h'),
-        join('include', 'numpy', 'numpyos.h')]
-    
-    libnumpy_source = [
-        join('src', 'libnumpy', 'npy_arrayobject.c'),
-        join('src', 'libnumpy', 'npy_arraytypes.c.src'),
-        join('src', 'libnumpy', 'npy_calculation.c'),
-        join('src', 'libnumpy', 'npy_common.c'),
-        join('src', 'libnumpy', 'npy_conversion_utils.c'),
-        join('src', 'libnumpy', 'npy_convert.c'),
-        join('src', 'libnumpy', 'npy_convert_datatype.c'),
-        join('src', 'libnumpy', 'npy_ctors.c'),
-        join('src', 'libnumpy', 'npy_datetime.c'),
-        join('src', 'libnumpy', 'npy_descriptor.c'),
-        join('src', 'libnumpy', 'npy_dict.c'),
-        join('src', 'libnumpy', 'npy_flagsobject.c'),
-        join('src', 'libnumpy', 'npy_item_selection.c'),
-        join('src', 'libnumpy', 'npy_iterators.c'),
-        join('src', 'libnumpy', 'npy_mapping.c'),
-        join('src', 'libnumpy', 'npy_methods.c'),
-        join('src', 'libnumpy', 'npy_multiarray.c'),
-        join('src', 'libnumpy', 'npy_refcount.c'),
-        join('src', 'libnumpy', 'npy_shape.c'),
-        join('src', 'libnumpy', 'npy_ufunc_object.c'),
-        join('src', 'libnumpy', 'npy_usertypes.c'),
-        join('src', 'libnumpy', 'numpyos.c'),
-        ]
-
-    config.add_library('numpy', sources=libnumpy_source)
-   
     multiarray_deps = [
             join('src', 'multiarray', 'arrayobject.h'),
             join('src', 'multiarray', 'arraytypes.h'),
@@ -806,18 +625,6 @@ def configuration(parent_package='',top_path=None):
     umath_deps = [generate_umath_py,
             join(codegen_dir,'generate_ufunc_api.py')]
 
-    if not ENABLE_SEPARATE_COMPILATION:
-        multiarray_deps.extend(multiarray_src)
-        multiarray_src = [join('src', 'multiarray', 'multiarraymodule_onefile.c')]
-        multiarray_src.append(generate_multiarray_templated_sources)
- 
-        libnumpy_deps.extend(libnumpy_src)
-        libnumpy_src.append(generate_libnumpy_templated_sources)
- 
-        umath_deps.extend(umath_src)
-        umath_src = [join('src', 'umath', 'umathmodule_onefile.c')]
-        umath_src.append(generate_umath_templated_sources)
-
     config.add_extension('multiarray',
                          sources = multiarray_src +
                                 [generate_config_h,
@@ -825,8 +632,8 @@ def configuration(parent_package='',top_path=None):
                                  generate_numpy_api,
                                  join(codegen_dir,'generate_numpy_api.py'),
                                  join('*.py')],
-                         depends = deps + multiarray_deps + libnumpy_source,
-                         libraries=['npymath','numpy'])
+                         depends = deps + multiarray_deps,
+                         libraries=['ndarray'])
 
     config.add_extension('umath',
                          sources = [generate_config_h,
@@ -835,7 +642,7 @@ def configuration(parent_package='',top_path=None):
                                     generate_ufunc_api,
                                     ] + umath_src,
                          depends = deps + umath_deps,
-                         libraries=['npymath'],
+                         libraries=['ndarray'],
                          )
 
     config.add_extension('scalarmath',

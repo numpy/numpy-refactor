@@ -1,12 +1,7 @@
-#!/bin/tcsh -f
-#
+#!/bin/bash
 
-setenv NPY_SEPARATE_COMPILATION 1
-setenv CFLAGS "-DDEBUG -g -Wall -Wextra"
-setenv LDFLAGS "-g"
 
-#setenv CLFAGS "$CFLAGS -fprofile-arcs -fprofile-arcs -ftest-coverage"
-#setenv LINKFLAGSEND "-lgov"
+export CFLAGS="-DDEBUG -g -Wall" 
+export LDFLAGS=-g
 
-python setupscons.py install --prefix=./install 
-#python setup.py install --prefix=./install
+python setupscons.py build install
