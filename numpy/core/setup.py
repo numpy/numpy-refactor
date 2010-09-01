@@ -196,7 +196,7 @@ def configuration(parent_package='', top_path=None):
     # actual C API VERSION
     check_api_version(C_API_VERSION, codegen_dir)
 
-    generate_umath_py = join(codegen_dir,'generate_umath.py')
+    generate_umath_py = join(codegen_dir, 'generate_umath.py')
     n = dot_join(config.name, 'generate_umath')
     generate_umath = imp.load_module('_'.join(n.split('.')),
                                      open(generate_umath_py,'U'),
@@ -545,10 +545,11 @@ def configuration(parent_package='', top_path=None):
         multiarray_src.append(join('src', 'multiarray', 'ucsnarrow.c'))
 
     umath_src = [join('src', 'umath', 'umathmodule.c.src'),
-            join('src', 'umath', 'ufunc_object.c')]
+                 join('src', 'umath', 'loops.c.src'),
+                 join('src', 'umath', 'ufunc_object.c')]
 
     umath_deps = [generate_umath_py,
-            join(codegen_dir,'generate_ufunc_api.py')]
+                  join(codegen_dir,'generate_ufunc_api.py')]
 
     config.add_extension('multiarray',
                          sources = multiarray_src +
