@@ -978,14 +978,15 @@ class Configuration(object):
                 d = config.todict()
             assert isinstance(d,dict),repr(type(d))
 
-            self.info('Appending %s configuration to %s' \
+            self.info('Appending %s configuration to %s'
                       % (d.get('name'), self.name))
             self.dict_append(**d)
 
         dist = self.get_distribution()
         if dist is not None:
-            self.warn('distutils distribution has been initialized,'\
-                      ' it may be too late to add a subpackage '+ subpackage_name)
+            self.warn('distutils distribution has been initialized,'
+                      ' it may be too late to add a subpackage '+
+                      subpackage_name)
 
     def add_data_dir(self,data_path):
         """Recursively add files under data_path to data_files list.
@@ -1052,7 +1053,8 @@ class Configuration(object):
             raise TypeError("not a string: %r" % (data_path,))
         if d is None:
             if os.path.isabs(data_path):
-                return self.add_data_dir((os.path.basename(data_path), data_path))
+                return self.add_data_dir((os.path.basename(data_path),
+                                          data_path))
             return self.add_data_dir((data_path, data_path))
         paths = self.paths(data_path, include_non_existing=False)
         if is_glob_pattern(data_path):
@@ -1392,7 +1394,7 @@ class Configuration(object):
         paths. 
         """
         ext_args = copy.copy(kw)
-        ext_args['name'] = dot_join(self.name,name)
+        ext_args['name'] = dot_join(self.name, name)
         ext_args['sources'] = sources
 
         if 'extra_info' in ext_args:
@@ -1411,17 +1413,16 @@ class Configuration(object):
         libnames = []
         ext_args['libraries'] = []
         for libname in libraries:
-            if isinstance(libname,tuple):
+            if isinstance(libname, tuple):
                 self._fix_paths_dict(libname[1])
 
             # Handle library names of the form libname@relative/path/to/library
             if '@' in libname:
-                lname,lpath = libname.split('@',1)
-                lpath = os.path.abspath(njoin(self.local_path,lpath))
+                lname, lpath = libname.split('@',1)
+                lpath = os.path.abspath(njoin(self.local_path, lpath))
                 if os.path.isdir(lpath):
-                    c = self.get_subpackage(None,lpath,
-                                            caller_level = 2)
-                    if isinstance(c,Configuration):
+                    c = self.get_subpackage(None, lpath, caller_level=2)
+                    if isinstance(c, Configuration):
                         c = c.todict()
                     for l in [l[0] for l in c.get('libraries',[])]:
                         llname = l.split('__OF__',1)[0]
@@ -1440,8 +1441,8 @@ class Configuration(object):
 
         dist = self.get_distribution()
         if dist is not None:
-            self.warn('distutils distribution has been initialized,'\
-                      ' it may be too late to add an extension '+name)
+            self.warn('distutils distribution has been initialized,'
+                      ' it may be too late to add an extension ' + name)
         return ext
 
     def add_library(self,name,sources,**build_info):

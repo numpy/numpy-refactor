@@ -4,6 +4,7 @@ import sys
 import shutil
 from os.path import dirname, exists, join, isdir
 from numpy.distutils import log
+from numpy.distutils.system_info import get_info
 from distutils.dep_util import newer
 from distutils.sysconfig import get_config_var
 import warnings
@@ -37,15 +38,19 @@ class CallOnceOnly(object):
             out = copy.deepcopy(_pik.loads(self._check_types))
         return out
 
-    def check_ieee_macros(self, *a, **kw):
-        if self._check_ieee_macros is None:
-            out = check_ieee_macros(*a, **kw)
-            self._check_ieee_macros = _pik.dumps(out)
-        else:
-            out = copy.deepcopy(_pik.loads(self._check_ieee_macros))
-        return out
-
 PYTHON_HAS_UNICODE_WIDE = True
+
+def ndarray_include_dir():
+    info = get_info('ndarray')
+    path = info['include_dirs'][0]
+    assert isdir(path)
+    return path
+
+def ndarray_lib_dir():
+    info = get_info('ndarray')
+    path = info['library_dirs'][0]
+    assert isdir(path)
+    return path
 
 def pythonlib_dir():
     """return path where libpython* is."""
@@ -102,43 +107,6 @@ def win32_checks(deflist):
         deflist.append('FORCE_NO_LONG_DOUBLE_FORMATTING')
 
 
-def check_ieee_macros(config):
-    priv = []
-    pub = []
-
-    macros = []
-
-    def _add_decl(f):
-        priv.append(fname2def("decl_%s" % f))
-        pub.append('NPY_%s' % fname2def("decl_%s" % f))
-
-    # XXX: hack to circumvent cpp pollution from python: python put its
-    # config.h in the public namespace, so we have a clash for the common
-    # functions we test. We remove every function tested by python's
-    # autoconf, hoping their own test are correct
-    _macros = ["isnan", "isinf", "signbit", "isfinite"]
-    if sys.version_info[:2] >= (2, 6):
-        for f in _macros:
-            st = config.check_decl(fname2def("decl_%s" % f),
-                    headers=["Python.h", "math.h"])
-            if not st:
-                macros.append(f)
-            else:
-                _add_decl(f)
-    else:
-        macros = _macros[:]
-    # Normally, isnan and isinf are macro (C99), but some platforms only have
-    # func, or both func and macro version. Check for macro only, and define
-    # replacement ones if not found.
-    # Note: including Python.h is necessary because it modifies some math.h
-    # definitions
-    for f in macros:
-        st = config.check_decl(f, headers = ["Python.h", "math.h"])
-        if st:
-            _add_decl(f)
-
-    return priv, pub
-
 def check_types(config_cmd, ext, build_dir):
     private_defines = []
     public_defines = []
@@ -147,15 +115,8 @@ def check_types(config_cmd, ext, build_dir):
     # optimization: those are only hints, and an exhaustive search for the size
     # is done if the hints are wrong.
     expected = {}
-    expected['short'] = [2]
-    expected['int'] = [4]
-    expected['long'] = [8, 4]
-    expected['float'] = [4]
-    expected['double'] = [8]
-    expected['long double'] = [8, 12, 16]
     expected['Py_intptr_t'] = [4, 8]
     expected['PY_LONG_LONG'] = [8]
-    expected['long long'] = [8]
 
     # Check we have the python header (-dev* packages on Linux)
     result = config_cmd.check_header('Python.h')
@@ -187,14 +148,6 @@ def check_types(config_cmd, ext, build_dir):
                                    '%d' % res))
         else:
             raise SystemError("Checking sizeof (%s) failed !" % 'PY_LONG_LONG')
-
-        res = config_cmd.check_type_size('long long',
-                expected=expected['long long'])
-        if res >= 0:
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def('long long'),
-                                   '%d' % res))
-        else:
-            raise SystemError("Checking sizeof (%s) failed !" % 'long long')
 
     if not config_cmd.check_decl('CHAR_BIT', headers=['Python.h']):
         raise RuntimeError(
@@ -228,13 +181,13 @@ def visibility_define(config):
     else:
         return ''
 
-def configuration(parent_package='',top_path=None):
+def configuration(parent_package='', top_path=None):
     from numpy.distutils.misc_util import Configuration,dot_join
     from numpy.distutils.system_info import get_info, default_lib_dirs
 
-    config = Configuration('core',parent_package,top_path)
+    config = Configuration('core', parent_package, top_path)
     local_dir = config.local_path
-    codegen_dir = join(local_dir,'code_generators')
+    codegen_dir = join(local_dir, 'code_generators')
 
     if is_released(config):
         warnings.simplefilter('error', MismatchCAPIWarning)
@@ -244,7 +197,7 @@ def configuration(parent_package='',top_path=None):
     check_api_version(C_API_VERSION, codegen_dir)
 
     generate_umath_py = join(codegen_dir,'generate_umath.py')
-    n = dot_join(config.name,'generate_umath')
+    n = dot_join(config.name, 'generate_umath')
     generate_umath = imp.load_module('_'.join(n.split('.')),
                                      open(generate_umath_py,'U'),
                                      generate_umath_py,
@@ -271,8 +224,6 @@ def configuration(parent_package='',top_path=None):
             mathlibs = check_mathlib(config_cmd)
             moredefs.append(('MATHLIB',','.join(mathlibs)))
 
-            moredefs.extend(cocache.check_ieee_macros(config_cmd)[0])
-
             # Signal check
             if is_npy_no_signal():
                 moredefs.append('__NPY_PRIVATE_NO_SIGNAL')
@@ -290,7 +241,7 @@ def configuration(parent_package='',top_path=None):
                 PYTHON_HAS_UNICODE_WIDE = True
             else:
                 PYTHON_HAS_UNICODE_WIDE = False
-                
+
             # Py3K check
             if sys.version_info[0] == 3:
                 moredefs.append(('NPY_PY3K', 1))
@@ -370,7 +321,6 @@ def configuration(parent_package='',top_path=None):
                 moredefs.append(('NPY_NO_SMP', 0))
 
             mathlibs = check_mathlib(config_cmd)
-            moredefs.extend(cocache.check_ieee_macros(config_cmd)[1])
 
             # Check wether we can use inttypes (C99) formats
             if config_cmd.check_decl('PRIdPTR', headers = ['inttypes.h']):
@@ -381,8 +331,8 @@ def configuration(parent_package='',top_path=None):
             moredefs.append(('NPY_VISIBILITY_HIDDEN', hidden_visibility))
 
             # Add the C API/ABI versions
-            moredefs.append(('NPY_ABI_VERSION', '0x%.8X' % C_ABI_VERSION))
-            moredefs.append(('NPY_API_VERSION', '0x%.8X' % C_API_VERSION))
+            moredefs.append(('NUMPY_ABI_VERSION', '0x%.8X' % C_ABI_VERSION))
+            moredefs.append(('NUMPY_API_VERSION', '0x%.8X' % C_API_VERSION))
 
             # Add moredefs to header
             target_f = open(target, 'w')
@@ -431,12 +381,6 @@ def configuration(parent_package='',top_path=None):
     config.add_include_dirs(join(local_dir, "src", "private"))
     config.add_include_dirs(join(local_dir, "src"))
     config.add_include_dirs(join(local_dir))
-
-    def ndarray_include_dir():
-        info = get_info('ndarray')
-        path = info['include_dirs'][0]
-        assert isdir(path)
-        return path
     config.add_include_dirs(ndarray_include_dir())
 
     # Multiarray version: this function is needed to build foo.c from foo.c.src
@@ -531,7 +475,7 @@ def configuration(parent_package='',top_path=None):
         # Check that the toolchain works, to fail early if it doesn't
         # (avoid late errors with MATHLIB which are confusing if the
         # compiler does not work).
-        st = config_cmd.try_link('int main(void) { return 0;}')
+        st = config_cmd.try_link('int main(void) { return 0; }')
         if not st:
             raise RuntimeError(
                      "Broken toolchain: cannot link a simple C program")
@@ -613,6 +557,7 @@ def configuration(parent_package='',top_path=None):
                                  join(codegen_dir,'generate_numpy_api.py'),
                                  join('*.py')],
                          depends = deps + multiarray_deps,
+                         library_dirs=[ndarray_lib_dir],
                          libraries=['ndarray'])
 
     config.add_extension('umath',
