@@ -141,7 +141,7 @@ import platform
 _bits = {'32bit':32,'64bit':64}
 platform_bits = _bits[platform.architecture()[0]]
 
-def libpaths(paths,bits):
+def libpaths(paths, bits):
     """Return a list of library paths valid on 32 or 64 bit systems.
 
     Inputs:
@@ -169,13 +169,13 @@ def libpaths(paths,bits):
         raise ValueError("Invalid bit size in libpaths: 32 or 64 only")
 
     # Handle 32bit case
-    if bits==32:
+    if bits == 32:
         return paths
 
     # Handle 64bit case
     out = []
     for p in paths:
-        out.extend([p+'64', p])
+        out.extend([p + '64', p])
 
     return out
 
@@ -820,8 +820,12 @@ class ndarray_info(system_info):
 
     def __init__(self):
         if sys.platform == 'win32':
-            lib_dir = 'libndarray/windows/Release'
-            # TODO: x64: 'libndarray/windows/x64/Release'
+            if platform_bits == 32:
+                lib_dir = 'libndarray/windows/Release'
+            elif platform_bits == 64:
+                lib_dir = 'libndarray/windows/x64/Release'
+            else:
+                raise ValueError("Invalid platform_bits: %r" % platform_bits)
         else:
             lib_dir = 'libndarray/.libs'
 
