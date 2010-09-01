@@ -4,6 +4,9 @@ import sys
 from distutils.dep_util import newer
 from distutils.msvccompiler import get_build_version as get_msvc_build_version
 
+from numpy.distutils.system_info import get_info
+
+
 def needs_mingw_ftime_workaround():
     # We need the mingw workaround for _ftime if the msvc runtime version is
     # 7.1 or above and we build with mingw ...
@@ -14,6 +17,7 @@ def needs_mingw_ftime_workaround():
         return True
 
     return False
+
 
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration, get_mathlibs
@@ -32,13 +36,14 @@ def configuration(parent_package='',top_path=None):
     if needs_mingw_ftime_workaround():
         defs.append(("NPY_NEEDS_MINGW_TIME_WORKAROUND", None))
 
-    libs = []
     # Configure mtrand
+    ndarray_lib_dir = get_info('ndarray')['library_dirs'][0]
     config.add_extension('mtrand',
                          sources=[join('mtrand', x) for x in
                                   ['mtrand.c', 'randomkit.c', 'initarray.c',
                                    'distributions.c']]+[generate_libraries],
-                         libraries=libs,
+                         library_dirs=[ndarray_lib_dir],
+                         libraries=['ndarray'],
                          depends = [join('mtrand','*.h'),
                                     join('mtrand','*.pyx'),
                                     join('mtrand','*.pxi'),

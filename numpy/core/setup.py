@@ -457,6 +457,8 @@ def configuration(parent_package='', top_path=None):
                                   generate_numpyconfig_h,
                                   generate_numpy_api,
                                   ],
+                         library_dirs=[ndarray_lib_dir()],
+                         libraries=['ndarray'],
                          )
 
     # npymath needs the config.h and numpyconfig.h files to be generated, but
@@ -562,7 +564,8 @@ def configuration(parent_package='', top_path=None):
                                  join('*.py')],
                          depends = deps + multiarray_deps,
                          library_dirs=[ndarray_lib_dir()],
-                         libraries=['ndarray'])
+                         libraries=['ndarray'],
+                         )
 
     config.add_extension('umath',
                          sources = [generate_config_h,
