@@ -583,24 +583,6 @@ def configuration(parent_package='',top_path=None):
 
         cmd.template_sources(sources, ext)
 
-    # libnumpy version: this function is needed to build foo.c from foo.c.src
-    # when foo.c is included in another file and as such not in the src
-    # argument of build_ext command
-    def generate_libnumpy_templated_sources(ext, build_dir):
-        from numpy.distutils.misc_util import get_cmd
-
-        subpath = join('src', 'libnumpy')
-        sources = [join(local_dir, subpath, 'npy_arraytypes.c.src')]
-
-        # numpy.distutils generate .c from .c.src in weird directories, we have
-        # to add them there as they depend on the build_dir
-        config.add_include_dirs(join(build_dir, subpath))
-
-        cmd = get_cmd('build_src')
-        cmd.ensure_finalized()
-
-        cmd.template_sources(sources, ext)
-
     # umath version: this function is needed to build foo.c from foo.c.src
     # when foo.c is included in another file and as such not in the src
     # argument of build_ext command
@@ -684,40 +666,6 @@ def configuration(parent_package='',top_path=None):
         subst_dict["posix_mathlib"] = posix_mlib
         subst_dict["msvc_mathlib"] = msvc_mlib
 
-    libnumpy_deps = [
-        join('include', 'numpy', 'numpy_api.h'),
-        join('include', 'numpy', 'npy_defs.h'),
-        join('include', 'numpy', 'npy_iterators.h'),
-        join('include', 'numpy', 'npy_object.h'),
-        join('include', 'numpy', 'numpyos.h')]
-    
-    libnumpy_source = [
-        join('src', 'libnumpy', 'npy_arrayobject.c'),
-        join('src', 'libnumpy', 'npy_arraytypes.c.src'),
-        join('src', 'libnumpy', 'npy_calculation.c'),
-        join('src', 'libnumpy', 'npy_common.c'),
-        join('src', 'libnumpy', 'npy_conversion_utils.c'),
-        join('src', 'libnumpy', 'npy_convert.c'),
-        join('src', 'libnumpy', 'npy_convert_datatype.c'),
-        join('src', 'libnumpy', 'npy_ctors.c'),
-        join('src', 'libnumpy', 'npy_datetime.c'),
-        join('src', 'libnumpy', 'npy_descriptor.c'),
-        join('src', 'libnumpy', 'npy_dict.c'),
-        join('src', 'libnumpy', 'npy_flagsobject.c'),
-        join('src', 'libnumpy', 'npy_item_selection.c'),
-        join('src', 'libnumpy', 'npy_iterators.c'),
-        join('src', 'libnumpy', 'npy_mapping.c'),
-        join('src', 'libnumpy', 'npy_methods.c'),
-        join('src', 'libnumpy', 'npy_multiarray.c'),
-        join('src', 'libnumpy', 'npy_refcount.c'),
-        join('src', 'libnumpy', 'npy_shape.c'),
-        join('src', 'libnumpy', 'npy_ufunc_object.c'),
-        join('src', 'libnumpy', 'npy_usertypes.c'),
-        join('src', 'libnumpy', 'numpyos.c'),
-        ]
-
-    config.add_library('numpy', sources=libnumpy_source)
-   
     multiarray_deps = [
             join('src', 'multiarray', 'arrayobject.h'),
             join('src', 'multiarray', 'arraytypes.h'),
@@ -788,7 +736,7 @@ def configuration(parent_package='',top_path=None):
                                  generate_numpy_api,
                                  join(codegen_dir,'generate_numpy_api.py'),
                                  join('*.py')],
-                         depends = deps + multiarray_deps + libnumpy_source,
+                         depends = deps + multiarray_deps,
                          libraries=['ndarray'])
 
     config.add_extension('umath',
