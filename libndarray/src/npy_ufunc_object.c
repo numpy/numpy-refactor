@@ -1452,7 +1452,6 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func,
         return NULL;
     }
     NpyObject_Init(self, &NpyUFunc_Type);
-    self->nob_magic_number = NPY_VALID_MAGIC;
 
     self->nin = nin;
     self->nout = nout;
@@ -2543,7 +2542,6 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
         return NULL;
     }
     NpyObject_Init(self, &NpyUFunc_Type);
-    self->nob_magic_number = NPY_VALID_MAGIC;
 
     self->userloops = NULL;
     self->nin = nin;

@@ -195,7 +195,7 @@ NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
  */
 struct NpyArrayMultiIterObject {
         NpyObject_HEAD
-        /* DANGER - this must be in sync with MyUFuncLoopObject in ufuncobject.h */
+        /* DANGER - this must be in sync with NpyUFuncLoopObject in npy_ufunc_object.h */
 
         int                  numiter;                 /* number of iters */
         npy_intp             size;                    /* broadcasted size */

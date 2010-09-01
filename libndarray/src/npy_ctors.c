@@ -910,7 +910,6 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
         return NULL;
     }
     NpyObject_Init((_NpyObject *)self, &NpyArray_Type);
-    self->nob_magic_number = NPY_VALID_MAGIC;
     self->nd = nd;
     self->dimensions = NULL;
     self->data = NULL;

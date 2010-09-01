@@ -1957,7 +1957,6 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  */
 NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
-    NPY_VALID_MAGIC,
     NpyArray_@from@LTR,
     NpyArray_@from@LTR,
     '@endian@',
@@ -2049,7 +2048,6 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
  */
 NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
-    NPY_VALID_MAGIC,
     NpyArray_@kind@LTR,
     NpyArray_@from@LTR,
     '@endian@',
@@ -2096,7 +2094,6 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
 
 NpyArray_Descr npy_OBJECT_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
-    NPY_VALID_MAGIC,
     NpyArray_OBJECTLTR,
     NpyArray_OBJECTLTR,
     '|',

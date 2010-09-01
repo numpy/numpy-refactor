@@ -74,7 +74,7 @@ NpyArray_Descr *
 NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new;
-
+    
     assert(base != NULL && NPY_VALID_MAGIC == base->nob_magic_number);
 
     new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
@@ -82,12 +82,14 @@ NpyArray_DescrNew(NpyArray_Descr *base)
         return NULL;
     }
     NpyObject_Init(new, &NpyArrayDescr_Type);
-    new->nob_magic_number = NPY_VALID_MAGIC;
-
+    
     /* Don't copy NpyObject_HEAD part */
-    memcpy((char *)new + sizeof(struct _NpyObject),
-           (char *)base + sizeof(struct _NpyObject),
-           sizeof(NpyArray_Descr) - sizeof(struct _NpyObject));
+    /* Do NOT use sizeof(NpyObject) for the size offset because it will be padded to 
+       the allocation size of the platform but when included in another structure the
+       padding won't be present. */
+    memcpy((char *)new + NpyObject_SIZE_OFFSET,
+           (char *)base + NpyObject_SIZE_OFFSET,
+           sizeof(NpyArray_Descr) - NpyObject_SIZE_OFFSET);
 
     assert((NULL == new->fields && NULL == new->names) ||
            (NULL != new->fields && NULL != new->names));

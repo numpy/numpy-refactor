@@ -22,13 +22,18 @@ typedef struct NpyTypeObject {
     npy_uintp nob_refcnt;                      \
     NpyTypeObject* nob_type;                   \
     void *nob_interface;                       \
-    int nob_magic_number;        /* Initialized to NPY_VALID_MAGIC initialization
-                                    and NPY_INVALID_MAGIC on dealloc */
+    int nob_magic_number;        /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
 
 struct _NpyObject {
     NpyObject_HEAD
 };
 typedef struct _NpyObject NpyObject;
+
+/* This defines the size of the NpyObject structure in bytes.  sizeof(struct _NpyObject) does not
+   work because the structure may be padded, but if it's inserted at the head of another structure
+   that padding will not be present. */
+#define NpyObject_SIZE_OFFSET \
+    ((npy_intp)(&((struct _NpyObject *)0)->nob_magic_number) + sizeof(((struct _NpyObject *)0)->nob_magic_number))
 
 #define Npy_INTERFACE(a) ((a)->nob_interface)
 
@@ -80,9 +85,10 @@ typedef struct _NpyObject NpyObject;
         (a)->nob_refcnt = 1;                    \
         (a)->nob_type = t;                      \
         (a)->nob_interface = NULL;              \
+        (a)->nob_magic_number = NPY_VALID_MAGIC; \
     } while (0)
 
-#define NpyObject_HEAD_INIT(t)                 1, t, NULL,
+#define NpyObject_HEAD_INIT(t)                 1, t, NULL, NPY_VALID_MAGIC,
 
 #define NpyObject_Wrapper(a) ((a)->interface)
 

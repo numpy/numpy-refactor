@@ -201,7 +201,6 @@ struct _PyArray_Descr {
 
 typedef struct PyArrayObject {
     PyObject_HEAD
-    int magic_offset;
     int magic_number;
     struct NpyArray *array;
     PyObject *weakreflist;  /* For weakreferences */
@@ -283,7 +282,6 @@ struct NpyArrayIterObject;
 
 typedef struct PyArrayIterObject_tag {
         PyObject_HEAD
-        int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
         int  magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         struct NpyArrayIterObject* iter;
 } PyArrayIterObject;
@@ -315,7 +313,6 @@ struct NpyArrayMultiIterObject;
 
 typedef struct {
     PyObject_HEAD
-    int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
     int               magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
     struct NpyArrayMultiIterObject* iter;
 } PyArrayMultiIterObject;
@@ -348,7 +345,6 @@ typedef struct {
          * Multi-iterator portion --- needs to be present in this
          * order to work with PyArray_Broadcast
          */
-        int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
         int  magic_number;            /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
         struct NpyArrayMapIterObject* iter;
         PyObject* indexobj;
@@ -356,7 +352,6 @@ typedef struct {
 
 typedef struct {
     PyObject_HEAD
-    int  magic_offset;      /* Moves magic number to different offset than core, improves checking of Npy_* vs Py_* macros */
     int  magic_number;       /* Initialized to NPY_VALID_MAGIC initialization and NPY_INVALID_MAGIC on dealloc */
     struct NpyArrayNeighborhoodIterObject* iter;
 } PyArrayNeighborhoodIterObject;
