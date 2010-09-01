@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#include <wtypes.h>
+#endif
+
 #include "fftpack.h"
 #include "Python.h"
 #include "numpy/arrayobject.h"
