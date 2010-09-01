@@ -22,7 +22,7 @@ namespace NumpyDotNet
     /// multiple files.
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    public static class NpyArray {
+    public static class NpyCoreApi {
         #region ConstantDefs
         internal enum NPY_TYPES {
             NPY_BOOL = 0,
@@ -389,7 +389,7 @@ namespace NumpyDotNet
         /// <summary>
         /// Initializes the core library with necessary callbacks on load.
         /// </summary>
-        static NpyArray() {
+        static NpyCoreApi() {
             System.Console.WriteLine("Hello world");
 
             NpyInterface_WrapperFuncs wrapFuncs = new NpyInterface_WrapperFuncs();

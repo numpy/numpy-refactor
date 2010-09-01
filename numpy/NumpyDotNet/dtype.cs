@@ -47,10 +47,34 @@ namespace NumpyDotNet {
             GC.SuppressFinalize(this);
         }
 
-
-        public static bool EquivTypes(dtype t1, dtype t2) {
-            return (NpyArray.NpyArray_EquivTypes(t1.descr, t2.descr) != 0);
+        public override bool Equals(object obj) {
+            if (!(obj is dtype)) {
+                return false;
+            }
+            return this == (dtype)obj;
         }
+
+        /// <summary>
+        /// Compares two types and returns true if they are equivalent,
+        /// including complex types, even if represented by two different
+        /// underlying descriptor objects.
+        /// </summary>
+        /// <param name="t1">Type 1</param>
+        /// <param name="t2">Type 2</param>
+        /// <returns>True if types are equivalent</returns>
+        public static bool operator==(dtype t1, dtype t2) {
+            return (t1.descr == t2.descr) ||
+                (NpyCoreApi.NpyArray_EquivTypes(t1.descr, t2.descr) != 0);
+        }
+
+        public static bool operator !=(dtype t1, dtype t2) {
+            return !(t1 == t2);
+        }
+
+        public override int GetHashCode() {
+            throw new NotImplementedException("dtype.GetHashCode() is not implemented");
+        }
+
 
         private static PythonContext pyContext = null;
 

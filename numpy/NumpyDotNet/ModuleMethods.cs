@@ -47,7 +47,7 @@ namespace NumpyDotNet {
             Object src = args[0];
             dtype type = null;
             bool copy = true;
-            NpyArray.NPY_ORDER order = NpyArray.NPY_ORDER.NPY_ANYORDER;
+            NpyCoreApi.NPY_ORDER order = NpyCoreApi.NPY_ORDER.NPY_ANYORDER;
             bool subok = false;
             int ndmin = 0;
             ndarray result = null;
@@ -62,22 +62,22 @@ namespace NumpyDotNet {
 
             if (args[3] != null && args[3] is string &&
                 String.Compare((String)args[3], "Fortran", true) == 0)
-                order = NpyArray.NPY_ORDER.NPY_FORTRANORDER;
-            else order = NpyArray.NPY_ORDER.NPY_CORDER;
+                order = NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER;
+            else order = NpyCoreApi.NPY_ORDER.NPY_CORDER;
 
             if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
             if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
-            if (ndmin >= NpyArray.NPY_MAXDIMS) {
+            if (ndmin >= NpyCoreApi.NPY_MAXDIMS) {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
                     String.Format("ndmin ({0} bigger than allowable number of dimension ({1}).", 
-                    ndmin, NpyArray.NPY_MAXDIMS-1));
+                    ndmin, NpyCoreApi.NPY_MAXDIMS-1));
             }
 
             Console.WriteLine("copy = {0}, order = {1}, subok = {2}, ndmin = {3}",
                 copy, order, subok, ndmin);
             Console.WriteLine("magic_offset = {0}, descr offset = {1}",
-                NpyArray.ArrayOffsets.off_magic_number, NpyArray.ArrayOffsets.off_descr);
+                NpyCoreApi.ArrayOffsets.off_magic_number, NpyCoreApi.ArrayOffsets.off_descr);
 
             // TODO: Check that the first is equiv to PyArray_Check() and the
             // second is equiv to PyArray_CheckExact().
@@ -88,22 +88,53 @@ namespace NumpyDotNet {
                     if (!copy && arr.StridingOk(order)) {
                         result = arr;
                     } else {
-                        result = NpyArray.NewCopy(arr, order);
+                        result = NpyCoreApi.NewCopy(arr, order);
                     }
                 } else {
                     dtype oldType = arr.Descr;
-                    if (dtype.EquivTypes(oldType, type)) {
+                    if (oldType == type) {
                         result = arr;
                     } else {
-                        result = NpyArray.NewCopy(arr, order);
+                        result = NpyCoreApi.NewCopy(arr, order);
                         if (oldType != type) {
                             arr.Descr = oldType;
                         }
                     }
                 }
             }
+            
+            // If no result has been determined...
+            if (result != null) {
+                int flags = 0;
+
+                if (copy) flags = NpyCoreApi.NPY_ENSURECOPY;
+                if (order == NpyCoreApi.NPY_ORDER.NPY_CORDER) {
+                    flags |= NpyCoreApi.NPY_CONTIGUOUS;
+                } else if (order == NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER ||
+                         src is ndarray && ((ndarray)src).IsFortran) {
+                    flags |= NpyCoreApi.NPY_FORTRAN;
+                }
+
+                if (!subok) flags |= NpyCoreApi.NPY_ENSUREARRAY;
+
+                flags |= NpyCoreApi.NPY_FORCECAST;
+                result = CheckFromArray(src, type, 0, 0, flags, null);
+            }
+
+            if (result != null || result.Ndim < ndmin) {
+                result = PrependOnes(result, result.Ndim, ndmin);
+            }
+            return result;
+        }
+
+        // TODO: Move after implementation.
+        private static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
+            int maxDepth, int requires, Object context) {
             return null;
         }
 
+        private static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
+            return null;
+        }
     }
 }

@@ -123,11 +123,11 @@ namespace NumpyDotNet
         /// </summary>
         public dtype Descr {
             get {
-                IntPtr descr = Marshal.ReadIntPtr(array, NpyArray.ArrayOffsets.off_descr);
-                return NpyArray.ToInterface<dtype>(descr);
+                IntPtr descr = Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_descr);
+                return NpyCoreApi.ToInterface<dtype>(descr);
             }
             set {
-                NpyArray.ArraySetDescr(array, value.descr);
+                NpyCoreApi.ArraySetDescr(array, value.descr);
             }
         }
 
@@ -135,21 +135,21 @@ namespace NumpyDotNet
         /// True if memory layout of array is contiguous
         /// </summary>
         public bool IsContiguous {
-            get { return ChkFlags(NpyArray.NPY_CONTIGUOUS); }
+            get { return ChkFlags(NpyCoreApi.NPY_CONTIGUOUS); }
         }
 
         /// <summary>
         /// True if memory layout is Fortran order, false implies C order
         /// </summary>
         public bool IsFortran {
-            get { return ChkFlags(NpyArray.NPY_FORTRAN) && Ndim > 1; }
+            get { return ChkFlags(NpyCoreApi.NPY_FORTRAN) && Ndim > 1; }
         }
 
 
-        public bool StridingOk(NpyArray.NPY_ORDER order) {
-            return order == NpyArray.NPY_ORDER.NPY_ANYORDER ||
-                order == NpyArray.NPY_ORDER.NPY_CORDER && IsContiguous ||
-                order == NpyArray.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
+        public bool StridingOk(NpyCoreApi.NPY_ORDER order) {
+            return order == NpyCoreApi.NPY_ORDER.NPY_ANYORDER ||
+                order == NpyCoreApi.NPY_ORDER.NPY_CORDER && IsContiguous ||
+                order == NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
         }
 
 
@@ -157,11 +157,11 @@ namespace NumpyDotNet
         /// Number of dimensions in the array
         /// </summary>
         public int Ndim {
-            get { return Marshal.ReadInt32(array, NpyArray.ArrayOffsets.off_nd); }
+            get { return Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_nd); }
         }
 
         private bool ChkFlags(int flag) {
-            int curFlags = Marshal.ReadInt32(array, NpyArray.ArrayOffsets.off_flags);
+            int curFlags = Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_flags);
             return ((curFlags & flag) == flag);
         }
 
