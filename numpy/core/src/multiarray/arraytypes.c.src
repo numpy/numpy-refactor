@@ -1432,19 +1432,19 @@ OBJECT_copyswapn(PyObject **dst, intp dstride, PyObject **src, intp sstride,
     }
     else
     {
-        unsigned char *dstp, *srcp;
+        unsigned char *dst_p, *src_p;
         PyObject *tmp;
 
-        dstp = (unsigned char*)dst;
-        srcp = (unsigned char*)src;
+        dst_p = (unsigned char *)dst;
+        src_p = (unsigned char *)src;
         for (i = 0; i < n; i++) {
-            NPY_COPY_VOID_PTR(&tmp, dstp);
+            NPY_COPY_VOID_PTR(&tmp, dst_p);
             Py_XDECREF(tmp);
-            NPY_COPY_VOID_PTR(&tmp, srcp);
+            NPY_COPY_VOID_PTR(&tmp, src_p);
             Py_XINCREF(tmp);
-            NPY_COPY_VOID_PTR(dstp, srcp);
-            dstp += dstride;
-            srcp += sstride;
+            NPY_COPY_VOID_PTR(dst_p, src_p);
+            dst_p += dstride;
+            src_p += sstride;
         }
     }
     return;
