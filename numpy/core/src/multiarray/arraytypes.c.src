@@ -57,7 +57,7 @@ extern char _npy_letter_to_num[];
 
 NPY_NO_EXPORT PyArray_Descr * PyArray_DescrNew \
        (PyArray_Descr *);
-       
+
 /*
  *****************************************************************************
  **                        PYTHON TYPES TO C TYPES                          **
@@ -591,7 +591,7 @@ VOID_getitem(char *ip, NpyArray *ap)
             goto finish;
         }
         for (n=0; NULL != names[n]; n++) ;
-        
+
         ret = PyTuple_New(n);
         savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
@@ -624,7 +624,7 @@ VOID_getitem(char *ip, NpyArray *ap)
         Npy_INCREF(descr->subarray->base);
         ASSIGN_TO_PYARRAY(ret,
                           NpyArray_NewFromDescr(
-                                descr->subarray->base, descr->subarray->shape_num_dims, 
+                                descr->subarray->base, descr->subarray->shape_num_dims,
                                 descr->subarray->shape_dims,
                                 NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
@@ -735,11 +735,11 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
     if (descr->subarray) {
         /* copy into an array of the same basic type */
         PyArrayObject *ret;
-        
+
         Npy_INCREF(descr->subarray->base);
-        ASSIGN_TO_PYARRAY(ret, 
-                          NpyArray_NewFromDescr(descr->subarray->base, 
-                                    descr->subarray->shape_num_dims, 
+        ASSIGN_TO_PYARRAY(ret,
+                          NpyArray_NewFromDescr(descr->subarray->base,
+                                    descr->subarray->shape_num_dims,
                                     descr->subarray->shape_dims,
                                     NULL, ip, NpyArray_FLAGS(ap), NPY_TRUE, NULL, NULL));
         if (!ret) {
@@ -838,7 +838,7 @@ NPY_NO_EXPORT PyObject *
 PyDateTime_FromInt64(datetime val, PyArray_Descr *descrTmp)
 {
     NpyArray_Descr *descr = descrTmp->descr;
-    
+
     if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "datetime info data not set for descriptor");
@@ -883,7 +883,7 @@ NPY_NO_EXPORT PyObject *
 PyTimeDelta_FromInt64(timedelta val, PyArray_Descr *descrTmp)
 {
   NpyArray_Descr *descr = descrTmp->descr;
-  
+
   if (descr->dtinfo == NULL) {
         PyErr_SetString(PyExc_RuntimeError,
                 "timedelta info data not set for descriptor");
@@ -1151,7 +1151,7 @@ DATETIME_setitem(PyObject *op, char *ov, NpyArray *ap) {
     else if (PyUString_Check(op) || PyUnicode_Check(op)) {
 #endif
         /* FIXME:  Converts to DateTime first and therefore does not handle extended notation */
-        /* import _mx_datetime_parser 
+        /* import _mx_datetime_parser
          * res = _mx_datetime_parser(name)
          *  Convert from datetime to Int
          */
@@ -1231,20 +1231,20 @@ TIMEDELTA_setitem(PyObject *op, char *ov, NpyArray *ap) {
 }
 
 
-    
+
 /*
  *****************************************************************************
  **                       TYPE TO TYPE CONVERSIONS                          **
  *****************************************************************************
  */
-    
+
 /**begin repeat
  *
  * #FROMTYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
  *             LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
  *             CFLOAT, CDOUBLE, CLONGDOUBLE, STRING, UNICODE, VOID, OBJECT,
  *             DATETIME, TIMEDELTA#
- * #fromtype = npy_bool, npy_byte, npy_ubyte, npy_short, npy_ushort, 
+ * #fromtype = npy_bool, npy_byte, npy_ubyte, npy_short, npy_ushort,
  *             int, npy_uint, long, npy_ulong,
  *             npy_longlong, npy_ulonglong, float, double, npy_longdouble,
  *             npy_cfloat, npy_cdouble, npy_clongdouble, char, char, char, void *,
@@ -1407,15 +1407,17 @@ void
 
 
 void
-OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
-                  intp n, int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
+OBJECT_copyswapn(PyObject **dst, intp dstride, PyObject **src, intp sstride,
+                 intp n, int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
 {
     intp i;
+
     if (src != NULL) {
-        if (__ALIGNED(dst, sizeof(PyObject **))
-                && __ALIGNED(src, sizeof(PyObject **))
-                && __ALIGNED(dstride, sizeof(PyObject **))
-                && __ALIGNED(sstride, sizeof(PyObject **))) {
+        if (__ALIGNED(dst, sizeof(PyObject **)) &&
+            __ALIGNED(src, sizeof(PyObject **)) &&
+            __ALIGNED(dstride, sizeof(PyObject **)) &&
+            __ALIGNED(sstride, sizeof(PyObject **)))
+        {
             dstride /= sizeof(PyObject **);
             sstride /= sizeof(PyObject **);
             for (i = 0; i < n; i++) {
@@ -1426,9 +1428,11 @@ OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
                 src += sstride;
             }
         }
-        else {
+        else
+        {
             unsigned char *dstp, *srcp;
             PyObject *tmp;
+
             dstp = (unsigned char*)dst;
             srcp = (unsigned char*)src;
             for (i = 0; i < n; i++) {
@@ -1447,16 +1451,20 @@ OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
 }
 
 void
-OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap), void *NPY_UNUSED(arr))
+OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap),
+                void *NPY_UNUSED(arr))
 {
 
     if (src != NULL) {
-        if (__ALIGNED(dst,sizeof(PyObject **)) && __ALIGNED(src,sizeof(PyObject **))) {
+        if (__ALIGNED(dst, sizeof(PyObject **)) &&
+            __ALIGNED(src, sizeof(PyObject **)))
+        {
             Py_XINCREF(*src);
             Py_XDECREF(*dst);
             *dst = *src;
         }
-        else {
+        else
+        {
             PyObject *tmp;
             NPY_COPY_VOID_PTR(&tmp, dst);
             Py_XDECREF(tmp);
@@ -1466,8 +1474,6 @@ OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap), void *NPY_
         }
     }
 }
-
-
 
 
 int
@@ -1574,11 +1580,11 @@ OBJECT_dot(char *ip1, intp is1, char *ip2, intp is2, char *op, intp n,
     Py_XDECREF(tmp2);
 }
 
-    
+
 Bool
 OBJECT_nonzero (PyObject **ip, NpyArray *ap)
 {
-    
+
     if (NpyArray_ISALIGNED(ap)) {
         if (*ip == NULL) {
             return FALSE;
@@ -1594,7 +1600,7 @@ OBJECT_nonzero (PyObject **ip, NpyArray *ap)
         return (Bool) PyObject_IsTrue(obj);
     }
 }
-    
+
 
 /*
  *****************************************************************************
@@ -1654,8 +1660,8 @@ OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *NP
 }
 
 
-    
-    
+
+
 /*
  *****************************************************************************
  **                             SETUP TYPE INFO                             **
