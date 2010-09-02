@@ -25,7 +25,6 @@ libndarray/Makefile
 libndarray/Makefile.in
 libndarray/autom4te.cache
 libndarray/config.*
-libndarray/configure
 libndarray/depcomp
 libndarray/install-sh
 libndarray/libtool
