@@ -110,48 +110,6 @@ def check_types(config_cmd, ext, build_dir):
     private_defines = []
     public_defines = []
 
-    # Expected size (in number of bytes) for each type. This is an
-    # optimization: those are only hints, and an exhaustive search for the size
-    # is done if the hints are wrong.
-    expected = {}
-    expected['Py_intptr_t'] = [4, 8]
-    expected['PY_LONG_LONG'] = [8]
-
-    # Check we have the python header (-dev* packages on Linux)
-    result = config_cmd.check_header('Python.h')
-    if not result:
-        raise SystemError(
-                "Cannot compile 'Python.h'. Perhaps you need to "\
-                "install python-dev|python-devel.")
-
-    for type in ('Py_intptr_t',):
-        res = config_cmd.check_type_size(type, headers=["Python.h"],
-                library_dirs=[pythonlib_dir()],
-                expected=expected[type])
-
-        if res >= 0:
-            private_defines.append(('SIZEOF_%s' % sym2def(type), '%d' % res))
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def(type), '%d' % res))
-        else:
-            raise SystemError("Checking sizeof (%s) failed !" % type)
-
-    # We check declaration AND type because that's how distutils does it.
-    if config_cmd.check_decl('PY_LONG_LONG', headers=['Python.h']):
-        res = config_cmd.check_type_size('PY_LONG_LONG',  headers=['Python.h'],
-                library_dirs=[pythonlib_dir()],
-                expected=expected['PY_LONG_LONG'])
-        if res >= 0:
-            private_defines.append(('SIZEOF_%s' % sym2def('PY_LONG_LONG'),
-                                    '%d' % res))
-            public_defines.append(('NPY_SIZEOF_%s' % sym2def('PY_LONG_LONG'),
-                                   '%d' % res))
-        else:
-            raise SystemError("Checking sizeof (%s) failed !" % 'PY_LONG_LONG')
-
-    if not config_cmd.check_decl('CHAR_BIT', headers=['Python.h']):
-        raise RuntimeError("Config wo CHAR_BIT is not supported, "
-                           "please contact the maintainers")
-
     return private_defines, public_defines
 
 
@@ -192,10 +150,6 @@ def configuration(parent_package='', top_path=None):
 
     if is_released(config):
         warnings.simplefilter('error', MismatchCAPIWarning)
-
-    # Check whether we have a mismatch between the set C API VERSION and the
-    # actual C API VERSION
-    check_api_version(C_API_VERSION, codegen_dir)
 
     generate_umath_py = join(codegen_dir, 'generate_umath.py')
     n = dot_join(config.name, 'generate_umath')
@@ -332,8 +286,8 @@ def configuration(parent_package='', top_path=None):
             moredefs.append(('NPY_VISIBILITY_HIDDEN', hidden_visibility))
 
             # Add the C API/ABI versions
-            moredefs.append(('NUMPY_ABI_VERSION', '0x%.8X' % C_ABI_VERSION))
-            moredefs.append(('NUMPY_API_VERSION', '0x%.8X' % C_API_VERSION))
+            moredefs.append(('NUMPY_ABI_VERSION', '2.0.0'))
+            moredefs.append(('NUMPY_API_VERSION', '2.0.0'))
 
             # Add moredefs to header
             target_f = open(target, 'w')
