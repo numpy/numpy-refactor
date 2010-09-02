@@ -9,8 +9,8 @@ from numscons import GetNumpyEnvironment, scons_get_mathlib
 usr_lib_dir = pjoin(pexpanduser('~'), 'usr', 'lib')
 usr_inc_dir = pjoin(pexpanduser('~'), 'usr', 'include')
 
+
 def CheckWincrypt(context):
-    from copy import deepcopy
     src = """\
 /* check to see if _WIN32 is defined */
 int main(int argc, char *argv[])

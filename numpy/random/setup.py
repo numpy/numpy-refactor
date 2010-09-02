@@ -1,9 +1,21 @@
-from os.path import join, split, dirname
-import os
-import sys
-from distutils.dep_util import newer
+from os.path import join
 
 from numpy.distutils.system_info import get_info
+
+
+
+def testcode_wincrypt():
+    return """\
+/* check to see if _WIN32 is defined */
+int main(int argc, char *argv[])
+{
+#ifdef _WIN32
+    return 0;
+#else
+    return 1;
+#endif
+}
+"""
 
 
 def configuration(parent_package='',top_path=None):
@@ -35,19 +47,6 @@ def configuration(parent_package='',top_path=None):
 
     return config
 
-
-def testcode_wincrypt():
-    return """\
-/* check to see if _WIN32 is defined */
-int main(int argc, char *argv[])
-{
-#ifdef _WIN32
-    return 0;
-#else
-    return 1;
-#endif
-}
-"""
 
 if __name__ == '__main__':
     from numpy.distutils.core import setup
