@@ -53,9 +53,10 @@ static PyObject *pHandleErrorFunc;
 static int
 deferred_libnumarray_init(void)
 {
-static int initialized=0;
+    static int initialized=0;
 
-    if (initialized) return 0;
+    if (initialized)
+        return 0;
 
     pCfuncClass = (PyObject *) &CfuncType;
     Py_INCREF(pCfuncClass);
@@ -203,12 +204,12 @@ static double numarray_zero = 0.0;
 
 static double raiseDivByZero(void)
 {
-    return 1.0/numarray_zero;
+    return 1.0 / numarray_zero;
 }
 
 static double raiseNegDivByZero(void)
 {
-    return -1.0/numarray_zero;
+    return -1.0 / numarray_zero;
 }
 
 static double num_log(double x)
@@ -384,7 +385,7 @@ NA_NewAll(int ndim, maybelong *shape, NumarrayType type,
             }
         }
     }
-    return  result;
+    return result;
 }
 
 static PyArrayObject *
@@ -413,14 +414,14 @@ NA_New(void *buffer, NumarrayType type, int ndim, ...)
         shape[i] = va_arg(ap, int);
     va_end(ap);
     return NA_NewAll(ndim, shape, type, buffer, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                     NA_ByteOrder(), 1, 1);
 }
 
 static PyArrayObject *
 NA_Empty(int ndim, maybelong *shape, NumarrayType type)
 {
     return NA_NewAll(ndim, shape, type, NULL, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                     NA_ByteOrder(), 1, 1);
 }
 
 
@@ -432,7 +433,7 @@ static PyArrayObject *
 NA_vNewArray(void *buffer, NumarrayType type, int ndim, maybelong *shape)
 {
     return (PyArrayObject *) NA_NewAll(ndim, shape, type, buffer, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                                       NA_ByteOrder(), 1, 1);
 }
 
 static PyArrayObject *
@@ -609,7 +610,7 @@ NA_callCUFuncCore(PyObject *self,
     if (!PyObject_IsInstance(self, (PyObject *) &CfuncType)
             || me->descr.type != CFUNC_UFUNC)
         return PyErr_Format(PyExc_TypeError,
-                "NA_callCUFuncCore: problem with cfunc.");
+                            "NA_callCUFuncCore: problem with cfunc.");
 
     for (i=0; i<pnargs; i++) {
         int readonly = (i < ninargs);
@@ -1041,19 +1042,19 @@ NA_new_cfunc(CfuncDescriptor *cfd)
 
     /* Should be done once at init.
        Do now since there is no init. */
-    ((PyObject*)&CfuncType)->ob_type = &PyType_Type;
+    ((PyObject *)&CfuncType)->ob_type = &PyType_Type;
 
     cfunc = PyObject_New(CfuncObject, &CfuncType);
 
     if (!cfunc) {
         return PyErr_Format(_Error,
-                "NA_new_cfunc: failed creating '%s'",
-                cfd->name);
+                            "NA_new_cfunc: failed creating '%s'",
+                            cfd->name);
     }
 
     cfunc->descr = *cfd;
 
-    return (PyObject*)cfunc;
+    return (PyObject *)cfunc;
 }
 
 static int NA_add_cfunc(PyObject *dict, char *keystr, CfuncDescriptor *descr)
@@ -2158,7 +2159,8 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, long offset)
             mustbe = NUMBER;
         } else if (PyString_Check(o)) {
             PyErr_SetString( PyExc_ValueError,
-                    "setArrayFromSequence: strings can't define numeric numarray.");
+                             "setArrayFromSequence: strings can't "
+                             "define numeric numarray.");
             return -3;
         } else if (PySequence_Check(o)) {
             if ((mustbe == NOTHING) || (mustbe == SEQUENCE)) {
