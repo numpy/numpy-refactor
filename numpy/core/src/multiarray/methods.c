@@ -1123,14 +1123,14 @@ _deepcopy_call(char *iptr, char *optr, NpyArray_Descr *dtype,
     else {
         PyObject *itemp, *otemp;
         PyObject *res;
-        NPY_COPY_PYOBJECT_PTR(&itemp, iptr);
-        NPY_COPY_PYOBJECT_PTR(&otemp, optr);
+        NPY_COPY_VOID_PTR(&itemp, iptr);
+        NPY_COPY_VOID_PTR(&otemp, optr);
         Py_XINCREF(itemp);
         /* call deepcopy on this argument */
         res = PyObject_CallFunctionObjArgs(deepcopy, itemp, visit, NULL);
         Py_XDECREF(itemp);
         Py_XDECREF(otemp);
-        NPY_COPY_PYOBJECT_PTR(optr, &res);
+        NPY_COPY_VOID_PTR(optr, &res);
     }
 
 }

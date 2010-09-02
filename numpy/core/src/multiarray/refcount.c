@@ -154,7 +154,7 @@ _fillobject(char *optr, PyObject *obj, NpyArray_Descr *dtype)
     }
     else {
         Py_XINCREF(obj);
-        NPY_COPY_PYOBJECT_PTR(optr, &obj);
+        NPY_COPY_VOID_PTR(optr, &obj);
         return;
     }
 }

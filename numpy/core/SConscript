@@ -80,10 +80,11 @@ numpyconfig_sym.append(('NPY_NO_SMP', nosmp))
 # Check whether we can use C99 printing formats
 #----------------------------------------------
 if config.CheckDeclaration(('PRIdPTR'), includes  = '#include <inttypes.h>'):
-    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS', '#define NPY_USE_C99_FORMATS 1'))
+    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS',
+                            '#define NPY_USE_C99_FORMATS 1'))
 else:
     numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS', ''))
-    
+
 
 inline = config.CheckInline()
 config.Define('inline', inline)

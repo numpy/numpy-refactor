@@ -537,7 +537,7 @@ OBJECT_getitem(char *ip, NpyArray *ap)
     }
     else {
         PyObject *obj;
-        NPY_COPY_PYOBJECT_PTR(&obj, ip);
+        NPY_COPY_VOID_PTR(&obj, ip);
         if (obj == NULL) {
             Py_INCREF(Py_None);
             return Py_None;
@@ -561,9 +561,9 @@ OBJECT_setitem(PyObject *op, char *ov, NpyArray *ap)
     }
     else {
         PyObject *obj;
-        NPY_COPY_PYOBJECT_PTR(&obj, ov);
+        NPY_COPY_VOID_PTR(&obj, ov);
         Py_XDECREF(obj);
-        NPY_COPY_PYOBJECT_PTR(ov, &op);
+        NPY_COPY_VOID_PTR(ov, &op);
     }
     return PyErr_Occurred() ? -1 : 0;
 }
@@ -1432,11 +1432,11 @@ OBJECT_copyswapn (PyObject **dst, intp dstride, PyObject **src, intp sstride,
             dstp = (unsigned char*)dst;
             srcp = (unsigned char*)src;
             for (i = 0; i < n; i++) {
-                NPY_COPY_PYOBJECT_PTR(&tmp, dstp);
+                NPY_COPY_VOID_PTR(&tmp, dstp);
                 Py_XDECREF(tmp);
-                NPY_COPY_PYOBJECT_PTR(&tmp, srcp);
+                NPY_COPY_VOID_PTR(&tmp, srcp);
                 Py_XINCREF(tmp);
-                NPY_COPY_PYOBJECT_PTR(dstp, srcp);
+                NPY_COPY_VOID_PTR(dstp, srcp);
                 dstp += dstride;
                 srcp += sstride;
             }
@@ -1458,11 +1458,11 @@ OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap), void *NPY_
         }
         else {
             PyObject *tmp;
-            NPY_COPY_PYOBJECT_PTR(&tmp, dst);
+            NPY_COPY_VOID_PTR(&tmp, dst);
             Py_XDECREF(tmp);
-            NPY_COPY_PYOBJECT_PTR(&tmp, src);
+            NPY_COPY_VOID_PTR(&tmp, src);
             Py_XINCREF(tmp);
-            NPY_COPY_PYOBJECT_PTR(dst, src);
+            NPY_COPY_VOID_PTR(dst, src);
         }
     }
 }
@@ -1587,7 +1587,7 @@ OBJECT_nonzero (PyObject **ip, NpyArray *ap)
     }
     else {
         PyObject *obj;
-        NPY_COPY_PYOBJECT_PTR(&obj, ip);
+        NPY_COPY_VOID_PTR(&obj, ip);
         if (obj == NULL) {
             return FALSE;
         }
