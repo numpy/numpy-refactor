@@ -1412,41 +1412,41 @@ OBJECT_copyswapn(PyObject **dst, intp dstride, PyObject **src, intp sstride,
 {
     intp i;
 
-    if (src != NULL) {
-        if (__ALIGNED(dst, sizeof(PyObject **)) &&
-            __ALIGNED(src, sizeof(PyObject **)) &&
-            __ALIGNED(dstride, sizeof(PyObject **)) &&
-            __ALIGNED(sstride, sizeof(PyObject **)))
-        {
-            dstride /= sizeof(PyObject **);
-            sstride /= sizeof(PyObject **);
-            for (i = 0; i < n; i++) {
-                Py_XINCREF(*src);
-                Py_XDECREF(*dst);
-                *dst = *src;
-                dst += dstride;
-                src += sstride;
-            }
-        }
-        else
-        {
-            unsigned char *dstp, *srcp;
-            PyObject *tmp;
+    if (src == NULL)
+        return;
 
-            dstp = (unsigned char*)dst;
-            srcp = (unsigned char*)src;
-            for (i = 0; i < n; i++) {
-                NPY_COPY_VOID_PTR(&tmp, dstp);
-                Py_XDECREF(tmp);
-                NPY_COPY_VOID_PTR(&tmp, srcp);
-                Py_XINCREF(tmp);
-                NPY_COPY_VOID_PTR(dstp, srcp);
-                dstp += dstride;
-                srcp += sstride;
-            }
+    if (__ALIGNED(dst, sizeof(PyObject **)) &&
+        __ALIGNED(src, sizeof(PyObject **)) &&
+        __ALIGNED(dstride, sizeof(PyObject **)) &&
+        __ALIGNED(sstride, sizeof(PyObject **)))
+    {
+        dstride /= sizeof(PyObject **);
+        sstride /= sizeof(PyObject **);
+        for (i = 0; i < n; i++) {
+            Py_XINCREF(*src);
+            Py_XDECREF(*dst);
+            *dst = *src;
+            dst += dstride;
+            src += sstride;
         }
     }
-    /* ignore swap */
+    else
+    {
+        unsigned char *dstp, *srcp;
+        PyObject *tmp;
+
+        dstp = (unsigned char*)dst;
+        srcp = (unsigned char*)src;
+        for (i = 0; i < n; i++) {
+            NPY_COPY_VOID_PTR(&tmp, dstp);
+            Py_XDECREF(tmp);
+            NPY_COPY_VOID_PTR(&tmp, srcp);
+            Py_XINCREF(tmp);
+            NPY_COPY_VOID_PTR(dstp, srcp);
+            dstp += dstride;
+            srcp += sstride;
+        }
+    }
     return;
 }
 
@@ -1454,25 +1454,26 @@ void
 OBJECT_copyswap(PyObject **dst, PyObject **src, int NPY_UNUSED(swap),
                 void *NPY_UNUSED(arr))
 {
+    if (src == NULL)
+        return;
 
-    if (src != NULL) {
-        if (__ALIGNED(dst, sizeof(PyObject **)) &&
-            __ALIGNED(src, sizeof(PyObject **)))
-        {
-            Py_XINCREF(*src);
-            Py_XDECREF(*dst);
-            *dst = *src;
-        }
-        else
-        {
-            PyObject *tmp;
-            NPY_COPY_VOID_PTR(&tmp, dst);
-            Py_XDECREF(tmp);
-            NPY_COPY_VOID_PTR(&tmp, src);
-            Py_XINCREF(tmp);
-            NPY_COPY_VOID_PTR(dst, src);
-        }
+    if (__ALIGNED(dst, sizeof(PyObject **)) &&
+        __ALIGNED(src, sizeof(PyObject **)))
+    {
+        Py_XINCREF(*src);
+        Py_XDECREF(*dst);
+        *dst = *src;
     }
+    else
+    {
+        PyObject *tmp;
+        NPY_COPY_VOID_PTR(&tmp, dst);
+        Py_XDECREF(tmp);
+        NPY_COPY_VOID_PTR(&tmp, src);
+        Py_XINCREF(tmp);
+        NPY_COPY_VOID_PTR(dst, src);
+    }
+    return;
 }
 
 
