@@ -36,7 +36,8 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
         NpyDict_Iter pos;
 
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos,
+                                (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -66,7 +67,8 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
         NpyDict_Iter pos;
 
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos,
+                                (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -186,4 +188,3 @@ NpyArray_XDECREF(NpyArray *mp)
     }
     return 0;
 }
-
