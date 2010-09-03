@@ -156,8 +156,13 @@ def exec_command( command,
     On NT, DOS systems the returned status is correct for external commands.
     Wild cards will not work for non-posix systems or when use_shell=0.
     """
-    log.debug('exec_command(%r,%s)' % (command,\
-         ','.join(['%s=%r'%kv for kv in env.items()])))
+    if isinstance(command, str):
+        log.info(command)
+    else:
+        log.info(' '.join(command))
+
+    log.debug('exec_command(%r,%s)' % (command,
+                  ','.join(['%s=%r'%kv for kv in env.items()])))
 
     if use_tee is None:
         use_tee = os.name=='posix'
