@@ -73,20 +73,19 @@ def is_npy_no_smp():
     #  cause the segfault. So, we disable threading
     #  for now.
     if sys.version[:5] < '2.4.2':
-        nosmp = 1
-    else:
-        # Perhaps a fancier check is in order here.
-        #  so that threads are only enabled if there
-        #  are actually multiple CPUS? -- but
-        #  threaded code can be nice even on a single
-        #  CPU so that long-calculating code doesn't
-        #  block.
-        try:
-            nosmp = os.environ['NPY_NOSMP']
-            nosmp = 1
-        except KeyError:
-            nosmp = 0
-    return nosmp == 1
+        return True
+
+    # Perhaps a fancier check is in order here.
+    #  so that threads are only enabled if there
+    #  are actually multiple CPUS? -- but
+    #  threaded code can be nice even on a single
+    #  CPU so that long-calculating code doesn't
+    #  block.
+    try:
+        nosmp = os.environ['NPY_NOSMP']
+        return True
+    except KeyError:
+        return False
 
 
 def win32_checks(deflist):
