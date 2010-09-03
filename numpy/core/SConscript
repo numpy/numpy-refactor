@@ -15,7 +15,7 @@ from code_generators.numpy_api import \
 
 from setup_common import C_ABI_VERSION, C_API_VERSION
 from scons_support import (CheckBrokenMathlib, define_no_smp,
-                           check_mlibs, is_npy_no_signal, CheckInline,
+                           is_npy_no_signal, CheckInline,
                            array_api_gen_bld, ufunc_api_gen_bld, template_bld,
                            umath_bld, CheckGCC4, check_api_version)
 
