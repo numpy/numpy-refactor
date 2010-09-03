@@ -368,7 +368,7 @@ gentype_repr(PyObject *self)
     return ret;
 }
 
-#ifdef FORCE_NO_LONG_DOUBLE_FORMATTING
+#ifdef NPY_FORCE_NO_LONG_DOUBLE_FORMATTING
 #undef NPY_LONGDOUBLE_FMT
 #define NPY_LONGDOUBLE_FMT NPY_DOUBLE_FMT
 #endif

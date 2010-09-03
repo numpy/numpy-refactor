@@ -348,7 +348,7 @@ int _npy_signbit_d(double x)
 
 _ASCII_FORMAT(float, f, float)
 _ASCII_FORMAT(double, d, double)
-#ifndef FORCE_NO_LONG_DOUBLE_FORMATTING
+#ifndef NPY_FORCE_NO_LONG_DOUBLE_FORMATTING
 _ASCII_FORMAT(long double, l, long double)
 #else
 _ASCII_FORMAT(long double, l, double)

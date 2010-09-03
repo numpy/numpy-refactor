@@ -9,8 +9,7 @@ from distutils.sysconfig import get_config_var
 from numpy.distutils import log
 from numpy.distutils.system_info import get_info
 
-from setup_common import (is_released, check_api_version,
-                          C_API_VERSION, C_ABI_VERSION, sym2def)
+from setup_common import is_released
 
 
 # XXX: ugly, we use a class to avoid calling twice some expensive functions in
@@ -24,18 +23,6 @@ try:
 except ImportError:
     import pickle as _pik
 import copy
-
-class CallOnceOnly(object):
-    def __init__(self):
-        self._check_types = None
-
-    def check_types(self, *a, **kw):
-        if self._check_types is None:
-            out = check_types(*a, **kw)
-            self._check_types = _pik.dumps(out)
-        else:
-            out = copy.deepcopy(_pik.loads(self._check_types))
-        return out
 
 PYTHON_HAS_UNICODE_WIDE = True
 
@@ -73,20 +60,19 @@ def is_npy_no_smp():
     #  cause the segfault. So, we disable threading
     #  for now.
     if sys.version[:5] < '2.4.2':
-        nosmp = 1
-    else:
-        # Perhaps a fancier check is in order here.
-        #  so that threads are only enabled if there
-        #  are actually multiple CPUS? -- but
-        #  threaded code can be nice even on a single
-        #  CPU so that long-calculating code doesn't
-        #  block.
-        try:
-            nosmp = os.environ['NPY_NOSMP']
-            nosmp = 1
-        except KeyError:
-            nosmp = 0
-    return nosmp == 1
+        return True
+
+    # Perhaps a fancier check is in order here.
+    #  so that threads are only enabled if there
+    #  are actually multiple CPUS? -- but
+    #  threaded code can be nice even on a single
+    #  CPU so that long-calculating code doesn't
+    #  block.
+    try:
+        nosmp = os.environ['NPY_NOSMP']
+        return True
+    except KeyError:
+        return False
 
 
 def win32_checks(deflist):
@@ -98,19 +84,6 @@ def win32_checks(deflist):
           (a, os.name, sys.platform))
     if a == 'AMD64':
         deflist.append('DISTUTILS_USE_SDK')
-
-    # On win32, force long double format string to be 'g', not
-    # 'Lg', since the MS runtime does not support long double whose
-    # size is > sizeof(double)
-    if a == "Intel" or a == "AMD64":
-        deflist.append('FORCE_NO_LONG_DOUBLE_FORMATTING')
-
-
-def check_types(config_cmd, ext, build_dir):
-    private_defines = []
-    public_defines = []
-
-    return private_defines, public_defines
 
 
 def check_mathlib(config_cmd):
@@ -160,8 +133,6 @@ def configuration(parent_package='', top_path=None):
 
     header_dir = 'include/numpy' # this is relative to config.path_in_package
 
-    cocache = CallOnceOnly()
-
     def generate_config_h(ext, build_dir):
         target = join(build_dir,header_dir,'config.h')
         d = dirname(target)
@@ -171,9 +142,7 @@ def configuration(parent_package='', top_path=None):
         if newer(__file__,target):
             config_cmd = config.get_config_cmd()
             log.info('Generating %s',target)
-
-            # Check sizeof
-            moredefs, ignored = cocache.check_types(config_cmd, ext, build_dir)
+            moredefs = []
 
             # Check math library and C99 math funcs availability
             mathlibs = check_mathlib(config_cmd)
@@ -263,9 +232,7 @@ def configuration(parent_package='', top_path=None):
         if newer(__file__,target):
             config_cmd = config.get_config_cmd()
             log.info('Generating %s',target)
-
-            # Check sizeof
-            ignored, moredefs = cocache.check_types(config_cmd, ext, build_dir)
+            moredefs = []
 
             if is_npy_no_signal():
                 moredefs.append(('NPY_NO_SIGNAL', 1))
