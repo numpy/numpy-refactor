@@ -9,8 +9,7 @@ from distutils.sysconfig import get_config_var
 from numpy.distutils import log
 from numpy.distutils.system_info import get_info
 
-from setup_common import (is_released, check_api_version,
-                          C_API_VERSION, C_ABI_VERSION, sym2def)
+from setup_common import is_released
 
 
 # XXX: ugly, we use a class to avoid calling twice some expensive functions in
