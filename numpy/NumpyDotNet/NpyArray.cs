@@ -138,8 +138,10 @@ namespace NumpyDotNet {
             if (src is ndarray) {
                 chktype = ((ndarray)src).Descr;
                 if (minitype == null) return chktype;
-            } /* else if IsScalarType(op, Generic) { } */
-            // TODO: No handling for scalar types (common.c:110) 
+            } else {
+                chktype = FindScalarType(src);
+                if (chktype != null && minitype == null) return chktype;
+            }
 
             // If a minimum type wasn't give, default to bool.
             if (minitype == null) 
@@ -185,19 +187,28 @@ namespace NumpyDotNet {
             throw new NotImplementedException("UseDefaultType (see common.c: _use_default_type) not implemented.");
         }
 
-        internal static dtype FindScalarType(Object src) {
-            NpyCoreApi.NPY_TYPES type = NpyCoreApi.NPY_TYPES.NPY_NOTYPE;
 
-            // TODO: Complex types not handled.  Are int32/64 -> long, longlong correct?
+        /// <summary>
+        /// Returns the descriptor for a given native type or null if src is
+        /// not a scalar type
+        /// </summary>
+        /// <param name="src">Object to type</param>
+        /// <returns>Descriptor for type of 'src' or null if not scalar</returns>
+        internal static dtype FindScalarType(Object src) {
+            NpyCoreApi.NPY_TYPES type;
+
+            // TODO: Complex numbers not handled.  
+            // TODO: Are int32/64 -> long, longlong correct?
             if (src is Double) type = NpyCoreApi.NPY_TYPES.NPY_DOUBLE;
             else if (src is Single) type = NpyCoreApi.NPY_TYPES.NPY_FLOAT;
             else if (src is Boolean) type = NpyCoreApi.NPY_TYPES.NPY_BOOL;
             else if (src is Byte) type = NpyCoreApi.NPY_TYPES.NPY_BYTE;
             else if (src is Int16 || src is Int32) type = NpyCoreApi.NPY_TYPES.NPY_LONG;
             else if (src is Int64) type = NpyCoreApi.NPY_TYPES.NPY_LONGLONG;
-            else throw new NotImplementedException(String.Format("Unhandled scalar type {0}", src.GetType().Name));
+            else type = NpyCoreApi.NPY_TYPES.NPY_NOTYPE;
 
-            return NpyCoreApi.DescrFromType(type);
+            return (type != NpyCoreApi.NPY_TYPES.NPY_NOTYPE) ?
+                NpyCoreApi.DescrFromType(type) : null;
         }
 
 
@@ -263,7 +274,7 @@ namespace NumpyDotNet {
 
                 Int64 nLowest = 0;
                 dims[dimIdx] = seq.Count();
-                if (dims[dimIdx] > 1) {
+                if (numDim > 1 && dims[dimIdx] > 1) {
                     foreach (Object o in seq) {
                         if (!DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt)) {
                             error = true;

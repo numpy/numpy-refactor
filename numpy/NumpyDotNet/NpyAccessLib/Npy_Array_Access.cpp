@@ -9,6 +9,9 @@ extern "C" {
 #include <npy_object.h>
 }
 
+extern "C" _declspec(dllimport) npy_interface_incref _NpyInterface_Incref;
+extern "C" _declspec(dllimport) npy_interface_decref _NpyInterface_Decref;
+
 
 ///
 /// This library provides a set of native access functions used by NumpyDotNet
@@ -29,7 +32,13 @@ extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_Decref(NpyObject *obj)
 {
     assert(NPY_VALID_MAGIC == obj->nob_magic_number);
-    Npy_DECREF(obj);
+    //Npy_DECREF(obj);
+    if (0 == InterlockedDecrement(&(obj)->nob_refcnt)) {                            
+        if (NULL != Npy_INTERFACE(obj))                                       
+            _NpyInterface_Decref(Npy_INTERFACE(obj), &((obj)->nob_interface));  
+        else                                                                
+           (obj)->nob_type->ntp_dealloc((_NpyObject*)obj);                      
+    }
 }
 
 
@@ -131,7 +140,7 @@ extern "C" __declspec(dllexport)
         dims = (npy_intp *)dimensions;
     }
     
-    void *arr = NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
+    NpyArray *arr = NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
 
     if (sizeof(npy_int64) != sizeof(npy_intp)) {
         free(dims);

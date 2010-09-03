@@ -272,13 +272,13 @@ namespace NumpyDotNet
             IntPtr nativeDims = IntPtr.Zero;
 
             try {
-                nativeDims = Marshal.AllocHGlobal(sizeof(long) * numdim);
-                Marshal.StructureToPtr(dimensions, nativeDims, true);
+/*                nativeDims = Marshal.AllocHGlobal(sizeof(long) * numdim);
+                Marshal.StructureToPtr(dimensions, nativeDims, true); */
                 Incref(descr.Descr);
                 return DecrefToInterface<ndarray>(
-                    NpyArrayAccess_AllocArray(descr.Descr, numdim, nativeDims, fortran));
+                    NpyArrayAccess_AllocArray(descr.Descr, numdim, dimensions, fortran));
             } finally {
-                Marshal.FreeHGlobal(nativeDims);
+                //Marshal.FreeHGlobal(nativeDims);
             }
         }
 
@@ -370,9 +370,9 @@ namespace NumpyDotNet
             EntryPoint = "NpyArrayAccess_GetArrayDims")]
         unsafe private static extern bool GetArrayDims(IntPtr arr, int numDims, Int64 *dimMem);
 
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
-            IntPtr dims, bool fortran);
+            [MarshalAs(UnmanagedType.LPArray)] long[] dims, bool fortran);
 
 
         #endregion
@@ -474,28 +474,98 @@ namespace NumpyDotNet
         /// <summary>
         /// Allocates a managed wrapper for the passed array object.
         /// </summary>
-        /// <param name="array">Pointer to the native array object</param>
-        /// <returns>Handle to the managed wrapper</returns>
-        private static IntPtr ArrayNewWrapper(IntPtr array) {
-            ndarray wrap = new ndarray(array);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(wrap));
+        /// <param name="coreArray">Pointer to the native array object</param>
+        /// <param name="ensureArray">If true forces base array type, not subtype</param>
+        /// <param name="customStrides">Not sure how this is used</param>
+        /// <param name="interfaceData">Not used</param>
+        /// <param name="interfaceRet">void ** for us to store the allocated wrapper</param>
+        /// <returns>True on success, false on failure</returns>
+        private static int ArrayNewWrapper(IntPtr coreArray, int ensureArray,
+            int customStrides, IntPtr subtypePtr, IntPtr interfaceData, 
+            IntPtr interfaceRet) {
+            int success = 1;     // Success
+
+            try {
+                // TODO: subtyping is not figured out or implemented yet.
+
+                ndarray wrapArray = new ndarray(coreArray);
+                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapArray));
+                Marshal.WriteIntPtr(interfaceRet, ret);
+
+                // TODO: Skipping subtype-specific initialization (ctors.c:718)
+            } catch (InsufficientMemoryException e) {
+                Console.WriteLine("Insufficient memory while allocating array wrapper.");
+                success = 0;
+            } catch (Exception e) {
+                Console.WriteLine("Exception while allocating array wrapper.");
+                success = 0;
+            }
+            return success;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr del_ArrayNewWrapper(IntPtr ptr);
+        public delegate int del_ArrayNewWrapper(IntPtr coreArray, int ensureArray,
+            int customStrides, IntPtr subtypePtr, IntPtr interfaceData, 
+            IntPtr interfaceRet);
 
 
         /// <summary>
-        /// Allocated a managed wrapper for the passed descriptor object.
+        /// Allocated a managed wrapper for one of the core, native types
         /// </summary>
+        /// <param name="type">Type code (not used)</param>
         /// <param name="descr">Pointer to the native descriptor object</param>
-        /// <returns>Handle to the managed wrapper</returns>
-        private static IntPtr DescrNewWrapper(IntPtr descr) {
-            dtype wrap = new dtype(descr);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(wrap));
+        /// <param name="interfaceRet">void** for returning allocated wrapper</param>
+        /// <returns>1 on success, 0 on error</returns>
+        private static int DescrNewFromType(int type, IntPtr descr, IntPtr interfaceRet) {
+            int success = 1;
+
+            try {
+                // TODO: Descriptor typeobj not handled. Do we need to?
+
+                dtype wrap = new dtype(descr);
+                Marshal.WriteIntPtr(interfaceRet,
+                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+            } catch (InsufficientMemoryException e) {
+                Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
+                success = 0;
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating descriptor wrapper.");
+                success = 0;
+            }
+            return success;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate IntPtr del_DescrNewWrapper(IntPtr ptr);
+        public delegate int del_DescrNewFromType(int type, IntPtr descr, IntPtr interfaceRet);
 
+
+
+
+        /// <summary>
+        /// Allocated a managed wrapper for a user defined type
+        /// </summary>
+        /// <param name="baseTmp">Pointer to the base descriptor (not used)</param>
+        /// <param name="descr">Pointer to the native descriptor object</param>
+        /// <param name="interfaceRet">void** for returning allocated wrapper</param>
+        /// <returns>1 on success, 0 on error</returns>
+        private static int DescrNewFromWrapper(IntPtr baseTmp, IntPtr descr, IntPtr interfaceRet) {
+            int success = 1;
+
+            try {
+                // TODO: Descriptor typeobj not handled. Do we need to?
+
+                dtype wrap = new dtype(descr);
+                Marshal.WriteIntPtr(interfaceRet,
+                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+            } catch (InsufficientMemoryException e) {
+                Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
+                success = 0;
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating descriptor wrapper.");
+                success = 0;
+            }
+            return success;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_DescrNewFromWrapper(IntPtr baseTmp, IntPtr descr, IntPtr interfaceRet);
 
 
 
@@ -526,7 +596,6 @@ namespace NumpyDotNet
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr del_Incref(IntPtr ptr, IntPtr wrapPtr);
 
-
         /// <summary>
         /// Releases the reference to the given interface object.  Note that
         /// this is not a decref but actual freeingo of this handle, it can
@@ -541,8 +610,9 @@ namespace NumpyDotNet
                 GCHandle handle = GCHandle.FromIntPtr(ptr);
                 Object target = handle.Target;
                 lock (interfaceSyncRoot) {
-                    if (ptr == wrapPtr) {
-                        wrapPtr = GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Weak));
+                    if (ptr == Marshal.ReadIntPtr(wrapPtr)) {
+                        Marshal.WriteIntPtr(wrapPtr,
+                            GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Weak)));
                     } else {
                         Console.WriteLine("Unexpected decref where wrapPtr != ptr.");
                     }
@@ -555,6 +625,24 @@ namespace NumpyDotNet
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
 
+        //
+        // These variables hold a reference to the delegates passed into the core.
+        // Failure to hold these references causes the callback function to disappear
+        // at some point when the GC runs.
+        //
+        private static readonly NpyInterface_WrapperFuncs wrapFuncs;
+
+        private static readonly del_ArrayNewWrapper ArrayNewWrapDelegate =
+            new del_ArrayNewWrapper(ArrayNewWrapper);
+        private static readonly del_DescrNewFromType DescrNewFromTypeDelegate =
+            new del_DescrNewFromType(DescrNewFromType);
+        private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
+            new del_DescrNewFromWrapper(DescrNewFromWrapper);
+        private static readonly del_Incref IncrefCallbackDelegate =
+            new del_Incref(IncrefCallback);
+        private static readonly del_Decref DecrefCallbackDelegate =
+            new del_Decref(DecrefCallback);
+
 
         /// <summary>
         /// Initializes the core library with necessary callbacks on load.
@@ -562,15 +650,18 @@ namespace NumpyDotNet
         static NpyCoreApi() {
             System.Console.WriteLine("Hello world");
 
-            NpyInterface_WrapperFuncs wrapFuncs = new NpyInterface_WrapperFuncs();
+            wrapFuncs = new NpyInterface_WrapperFuncs();
 
             wrapFuncs.array_new_wrapper = 
-                Marshal.GetFunctionPointerForDelegate(new del_ArrayNewWrapper(ArrayNewWrapper));
+                Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
             wrapFuncs.iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.multi_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
-            wrapFuncs.descr_new_from_type = IntPtr.Zero;
-            wrapFuncs.descr_new_from_wrapper = IntPtr.Zero;
+            wrapFuncs.descr_new_from_type =
+                Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
+            wrapFuncs.descr_new_from_wrapper =
+                Marshal.GetFunctionPointerForDelegate(DescrNewFromWrapperDelegate);
+
             int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
 
             IntPtr wrapHandle = IntPtr.Zero;
@@ -584,8 +675,8 @@ namespace NumpyDotNet
                     IntPtr.Zero,
                     IntPtr.Zero,
                     IntPtr.Zero,
-                    Marshal.GetFunctionPointerForDelegate(new del_Incref(IncrefCallback)),
-                    Marshal.GetFunctionPointerForDelegate(new del_Decref(DecrefCallback)));
+                    Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
+                    Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate));
             } finally {
                 Marshal.FreeHGlobal(wrapHandle);
             }

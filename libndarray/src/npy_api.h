@@ -356,8 +356,8 @@ typedef void *(*npy_interface_decref)(void *, void **);
 
 /* Do not call directly, use macros below because interface does not have
    to provide these. */
-extern npy_interface_incref _NpyInterface_Incref;
-extern npy_interface_decref _NpyInterface_Decref;
+//extern npy_interface_incref _NpyInterface_Incref;
+//extern npy_interface_decref _NpyInterface_Decref;
 
 #define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? \
                                   _NpyInterface_Incref(ptr, NULL) : NULL)

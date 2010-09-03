@@ -14,6 +14,10 @@
 #include "npy_descriptor.h"
 
 
+extern npy_interface_incref _NpyInterface_Incref;
+extern npy_interface_decref _NpyInterface_Decref;
+
+
 /* Incref all objects found at this record */
 /*NUMPY_API
  */

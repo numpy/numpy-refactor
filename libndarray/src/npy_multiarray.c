@@ -23,7 +23,8 @@ npy_tp_error_clear NpyErr_Clear;
 npy_tp_cmp_priority Npy_CmpPriority;
 
 /* Defined in npy_arraytypes.c.src */
-extern void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *);
+extern void _init_type_functions(struct NpyArray_FunctionDefs *);
+extern void _init_builtin_descr_wrappers();
 
 
 npy_interface_incref _NpyInterface_Incref = NULL;
@@ -57,9 +58,10 @@ void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
     _NpyInterface_Decref = decref;
 
     /* Must be last because it uses some of the above functions. */
-	if (NULL != functionDefs) {
-		_init_builtin_descr_wrappers(functionDefs);
-	}
+    if (NULL != functionDefs) {
+        _init_type_functions(functionDefs);
+    }
+    _init_builtin_descr_wrappers();
 }
 
 
