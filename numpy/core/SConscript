@@ -80,22 +80,10 @@ numpyconfig_sym.append(('NPY_NO_SMP', nosmp))
 # Check whether we can use C99 printing formats
 #----------------------------------------------
 if config.CheckDeclaration(('PRIdPTR'), includes  = '#include <inttypes.h>'):
-    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS', '#define NPY_USE_C99_FORMATS 1'))
+    numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS',
+                            '#define NPY_USE_C99_FORMATS 1'))
 else:
     numpyconfig_sym.append(('DEFINE_NPY_USE_C99_FORMATS', ''))
-    
-#----------------------
-# Checking the mathlib
-#----------------------
-mlibs = [[], ['m'], ['cpml']]
-mathlib = os.environ.get('MATHLIB')
-if mathlib:
-    mlibs.insert(0, mathlib)
-
-mlib = check_mlibs(config, mlibs)
-
-# XXX: this is ugly: mathlib has nothing to do in a public header file
-numpyconfig_sym.append(('MATHLIB', ','.join(mlib)))
 
 
 inline = config.CheckInline()
@@ -233,17 +221,12 @@ env.Prepend(LIBPATH=[".", pjoin(usr_dir, 'lib')])
 subst_dict = {'@prefix@': '$distutils_install_prefix',
               '@pkgname@': 'numpy.core', '@sep@': os.path.sep}
 
-subst_dict = {'@posix_mathlib@': " ".join(['-l%s' % l for l in mlib]),
-              '@msvc_mathlib@': " ".join(['%s.mlib' % l for l in mlib])}
-mlib_ini = env.SubstInFile(pjoin('lib', 'npy-pkg-config', 'mlib.ini'),
-    'mlib.ini.in', SUBST_DICT=subst_dict)
-env.Install('$distutils_installdir/lib/npy-pkg-config', mlib_ini)
-
 
 #-----------------
 # Build multiarray
 #-----------------
-multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule.c'),
+multiarray_src = [
+        pjoin('src', 'multiarray', 'multiarraymodule.c'),
         pjoin('src', 'multiarray', 'hashdescr.c'),
         pjoin('src', 'multiarray', 'arrayobject.c'),
         pjoin('src', 'multiarray', 'datetime.c'),
@@ -267,7 +250,8 @@ multiarray_src = [pjoin('src', 'multiarray', 'multiarraymodule.c'),
         pjoin('src', 'multiarray', 'usertypes.c'),
         pjoin('src', 'multiarray', 'buffer.c'),
         pjoin('src', 'multiarray', 'numpymemoryview.c'),
-        pjoin('src', 'multiarray', 'scalarapi.c')]
+        pjoin('src', 'multiarray', 'scalarapi.c'),
+]
 multiarray_src.extend(arraytypes_src)
 multiarray_src.extend(scalartypes_src)
 if PYTHON_HAS_UNICODE_WIDE:

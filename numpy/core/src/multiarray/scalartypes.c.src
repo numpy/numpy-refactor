@@ -1325,9 +1325,9 @@ voidtype_setfield(PyVoidScalarObject *self, PyObject *args, PyObject *kwds)
     if (typecode->descr->type_num == PyArray_OBJECT) {
         PyObject *temp;
         Py_INCREF(value);
-        NPY_COPY_PYOBJECT_PTR(&temp, dptr);
+        NPY_COPY_VOID_PTR(&temp, dptr);
         Py_XDECREF(temp);
-        NPY_COPY_PYOBJECT_PTR(dptr, &value);
+        NPY_COPY_VOID_PTR(dptr, &value);
         Py_DECREF(typecode);
     }
     else {

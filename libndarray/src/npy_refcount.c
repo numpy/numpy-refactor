@@ -26,9 +26,9 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
         return;
     }
     if (descr->type_num == NPY_OBJECT) {
-        NPY_COPY_PYOBJECT_PTR(&temp, data);
+        NPY_COPY_VOID_PTR(&temp, data);
         temp = NpyInterface_INCREF(temp);
-        NPY_COPY_PYOBJECT_PTR(data, &temp);
+        NPY_COPY_VOID_PTR(data, &temp);
     }
     else if (NpyDataType_HASFIELDS(descr)) {
         const char *key;
@@ -36,7 +36,8 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
         NpyDict_Iter pos;
 
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos,
+                                (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -66,7 +67,8 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
         NpyDict_Iter pos;
 
         NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(descr->fields, &pos, (void **)&key, (void **)&value)) {
+        while (NpyDict_IterNext(descr->fields, &pos,
+                                (void **)&key, (void **)&value)) {
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
@@ -112,9 +114,9 @@ NpyArray_INCREF(NpyArray *mp)
         }
         else {
             for( i = 0; i < n; i++, data++) {
-                NPY_COPY_PYOBJECT_PTR(&temp, data);
+                NPY_COPY_VOID_PTR(&temp, data);
                 temp = NpyInterface_INCREF(temp);
-                NPY_COPY_PYOBJECT_PTR(data, &temp);
+                NPY_COPY_VOID_PTR(data, &temp);
             }
         }
     }
@@ -124,9 +126,9 @@ NpyArray_INCREF(NpyArray *mp)
             return -1;
         }
         while(it->index < it->size) {
-            NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
+            NPY_COPY_VOID_PTR(&temp, it->dataptr);
             temp = NpyInterface_INCREF(temp);
-            NPY_COPY_PYOBJECT_PTR(it->dataptr, &temp);
+            NPY_COPY_VOID_PTR(it->dataptr, &temp);
             NpyArray_ITER_NEXT(it);
         }
         Npy_DECREF(it);
@@ -167,7 +169,7 @@ NpyArray_XDECREF(NpyArray *mp)
         }
         else {
             for (i = 0; i < n; i++, data++) {
-                NPY_COPY_PYOBJECT_PTR(&temp, data);
+                NPY_COPY_VOID_PTR(&temp, data);
                 NpyInterface_DECREF(temp);
             }
         }
@@ -178,7 +180,7 @@ NpyArray_XDECREF(NpyArray *mp)
             return -1;
         }
         while(it->index < it->size) {
-            NPY_COPY_PYOBJECT_PTR(&temp, it->dataptr);
+            NPY_COPY_VOID_PTR(&temp, it->dataptr);
             NpyInterface_DECREF(temp);
             NpyArray_ITER_NEXT(it);
         }
@@ -186,4 +188,3 @@ NpyArray_XDECREF(NpyArray *mp)
     }
     return 0;
 }
-

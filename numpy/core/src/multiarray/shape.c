@@ -136,7 +136,7 @@ _putzero(char *optr, PyObject *zero, NpyArray_Descr *dtype)
     }
     else {
         Py_INCREF(zero);
-        NPY_COPY_PYOBJECT_PTR(optr, &zero);
+        NPY_COPY_VOID_PTR(optr, &zero);
     }
     return;
 }

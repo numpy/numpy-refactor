@@ -1,22 +1,21 @@
-from os.path import join, split, dirname
-import os
-import sys
-from distutils.dep_util import newer
-from distutils.msvccompiler import get_build_version as get_msvc_build_version
+from os.path import join
 
 from numpy.distutils.system_info import get_info
 
 
-def needs_mingw_ftime_workaround():
-    # We need the mingw workaround for _ftime if the msvc runtime version is
-    # 7.1 or above and we build with mingw ...
-    # ... but we can't easily detect compiler version outside distutils command
-    # context, so we will need to detect in randomkit whether we build with gcc
-    msver = get_msvc_build_version()
-    if msver and msver >= 8:
-        return True
 
-    return False
+def testcode_wincrypt():
+    return """\
+/* check to see if _WIN32 is defined */
+int main(int argc, char *argv[])
+{
+#ifdef _WIN32
+    return 0;
+#else
+    return 1;
+#endif
+}
+"""
 
 
 def configuration(parent_package='',top_path=None):
@@ -32,10 +31,6 @@ def configuration(parent_package='',top_path=None):
         ext.libraries.extend(libs)
         return None
 
-    defs = []
-    if needs_mingw_ftime_workaround():
-        defs.append(("NPY_NEEDS_MINGW_TIME_WORKAROUND", None))
-
     # Configure mtrand
     config.add_extension('mtrand',
                          sources=[join('mtrand', x) for x in
@@ -45,7 +40,6 @@ def configuration(parent_package='',top_path=None):
                                     join('mtrand','*.pyx'),
                                     join('mtrand','*.pxi'),
                                     ],
-                         define_macros = defs,
                          **get_info('ndarray'))
 
     config.add_data_files(('.', join('mtrand', 'randomkit.h')))
@@ -53,19 +47,6 @@ def configuration(parent_package='',top_path=None):
 
     return config
 
-
-def testcode_wincrypt():
-    return """\
-/* check to see if _WIN32 is defined */
-int main(int argc, char *argv[])
-{
-#ifdef _WIN32
-    return 0;
-#else
-    return 1;
-#endif
-}
-"""
 
 if __name__ == '__main__':
     from numpy.distutils.core import setup

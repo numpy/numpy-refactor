@@ -12,7 +12,8 @@
 #include <sys/param.h>
 #endif
 
-#if defined(__GLIBC__) || defined(__APPLE__) || defined(__MINGW32__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
+#if defined(__GLIBC__) || defined(__APPLE__) || defined(__MINGW32__) || \
+       (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
 #include <fenv.h>
 #elif defined(__CYGWIN__)
 #include "numpy/fenv/fenv.h"
@@ -22,13 +23,13 @@
 
 #define RETURN_PYARRAY(arr)                     \
     do {                                        \
-        NpyArray* a_ = (arr);                    \
-        PyArrayObject* ret_;                     \
-        if (a_ == NULL) return NULL;             \
-        ret_ = Npy_INTERFACE(a_);                 \
-        Py_INCREF(ret_);                         \
+        NpyArray* a_ = (arr);                   \
+        PyArrayObject* ret_;                    \
+        if (a_ == NULL) return NULL;            \
+        ret_ = Npy_INTERFACE(a_);               \
+        Py_INCREF(ret_);                        \
         Npy_DECREF(a_);                         \
-        return ret_;                 \
+        return ret_;                            \
     } while (0)
 
 #define ASSIGN_TO_PYARRAY(pya, arr)             \
@@ -39,7 +40,7 @@
         } else {                                \
             pya = Npy_INTERFACE(a_);            \
             Py_INCREF(pya);                     \
-            Npy_DECREF(a_);                    \
+            Npy_DECREF(a_);                     \
         }                                       \
     } while (0)
 
@@ -52,9 +53,10 @@ static PyObject *pHandleErrorFunc;
 static int
 deferred_libnumarray_init(void)
 {
-static int initialized=0;
+    static int initialized=0;
 
-    if (initialized) return 0;
+    if (initialized)
+        return 0;
 
     pCfuncClass = (PyObject *) &CfuncType;
     Py_INCREF(pCfuncClass);
@@ -202,12 +204,12 @@ static double numarray_zero = 0.0;
 
 static double raiseDivByZero(void)
 {
-    return 1.0/numarray_zero;
+    return 1.0 / numarray_zero;
 }
 
 static double raiseNegDivByZero(void)
 {
-    return -1.0/numarray_zero;
+    return -1.0 / numarray_zero;
 }
 
 static double num_log(double x)
@@ -268,15 +270,15 @@ static double num_round(double x)
 }
 
 
-/* The following routine is used in the event of a detected integer *
- ** divide by zero so that a floating divide by zero is generated.   *
- ** This is done since numarray uses the floating point exception    *
- ** sticky bits to detect errors. The last bit is an attempt to      *
- ** prevent optimization of the divide by zero away, the input value *
- ** should always be 0                                               *
- */
-
-static int int_dividebyzero_error(long NPY_UNUSED(value), long NPY_UNUSED(unused)) {
+/* The following routine is used in the event of a detected integer
+   divide by zero so that a floating divide by zero is generated.
+   This is done since numarray uses the floating point exception
+   sticky bits to detect errors. The last bit is an attempt to
+   prevent optimization of the divide by zero away, the input value
+   should always be 0.
+*/
+static int int_dividebyzero_error(long NPY_UNUSED(value),
+                                  long NPY_UNUSED(unused)) {
     double dummy;
     dummy = 1./numarray_zero;
     if (dummy) /* to prevent optimizer from eliminating expression */
@@ -286,7 +288,8 @@ static int int_dividebyzero_error(long NPY_UNUSED(value), long NPY_UNUSED(unused
 }
 
 /* Likewise for Integer overflows */
-#if defined(__GLIBC__) || defined(__APPLE__) || defined(__CYGWIN__) || defined(__MINGW32__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
+#if defined(__GLIBC__) || defined(__APPLE__) || defined(__CYGWIN__) || \
+ defined(__MINGW32__) || (defined(__FreeBSD__) && (__FreeBSD_version >= 502114))
 static int int_overflow_error(Float64 value) { /* For x86_64 */
     feraiseexcept(FE_OVERFLOW);
     return (int) value;
@@ -382,7 +385,7 @@ NA_NewAll(int ndim, maybelong *shape, NumarrayType type,
             }
         }
     }
-    return  result;
+    return result;
 }
 
 static PyArrayObject *
@@ -411,26 +414,26 @@ NA_New(void *buffer, NumarrayType type, int ndim, ...)
         shape[i] = va_arg(ap, int);
     va_end(ap);
     return NA_NewAll(ndim, shape, type, buffer, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                     NA_ByteOrder(), 1, 1);
 }
 
 static PyArrayObject *
 NA_Empty(int ndim, maybelong *shape, NumarrayType type)
 {
     return NA_NewAll(ndim, shape, type, NULL, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                     NA_ByteOrder(), 1, 1);
 }
 
 
 /* Create a new numarray which is initially a C_array, or which
    references a C_array: aligned, !byteswapped, contiguous, ...
    Call with buffer==NULL to allocate storage.
-   */
+*/
 static PyArrayObject *
 NA_vNewArray(void *buffer, NumarrayType type, int ndim, maybelong *shape)
 {
     return (PyArrayObject *) NA_NewAll(ndim, shape, type, buffer, 0, 0,
-            NA_ByteOrder(), 1, 1);
+                                       NA_ByteOrder(), 1, 1);
 }
 
 static PyArrayObject *
@@ -532,7 +535,8 @@ static int NA_checkOneStriding(char *name, long dim, maybelong *shape,
 {
     int i;
     long omin=offset, omax=offset;
-    long alignsize = ((size_t)itemsize <= sizeof(Float64) ? (size_t)itemsize : sizeof(Float64));
+    long alignsize = ((size_t)itemsize <= sizeof(Float64) ?
+                                 (size_t)itemsize : sizeof(Float64));
 
     if (align && (offset % alignsize)) {
         PyErr_Format(_Error,
@@ -571,25 +575,23 @@ static int NA_checkOneStriding(char *name, long dim, maybelong *shape,
 }
 
 /* Function to call standard C Ufuncs
- **
- ** The C Ufuncs expect contiguous 1-d data numarray, input and output numarray
- ** iterate with standard increments of one data element over all numarray.
- ** (There are some exceptions like arrayrangexxx which use one or more of
- ** the data numarray as parameter or other sources of information and do not
- ** iterate over every buffer).
- **
- ** Arguments:
- **
- **   Number of iterations (simple integer value).
- **   Number of input numarray.
- **   Number of output numarray.
- **   Tuple of tuples, one tuple per input/output array. Each of these
- **     tuples consists of a buffer object and a byte offset to start.
- **
- ** Returns None
- */
 
+   The C Ufuncs expect contiguous 1-d data numarray, input and output numarray
+   iterate with standard increments of one data element over all numarray.
+   (There are some exceptions like arrayrangexxx which use one or more of
+   the data numarray as parameter or other sources of information and do not
+   iterate over every buffer).
 
+   Arguments:
+
+      Number of iterations (simple integer value).
+      Number of input numarray.
+      Number of output numarray.
+      Tuple of tuples, one tuple per input/output array. Each of these
+        tuples consists of a buffer object and a byte offset to start.
+
+    Returns None
+*/
 static PyObject *
 NA_callCUFuncCore(PyObject *self,
         long niter, long ninargs, long noutargs,
@@ -602,12 +604,13 @@ NA_callCUFuncCore(PyObject *self,
     UFUNC ufuncptr;
 
     if (pnargs > MAXARGS)
-        return PyErr_Format(PyExc_RuntimeError, "NA_callCUFuncCore: too many parameters");
+        return PyErr_Format(PyExc_RuntimeError,
+                            "NA_callCUFuncCore: too many parameters");
 
     if (!PyObject_IsInstance(self, (PyObject *) &CfuncType)
             || me->descr.type != CFUNC_UFUNC)
         return PyErr_Format(PyExc_TypeError,
-                "NA_callCUFuncCore: problem with cfunc.");
+                            "NA_callCUFuncCore: problem with cfunc.");
 
     for (i=0; i<pnargs; i++) {
         int readonly = (i < ninargs);
@@ -630,11 +633,11 @@ NA_callCUFuncCore(PyObject *self,
     /* If it's not a self-checking ufunc, check arg count match,
        buffer size, and alignment for all buffers */
     if (!me->descr.chkself &&
-            (NA_checkIo(me->descr.name,
-                        me->descr.wantIn, me->descr.wantOut, ninargs, noutargs) ||
+            (NA_checkIo(me->descr.name, me->descr.wantIn,
+                        me->descr.wantOut, ninargs, noutargs) ||
              NA_checkNCBuffers(me->descr.name, pnargs,
-                 niter, (void **) buffers, bsizes,
-                 me->descr.sizes, me->descr.iters)))
+                               niter, (void **) buffers, bsizes,
+                               me->descr.sizes, me->descr.iters)))
         return NULL;
 
     /* Since the parameters are valid, call the C Ufunc */
@@ -701,7 +704,8 @@ callStrideConvCFunc(PyObject *self, PyObject *args) {
     ninbstrides = NA_maybeLongsFromIntTuple(MAXDIM, inbstrides, inbstridesObj);
     if (ninbstrides < 0) return NULL;
 
-    noutbstrides=  NA_maybeLongsFromIntTuple(MAXDIM, outbstrides, outbstridesObj);
+    noutbstrides=  NA_maybeLongsFromIntTuple(MAXDIM,
+                                             outbstrides, outbstridesObj);
     if (noutbstrides < 0) return NULL;
 
     if (nshape && (nshape != ninbstrides)) {
@@ -794,20 +798,19 @@ callStridingCFunc(PyObject *self, PyObject *args) {
 }
 
 /* Convert a standard C numeric value to a Python numeric value.
- **
- ** Handles both nonaligned and/or byteswapped C data.
- **
- ** Input arguments are:
- **
- **   Buffer object that contains the C numeric value.
- **   Offset (in bytes) into the buffer that the data is located at.
- **   The size of the C numeric data item in bytes.
- **   Flag indicating if the C data is byteswapped from the processor's
- **     natural representation.
- **
- **   Returns a Python numeric value.
- */
 
+   Handles both nonaligned and/or byteswapped C data.
+
+   Input arguments are:
+
+   Buffer object that contains the C numeric value.
+   Offset (in bytes) into the buffer that the data is located at.
+   The size of the C numeric data item in bytes.
+   Flag indicating if the C data is byteswapped from the processor's
+   natural representation.
+
+   Returns a Python numeric value.
+*/
 static PyObject *
 NumTypeAsPyValue(PyObject *self, PyObject *args) {
     PyObject *bufferObj;
@@ -854,22 +857,22 @@ NumTypeAsPyValue(PyObject *self, PyObject *args) {
     return (*funcptr)((void *)(&temp));
 }
 
-/* Convert a Python numeric value to a standard C numeric value.
- **
- ** Handles both nonaligned and/or byteswapped C data.
- **
- ** Input arguments are:
- **
- **   The Python numeric value to be converted.
- **   Buffer object to contain the C numeric value.
- **   Offset (in bytes) into the buffer that the data is to be copied to.
- **   The size of the C numeric data item in bytes.
- **   Flag indicating if the C data is byteswapped from the processor's
- **     natural representation.
- **
- **   Returns None
- */
 
+/* Convert a Python numeric value to a standard C numeric value.
+
+   Handles both nonaligned and/or byteswapped C data.
+
+   Input arguments are:
+
+   The Python numeric value to be converted.
+   Buffer object to contain the C numeric value.
+   Offset (in bytes) into the buffer that the data is to be copied to.
+   The size of the C numeric data item in bytes.
+   Flag indicating if the C data is byteswapped from the processor's
+   natural representation.
+
+   Returns None
+*/
 static PyObject *
 NumTypeFromPyValue(PyObject *self, PyObject *args) {
     PyObject *bufferObj, *valueObj;
@@ -925,7 +928,7 @@ NumTypeFromPyValue(PyObject *self, PyObject *args) {
    on the cfunc type.  Do this dispatch to avoid having to
    check that python code didn't somehow create a mismatch between
    cfunc and wrapper.
-   */
+*/
 static PyObject *
 cfunc_call(PyObject *self, PyObject *argsTuple, PyObject *NPY_UNUSED(argsDict))
 {
@@ -1039,19 +1042,19 @@ NA_new_cfunc(CfuncDescriptor *cfd)
 
     /* Should be done once at init.
        Do now since there is no init. */
-    ((PyObject*)&CfuncType)->ob_type = &PyType_Type;
+    ((PyObject *)&CfuncType)->ob_type = &PyType_Type;
 
     cfunc = PyObject_New(CfuncObject, &CfuncType);
 
     if (!cfunc) {
         return PyErr_Format(_Error,
-                "NA_new_cfunc: failed creating '%s'",
-                cfd->name);
+                            "NA_new_cfunc: failed creating '%s'",
+                            cfd->name);
     }
 
     cfunc->descr = *cfd;
 
-    return (PyObject*)cfunc;
+    return (PyObject *)cfunc;
 }
 
 static int NA_add_cfunc(PyObject *dict, char *keystr, CfuncDescriptor *descr)
@@ -1131,12 +1134,12 @@ NA_OutputArray(PyObject *a, NumarrayType t, int requires)
 
 /* NA_IoArray is a combination of NA_InputArray and NA_OutputArray.
 
-   Unlike NA_OutputArray, if a temporary is required it is initialized to a copy
-   of the input array.
+   Unlike NA_OutputArray, if a temporary is required it is initialized to a
+   copy of the input array.
 
-   Unlike NA_InputArray, deallocating any resulting temporary array results in a
-   copy from the temporary back to the original.
-   */
+   Unlike NA_InputArray, deallocating any resulting temporary array results in
+   a copy from the temporary back to the original.
+*/
 static PyArrayObject *
 NA_IoArray(PyObject *a, NumarrayType t, int requires)
 {
@@ -1156,6 +1159,7 @@ NA_IoArray(PyObject *a, NumarrayType t, int requires)
 
     return shadow;
 }
+
 
 /* NA_OptionalOutputArray works like NA_OutputArray, but handles the case
    where the output array 'optional' is omitted entirely at the python level,
@@ -1310,7 +1314,7 @@ void NA_set_Int64(PyArrayObject *a, long offset, Int64 v)
     If N > 0, the indices are taken from the outer dimensions of the array.
     If N < 0, the indices are taken from the inner dimensions of the array.
     If N == 0, the offset is 0.
-    */
+*/
 long NA_get_offset(PyArrayObject *a, int N, ...)
 {
     int i;
@@ -1546,18 +1550,17 @@ void NA_set3_Int64(PyArrayObject *a, long i, long j, long k, Int64 v)
     NA_set_Int64(a, offset, v);
 }
 
-/* SET_CMPLX could be made faster by factoring it into 3 seperate loops.
-*/
-#define NA_SET_CMPLX(a, type, base, cnt, in)                                  \
-{                                                                             \
-    int i;                                                                \
-    int stride = PyArray_STRIDE(a,  PyArray_NDIM(a) - 1);                                  \
-    NA_SET1D(a, type, base, cnt, in);                                     \
-    base = NA_PTR(a) + offset + sizeof(type);                             \
-    for(i=0; i<cnt; i++) {                                                \
-        NA_SETP(a, Float32, base, 0);                                 \
-        base += stride;                                               \
-    }                                                                     \
+/* SET_CMPLX could be made faster by factoring it into 3 seperate loops. */
+#define NA_SET_CMPLX(a, type, base, cnt, in)                               \
+{                                                                          \
+    int i;                                                                 \
+    int stride = PyArray_STRIDE(a,  PyArray_NDIM(a) - 1);                  \
+    NA_SET1D(a, type, base, cnt, in);                                      \
+    base = NA_PTR(a) + offset + sizeof(type);                              \
+    for(i=0; i<cnt; i++) {                                                 \
+        NA_SETP(a, Float32, base, 0);                                      \
+        base += stride;                                                    \
+    }                                                                      \
 }
 
 static int
@@ -1872,7 +1875,7 @@ NA_ShapeEqual(PyArrayObject *a, PyArrayObject *b)
 /* NA_ShapeLessThan returns 1 if a.shape[i] < b.shape[i] for all i, else 0.
    If they have a different number of dimensions, it compares the innermost
    overlapping dimensions of each.
-   */
+*/
 static int
 NA_ShapeLessThan(PyArrayObject *a, PyArrayObject *b)
 {
@@ -2156,7 +2159,8 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, long offset)
             mustbe = NUMBER;
         } else if (PyString_Check(o)) {
             PyErr_SetString( PyExc_ValueError,
-                    "setArrayFromSequence: strings can't define numeric numarray.");
+                             "setArrayFromSequence: strings can't "
+                             "define numeric numarray.");
             return -3;
         } else if (PySequence_Check(o)) {
             if ((mustbe == NOTHING) || (mustbe == SEQUENCE)) {
@@ -2191,8 +2195,8 @@ NA_setArrayFromSequence(PyArrayObject *a, PyObject *s)
     maybelong shape[MAXDIM];
 
     if (!PySequence_Check(s))
-        return PyErr_Format( PyExc_TypeError,
-                "NA_setArrayFromSequence: (array, seq) expected.");
+        return PyErr_Format(PyExc_TypeError,
+                            "NA_setArrayFromSequence: (array, seq) expected.");
 
     if (getShape(s, shape, 0) < 0)
         return NULL;
@@ -2286,7 +2290,7 @@ _NA_maxType(PyObject *seq, int limit)
                 return COMPLEX_SCALAR;
             else {
                 PyErr_Format(PyExc_TypeError,
-                        "Expecting a python numeric type, got something else.");
+                     "Expecting a python numeric type, got something else.");
                 return -1;
             }
     }
@@ -2434,12 +2438,15 @@ _fail:
 }
 
 static int
-_setFromPythonScalarCore(PyArrayObject *a, long offset, PyObject*value, int entries)
+_setFromPythonScalarCore(PyArrayObject *a, long offset, PyObject*value,
+                         int entries)
 {
     Int64 v;
+
     if (entries >= 100) {
         PyErr_Format(PyExc_RuntimeError,
-                "NA_setFromPythonScalar: __tonumtype__ conversion chain too long");
+                     "NA_setFromPythonScalar: __tonumtype__ conversion "
+                     "chain too long");
         return -1;
     } else if (PyInt_Check(value)) {
         v = PyInt_AsLong(value);
@@ -2511,8 +2518,8 @@ NA_setFromPythonScalar(PyArrayObject *a, long offset, PyObject *value)
     if (PyArray_FLAGS(a) & WRITABLE)
         return _setFromPythonScalarCore(a, offset, value, 0);
     else {
-        PyErr_Format(
-                PyExc_ValueError, "NA_setFromPythonScalar: assigment to readonly array buffer");
+        PyErr_Format(PyExc_ValueError, "NA_setFromPythonScalar: "
+                     "assigment to readonly array buffer");
         return -1;
     }
 }
@@ -2739,7 +2746,7 @@ NA_CfuncCheck(PyObject *op) {
 
 static int
 NA_getByteOffset(PyArrayObject *NPY_UNUSED(array), int NPY_UNUSED(nindices),
-        maybelong *NPY_UNUSED(indices), long *NPY_UNUSED(offset))
+                 maybelong *NPY_UNUSED(indices), long *NPY_UNUSED(offset))
 {
     return 0;
 }
