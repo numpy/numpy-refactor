@@ -164,6 +164,10 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_LDEXPF 0
 #define NPY_HAVE_DECL_LDEXPL 0
 
+/* On win32, force long double format string to be 'g', not 'Lg', since
+   the MS runtime does not support long double whose size is > sizeof(double)
+*/
+#define NPY_FORCE_NO_LONG_DOUBLE_FORMATTING
 
 #ifndef __cplusplus
 #define inline __inline
