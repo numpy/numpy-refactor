@@ -117,6 +117,19 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+        public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
+        }
+
+
+        /// <summary>
+        /// Handle to the core representation.
+        /// </summary>
+        public IntPtr Array {
+            get { return array; }
+        }
+
 
         /// <summary>
         /// The type descriptor object for this array
@@ -127,7 +140,7 @@ namespace NumpyDotNet
                 return NpyCoreApi.ToInterface<dtype>(descr);
             }
             set {
-                NpyCoreApi.ArraySetDescr(array, value.descr);
+                NpyCoreApi.ArraySetDescr(array, value.Descr);
             }
         }
 
@@ -146,6 +159,14 @@ namespace NumpyDotNet
         }
 
 
+        /// <summary>
+        /// TODO: What does this return?
+        /// </summary>
+        public int ElementStrides {
+            get { return NpyCoreApi.NpyArray_ElementStrides(array); }
+        }
+
+
         public bool StridingOk(NpyCoreApi.NPY_ORDER order) {
             return order == NpyCoreApi.NPY_ORDER.NPY_ANYORDER ||
                 order == NpyCoreApi.NPY_ORDER.NPY_CORDER && IsContiguous ||
@@ -158,6 +179,15 @@ namespace NumpyDotNet
         /// </summary>
         public int Ndim {
             get { return Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_nd); }
+        }
+
+        /// <summary>
+        /// Returns an array of the sizes of each dimension. This property allocates
+        /// a new array with each call and must make a managed-to-native call so it's
+        /// worth caching the results if used in a loop.
+        /// </summary>
+        public Int64[] Dims {
+            get { return NpyCoreApi.GetArrayDims(this); }
         }
 
         private bool ChkFlags(int flag) {

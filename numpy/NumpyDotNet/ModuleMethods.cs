@@ -104,7 +104,7 @@ namespace NumpyDotNet {
             }
             
             // If no result has been determined...
-            if (result != null) {
+            if (result == null) {
                 int flags = 0;
 
                 if (copy) flags = NpyCoreApi.NPY_ENSURECOPY;
@@ -118,23 +118,13 @@ namespace NumpyDotNet {
                 if (!subok) flags |= NpyCoreApi.NPY_ENSUREARRAY;
 
                 flags |= NpyCoreApi.NPY_FORCECAST;
-                result = CheckFromArray(src, type, 0, 0, flags, null);
+                result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
             }
 
             if (result != null || result.Ndim < ndmin) {
-                result = PrependOnes(result, result.Ndim, ndmin);
+                result = NpyArray.PrependOnes(result, result.Ndim, ndmin);
             }
             return result;
-        }
-
-        // TODO: Move after implementation.
-        private static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
-            int maxDepth, int requires, Object context) {
-            return null;
-        }
-
-        private static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
-            return null;
         }
     }
 }

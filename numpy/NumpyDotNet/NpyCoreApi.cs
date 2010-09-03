@@ -13,7 +13,7 @@ using Microsoft.Scripting.Utils;
 namespace NumpyDotNet
 {
     /// <summary>
-    /// NpyArray class wraps the interactions with the NpyArray core library. It
+    /// NpyCoreApi class wraps the interactions with the libndarray core library. It
     /// also makes use of NpyAccessLib.dll for a few functions that must be
     /// implemented in native code.
     /// 
@@ -24,7 +24,7 @@ namespace NumpyDotNet
     [SuppressUnmanagedCodeSecurity]
     public static class NpyCoreApi {
         #region ConstantDefs
-        internal enum NPY_TYPES {
+        public enum NPY_TYPES {
             NPY_BOOL = 0,
             NPY_BYTE, NPY_UBYTE,
             NPY_SHORT, NPY_USHORT,
@@ -42,7 +42,52 @@ namespace NumpyDotNet
             NPY_CHAR,      /* special flag */
             NPY_USERDEF = 256  /* leave room for characters */
         };
+        internal const NPY_TYPES DefaultType = NPY_TYPES.NPY_DOUBLE;
 
+        public enum NPY_TYPECHAR : byte {
+            NPY_BOOLLTR = (byte)'?',
+            NPY_BYTELTR = (byte)'b',
+            NPY_UBYTELTR = (byte)'B',
+            NPY_SHORTLTR = (byte)'h',
+            NPY_USHORTLTR = (byte)'H',
+            NPY_INTLTR = (byte)'i',
+            NPY_UINTLTR = (byte)'I',
+            NPY_LONGLTR = (byte)'l',
+            NPY_ULONGLTR = (byte)'L',
+            NPY_LONGLONGLTR = (byte)'q',
+            NPY_ULONGLONGLTR = (byte)'Q',
+            NPY_FLOATLTR = (byte)'f',
+            NPY_DOUBLELTR = (byte)'d',
+            NPY_LONGDOUBLELTR = (byte)'g',
+            NPY_CFLOATLTR = (byte)'F',
+            NPY_CDOUBLELTR = (byte)'D',
+            NPY_CLONGDOUBLELTR = (byte)'G',
+            NPY_OBJECTLTR = (byte)'O',
+            NPY_STRINGLTR = (byte)'S',
+            NPY_STRINGLTR2 = (byte)'a',
+            NPY_UNICODELTR = (byte)'U',
+            NPY_VOIDLTR = (byte)'V',
+            NPY_DATETIMELTR = (byte)'M',
+            NPY_TIMEDELTALTR = (byte)'m',
+            NPY_CHARLTR = (byte)'c',
+
+            /*
+             * No Descriptor, just a define -- this let's
+             * Python users specify an array of integers
+             * large enough to hold a pointer on the
+             * platform
+             */
+            NPY_INTPLTR = (byte)'p',
+            NPY_UINTPLTR = (byte)'P',
+
+            NPY_GENBOOLLTR = (byte)'b',
+            NPY_SIGNEDLTR = (byte)'i',
+            NPY_UNSIGNEDLTR = (byte)'u',
+            NPY_FLOATINGLTR = (byte)'f',
+            NPY_COMPLEXLTR = (byte)'c'
+        }
+
+        
         public enum NPY_ORDER {
             NPY_ANYORDER = -1,
             NPY_CORDER = 0,
@@ -184,13 +229,23 @@ namespace NumpyDotNet
 
         #region API Wrappers
 
-        /** Returns a new descriptor object for internal types or user defined
-         * types */
-        internal static dtype DescrFromType(Int32 type) {
-            IntPtr descr = NpyArray_DescrFromType(type);
+        /// <summary>
+        /// Returns a new descriptor object for internal types or user defined
+        /// types.
+        /// </summary>
+        internal static dtype DescrFromType(NPY_TYPES type) {
+            IntPtr descr = NpyArray_DescrFromType((int)type);
             return DecrefToInterface<dtype>(descr);
         }
 
+        internal static byte NativeByteOrder {
+            get { return nativeByteOrder; }
+        }
+
+        internal static dtype SmallType(dtype t1, dtype t2) {
+            return ToInterface<dtype>(
+                NpyArray_SmallType(t1.Descr, t2.Descr));
+        }
 
         /// <summary>
         /// Returns a copy of the passed array in the specified order (C, Fortran)
@@ -203,18 +258,78 @@ namespace NumpyDotNet
             return arr;
         }
 
+
+        /// <summary>
+        /// Allocates a new array and returns the ndarray wrapper
+        /// </summary>
+        /// <param name="descr">Type descriptor</param>
+        /// <param name="numdim">Num of dimensions</param>
+        /// <param name="dimensions">Size of each dimension</param>
+        /// <param name="fortran">True if Fortran layout, false for C layout</param>
+        /// <returns>Newly allocated array</returns>
+        internal static ndarray AllocArray(dtype descr, int numdim, long[] dimensions,
+            bool fortran) {
+            IntPtr nativeDims = IntPtr.Zero;
+
+            try {
+                nativeDims = Marshal.AllocHGlobal(sizeof(long) * numdim);
+                Marshal.StructureToPtr(dimensions, nativeDims, true);
+                Incref(descr.Descr);
+                return DecrefToInterface<ndarray>(
+                    NpyArrayAccess_AllocArray(descr.Descr, numdim, nativeDims, fortran));
+            } finally {
+                Marshal.FreeHGlobal(nativeDims);
+            }
+        }
+
+
+        /// <summary>
+        /// Returns an array with the size of each dimension in the given array.
+        /// </summary>
+        /// <param name="arr">The array</param>
+        /// <returns>Array w/ an array size for each dimension</returns>
+        internal static Int64[] GetArrayDims(ndarray arr) {
+            Int64[] dims;
+            
+            dims = new Int64[arr.Ndim];
+            unsafe {
+                fixed (Int64* dimMem = dims) {
+                    if (!GetArrayDims(arr.Array, arr.Ndim, dimMem)) {
+                        throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
+                    }
+                }
+            }
+            return dims;
+        }
+
         #endregion
 
 
         #region C API Definitions
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DescrNew(IntPtr descr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrFromType(Int32 type);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_SmallType(IntPtr descr1, IntPtr descr2);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern byte NpyArray_EquivTypes(IntPtr t1, IntPtr typ2);
 
-        [DllImport("ndarray", CallingConvention=CallingConvention.Cdecl)]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_ElementStrides(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, byte order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, 
+            int flags);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
@@ -225,8 +340,15 @@ namespace NumpyDotNet
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArrayGetOffsets")]
-        unsafe internal static extern void ArrayGetOffsets(int *magicNumOffset,
+        unsafe private static extern void ArrayGetOffsets(int *magicNumOffset,
             int *descrOffset, int *ndOffset, int *flagsOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_DescrGetOffsets")]
+        unsafe private static extern void DescrGetOffsets(int* magicNumOffset,
+            int* kindOffset, int* typeOffset, int* byteorderOffset,
+            int* flagsOffset, int* typenumOffset, int* elsizeOffset, 
+            int* alignmentOffset, int* namesOFfset, int* subarrayOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArraySetDescr")]
@@ -239,6 +361,18 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_Decref")]
         internal static extern void Decref(IntPtr obj);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetNativeByteOrder")]
+        private static extern byte GetNativeByteOrder();
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetArrayDims")]
+        unsafe private static extern bool GetArrayDims(IntPtr arr, int numDims, Int64 *dimMem);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
+            IntPtr dims, bool fortran);
 
 
         #endregion
@@ -274,8 +408,25 @@ namespace NumpyDotNet
             internal int off_flags;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct NpyArrayDescrOffsets {
+            internal int off_magic_number;
+            internal int off_kind;
+            internal int off_type;
+            internal int off_byteorder;
+            internal int off_flags;
+            internal int off_type_num;
+            internal int off_elsize;
+            internal int off_alignment;
+            internal int off_names;
+            internal int off_subarray;
+        }
+
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
+        internal static readonly NpyArrayDescrOffsets DescrOffsets;
+
+        internal static byte nativeByteOrder;
 
         /// <summary>
         /// Used for synchronizing modifications to interface pointer.
@@ -297,6 +448,10 @@ namespace NumpyDotNet
                 return default(TResult);
             }
             IntPtr wrapper = Marshal.ReadIntPtr(ptr, (int)Offset_InterfacePtr);
+            if (wrapper == IntPtr.Zero) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException(
+                    String.Format("Managed wrapper for type '{0}' is NULL.", typeof(TResult).Name));
+            }
             return (TResult)GCHandle.FromIntPtr(wrapper).Target;
         }
 
@@ -327,6 +482,21 @@ namespace NumpyDotNet
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr del_ArrayNewWrapper(IntPtr ptr);
+
+
+        /// <summary>
+        /// Allocated a managed wrapper for the passed descriptor object.
+        /// </summary>
+        /// <param name="descr">Pointer to the native descriptor object</param>
+        /// <returns>Handle to the managed wrapper</returns>
+        private static IntPtr DescrNewWrapper(IntPtr descr) {
+            dtype wrap = new dtype(descr);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(wrap));
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate IntPtr del_DescrNewWrapper(IntPtr ptr);
+
+
 
 
         /// <summary>
@@ -431,7 +601,24 @@ namespace NumpyDotNet
                     ArrayGetOffsets(magicOffset, descrOffset, 
                                                    ndOffset, flagsOffset);
                 }
+
+                fixed (int* magicOffset = &DescrOffsets.off_magic_number,
+                            kindOffset = &DescrOffsets.off_kind,
+                            typeOffset = &DescrOffsets.off_type,
+                            byteorderOffset = &DescrOffsets.off_byteorder,
+                            flagsOffset = &DescrOffsets.off_flags,
+                            typenumOffset = &DescrOffsets.off_type_num,
+                            elsizeOffset = &DescrOffsets.off_elsize,
+                            alignmentOffset = &DescrOffsets.off_alignment,
+                            namesOffset = &DescrOffsets.off_names,
+                            subarrayOffset = &DescrOffsets.off_subarray) {
+                    DescrGetOffsets(magicOffset, kindOffset, typeOffset,
+                        byteorderOffset, flagsOffset, typenumOffset, elsizeOffset,
+                        alignmentOffset, namesOffset, subarrayOffset);
+                }
             }
+
+            nativeByteOrder = GetNativeByteOrder();
         }
 
         #endregion
