@@ -147,3 +147,11 @@ extern "C" __declspec(dllexport)
     }
     return arr;
 }
+
+
+extern "C" __declspec(dllexport)
+    npy_int64 _cdecl NpyArrayAccess_GetArrayStride(NpyArray *arr, int dim)
+{
+    return NpyArray_STRIDE(arr, dim);
+}
+

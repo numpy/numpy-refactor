@@ -117,9 +117,19 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+        public Object this[long i] {
+            get { return null; }
+            set { Console.WriteLine(String.Format("{0} = {1}", i, value)); }
+        }
+
         public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
+        }
+
+
+        public long Stride(int dimension) {
+            return NpyCoreApi.GetArrayStride(Array, dimension);
         }
 
 
@@ -165,7 +175,6 @@ namespace NumpyDotNet
         public int ElementStrides {
             get { return NpyCoreApi.NpyArray_ElementStrides(array); }
         }
-
 
         public bool StridingOk(NpyCoreApi.NPY_ORDER order) {
             return order == NpyCoreApi.NPY_ORDER.NPY_ANYORDER ||

@@ -374,6 +374,10 @@ namespace NumpyDotNet
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
             [MarshalAs(UnmanagedType.LPArray)] long[] dims, bool fortran);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetArrayStride")]
+        internal static extern long GetArrayStride(IntPtr arr, int dims);
+
 
         #endregion
 

@@ -122,7 +122,7 @@ namespace NumpyDotNet {
                     }
 
                     result = NpyCoreApi.AllocArray(descr, numDim, dims, fortran);
-                    //AssignToArray(src, result);
+                    AssignToArray(src, result);
                 }
             }
             return result;
@@ -292,6 +292,42 @@ namespace NumpyDotNet {
                 dims[dimIdx] = 1;
             }
             return !error;
+        }
+
+
+        internal static void AssignToArray(Object src, ndarray result) {
+            if (src is IEnumerable<Object>) {
+                AssignFromSeq((IEnumerable<Object>)src, result, 0, 0);
+            } else {
+                // TODO: Assign from array and other types is not implemented.
+                throw new NotImplementedException(
+                    String.Format("Assign to array from type '{0}' is not yet implemented.",
+                        src.GetType().Name));
+            }
+        }
+
+        private static void AssignFromSeq(IEnumerable<Object> seq, ndarray result,
+            int dim, long offset) {
+            if (dim >= result.Ndim) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException(
+                    String.Format("Source dimensions ({0}) exceeded target array dimensions ({1}).",
+                    dim, result.Ndim));
+            }
+
+            if (seq.Count() != result.Dims[dim]) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException(
+                    "AssignFromSeq: sequence/array shape mismatch.");
+            }
+
+            long stride = result.Stride(dim);
+            if (dim < result.Ndim - 1) {
+                // Sequence elements should be additional sequences
+                seq.Iteri((o, i) =>
+                    AssignFromSeq((IEnumerable<Object>)o, result, dim + 1, offset + stride * i));
+            } else {
+
+                seq.Iteri((o, i) => result[offset + i*stride] = o);
+            }
         }
     }
 }

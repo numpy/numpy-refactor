@@ -22,6 +22,21 @@ namespace NumpyDotNet {
                 f(x);
             }
         }
+
+        /// <summary>
+        /// Applies function f to all elements in 'input' plus the index of each
+        /// element.
+        /// </summary>
+        /// <typeparam name="Tin">Type of input elements</typeparam>
+        /// <param name="input">Input sequence</param>
+        /// <param name="f">Function to be applied</param>
+        public static void Iteri<Tin>(this IEnumerable<Tin> input, Action<Tin, int> f) {
+            int i = 0;
+            foreach (Tin x in input) {
+                f(x, i);
+                i++;
+            }
+        }
     }
 
 
