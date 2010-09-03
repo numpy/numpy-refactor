@@ -3,7 +3,6 @@
 *.o
 *.lo
 *.la
-*.m4
 *~
 \#*
 __*
@@ -22,14 +21,11 @@ experiment/interface.c
 
 libndarray/.libs
 libndarray/Makefile
-libndarray/Makefile.in
 libndarray/autom4te.cache
-libndarray/config.*
-libndarray/depcomp
-libndarray/install-sh
+libndarray/config.h
+libndarray/config.log
+libndarray/config.status
 libndarray/libtool
-libndarray/ltmain.sh
-libndarray/missing
 libndarray/src/.deps
 libndarray/src/.dirstamp
 libndarray/tools/.deps
