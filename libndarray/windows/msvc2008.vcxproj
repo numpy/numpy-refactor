@@ -205,6 +205,12 @@
     <ClCompile Include="..\src\npy_ufunc_object.c" />
     <ClCompile Include="..\src\npy_usertypes.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\npy_arraytypes.c.src" />
+    <None Include="..\src\npy_funcs.c.src" />
+    <None Include="..\src\npy_funcs.h.src" />
+    <None Include="..\src\npy_ieee754.c.src" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

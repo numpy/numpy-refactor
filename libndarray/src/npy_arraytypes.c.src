@@ -2167,10 +2167,8 @@ static NpyArray_Descr *_builtin_descrs[] = {
 /* The interface layer needs to be given the opportunity to provide a wrapper
  for each built-in type descr before it ever gets returned to the interface
  layer.  This should only ever be performed once. */
-void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
+void _init_type_functions(struct NpyArray_FunctionDefs *externDefs)
 {
-    int type;
-
     /* Set the gettime, setitem methods on each type's array functions. */
 
     /**begin repeat
@@ -2238,6 +2236,16 @@ void _init_builtin_descr_wrappers(struct NpyArray_FunctionDefs *externDefs)
     _NpyObject_ArrFuncs.fastclip = externDefs->OBJECT_fastclip;
     _NpyObject_ArrFuncs.fastputmask = externDefs->OBJECT_fastputmask;
     _NpyObject_ArrFuncs.fasttake = externDefs->OBJECT_fasttake;
+
+
+}
+
+/* The interface layer needs to be given the opportunity to provide a wrapper
+ for each built-in type descr before it ever gets returned to the interface
+ layer.  This should only ever be performed once. */
+void _init_builtin_descr_wrappers()
+{
+    int type;
 
     for (type=0; type < NPY_NTYPES; type++) {
         /* Should only ever be called once. */
