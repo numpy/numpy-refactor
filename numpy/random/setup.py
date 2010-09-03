@@ -35,7 +35,8 @@ def configuration(parent_package='',top_path=None):
     config.add_extension('mtrand',
                          sources=[join('mtrand', x) for x in
                                   ['mtrand.c', 'randomkit.c', 'initarray.c',
-                                   'distributions.c']]+[generate_libraries],
+                                   'distributions.c']
+                                  ] + [generate_libraries],
                          depends = [join('mtrand','*.h'),
                                     join('mtrand','*.pyx'),
                                     join('mtrand','*.pxi'),

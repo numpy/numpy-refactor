@@ -16,7 +16,6 @@ build
 
 /tools/win32build/misc/msvcrt90/msvcr90.def
 /doc/source/reference/generated
-numpy/random/mtrand/mtrand.c
 experiment/interface.c
 
 libndarray/.libs
