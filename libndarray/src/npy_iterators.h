@@ -398,7 +398,7 @@ NpyArrayNeighborhoodIter_Next2D(NpyArrayNeighborhoodIterObject* iter);
  * considered public API
  */
 #define _NPY_INCLUDE_NEIGHBORHOOD_IMP
-#include "_neighborhood_iterator_imp.h"
+#include "npy_neighbor_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
 
 #endif

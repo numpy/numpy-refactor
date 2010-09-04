@@ -1,5 +1,3 @@
-#! Last Change: Sun Apr 26 05:00 PM 2009 J
-
 """Code to support special facilities to scons which are only useful for
 numpy.core, hence not put into numpy.distutils.scons"""
 
@@ -19,7 +17,6 @@ from setup_common import check_api_version as _check_api_version
 from numscons.numdist import process_c_str as process_str
 
 import SCons.Node
-import SCons
 from SCons.Builder import Builder
 from SCons.Action import Action
 
@@ -32,6 +29,7 @@ def split_ext(string):
         return (sp[0], '')
     else:
         return sp
+
 #------------------------------------
 # Ufunc and multiarray API generators
 #------------------------------------

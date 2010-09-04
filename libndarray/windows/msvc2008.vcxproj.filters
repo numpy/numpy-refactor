@@ -9,7 +9,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\_neighborhood_iterator_imp.h">
+    <ClInclude Include="..\src\npy_neighbor_imp.h">
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\src\npy_api.h">

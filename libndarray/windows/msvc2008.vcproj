@@ -84,7 +84,7 @@
   </References>
   <Files>
     <Filter Name="Include">
-      <File RelativePath="..\src\_neighborhood_iterator_imp.h" />
+      <File RelativePath="..\src\npy_neighbor_imp.h" />
       <File RelativePath="..\src\npy_api.h" />
       <File RelativePath="..\src\npy_arrayobject.h" />
       <File RelativePath="..\src\npy_common.h" />

@@ -361,7 +361,7 @@ typedef struct {
  */
 
 #define _NPY_INCLUDE_NEIGHBORHOOD_IMP
-#include "_neighborhood_iterator_imp.h"
+#include "npy_neighbor_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
 
 #define PyArrayNeighborhoodIter_Reset(iter) \
