@@ -1,5 +1,5 @@
-#ifndef NPY_NOPREFIX_H
-#define NPY_NOPREFIX_H
+#ifndef _NOPREFIX_H_
+#define _NOPREFIX_H_
 
 /* You can directly include noprefix.h as a backward
 compatibility measure*/

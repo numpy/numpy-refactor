@@ -1,5 +1,5 @@
-#ifndef _NPY_NUMPYCONFIG_H_
-#define _NPY_NUMPYCONFIG_H_
+#ifndef _NUMPYCONFIG_H_
+#define _NUMPYCONFIG_H_
 
 #include "_numpyconfig.h"
 

@@ -1,5 +1,5 @@
-#ifndef _NPY_3KCOMPAT_H_
-#define _NPY_3KCOMPAT_H_
+#ifndef _NUMPY_3KCOMPAT_H_
+#define _NUMPY_3KCOMPAT_H_
 
 #include <Python.h>
 #include <stdio.h>
@@ -303,4 +303,4 @@ simple_capsule_dtor(void *ptr)
 
 #endif
 
-#endif /* _NPY_3KCOMPAT_H_ */
+#endif /* _NUMPY_3KCOMPAT_H_ */
