@@ -390,25 +390,6 @@ def configuration(parent_package='', top_path=None):
     # generate_numpyconfig_h as sources *before* adding npymath.
 
     subst_dict = dict([("sep", os.path.sep), ("pkgname", "numpy.core")])
-    def get_mathlib_info(*args):
-        # Another ugly hack: the mathlib info is known once build_src is run,
-        # but we cannot use add_installed_pkg_config here either, so we only
-        # updated the substition dictionary during npymath build
-        config_cmd = config.get_config_cmd()
-
-        # Check that the toolchain works, to fail early if it doesn't
-        # (avoid late errors with MATHLIB which are confusing if the
-        # compiler does not work).
-        st = config_cmd.try_link('int main(void) { return 0; }')
-        if not st:
-            raise RuntimeError(
-                     "Broken toolchain: cannot link a simple C program")
-        mlibs = check_mathlib(config_cmd)
-
-        posix_mlib = ' '.join(['-l%s' % l for l in mlibs])
-        msvc_mlib = ' '.join(['%s.lib' % l for l in mlibs])
-        subst_dict["posix_mathlib"] = posix_mlib
-        subst_dict["msvc_mathlib"] = msvc_mlib
 
     multiarray_deps = [
         join('src', 'multiarray', 'arrayobject.h'),
