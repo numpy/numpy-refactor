@@ -3,12 +3,6 @@
 
 #include "config.h"
 
-/* Disable broken MS math functions */
-#if defined(_MSC_VER) || defined(__MINGW32_VERSION)
-#undef HAVE_ATAN2
-#undef HAVE_HYPOT
-#endif
-
 /* Disable broken Sun Workshop Pro math functions */
 #ifdef __SUNPRO_C
 #undef HAVE_ATAN2
@@ -31,4 +25,5 @@
         #define SIZEOF_PY_INTPTR_T  4
     #endif
 #endif
+
 #endif

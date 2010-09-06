@@ -164,6 +164,14 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_LDEXPF 0
 #define NPY_HAVE_DECL_LDEXPL 0
 
+
+/* Disable broken MS math functions */
+#if defined(_MSC_VER) || defined(__MINGW32_VERSION)
+#undef NPY_HAVE_DECL_ATAN2 0
+#undef NPY_HAVE_DECL_HYPOT 0
+#endif
+
+
 /* On win32, force long double format string to be 'g', not 'Lg', since
    the MS runtime does not support long double whose size is > sizeof(double)
 */
