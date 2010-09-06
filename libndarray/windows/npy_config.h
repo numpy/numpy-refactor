@@ -55,7 +55,6 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_ASINHL 0
 #define NPY_HAVE_DECL_ASINL 0
 #define NPY_HAVE_DECL_ATAN 1
-#define NPY_HAVE_DECL_ATAN2 1
 #define NPY_HAVE_DECL_ATAN2F 0
 #define NPY_HAVE_DECL_ATAN2L 0
 #define NPY_HAVE_DECL_ATANF 0
@@ -109,7 +108,6 @@ standard part of the distribution.
 #define NPY_HAVE_DECL_FMOD 1
 #define NPY_HAVE_DECL_FMODF 0
 #define NPY_HAVE_DECL_FMODL 0
-#define NPY_HAVE_DECL_HYPOT 1
 #define NPY_HAVE_DECL_HYPOTF 0
 #define NPY_HAVE_DECL_HYPOTL 0
 #define NPY_HAVE_DECL_ISFINITE 0
@@ -167,8 +165,11 @@ standard part of the distribution.
 
 /* Disable broken MS math functions */
 #if defined(_MSC_VER) || defined(__MINGW32_VERSION)
-#undef NPY_HAVE_DECL_ATAN2 0
-#undef NPY_HAVE_DECL_HYPOT 0
+#define NPY_HAVE_DECL_ATAN2 0
+#define NPY_HAVE_DECL_HYPOT 0
+#else
+#define NPY_HAVE_DECL_ATAN2 1
+#define NPY_HAVE_DECL_HYPOT 1
 #endif
 
 
