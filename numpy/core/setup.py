@@ -399,7 +399,6 @@ def configuration(parent_package='', top_path=None):
         join('src', 'multiarray', 'common.h'),
         join('src', 'multiarray', 'conversion_utils.h'),
         join('src', 'multiarray', 'convert_datatype.h'),
-        join('src', 'multiarray', 'convert.h'),
         join('src', 'multiarray', 'ctors.h'),
         join('src', 'multiarray', 'descriptor.h'),
         join('src', 'multiarray', 'getset.h'),

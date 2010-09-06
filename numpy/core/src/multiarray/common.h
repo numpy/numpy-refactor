@@ -1,5 +1,5 @@
-#ifndef _NPY_PRIVATE_COMMON_H_
-#define _NPY_PRIVATE_COMMON_H_
+#ifndef _NUMPY_PRIVATE_COMMON_H_
+#define _NUMPY_PRIVATE_COMMON_H_
 
 #include <numpy/noprefix.h>
 

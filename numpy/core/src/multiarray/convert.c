@@ -16,7 +16,6 @@
 #include "mapping.h"
 #include "ctors.h"
 
-#include "convert.h"
 
 /*NUMPY_API
  * To List
