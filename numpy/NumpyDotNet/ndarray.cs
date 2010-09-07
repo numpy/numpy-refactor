@@ -118,8 +118,12 @@ namespace NumpyDotNet
         }
 
         public Object this[long i] {
-            get { return null; }
-            set { Console.WriteLine(String.Format("{0} = {1}", i, value)); }
+            get { return Descr.f.GetItem(i, this); }
+            set {
+                Descr.f.SetItem(value, i, this);
+                Console.WriteLine(String.Format("{0} = {1} vs {2}", i, value,
+                    Descr.f.GetItem(i, this)));
+            }
         }
 
         public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
@@ -138,6 +142,10 @@ namespace NumpyDotNet
         /// </summary>
         public IntPtr Array {
             get { return array; }
+        }
+
+        internal IntPtr Data {
+            get { return Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
 

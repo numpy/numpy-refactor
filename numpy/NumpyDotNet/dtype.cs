@@ -33,6 +33,8 @@ namespace NumpyDotNet {
         /// <param name="d">Descriptor to duplicate</param>
         public dtype(dtype d) {
             descr = NpyCoreApi.NpyArray_DescrNew(this.descr);
+            Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
+            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
         }
         
         
@@ -43,6 +45,18 @@ namespace NumpyDotNet {
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
         internal dtype(IntPtr d) {
             descr = d;
+            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
+        }
+
+
+        /// <summary>
+        /// Creates a wrapper for an array created on the native side, such as 
+        /// the result of a slice operation.
+        /// </summary>
+        /// <param name="d">Pointer to core NpyArray_Descr structure</param>
+        internal dtype(IntPtr d, int type) {
+            descr = d;
+            funcs = NumericOps.arrFuncs[type];
         }
 
         ~dtype() {
@@ -117,6 +131,10 @@ namespace NumpyDotNet {
             get { return Marshal.ReadIntPtr(descr, NpyCoreApi.DescrOffsets.off_subarray) == IntPtr.Zero; }
         }
 
+        public ArrFuncs f {
+            get { return funcs; }
+        }
+
         #endregion
 
 
@@ -163,6 +181,11 @@ namespace NumpyDotNet {
         ///  Pointer to the native object 
         /// </summary>
         private IntPtr descr;
+
+        /// <summary>
+        /// Type-specific functions
+        /// </summary>
+        private readonly ArrFuncs funcs;
 
         #endregion
     }

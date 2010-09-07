@@ -341,7 +341,7 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArrayGetOffsets")]
         unsafe private static extern void ArrayGetOffsets(int *magicNumOffset,
-            int *descrOffset, int *ndOffset, int *flagsOffset);
+            int *descrOffset, int *ndOffset, int *flagsOffset, int *dataOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_DescrGetOffsets")]
@@ -410,6 +410,7 @@ namespace NumpyDotNet
             internal int off_descr;
             internal int off_nd;
             internal int off_flags;
+            internal int off_data;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -525,7 +526,7 @@ namespace NumpyDotNet
             try {
                 // TODO: Descriptor typeobj not handled. Do we need to?
 
-                dtype wrap = new dtype(descr);
+                dtype wrap = new dtype(descr, type);
                 Marshal.WriteIntPtr(interfaceRet,
                     GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
             } catch (InsufficientMemoryException e) {
@@ -692,9 +693,10 @@ namespace NumpyDotNet
                 fixed (int* magicOffset = &ArrayOffsets.off_magic_number,
                             descrOffset = &ArrayOffsets.off_descr,
                             flagsOffset = &ArrayOffsets.off_flags,
-                            ndOffset = &ArrayOffsets.off_nd) {
+                            ndOffset = &ArrayOffsets.off_nd,
+                            dataOffset = &ArrayOffsets.off_data) {
                     ArrayGetOffsets(magicOffset, descrOffset, 
-                                                   ndOffset, flagsOffset);
+                                    ndOffset, flagsOffset, dataOffset);
                 }
 
                 fixed (int* magicOffset = &DescrOffsets.off_magic_number,

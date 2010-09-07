@@ -43,7 +43,8 @@ void _cdecl NpyArrayAccess_Decref(NpyObject *obj)
 
 
 extern "C" __declspec(dllexport)
-void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *nd, int *flags)
+void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *nd, 
+                                           int *flags, int *data)
 {
     NpyArray *ptr = NULL;
 
@@ -51,6 +52,7 @@ void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *n
     *descr = offsetof(NpyArray, descr);
     *nd = offsetof(NpyArray, nd);
     *flags = offsetof(NpyArray, flags);
+    *data = offsetof(NpyArray, data);
 }
 
 

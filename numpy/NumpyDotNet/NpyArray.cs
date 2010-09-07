@@ -129,7 +129,7 @@ namespace NumpyDotNet {
         }
         
         internal static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
-            return null;
+            return arr;
         }
 
         internal static dtype FindArrayType(Object src, dtype minitype, int max) {
