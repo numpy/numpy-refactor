@@ -86,7 +86,7 @@ namespace NumpyDotNet {
             ndarray result = null;
 
             if (descr == null) {
-                descr = FindArrayType(src, null, 0);
+                descr = FindArrayType(src, null, NpyCoreApi.NPY_MAXDIMS);
             }
 
             NpyCoreApi.NPY_TYPES type = descr.TypeNum;
@@ -232,8 +232,9 @@ namespace NumpyDotNet {
                 if (stopAtTuple && seq is IronPython.Runtime.PythonTuple)
                     d = 1;
                 else if (seq.Count() == 0) d = 1;
-                else if (DiscoverDepth(seq.First(), max - 1, stopAtString, stopAtTuple) >= 0) {
-                    d++;
+                else {
+                    d = DiscoverDepth(seq.First(), max - 1, stopAtString, stopAtTuple);
+                    if (d >= 0) d++;
                 }
             } else if (src is ndarray) {
                 d = ((ndarray)src).Ndim;
@@ -242,7 +243,7 @@ namespace NumpyDotNet {
             }
                 // TODO: Not handling __array_struct__ attribute
                 // TODO: Not handling __array_interface__ attribute
-            else d = 1;
+            else d = 0;
             return d;
         }
 
@@ -325,8 +326,7 @@ namespace NumpyDotNet {
                 seq.Iteri((o, i) =>
                     AssignFromSeq((IEnumerable<Object>)o, result, dim + 1, offset + stride * i));
             } else {
-
-                seq.Iteri((o, i) => result[offset + i*stride] = o);
+                seq.Iteri((o, i) => result.Descr.f.SetItem(o, offset + i*stride, result));
             }
         }
     }

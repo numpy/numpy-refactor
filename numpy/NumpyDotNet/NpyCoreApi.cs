@@ -498,10 +498,10 @@ namespace NumpyDotNet
                 Marshal.WriteIntPtr(interfaceRet, ret);
 
                 // TODO: Skipping subtype-specific initialization (ctors.c:718)
-            } catch (InsufficientMemoryException e) {
+            } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");
                 success = 0;
-            } catch (Exception e) {
+            } catch (Exception) {
                 Console.WriteLine("Exception while allocating array wrapper.");
                 success = 0;
             }
@@ -529,7 +529,7 @@ namespace NumpyDotNet
                 dtype wrap = new dtype(descr, type);
                 Marshal.WriteIntPtr(interfaceRet,
                     GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
-            } catch (InsufficientMemoryException e) {
+            } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
                 success = 0;
             } catch (Exception) {
@@ -560,7 +560,7 @@ namespace NumpyDotNet
                 dtype wrap = new dtype(descr);
                 Marshal.WriteIntPtr(interfaceRet,
                     GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
-            } catch (InsufficientMemoryException e) {
+            } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
                 success = 0;
             } catch (Exception) {

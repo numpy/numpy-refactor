@@ -117,14 +117,18 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
-        public Object this[long i] {
-            get { return Descr.f.GetItem(i, this); }
+        public Object this[params object[] args] {
+            get {
+                return Descr.f.GetItem(ComputeOffset(args), this);
+            }
             set {
-                Descr.f.SetItem(value, i, this);
-                Console.WriteLine(String.Format("{0} = {1} vs {2}", i, value,
-                    Descr.f.GetItem(i, this)));
+                long offset = ComputeOffset(args);
+                Descr.f.SetItem(value, offset, this);
+                Console.WriteLine(String.Format("{0} = {1} vs {2}", offset, value,
+                    Descr.f.GetItem(offset, this)));
             }
         }
+
 
         public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
@@ -211,6 +215,45 @@ namespace NumpyDotNet
             int curFlags = Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_flags);
             return ((curFlags & flag) == flag);
         }
+
+
+        #region Internal methods
+
+        /// <summary>
+        /// Computes an offset into the byte array based on the provided index. The
+        /// index may be a sequence of integers or could be a list or tuple of integers.
+        /// </summary>
+        /// <param name="index">Index - array of ints or tuple/list of ints</param>
+        /// <returns>Byte offset into data array</returns>
+        private long ComputeOffset(object[] index) {
+            long offset = 0;
+
+            if (index.Length == this.Ndim) {
+                // Since index elements is the same as the number of dimensions we
+                // assume that the elements are integers. Anything else is invalid.
+                for (int i = 0; i < this.Ndim; i++) {
+                    long idx = 0;
+
+                    if (index[i] is long) idx = (long)index[i];
+                    else if (index[i] is int) idx = (long)(int)index[i];
+                    else {
+                        throw new IndexOutOfRangeException(
+                            String.Format("Index '{0}' at position {1} is not an integer.", index[i].ToString(), i));
+                    }
+                    offset += this.Stride(i) * idx;
+                }
+            } else if (index.Length == 1 && index[0] is IEnumerable<Object>) {
+                // Index is a sequence such as a tuple or list.
+                // TODO: Probably eed a more efficient implementation
+                offset = ComputeOffset(((IEnumerable<Object>)index[0]).ToArray());
+            } else {
+                throw new NotImplementedException("Invalid/unimplemented index type.");
+            }
+            return offset;
+        }
+
+        #endregion
+
 
         private static PythonContext pyContext = null;
 

@@ -106,7 +106,7 @@ namespace NumpyDotNet {
 
             if (o is Int32) f = (int)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt32(null);
-            else throw new NotImplementedException("Elivis has just left Wichita.");
+            else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 int* p = (int*)arr.Data.ToPointer() + offset;
@@ -119,7 +119,7 @@ namespace NumpyDotNet {
 
             if (o is Int64) f = (long)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt64(null);
-            else throw new NotImplementedException("Elivis has just left Wichita.");
+            else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 long* p = (long*)arr.Data.ToPointer() + offset;
@@ -132,7 +132,7 @@ namespace NumpyDotNet {
 
             if (o is Single) f = (float)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToSingle(null);
-            else throw new NotImplementedException("Elivis has just left Wichita.");
+            else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 float* p = (float*)arr.Data.ToPointer() + offset;
