@@ -129,6 +129,11 @@ namespace NumpyDotNet
             }
         }
 
+        public override string ToString() {
+            // TODO: Temporary implementation
+            return String.Format("Array[{0}], type = {1}",
+                String.Join(", ", this.Dims.Select(x => x.ToString())), this.Descr.Type);
+        }
 
         public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
