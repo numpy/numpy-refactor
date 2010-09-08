@@ -9,7 +9,7 @@
 extern int PyArray_INCREF(void *);
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
                   NpyArray *ret, NPY_CLIPMODE clipmode)
 {
@@ -183,7 +183,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
 /*
  * Put values into an array
  */
-int
+NDARRAY_API int
 NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
                NPY_CLIPMODE clipmode)
 {
@@ -352,7 +352,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
 /*
  * Put values into an array according to a mask.
  */
-int
+NDARRAY_API int
 NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
 {
     NpyArray_FastPutmaskFunc *func;
@@ -448,7 +448,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
 /*
  * Repeat the array.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
 {
     npy_intp *counts;
@@ -547,7 +547,7 @@ NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis)
 
 /*
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
                NPY_CLIPMODE clipmode)
 {
@@ -896,7 +896,7 @@ qsortCompare (const void *a, const void *b)
 /*
  * Sort an array in-place
  */
-int
+NDARRAY_API int
 NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
 {
     NpyArray *ap = NULL, *store_arr = NULL;
@@ -987,7 +987,7 @@ argsort_static_compare(const void *ip1, const void *ip2)
 /*
  * ArgSort an array
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
 {
     NpyArray *ap = NULL, *ret = NULL, *store, *op2;
@@ -1082,7 +1082,7 @@ NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which)
  * Returns an index array that shows the indexes for the lexicographic sort along
  * the given axis.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_LexSort(NpyArray** mps, int n, int axis)
 {
     NpyArrayIterObject **its;
@@ -1359,7 +1359,7 @@ local_search_right(NpyArray *arr, NpyArray *key, NpyArray *ret)
 /*
  * Numeric.searchsorted(a,v)
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
 {
     NpyArray *ap1 = NULL;
@@ -1425,7 +1425,7 @@ NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2, NPY_SEARCHSIDE side)
  * index array will be the length of the number of non-zero
  * elements in self.
  */
-int
+NDARRAY_API int
 NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj)
 {
     int n = self->nd, j;

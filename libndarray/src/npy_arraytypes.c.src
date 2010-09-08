@@ -2258,7 +2258,7 @@ void _init_builtin_descr_wrappers()
 
 /* Get the NpyArray_Descr structure for a type.
  */
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_DescrFromType(int type)
 {
     NpyArray_Descr *ret = NULL;

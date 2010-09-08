@@ -692,20 +692,20 @@ _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
 }
 
 
-/*NUMPY_API
+/*
  * Move the memory of one array into another.
  */
-int
+NDARRAY_API int
 NpyArray_MoveInto(NpyArray *dest, NpyArray *src)
 {
     return _array_copy_into(dest, src, 0);
 }
 
 
-/*NUMPY_API
+/*
  * steals a reference to descr -- accepts NULL
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
 {
     NpyArray *obj;
@@ -742,7 +742,7 @@ NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr, int requires)
 }
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
 {
     NpyArray *temp1, *temp2;
@@ -808,7 +808,7 @@ NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags)
  *
  * Steals a reference to descr (even on failure)
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                       npy_intp *dims, npy_intp *strides, void *data,
                       int flags, int ensureArray, void *subtype,
@@ -1014,10 +1014,10 @@ fail:
 
 
 
-/*NUMPY_API
+/*
  * Generic new array creation routine.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
              npy_intp *strides, void *data, int itemsize, int flags,
              void *obj)
@@ -1050,7 +1050,7 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
  * Creates an array allocating new data.
  * Steals the reference to the descriptor.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
                npy_bool is_fortran, void *interfaceData)
 {
@@ -1067,7 +1067,7 @@ NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
  * Creates a new array which is a view into the buffer of array.
  * Steals the reference to the descriptor.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
                  npy_intp *strides, NpyArray *array, npy_intp offset,
                  npy_bool ensure_array)
@@ -1094,10 +1094,10 @@ NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
 }
 
 
-/*NUMPY_API
+/*
  * steals reference to newtype --- acc. NULL
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
 {
     NpyArray *ret = NULL;
@@ -1238,12 +1238,12 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
 }
 
 
-/*NUMPY_API
+/*
  * Copy an Array into another array -- memory must not overlap
  * Does not require src and dest to have "broadcastable" shapes
  * (only the same number of elements).
  */
-int
+NDARRAY_API int
 NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 {
     int elsize, simple;
@@ -1319,7 +1319,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 }
 
 
-int
+NDARRAY_API int
 NpyArray_CopyInto(NpyArray *dest, NpyArray *src)
 {
     return _array_copy_into(dest, src, 1);
@@ -1747,7 +1747,7 @@ array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
 
 
 /* Steals a reference to dtype. */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 {
     NpyArray *ret;
@@ -1789,7 +1789,7 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
 
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_FromBinaryString(char *data, npy_intp slen, NpyArray_Descr *dtype,
                           npy_intp num)
 {

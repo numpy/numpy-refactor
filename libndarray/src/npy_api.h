@@ -130,25 +130,27 @@ NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
 
 
 /* multiarraymodule.c */
-int NpyArray_MultiplyIntList(int *l1, int n);
-npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
-void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
-int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
-int NpyArray_AsCArray(NpyArray **op, void *ptr, npy_intp *dims, int nd,
-                      NpyArray_Descr* typedescr);
-int NpyArray_Free(NpyArray *ap, void *ptr);
-NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
-int NpyArray_CanCoerceScalar(int thistype, int neededtype,
-                             NPY_SCALARKIND scalar);
-NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
-NpyArray *NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum);
-NpyArray *NpyArray_CopyAndTranspose(NpyArray *arr);
-NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
-                              int typenum, int mode);
-NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
-                             int typenum, int mode);
-unsigned char NpyArray_EquivTypenums(int typenum1, int typenum2);
-int NpyArray_GetEndianness(void);
+NDARRAY_API int NpyArray_MultiplyIntList(int *l1, int n);
+NDARRAY_API npy_intp NpyArray_OverflowMultiplyList(npy_intp *l1, int n);
+NDARRAY_API void *NpyArray_GetPtr(NpyArray *obj, npy_intp *ind);
+NDARRAY_API int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
+NDARRAY_API int NpyArray_AsCArray(NpyArray **op, void *ptr, npy_intp *dims,
+                                  int nd, NpyArray_Descr* typedescr);
+NDARRAY_API int NpyArray_Free(NpyArray *ap, void *ptr);
+NDARRAY_API NPY_SCALARKIND NpyArray_ScalarKind(int typenum, NpyArray **arr);
+NDARRAY_API int NpyArray_CanCoerceScalar(int thistype, int neededtype,
+                                         NPY_SCALARKIND scalar);
+NDARRAY_API NpyArray *NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2,
+                                            int typenum);
+NDARRAY_API NpyArray *NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2,
+                                             int typenum);
+NDARRAY_API NpyArray *NpyArray_CopyAndTranspose(NpyArray *arr);
+NDARRAY_API NpyArray *NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2,
+                                          int typenum, int mode);
+NDARRAY_API NpyArray *NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2,
+                                         int typenum, int mode);
+NDARRAY_API unsigned char NpyArray_EquivTypenums(int typenum1, int typenum2);
+NDARRAY_API int NpyArray_GetEndianness(void);
 
 
 
@@ -158,13 +160,13 @@ int NpyArray_GetEndianness(void);
 
 
 /* refcount.c */
-void
+NDARRAY_API void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr);
-void
+NDARRAY_API void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr);
-int
+NDARRAY_API int
 NpyArray_INCREF(NpyArray *arr);
-int
+NDARRAY_API int
 NpyArray_XDECREF(NpyArray *arr);
 
 
@@ -178,104 +180,116 @@ NpyArray_XDECREF(NpyArray *arr);
 
 
 /* getset.c */
-int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
-int NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides);
+NDARRAY_API int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
+NDARRAY_API int NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides);
 
 
 /*
  * API functions.
  */
-npy_intp NpyArray_Size(NpyArray *op);
-NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
-int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
-int NpyArray_CompareString(char *s1, char *s2, size_t len);
-int NpyArray_ElementStrides(NpyArray *arr);
-npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
-                               npy_intp offset,
-                               npy_intp *dims, npy_intp *newstrides);
-NpyArray *NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags);
-NpyArray *NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num);
-NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen,
-                                    NpyArray_Descr *dtype, npy_intp num);
-NpyArray *NpyArray_CheckFromArray(NpyArray *arr, NpyArray_Descr *descr,
-                                  int requires);
-int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
+NDARRAY_API npy_intp NpyArray_Size(NpyArray *op);
+NDARRAY_API NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
+NDARRAY_API int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
+NDARRAY_API int NpyArray_CompareString(char *s1, char *s2, size_t len);
+NDARRAY_API int NpyArray_ElementStrides(NpyArray *arr);
+NDARRAY_API npy_bool NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes,
+                                           npy_intp offset,
+                                           npy_intp *dims, npy_intp *newstrides);
+NDARRAY_API NpyArray *NpyArray_FromArray(NpyArray *arr,
+                                         NpyArray_Descr *newtype, int flags);
+NDARRAY_API NpyArray *NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype,
+                                              npy_intp num);
+NDARRAY_API NpyArray *NpyArray_FromBinaryString(char *data, npy_intp slen,
+                                                NpyArray_Descr *dtype,
+                                                npy_intp num);
+NDARRAY_API NpyArray *NpyArray_CheckFromArray(NpyArray *arr,
+                                              NpyArray_Descr *descr,
+                                              int requires);
+NDARRAY_API int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
 
-int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
+NDARRAY_API int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 
-NpyArray* NpyArray_Newshape(NpyArray *self, NpyArray_Dims *newdims,
-                            NPY_ORDER fortran);
-NpyArray* NpyArray_Squeeze(NpyArray *self);
-NpyArray* NpyArray_SwapAxes(NpyArray *ap, int a1, int a2);
-NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
-int NpyArray_TypestrConvert(int itemsize, int gentype);
-NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
-NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
+NDARRAY_API NpyArray* NpyArray_Newshape(NpyArray *self, NpyArray_Dims *newdims,
+                                        NPY_ORDER fortran);
+NDARRAY_API NpyArray* NpyArray_Squeeze(NpyArray *self);
+NDARRAY_API NpyArray* NpyArray_SwapAxes(NpyArray *ap, int a1, int a2);
+NDARRAY_API NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
+NDARRAY_API int NpyArray_TypestrConvert(int itemsize, int gentype);
+NDARRAY_API NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
+NDARRAY_API NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
 
-NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran);
-NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr,
-                                               int type_num);
-int NpyArray_CastTo(NpyArray *out, NpyArray *mp);
-int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp);
-int NpyArray_CanCastSafely(int fromtype, int totype);
-npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
-npy_bool NpyArray_CanCastScalar(NpyTypeObject *from, NpyTypeObject *to);
-int NpyArray_ValidType(int type);
-struct NpyArray_Descr *NpyArray_DescrFromType(int type);
+NDARRAY_API NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, 
+                                          int fortran);
+NDARRAY_API NpyArray_VectorUnaryFunc *NpyArray_GetCastFunc(NpyArray_Descr *descr,
+                                                           int type_num);
+NDARRAY_API int NpyArray_CastTo(NpyArray *out, NpyArray *mp);
+NDARRAY_API int NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp);
+NDARRAY_API int NpyArray_CanCastSafely(int fromtype, int totype);
+NDARRAY_API npy_bool NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to);
+NDARRAY_API int NpyArray_ValidType(int type);
+NDARRAY_API struct NpyArray_Descr *NpyArray_DescrFromType(int type);
 
-NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
-                            NpyArray *ret, NPY_CLIPMODE clipmode);
+NDARRAY_API NpyArray* NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
+                                        NpyArray *ret, NPY_CLIPMODE clipmode);
 
-int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
-                   NPY_CLIPMODE clipmode);
-int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
-NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
-NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
-                           NPY_CLIPMODE clipmode);
-int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
-NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
-NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
-NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2,
-                                 NPY_SEARCHSIDE side);
-int NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj);
+NDARRAY_API int NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
+                               NPY_CLIPMODE clipmode);
+NDARRAY_API int NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0);
+NDARRAY_API NpyArray * NpyArray_Repeat(NpyArray *aop, NpyArray *op, int axis);
+NDARRAY_API NpyArray * NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
+                                       NPY_CLIPMODE clipmode);
+NDARRAY_API int NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which);
+NDARRAY_API NpyArray * NpyArray_ArgSort(NpyArray *op, int axis, NPY_SORTKIND which);
+NDARRAY_API NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
+NDARRAY_API NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2,
+                                             NPY_SEARCHSIDE side);
+NDARRAY_API int NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj);
 
-void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
-int NpyArray_RegisterDataType(NpyArray_Descr *descr);
-int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
+NDARRAY_API void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
+NDARRAY_API int NpyArray_RegisterDataType(NpyArray_Descr *descr);
+NDARRAY_API int NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
                               NpyArray_VectorUnaryFunc *castfunc);
-int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
-                             NPY_SCALARKIND scalar);
-int NpyArray_TypeNumFromName(char *str);
-NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
+NDARRAY_API int NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
+                                         NPY_SCALARKIND scalar);
+NDARRAY_API NpyArray_Descr* NpyArray_UserDescrFromTypeNum(int typenum);
 
-NpyArray *NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
-                                npy_intp *dims, npy_intp *strides, void *data,
-                                int flags, int ensureArray, void *subtype,
-                                void *interfaceData);
-NpyArray *NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
-                       npy_intp *strides, void *data, int itemsize, int flags,
+NDARRAY_API NpyArray *
+NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
+                      npy_intp *dims, npy_intp *strides, void *data,
+                      int flags, int ensureArray, void *subtype,
+                      void *interfaceData);
+NDARRAY_API NpyArray *
+NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
+             npy_intp *strides, void *data, int itemsize, int flags,
                        void *obj);
-NpyArray *NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
-                         npy_bool is_fortran, void *interfaceData);
-NpyArray * NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
-                            npy_intp *strides,
-                            NpyArray *array, npy_intp offset,
-                            npy_bool ensure_array);
-int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
-int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
-int NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
-                    NPY_ORDER fortran);
+NDARRAY_API NpyArray *
+NpyArray_Alloc(NpyArray_Descr *descr, int nd, npy_intp* dims,
+               npy_bool is_fortran, void *interfaceData);
+NDARRAY_API NpyArray *
+NpyArray_NewView(NpyArray_Descr *descr, int nd, npy_intp* dims,
+                 npy_intp *strides,
+                 NpyArray *array, npy_intp offset,
+                 npy_bool ensure_array);
+NDARRAY_API int NpyArray_CopyInto(NpyArray *dest, NpyArray *src);
+NDARRAY_API int NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src);
+NDARRAY_API int
+NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
+                NPY_ORDER fortran);
 
-npy_datetime NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr,
-                                               npy_datetimestruct *d);
-npy_datetime NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr,
-                                                 npy_timedeltastruct *d);
-void NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
-                                       npy_datetimestruct *result);
-void NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
-                                         npy_timedeltastruct *result);
+NDARRAY_API npy_datetime
+NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr,
+                                  npy_datetimestruct *d);
+NDARRAY_API npy_datetime
+NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr,
+                                    npy_timedeltastruct *d);
+NDARRAY_API void
+NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
+                                  npy_datetimestruct *result);
+NDARRAY_API void
+NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
+                                    npy_timedeltastruct *result);
 
-int
+NDARRAY_API int
 NpyArray_GetNumusertypes(void);
 
 

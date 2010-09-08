@@ -177,7 +177,7 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
 }
 
 
-int
+NDARRAY_API int
 NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 {
     npy_intp size;

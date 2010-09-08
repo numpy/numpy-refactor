@@ -263,10 +263,10 @@ seconds_to_hmsstruct(npy_longlong dlong)
  Structure is assumed to be already normalized
  */
 
-/*NUMPY_API
+/*
  * Create a datetime value from a filled datetime struct and resolution unit.
  */
-npy_datetime
+NDARRAY_API npy_datetime
 NpyArray_DatetimeStructToDatetime(NPY_DATETIMEUNIT fr, npy_datetimestruct *d)
 {
     npy_datetime ret;
@@ -492,10 +492,10 @@ NpyArray_TimedeltaStructToTimedelta(NPY_DATETIMEUNIT fr, npy_timedeltastruct *d)
 
 
 
-/*NUMPY_API
+/*
  * Fill the datetime struct from the value and resolution unit.
  */
-void
+NDARRAY_API void
 NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
                                   npy_datetimestruct *result)
 {
@@ -790,10 +790,10 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
  *   the average is done
  */
 
-/*NUMPY_API
+/*
  * Fill the timedelta struct from the timedelta value and resolution unit.
  */
-void
+NDARRAY_API void
 NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
                                     npy_timedeltastruct *result)
 {

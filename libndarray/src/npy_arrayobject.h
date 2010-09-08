@@ -27,7 +27,7 @@ struct NpyArray {
 extern NpyTypeObject NpyArray_Type;
 
 npy_intp NpyArray_MultiplyList(npy_intp *l1, int n);
-int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
+NDARRAY_API int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 
 
 #define NpyArray_CHKFLAGS(m, FLAGS)                              \

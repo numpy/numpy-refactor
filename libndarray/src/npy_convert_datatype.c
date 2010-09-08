@@ -169,12 +169,12 @@ _broadcast_cast(NpyArray *out, NpyArray *in,
 
 
 
-/*NUMPY_API
+/*
  * Get a cast function to cast from the input descriptor to the
  * output type_number (must be a registered data-type).
  * Returns NULL if un-successful.
  */
-NpyArray_VectorUnaryFunc *
+NDARRAY_API NpyArray_VectorUnaryFunc *
 NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
 {
     NpyArray_VectorUnaryFunc *castfunc = NULL;
@@ -218,10 +218,10 @@ NpyArray_GetCastFunc(NpyArray_Descr *descr, int type_num)
  * as the size of the casting buffer.
  */
 
-/*NUMPY_API
+/*
  * Cast to an already created array.
  */
-int
+NDARRAY_API int
 NpyArray_CastTo(NpyArray *out, NpyArray *mp)
 {
     int simple;
@@ -286,13 +286,13 @@ NpyArray_CastTo(NpyArray *out, NpyArray *mp)
 
 
 
-/*NUMPY_API
+/*
  * For backward compatibility
  *
  * Cast an array using typecode structure.
  * steals reference to at --- cannot be NULL
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, int fortran)
 {
     NpyArray *out;
@@ -452,11 +452,11 @@ exit:
     return retval;
 }
 
-/*NUMPY_API
+/*
  * Cast to an already created array.  Arrays don't have to be "broadcastable"
  * Only requirement is they have the same number of elements.
  */
-int
+NDARRAY_API int
 NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
 {
     int simple;
@@ -497,10 +497,10 @@ NpyArray_CastAnyTo(NpyArray *out, NpyArray *mp)
     return _bufferedcast(out, mp, castfunc);
 }
 
-/*NUMPY_API
+/*
  *Check the type coercion rules.
  */
-int
+NDARRAY_API int
 NpyArray_CanCastSafely(int fromtype, int totype)
 {
     NpyArray_Descr *from, *to;
@@ -634,10 +634,10 @@ NpyArray_CanCastSafely(int fromtype, int totype)
     }
 }
 
-/*NUMPY_API
+/*
  * leaves reference count alone --- cannot be NULL
  */
-npy_bool
+NDARRAY_API npy_bool
 NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 {
     int fromtype=from->type_num;
@@ -670,10 +670,10 @@ NpyArray_CanCastTo(NpyArray_Descr *from, NpyArray_Descr *to)
 }
 
 
-/*NUMPY_API
+/*
  * Is the typenum valid?
  */
-int
+NDARRAY_API int
 NpyArray_ValidType(int type)
 {
     NpyArray_Descr *descr;

@@ -11,9 +11,7 @@
 
 
 
-/*NUMPY_API
- */
-int
+NDARRAY_API int
 NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
 {
     int nd;
@@ -58,9 +56,7 @@ NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims)
 }
 
 
-/*NUMPY_API
- */
-int
+NDARRAY_API int
 NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
 {
     NpyArray *new;

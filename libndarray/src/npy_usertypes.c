@@ -108,7 +108,7 @@ _default_copyswapn(void *dst, npy_intp dstride, void *src,
 /*
   Initialize arrfuncs to NULL
 */
-void
+NDARRAY_API void
 NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 {
     int i;
@@ -139,7 +139,7 @@ NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f)
 }
 
 
-int
+NDARRAY_API int
 NpyArray_GetNumusertypes(void)
 {
     return numusertypes;
@@ -155,7 +155,7 @@ NpyArray_GetNumusertypes(void)
   Register Data type
   Does not change the reference count of descr
 */
-int
+NDARRAY_API int
 NpyArray_RegisterDataType(NpyArray_Descr *descr)
 {
     NpyArray_Descr *descr2;
@@ -210,7 +210,7 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
   Register Casting Function
   Replaces any function currently stored.
 */
-int
+NDARRAY_API int
 NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
                           NpyArray_VectorUnaryFunc *castfunc)
 {
@@ -237,7 +237,7 @@ NpyArray_RegisterCastFunc(NpyArray_Descr *descr, int totype,
  * Register a type number indicating that a descriptor can be cast
  * to it safely
  */
-int
+NDARRAY_API int
 NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
                          NPY_SCALARKIND scalar)
 {
@@ -275,7 +275,7 @@ NpyArray_RegisterCanCast(NpyArray_Descr *descr, int totype,
 }
 
 
-NpyArray_Descr*
+NDARRAY_API NpyArray_Descr*
 NpyArray_UserDescrFromTypeNum(int typenum)
 {
     return npy_userdescrs[typenum - NPY_USERDEF];

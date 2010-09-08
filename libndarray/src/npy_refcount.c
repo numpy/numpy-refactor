@@ -17,7 +17,7 @@
 /* Incref all objects found at this record */
 /*NUMPY_API
  */
-void
+NDARRAY_API void
 NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;
@@ -48,7 +48,7 @@ NpyArray_Item_INCREF(char *data, NpyArray_Descr *descr)
 }
 
 
-void
+NDARRAY_API void
 NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
 {
     void *temp;
@@ -83,7 +83,7 @@ NpyArray_Item_XDECREF(char *data, NpyArray_Descr *descr)
 
 /* Used for arrays of python objects to increment the reference count of */
 /* every python object in the array. */
-int
+NDARRAY_API int
 NpyArray_INCREF(NpyArray *mp)
 {
     npy_intp i, n;
@@ -139,7 +139,7 @@ NpyArray_INCREF(NpyArray *mp)
 /*Decrement all internal references for object arrays.
  (or arrays with object fields)
  */
-int
+NDARRAY_API int
 NpyArray_XDECREF(NpyArray *mp)
 {
     npy_intp i, n;

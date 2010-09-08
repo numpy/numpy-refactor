@@ -26,7 +26,7 @@ _attempt_nocopy_reshape(NpyArray *self, int newnd, npy_intp* newdims,
  * not checked and assumed to be 1.  You still must own this data and have no
  * weak-references and no base object.
  */
-int
+NDARRAY_API int
 NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
                NPY_ORDER fortran)
 {
@@ -147,7 +147,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
 /*
  * New shape for an array
  */
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
                   NPY_ORDER fortran)
 {
@@ -304,7 +304,7 @@ NpyArray_Newshape(NpyArray* self, NpyArray_Dims *newdims,
  * dimensions squeezed out if needed, otherwise
  * return the same array.
  */
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_Squeeze(NpyArray *self)
 {
     int nd = self->nd;
@@ -337,7 +337,7 @@ NpyArray_Squeeze(NpyArray *self)
 /*
  * SwapAxes
  */
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
 {
     NpyArray_Dims new_axes;
@@ -394,7 +394,7 @@ NpyArray_SwapAxes(NpyArray *ap, int a1, int a2)
 /*
  * Return Transpose.
  */
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
 {
     npy_intp *axes, axis;
@@ -465,7 +465,7 @@ NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute)
  * Ravel
  * Returns a contiguous array
  */
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran)
 {
     NpyArray_Dims newdim = {NULL,1};
@@ -489,7 +489,7 @@ NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran)
 /*
  * Flatten
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
 {
     NpyArray *ret;

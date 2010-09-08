@@ -69,7 +69,7 @@ void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
 /*NUMPY_API
  * Multiply a List of ints
  */
-int
+NDARRAY_API int
 NpyArray_MultiplyIntList(int *l1, int n)
 {
     int s = 1;
@@ -96,10 +96,10 @@ NpyArray_MultiplyList(npy_intp *l1, int n)
 }
 
 
-/*NUMPY_API
+/*
  * Multiply a List of Non-negative numbers with over-flow detection.
  */
-npy_intp
+NDARRAY_API npy_intp
 NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
 {
     npy_intp prod = 1;
@@ -121,10 +121,10 @@ NpyArray_OverflowMultiplyList(npy_intp *l1, int n)
     return prod;
 }
 
-/*NUMPY_API
+/*
  * Produce a pointer into array
  */
-void *
+NDARRAY_API void *
 NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
 {
     int n = obj->nd;
@@ -138,10 +138,10 @@ NpyArray_GetPtr(NpyArray *obj, npy_intp *ind)
 }
 
 
-/*NUMPY_API
+/*
  * Compare Lists
  */
-int
+NDARRAY_API int
 NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
 {
     int i;
@@ -164,11 +164,11 @@ NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n)
  * function that requires a true pointer to a fixed-size array.
  */
 
-/*NUMPY_API
+/*
  * Simulate a C-array
  * steals a reference to typedescr -- can be NULL
  */
-int
+NDARRAY_API int
 NpyArray_AsCArray(NpyArray **apIn, void *ptr, npy_intp *dims, int nd,
                   NpyArray_Descr* typedescr)
 {
@@ -229,10 +229,10 @@ fail:
 
 
 
-/*NUMPY_API
+/*
  * Free pointers created if As2D is called
  */
-int
+NDARRAY_API int
 NpyArray_Free(NpyArray *ap, void *ptr)
 {
     if ((ap->nd < 1) || (ap->nd > 3)) {
@@ -271,10 +271,10 @@ _signbit_set(NpyArray *arr)
 }
 
 
-/*NUMPY_API
+/*
  * ScalarKind
  */
-NPY_SCALARKIND
+NDARRAY_API NPY_SCALARKIND
 NpyArray_ScalarKind(int typenum, NpyArray **arr)
 {
     if (NpyTypeNum_ISSIGNED(typenum)) {
@@ -314,8 +314,7 @@ NpyArray_ScalarKind(int typenum, NpyArray **arr)
     return NPY_OBJECT_SCALAR;
 }
 
-/*NUMPY_API*/
-int
+NDARRAY_API int
 NpyArray_CanCoerceScalar(int thistype, int neededtype,
                          NPY_SCALARKIND scalar)
 {
@@ -386,10 +385,10 @@ new_array_for_sum(NpyArray *ap1, NpyArray *ap2,
 }
 
 
-/*NUMPY_API
+/*
  * Numeric.innerproduct(a,v)
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 {
     NpyArray *ret = NULL;
@@ -465,11 +464,11 @@ NpyArray_InnerProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 }
 
 
-/*NUMPY_API
+/*
  *Numeric.matrixproduct(a,v)
  * just like inner product but does the swapaxes stuff on the fly
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_MatrixProduct(NpyArray *ap1, NpyArray *ap2, int typenum)
 {
     NpyArray *ret = NULL;
@@ -561,10 +560,10 @@ fail:
 }
 
 
-/*NUMPY_API
+/*
  * Fast Copy and Transpose
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CopyAndTranspose(NpyArray *arr)
 {
     NpyArray *ret, *tmp;
@@ -778,13 +777,13 @@ _npyarray_revert(NpyArray *ret)
 }
 
 
-/*NUMPY_API
+/*
  * correlate(a1, a2 ,typenum, mode)
  *
  * This function computes the usual correlation (correlate(a1, a2) !=
  * correlate(a2, a1), and conjugate the second argument for complex inputs
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 {
     NpyArray *ret = NULL;
@@ -824,10 +823,10 @@ NpyArray_Correlate2(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 }
 
 
-/*NUMPY_API
+/*
  * Numeric.correlate(a1, a2 ,typenum, mode)
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Correlate(NpyArray *ap1, NpyArray *ap2, int typenum, int mode)
 {
     int unused;
@@ -926,8 +925,7 @@ NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
 }
 
 
-/*NUMPY_API*/
-unsigned char
+NDARRAY_API unsigned char
 NpyArray_EquivTypenums(int typenum1, int typenum2)
 {
     NpyArray_Descr *d1, *d2;
@@ -942,9 +940,7 @@ NpyArray_EquivTypenums(int typenum1, int typenum2)
 }
 
 
-/*NUMPY_API
-*/
-int
+NDARRAY_API int
 NpyArray_GetEndianness(void)
 {
     const union {

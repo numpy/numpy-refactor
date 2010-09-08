@@ -14,13 +14,13 @@ extern int PyArray_XDECREF(void *);
 /*
  * Compute the size of an array (in number of items)
  */
-npy_intp
+NDARRAY_API npy_intp
 NpyArray_Size(NpyArray *op)
 {
     return NpyArray_SIZE(op);
 }
 
-int
+NDARRAY_API int
 NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len)
 {
     npy_ucs4 c1, c2;
@@ -34,7 +34,7 @@ NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len)
     return 0;
 }
 
-int
+NDARRAY_API int
 NpyArray_CompareString(char *s1, char *s2, size_t len)
 {
     const unsigned char *c1 = (unsigned char *)s1;
@@ -49,7 +49,7 @@ NpyArray_CompareString(char *s1, char *s2, size_t len)
     return 0;
 }
 
-int
+NDARRAY_API int
 NpyArray_ElementStrides(NpyArray *arr)
 {
     int itemsize = NpyArray_ITEMSIZE(arr);
@@ -81,7 +81,7 @@ NpyArray_ElementStrides(NpyArray *arr)
  * of the buffer and therefore works for any integer stride (positive
  * or negative).
  */
-npy_bool
+NDARRAY_API npy_bool
 NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
                       npy_intp *dims, npy_intp *newstrides)
 {

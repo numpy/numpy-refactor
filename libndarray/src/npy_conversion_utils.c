@@ -8,10 +8,10 @@
 
 
 
-/*NUMPY_API
+/*
  * Typestr converter
  */
-int
+NDARRAY_API int
 NpyArray_TypestrConvert(int itemsize, int gentype)
 {
     int newtype = gentype;
