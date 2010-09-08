@@ -50,7 +50,7 @@
 
 
 /* Defined in core */
-extern char _npy_letter_to_num[];
+NDARRAY_API extern char _npy_letter_to_num[];
 
 #define _ALIGN(type) offsetof(struct {char c; type v;}, v)
 
@@ -1679,7 +1679,7 @@ OBJECT_fillwithscalar(PyObject **buffer, intp length, PyObject **value, void *NP
  *         DATETIME,TIMEDELTA#
  */
 
-extern NpyArray_Descr npy_@name@_Descr;
+NDARRAY_API extern NpyArray_Descr npy_@name@_Descr;
 /**end repeat**/
 
 

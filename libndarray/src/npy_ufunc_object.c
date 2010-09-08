@@ -17,9 +17,6 @@
 #include "npy_math.h"
 
 
-extern npy_interface_incref _NpyInterface_Incref;
-extern npy_interface_decref _NpyInterface_Decref;
-
 /*
  * Forward decls
  */

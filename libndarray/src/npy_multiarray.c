@@ -27,8 +27,9 @@ extern void _init_type_functions(struct NpyArray_FunctionDefs *);
 extern void _init_builtin_descr_wrappers();
 
 
-npy_interface_incref _NpyInterface_Incref = NULL;
-npy_interface_decref _NpyInterface_Decref = NULL;
+NDARRAY_API npy_interface_incref _NpyInterface_Incref = NULL;
+NDARRAY_API npy_interface_decref _NpyInterface_Decref = NULL;
+
 struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
     NULL, NULL, NULL, NULL, NULL, NULL
 };

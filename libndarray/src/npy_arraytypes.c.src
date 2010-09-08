@@ -1955,7 +1955,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NpyArray_Descr npy_@from@_Descr = {
+NDARRAY_API NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NpyArray_@from@LTR,
     NpyArray_@from@LTR,
@@ -2046,7 +2046,7 @@ static NpyArray_ArrFuncs _Npy@NAME@_ArrFuncs = {
 /*
  * FIXME: check for PY3K
  */
-NpyArray_Descr npy_@from@_Descr = {
+NDARRAY_API NpyArray_Descr npy_@from@_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NpyArray_@kind@LTR,
     NpyArray_@from@LTR,
@@ -2092,7 +2092,7 @@ static NpyArray_ArrFuncs _NpyObject_ArrFuncs = {
     }
 };
 
-NpyArray_Descr npy_OBJECT_Descr = {
+NDARRAY_API NpyArray_Descr npy_OBJECT_Descr = {
     NpyObject_HEAD_INIT(&NpyArrayDescr_Type)
     NpyArray_OBJECTLTR,
     NpyArray_OBJECTLTR,
@@ -2134,7 +2134,7 @@ _init_datetime_descr(NpyArray_Descr *descr)
 
 
 #define _MAX_LETTER 128
-char _npy_letter_to_num[_MAX_LETTER];
+NDARRAY_API char _npy_letter_to_num[_MAX_LETTER];
 
 static NpyArray_Descr *_builtin_descrs[] = {
     &npy_BOOL_Descr,

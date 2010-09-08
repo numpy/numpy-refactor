@@ -121,7 +121,6 @@ NpyArray_ValidType
 NpyArray_View
 NpyArray_XDECREF
 npy_BOOL_absolute
-npy_BOOL_Descr
 npy_BOOL_equal
 npy_BOOL_greater
 npy_BOOL_greater_equal
@@ -141,7 +140,6 @@ npy_BYTE_bitwise_and
 npy_BYTE_bitwise_or
 npy_BYTE_bitwise_xor
 npy_BYTE_conjugate
-npy_BYTE_Descr
 npy_BYTE_divide
 npy_BYTE_equal
 npy_BYTE_fmod
@@ -173,7 +171,6 @@ npy_CDOUBLE_absolute
 npy_CDOUBLE_add
 npy_CDOUBLE__arg
 npy_CDOUBLE_conjugate
-npy_CDOUBLE_Descr
 npy_CDOUBLE_divide
 npy_CDOUBLE_equal
 npy_CDOUBLE_floor_divide
@@ -203,7 +200,6 @@ npy_CFLOAT_absolute
 npy_CFLOAT_add
 npy_CFLOAT__arg
 npy_CFLOAT_conjugate
-npy_CFLOAT_Descr
 npy_CFLOAT_divide
 npy_CFLOAT_equal
 npy_CFLOAT_floor_divide
@@ -233,7 +229,6 @@ npy_CLONGDOUBLE_absolute
 npy_CLONGDOUBLE_add
 npy_CLONGDOUBLE__arg
 npy_CLONGDOUBLE_conjugate
-npy_CLONGDOUBLE_Descr
 npy_CLONGDOUBLE_divide
 npy_CLONGDOUBLE_equal
 npy_CLONGDOUBLE_floor_divide
@@ -260,7 +255,6 @@ npy_CLONGDOUBLE_sign
 npy_CLONGDOUBLE_square
 npy_CLONGDOUBLE_subtract
 npy_DATETIME_absolute
-npy_DATETIME_Descr
 npy_DATETIME_equal
 npy_DATETIME_greater
 npy_DATETIME_greater_equal
@@ -289,7 +283,6 @@ npy_DOUBLE_absolute
 npy_DOUBLE_add
 npy_DOUBLE_conjugate
 npy_DOUBLE_copysign
-npy_DOUBLE_Descr
 npy_DOUBLE_divide
 npy_DOUBLE_equal
 npy_DOUBLE_floor_divide
@@ -328,7 +321,6 @@ npy_FLOAT_absolute
 npy_FLOAT_add
 npy_FLOAT_conjugate
 npy_FLOAT_copysign
-npy_FLOAT_Descr
 npy_FLOAT_divide
 npy_FLOAT_equal
 npy_FLOAT_floor_divide
@@ -367,11 +359,8 @@ npy_INT_bitwise_and
 npy_INT_bitwise_or
 npy_INT_bitwise_xor
 npy_INT_conjugate
-npy_INT_Descr
 npy_INT_divide
 npy_INT_equal
-_NpyInterface_Decref
-_NpyInterface_Incref
 npy_INT_fmod
 npy_INT_greater
 npy_INT_greater_equal
@@ -399,20 +388,17 @@ npy_INT_subtract
 npy_INT_true_divide
 Npy_IsAligned
 Npy_IsWriteable
-_npy_letter_to_num
 npy_LONG_absolute
 npy_LONG_add
 npy_LONG_bitwise_and
 npy_LONG_bitwise_or
 npy_LONG_bitwise_xor
 npy_LONG_conjugate
-npy_LONG_Descr
 npy_LONG_divide
 npy_LONGDOUBLE_absolute
 npy_LONGDOUBLE_add
 npy_LONGDOUBLE_conjugate
 npy_LONGDOUBLE_copysign
-npy_LONGDOUBLE_Descr
 npy_LONGDOUBLE_divide
 npy_LONGDOUBLE_equal
 npy_LONGDOUBLE_floor_divide
@@ -462,7 +448,6 @@ npy_LONGLONG_bitwise_and
 npy_LONGLONG_bitwise_or
 npy_LONGLONG_bitwise_xor
 npy_LONGLONG_conjugate
-npy_LONGLONG_Descr
 npy_LONGLONG_divide
 npy_LONGLONG_equal
 npy_LONGLONG_fmod
@@ -573,7 +558,6 @@ npy_nc_tanh
 npy_nc_tanhf
 npy_nc_tanhl
 npy_nc_tanl
-npy_OBJECT_Descr
 NpyOS_ascii_formatd
 NpyOS_ascii_formatf
 NpyOS_ascii_formatl
@@ -584,7 +568,6 @@ npy_SHORT_bitwise_and
 npy_SHORT_bitwise_or
 npy_SHORT_bitwise_xor
 npy_SHORT_conjugate
-npy_SHORT_Descr
 npy_SHORT_divide
 npy_SHORT_equal
 npy_SHORT_fmod
@@ -612,9 +595,7 @@ npy_SHORT_sign
 npy_SHORT_square
 npy_SHORT_subtract
 npy_SHORT_true_divide
-npy_STRING_Descr
 npy_TIMEDELTA_absolute
-npy_TIMEDELTA_Descr
 npy_TIMEDELTA_equal
 npy_TIMEDELTA_greater
 npy_TIMEDELTA_greater_equal
@@ -638,7 +619,6 @@ npy_UBYTE_bitwise_and
 npy_UBYTE_bitwise_or
 npy_UBYTE_bitwise_xor
 npy_UBYTE_conjugate
-npy_UBYTE_Descr
 npy_UBYTE_divide
 npy_UBYTE_equal
 npy_UBYTE_fmod
@@ -698,7 +678,6 @@ npy_UINT_bitwise_and
 npy_UINT_bitwise_or
 npy_UINT_bitwise_xor
 npy_UINT_conjugate
-npy_UINT_Descr
 npy_UINT_divide
 npy_UINT_equal
 npy_UINT_fmod
@@ -732,7 +711,6 @@ npy_ULONG_bitwise_and
 npy_ULONG_bitwise_or
 npy_ULONG_bitwise_xor
 npy_ULONG_conjugate
-npy_ULONG_Descr
 npy_ULONG_divide
 npy_ULONG_equal
 npy_ULONG_fmod
@@ -752,7 +730,6 @@ npy_ULONGLONG_bitwise_and
 npy_ULONGLONG_bitwise_or
 npy_ULONGLONG_bitwise_xor
 npy_ULONGLONG_conjugate
-npy_ULONGLONG_Descr
 npy_ULONGLONG_divide
 npy_ULONGLONG_equal
 npy_ULONGLONG_fmod
@@ -794,7 +771,6 @@ npy_ULONG_sign
 npy_ULONG_square
 npy_ULONG_subtract
 npy_ULONG_true_divide
-npy_UNICODE_Descr
 npy_userdescrs
 npy_USHORT_absolute
 npy_USHORT_add
@@ -802,7 +778,6 @@ npy_USHORT_bitwise_and
 npy_USHORT_bitwise_or
 npy_USHORT_bitwise_xor
 npy_USHORT_conjugate
-npy_USHORT_Descr
 npy_USHORT_divide
 npy_USHORT_equal
 npy_USHORT_fmod
@@ -830,4 +805,3 @@ npy_USHORT_sign
 npy_USHORT_square
 npy_USHORT_subtract
 npy_USHORT_true_divide
-npy_VOID_Descr

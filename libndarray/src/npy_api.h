@@ -355,13 +355,8 @@ typedef void *(*npy_interface_decref)(void *, void **);
 
 /* Do not call directly, use macros below because interface does not have
    to provide these. */
-/* Not defined on Windows because __declspec(dllimport) is needed for any
-   DLL's importing them. */
-/* TODO: Clean up handling of exported/imported variables on windows. */
-#if !defined(_WIN32)
-extern npy_interface_incref _NpyInterface_Incref;
-extern npy_interface_decref _NpyInterface_Decref;
-#endif
+NDARRAY_API extern npy_interface_incref _NpyInterface_Incref;
+NDARRAY_API extern npy_interface_decref _NpyInterface_Decref;
 
 
 #define NpyInterface_INCREF(ptr) (NULL != _NpyInterface_Incref ? \

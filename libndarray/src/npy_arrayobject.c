@@ -11,9 +11,6 @@
 extern int PyArray_INCREF(void *);
 extern int PyArray_XDECREF(void *);
 
-extern npy_interface_incref _NpyInterface_Incref;
-extern npy_interface_decref _NpyInterface_Decref;
-
 /*
  * Compute the size of an array (in number of items)
  */
