@@ -97,49 +97,49 @@ NPY_INLINE static float __npy_nzerof(void)
 /*
  * C99 double math funcs
  */
-double npy_sin(double x);
-double npy_cos(double x);
-double npy_tan(double x);
-double npy_sinh(double x);
-double npy_cosh(double x);
-double npy_tanh(double x);
+NDARRAY_API double npy_sin(double x);
+NDARRAY_API double npy_cos(double x);
+NDARRAY_API double npy_tan(double x);
+NDARRAY_API double npy_sinh(double x);
+NDARRAY_API double npy_cosh(double x);
+NDARRAY_API double npy_tanh(double x);
 
-double npy_asin(double x);
-double npy_acos(double x);
-double npy_atan(double x);
-double npy_aexp(double x);
-double npy_alog(double x);
-double npy_asqrt(double x);
-double npy_afabs(double x);
+NDARRAY_API double npy_asin(double x);
+NDARRAY_API double npy_acos(double x);
+NDARRAY_API double npy_atan(double x);
+NDARRAY_API double npy_aexp(double x);
+NDARRAY_API double npy_alog(double x);
+NDARRAY_API double npy_asqrt(double x);
+NDARRAY_API double npy_afabs(double x);
 
-double npy_log(double x);
-double npy_log10(double x);
-double npy_exp(double x);
-double npy_sqrt(double x);
+NDARRAY_API double npy_log(double x);
+NDARRAY_API double npy_log10(double x);
+NDARRAY_API double npy_exp(double x);
+NDARRAY_API double npy_sqrt(double x);
 
-double npy_fabs(double x);
-double npy_ceil(double x);
-double npy_fmod(double x, double y);
-double npy_floor(double x);
+NDARRAY_API double npy_fabs(double x);
+NDARRAY_API double npy_ceil(double x);
+NDARRAY_API double npy_fmod(double x, double y);
+NDARRAY_API double npy_floor(double x);
 
-double npy_expm1(double x);
-double npy_log1p(double x);
-double npy_hypot(double x, double y);
-double npy_acosh(double x);
-double npy_asinh(double xx);
-double npy_atanh(double x);
-double npy_rint(double x);
-double npy_trunc(double x);
-double npy_exp2(double x);
-double npy_log2(double x);
+NDARRAY_API double npy_expm1(double x);
+NDARRAY_API double npy_log1p(double x);
+NDARRAY_API double npy_hypot(double x, double y);
+NDARRAY_API double npy_acosh(double x);
+NDARRAY_API double npy_asinh(double xx);
+NDARRAY_API double npy_atanh(double x);
+NDARRAY_API double npy_rint(double x);
+NDARRAY_API double npy_trunc(double x);
+NDARRAY_API double npy_exp2(double x);
+NDARRAY_API double npy_log2(double x);
 
-double npy_atan2(double x, double y);
-double npy_pow(double x, double y);
-double npy_modf(double x, double* y);
+NDARRAY_API double npy_atan2(double x, double y);
+NDARRAY_API double npy_pow(double x, double y);
+NDARRAY_API double npy_modf(double x, double* y);
 
-double npy_copysign(double x, double y);
-double npy_nextafter(double x, double y);
-double npy_spacing(double x);
+NDARRAY_API double npy_copysign(double x, double y);
+NDARRAY_API double npy_nextafter(double x, double y);
+NDARRAY_API double npy_spacing(double x);
 
 /*
  * IEEE 754 fpu handling. Those are guaranteed to be macros
@@ -167,101 +167,101 @@ double npy_spacing(double x);
  * float C99 math functions
  */
 
-float npy_sinf(float x);
-float npy_cosf(float x);
-float npy_tanf(float x);
-float npy_sinhf(float x);
-float npy_coshf(float x);
-float npy_tanhf(float x);
-float npy_fabsf(float x);
-float npy_floorf(float x);
-float npy_ceilf(float x);
-float npy_rintf(float x);
-float npy_truncf(float x);
-float npy_sqrtf(float x);
-float npy_log10f(float x);
-float npy_logf(float x);
-float npy_expf(float x);
-float npy_expm1f(float x);
-float npy_asinf(float x);
-float npy_acosf(float x);
-float npy_atanf(float x);
-float npy_asinhf(float x);
-float npy_acoshf(float x);
-float npy_atanhf(float x);
-float npy_log1pf(float x);
-float npy_exp2f(float x);
-float npy_log2f(float x);
+NDARRAY_API float npy_sinf(float x);
+NDARRAY_API float npy_cosf(float x);
+NDARRAY_API float npy_tanf(float x);
+NDARRAY_API float npy_sinhf(float x);
+NDARRAY_API float npy_coshf(float x);
+NDARRAY_API float npy_tanhf(float x);
+NDARRAY_API float npy_fabsf(float x);
+NDARRAY_API float npy_floorf(float x);
+NDARRAY_API float npy_ceilf(float x);
+NDARRAY_API float npy_rintf(float x);
+NDARRAY_API float npy_truncf(float x);
+NDARRAY_API float npy_sqrtf(float x);
+NDARRAY_API float npy_log10f(float x);
+NDARRAY_API float npy_logf(float x);
+NDARRAY_API float npy_expf(float x);
+NDARRAY_API float npy_expm1f(float x);
+NDARRAY_API float npy_asinf(float x);
+NDARRAY_API float npy_acosf(float x);
+NDARRAY_API float npy_atanf(float x);
+NDARRAY_API float npy_asinhf(float x);
+NDARRAY_API float npy_acoshf(float x);
+NDARRAY_API float npy_atanhf(float x);
+NDARRAY_API float npy_log1pf(float x);
+NDARRAY_API float npy_exp2f(float x);
+NDARRAY_API float npy_log2f(float x);
 
-float npy_atan2f(float x, float y);
-float npy_hypotf(float x, float y);
-float npy_powf(float x, float y);
-float npy_fmodf(float x, float y);
+NDARRAY_API float npy_atan2f(float x, float y);
+NDARRAY_API float npy_hypotf(float x, float y);
+NDARRAY_API float npy_powf(float x, float y);
+NDARRAY_API float npy_fmodf(float x, float y);
 
-float npy_modff(float x, float* y);
+NDARRAY_API float npy_modff(float x, float* y);
 
-float npy_copysignf(float x, float y);
-float npy_nextafterf(float x, float y);
-float npy_spacingf(float x);
+NDARRAY_API float npy_copysignf(float x, float y);
+NDARRAY_API float npy_nextafterf(float x, float y);
+NDARRAY_API float npy_spacingf(float x);
 
 /*
  * float C99 math functions
  */
 
-npy_longdouble npy_sinl(npy_longdouble x);
-npy_longdouble npy_cosl(npy_longdouble x);
-npy_longdouble npy_tanl(npy_longdouble x);
-npy_longdouble npy_sinhl(npy_longdouble x);
-npy_longdouble npy_coshl(npy_longdouble x);
-npy_longdouble npy_tanhl(npy_longdouble x);
-npy_longdouble npy_fabsl(npy_longdouble x);
-npy_longdouble npy_floorl(npy_longdouble x);
-npy_longdouble npy_ceill(npy_longdouble x);
-npy_longdouble npy_rintl(npy_longdouble x);
-npy_longdouble npy_truncl(npy_longdouble x);
-npy_longdouble npy_sqrtl(npy_longdouble x);
-npy_longdouble npy_log10l(npy_longdouble x);
-npy_longdouble npy_logl(npy_longdouble x);
-npy_longdouble npy_expl(npy_longdouble x);
-npy_longdouble npy_expm1l(npy_longdouble x);
-npy_longdouble npy_asinl(npy_longdouble x);
-npy_longdouble npy_acosl(npy_longdouble x);
-npy_longdouble npy_atanl(npy_longdouble x);
-npy_longdouble npy_asinhl(npy_longdouble x);
-npy_longdouble npy_acoshl(npy_longdouble x);
-npy_longdouble npy_atanhl(npy_longdouble x);
-npy_longdouble npy_log1pl(npy_longdouble x);
-npy_longdouble npy_exp2l(npy_longdouble x);
-npy_longdouble npy_log2l(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_sinl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_cosl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_tanl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_sinhl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_coshl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_tanhl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_fabsl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_floorl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_ceill(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_rintl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_truncl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_sqrtl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_log10l(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_logl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_expl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_expm1l(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_asinl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_acosl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_atanl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_asinhl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_acoshl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_atanhl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_log1pl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_exp2l(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_log2l(npy_longdouble x);
 
-npy_longdouble npy_atan2l(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_hypotl(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_powl(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_fmodl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_atan2l(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_hypotl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_powl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_fmodl(npy_longdouble x, npy_longdouble y);
 
-npy_longdouble npy_modfl(npy_longdouble x, npy_longdouble* y);
+NDARRAY_API npy_longdouble npy_modfl(npy_longdouble x, npy_longdouble* y);
 
-npy_longdouble npy_copysignl(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_spacingl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_copysignl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_nextafterl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_spacingl(npy_longdouble x);
 
 /*
  * Non standard functions
  */
-double npy_deg2rad(double x);
-double npy_rad2deg(double x);
-double npy_logaddexp(double x, double y);
-double npy_logaddexp2(double x, double y);
+NDARRAY_API double npy_deg2rad(double x);
+NDARRAY_API double npy_rad2deg(double x);
+NDARRAY_API double npy_logaddexp(double x, double y);
+NDARRAY_API double npy_logaddexp2(double x, double y);
 
-float npy_deg2radf(float x);
-float npy_rad2degf(float x);
-float npy_logaddexpf(float x, float y);
-float npy_logaddexp2f(float x, float y);
+NDARRAY_API float npy_deg2radf(float x);
+NDARRAY_API float npy_rad2degf(float x);
+NDARRAY_API float npy_logaddexpf(float x, float y);
+NDARRAY_API float npy_logaddexp2f(float x, float y);
 
-npy_longdouble npy_deg2radl(npy_longdouble x);
-npy_longdouble npy_rad2degl(npy_longdouble x);
-npy_longdouble npy_logaddexpl(npy_longdouble x, npy_longdouble y);
-npy_longdouble npy_logaddexp2l(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_deg2radl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_rad2degl(npy_longdouble x);
+NDARRAY_API npy_longdouble npy_logaddexpl(npy_longdouble x, npy_longdouble y);
+NDARRAY_API npy_longdouble npy_logaddexp2l(npy_longdouble x, npy_longdouble y);
 
 #define npy_degrees npy_rad2deg
 #define npy_degreesf npy_rad2degf
@@ -357,46 +357,45 @@ static NPY_INLINE npy_longdouble npy_cimagl(npy_clongdouble z)
 /*
  * Double precision complex functions
  */
-double npy_cabs(npy_cdouble z);
-double npy_carg(npy_cdouble z);
+NDARRAY_API double npy_cabs(npy_cdouble z);
+NDARRAY_API double npy_carg(npy_cdouble z);
 
-npy_cdouble npy_cexp(npy_cdouble z);
-npy_cdouble npy_clog(npy_cdouble z);
-npy_cdouble npy_cpow(npy_cdouble x, npy_cdouble y);
+NDARRAY_API npy_cdouble npy_cexp(npy_cdouble z);
+NDARRAY_API npy_cdouble npy_clog(npy_cdouble z);
+NDARRAY_API npy_cdouble npy_cpow(npy_cdouble x, npy_cdouble y);
 
-npy_cdouble npy_csqrt(npy_cdouble z);
+NDARRAY_API npy_cdouble npy_csqrt(npy_cdouble z);
 
-npy_cdouble npy_ccos(npy_cdouble z);
-npy_cdouble npy_csin(npy_cdouble z);
+NDARRAY_API npy_cdouble npy_ccos(npy_cdouble z);
+NDARRAY_API npy_cdouble npy_csin(npy_cdouble z);
 
 /*
  * Single precision complex functions
  */
-float npy_cabsf(npy_cfloat z);
-float npy_cargf(npy_cfloat z);
+NDARRAY_API float npy_cabsf(npy_cfloat z);
+NDARRAY_API float npy_cargf(npy_cfloat z);
 
-npy_cfloat npy_cexpf(npy_cfloat z);
-npy_cfloat npy_clogf(npy_cfloat z);
-npy_cfloat npy_cpowf(npy_cfloat x, npy_cfloat y);
+NDARRAY_API npy_cfloat npy_cexpf(npy_cfloat z);
+NDARRAY_API npy_cfloat npy_clogf(npy_cfloat z);
+NDARRAY_API npy_cfloat npy_cpowf(npy_cfloat x, npy_cfloat y);
 
-npy_cfloat npy_csqrtf(npy_cfloat z);
+NDARRAY_API npy_cfloat npy_csqrtf(npy_cfloat z);
 
-npy_cfloat npy_ccosf(npy_cfloat z);
-npy_cfloat npy_csinf(npy_cfloat z);
+NDARRAY_API npy_cfloat npy_ccosf(npy_cfloat z);
+NDARRAY_API npy_cfloat npy_csinf(npy_cfloat z);
 
 /*
  * Extended precision complex functions
  */
-npy_longdouble npy_cabsl(npy_clongdouble z);
-npy_longdouble npy_cargl(npy_clongdouble z);
+NDARRAY_API npy_longdouble npy_cabsl(npy_clongdouble z);
+NDARRAY_API npy_longdouble npy_cargl(npy_clongdouble z);
 
-npy_clongdouble npy_cexpl(npy_clongdouble z);
-npy_clongdouble npy_clogl(npy_clongdouble z);
-npy_clongdouble npy_cpowl(npy_clongdouble x, npy_clongdouble y);
+NDARRAY_API npy_clongdouble npy_cexpl(npy_clongdouble z);
+NDARRAY_API npy_clongdouble npy_clogl(npy_clongdouble z);
+NDARRAY_API npy_clongdouble npy_cpowl(npy_clongdouble x, npy_clongdouble y);
 
-npy_clongdouble npy_csqrtl(npy_clongdouble z);
+NDARRAY_API npy_clongdouble npy_csqrtl(npy_clongdouble z);
 
-npy_clongdouble npy_ccosl(npy_clongdouble z);
-npy_clongdouble npy_csinl(npy_clongdouble z);
-
+NDARRAY_API npy_clongdouble npy_ccosl(npy_clongdouble z);
+NDARRAY_API npy_clongdouble npy_csinl(npy_clongdouble z);
 #endif

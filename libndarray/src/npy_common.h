@@ -12,6 +12,17 @@
         #define NPY_INLINE
 #endif
 
+#ifdef _WIN32
+#ifdef BUILDING_NDARRAY
+#define NDARRAY_API __declspec(dllexport)
+#else
+#define NDARRAY_API __declspec(dllimport)
+#endif
+#else
+#define NDARRAY_API
+#endif
+
+
 /* enums for detected endianness */
 enum {
     NPY_CPU_UNKNOWN_ENDIAN,

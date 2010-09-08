@@ -1,145 +1,364 @@
-<?xml version="1.0" encoding="Windows-1252" ?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
-   ProjectType="Visual C++"
-   Version="9,00"
-   Name="ndarray"
-   ProjectGUID="{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
-   RootNamespace="ndarray"
-   TargetFrameworkVersion="131072"
-   >
-  <Platforms>
-    <Platform Name="Win32" />
-    <Platform Name="x64" />
-  </Platforms>
-  <ToolFiles>
-  </ToolFiles>
-  <Configurations>
-    <Configuration
-       Name="Release|Win32"
-       ConfigurationType="2"
-       UseOfMFC="0"
-       ATLMinimizesCRunTimeLibraryUsage="false"
-       >
-      <Tool Name="VCPreBuildEventTool" />
-      <Tool Name="VCCustomBuildTool" />
-      <Tool Name="VCXMLDataGeneratorTool" />
-      <Tool Name="VCCLCompilerTool"
-            InlineFunctionExpansion="1"
-            AdditionalOptions="/Zm200 "
-            AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL"
-            RuntimeLibrary="2"
-            EnableFunctionLevelLinking="TRUE"
-            />
-      <Tool Name="VCManagedResourceCompilerTool" />
-      <Tool Name="VCResourceCompilerTool"
-            PreprocessorDefinitions="NDEBUG"
-            Culture="1033"
-            AdditionalIncludeDirectories="..\src"
-            />
-      <Tool Name="VCLinkerTool"
-            AdditionalOptions="/def:ndarray.def"
-            LinkIncremental="2"
-            />
-      <Tool Name="VCALinkTool" />
-      <Tool Name="VCXDCMakeTool" />
-      <Tool Name="VCBscMakeTool" />
-      <Tool Name="VCFxCopTool" />
-      <Tool Name="VCPostBuildEventTool" />
-    </Configuration>
-    <Configuration
-       Name="Release|x64"
-       ConfigurationType="2"
-       UseOfMFC="0"
-       ATLMinimizesCRunTimeLibraryUsage="false"
-       >
-      <Tool Name="VCPreBuildEventTool" />
-      <Tool Name="VCCustomBuildTool" />
-      <Tool Name="VCXMLDataGeneratorTool" />
-      <Tool Name="VCCLCompilerTool"
-            InlineFunctionExpansion="1"
-            AdditionalOptions="/Zm200 "
-            AdditionalIncludeDirectories="..\src"
-            PreprocessorDefinitions="_USRDLL"
-            RuntimeLibrary="2"
-            EnableFunctionLevelLinking="TRUE"
-            />
-      <Tool Name="VCManagedResourceCompilerTool" />
-      <Tool Name="VCResourceCompilerTool"
-            PreprocessorDefinitions="NDEBUG"
-            Culture="1033"
-            AdditionalIncludeDirectories="..\src"
-            />
-      <Tool Name="VCLinkerTool"
-            AdditionalOptions="/def:ndarray.def"
-            LinkIncremental="2"
-            />
-      <Tool Name="VCXDCMakeTool" />
-      <Tool Name="VCBscMakeTool" />
-      <Tool Name="VCFxCopTool" />
-      <Tool Name="VCPostBuildEventTool" />
-    </Configuration>
-  </Configurations>
-  <References>
-  </References>
-  <Files>
-    <Filter Name="Include">
-      <File RelativePath="..\src\npy_neighbor_imp.h" />
-      <File RelativePath="..\src\npy_api.h" />
-      <File RelativePath="..\src\npy_arrayobject.h" />
-      <File RelativePath="..\src\npy_common.h" />
-      <File RelativePath="..\src\npy_config.h" />
-      <File RelativePath="..\src\npy_cpu.h" />
-      <File RelativePath="..\src\npy_defs.h" />
-      <File RelativePath="..\src\npy_descriptor.h" />
-      <File RelativePath="..\src\npy_dict.h" />
-      <File RelativePath="..\src\npy_endian.h" />
-      <File RelativePath="..\src\npy_funcs.h" />
-      <File RelativePath="..\src\npy_index.h" />
-      <File RelativePath="..\src\npy_internal.h" />
-      <File RelativePath="..\src\npy_iterators.h" />
-      <File RelativePath="..\src\npy_loops.h" />
-      <File RelativePath="..\src\npy_math.h" />
-      <File RelativePath="..\src\npy_math_private.h" />
-      <File RelativePath="..\src\npy_number.h" />
-      <File RelativePath="..\src\npy_object.h" />
-      <File RelativePath="..\src\npy_os.h" />
-      <File RelativePath="..\src\npy_ufunc_object.h" />
-      <File RelativePath="..\src\npy_utils.h" />
-    </Filter>
-    <Filter Name="Core">
-      <File RelativePath="..\src\npy_arrayobject.c" />
-      <File RelativePath="..\src\npy_arraytypes.c" />
-      <File RelativePath="..\src\npy_calculation.c" />
-      <File RelativePath="..\src\npy_common.c" />
-      <File RelativePath="..\src\npy_conversion_utils.c" />
-      <File RelativePath="..\src\npy_convert.c" />
-      <File RelativePath="..\src\npy_convert_datatype.c" />
-      <File RelativePath="..\src\npy_ctors.c" />
-      <File RelativePath="..\src\npy_datetime.c" />
-      <File RelativePath="..\src\npy_descriptor.c" />
-      <File RelativePath="..\src\npy_dict.c" />
-      <File RelativePath="..\src\npy_flagsobject.c" />
-      <File RelativePath="..\src\npy_funcs.c" />
-      <File RelativePath="..\src\npy_getset.c" />
-      <File RelativePath="..\src\npy_ieee754.c" />
-      <File RelativePath="..\src\npy_index.c" />
-      <File RelativePath="..\src\npy_item_selection.c" />
-      <File RelativePath="..\src\npy_iterators.c" />
-      <File RelativePath="..\src\npy_loops.c" />
-      <File RelativePath="..\src\npy_mapping.c" />
-      <File RelativePath="..\src\npy_math.c" />
-      <File RelativePath="..\src\npy_math_complex.c" />
-      <File RelativePath="..\src\npy_methods.c" />
-      <File RelativePath="..\src\npy_multiarray.c" />
-      <File RelativePath="..\src\npy_number.c" />
-      <File RelativePath="..\src\npy_os.c" />
-      <File RelativePath="..\src\npy_refcount.c" />
-      <File RelativePath="..\src\npy_shape.c" />
-      <File RelativePath="..\src\npy_ufunc_object.c" />
-      <File RelativePath="..\src\npy_usertypes.c" />
-    </Filter>
-  </Files>
-  <Globals>
-  </Globals>
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="ndarray"
+	ProjectGUID="{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
+	RootNamespace="ndarray"
+	TargetFrameworkVersion="131072"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+		<Platform
+			Name="x64"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/Zm200 "
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\src"
+				PreprocessorDefinitions="_USRDLL;BUILDING_NDARRAY"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="..\src"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/def:ndarray.def"
+				LinkIncremental="2"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				InlineFunctionExpansion="1"
+				AdditionalOptions="/Zm200 "
+				AdditionalIncludeDirectories="..\src"
+				PreprocessorDefinitions="_USRDLL;BUILDING_NDARRAY"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="..\src"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/def:ndarray.def"
+				LinkIncremental="2"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Include"
+			>
+			<File
+				RelativePath="..\src\npy_api.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_arrayobject.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_cpu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_defs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_descriptor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_dict.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_endian.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_funcs.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_index.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_internal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_iterators.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_loops.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_math.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_math_private.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_neighbor_imp.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_number.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_object.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_os.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_ufunc_object.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_utils.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Core"
+			>
+			<File
+				RelativePath="..\src\npy_arrayobject.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_arraytypes.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_calculation.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_common.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_conversion_utils.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_convert.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_convert_datatype.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_ctors.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_datetime.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_descriptor.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_dict.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_flagsobject.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_funcs.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_getset.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_ieee754.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_index.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_item_selection.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_iterators.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_loops.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_mapping.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_math.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_math_complex.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_methods.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_multiarray.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_number.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_os.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_refcount.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_shape.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_ufunc_object.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_usertypes.c"
+				>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
 </VisualStudioProject>

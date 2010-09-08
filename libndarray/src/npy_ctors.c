@@ -426,7 +426,7 @@ finish:
  * NpyArray_CopyInto requires broadcastable arrays while
  * this one is a flattening operation...
  */
-int
+NDARRAY_API int
 _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
 {
     NpyArrayIterObject *it;
