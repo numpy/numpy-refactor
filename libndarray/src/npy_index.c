@@ -6,7 +6,7 @@
 #include "npy_api.h"
 
 
-void
+NDARRAY_API void
 NpyArray_IndexDealloc(NpyIndex*  indexes, int n)
 {
     int i;
@@ -60,7 +60,7 @@ count_non_new(NpyIndex* indexes, int n)
  * Expands any boolean arrays in the index into intp arrays of the
  * indexes of the non-zero entries. Also converts boolean to intp.
  */
-int
+NDARRAY_API int
 NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
 {
     int i;
@@ -116,7 +116,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes)
  *
  * Returns the number of indices in out_indexes, or -1 on error.
  */
-int
+NDARRAY_API int
 NpyArray_IndexBind(NpyIndex* indexes, int n, npy_intp *dimensions, int nd,
                    NpyIndex* out_indexes)
 {
@@ -347,7 +347,7 @@ NpyArray_IndexBind(NpyIndex* indexes, int n, npy_intp *dimensions, int nd,
 /*
  * Converts a bound index into dimensions, strides, and an offset_ptr.
  */
-int
+NDARRAY_API int
 NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
                         npy_intp *dimensions, npy_intp* strides,
                         npy_intp* offset_ptr, npy_bool allow_arrays)
@@ -441,7 +441,7 @@ NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
 }
 
 
-npy_intp
+NDARRAY_API npy_intp
 NpyArray_SliceSteps(NpyIndexSlice *slice)
 {
     if ((slice->step < 0 && slice->stop >= slice->start) ||

@@ -90,7 +90,7 @@ array_iter_base_dealloc(NpyArrayIterObject *it)
 /*
  * Get Iterator.
  */
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_IterNew(NpyArray *ao)
 {
     NpyArrayIterObject *it;
@@ -113,7 +113,7 @@ NpyArray_IterNew(NpyArray *ao)
 /*
  * Get Iterator broadcast to a particular shape
  */
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
 {
     NpyArrayIterObject *it;
@@ -630,7 +630,7 @@ NpyArray_IterSubscriptAssignIntpArray(NpyArrayIterObject *self,
     return 0;
 }
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_IterSubscript(NpyArrayIterObject* self,
                       NpyIndex *indexes, int n)
 {
@@ -698,7 +698,7 @@ NpyArray_IterSubscript(NpyArrayIterObject* self,
     }
 }
 
-int
+NDARRAY_API int
 NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
                              NpyIndex *indexes, int n,
                              NpyArray *value)
@@ -787,7 +787,7 @@ NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
  * NpyArray_ITER_GOTO1D).  The axis will be over-written if negative
  * with the axis having the smallest stride.
  */
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
 {
     NpyArrayIterObject* it;
@@ -840,7 +840,7 @@ NpyArray_IterAllButAxis(NpyArray* obj, int *inaxis)
  *
  * don't use with NpyArray_ITER_GOTO1D because factors are not adjusted
  */
-int
+NDARRAY_API int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi)
 {
     NpyArrayIterObject *it;
@@ -883,7 +883,7 @@ NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi)
 /* Adjust dimensionality and strides for index object iterators
    --- i.e. broadcast
 */
-int
+NDARRAY_API int
 NpyArray_Broadcast(NpyArrayMultiIterObject *mit)
 {
     int i, nd, k, j;
@@ -975,7 +975,7 @@ arrayiter_dealloc(NpyArrayIterObject *it)
 }
 
 
-NpyTypeObject NpyArrayIter_Type = {
+NDARRAY_API NpyTypeObject NpyArrayIter_Type = {
     (npy_destructor)arrayiter_dealloc,
 };
 
@@ -993,7 +993,7 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
     NpyArray_free(multi);
 }
 
-NpyTypeObject NpyArrayMultiIter_Type =   {
+NDARRAY_API NpyTypeObject NpyArrayMultiIter_Type =   {
     (npy_destructor)arraymultiter_dealloc,
 };
 
@@ -1054,7 +1054,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
 }
 
 
-NpyArrayMultiIterObject *
+NDARRAY_API NpyArrayMultiIterObject *
 NpyArray_MultiIterNew()
 {
     NpyArrayMultiIterObject *ret;
@@ -1086,7 +1086,7 @@ NpyArray_MultiIterNew()
  *
  * Returns a multi-iterator object.
  */
-NpyArrayMultiIterObject *
+NDARRAY_API NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(NpyArray **mps, int n, int nadd, ...)
 {
     NpyArrayMultiIterObject* result;
@@ -1335,6 +1335,6 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
     NpyArray_free(iter);
 }
 
-NpyTypeObject NpyArrayNeighborhoodIter_Type = {
+NDARRAY_API NpyTypeObject NpyArrayNeighborhoodIter_Type = {
     (npy_destructor)neighiter_dealloc,
 };

@@ -137,7 +137,8 @@ static NpyUFuncObject **get_op_loc(enum NpyArray_Ops op)
 
 
 /* Returns the ufunc function associated with the specified operator. */
-NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
+NDARRAY_API NpyUFuncObject *
+NpyArray_GetNumericOp(enum NpyArray_Ops op)
 {
     NpyUFuncObject **loc = get_op_loc(op);
     return (NULL != loc) ? *loc : NULL;
@@ -146,7 +147,8 @@ NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops op)
 
 /* Sets the provided function as the global implementation of the specified
    operation. Any existing operator is replaced. */
-int NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
+NDARRAY_API int 
+NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 {
     NpyUFuncObject **loc = get_op_loc(op);
 

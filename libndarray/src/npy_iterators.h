@@ -32,26 +32,26 @@ struct NpyArrayIterObject {
         npy_iter_get_dataptr_t translate;
 };
 
-extern NpyTypeObject NpyArrayIter_Type;
+NDARRAY_API extern NpyTypeObject NpyArrayIter_Type;
 
 
 /* Iterator API */
 
 
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_IterNew(struct NpyArray *ao);
 
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_IterAllButAxis(struct NpyArray* obj, int *inaxis);
 
-NpyArrayIterObject *
+NDARRAY_API NpyArrayIterObject *
 NpyArray_BroadcastToShape(struct NpyArray *ao, npy_intp *dims, int nd);
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_IterSubscript(NpyArrayIterObject* self,
                        NpyIndex *indexes, int n);
 
-int
+NDARRAY_API int
 NpyArray_IterSubscriptAssign(NpyArrayIterObject *self,
                              NpyIndex *indexes, int n,
                              NpyArray *value);
@@ -207,17 +207,17 @@ struct NpyArrayMultiIterObject {
 
 typedef struct NpyArrayMultiIterObject NpyArrayMultiIterObject;
 
-extern NpyTypeObject NpyArrayMultiIter_Type;
+NDARRAY_API extern NpyTypeObject NpyArrayMultiIter_Type;
 
-NpyArrayMultiIterObject *
+NDARRAY_API NpyArrayMultiIterObject *
 NpyArray_MultiIterFromArrays(struct NpyArray **mps, int n, int nadd, ...);
 
-NpyArrayMultiIterObject *
+NDARRAY_API NpyArrayMultiIterObject *
 NpyArray_MultiIterNew(void);
 
-int
+NDARRAY_API int
 NpyArray_RemoveSmallest(NpyArrayMultiIterObject *multi);
-int
+NDARRAY_API int
 NpyArray_Broadcast(NpyArrayMultiIterObject *mit);
 
 
@@ -373,13 +373,13 @@ struct NpyArrayNeighborhoodIterObject {
 typedef struct NpyArrayNeighborhoodIterObject NpyArrayNeighborhoodIterObject;
 
 
-extern NpyTypeObject NpyArrayNeighborhoodIter_Type;
+NDARRAY_API extern NpyTypeObject NpyArrayNeighborhoodIter_Type;
 
 /*
  * Neighborhood iterator API
  */
 
-NpyArrayNeighborhoodIterObject*
+NDARRAY_API NpyArrayNeighborhoodIterObject*
 NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
                              int mode, void *fill,  npy_free_func fillfree);
 

@@ -301,27 +301,29 @@ struct NpyArray_FunctionDefs {
     NpyArray_VectorUnaryFunc *cast_to_void[NPY_NTYPES];
 };
 
-extern NpyTypeObject NpyArrayDescr_Type;
+NDARRAY_API extern NpyTypeObject NpyArrayDescr_Type;
 
 
 /* Descriptor API */
 
-NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
-NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
-void NpyArray_DescrDestroy(NpyArray_Descr *);
-char **NpyArray_DescrAllocNames(int n);
-struct NpyDict_struct *NpyArray_DescrAllocFields(void);
-NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
-void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
-void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
-NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
-void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key,
+NDARRAY_API NpyArray_Descr *NpyArray_DescrNewFromType(int type_num);
+NDARRAY_API NpyArray_Descr *NpyArray_DescrNew(NpyArray_Descr *base);
+NDARRAY_API void NpyArray_DescrDestroy(NpyArray_Descr *);
+NDARRAY_API char **NpyArray_DescrAllocNames(int n);
+NDARRAY_API struct NpyDict_struct *NpyArray_DescrAllocFields(void);
+NDARRAY_API NpyArray_ArrayDescr *NpyArray_DupSubarray(NpyArray_ArrayDescr *src);
+NDARRAY_API void NpyArray_DestroySubarray(NpyArray_ArrayDescr *);
+NDARRAY_API void NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *base);
+NDARRAY_API NpyArray_Descr *NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian);
+NDARRAY_API void NpyArray_DescrSetField(struct NpyDict_struct *self, const char *key,
                             NpyArray_Descr *descr,
                             int offset, const char *title);
-struct NpyDict_struct *NpyArray_DescrFieldsCopy(struct NpyDict_struct *fields);
-char **NpyArray_DescrNamesCopy(char **names);
-int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
-void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
+NDARRAY_API struct NpyDict_struct *
+NpyArray_DescrFieldsCopy(struct NpyDict_struct *fields);
+NDARRAY_API char **
+NpyArray_DescrNamesCopy(char **names);
+NDARRAY_API int NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist);
+NDARRAY_API void NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist);
 
 NDARRAY_API NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);

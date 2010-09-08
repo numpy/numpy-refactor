@@ -49,18 +49,18 @@ typedef struct NpyIndex {
 } NpyIndex;
 
 
-void NpyArray_IndexDealloc(NpyIndex* indexes, int n);
+NDARRAY_API void NpyArray_IndexDealloc(NpyIndex* indexes, int n);
 
-int NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
+NDARRAY_API int NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
-int NpyArray_IndexBind(NpyIndex* indexes, int n,
-                       npy_intp *dimensions, int nd,
-                       NpyIndex* out_indexes);
+NDARRAY_API int NpyArray_IndexBind(NpyIndex* indexes, int n,
+                                   npy_intp *dimensions, int nd,
+                                   NpyIndex* out_indexes);
 
-int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
-                            npy_intp *dimensions, npy_intp* strides,
-                            npy_intp* offset_ptr, npy_bool allow_arrays);
+NDARRAY_API int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int n,
+                                        npy_intp *dimensions, npy_intp* strides,
+                                        npy_intp* offset_ptr, npy_bool allow_arrays);
 
-npy_intp NpyArray_SliceSteps(NpyIndexSlice *slice);
+NDARRAY_API npy_intp NpyArray_SliceSteps(NpyIndexSlice *slice);
 
 #endif

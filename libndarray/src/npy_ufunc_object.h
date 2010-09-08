@@ -252,8 +252,9 @@ NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op);
 
 
-NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
-int NpyArray_SetNumericOp(enum NpyArray_Ops, NpyUFuncObject *);
+NDARRAY_API NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
+NDARRAY_API int NpyArray_SetNumericOp(enum NpyArray_Ops, NpyUFuncObject *);
+
 NpyUFuncObject *
     NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
                              char *types, int ntypes,

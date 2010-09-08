@@ -31,15 +31,14 @@ void
 NpyArray_DescrDestroy(NpyArray_Descr *self);
 
 
-NpyTypeObject NpyArrayDescr_Type = {
+NDARRAY_API NpyTypeObject NpyArrayDescr_Type = {
     (npy_destructor)NpyArray_DescrDestroy,
 };
 
 
 
 
-/*NUMPY_API*/
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_DescrNewFromType(int type_num)
 {
     NpyArray_Descr *old;
@@ -67,10 +66,10 @@ NpyArray_DescrNewFromType(int type_num)
  * allocated).
  */
 
-/*NUMPY_API
+/*
  * base cannot be NULL
  */
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_DescrNew(NpyArray_Descr *base)
 {
     NpyArray_Descr *new;
@@ -241,7 +240,7 @@ NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
 
 
 /* Duplicates an array descr structure and the sub-structures. */
-NpyArray_ArrayDescr *
+NDARRAY_API NpyArray_ArrayDescr *
 NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
 {
     NpyArray_ArrayDescr *dest;
@@ -266,11 +265,11 @@ NpyArray_DupSubarray(NpyArray_ArrayDescr *src)
 }
 
 
-/*NUMPY_API
+/*
  * self cannot be NULL
  * Destroys the given descriptor and deallocates the memory for it.
  */
-void
+NDARRAY_API void
 NpyArray_DescrDestroy(NpyArray_Descr *self)
 {
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
@@ -291,7 +290,7 @@ NpyArray_DescrDestroy(NpyArray_Descr *self)
 }
 
 
-void
+NDARRAY_API void
 NpyArray_DestroySubarray(NpyArray_ArrayDescr *self)
 {
     Npy_DECREF(self->base);
@@ -321,7 +320,7 @@ NpyArray_DestroySubarray(NpyArray_ArrayDescr *self)
  * Deep bytorder change of a data-type descriptor
  * *** Leaves reference count of self unchanged --- does not DECREF self ***
  */
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
 {
     NpyArray_Descr *new;
@@ -375,12 +374,12 @@ NpyArray_DescrNewByteorder(NpyArray_Descr *self, char newendian)
 }
 
 
-/*NUMPY_API
+/*
  * Allocates a new names array. Since this array is NULL-terminated,
  * this function is just a bit safer because it makes sure size is n+1
  * and zeros all of memory.
  */
-char **
+NDARRAY_API char **
 NpyArray_DescrAllocNames(int n)
 {
     char **nameslist;
@@ -393,21 +392,21 @@ NpyArray_DescrAllocNames(int n)
 }
 
 
-/*NUMPY_API
+/*
  * base cannot be NULL
  * Allocates a new fields dictionary and returns it.
  */
-NpyDict *
+NDARRAY_API NpyDict *
 NpyArray_DescrAllocFields()
 {
     return npy_create_fields_table();
 }
 
 
-/*NUMPY_API
+/*
  * self cannot be NULL
  */
-void
+NDARRAY_API void
 NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
 {
     int i;
@@ -438,7 +437,7 @@ NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
  *
  * Returns: 1 on success, 0 on error.
  */
-int
+NDARRAY_API int
 NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist)
 {
     int i, n;
@@ -460,12 +459,12 @@ NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist)
 }
 
 
-/*NUMPY_API
+/*
  * self cannot be NULL
  * Sets the existing list of names.  The fields are not change or checked -- it
  * is assumed that the caller will update the fields as appropropiate.
  */
-void
+NDARRAY_API void
 NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist)
 {
     int i;
@@ -480,14 +479,14 @@ NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist)
 }
 
 
-/*NUMPY_API
+/*
  * base cannot be NULL
  * Adds the tripple of { descriptor, offset, [title] } to the given field
  * dictionary.
  *
  * NOTE: This routine steals a reference to descr!
  */
-void
+NDARRAY_API void
 NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
                        int offset, const char *title)
 {
@@ -502,25 +501,25 @@ NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
 }
 
 
-/*NUMPY_API
+/*
  * base cannot be NULL
  * Duplicates the fields dictionary usinga deep-copy.  The returned version is
  * completely independent of the original */
-NpyDict *
+NDARRAY_API NpyDict *
 NpyArray_DescrFieldsCopy(NpyDict *fields)
 {
     return NpyDict_Copy(fields, npy_copy_fields_key, npy_copy_fields_value);
 }
 
 
-/*NUMPY_API
+/*
  * base cannot be NULL
  * Allocates a new NpyDict contaning NpyArray_DescrField value object and
  * performs a deep-copy of the passed-in fields structure to populate them.
  * The descriptor field structure contains a pointer to another
  * NpyArray_Descr instance, which must be reference counted.
  */
-char **
+NDARRAY_API char **
 NpyArray_DescrNamesCopy(char **names)
 {
     char **copy = NULL;
