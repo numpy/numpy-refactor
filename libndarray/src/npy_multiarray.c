@@ -891,12 +891,12 @@ _equivalent_units(NpyArray_DateTimeInfo *info1, NpyArray_DateTimeInfo *info2)
 }
 
 
-/*NUMPY_API
+/*
  *
  * This function returns true if the two typecodes are
  * equivalent (same basic kind and same itemsize).
  */
-unsigned char
+NDARRAY_API unsigned char
 NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
 {
     int typenum1 = typ1->type_num;

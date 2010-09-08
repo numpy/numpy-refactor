@@ -11,10 +11,10 @@
 
 
 /* steals typed reference */
-/*NUMPY_API
+/*
  Get a subset of bytes from each element of the array
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 {
     NpyArray *ret = NULL;
@@ -40,12 +40,12 @@ NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset)
 
 
 
-/*NUMPY_API
+/*
  Set a subset of bytes from each element of the array
  *
  * Steals a reference to dtype.
  */
-int
+NDARRAY_API int
 NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
                   int offset, NpyArray *val)
 {
@@ -76,9 +76,7 @@ NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype,
 
 /* This doesn't change the descriptor just the actual data...
  */
-
-/*NUMPY_API*/
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Byteswap(NpyArray *self, npy_bool inplace)
 {
     NpyArray *ret;

@@ -48,7 +48,7 @@ extern struct NpyArray_Descr **npy_userdescrs;
 /* arraytypes.c.src */
 /* TODO: Needs to call back to interface layer */
 
-int NpyArray_dealloc(NpyArray *self);
+NDARRAY_API int NpyArray_dealloc(NpyArray *self);
 
 
 /* common.c */
@@ -59,34 +59,30 @@ int NpyArray_dealloc(NpyArray *self);
 #define NpyObject_AsWriteBuffer(a, b, c) PyObject_AsWriteBuffer(a, b, c)
 */
 
-int Npy_IsAligned(NpyArray *ap);
-npy_bool Npy_IsWriteable(NpyArray *ap);
-NpyArray_Descr *
-NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype);
-char *
-NpyArray_Index2Ptr(NpyArray *self, npy_intp i);
+NDARRAY_API int Npy_IsAligned(NpyArray *ap);
+NDARRAY_API npy_bool Npy_IsWriteable(NpyArray *ap);
+NDARRAY_API char * NpyArray_Index2Ptr(NpyArray *self, npy_intp i);
 
 
 /* npy_convert.c */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *pytype);
-int
+NDARRAY_API int
 NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype);
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-NDARRAY_API size_t npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
-                              size_t itemsize, int inflag, int *objflags);
+NDARRAY_API size_t npy_array_fill_strides(npy_intp *strides, npy_intp *dims,
+                                          int nd, size_t itemsize, int inflag,
+                                          int *objflags);
 
-NpyArray * NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype,
-                                 npy_intp num, char *sep);
-NpyArray * NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
-                               npy_intp num, char *sep);
-
-NpyArray_Descr *
-NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
+NDARRAY_API NpyArray * NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype,
+                                             npy_intp num, char *sep);
+NDARRAY_API NpyArray * NpyArray_FromString(char *data, npy_intp slen,
+                                           NpyArray_Descr *dtype,
+                                           npy_intp num, char *sep);
 
 NDARRAY_API void
 npy_byte_swap_vector(void *p, npy_intp n, int size);
@@ -95,35 +91,42 @@ npy_byte_swap_vector(void *p, npy_intp n, int size);
 
 
 /* flagsobject.c */
-void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
+NDARRAY_API void NpyArray_UpdateFlags(NpyArray *ret, int flagmask);
 
 
 
 /* methods.c */
-NpyArray *NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
-int NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset,
-                      NpyArray *val);
-NpyArray *NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
-unsigned char NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
+NDARRAY_API NpyArray *
+NpyArray_GetField(NpyArray *self, NpyArray_Descr *typed, int offset);
+NDARRAY_API int
+NpyArray_SetField(NpyArray *self, NpyArray_Descr *dtype, int offset,
+                  NpyArray *val);
+NDARRAY_API NpyArray *
+NpyArray_Byteswap(NpyArray *self, npy_bool inplace);
+NDARRAY_API unsigned char
+NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2);
 
 
 
 
 /* mapping.c */
-NpyArrayMapIterObject *NpyArray_MapIterNew(NpyIndex* indexes, int n);
-int NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
-                         NpyArray* true_array);
-void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
-void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
-NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
-int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
-NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
-NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n);
-int NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes, int n,
-                              NpyArray *value);
-NpyArray * NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n);
-int NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
-                             NpyArray *value);
+NDARRAY_API NpyArrayMapIterObject *NpyArray_MapIterNew(NpyIndex* indexes, int n);
+NDARRAY_API int NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
+                                     NpyArray* true_array);
+NDARRAY_API void NpyArray_MapIterNext(NpyArrayMapIterObject *mit);
+NDARRAY_API void NpyArray_MapIterReset(NpyArrayMapIterObject *mit);
+NDARRAY_API NpyArray * NpyArray_GetMap(NpyArrayMapIterObject *mit);
+NDARRAY_API int NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr);
+NDARRAY_API NpyArray * NpyArray_ArrayItem(NpyArray *self, npy_intp i);
+NDARRAY_API NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes,
+                                            int n);
+NDARRAY_API int NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes,
+                                          int n, NpyArray *value);
+NDARRAY_API NpyArray *
+NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n);
+NDARRAY_API int
+NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
+                         NpyArray *value);
 
 
 /* multiarraymodule.c */
@@ -420,7 +423,8 @@ extern void npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
 /*
  * TMP
  */
-NDARRAY_API extern int _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order);
+NDARRAY_API extern int _flat_copyinto(NpyArray *dst, NpyArray *src,
+                                      NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides,
                                          char *src, npy_intp instrides,
                                          npy_intp N, int elsize);

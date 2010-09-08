@@ -17,7 +17,7 @@ extern int PyArray_XDECREF(void *);
 #define MAX(a,b) ((a > b) ? (a) : (b))
 #endif
 
-int
+NDARRAY_API int
 Npy_IsAligned(NpyArray *ap)
 {
     int i, alignment, aligned = 1;
@@ -43,7 +43,7 @@ Npy_IsAligned(NpyArray *ap)
 }
 
 
-npy_bool
+NDARRAY_API npy_bool
 Npy_IsWriteable(NpyArray *ap)
 {
     NpyArray *base_arr = ap->base_arr;
@@ -163,7 +163,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
 }
 #endif
 
-char *
+NDARRAY_API char *
 NpyArray_Index2Ptr(NpyArray *mp, npy_intp i)
 {
     npy_intp dim0;

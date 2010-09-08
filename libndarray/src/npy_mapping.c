@@ -23,7 +23,7 @@ NpyTypeObject NpyArrayMapIter_Type = {
 
 
 
-NpyArrayMapIterObject *
+NDARRAY_API NpyArrayMapIterObject *
 NpyArray_MapIterNew(NpyIndex *indexes, int n)
 {
     NpyArrayMapIterObject *mit;
@@ -124,7 +124,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
     NpyArray_free(mit);
 }
 
-int
+NDARRAY_API int
 NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
                      NpyArray *true_array)
 {
@@ -293,7 +293,7 @@ NpyArray_MapIterBind(NpyArrayMapIterObject *mit, NpyArray *arr,
 
 
 /* Reset the map iterator to the beginning */
-void
+NDARRAY_API void
 NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;
@@ -341,7 +341,7 @@ NpyArray_MapIterReset(NpyArrayMapIterObject *mit)
  * This function needs to update the state of the map iterator
  * and point mit->dataptr to the memory-location of the next object
  */
-void
+NDARRAY_API void
 NpyArray_MapIterNext(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;
@@ -463,7 +463,7 @@ _swap_axes(NpyArrayMapIterObject *mit, NpyArray **ret, int getmap)
     *ret = new;
 }
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GetMap(NpyArrayMapIterObject *mit)
 {
     NpyArrayIterObject *it;
@@ -519,7 +519,7 @@ NpyArray_GetMap(NpyArrayMapIterObject *mit)
 }
 
 
-int
+NDARRAY_API int
 NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
 {
     NpyArrayIterObject *it;
@@ -589,7 +589,7 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
  * Indexes the first dimenstion of the array and returns the
  * item as an array.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_ArrayItem(NpyArray *self, npy_intp i)
 {
     char *item;
@@ -614,7 +614,8 @@ NpyArray_ArrayItem(NpyArray *self, npy_intp i)
 }
 
 
-NpyArray * NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
+NDARRAY_API NpyArray * 
+NpyArray_IndexSimple(NpyArray* self, NpyIndex* indexes, int n)
 {
     NpyIndex new_indexes[NPY_MAXDIMS];
     npy_intp dimensions[NPY_MAXDIMS];
@@ -760,7 +761,7 @@ NpyArray_IndexFancy(NpyArray *self, NpyIndex *indexes, int n)
     }
 }
 
-int
+NDARRAY_API int
 NpyArray_IndexFancyAssign(NpyArray *self, NpyIndex *indexes, int n,
                           NpyArray *value)
 {
@@ -814,7 +815,7 @@ is_simple(NpyIndex *indexes, int n)
     return NPY_TRUE;
 }
 
-NpyArray*
+NDARRAY_API NpyArray*
 NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n)
 {
     /* Handle cases where we just return this array. */
@@ -846,7 +847,7 @@ NpyArray_Subscript(NpyArray *self, NpyIndex *indexes, int n)
     }
 }
 
-int
+NDARRAY_API int
 NpyArray_SubscriptAssign(NpyArray *self, NpyIndex *indexes, int n,
                          NpyArray *value)
 {

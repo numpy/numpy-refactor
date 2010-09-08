@@ -10,7 +10,7 @@
 #include "npy_descriptor.h"
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 {
     NpyArray *new = NULL;
@@ -44,7 +44,7 @@ NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 }
 
 
-int
+NDARRAY_API int
 NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
 {
     npy_intp newdim;
@@ -155,7 +155,7 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
 /*
   Copy an array.
 */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
 {
     NpyArray *ret;

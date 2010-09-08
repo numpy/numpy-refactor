@@ -111,7 +111,7 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
  */
 /* TODO: For now caller is expected to call _array_dealloc_buffer_info
          and clear weak refs.  Need to revisit. */
-int
+NDARRAY_API int
 NpyArray_dealloc(NpyArray *self)
 {
     int result = 0;

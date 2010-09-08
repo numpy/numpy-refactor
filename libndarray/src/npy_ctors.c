@@ -1571,7 +1571,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
 
 
 /* Steals a reference to dtype. */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
 {
     NpyArray *ret;
@@ -1651,7 +1651,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
  * the separator matches any length of whitespace in the text, and a match
  * for whitespace around the separator is added.
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
                     npy_intp num, char *sep)
 {

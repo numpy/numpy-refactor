@@ -3,7 +3,6 @@ LIBRARY
 EXPORTS
 NpyArray_Alloc
 NpyArray_ArgSort
-NpyArray_ArrayItem
 NpyArray_AsCArray
 NpyArray_Broadcast
 NpyArray_BroadcastToShape
@@ -28,7 +27,6 @@ NpyArray_Correlate
 NpyArray_Correlate2
 NpyArray_DatetimeStructToDatetime
 NpyArray_DatetimeToDatetimeStruct
-NpyArray_dealloc
 NpyArray_DescrAllocFields
 NpyArray_DescrAllocNames
 NpyArray_DescrDeallocNamesAndFields
@@ -51,7 +49,6 @@ NpyArray_Free
 NpyArray_FromArray
 NpyArray_FromBinaryFile
 NpyArray_FromString
-NpyArray_FromTextFile
 NpyArray_GetCastFunc
 NpyArray_GetEndianness
 NpyArray_GetField
@@ -59,11 +56,8 @@ NpyArray_GetNumericOp
 NpyArray_GetNumusertypes
 NpyArray_GetPtr
 NpyArray_INCREF
-NpyArray_Index2Ptr
 NpyArray_IndexBind
 NpyArray_IndexDealloc
-NpyArray_IndexFancyAssign
-NpyArray_IndexSimple
 NpyArray_InitArrFuncs
 NpyArray_InnerProduct
 NpyArray_Item_INCREF
@@ -73,7 +67,6 @@ NpyArray_IterNew
 NpyArray_IterSubscript
 NpyArray_IterSubscriptAssign
 NpyArray_LexSort
-NpyArray_MapIterBind
 NpyArray_MatrixProduct
 NpyArray_MoveInto
 NpyArray_MultiIterFromArrays
@@ -82,7 +75,6 @@ NpyArray_MultiplyIntList
 NpyArray_MultiplyList
 NpyArray_NeighborhoodIterNew
 NpyArray_New
-NpyArray_NewCopy
 NpyArray_NewFromDescr
 NpyArray_Newshape
 NpyArray_NewView
@@ -99,16 +91,13 @@ NpyArray_Repeat
 NpyArray_Resize
 NpyArray_ScalarKind
 NpyArray_SearchSorted
-NpyArray_SetDescr
 NpyArray_SetField
 NpyArray_SetNumericOp
 NpyArray_SetShape
 NpyArray_SetStrides
 NpyArray_Size
-NpyArray_SmallType
 NpyArray_Sort
 NpyArray_Squeeze
-NpyArray_Subscript
 NpyArray_SwapAxes
 NpyArray_TakeFrom
 NpyArray_TimedeltaStructToTimedelta
@@ -116,9 +105,7 @@ NpyArray_TimedeltaToTimedeltaStruct
 NpyArray_ToBinaryFile
 NpyArray_Transpose
 NpyArray_TypestrConvert
-NpyArray_UpdateFlags
 NpyArray_ValidType
-NpyArray_View
 NpyArray_XDECREF
 npy_BOOL_absolute
 npy_BOOL_equal
@@ -386,8 +373,6 @@ npy_INT_sign
 npy_INT_square
 npy_INT_subtract
 npy_INT_true_divide
-Npy_IsAligned
-Npy_IsWriteable
 npy_LONG_absolute
 npy_LONG_add
 npy_LONG_bitwise_and

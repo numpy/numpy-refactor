@@ -128,7 +128,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
  * doesn't alter refcount of chktype or mintype ---
  * unless one of them is returned
  */
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
 {
     NpyArray_Descr *outtype;
@@ -206,7 +206,7 @@ NpyArray_SmallType(NpyArray_Descr *chktype, NpyArray_Descr *mintype)
  *
  * returns new reference
  */
-NpyArray_Descr *
+NDARRAY_API NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray *ap, NpyArray_Descr *mintype)
 {
     NpyArray_Descr *chktype = NULL;
