@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -62,7 +63,8 @@ namespace NumpyDotNet {
                 new ArrFuncs() { GetItem = NumericOps.getitemDouble, SetItem = NumericOps.setitemDouble };
             arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_LONGDOUBLE] = null;
             arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_CFLOAT] = null;
-            arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_CDOUBLE] = null;
+            arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_CDOUBLE] =
+                new ArrFuncs() { GetItem = NumericOps.getitemCDouble, SetItem = NumericOps.setitemCDouble };
             arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_CLONGDOUBLE] = null;
             arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_DATETIME] = null;
             arrFuncs[(int)NpyCoreApi.NPY_TYPES.NPY_TIMEDELTA] = null;
@@ -176,6 +178,16 @@ namespace NumpyDotNet {
             return f;
         }
 
+        internal static Object getitemCDouble(long offset, ndarray arr) {
+            Complex f;
+
+            unsafe {
+                double* r = (double*)arr.Data.ToPointer() + offset;
+                double* i = (double*)arr.Data.ToPointer() + offset + sizeof(double);
+                f = new Complex(*r, *i);
+            }
+            return f;
+        }
         #endregion
 
 
@@ -303,11 +315,30 @@ namespace NumpyDotNet {
 
             if (o is Double) f = (double)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToDouble(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else throw new NotImplementedException(
+                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
                 double* p = (double*)arr.Data.ToPointer() + offset;
                 *p = f;
+            }
+        }
+
+        internal static void setitemCDouble(Object o, long offset, ndarray arr) {
+            Complex f;
+
+            if (o is Complex) f = (Complex)o;
+            else if (o is IConvertible) {
+                double d = ((IConvertible)o).ToDouble(null);
+                f = new Complex(d, 0.0);
+            } else throw new NotImplementedException(
+                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
+
+
+            unsafe {
+                double* p = (double*)arr.Data.ToPointer() + offset;
+                *p = f.Real;
+                *p = f.Imaginary;
             }
         }
 

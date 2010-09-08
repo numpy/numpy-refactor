@@ -104,10 +104,12 @@ namespace NumpyDotNet
         {
             if (array != IntPtr.Zero)
             {
-                IntPtr a = array;
-                array = IntPtr.Zero;
-                //SimpleArray_delete(a);
-                //PythonStub.CheckError();
+                lock (this) {
+                    IntPtr a = array;
+                    array = IntPtr.Zero;
+                    //SimpleArray_delete(a);
+                    //PythonStub.CheckError();
+                }
             }
         }
 
@@ -117,8 +119,8 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
-        #region Public interfaces (must match CPython)
 
+        #region Public interfaces (must match CPython)
 
         // TODO: Assumes contiguous, C-array for now
         public Object this[params object[] args] {

@@ -329,7 +329,7 @@ NpyArray_GetNumusertypes(void);
  * Exception handling
  */
 enum npyexc_type {
-    NpyExc_MemoryError,
+    NpyExc_MemoryError=0,
     NpyExc_IOError,
     NpyExc_ValueError,
     NpyExc_TypeError,

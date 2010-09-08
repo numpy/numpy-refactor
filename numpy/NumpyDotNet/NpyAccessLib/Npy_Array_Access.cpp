@@ -9,9 +9,6 @@ extern "C" {
 #include <npy_object.h>
 }
 
-extern "C" _declspec(dllimport) npy_interface_incref _NpyInterface_Incref;
-extern "C" _declspec(dllimport) npy_interface_decref _NpyInterface_Decref;
-
 
 ///
 /// This library provides a set of native access functions used by NumpyDotNet

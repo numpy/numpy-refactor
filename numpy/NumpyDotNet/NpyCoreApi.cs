@@ -235,6 +235,7 @@ namespace NumpyDotNet
         /// </summary>
         internal static dtype DescrFromType(NPY_TYPES type) {
             IntPtr descr = NpyArray_DescrFromType((int)type);
+            CheckError();
             return DecrefToInterface<dtype>(descr);
         }
 
@@ -258,6 +259,7 @@ namespace NumpyDotNet
             return arr;
         }
 
+        private static object AllocArraySyncRoot = new Object();
 
         /// <summary>
         /// Allocates a new array and returns the ndarray wrapper
@@ -271,15 +273,12 @@ namespace NumpyDotNet
             bool fortran) {
             IntPtr nativeDims = IntPtr.Zero;
 
-            try {
-/*                nativeDims = Marshal.AllocHGlobal(sizeof(long) * numdim);
-                Marshal.StructureToPtr(dimensions, nativeDims, true); */
+            lock (AllocArraySyncRoot) {
                 Incref(descr.Descr);
                 return DecrefToInterface<ndarray>(
                     NpyArrayAccess_AllocArray(descr.Descr, numdim, dimensions, fortran));
-            } finally {
-                //Marshal.FreeHGlobal(nativeDims);
             }
+            CheckError();
         }
 
 
@@ -630,6 +629,107 @@ namespace NumpyDotNet
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
 
+        #region Error handling
+
+        /// <summary>
+        /// Error type, determines which type of exception to throw.  
+        /// DANGER! Must be kept in sync with npy_api.h
+        /// </summary>
+        private enum NpyExc_Type {
+            MemoryError = 0,
+            IOError,
+            ValueError,
+            TypeError,
+            IndexError,
+            RuntimeError,
+            AttributeError,
+            ComplexWarning,
+            NoError
+        }
+
+
+        /// <summary>
+        /// Indicates the most recent error code or NpyExc_NoError if nothing pending
+        /// </summary>
+        [ThreadStatic]
+        private static NpyExc_Type ErrorCode = NpyExc_Type.NoError;
+
+        /// <summary>
+        /// Stores the most recent error message per-thread
+        /// </summary>
+        [ThreadStatic]
+        private static string ErrorMessage = null;
+
+        internal static void CheckError() {
+            if (ErrorCode != NpyExc_Type.NoError) {
+                NpyExc_Type errTmp = ErrorCode;
+                String msgTmp = ErrorMessage;
+
+                ErrorCode = NpyExc_Type.NoError;
+                ErrorMessage = null;
+
+                switch (errTmp) {
+                    case NpyExc_Type.MemoryError:
+                        throw new InsufficientMemoryException(msgTmp);
+                    case NpyExc_Type.IOError:
+                        throw new System.IO.IOException(msgTmp);
+                    case NpyExc_Type.ValueError:
+                        throw new ArgumentException(msgTmp);
+                    case NpyExc_Type.IndexError:
+                        throw new IndexOutOfRangeException(msgTmp);
+                    case NpyExc_Type.RuntimeError:
+                        throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                    case NpyExc_Type.AttributeError:
+                        throw new MissingMemberException(msgTmp);
+                    case NpyExc_Type.ComplexWarning:
+                        throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                    default:
+                        Console.WriteLine("Unhandled exception type {0} in CheckError.", errTmp);
+                        throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                }
+            }
+        }
+
+
+
+        /// <summary>
+        /// Called by NpyErr_SetMessage in the native world when something bad happens
+        /// </summary>
+        /// <param name="exceptType">Type of exception to be thrown</param>
+        /// <param name="bStr">Message string</param>
+        unsafe private static void SetErrorCallback(int exceptType, sbyte* bStr) {
+            if (exceptType < 0 || exceptType >= (int)NpyExc_Type.NoError) {
+                Console.WriteLine("Internal error: invalid exception type {0}, likely ErrorType and npyexc_type (npy_api.h) are out of sync.",
+                    exceptType);
+            }
+            ErrorCode = (NpyExc_Type)exceptType;
+            ErrorMessage = new string(bStr);
+            Console.WriteLine("Set error {0}: {1}", exceptType, ErrorMessage);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        unsafe public delegate void del_SetErrorCallback(int exceptType, sbyte* msg);
+
+
+        /// <summary>
+        /// Called by native side to check to see if an error occurred
+        /// </summary>
+        /// <returns>1 if an error is pending, 0 if not</returns>
+        private static int ErrorOccurredCallback() {
+            return (ErrorCode != NpyExc_Type.NoError) ? 1 : 0;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_ErrorOccurredCallback();
+
+
+        private static void ClearErrorCallback() {
+            ErrorCode = NpyExc_Type.NoError;
+            ErrorMessage = null;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void del_ClearErrorCallback();
+
+        #endregion
+
         //
         // These variables hold a reference to the delegates passed into the core.
         // Failure to hold these references causes the callback function to disappear
@@ -647,7 +747,12 @@ namespace NumpyDotNet
             new del_Incref(IncrefCallback);
         private static readonly del_Decref DecrefCallbackDelegate =
             new del_Decref(DecrefCallback);
-
+        unsafe private static readonly del_SetErrorCallback SetErrorCallbackDelegate =
+            new del_SetErrorCallback(SetErrorCallback);
+        private static readonly del_ErrorOccurredCallback ErrorOccurredCallbackDelegate =
+            new del_ErrorOccurredCallback(ErrorOccurredCallback);
+        private static readonly del_ClearErrorCallback ClearErrorCallbackDelegate =
+            new del_ClearErrorCallback(ClearErrorCallback);
 
         /// <summary>
         /// The native type code that matches up to a 32-bit int.
@@ -693,11 +798,12 @@ namespace NumpyDotNet
                 wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
                 Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
 
+                
                 npy_initlib(IntPtr.Zero,
                     wrapHandle,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
+                    Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
+                    Marshal.GetFunctionPointerForDelegate(ErrorOccurredCallbackDelegate),
+                    Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
                     IntPtr.Zero,
                     Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate));

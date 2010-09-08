@@ -58,7 +58,7 @@ namespace NumpyDotNet {
                         "Object can not be null/none.");
                 }
 
-                if (args[1] != null) type = (dtype)args[1];
+                if (args[1] != null) type = NpyDescr.DescrConverter(args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
                 if (args[3] != null && args[3] is string &&
