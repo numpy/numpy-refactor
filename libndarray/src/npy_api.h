@@ -77,7 +77,7 @@ NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran);
 
 
 /* ctors.c */
-size_t npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
+NDARRAY_API size_t npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
                               size_t itemsize, int inflag, int *objflags);
 
 NpyArray * NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype,
@@ -88,7 +88,7 @@ NpyArray * NpyArray_FromString(char *data, npy_intp slen, NpyArray_Descr *dtype,
 NpyArray_Descr *
 NpyArray_DescrFromArray(NpyArray* array, NpyArray_Descr* mintype);
 
-void
+NDARRAY_API void
 npy_byte_swap_vector(void *p, npy_intp n, int size);
 
 
@@ -183,7 +183,6 @@ int NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides);
  * API functions.
  */
 npy_intp NpyArray_Size(NpyArray *op);
-NpyArray *NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out);
 NpyArray *NpyArray_CheckAxis(NpyArray *arr, int *axis, int flags);
 int NpyArray_CompareUCS4(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
 int NpyArray_CompareString(char *s1, char *s2, size_t len);

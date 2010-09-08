@@ -191,7 +191,7 @@ _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
 }
 
 
-void
+NDARRAY_API void
 npy_byte_swap_vector(void *p, npy_intp n, int size)
 {
     _strided_byte_swap(p, (npy_intp) size, n, size);
@@ -518,7 +518,7 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
  * and a non-zero flags argument can be used to indicate a FORTRAN style
  * array is desired.
  */
-size_t
+NDARRAY_API size_t
 npy_array_fill_strides(npy_intp *strides, npy_intp *dims, int nd,
                        size_t itemsize, int inflag, int *objflags)
 {

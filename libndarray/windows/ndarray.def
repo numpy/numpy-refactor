@@ -1,12 +1,7 @@
 LIBRARY
 
 EXPORTS
-npy_array_fill_strides
-npy_byte_swap_vector
-NpyArray_All
 NpyArray_Alloc
-NpyArray_Any
-NpyArray_ArgMax
 NpyArray_ArgSort
 NpyArray_ArrayItem
 NpyArray_AsCArray
@@ -31,8 +26,6 @@ NpyArray_CopyAnyInto
 NpyArray_CopyInto
 NpyArray_Correlate
 NpyArray_Correlate2
-NpyArray_CumSum
-NpyArray_CumProd
 NpyArray_DatetimeStructToDatetime
 NpyArray_DatetimeToDatetimeStruct
 NpyArray_dealloc

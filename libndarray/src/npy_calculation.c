@@ -10,7 +10,7 @@
 
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
 {
     NpyArray *ap = NULL, *rp = NULL;
@@ -121,7 +121,7 @@ fail:
 }
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Conjugate(NpyArray *self, NpyArray *out)
 {
     if (NpyArray_ISCOMPLEX(self)) {
@@ -154,7 +154,7 @@ NpyArray_Conjugate(NpyArray *self, NpyArray *out)
 
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Max(NpyArray *self, int axis, NpyArray *out)
 {
     NpyArray *new = NULL;
@@ -173,7 +173,7 @@ NpyArray_Max(NpyArray *self, int axis, NpyArray *out)
 
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Min(NpyArray *self, int axis, NpyArray *out)
 {
     NpyArray *new = NULL;
@@ -191,7 +191,7 @@ NpyArray_Min(NpyArray *self, int axis, NpyArray *out)
 }
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Sum(NpyArray *self, int axis, int rtype, NpyArray *out)
 {
     NpyArray *new = NULL;
@@ -208,7 +208,7 @@ NpyArray_Sum(NpyArray *self, int axis, int rtype, NpyArray *out)
     return ret;
 }
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Prod(NpyArray *self, int axis, int rtype, NpyArray *out)
 {
     NpyArray *new = NULL;
@@ -230,7 +230,7 @@ NpyArray_Prod(NpyArray *self, int axis, int rtype, NpyArray *out)
 
 /* Cumulative summation
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CumSum(NpyArray *self, int axis, int rtype, NpyArray *out)
 {
     NpyArray *ret = NULL;
@@ -250,7 +250,7 @@ NpyArray_CumSum(NpyArray *self, int axis, int rtype, NpyArray *out)
 
 
 /* Cumulative product */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_CumProd(NpyArray *self, int axis, int rtype, NpyArray *out)
 {
     NpyArray *ret = NULL;
@@ -272,7 +272,7 @@ NpyArray_CumProd(NpyArray *self, int axis, int rtype, NpyArray *out)
 /*NUMPY_API
  * Any
  */
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_Any(NpyArray *self, int axis, NpyArray *out)
 {
     NpyArray *new, *ret;
@@ -288,7 +288,7 @@ NpyArray_Any(NpyArray *self, int axis, NpyArray *out)
     return ret;
 }
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_All(NpyArray *self, int axis, NpyArray *out)
 {
     NpyArray *new, *ret;
