@@ -291,10 +291,10 @@ namespace NumpyDotNet
         internal static Int64[] GetArrayDims(ndarray arr) {
             Int64[] dims;
             
-            dims = new Int64[arr.Ndim];
+            dims = new Int64[arr.ndim];
             unsafe {
                 fixed (Int64* dimMem = dims) {
-                    if (!GetArrayDims(arr.Array, arr.Ndim, dimMem)) {
+                    if (!GetArrayDims(arr.Array, arr.ndim, dimMem)) {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
                     }
                 }

@@ -15,8 +15,8 @@ namespace NumpyDotNet {
 
             if ((requires & NpyCoreApi.NPY_NOTSWAPPED) != 0) {
                 if (descr != null && src is ndarray &&
-                    ((ndarray)src).Descr.IsNativeByteOrder) {
-                    descr = new dtype(((ndarray)src).Descr);
+                    ((ndarray)src).dtype.IsNativeByteOrder) {
+                    descr = new dtype(((ndarray)src).dtype);
                 } else if (descr != null && !descr.IsNativeByteOrder) {
                     // Descr replace
                 }
@@ -60,7 +60,8 @@ namespace NumpyDotNet {
                     result = FromIEnumerable((IEnumerable<Object>)src, descr,
                         (flags & NpyCoreApi.NPY_FORTRAN) != 0, minDepth, maxDepth);
                 } else {
-                    Console.WriteLine("Type name = {0}", src.GetType().ToString());
+                    throw new NotImplementedException(
+                        String.Format("In FromArray, type {0} is not handled yet.", src.GetType().ToString()));
                 }
             }
             return result;
@@ -136,7 +137,7 @@ namespace NumpyDotNet {
             dtype chktype = null;
 
             if (src is ndarray) {
-                chktype = ((ndarray)src).Descr;
+                chktype = ((ndarray)src).dtype;
                 if (minitype == null) return chktype;
             } else {
                 chktype = FindScalarType(src);
@@ -241,7 +242,7 @@ namespace NumpyDotNet {
                     if (d >= 0) d++;
                 }
             } else if (src is ndarray) {
-                d = ((ndarray)src).Ndim;
+                d = ((ndarray)src).ndim;
             } else if (src is String) {
                 d = stopAtString ? 0 : 1;
             }
@@ -267,7 +268,7 @@ namespace NumpyDotNet {
 
             if (src is ndarray) {
                 ndarray arr = (ndarray)src;
-                if (arr.Ndim == 0) dims[dimIdx] = 0;
+                if (arr.ndim == 0) dims[dimIdx] = 0;
                 else {
                     Int64[] d = arr.Dims;
                     for (int i = 0; i < numDim; i++) {
@@ -313,10 +314,10 @@ namespace NumpyDotNet {
 
         private static void AssignFromSeq(IEnumerable<Object> seq, ndarray result,
             int dim, long offset) {
-            if (dim >= result.Ndim) {
+            if (dim >= result.ndim) {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
                     String.Format("Source dimensions ({0}) exceeded target array dimensions ({1}).",
-                    dim, result.Ndim));
+                    dim, result.ndim));
             }
 
             if (seq.Count() != result.Dims[dim]) {
@@ -325,12 +326,12 @@ namespace NumpyDotNet {
             }
 
             long stride = result.Stride(dim);
-            if (dim < result.Ndim - 1) {
+            if (dim < result.ndim - 1) {
                 // Sequence elements should be additional sequences
                 seq.Iteri((o, i) =>
                     AssignFromSeq((IEnumerable<Object>)o, result, dim + 1, offset + stride * i));
             } else {
-                seq.Iteri((o, i) => result.Descr.f.SetItem(o, offset + i*stride, result));
+                seq.Iteri((o, i) => result.dtype.f.SetItem(o, offset + i*stride, result));
             }
         }
     }
