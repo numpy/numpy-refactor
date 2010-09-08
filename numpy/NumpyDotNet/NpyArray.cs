@@ -142,7 +142,7 @@ namespace NumpyDotNet {
                 chktype = FindScalarType(src);
                 if (chktype != null && minitype == null) return chktype;
             }
-
+            
             // If a minimum type wasn't give, default to bool.
             if (minitype == null) 
                 minitype = NpyCoreApi.DescrFromType(NpyCoreApi.NPY_TYPES.NPY_BOOL);
@@ -203,8 +203,12 @@ namespace NumpyDotNet {
             else if (src is Single) type = NpyCoreApi.NPY_TYPES.NPY_FLOAT;
             else if (src is Boolean) type = NpyCoreApi.NPY_TYPES.NPY_BOOL;
             else if (src is Byte) type = NpyCoreApi.NPY_TYPES.NPY_BYTE;
-            else if (src is Int16 || src is Int32) type = NpyCoreApi.NPY_TYPES.NPY_LONG;
-            else if (src is Int64) type = NpyCoreApi.NPY_TYPES.NPY_LONGLONG;
+            else if (src is Int16) type = NpyCoreApi.NPY_TYPES.NPY_SHORT;
+            else if (src is Int32) type = NpyCoreApi.TypeOf_Int32;
+            else if (src is Int64) type = NpyCoreApi.TypeOf_Int64;
+            else if (src is UInt16) type = NpyCoreApi.NPY_TYPES.NPY_USHORT;
+            else if (src is UInt32) type = NpyCoreApi.TypeOf_UInt32;
+            else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
             else type = NpyCoreApi.NPY_TYPES.NPY_NOTYPE;
 
             return (type != NpyCoreApi.NPY_TYPES.NPY_NOTYPE) ?
