@@ -291,10 +291,10 @@ namespace NumpyDotNet
         internal static Int64[] GetArrayDims(ndarray arr) {
             Int64[] dims;
             
-            dims = new Int64[arr.Ndim];
+            dims = new Int64[arr.ndim];
             unsafe {
                 fixed (Int64* dimMem = dims) {
-                    if (!GetArrayDims(arr.Array, arr.Ndim, dimMem)) {
+                    if (!GetArrayDims(arr.Array, arr.ndim, dimMem)) {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
                     }
                 }
@@ -363,8 +363,8 @@ namespace NumpyDotNet
         internal static extern void Decref(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_GetNativeByteOrder")]
-        private static extern byte GetNativeByteOrder();
+            EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
+        unsafe private static extern byte GetNativeTypeInfo(int *intSize, int *longsize, int *longLongSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDims")]
@@ -650,11 +650,30 @@ namespace NumpyDotNet
 
 
         /// <summary>
+        /// The native type code that matches up to a 32-bit int.
+        /// </summary>
+        internal static readonly NPY_TYPES TypeOf_Int32;
+
+        /// <summary>
+        /// Native type code that matches up to a 64-bit int.
+        /// </summary>
+        internal static readonly NPY_TYPES TypeOf_Int64;
+
+        /// <summary>
+        /// Native type code that matches up to a 32-bit unsigned int.
+        /// </summary>
+        internal static readonly NPY_TYPES TypeOf_UInt32;
+
+        /// <summary>
+        /// Native type code that matches up to a 64-bit unsigned int.
+        /// </summary>
+        internal static readonly NPY_TYPES TypeOf_UInt64;
+
+
+        /// <summary>
         /// Initializes the core library with necessary callbacks on load.
         /// </summary>
         static NpyCoreApi() {
-            System.Console.WriteLine("Hello world");
-
             wrapFuncs = new NpyInterface_WrapperFuncs();
 
             wrapFuncs.array_new_wrapper = 
@@ -715,7 +734,28 @@ namespace NumpyDotNet
                 }
             }
 
-            nativeByteOrder = GetNativeByteOrder();
+            // Check the native byte ordering (make sure it matches what .NET uses) and
+            // figure out the mapping between types that vary in size in the core and
+            // fixed-size .NET types.
+            int intSize, longSize, longLongSize;
+            unsafe {
+                nativeByteOrder = GetNativeTypeInfo(&intSize, &longSize, &longLongSize);
+            }
+            if (intSize == 4 && longSize == 4 && longLongSize == 8) {
+                TypeOf_Int32 = NPY_TYPES.NPY_INT;
+                TypeOf_Int64 = NPY_TYPES.NPY_LONGLONG;
+                TypeOf_UInt32 = NPY_TYPES.NPY_UINT;
+                TypeOf_UInt64 = NPY_TYPES.NPY_ULONGLONG;
+            } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
+                TypeOf_Int32 = NPY_TYPES.NPY_INT;
+                TypeOf_Int64 = NPY_TYPES.NPY_LONG;
+                TypeOf_UInt32 = NPY_TYPES.NPY_UINT;
+                TypeOf_UInt64 = NPY_TYPES.NPY_ULONG;
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
+                                  intSize, longSize, longLongSize));
+            }
         }
 
         #endregion

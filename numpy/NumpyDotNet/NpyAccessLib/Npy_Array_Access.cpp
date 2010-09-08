@@ -92,11 +92,15 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 }
 
 
-// Returns the native byte order code for this platform. Used during
-// initialization.
+// Returns the native byte order code for this platform and size of types
+// that vary platform-to-playform.
 extern "C" __declspec(dllexport)
-    char _cdecl NpyArrayAccess_GetNativeByteOrder()
+    char _cdecl NpyArrayAccess_GetNativeTypeInfo(int *intSize, int *longSize, 
+        int *longlongSize)
 {
+    *intSize = sizeof(npy_int);
+    *longSize = sizeof(npy_long);
+    *longlongSize = sizeof(npy_longlong);
     return NPY_NATBYTE;
 }
 

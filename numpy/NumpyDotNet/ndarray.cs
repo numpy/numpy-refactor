@@ -117,42 +117,41 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+        #region Public interfaces (must match CPython)
+
+
+        // TODO: Assumes contiguous, C-array for now
         public Object this[params object[] args] {
             get {
-                return Descr.f.GetItem(ComputeOffset(args), this);
+                return dtype.f.GetItem(ComputeOffset(args), this);
             }
             set {
                 long offset = ComputeOffset(args);
-                Descr.f.SetItem(value, offset, this);
+                dtype.f.SetItem(value, offset, this);
                 Console.WriteLine(String.Format("{0} = {1} vs {2}", offset, value,
-                    Descr.f.GetItem(offset, this)));
+                    dtype.f.GetItem(offset, this)));
             }
-        }
-
-        public override string ToString() {
-            // TODO: Temporary implementation
-            return String.Format("Array[{0}], type = {1}",
-                String.Join(", ", this.Dims.Select(x => x.ToString())), this.Descr.Type);
-        }
-
-        public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
-        }
-
-
-        public long Stride(int dimension) {
-            return NpyCoreApi.GetArrayStride(Array, dimension);
         }
 
 
         /// <summary>
-        /// Handle to the core representation.
+        /// Number of dimensions in the array
         /// </summary>
-        public IntPtr Array {
-            get { return array; }
+        public int ndim {
+            get { return Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_nd); }
         }
 
+        /// <summary>
+        /// Returns the size of each dimension as a tuple.
+        /// </summary>
+        public IronPython.Runtime.PythonTuple shape {
+            get { return new PythonTuple(this.Dims); }
+        }
+
+        /// <summary>
+        /// Pointer to the internal memory. Should be used with great caution - memory
+        /// is native memory, not managed memory.
+        /// </summary>
         internal IntPtr Data {
             get { return Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_data); }
         }
@@ -161,7 +160,7 @@ namespace NumpyDotNet
         /// <summary>
         /// The type descriptor object for this array
         /// </summary>
-        public dtype Descr {
+        public dtype dtype {
             get {
                 IntPtr descr = Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_descr);
                 return NpyCoreApi.ToInterface<dtype>(descr);
@@ -170,6 +169,42 @@ namespace NumpyDotNet
                 NpyCoreApi.ArraySetDescr(array, value.Descr);
             }
         }
+
+
+        public override string ToString() {
+            // TODO: Temporary implementation
+            return String.Format("Array[{0}], type = {1}",
+                String.Join(", ", this.Dims.Select(x => x.ToString())), this.dtype.Type);
+        }
+
+
+        public long Stride(int dimension) {
+            return NpyCoreApi.GetArrayStride(Array, dimension);
+        }
+        #endregion
+
+
+        public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
+        }
+
+        /// <summary>
+        /// Handle to the core representation.
+        /// </summary>
+        public IntPtr Array {
+            get { return array; }
+        }
+
+        /// <summary>
+        /// Returns an array of the sizes of each dimension. This property allocates
+        /// a new array with each call and must make a managed-to-native call so it's
+        /// worth caching the results if used in a loop.
+        /// </summary>
+        public Int64[] Dims {
+            get { return NpyCoreApi.GetArrayDims(this); }
+        }
+
 
         /// <summary>
         /// True if memory layout of array is contiguous
@@ -182,7 +217,7 @@ namespace NumpyDotNet
         /// True if memory layout is Fortran order, false implies C order
         /// </summary>
         public bool IsFortran {
-            get { return ChkFlags(NpyCoreApi.NPY_FORTRAN) && Ndim > 1; }
+            get { return ChkFlags(NpyCoreApi.NPY_FORTRAN) && ndim > 1; }
         }
 
 
@@ -197,23 +232,6 @@ namespace NumpyDotNet
             return order == NpyCoreApi.NPY_ORDER.NPY_ANYORDER ||
                 order == NpyCoreApi.NPY_ORDER.NPY_CORDER && IsContiguous ||
                 order == NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
-        }
-
-
-        /// <summary>
-        /// Number of dimensions in the array
-        /// </summary>
-        public int Ndim {
-            get { return Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_nd); }
-        }
-
-        /// <summary>
-        /// Returns an array of the sizes of each dimension. This property allocates
-        /// a new array with each call and must make a managed-to-native call so it's
-        /// worth caching the results if used in a loop.
-        /// </summary>
-        public Int64[] Dims {
-            get { return NpyCoreApi.GetArrayDims(this); }
         }
 
         private bool ChkFlags(int flag) {
@@ -233,10 +251,10 @@ namespace NumpyDotNet
         private long ComputeOffset(object[] index) {
             long offset = 0;
 
-            if (index.Length == this.Ndim) {
+            if (index.Length == this.ndim) {
                 // Since index elements is the same as the number of dimensions we
                 // assume that the elements are integers. Anything else is invalid.
-                for (int i = 0; i < this.Ndim; i++) {
+                for (int i = 0; i < this.ndim; i++) {
                     long idx = 0;
 
                     if (index[i] is long) idx = (long)index[i];
