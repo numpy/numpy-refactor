@@ -65,10 +65,11 @@ namespace NumpyDotNet {
 
         protected void Dispose(bool disposing) {
             if (descr != IntPtr.Zero) {
-                IntPtr a = descr;
-                descr = IntPtr.Zero;
-                //SimpleArray_delete(a);
-                //PythonStub.CheckError();
+                lock (this) {
+                    IntPtr a = descr;
+                    descr = IntPtr.Zero;
+                    NpyCoreApi.NpyArray_DescrDestroy(a);
+                }
             }
         }
 

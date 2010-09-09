@@ -182,9 +182,8 @@ namespace NumpyDotNet {
             Complex f;
 
             unsafe {
-                double* r = (double*)((byte *)arr.Data.ToPointer() + offset);
-                double* i = (double*)((byte *)arr.Data.ToPointer() + offset) + 1;   // Outside parens so +1 double size, not +1 byte
-                f = new Complex(*r, *i);
+                double* p = (double*)((byte *)arr.Data.ToPointer() + offset);
+                f = new Complex(*p, *(p+1));
             }
             return f;
         }
@@ -338,7 +337,7 @@ namespace NumpyDotNet {
             unsafe {
                 double* p = (double*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f.Real;
-                *p = f.Imaginary;
+                *(p+1) = f.Imaginary;
             }
         }
 
