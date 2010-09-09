@@ -278,7 +278,6 @@ namespace NumpyDotNet
                 return DecrefToInterface<ndarray>(
                     NpyArrayAccess_AllocArray(descr.Descr, numdim, dimensions, fortran));
             }
-            CheckError();
         }
 
 
@@ -471,6 +470,7 @@ namespace NumpyDotNet
             }
             TResult result = ToInterface<TResult>(ptr);
             Decref(ptr);
+            CheckError();
             return result;
         }
 
