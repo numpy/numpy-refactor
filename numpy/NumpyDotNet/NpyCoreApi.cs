@@ -465,12 +465,12 @@ namespace NumpyDotNet
         /// <param name="ptr">Pointer to the core object</param>
         /// <returns>Wrapper instance corresponding to ptr</returns>
         internal static TResult DecrefToInterface<TResult>(IntPtr ptr) {
+            CheckError();
             if (ptr == IntPtr.Zero) {
                 return default(TResult);
             }
             TResult result = ToInterface<TResult>(ptr);
             Decref(ptr);
-            CheckError();
             return result;
         }
 

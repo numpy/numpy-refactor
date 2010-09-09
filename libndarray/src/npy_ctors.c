@@ -907,6 +907,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     self = (NpyArray *) NpyArray_malloc(sizeof(NpyArray));
     if (self == NULL) {
         Npy_DECREF(descr);
+        NpyErr_SetString(NpyExc_MemoryError, "insufficient memory");
         return NULL;
     }
     NpyObject_Init((_NpyObject *)self, &NpyArray_Type);

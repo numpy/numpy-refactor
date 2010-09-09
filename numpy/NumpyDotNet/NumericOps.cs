@@ -80,7 +80,7 @@ namespace NumpyDotNet {
             bool f;
 
             unsafe {
-                bool* p = (bool*)arr.Data.ToPointer() + offset;
+                bool* p = (bool*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -102,7 +102,7 @@ namespace NumpyDotNet {
             short f;
 
             unsafe {
-                short* p = (short*)arr.Data.ToPointer() + offset;
+                short* p = (short*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -112,7 +112,7 @@ namespace NumpyDotNet {
             ushort f;
 
             unsafe {
-                ushort* p = (ushort*)arr.Data.ToPointer() + offset;
+                ushort* p = (ushort*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -122,7 +122,7 @@ namespace NumpyDotNet {
             int f;
 
             unsafe {
-                int* p = (int*)arr.Data.ToPointer() + offset;
+                int* p = (int*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -132,7 +132,7 @@ namespace NumpyDotNet {
             uint f;
 
             unsafe {
-                uint* p = (uint*)arr.Data.ToPointer() + offset;
+                uint* p = (uint*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -142,7 +142,7 @@ namespace NumpyDotNet {
             long f;
 
             unsafe {
-                long* p = (long*)arr.Data.ToPointer() + offset;
+                long* p = (long*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -152,7 +152,7 @@ namespace NumpyDotNet {
             ulong f;
 
             unsafe {
-                ulong* p = (ulong*)arr.Data.ToPointer() + offset;
+                ulong* p = (ulong*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -162,7 +162,7 @@ namespace NumpyDotNet {
             float f;
 
             unsafe {
-                float* p = (float*)arr.Data.ToPointer() + offset;
+                float* p = (float*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -172,7 +172,7 @@ namespace NumpyDotNet {
             double f;
 
             unsafe {
-                double* p = (double*)arr.Data.ToPointer() + offset;
+                double* p = (double*)((byte *)arr.Data.ToPointer() + offset);
                 f = *p;
             }
             return f;
@@ -182,8 +182,8 @@ namespace NumpyDotNet {
             Complex f;
 
             unsafe {
-                double* r = (double*)arr.Data.ToPointer() + offset;
-                double* i = (double*)arr.Data.ToPointer() + offset + sizeof(double);
+                double* r = (double*)((byte *)arr.Data.ToPointer() + offset);
+                double* i = (double*)((byte *)arr.Data.ToPointer() + offset) + 1;   // Outside parens so +1 double size, not +1 byte
                 f = new Complex(*r, *i);
             }
             return f;
@@ -201,7 +201,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                bool* p = (bool*)arr.Data.ToPointer() + offset;
+                bool* p = (bool*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -227,7 +227,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                short* p = (short*)arr.Data.ToPointer() + offset;
+                short* p = (short*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -240,7 +240,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                ushort* p = (ushort*)arr.Data.ToPointer() + offset;
+                ushort* p = (ushort*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -253,7 +253,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                int* p = (int*)arr.Data.ToPointer() + offset;
+                int* p = (int*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -266,7 +266,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                uint* p = (uint*)arr.Data.ToPointer() + offset;
+                uint* p = (uint*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -279,7 +279,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                long* p = (long*)arr.Data.ToPointer() + offset;
+                long* p = (long*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -292,7 +292,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                ulong* p = (ulong*)arr.Data.ToPointer() + offset;
+                ulong* p = (ulong*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -305,7 +305,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                float* p = (float*)arr.Data.ToPointer() + offset;
+                float* p = (float*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -319,7 +319,7 @@ namespace NumpyDotNet {
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
-                double* p = (double*)arr.Data.ToPointer() + offset;
+                double* p = (double*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f;
             }
         }
@@ -336,7 +336,7 @@ namespace NumpyDotNet {
 
 
             unsafe {
-                double* p = (double*)arr.Data.ToPointer() + offset;
+                double* p = (double*)((byte *)arr.Data.ToPointer() + offset);
                 *p = f.Real;
                 *p = f.Imaginary;
             }
