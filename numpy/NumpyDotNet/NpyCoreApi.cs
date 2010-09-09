@@ -328,6 +328,9 @@ namespace NumpyDotNet
             int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_dealloc(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);

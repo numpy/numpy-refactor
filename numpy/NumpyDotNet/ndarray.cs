@@ -107,8 +107,7 @@ namespace NumpyDotNet
                 lock (this) {
                     IntPtr a = array;
                     array = IntPtr.Zero;
-                    //SimpleArray_delete(a);
-                    //PythonStub.CheckError();
+                    NpyCoreApi.NpyArray_dealloc(a);
                 }
             }
         }

@@ -29,13 +29,7 @@ extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_Decref(NpyObject *obj)
 {
     assert(NPY_VALID_MAGIC == obj->nob_magic_number);
-    //Npy_DECREF(obj);
-    if (0 == InterlockedDecrement(&(obj)->nob_refcnt)) {                            
-        if (NULL != Npy_INTERFACE(obj))                                       
-            _NpyInterface_Decref(Npy_INTERFACE(obj), &((obj)->nob_interface));  
-        else                                                                
-           (obj)->nob_type->ntp_dealloc((_NpyObject*)obj);                      
-    }
+    Npy_DECREF(obj);
 }
 
 
