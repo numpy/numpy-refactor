@@ -153,6 +153,19 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
+        public void add_new_axis()
+        {
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.NEW_AXIS);
+            ++num_indexes;
+        }
+
+        public void add_ellipsis()
+        {
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.ELLIPSIS);
+            ++num_indexes;
+        }
 
         private int num_indexes;
         private IntPtr indexes;

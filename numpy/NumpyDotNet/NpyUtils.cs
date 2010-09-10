@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
+using IronPython.Runtime;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -198,36 +199,64 @@ namespace NumpyDotNet {
     {
         public static void IndexConverter(Object[] indexArgs, NpyIndexes indexes)
         {
-            foreach (Object arg in indexArgs)
-            {
-                if (arg is ISlice)
-                {
-                    indexes.add_index((ISlice)arg);
+            if (indexArgs.Length == 1 && indexArgs[0] is PythonTuple) {
+                // Treat a single tuple as a tuple of args.
+                PythonTuple tuple = (PythonTuple)indexArgs[0];
+                if (tuple.Count > NpyCoreApi.IndexInfo.max_dims) {
+                    throw new ArgumentException("Too many indices.");
                 }
-                else if (arg is int)
-                {
-                    indexes.add_index((IntPtr)(int)arg);
+                foreach (object arg in tuple) {
+                    ConvertSingleIndex(arg, indexes);
                 }
-                else if (arg is long)
-                {
-                    indexes.add_index((IntPtr)(long)arg);
+            } else {
+                if (indexArgs.Length > NpyCoreApi.IndexInfo.max_dims) {
+                    throw new ArgumentException("Too many indices.");
                 }
-                else if (arg is IConvertible)
+                foreach (Object arg in indexArgs)
                 {
-                    if (IntPtr.Size == 4)
-                    {
-                        indexes.add_index((IntPtr)Convert.ToInt32(arg));
-                    }
-                    else
-                    {
-                        indexes.add_index((IntPtr)Convert.ToInt64(arg));
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException(String.Format("Argument '{0}' is not a valid index.", arg));
+                    ConvertSingleIndex(arg, indexes);
                 }
             }
         }
+
+        private static void ConvertSingleIndex(Object arg, NpyIndexes indexes)
+        {
+            if (arg == null)
+            {
+                indexes.add_new_axis();
+            }
+            else if (arg is IronPython.Runtime.Types.Ellipsis)
+            {
+                indexes.add_ellipsis();
+            }
+            else if (arg is ISlice)
+            {
+                indexes.add_index((ISlice)arg);
+            }
+            else if (arg is int)
+            {
+                indexes.add_index((IntPtr)(int)arg);
+            }
+            else if (arg is long)
+            {
+                indexes.add_index((IntPtr)(long)arg);
+            }
+            else if (arg is IConvertible)
+            {
+                if (IntPtr.Size == 4)
+                {
+                    indexes.add_index((IntPtr)Convert.ToInt32(arg));
+                }
+                else
+                {
+                    indexes.add_index((IntPtr)Convert.ToInt64(arg));
+                }
+            }
+            else
+            {
+                throw new ArgumentException(String.Format("Argument '{0}' is not a valid index.", arg));
+            }
+        }
+
     }
 }
