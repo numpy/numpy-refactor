@@ -200,9 +200,16 @@ namespace NumpyDotNet {
         {
             foreach (Object arg in indexArgs)
             {
-                if (arg is int) {
+                if (arg is ISlice)
+                {
+                    indexes.add_index((ISlice)arg);
+                }
+                else if (arg is int)
+                {
                     indexes.add_index((IntPtr)(int)arg);
-                } else if (arg is long) {
+                }
+                else if (arg is long)
+                {
                     indexes.add_index((IntPtr)(long)arg);
                 }
                 else if (arg is IConvertible)

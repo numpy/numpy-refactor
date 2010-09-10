@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using Microsoft.Scripting.Runtime;
 
 namespace NumpyDotNet
 {
@@ -77,6 +78,77 @@ namespace NumpyDotNet
             // Write the data
             offset += NpyCoreApi.IndexInfo.off_union;
             Marshal.WriteIntPtr(indexes + offset, value);
+
+            ++num_indexes;
+        }
+
+        public void add_index(ISlice slice)
+        {
+            IntPtr step;
+            bool negativeStep;
+            IntPtr start;
+            IntPtr stop;
+            bool hasStop;
+
+            // Find the step
+            if (slice.Step == null)
+            {
+                step = (IntPtr)1;
+                negativeStep = false;
+            }
+            else
+            {
+                step = (IntPtr) Convert.ToInt64(slice.Step);
+                negativeStep = (step.ToInt64() < 0);
+            }
+
+            // Find the start
+            if (slice.Start == null)
+            {
+                start = (IntPtr)(negativeStep ? -1 : 0);
+            }
+            else
+            {
+                start = (IntPtr) Convert.ToInt64(slice.Start);
+            }
+
+
+            // Find the stop
+            if (slice.Stop == null) {
+                hasStop = false;
+                stop = IntPtr.Zero;
+            }
+            else {
+                hasStop = true;
+                stop = (IntPtr) Convert.ToInt64(slice.Stop);
+            }
+
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            if (!hasStop)
+            {
+                Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.SLICE_NOSTOP);
+            }
+            else
+            {
+                Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.SLICE);
+            }
+
+
+            // Write the start
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Marshal.WriteIntPtr(indexes + offset, start);
+
+            // Write the step
+            offset += IntPtr.Size;
+            Marshal.WriteIntPtr(indexes + offset, step);
+
+            // Write the stop
+            if (hasStop)
+            {
+                offset += IntPtr.Size;
+                Marshal.WriteIntPtr(indexes + offset, stop);
+            }
 
             ++num_indexes;
         }
