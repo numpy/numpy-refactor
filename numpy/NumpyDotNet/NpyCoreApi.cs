@@ -609,18 +609,20 @@ namespace NumpyDotNet
         /// new handle to it as well.  Must be done atomically.
         /// </summary>
         /// <param name="ptr">Pointer to GCHandle of object to reference</param>
+        /// <param name="nobInterfacePtr">Address of the nob_interface field (not value of it)</param>
         /// <returns>New handle to the input object</returns>
-        private static IntPtr IncrefCallback(IntPtr ptr, IntPtr wrapPtr) {
-            object obj = GCHandle.FromIntPtr(ptr).Target;
-            IntPtr retval = GCHandle.ToIntPtr(GCHandle.Alloc(obj));
-            if (wrapPtr != IntPtr.Zero) {
+        private static IntPtr IncrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
+            GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
+            object wrapperObj = oldWrapRef.Target;
+            IntPtr newWrapRef = GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj));
+            if (nobInterfacePtr != IntPtr.Zero) {
                 lock (interfaceSyncRoot) {
-                    GCHandle old = GCHandle.FromIntPtr(wrapPtr);
-                    wrapPtr = retval;
-                    old.Free();
+                    // Replace the contents of nobInterfacePtr with the new reference.
+                    Marshal.WriteIntPtr(nobInterfacePtr, newWrapRef);
+                    oldWrapRef.Free();
                 }
             }
-            return retval;
+            return newWrapRef;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr del_Incref(IntPtr ptr, IntPtr wrapPtr);
@@ -631,21 +633,17 @@ namespace NumpyDotNet
         /// not be used again.
         /// </summary>
         /// <param name="ptr">Interface object to 'decref'</param>
-        private static void DecrefCallback(IntPtr ptr, IntPtr wrapPtr) {
-            if (wrapPtr != IntPtr.Zero) {
+        private static void DecrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
+            if (nobInterfacePtr != IntPtr.Zero) {
                 // Deferencing the interface wrapper.  We can't just null the
                 // wrapPtr because we have to have maintain the link so we
                 // allocate a weak reference instead.
-                GCHandle handle = GCHandle.FromIntPtr(ptr);
-                Object target = handle.Target;
                 lock (interfaceSyncRoot) {
-                    if (ptr == Marshal.ReadIntPtr(wrapPtr)) {
-                        Marshal.WriteIntPtr(wrapPtr,
-                            GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Weak)));
-                    } else {
-                        Console.WriteLine("Unexpected decref where wrapPtr != ptr.");
-                    }
-                    handle.Free();
+                    GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
+                    Object wrapperObj = oldWrapRef.Target;
+                    Marshal.WriteIntPtr(nobInterfacePtr,
+                        GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj, GCHandleType.Weak)));
+                    oldWrapRef.Free();
                 }
             } else {
                 GCHandle.FromIntPtr(ptr).Free();
