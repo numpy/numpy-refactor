@@ -136,7 +136,7 @@ namespace NumpyDotNet
 
             if (repr) {
                 if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
-                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, 0 /* this.ItemSize*/);
+                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, this.dtype.ElementSize);
                 } else {
                     sb.AppendFormat(", '{0}')", (char)dtype.Type);
                 }
@@ -157,7 +157,7 @@ namespace NumpyDotNet
         private bool DumpData(StringBuilder sb, long[] dimensions,
             int dimIdx, long offset) {
 
-            if (dimIdx == ndim-1) {
+            if (dimIdx == ndim) {
                 Object value = dtype.f.GetItem(offset, this);
                 if (value == null) return false;
 
