@@ -135,6 +135,14 @@ namespace NumpyDotNet
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_SubscriptAssign(IntPtr self, IntPtr indexes, int n, IntPtr value);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_IndexDealloc(IntPtr indexes, int n);
         #endregion
 
         #region NpyAccessLib functions
@@ -677,3 +685,4 @@ namespace NumpyDotNet
         #endregion
     }
 }
+
