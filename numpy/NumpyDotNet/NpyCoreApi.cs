@@ -79,22 +79,23 @@ namespace NumpyDotNet
 
 
         /// <summary>
-        /// Returns an array with the size of each dimension in the given array.
+        /// Returns an array with the size or stride of each dimension in the given array.
         /// </summary>
         /// <param name="arr">The array</param>
-        /// <returns>Array w/ an array size for each dimension</returns>
-        internal static Int64[] GetArrayDims(ndarray arr) {
-            Int64[] dims;
+        /// <param name="getDims">True returns size of each dimension, false returns stride of each dimension</param>
+        /// <returns>Array w/ an array size or stride for each dimension</returns>
+        internal static Int64[] GetArrayDimsOrStrides(ndarray arr, bool getDims) {
+            Int64[] retArr;
             
-            dims = new Int64[arr.ndim];
+            retArr = new Int64[arr.ndim];
             unsafe {
-                fixed (Int64* dimMem = dims) {
-                    if (!GetArrayDims(arr.Array, arr.ndim, dimMem)) {
+                fixed (Int64* dimMem = retArr) {
+                    if (!GetArrayDimsOrStrides(arr.Array, arr.ndim, getDims, dimMem)) {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
                     }
                 }
             }
-            return dims;
+            return retArr;
         }
 
         #endregion
@@ -143,6 +144,9 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyArray_IndexDealloc(IntPtr indexes, int n);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Size(IntPtr arr);
         #endregion
 
         #region NpyAccessLib functions
@@ -165,8 +169,8 @@ namespace NumpyDotNet
             out int longsize, out int longLongSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_GetArrayDims")]
-        unsafe private static extern bool GetArrayDims(IntPtr arr, int numDims, Int64 *dimMem);
+            EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
+        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64 *dimMem);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,

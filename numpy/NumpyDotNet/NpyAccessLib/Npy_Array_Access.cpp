@@ -98,19 +98,22 @@ extern "C" __declspec(dllexport)
 
 // Fills in an int64 array with the dimensions of the array.
 extern "C" __declspec(dllexport)
-    bool _cdecl NpyArrayAccess_GetArrayDims(void *arrTmp, int ndims, npy_int64 *dims)
+    bool _cdecl NpyArrayAccess_GetArrayDimsOrStrides(void *arrTmp, int ndims, bool dims, 
+        npy_int64 *retPtr)
 {
     NpyArray *arr = (NpyArray *)arrTmp;
     assert(NPY_VALID_MAGIC == arr->nob_magic_number);
 
+    npy_intp *srcPtr = dims ? arr->dimensions : arr->strides;
+
     if (ndims != arr->nd) return false;
     if (sizeof(npy_int64) == sizeof(npy_intp)) {
         // Fast if sizes are the same.
-        memcpy(dims, arr->dimensions, sizeof(npy_intp) * arr->nd);
+        memcpy(retPtr, srcPtr, sizeof(npy_intp) * arr->nd);
     } else {
         // Slower, but converts between sizes.
         for (int i = 0; i < arr->nd; i++) { 
-            dims[i] = arr->dimensions[i];
+            retPtr[i] = srcPtr[i];
         }
     }
     return true;

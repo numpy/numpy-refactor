@@ -188,11 +188,19 @@ namespace NumpyDotNet
             get { return new PythonTuple(this.Dims); }
         }
 
+
+        /// <summary>
+        /// Total number of elements in the array.
+        /// </summary>
+        public long size {
+            get { return (long)NpyCoreApi.NpyArray_Size(array); }
+        }
+
         /// <summary>
         /// Pointer to the internal memory. Should be used with great caution - memory
         /// is native memory, not managed memory.
         /// </summary>
-        internal IntPtr Data {
+        public IntPtr data {
             get { return Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
@@ -210,15 +218,18 @@ namespace NumpyDotNet
             }
         }
 
+        /// <summary>
+        /// Returns an array of the stride of each dimension.
+        /// </summary>
+        public Int64[] strides {
+            get { return NpyCoreApi.GetArrayDimsOrStrides(this, false); }
+        }
 
         public override string ToString() {
             return BuildStringRepr(false);
         }
 
 
-        public long Stride(int dimension) {
-            return NpyCoreApi.GetArrayStride(Array, dimension);
-        }
         #endregion
 
 
@@ -266,7 +277,18 @@ namespace NumpyDotNet
         /// worth caching the results if used in a loop.
         /// </summary>
         public Int64[] Dims {
-            get { return NpyCoreApi.GetArrayDims(this); }
+            get { return NpyCoreApi.GetArrayDimsOrStrides(this, true); }
+        }
+
+
+        /// <summary>
+        /// Returns the stride of a given dimension. For looping over all dimensions,
+        /// use 'strides'.  This is more efficient if only one dimension is of interest.
+        /// </summary>
+        /// <param name="dimension">Dimension to query</param>
+        /// <returns>Data stride in bytes</returns>
+        public long Stride(int dimension) {
+            return NpyCoreApi.GetArrayStride(Array, dimension);
         }
 
 
@@ -310,7 +332,7 @@ namespace NumpyDotNet
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();
             if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, 0, 0)) {
+            if (!DumpData(sb, this.Dims, this.strides, 0, 0)) {
                 return null;
             }
 
@@ -334,7 +356,7 @@ namespace NumpyDotNet
         /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
         /// <param name="offset">Byte offset into data array, starts at 0</param>
         /// <returns>True on success, false on failure</returns>
-        private bool DumpData(StringBuilder sb, long[] dimensions,
+        private bool DumpData(StringBuilder sb, long[] dimensions, long[] strides,
             int dimIdx, long offset) {
 
             if (dimIdx == ndim) {
@@ -346,8 +368,8 @@ namespace NumpyDotNet
             } else {
                 sb.Append('[');
                 for (int i = 0; i < dimensions[dimIdx]; i++) {
-                    if (!DumpData(sb, dimensions, dimIdx + 1,
-                                  offset + this.Stride(dimIdx) * i)) {
+                    if (!DumpData(sb, dimensions, strides, dimIdx + 1,
+                                  offset + strides[dimIdx] * i)) {
                         return false;
                     }
                     if (i < dimensions[dimIdx] - 1) {
