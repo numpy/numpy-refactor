@@ -257,6 +257,5 @@ namespace NumpyDotNet {
                 throw new ArgumentException(String.Format("Argument '{0}' is not a valid index.", arg));
             }
         }
-
     }
 }
