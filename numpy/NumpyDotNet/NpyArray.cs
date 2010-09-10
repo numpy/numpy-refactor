@@ -54,7 +54,7 @@ namespace NumpyDotNet {
             } else {
                 dtype type = FindScalarType(src);
                 if (type != null) {
-                    result = FromScalar(src, descr); // descr, not type - user might want different type
+                    result = FromScalar(src, (descr != null ? descr : type));
                 } else {
                     if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0)
                         throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
