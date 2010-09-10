@@ -84,7 +84,9 @@ namespace NumpyDotNet
             NPY_SIGNEDLTR = (byte)'i',
             NPY_UNSIGNEDLTR = (byte)'u',
             NPY_FLOATINGLTR = (byte)'f',
-            NPY_COMPLEXLTR = (byte)'c'
+            NPY_COMPLEXLTR = (byte)'c',
+
+            NPY_NOTYPELTR = 0
         }
 
         
@@ -348,18 +350,6 @@ namespace NumpyDotNet
         #region NpyAccessLib functions
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_ArrayGetOffsets")]
-        unsafe private static extern void ArrayGetOffsets(int *magicNumOffset,
-            int *descrOffset, int *ndOffset, int *flagsOffset, int *dataOffset);
-
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_DescrGetOffsets")]
-        unsafe private static extern void DescrGetOffsets(int* magicNumOffset,
-            int* kindOffset, int* typeOffset, int* byteorderOffset,
-            int* flagsOffset, int* typenumOffset, int* elsizeOffset, 
-            int* alignmentOffset, int* namesOFfset, int* subarrayOffset);
-
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArraySetDescr")]
         internal static extern void ArraySetDescr(IntPtr array, IntPtr newDescr);
 
@@ -373,7 +363,8 @@ namespace NumpyDotNet
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
-        unsafe private static extern byte GetNativeTypeInfo(int *intSize, int *longsize, int *longLongSize);
+        private static extern byte GetNativeTypeInfo(out int intSize, 
+            out int longsize, out int longLongSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDims")]
@@ -386,6 +377,23 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayStride")]
         internal static extern long GetArrayStride(IntPtr arr, int dims);
+
+        //
+        // Offset functions - these return the offsets to fields in native structures
+        // as a workaround for not being able to include the C header file.
+        //
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_ArrayGetOffsets")]
+        private static extern void ArrayGetOffsets(out int magicNumOffset,
+            out int descrOffset, out int ndOffset, out int flagsOffset, out int dataOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_DescrGetOffsets")]
+        private static extern void DescrGetOffsets(out int magicNumOffset,
+            out int kindOffset, out int typeOffset, out int byteorderOffset,
+            out int flagsOffset, out int typenumOffset, out int elsizeOffset,
+            out int alignmentOffset, out int namesOFfset, out int subarrayOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
@@ -606,18 +614,20 @@ namespace NumpyDotNet
         /// new handle to it as well.  Must be done atomically.
         /// </summary>
         /// <param name="ptr">Pointer to GCHandle of object to reference</param>
+        /// <param name="nobInterfacePtr">Address of the nob_interface field (not value of it)</param>
         /// <returns>New handle to the input object</returns>
-        private static IntPtr IncrefCallback(IntPtr ptr, IntPtr wrapPtr) {
-            object obj = GCHandle.FromIntPtr(ptr).Target;
-            IntPtr retval = GCHandle.ToIntPtr(GCHandle.Alloc(obj));
-            if (wrapPtr != IntPtr.Zero) {
+        private static IntPtr IncrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
+            GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
+            object wrapperObj = oldWrapRef.Target;
+            IntPtr newWrapRef = GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj));
+            if (nobInterfacePtr != IntPtr.Zero) {
                 lock (interfaceSyncRoot) {
-                    GCHandle old = GCHandle.FromIntPtr(wrapPtr);
-                    wrapPtr = retval;
-                    old.Free();
+                    // Replace the contents of nobInterfacePtr with the new reference.
+                    Marshal.WriteIntPtr(nobInterfacePtr, newWrapRef);
+                    oldWrapRef.Free();
                 }
             }
-            return retval;
+            return newWrapRef;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate IntPtr del_Incref(IntPtr ptr, IntPtr wrapPtr);
@@ -628,21 +638,17 @@ namespace NumpyDotNet
         /// not be used again.
         /// </summary>
         /// <param name="ptr">Interface object to 'decref'</param>
-        private static void DecrefCallback(IntPtr ptr, IntPtr wrapPtr) {
-            if (wrapPtr != IntPtr.Zero) {
+        private static void DecrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
+            if (nobInterfacePtr != IntPtr.Zero) {
                 // Deferencing the interface wrapper.  We can't just null the
                 // wrapPtr because we have to have maintain the link so we
                 // allocate a weak reference instead.
-                GCHandle handle = GCHandle.FromIntPtr(ptr);
-                Object target = handle.Target;
                 lock (interfaceSyncRoot) {
-                    if (ptr == Marshal.ReadIntPtr(wrapPtr)) {
-                        Marshal.WriteIntPtr(wrapPtr,
-                            GCHandle.ToIntPtr(GCHandle.Alloc(target, GCHandleType.Weak)));
-                    } else {
-                        Console.WriteLine("Unexpected decref where wrapPtr != ptr.");
-                    }
-                    handle.Free();
+                    GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
+                    Object wrapperObj = oldWrapRef.Target;
+                    Marshal.WriteIntPtr(nobInterfacePtr,
+                        GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj, GCHandleType.Weak)));
+                    oldWrapRef.Free();
                 }
             } else {
                 GCHandle.FromIntPtr(ptr).Free();
@@ -836,31 +842,22 @@ namespace NumpyDotNet
             // Initialize the offsets to each structure type for fast access
             // TODO: Not sure if this is a great way to do this, but for now it's
             // a convenient way to get hard field offsets from the core.
-            unsafe {
-                fixed (int* magicOffset = &ArrayOffsets.off_magic_number,
-                            descrOffset = &ArrayOffsets.off_descr,
-                            flagsOffset = &ArrayOffsets.off_flags,
-                            ndOffset = &ArrayOffsets.off_nd,
-                            dataOffset = &ArrayOffsets.off_data) {
-                    ArrayGetOffsets(magicOffset, descrOffset, 
-                                    ndOffset, flagsOffset, dataOffset);
-                }
+            ArrayGetOffsets(out ArrayOffsets.off_magic_number,
+                            out ArrayOffsets.off_descr,
+                            out ArrayOffsets.off_nd,
+                            out ArrayOffsets.off_flags,
+                            out ArrayOffsets.off_data);
 
-                fixed (int* magicOffset = &DescrOffsets.off_magic_number,
-                            kindOffset = &DescrOffsets.off_kind,
-                            typeOffset = &DescrOffsets.off_type,
-                            byteorderOffset = &DescrOffsets.off_byteorder,
-                            flagsOffset = &DescrOffsets.off_flags,
-                            typenumOffset = &DescrOffsets.off_type_num,
-                            elsizeOffset = &DescrOffsets.off_elsize,
-                            alignmentOffset = &DescrOffsets.off_alignment,
-                            namesOffset = &DescrOffsets.off_names,
-                            subarrayOffset = &DescrOffsets.off_subarray) {
-                    DescrGetOffsets(magicOffset, kindOffset, typeOffset,
-                        byteorderOffset, flagsOffset, typenumOffset, elsizeOffset,
-                        alignmentOffset, namesOffset, subarrayOffset);
-                }
-            }
+            DescrGetOffsets(out DescrOffsets.off_magic_number,
+                            out DescrOffsets.off_kind,
+                            out DescrOffsets.off_type,
+                            out DescrOffsets.off_byteorder,
+                            out DescrOffsets.off_flags,
+                            out DescrOffsets.off_type_num,
+                            out DescrOffsets.off_elsize,
+                            out DescrOffsets.off_alignment,
+                            out DescrOffsets.off_names,
+                            out DescrOffsets.off_subarray);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 
@@ -868,9 +865,8 @@ namespace NumpyDotNet
             // figure out the mapping between types that vary in size in the core and
             // fixed-size .NET types.
             int intSize, longSize, longLongSize;
-            unsafe {
-                nativeByteOrder = GetNativeTypeInfo(&intSize, &longSize, &longLongSize);
-            }
+            nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+            
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
                 TypeOf_Int32 = NPY_TYPES.NPY_INT;
                 TypeOf_Int64 = NPY_TYPES.NPY_LONGLONG;

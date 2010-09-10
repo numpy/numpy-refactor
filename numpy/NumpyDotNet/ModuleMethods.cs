@@ -23,7 +23,8 @@ namespace NumpyDotNet {
         /// <returns>New array object</returns>
         public static ndarray array(CodeContext cntx, Object o, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] args = { o };
-            return array_fromobject(NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
+            return arrayFromObject(cntx.LanguageContext,
+                NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
         }
 
         /// <summary>
@@ -38,12 +39,13 @@ namespace NumpyDotNet {
         public static ndarray array(CodeContext cntx, Object o, Object descr, 
             [ParamDictionary] IAttributesCollection kwargs) {
             Object[] args = { o, descr };
-            return array_fromobject(NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
+            return arrayFromObject(cntx.LanguageContext,
+                NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
         }
 
 
 
-        internal static ndarray array_fromobject(Object[] args) {
+        internal static ndarray arrayFromObject(PythonContext cntx, Object[] args) {
             Object src = args[0];
             dtype type = null;
             bool copy = true;
@@ -58,7 +60,7 @@ namespace NumpyDotNet {
                         "Object can not be null/none.");
                 }
 
-                if (args[1] != null) type = NpyDescr.DescrConverter(args[1]);
+                if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
                 if (args[3] != null && args[3] is string &&
