@@ -152,3 +152,10 @@ extern "C" __declspec(dllexport)
     return NpyArray_STRIDE(arr, dim);
 }
 
+extern "C" __declspec(dllexport)
+	void _cdecl NpyArrayAccess_GetIndexInfo(int *unionOffset, int* indexSize, int* maxDims)
+{
+	*unionOffset = offsetof(NpyIndex, index);
+	*indexSize = sizeof(NpyIndex);
+	*maxDims = NPY_MAXDIMS;
+}
