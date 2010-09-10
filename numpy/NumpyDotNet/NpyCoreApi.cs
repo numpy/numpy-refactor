@@ -384,6 +384,9 @@ namespace NumpyDotNet
             EntryPoint = "NpyArrayAccess_GetArrayStride")]
         internal static extern long GetArrayStride(IntPtr arr, int dims);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetIndexInfo")]
+        internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
         #endregion
 
@@ -433,9 +436,17 @@ namespace NumpyDotNet
             internal int off_subarray;
         }
 
+        internal struct NpyArrayIndexInfo
+        {
+            internal int off_union;
+            internal int sizeof_index;
+            internal int max_dims;
+        }
+
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
+        internal static readonly NpyArrayIndexInfo IndexInfo;
 
         internal static byte nativeByteOrder;
 
@@ -847,6 +858,8 @@ namespace NumpyDotNet
                         alignmentOffset, namesOffset, subarrayOffset);
                 }
             }
+
+            GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 
             // Check the native byte ordering (make sure it matches what .NET uses) and
             // figure out the mapping between types that vary in size in the core and
