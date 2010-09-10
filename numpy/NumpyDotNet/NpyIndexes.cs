@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,10 +18,10 @@ namespace NumpyDotNet
 
         ~NpyIndexes()
         {
-            free_indexes();
+            FreeIndexes();
         }
 
-        private void free_indexes()
+        private void FreeIndexes()
         {
             if (indexes != IntPtr.Zero) {
                 if (num_indexes > 0)
@@ -36,7 +36,7 @@ namespace NumpyDotNet
 
         public void Dispose()
         {
-            free_indexes();
+            FreeIndexes();
         }
 
         public int NumIndexes
@@ -69,7 +69,7 @@ namespace NumpyDotNet
             NEW_AXIS
         }
 
-        public void add_index(IntPtr value)
+        public void AddIndex(IntPtr value)
         {
             // Write the type
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
@@ -82,7 +82,7 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
-        public void add_index(ISlice slice)
+        public void AddIndex(ISlice slice)
         {
             IntPtr step;
             bool negativeStep;
@@ -153,14 +153,14 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
-        public void add_new_axis()
+        public void AddNewAxis()
         {
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.NEW_AXIS);
             ++num_indexes;
         }
 
-        public void add_ellipsis()
+        public void AddEllipsis()
         {
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.ELLIPSIS);
