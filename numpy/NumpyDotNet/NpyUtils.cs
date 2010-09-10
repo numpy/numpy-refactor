@@ -223,33 +223,33 @@ namespace NumpyDotNet {
         {
             if (arg == null)
             {
-                indexes.add_new_axis();
+                indexes.AddNewAxis();
             }
             else if (arg is IronPython.Runtime.Types.Ellipsis)
             {
-                indexes.add_ellipsis();
+                indexes.AddEllipsis();
             }
             else if (arg is ISlice)
             {
-                indexes.add_index((ISlice)arg);
+                indexes.AddIndex((ISlice)arg);
             }
             else if (arg is int)
             {
-                indexes.add_index((IntPtr)(int)arg);
+                indexes.AddIndex((IntPtr)(int)arg);
             }
             else if (arg is long)
             {
-                indexes.add_index((IntPtr)(long)arg);
+                indexes.AddIndex((IntPtr)(long)arg);
             }
             else if (arg is IConvertible)
             {
                 if (IntPtr.Size == 4)
                 {
-                    indexes.add_index((IntPtr)Convert.ToInt32(arg));
+                    indexes.AddIndex((IntPtr)Convert.ToInt32(arg));
                 }
                 else
                 {
-                    indexes.add_index((IntPtr)Convert.ToInt64(arg));
+                    indexes.AddIndex((IntPtr)Convert.ToInt64(arg));
                 }
             }
             else
