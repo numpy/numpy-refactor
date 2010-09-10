@@ -126,6 +126,21 @@ namespace NumpyDotNet
             return BuildStringRepr(true);
         }
 
+        public virtual string __str__(CodeContext context) {
+            // TODO: No support for user-set string function
+            return BuildStringRepr(false);
+        }
+
+        /// <summary>
+        /// Returns the length of dimension zero of the array
+        /// </summary>
+        /// <returns>Length of the first dimension</returns>
+        public virtual int __len__() {
+            if (ndim == 0) {
+                throw new ArgumentTypeException("len() of unsized object");
+            }
+            return (int)Dims[0];
+        }
 
         #endregion
 
