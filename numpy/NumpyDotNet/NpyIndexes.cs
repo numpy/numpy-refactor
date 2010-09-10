@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Runtime.InteropServices;
+
+namespace NumpyDotNet
+{
+
+    internal class NpyIndexes : IDisposable
+    {
+
+        public NpyIndexes()
+        {
+            indexes = Marshal.AllocCoTaskMem(NpyCoreApi.IndexInfo.sizeof_index * NpyCoreApi.IndexInfo.max_dims);
+        }
+
+        ~NpyIndexes()
+        {
+            free_indexes();
+        }
+
+        private void free_indexes()
+        {
+            if (indexes != IntPtr.Zero) {
+                if (num_indexes > 0)
+                {
+                    NpyCoreApi.NpyArray_IndexDealloc(indexes, num_indexes);
+                    num_indexes = 0;
+                }
+                Marshal.FreeCoTaskMem(indexes);
+                indexes = IntPtr.Zero;
+            }
+        }
+
+        public void Dispose()
+        {
+            free_indexes();
+        }
+
+        public int NumIndexes
+        {
+            get
+            {
+                return num_indexes;
+            }
+        }
+
+        public IntPtr Indexes
+        {
+            get
+            {
+                return indexes;
+            }
+        }
+
+        // The must be kept in sync with NpyIndex.h
+        private enum NpyIndexTypes
+        {
+            INTP,
+            BOOL,
+            SLICE_NOSTOP,
+            SLICE,
+            STRING,
+            BOOL_ARRAY,
+            INTP_ARRAY,
+            ELLIPSIS,
+            NEW_AXIS
+        }
+
+        public void add_index(IntPtr value)
+        {
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.INTP);
+
+            // Write the data
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Marshal.WriteIntPtr(indexes + offset, value);
+
+            ++num_indexes;
+        }
+
+
+        private int num_indexes;
+        private IntPtr indexes;
+    }
+}

@@ -57,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NpyIndexes.cs" />
     <Compile Include="dtype.cs" />
     <Compile Include="ModuleMethods.cs" />
     <Compile Include="ndarray.cs" />

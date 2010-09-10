@@ -124,7 +124,17 @@ namespace NumpyDotNet
         // TODO: Assumes contiguous, C-array for now
         public Object this[params object[] args] {
             get {
-                return dtype.f.GetItem(ComputeOffset(args), this);
+                using (NpyIndexes indexes = new NpyIndexes())
+                {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
+                            NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
+                    if (result.ndim == 0) {
+                        return result.dtype.f.GetItem(0, result);
+                    } else {
+                        return result;
+                    }
+                }
             }
             set {
                 long offset = ComputeOffset(args);

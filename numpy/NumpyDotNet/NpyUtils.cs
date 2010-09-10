@@ -191,4 +191,28 @@ namespace NumpyDotNet {
         }
 #endif
     }
+
+
+    internal static class NpyUtil_IndexProcessing
+    {
+        public static void IndexConverter(Object[] indexArgs, NpyIndexes indexes)
+        {
+            foreach (Object arg in indexArgs)
+            {
+                if (arg is int) {
+                    indexes.add_index((IntPtr)(int)arg);
+                } else if (arg is long) {
+                    indexes.add_index((IntPtr)(long)arg);
+                } else if (arg is IConvertible) {
+                    if (IntPtr.Size == 4) {
+                        indexes.add_index((IntPtr)Convert.ToInt32(arg));
+                    } else {
+                        indexes.add_index((IntPtr)Convert.ToInt64(arg));
+                    }
+                } else {
+                    throw new ArgumentException(String.Format("Argument '{0}' is not a valid index.", arg));
+                }
+            }
+        }
+    }
 }
