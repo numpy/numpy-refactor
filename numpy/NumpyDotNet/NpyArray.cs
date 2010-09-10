@@ -52,16 +52,21 @@ namespace NumpyDotNet {
             if (src is ndarray) {
                 result = FromArray((ndarray)src, descr, flags);
             } else {
-                if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0)
-                    throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
-
-                if (src is IEnumerable<Object>) {
-                    Console.WriteLine("Enumerable type = {0}", src.GetType().ToString());
-                    result = FromIEnumerable((IEnumerable<Object>)src, descr,
-                        (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
+                dtype type = FindScalarType(src);
+                if (type != null) {
+                    result = FromScalar(src, descr); // descr, not type - user might want different type
                 } else {
-                    throw new NotImplementedException(
-                        String.Format("In FromArray, type {0} is not handled yet.", src.GetType().ToString()));
+                    if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0)
+                        throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
+
+                    if (src is IEnumerable<Object>) {
+                        Console.WriteLine("Enumerable type = {0}", src.GetType().ToString());
+                        result = FromIEnumerable((IEnumerable<Object>)src, descr,
+                            (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
+                    } else {
+                        throw new NotImplementedException(
+                            String.Format("In FromArray, type {0} is not handled yet.", src.GetType().ToString()));
+                    }
                 }
             }
             return result;
@@ -82,6 +87,41 @@ namespace NumpyDotNet {
         }
 
 
+        internal static ndarray FromScalar(object src, dtype descr) {
+            int itemsize = descr.ElementSize;
+            NpyDefs.NPY_TYPES type = descr.TypeNum;
+
+            if (itemsize == 0 && NpyDefs.IsExtended(type)) {
+                if (src is string) itemsize = ((string)src).Length;
+                else if (src is Array) itemsize = ((Array)src).Length;
+                else itemsize = 1;
+
+                throw new NotImplementedException("Need to figure out storage/handling of strings.");
+            }
+
+            ndarray result = NpyCoreApi.AllocArray(descr, 0, null, false);
+            if (result.ndim > 0) {
+                throw new ArgumentException("shape-mismatch on array construction");
+            }
+
+            result.dtype.f.SetItem(src, 0, result);
+            return result;
+        }
+
+
+        /// <summary>
+        /// Builds an array from a sequence of objects.  The elements of the sequence
+        /// can also be sequences in which case this function recursively walks the
+        /// nested sequences and builds an n dimentional array.
+        /// 
+        /// IronPython tuples and lists work as sequences.
+        /// </summary>
+        /// <param name="src">Input sequence</param>
+        /// <param name="descr">Desired array element type or null to determine automatically</param>
+        /// <param name="fortran">True if array should be Fortran layout, false for C</param>
+        /// <param name="minDepth"></param>
+        /// <param name="maxDepth"></param>
+        /// <returns>New array instance</returns>
         internal static ndarray FromIEnumerable(IEnumerable<Object> src, dtype descr, 
             bool fortran, int minDepth, int maxDepth) {
             ndarray result = null;
@@ -130,6 +170,7 @@ namespace NumpyDotNet {
         }
         
         internal static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
+            // TODO: Unimplemented
             return arr;
         }
 

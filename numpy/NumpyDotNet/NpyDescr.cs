@@ -17,7 +17,6 @@ namespace NumpyDotNet {
 
         internal static dtype DescrConverter(PythonContext cntx, Object obj) {
             dtype result;
-            NpyDefs.NPY_TYPECHAR type;
 
             if (obj is dtype) result = (dtype)obj;
             else if (obj is IronPython.Runtime.Types.PythonType) {

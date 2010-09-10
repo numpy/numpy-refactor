@@ -126,58 +126,6 @@ namespace NumpyDotNet
             return BuildStringRepr(true);
         }
 
-        private string BuildStringRepr(bool repr) {
-            // Equivalent to array_repr_builtin (arrayobject.c)
-            StringBuilder sb = new StringBuilder();
-            if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, 0, 0)) {
-                return null;
-            }
-
-            if (repr) {
-                if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
-                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, this.dtype.ElementSize);
-                } else {
-                    sb.AppendFormat(", '{0}')", (char)dtype.Type);
-                }
-            }
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// Recursively walks the array and appends a representation of each element
-        /// to the passed string builder.  Square brackets delimit each array dimension.
-        /// </summary>
-        /// <param name="sb">StringBuilder instance to append to</param>
-        /// <param name="dimensions">Array of size of each dimension</param>
-        /// <param name="strides">Offset in bytes to reach next element in each dimension</param>
-        /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
-        /// <param name="offset">Byte offset into data array, starts at 0</param>
-        /// <returns>True on success, false on failure</returns>
-        private bool DumpData(StringBuilder sb, long[] dimensions,
-            int dimIdx, long offset) {
-
-            if (dimIdx == ndim) {
-                Object value = dtype.f.GetItem(offset, this);
-                if (value == null) return false;
-
-                MethodInfo repr = value.GetType().GetMethod("__repr__");
-                sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
-            } else {
-                sb.Append('[');
-                for (int i = 0; i < dimensions[dimIdx]; i++) {
-                    if (!DumpData(sb, dimensions, dimIdx + 1,
-                                  offset + this.Stride(dimIdx) * i)) {
-                        return false;
-                    }
-                    if (i < dimensions[dimIdx] - 1) {
-                        sb.Append(", ");
-                    }
-                }
-                sb.Append(']');
-            }
-            return true;
-        }
 
         #endregion
 
@@ -249,6 +197,32 @@ namespace NumpyDotNet
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
         }
+
+
+        /// <summary>
+        /// Directly accesses the array memory and returns the object at that
+        /// offset.  No checks are made, caller can easily crash the program
+        /// or retrieve garbage data.
+        /// </summary>
+        /// <param name="offset">Offset into data array in bytes</param>
+        /// <returns>Contents of the location</returns>
+        internal object GetItem(long offset) {
+            return dtype.f.GetItem(offset, this);
+        }
+
+
+        /// <summary>
+        /// Directly sets a given location in the data array.  No checks are
+        /// made to make sure the offset is sensible or the data is valid in
+        /// anyway -- caller beware.
+        /// 'internal' because this is a security vulnerability.
+        /// </summary>
+        /// <param name="src">Value to write</param>
+        /// <param name="offset">Offset into array in bytes</param>
+        internal void SetItem(object src, long offset) {
+            dtype.f.SetItem(src, offset, this);
+        }
+
 
         /// <summary>
         /// Handle to the core representation.
@@ -334,6 +308,59 @@ namespace NumpyDotNet
                 throw new NotImplementedException("Invalid/unimplemented index type.");
             }
             return offset;
+        }
+
+        private string BuildStringRepr(bool repr) {
+            // Equivalent to array_repr_builtin (arrayobject.c)
+            StringBuilder sb = new StringBuilder();
+            if (repr) sb.Append("array(");
+            if (!DumpData(sb, this.Dims, 0, 0)) {
+                return null;
+            }
+
+            if (repr) {
+                if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
+                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, this.dtype.ElementSize);
+                } else {
+                    sb.AppendFormat(", '{0}')", (char)dtype.Type);
+                }
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Recursively walks the array and appends a representation of each element
+        /// to the passed string builder.  Square brackets delimit each array dimension.
+        /// </summary>
+        /// <param name="sb">StringBuilder instance to append to</param>
+        /// <param name="dimensions">Array of size of each dimension</param>
+        /// <param name="strides">Offset in bytes to reach next element in each dimension</param>
+        /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
+        /// <param name="offset">Byte offset into data array, starts at 0</param>
+        /// <returns>True on success, false on failure</returns>
+        private bool DumpData(StringBuilder sb, long[] dimensions,
+            int dimIdx, long offset) {
+
+            if (dimIdx == ndim) {
+                Object value = dtype.f.GetItem(offset, this);
+                if (value == null) return false;
+
+                MethodInfo repr = value.GetType().GetMethod("__repr__");
+                sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+            } else {
+                sb.Append('[');
+                for (int i = 0; i < dimensions[dimIdx]; i++) {
+                    if (!DumpData(sb, dimensions, dimIdx + 1,
+                                  offset + this.Stride(dimIdx) * i)) {
+                        return false;
+                    }
+                    if (i < dimensions[dimIdx] - 1) {
+                        sb.Append(", ");
+                    }
+                }
+                sb.Append(']');
+            }
+            return true;
         }
 
         #endregion
