@@ -17,7 +17,7 @@ namespace NumpyDotNet {
 
         internal static dtype DescrConverter(PythonContext cntx, Object obj) {
             dtype result;
-            NpyCoreApi.NPY_TYPECHAR type;
+            NpyDefs.NPY_TYPECHAR type;
 
             if (obj is dtype) result = (dtype)obj;
             else if (obj is IronPython.Runtime.Types.PythonType) {
@@ -49,17 +49,17 @@ namespace NumpyDotNet {
             Console.WriteLine("Type name = {0}", 
                 IronPython.Runtime.Types.PythonType.Get__name__(t));
 
-            NpyCoreApi.NPY_TYPES type;
-            if (t == PyInt_Type) type = NpyCoreApi.NPY_TYPES.NPY_INT;
-            else if (t == PyLong_Type) type = NpyCoreApi.NPY_TYPES.NPY_LONG;
-            else if (t == PyFloat_Type) type = NpyCoreApi.NPY_TYPES.NPY_FLOAT;
-            else if (t == PyDouble_Type) type = NpyCoreApi.NPY_TYPES.NPY_DOUBLE;
-            else if (t == PyBool_Type) type = NpyCoreApi.NPY_TYPES.NPY_BOOL;
-            else if (t == PyComplex_Type) type = NpyCoreApi.NPY_TYPES.NPY_CDOUBLE;
-            else if (t == PyUnicode_Type) type = NpyCoreApi.NPY_TYPES.NPY_UNICODE;
-            else type = NpyCoreApi.NPY_TYPES.NPY_NOTYPE;
+            NpyDefs.NPY_TYPES type;
+            if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_INT;
+            else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
+            else if (t == PyFloat_Type) type = NpyDefs.NPY_TYPES.NPY_FLOAT;
+            else if (t == PyDouble_Type) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
+            else if (t == PyBool_Type) type = NpyDefs.NPY_TYPES.NPY_BOOL;
+            else if (t == PyComplex_Type) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
+            else if (t == PyUnicode_Type) type = NpyDefs.NPY_TYPES.NPY_UNICODE;
+            else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
-            return (type != NpyCoreApi.NPY_TYPES.NPY_NOTYPE) ? NpyCoreApi.DescrFromType(type) : null;
+            return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ? NpyCoreApi.DescrFromType(type) : null;
         }
 
 

@@ -13,7 +13,7 @@ namespace NumpyDotNet {
         internal static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
             int maxDepth, int requires, Object context) {
 
-            if ((requires & NpyCoreApi.NPY_NOTSWAPPED) != 0) {
+                if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
                 if (descr != null && src is ndarray &&
                     ((ndarray)src).dtype.IsNativeByteOrder) {
                     descr = new dtype(((ndarray)src).dtype);
@@ -27,9 +27,9 @@ namespace NumpyDotNet {
 
             ndarray arr = FromAny(src, descr, minDepth, maxDepth, requires, context);
 
-            if (arr != null && (requires & NpyCoreApi.NPY_ELEMENTSTRIDES) != 0 &&
+            if (arr != null && (requires & NpyDefs.NPY_ELEMENTSTRIDES) != 0 &&
                 arr.ElementStrides == 0) {
-                arr = arr.NewCopy(NpyCoreApi.NPY_ORDER.NPY_ANYORDER);
+                    arr = arr.NewCopy(NpyDefs.NPY_ORDER.NPY_ANYORDER);
             }
             return arr;
         }
@@ -52,13 +52,13 @@ namespace NumpyDotNet {
             if (src is ndarray) {
                 result = FromArray((ndarray)src, descr, flags);
             } else {
-                if ((flags & NpyCoreApi.NPY_UPDATEIFCOPY) != 0)
+                if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0)
                     throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
 
                 if (src is IEnumerable<Object>) {
                     Console.WriteLine("Enumerable type = {0}", src.GetType().ToString());
                     result = FromIEnumerable((IEnumerable<Object>)src, descr,
-                        (flags & NpyCoreApi.NPY_FORTRAN) != 0, minDepth, maxDepth);
+                        (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
                 } else {
                     throw new NotImplementedException(
                         String.Format("In FromArray, type {0} is not handled yet.", src.GetType().ToString()));
@@ -87,24 +87,24 @@ namespace NumpyDotNet {
             ndarray result = null;
 
             if (descr == null) {
-                descr = FindArrayType(src, null, NpyCoreApi.NPY_MAXDIMS);
+                descr = FindArrayType(src, null, NpyDefs.NPY_MAXDIMS);
             }
 
-            NpyCoreApi.NPY_TYPES type = descr.TypeNum;
-            bool checkIt = (descr.Type == NpyCoreApi.NPY_TYPECHAR.NPY_CHARLTR);
+            NpyDefs.NPY_TYPES type = descr.TypeNum;
+            bool checkIt = (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR);
             bool stopAtString =
-                type != NpyCoreApi.NPY_TYPES.NPY_STRING ||
-                descr.Type == NpyCoreApi.NPY_TYPECHAR.NPY_STRINGLTR;
+                type != NpyDefs.NPY_TYPES.NPY_STRING ||
+                descr.Type == NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR;
             bool stopAtTuple =
-                type == NpyCoreApi.NPY_TYPES.NPY_VOID &&
+                type == NpyDefs.NPY_TYPES.NPY_VOID &&
                 (descr.HasNames || descr.HasSubarray);
 
-            int numDim = DiscoverDepth(src, NpyCoreApi.NPY_MAXDIMS + 1, stopAtString, stopAtTuple);
+            int numDim = DiscoverDepth(src, NpyDefs.NPY_MAXDIMS + 1, stopAtString, stopAtTuple);
             if (numDim == 0) {
                 // TODO: Handle scalar conversion
                 throw new NotImplementedException("Scalar-to-array conversion not implemented");
             } else {
-                if (maxDepth > 0 && type == NpyCoreApi.NPY_TYPES.NPY_OBJECT &&
+                if (maxDepth > 0 && type == NpyDefs.NPY_TYPES.NPY_OBJECT &&
                     numDim > maxDepth) {
                     numDim = maxDepth;
                 }   
@@ -115,7 +115,7 @@ namespace NumpyDotNet {
 
                 long[] dims = new long[numDim];
                 if (DiscoverDimensions(src, numDim, dims, 0, checkIt)) {
-                    if (descr.Type == NpyCoreApi.NPY_TYPECHAR.NPY_CHARLTR &&
+                    if (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
                         numDim > 0 && dims[numDim - 1] == 1) {
                         // TODO: Check this. Is this because it stores a string
                         // pointer in each array entry?
@@ -145,8 +145,8 @@ namespace NumpyDotNet {
             }
             
             // If a minimum type wasn't give, default to bool.
-            if (minitype == null) 
-                minitype = NpyCoreApi.DescrFromType(NpyCoreApi.NPY_TYPES.NPY_BOOL);
+            if (minitype == null)
+                minitype = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL);
 
             if (max >= 0) {
                 chktype = FindScalarType(src);
@@ -160,8 +160,8 @@ namespace NumpyDotNet {
                     if (src is IEnumerable<Object>) {
                         IEnumerable<Object> seq = (IEnumerable<Object>)src;
 
-                        if (seq.Count() == 0 && minitype.TypeNum == NpyCoreApi.NPY_TYPES.NPY_BOOL) {
-                            minitype = NpyCoreApi.DescrFromType(NpyCoreApi.DefaultType);
+                        if (seq.Count() == 0 && minitype.TypeNum == NpyDefs.NPY_TYPES.NPY_BOOL) {
+                            minitype = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
                         }
                         minitype = seq.Aggregate(minitype,
                             (acc, obj) => NpyCoreApi.SmallType(FindArrayType(obj, acc, max - 1), acc));
@@ -177,9 +177,9 @@ namespace NumpyDotNet {
             // Final clean up, pick the min of the two types.  Void types
             // should only appear if the input was already void.
             chktype = NpyCoreApi.SmallType(chktype, minitype);
-            if (chktype.TypeNum == NpyCoreApi.NPY_TYPES.NPY_VOID &&
-                minitype.TypeNum != NpyCoreApi.NPY_TYPES.NPY_VOID) {
-                chktype = NpyCoreApi.DescrFromType(NpyCoreApi.NPY_TYPES.NPY_OBJECT);
+            if (chktype.TypeNum == NpyDefs.NPY_TYPES.NPY_VOID &&
+                minitype.TypeNum != NpyDefs.NPY_TYPES.NPY_VOID) {
+                    chktype = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT);
             }
             return chktype;
         }
@@ -196,23 +196,23 @@ namespace NumpyDotNet {
         /// <param name="src">Object to type</param>
         /// <returns>Descriptor for type of 'src' or null if not scalar</returns>
         internal static dtype FindScalarType(Object src) {
-            NpyCoreApi.NPY_TYPES type;
+            NpyDefs.NPY_TYPES type;
 
             // TODO: Complex numbers not handled.  
             // TODO: Are int32/64 -> long, longlong correct?
-            if (src is Double) type = NpyCoreApi.NPY_TYPES.NPY_DOUBLE;
-            else if (src is Single) type = NpyCoreApi.NPY_TYPES.NPY_FLOAT;
-            else if (src is Boolean) type = NpyCoreApi.NPY_TYPES.NPY_BOOL;
-            else if (src is Byte) type = NpyCoreApi.NPY_TYPES.NPY_BYTE;
-            else if (src is Int16) type = NpyCoreApi.NPY_TYPES.NPY_SHORT;
+            if (src is Double) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
+            else if (src is Single) type = NpyDefs.NPY_TYPES.NPY_FLOAT;
+            else if (src is Boolean) type = NpyDefs.NPY_TYPES.NPY_BOOL;
+            else if (src is Byte) type = NpyDefs.NPY_TYPES.NPY_BYTE;
+            else if (src is Int16) type = NpyDefs.NPY_TYPES.NPY_SHORT;
             else if (src is Int32) type = NpyCoreApi.TypeOf_Int32;
             else if (src is Int64) type = NpyCoreApi.TypeOf_Int64;
-            else if (src is UInt16) type = NpyCoreApi.NPY_TYPES.NPY_USHORT;
+            else if (src is UInt16) type = NpyDefs.NPY_TYPES.NPY_USHORT;
             else if (src is UInt32) type = NpyCoreApi.TypeOf_UInt32;
             else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
-            else type = NpyCoreApi.NPY_TYPES.NPY_NOTYPE;
+            else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
-            return (type != NpyCoreApi.NPY_TYPES.NPY_NOTYPE) ?
+            return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ?
                 NpyCoreApi.DescrFromType(type) : null;
         }
 

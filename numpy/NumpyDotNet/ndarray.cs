@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 using IronPython.Runtime;
 using IronPython.Modules;
 using Microsoft.Scripting;
@@ -118,6 +119,67 @@ namespace NumpyDotNet
             GC.SuppressFinalize(this);
         }
 
+        #region Python methods
+
+        public virtual string __repr__(CodeContext context) {
+            // TODO: No support for user-set repr function.
+            return BuildStringRepr(true);
+        }
+
+        private string BuildStringRepr(bool repr) {
+            // Equivalent to array_repr_builtin (arrayobject.c)
+            StringBuilder sb = new StringBuilder();
+            if (repr) sb.Append("array(");
+            if (!DumpData(sb, this.Dims, 0, 0)) {
+                return null;
+            }
+
+            if (repr) {
+                if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
+                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, 0 /* this.ItemSize*/);
+                } else {
+                    sb.AppendFormat(", '{0}')", (char)dtype.Type);
+                }
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Recursively walks the array and appends a representation of each element
+        /// to the passed string builder.  Square brackets delimit each array dimension.
+        /// </summary>
+        /// <param name="sb">StringBuilder instance to append to</param>
+        /// <param name="dimensions">Array of size of each dimension</param>
+        /// <param name="strides">Offset in bytes to reach next element in each dimension</param>
+        /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
+        /// <param name="offset">Byte offset into data array, starts at 0</param>
+        /// <returns>True on success, false on failure</returns>
+        private bool DumpData(StringBuilder sb, long[] dimensions,
+            int dimIdx, long offset) {
+
+            if (dimIdx == ndim-1) {
+                Object value = dtype.f.GetItem(offset, this);
+                if (value == null) return false;
+
+                MethodInfo repr = value.GetType().GetMethod("__repr__");
+                sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+            } else {
+                sb.Append('[');
+                for (int i = 0; i < dimensions[dimIdx]; i++) {
+                    if (!DumpData(sb, dimensions, dimIdx + 1,
+                                  offset + this.Stride(dimIdx) * i)) {
+                        return false;
+                    }
+                    if (i < dimensions[dimIdx] - 1) {
+                        sb.Append(", ");
+                    }
+                }
+                sb.Append(']');
+            }
+            return true;
+        }
+
+        #endregion
 
         #region Public interfaces (must match CPython)
 
@@ -173,9 +235,7 @@ namespace NumpyDotNet
 
 
         public override string ToString() {
-            // TODO: Temporary implementation
-            return String.Format("Array[{0}], type = {1}",
-                String.Join(", ", this.Dims.Select(x => x.ToString())), this.dtype.Type);
+            return BuildStringRepr(false);
         }
 
 
@@ -185,7 +245,7 @@ namespace NumpyDotNet
         #endregion
 
 
-        public ndarray NewCopy(NpyCoreApi.NPY_ORDER order) {
+        public ndarray NewCopy(NpyDefs.NPY_ORDER order) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
         }
@@ -211,14 +271,14 @@ namespace NumpyDotNet
         /// True if memory layout of array is contiguous
         /// </summary>
         public bool IsContiguous {
-            get { return ChkFlags(NpyCoreApi.NPY_CONTIGUOUS); }
+            get { return ChkFlags(NpyDefs.NPY_CONTIGUOUS); }
         }
 
         /// <summary>
         /// True if memory layout is Fortran order, false implies C order
         /// </summary>
         public bool IsFortran {
-            get { return ChkFlags(NpyCoreApi.NPY_FORTRAN) && ndim > 1; }
+            get { return ChkFlags(NpyDefs.NPY_FORTRAN) && ndim > 1; }
         }
 
 
@@ -229,10 +289,10 @@ namespace NumpyDotNet
             get { return NpyCoreApi.NpyArray_ElementStrides(array); }
         }
 
-        public bool StridingOk(NpyCoreApi.NPY_ORDER order) {
-            return order == NpyCoreApi.NPY_ORDER.NPY_ANYORDER ||
-                order == NpyCoreApi.NPY_ORDER.NPY_CORDER && IsContiguous ||
-                order == NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
+        public bool StridingOk(NpyDefs.NPY_ORDER order) {
+            return order == NpyDefs.NPY_ORDER.NPY_ANYORDER ||
+                order == NpyDefs.NPY_ORDER.NPY_CORDER && IsContiguous ||
+                order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
         }
 
         private bool ChkFlags(int flag) {
