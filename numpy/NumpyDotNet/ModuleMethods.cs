@@ -49,7 +49,7 @@ namespace NumpyDotNet {
             Object src = args[0];
             dtype type = null;
             bool copy = true;
-            NpyCoreApi.NPY_ORDER order = NpyCoreApi.NPY_ORDER.NPY_ANYORDER;
+            NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_ANYORDER;
             bool subok = false;
             int ndmin = 0;
             ndarray result = null;
@@ -65,16 +65,16 @@ namespace NumpyDotNet {
 
                 if (args[3] != null && args[3] is string &&
                     String.Compare((String)args[3], "Fortran", true) == 0)
-                    order = NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER;
-                else order = NpyCoreApi.NPY_ORDER.NPY_CORDER;
+                    order = NpyDefs.NPY_ORDER.NPY_FORTRANORDER;
+                else order = NpyDefs.NPY_ORDER.NPY_CORDER;
 
                 if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
                 if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
-                if (ndmin >= NpyCoreApi.NPY_MAXDIMS) {
+                if (ndmin >= NpyDefs.NPY_MAXDIMS) {
                     throw new IronPython.Runtime.Exceptions.RuntimeException(
                         String.Format("ndmin ({0} bigger than allowable number of dimension ({1}).",
-                        ndmin, NpyCoreApi.NPY_MAXDIMS - 1));
+                        ndmin, NpyDefs.NPY_MAXDIMS - 1));
                 }
 
                 Console.WriteLine("copy = {0}, order = {1}, subok = {2}, ndmin = {3}",
@@ -110,17 +110,17 @@ namespace NumpyDotNet {
                 if (result == null) {
                     int flags = 0;
 
-                    if (copy) flags = NpyCoreApi.NPY_ENSURECOPY;
-                    if (order == NpyCoreApi.NPY_ORDER.NPY_CORDER) {
-                        flags |= NpyCoreApi.NPY_CONTIGUOUS;
-                    } else if (order == NpyCoreApi.NPY_ORDER.NPY_FORTRANORDER ||
+                    if (copy) flags = NpyDefs.NPY_ENSURECOPY;
+                    if (order == NpyDefs.NPY_ORDER.NPY_CORDER) {
+                        flags |= NpyDefs.NPY_CONTIGUOUS;
+                    } else if (order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER ||
                              src is ndarray && ((ndarray)src).IsFortran) {
-                        flags |= NpyCoreApi.NPY_FORTRAN;
+                                 flags |= NpyDefs.NPY_FORTRAN;
                     }
 
-                    if (!subok) flags |= NpyCoreApi.NPY_ENSUREARRAY;
+                    if (!subok) flags |= NpyDefs.NPY_ENSUREARRAY;
 
-                    flags |= NpyCoreApi.NPY_FORCECAST;
+                    flags |= NpyDefs.NPY_FORCECAST;
                     result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
                 }
 

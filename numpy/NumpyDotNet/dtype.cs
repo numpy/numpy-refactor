@@ -100,8 +100,8 @@ namespace NumpyDotNet {
             }
         }
 
-        public NpyCoreApi.NPY_TYPECHAR Type {
-            get { return (NpyCoreApi.NPY_TYPECHAR)Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_type); }
+        public NpyDefs.NPY_TYPECHAR Type {
+            get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_type); }
         }
 
         public byte ByteOrder {
@@ -112,8 +112,8 @@ namespace NumpyDotNet {
             get { return Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_flags); }
         }
 
-        public NpyCoreApi.NPY_TYPES TypeNum {
-            get { return (NpyCoreApi.NPY_TYPES)Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_type_num); }
+        public NpyDefs.NPY_TYPES TypeNum {
+            get { return (NpyDefs.NPY_TYPES)Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_type_num); }
         }
 
         public int ElementSize {
