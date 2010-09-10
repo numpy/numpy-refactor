@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
@@ -14,22 +15,21 @@ namespace NumpyDotNet {
     /// </summary>
     internal class NpyDescr {
 
-        internal static dtype DescrConverter(Object obj) {
+        internal static dtype DescrConverter(PythonContext cntx, Object obj) {
             dtype result;
+            NpyCoreApi.NPY_TYPECHAR type;
 
             if (obj is dtype) result = (dtype)obj;
             else if (obj is IronPython.Runtime.Types.PythonType) {
                 result = ConvertFromPythonType((IronPython.Runtime.Types.PythonType)obj);
             } else if (obj is string) {
                 string s = (string)obj;
-                if (CheckForDatetime(s)) {
-                    result = ConvertFromDatetime(s);
+                if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
+                    result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(s);
                 } else {
-                    // Try decoding a type string.
-                    throw new NotImplementedException(
-                        String.Format("Conversion of strings ({0}) to dtype is not yet implemented.", s));
+                    result = ConvertBracketString(s);
                 }
             } else {
                 throw new NotImplementedException(
@@ -63,25 +63,72 @@ namespace NumpyDotNet {
         }
 
 
+        /// <summary>
+        /// Checks to see if a given string matches any of date/time types.
+        /// </summary>
+        /// <param name="s">Type string</param>
+        /// <returns>True if it's a date/time format, false if not</returns>
         private static bool CheckForDatetime(String s) {
-            // TODO: Conversion from datetime strings is not implemented.
-            return false;
+            if (s.Length < 2) return false;
+            if (s[1] == '8' && (s[0] == 'M' || s[0] == 'm')) return true;
+            return s.StartsWith("datetime64") || s.StartsWith("timedelta64");
         }
 
-        private static dtype ConvertFromDatetime(String s) {
+        private static dtype ConvertFromDatetime(PythonContext cntx, String s) {
+            IEnumerable<Object> arf = ParseDatetimeString(cntx, s);
+            Console.WriteLine("Result is {0}, {1}", arf.First(), arf.Skip(1).First());
+
             throw new NotImplementedException();
         }
 
+
+        /// <summary>
+        /// Comma strings are ones that start with an integer, are empty tuples,
+        /// or contain commas.  
+        /// </summary>
+        /// <param name="s">Datetime format string</param>
+        /// <returns>True if a comma string</returns>
         private static bool CheckForCommaString(String s) {
-            // TODO: Conversion from comma strings is not implemented.
-            return false;
+            Func<char, bool> checkByteOrder = 
+                b => b == '>' || b == '<' || b == '|' || b == '=';
+
+            // Check for ints at the start of a string.
+            if (s[0] >= '0' && s[0] <= '9' ||
+                s.Length > 1 && checkByteOrder(s[0]) && s[1] >= '0' && s[1] <= '9')
+                return true;
+
+            // Empty tuples
+            if (s.Length > 1 && s[0] == '(' && s[1] == ')' ||
+                s.Length > 3 && checkByteOrder(s[0]) && s[1] == '(' && s[2] == ')')
+                return true;
+
+            // Any commas in the string?
+            return s.Contains(',');
         }
 
         private static dtype ConvertFromCommaString(String s) {
+            // TODO: Calls Python function, needs integration of numpy + .net interface
             throw new NotImplementedException();
         }
 
-        
+
+        private static dtype ConvertBracketString(String s) {
+            throw new NotImplementedException();
+        }
+
+        private static IEnumerable<Object> ParseDatetimeString(PythonContext cntx, String s) {
+            CallSite<Func<CallSite, String, Object>> site;
+
+            // Perform the operation based on the type of object we are looking at.
+            string[] argNames = {"astr"};
+            System.Dynamic.CallInfo call = new System.Dynamic.CallInfo(1, argNames);
+            var binder = cntx.CreateCallBinder("numpy._internal._datetimestring", true, call);
+            site = CallSite<Func<CallSite, String, Object>>.Create(binder);
+            
+            return site.Target(site, s) as IEnumerable<Object>;
+        }
+
+
         private static readonly PythonType PyInt_Type = DynamicHelpers.GetPythonTypeFromType(typeof(int));
         private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(long));
         private static readonly PythonType PyFloat_Type = DynamicHelpers.GetPythonTypeFromType(typeof(float));

@@ -84,7 +84,9 @@ namespace NumpyDotNet
             NPY_SIGNEDLTR = (byte)'i',
             NPY_UNSIGNEDLTR = (byte)'u',
             NPY_FLOATINGLTR = (byte)'f',
-            NPY_COMPLEXLTR = (byte)'c'
+            NPY_COMPLEXLTR = (byte)'c',
+
+            NPY_NOTYPELTR = 0
         }
 
         
