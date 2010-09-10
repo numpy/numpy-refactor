@@ -16,7 +16,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public class ndarray
+    public class ndarray : IDisposable
     {
         private static String[] ndarryArgNames = { "object", "dtype", "copy",
                                                      "order", "subok", "ndwin" };
@@ -137,10 +137,14 @@ namespace NumpyDotNet
                 }
             }
             set {
-                long offset = ComputeOffset(args);
-                dtype.f.SetItem(value, offset, this);
-                Console.WriteLine(String.Format("{0} = {1} vs {2}", offset, value,
-                    dtype.f.GetItem(offset, this)));
+                using (NpyIndexes indexes = new NpyIndexes())
+                {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    using (ndarray array_value = NpyArray.FromAny(value, null, 0, 0, 0, null))
+                    {
+                        NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array);
+                    }
+                }
             }
         }
 
@@ -252,39 +256,6 @@ namespace NumpyDotNet
 
 
         #region Internal methods
-
-        /// <summary>
-        /// Computes an offset into the byte array based on the provided index. The
-        /// index may be a sequence of integers or could be a list or tuple of integers.
-        /// </summary>
-        /// <param name="index">Index - array of ints or tuple/list of ints</param>
-        /// <returns>Byte offset into data array</returns>
-        private long ComputeOffset(object[] index) {
-            long offset = 0;
-
-            if (index.Length == this.ndim) {
-                // Since index elements is the same as the number of dimensions we
-                // assume that the elements are integers. Anything else is invalid.
-                for (int i = 0; i < this.ndim; i++) {
-                    long idx = 0;
-
-                    if (index[i] is long) idx = (long)index[i];
-                    else if (index[i] is int) idx = (long)(int)index[i];
-                    else {
-                        throw new IndexOutOfRangeException(
-                            String.Format("Index '{0}' at position {1} is not an integer.", index[i].ToString(), i));
-                    }
-                    offset += this.Stride(i) * idx;
-                }
-            } else if (index.Length == 1 && index[0] is IEnumerable<Object>) {
-                // Index is a sequence such as a tuple or list.
-                // TODO: Probably eed a more efficient implementation
-                offset = ComputeOffset(((IEnumerable<Object>)index[0]).ToArray());
-            } else {
-                throw new NotImplementedException("Invalid/unimplemented index type.");
-            }
-            return offset;
-        }
 
         #endregion
 
