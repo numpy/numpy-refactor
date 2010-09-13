@@ -163,9 +163,34 @@ namespace NumpyDotNet
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (indexes.IsSingleItem(ndim))
+                    {
+                        // Optimization for single item index.
+                        long offset = 0;
+                        Int64[] dims = Dims;
+                        Int64[] s = strides;
+                        for (int i = 0; i < ndim; i++)
+                        {
+                            long d = dims[i];
+                            long val = indexes.GetIntPtr(i).ToInt64();
+                            if (val < 0)
+                            {
+                                val += d;
+                            }
+                            if (val < 0 || val >= d)
+                            {
+                                throw new IndexOutOfRangeException();
+                            }
+                            offset += val * s[i];
+                        }
+                        return GetItem(offset);
+                    }
+
+                    // General subscript case.
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
                     if (result.ndim == 0) {
+                        // TODO: This should return a numpy scalar.
                         return result.dtype.f.GetItem(0, result);
                     } else {
                         return result;
@@ -173,12 +198,63 @@ namespace NumpyDotNet
                 }
             }
             set {
+                if (args == null)
+                {
+                    throw new ArgumentException("cannot delete array elements.");
+                }
+                if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
+                {
+                    throw new ArgumentException("array is not writeable.");
+                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
-                    using (ndarray array_value = NpyArray.FromAny(value, null, 0, 0, 0, null))
+                    // TODO: Add SetField call.
+
+                    // Special case for boolean on 0-d arrays.
+                    if (ndim == 0 && indexes.NumIndexes == 1 && indexes.IndexType(0) == NpyIndexes.NpyIndexTypes.BOOL)
                     {
-                        NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array);
+                        if (indexes.GetBool(0))
+                        {
+                            SetItem(value, 0);
+                        }
+                        return;
+                    }
+
+                    // Special case for single assignment.
+                    long single_offset = indexes.SingleAssignOffset(this);
+                    if (single_offset >= 0)
+                    {
+                        // This is a single item assignment. Use SetItem.
+                        SetItem(value, single_offset);
+                        return;
+                    }
+
+                    if (indexes.IsSimple)
+                    {
+                        // TODO: Handle array subclasses.
+                        ndarray view = NpyCoreApi.DecrefToInterface<ndarray>(
+                            NpyCoreApi.NpyArray_IndexSimple(array, indexes.Indexes, indexes.NumIndexes)
+                            );
+
+                        // TODO: Use CopyObject.
+                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
+                        {
+                            if (NpyCoreApi.NpyArray_MoveInto(view.array, array_value.array) < 0)
+                            {
+                                NpyCoreApi.CheckError();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
+                        {
+                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
+                            {
+                                NpyCoreApi.CheckError();
+                            }
+                        }
                     }
                 }
             }
@@ -403,25 +479,19 @@ namespace NumpyDotNet
         /// Indexes an array by a single long and returns either an item or a sub-array.
         /// </summary>
         /// <param name="index">The index into the array</param>
-        object ArrayItem(long index)
-        {
-            if (ndim == 1)
-            {
+        object ArrayItem(long index) {
+            if (ndim == 1) {
                 // TODO: This should really returns a Numpy scalar.
                 long dim0 = Dims[0];
-                if (index < 0)
-                {
+                if (index < 0) {
                     index += dim0;
                 }
-                if (index < 0 || index >= dim0)
-                {
+                if (index < 0 || index >= dim0) {
                     throw new IndexOutOfRangeException("Index out of range");
                 }
                 long offset = index * strides[0];
                 return GetItem(offset);
-            }
-            else
-            {
+            } else {
                 return ArrayBigItem(index);
             }
         }

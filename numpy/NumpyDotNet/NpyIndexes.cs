@@ -56,7 +56,7 @@ namespace NumpyDotNet
         }
 
         // The must be kept in sync with NpyIndex.h
-        private enum NpyIndexTypes
+        internal enum NpyIndexTypes
         {
             INTP,
             BOOL,
@@ -69,6 +69,131 @@ namespace NumpyDotNet
             NEW_AXIS
         }
 
+        /// <summary>
+        /// Whether or not this is a simple (not fancy) index.
+        /// </summary>
+        public bool IsSimple
+        {
+            get
+            {
+                for (int i = 0; i < num_indexes; i++)
+                {
+                    switch (IndexType(i))
+                    {
+                        case NpyIndexTypes.BOOL_ARRAY:
+                        case NpyIndexTypes.INTP_ARRAY:
+                        case NpyIndexTypes.STRING:
+                            return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether or not this index is a single item index for an array on size ndims.
+        /// </summary>
+        public bool IsSingleItem(int ndims)
+        {
+            if (num_indexes != ndims)
+            {
+                return false;
+            }
+            for (int i = 0; i < num_indexes; i++)
+            {
+                if (IndexType(i) != NpyIndexTypes.INTP)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Finds the offset for a single item assignment to the array.
+        /// </summary>
+        /// <param name="arr">The array we are assigning to.</param>
+        /// <returns>The offset or -1 if this is not a single assignment.</returns>
+        public Int64 SingleAssignOffset(ndarray arr)
+        {
+            // Check to see that there are just newaxis, ellipsis, intp or bool indexes
+            for (int i = 0; i < num_indexes; i++)
+            {
+                switch (IndexType(i))
+                {
+                    case NpyIndexTypes.NEW_AXIS:
+                    case NpyIndexTypes.ELLIPSIS:
+                    case NpyIndexTypes.INTP:
+                    case NpyIndexTypes.BOOL:
+                        break;
+                    default:
+                        return -1;
+                }
+            }
+
+            // Bind to the array and calculate the offset.
+            using (NpyIndexes bound = Bind(arr))
+            {
+                long offset = 0;
+                int nd = 0;
+
+                for (int i = 0; i < bound.num_indexes; i++)
+                {
+                    switch (bound.IndexType(i))
+                    {
+                        case NpyIndexTypes.NEW_AXIS:
+                            break;
+                        case NpyIndexTypes.INTP:
+                            offset += arr.Stride(nd++) * bound.GetIntPtr(i).ToInt64();
+                            break;
+                        case NpyIndexTypes.SLICE:
+                            // An ellipsis became a slice on binding. 
+                            // This is not a single item assignment.
+                            return -1;
+                        default:
+                            // This should never happen
+                            return -1;
+                    }
+                }
+                if (nd != arr.ndim)
+                {
+                    // Not enough indexes. This is not a single item.
+                    return -1;
+                }
+                return offset;
+            }
+        }
+
+        public NpyIndexes Bind(ndarray arr)
+        {
+            NpyIndexes result = new NpyIndexes();
+            int n = NpyCoreApi.BindIndex(arr.Array, indexes, num_indexes, result.indexes);
+            if (n < 0)
+            {
+                NpyCoreApi.CheckError();
+            }
+            else
+            {
+                result.num_indexes = n;
+            }
+            return result;
+        }
+
+
+        public void AddIndex(bool value)
+        {
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.BOOL);
+
+            // Write the data
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Byte val = (value ? (Byte)1 : (Byte)0);
+            Marshal.WriteByte(indexes + offset, val);
+
+            ++num_indexes;
+        }
+       
         public void AddIndex(IntPtr value)
         {
             // Write the type
@@ -165,6 +290,25 @@ namespace NumpyDotNet
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.ELLIPSIS);
             ++num_indexes;
+        }
+
+        internal NpyIndexTypes IndexType(int n)
+        {
+            int offset = n * NpyCoreApi.IndexInfo.sizeof_index;
+            return (NpyIndexTypes) Marshal.ReadInt32(indexes + offset);
+        }
+
+        public IntPtr GetIntPtr(int i)
+        {
+            int offset = i * NpyCoreApi.IndexInfo.sizeof_index + NpyCoreApi.IndexInfo.off_union;
+            return Marshal.ReadIntPtr(indexes, offset);
+        }
+
+        public bool GetBool(int i)
+        {
+            int offset = i * NpyCoreApi.IndexInfo.sizeof_index + NpyCoreApi.IndexInfo.off_union;
+            Byte val = Marshal.ReadByte(indexes, offset);
+            return (val != 0);
         }
 
         private int num_indexes;
