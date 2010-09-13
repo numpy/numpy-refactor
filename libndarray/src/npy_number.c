@@ -175,7 +175,7 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
     mps[0] = m1;
     mps[1] = m2;
     mps[2] = NULL;
-    if (0 > NpyUFunc_GenericFunction(op, 2, mps, NULL, NPY_FALSE, NULL, NULL)) {
+    if (0 > NpyUFunc_GenericFunction(op, 3, mps, NULL, NPY_FALSE, NULL, NULL)) {
         return NULL;
     }
     return mps[op->nin];
