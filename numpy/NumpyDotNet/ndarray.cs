@@ -146,9 +146,20 @@ namespace NumpyDotNet
 
         #region Public interfaces (must match CPython)
 
-        // TODO: Assumes contiguous, C-array for now
         public Object this[params object[] args] {
             get {
+                // Optimization for a single integer index.
+                if (args.Length == 1)
+                {
+                    if (args[0] is int)
+                    {
+                        return ArrayItem((long)(int)args[0]);
+                    }
+                    else if (args[0] is long)
+                    {
+                        return ArrayItem((long)args[0]);
+                    }
+                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
@@ -379,6 +390,45 @@ namespace NumpyDotNet
                 sb.Append(']');
             }
             return true;
+        }
+
+        /// <summary>
+        /// Indexes an array by a single long and returns either an item or a sub-array.
+        /// </summary>
+        /// <param name="index">The index into the array</param>
+        object ArrayItem(long index)
+        {
+            if (ndim == 1)
+            {
+                // TODO: This should really returns a Numpy scalar.
+                long dim0 = Dims[0];
+                if (index < 0)
+                {
+                    index += dim0;
+                }
+                if (index < 0 || index >= dim0)
+                {
+                    throw new IndexOutOfRangeException("Index out of range");
+                }
+                long offset = index * strides[0];
+                return GetItem(offset);
+            }
+            else
+            {
+                return ArrayBigItem(index);
+            }
+        }
+
+        /// <summary>
+        /// Indexes an array by a single long and returns the sub-array.
+        /// </summary>
+        /// <param name="index">The index into the array.</param>
+        /// <returns>The sub-array.</returns>
+        ndarray ArrayBigItem(long index)
+        {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_ArrayItem(Array, (IntPtr)index)
+                   );
         }
 
         #endregion

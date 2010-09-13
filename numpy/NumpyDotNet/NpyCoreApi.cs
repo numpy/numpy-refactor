@@ -147,6 +147,10 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Size(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_ArrayItem(IntPtr array, IntPtr index);
+
         #endregion
 
         #region NpyAccessLib functions
