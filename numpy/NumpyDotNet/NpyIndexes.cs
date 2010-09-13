@@ -69,6 +69,25 @@ namespace NumpyDotNet
             NEW_AXIS
         }
 
+        /// <summary>
+        /// Returns whether or not this index is a single item index for an array on size ndims.
+        /// </summary>
+        public bool IsSingleItem(int ndims)
+        {
+            if (num_indexes != ndims)
+            {
+                return false;
+            }
+            for (int i = 0; i < num_indexes; i++)
+            {
+                if (IndexType(i) != NpyIndexTypes.INTP)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void AddIndex(IntPtr value)
         {
             // Write the type
@@ -165,6 +184,18 @@ namespace NumpyDotNet
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.ELLIPSIS);
             ++num_indexes;
+        }
+
+        private NpyIndexTypes IndexType(int n)
+        {
+            int offset = n * NpyCoreApi.IndexInfo.sizeof_index;
+            return (NpyIndexTypes) Marshal.ReadInt32(indexes + offset);
+        }
+
+        public IntPtr GetIntPtr(int i)
+        {
+            int offset = i * NpyCoreApi.IndexInfo.sizeof_index + NpyCoreApi.IndexInfo.off_union;
+            return Marshal.ReadIntPtr(indexes, offset);
         }
 
         private int num_indexes;

@@ -163,9 +163,35 @@ namespace NumpyDotNet
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (indexes.IsSingleItem(ndim))
+                    {
+                        // Optimization for single item index.
+                        long offset = 0;
+                        long dim;
+                        Int64[] dims = Dims;
+                        Int64[] s = strides;
+                        for (int i = 0; i < ndim; i++)
+                        {
+                            long d = dims[i];
+                            long val = indexes.GetIntPtr(i).ToInt64();
+                            if (val < 0)
+                            {
+                                val += d;
+                            }
+                            if (val < 0 || val >= d)
+                            {
+                                throw new IndexOutOfRangeException();
+                            }
+                            offset += val * s[i];
+                        }
+                        return GetItem(offset);
+                    }
+
+                    // General subscript case.
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
                     if (result.ndim == 0) {
+                        // TODO: This should return a numpy scalar.
                         return result.dtype.f.GetItem(0, result);
                     } else {
                         return result;
@@ -396,7 +422,7 @@ namespace NumpyDotNet
         /// Indexes an array by a single long and returns either an item or a sub-array.
         /// </summary>
         /// <param name="index">The index into the array</param>
-        object ArrayItem(long index)
+        private object ArrayItem(long index)
         {
             if (ndim == 1)
             {
@@ -424,7 +450,7 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="index">The index into the array.</param>
         /// <returns>The sub-array.</returns>
-        ndarray ArrayBigItem(long index)
+        private ndarray ArrayBigItem(long index)
         {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                     NpyCoreApi.NpyArray_ArrayItem(Array, (IntPtr)index)
