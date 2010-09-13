@@ -162,3 +162,9 @@ extern "C" __declspec(dllexport)
 	*indexSize = sizeof(NpyIndex);
 	*maxDims = NPY_MAXDIMS;
 }
+
+extern "C" __declspec(dllexport)
+	int _cdecl NpyArrayAccess_BindIndex(NpyArray* arr, NpyIndex* indexes, int n, NpyIndex* bound_indexes)
+{
+	return NpyArray_IndexBind(indexes, n, arr->dimensions, arr->nd, bound_indexes);
+}

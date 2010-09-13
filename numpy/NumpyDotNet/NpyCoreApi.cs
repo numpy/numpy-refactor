@@ -140,7 +140,7 @@ namespace NumpyDotNet
         internal static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_SubscriptAssign(IntPtr self, IntPtr indexes, int n, IntPtr value);
+        internal static extern int NpyArray_SubscriptAssign(IntPtr self, IntPtr indexes, int n, IntPtr value);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyArray_IndexDealloc(IntPtr indexes, int n);
@@ -183,6 +183,10 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayStride")]
         internal static extern long GetArrayStride(IntPtr arr, int dims);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_BindIndex")]
+        internal static extern int BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
 
         //
         // Offset functions - these return the offsets to fields in native structures

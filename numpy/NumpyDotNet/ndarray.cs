@@ -222,9 +222,21 @@ namespace NumpyDotNet
                         return;
                     }
 
+                    // Special case for single assignment.
+                    long single_offset = indexes.SingleAssignOffset(this);
+                    if (single_offset >= 0)
+                    {
+                        // This is a single item assignment. Use SetItem.
+                        SetItem(value, single_offset);
+                        return;
+                    }
+
                     using (ndarray array_value = NpyArray.FromAny(value, null, 0, 0, 0, null))
                     {
-                        NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array);
+                        if (NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
+                        {
+                            NpyCoreApi.CheckError();
+                        }
                     }
                 }
             }

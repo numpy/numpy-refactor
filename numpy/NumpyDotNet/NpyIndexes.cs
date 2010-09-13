@@ -88,6 +88,78 @@ namespace NumpyDotNet
             return true;
         }
 
+        /// <summary>
+        /// Finds the offset for a single item assignment to the array.
+        /// </summary>
+        /// <param name="arr">The array we are assigning to.</param>
+        /// <returns>The offset or -1 if this is not a single assignment.</returns>
+        public Int64 SingleAssignOffset(ndarray arr)
+        {
+            // Check to see that there are just newaxis, ellipsis, intp or bool indexes
+            for (int i = 0; i < num_indexes; i++)
+            {
+                switch (IndexType(i))
+                {
+                    case NpyIndexTypes.NEW_AXIS:
+                    case NpyIndexTypes.ELLIPSIS:
+                    case NpyIndexTypes.INTP:
+                    case NpyIndexTypes.BOOL:
+                        break;
+                    default:
+                        return -1;
+                }
+            }
+
+            // Bind to the array and calculate the offset.
+            using (NpyIndexes bound = Bind(arr))
+            {
+                long offset = 0;
+                int nd = 0;
+
+                for (int i = 0; i < bound.num_indexes; i++)
+                {
+                    switch (bound.IndexType(i))
+                    {
+                        case NpyIndexTypes.NEW_AXIS:
+                            break;
+                        case NpyIndexTypes.INTP:
+                            offset += arr.Stride(nd++) * bound.GetIntPtr(i).ToInt64();
+                            break;
+                        case NpyIndexTypes.SLICE:
+                            // An ellipsis became a slice on binding. 
+                            // This is not a single item assignment.
+                            return -1;
+                            break;
+                        default:
+                            // This should never happen
+                            return -1;
+                    }
+                }
+                if (nd != arr.ndim)
+                {
+                    // Not enough indexes. This is not a single item.
+                    return -1;
+                }
+                return offset;
+            }
+        }
+
+        public NpyIndexes Bind(ndarray arr)
+        {
+            NpyIndexes result = new NpyIndexes();
+            int n = NpyCoreApi.BindIndex(arr.Array, indexes, num_indexes, result.indexes);
+            if (n < 0)
+            {
+                NpyCoreApi.CheckError();
+            }
+            else
+            {
+                result.num_indexes = n;
+            }
+            return result;
+        }
+
+
         public void AddIndex(bool value)
         {
             // Write the type
