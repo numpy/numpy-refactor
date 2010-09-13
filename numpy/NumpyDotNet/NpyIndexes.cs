@@ -278,6 +278,34 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
+        public void AddBoolArray(Object arg)
+        {
+            // Convert to an intp array
+            ndarray arr = NpyArray.FromAny(arg, NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL), 0, 0, 0, null);
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.BOOL_ARRAY);
+            // Write the array
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Marshal.WriteIntPtr(indexes + offset, arr.Array);
+
+            ++num_indexes;
+        }
+
+        public void AddIntpArray(Object arg)
+        {
+            // Convert to an intp array
+            ndarray arr = NpyArray.FromAny(arg, NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP), 0, 0, 0, null);
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.INTP_ARRAY);
+            // Write the array
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Marshal.WriteIntPtr(indexes + offset, arr.Array);
+
+            ++num_indexes;
+        }
+
         public void AddNewAxis()
         {
             int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
