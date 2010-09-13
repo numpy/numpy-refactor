@@ -32,6 +32,14 @@ namespace NumpyDotNet
                 Marshal.FreeCoTaskMem(indexes);
                 indexes = IntPtr.Zero;
             }
+            if (strings != null)
+            {
+                foreach (IntPtr s in strings)
+                {
+                    Marshal.FreeCoTaskMem(s);
+                }
+                strings = null;
+            }
         }
 
         public void Dispose()
@@ -207,6 +215,27 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
+        public void AddIndex(string s)
+        {
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.STRING);
+
+            // Write the data
+            IntPtr cstr = Marshal.StringToCoTaskMemAnsi(s);
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Marshal.WriteIntPtr(indexes + offset, cstr);
+
+            // Save the string
+            if (strings == null)
+            {
+                strings = new List<IntPtr>();
+            }
+            strings.Add(cstr);
+
+            ++num_indexes;
+        }
+
         public void AddIndex(ISlice slice)
         {
             IntPtr step;
@@ -341,5 +370,6 @@ namespace NumpyDotNet
 
         private int num_indexes;
         private IntPtr indexes;
+        private List<IntPtr> strings;
     }
 }
