@@ -237,14 +237,7 @@ namespace NumpyDotNet
                             NpyCoreApi.NpyArray_IndexSimple(array, indexes.Indexes, indexes.NumIndexes)
                             );
 
-                        // TODO: Use CopyObject.
-                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
-                        {
-                            if (NpyCoreApi.NpyArray_MoveInto(view.array, array_value.array) < 0)
-                            {
-                                NpyCoreApi.CheckError();
-                            }
-                        }
+                        NpyArray.CopyObject(view, value);
                     }
                     else
                     {
