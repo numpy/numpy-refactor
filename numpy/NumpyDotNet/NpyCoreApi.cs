@@ -151,6 +151,15 @@ namespace NumpyDotNet
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_ArrayItem(IntPtr array, IntPtr index);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_IndexSimple(IntPtr arr, IntPtr indexes, int n);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
+
+        [DllImport("ndArray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_IndexFancyAssign(IntPtr dest, IntPtr indexes, int n, IntPtr value_array);
+
         #endregion
 
         #region NpyAccessLib functions

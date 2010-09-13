@@ -167,7 +167,6 @@ namespace NumpyDotNet
                     {
                         // Optimization for single item index.
                         long offset = 0;
-                        long dim;
                         Int64[] dims = Dims;
                         Int64[] s = strides;
                         for (int i = 0; i < ndim; i++)
@@ -231,11 +230,30 @@ namespace NumpyDotNet
                         return;
                     }
 
-                    using (ndarray array_value = NpyArray.FromAny(value, null, 0, 0, 0, null))
+                    if (indexes.IsSimple)
                     {
-                        if (NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
+                        // TODO: Handle array subclasses.
+                        ndarray view = NpyCoreApi.DecrefToInterface<ndarray>(
+                            NpyCoreApi.NpyArray_IndexSimple(array, indexes.Indexes, indexes.NumIndexes)
+                            );
+
+                        // TODO: Use CopyObject.
+                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
                         {
-                            NpyCoreApi.CheckError();
+                            if (NpyCoreApi.NpyArray_MoveInto(view.array, array_value.array) < 0)
+                            {
+                                NpyCoreApi.CheckError();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
+                        {
+                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
+                            {
+                                NpyCoreApi.CheckError();
+                            }
                         }
                     }
                 }

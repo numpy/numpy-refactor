@@ -203,14 +203,15 @@ namespace NumpyDotNet {
                 // Treat a single tuple as a tuple of args.
                 PythonTuple tuple = (PythonTuple)indexArgs[0];
                 if (tuple.Count > NpyCoreApi.IndexInfo.max_dims) {
-                    throw new ArgumentException("Too many indices.");
+                    throw new IndexOutOfRangeException("Too many indices.");
                 }
                 foreach (object arg in tuple) {
                     ConvertSingleIndex(arg, indexes);
                 }
-            } else {
+            } 
+            else {
                 if (indexArgs.Length > NpyCoreApi.IndexInfo.max_dims) {
-                    throw new ArgumentException("Too many indices.");
+                    throw new IndexOutOfRangeException("Too many indices.");
                 }
                 foreach (Object arg in indexArgs)
                 {

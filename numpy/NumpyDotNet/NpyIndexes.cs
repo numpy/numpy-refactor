@@ -70,6 +70,27 @@ namespace NumpyDotNet
         }
 
         /// <summary>
+        /// Whether or not this is a simple (not fancy) index.
+        /// </summary>
+        public bool IsSimple
+        {
+            get
+            {
+                for (int i = 0; i < num_indexes; i++)
+                {
+                    switch (IndexType(i))
+                    {
+                        case NpyIndexTypes.BOOL_ARRAY:
+                        case NpyIndexTypes.INTP_ARRAY:
+                        case NpyIndexTypes.STRING:
+                            return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Returns whether or not this index is a single item index for an array on size ndims.
         /// </summary>
         public bool IsSingleItem(int ndims)
@@ -129,7 +150,6 @@ namespace NumpyDotNet
                             // An ellipsis became a slice on binding. 
                             // This is not a single item assignment.
                             return -1;
-                            break;
                         default:
                             // This should never happen
                             return -1;
