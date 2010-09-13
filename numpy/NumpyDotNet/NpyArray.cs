@@ -10,6 +10,42 @@ namespace NumpyDotNet {
     /// ctors.c, and multiarraymodule.c
     /// </summary>
     internal static class NpyArray {
+
+
+        /// <summary>
+        /// Copies the source object into the destination array.  src can be
+        /// any type so long as the number of elements matches dest.  In the
+        /// case of strings, they will be padded with spaces if needed but
+        /// can not be longer than the number of elements in dest.
+        /// </summary>
+        /// <param name="dest">Destination array</param>
+        /// <param name="src">Source object</param>
+        internal static void CopyObject(ndarray dest, Object src) {
+            // For char arrays pad the input string.
+            if (dest.dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
+                dest.ndim > 0 && src is String) {
+                int ndimNew = (int)dest.Dims[dest.ndim - 1];
+                int ndimOld = ((String)src).Length;
+
+                if (ndimNew > ndimOld) {
+                    src = ((String)src).PadRight(ndimNew, ' ');
+                }
+            }
+
+            
+            ndarray srcArray;
+            if (src is ndarray) {
+                srcArray = (ndarray)src;
+            } else if (false) {
+                // TODO: Not handling scalars.  See arrayobject.c:111
+            } else {
+                srcArray = FromAny(src, dest.dtype, 0, dest.ndim, 
+                                   dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
+            }
+            NpyCoreApi.MoveInto(dest, srcArray);
+        }
+
+
         internal static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
             int maxDepth, int requires, Object context) {
 

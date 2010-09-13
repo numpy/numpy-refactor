@@ -241,6 +241,13 @@ namespace NumpyDotNet
         }
 
 
+        // TODO: Temporary for testing CopyObject method
+        public ndarray AssignTo(object src) {
+            NpyArray.CopyObject(this, src);
+            return this;
+        }
+
+
         #endregion
 
 

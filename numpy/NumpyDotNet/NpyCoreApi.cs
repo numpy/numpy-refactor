@@ -56,6 +56,20 @@ namespace NumpyDotNet
             return arr;
         }
 
+
+        /// <summary>
+        /// Moves the contents of src into dest.  Arrays are assumed to have the
+        /// same number of elements, but can be different sizes and different types.
+        /// </summary>
+        /// <param name="dest">Destination array</param>
+        /// <param name="src">Source array</param>
+        internal static void MoveInto(ndarray dest, ndarray src) {
+            if (NpyArray_MoveInto(dest.Array, src.Array) == -1) {
+                CheckError();
+            }
+        }
+
+
         private static object AllocArraySyncRoot = new Object();
 
         /// <summary>
@@ -120,6 +134,9 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, byte order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, 
