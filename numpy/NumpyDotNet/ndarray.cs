@@ -199,9 +199,29 @@ namespace NumpyDotNet
                 }
             }
             set {
+                if (args == null)
+                {
+                    throw new ArgumentException("cannot delete array elements.");
+                }
+                if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
+                {
+                    throw new ArgumentException("array is not writeable.");
+                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    // TODO: Add SetField call.
+
+                    // Special case for boolean on 0-d arrays.
+                    if (ndim == 0 && indexes.NumIndexes == 1 && indexes.IndexType(0) == NpyIndexes.NpyIndexTypes.BOOL)
+                    {
+                        if (indexes.GetBool(0))
+                        {
+                            SetItem(value, 0);
+                        }
+                        return;
+                    }
+
                     using (ndarray array_value = NpyArray.FromAny(value, null, 0, 0, 0, null))
                     {
                         NpyCoreApi.NpyArray_SubscriptAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array);

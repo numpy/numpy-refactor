@@ -56,7 +56,7 @@ namespace NumpyDotNet
         }
 
         // The must be kept in sync with NpyIndex.h
-        private enum NpyIndexTypes
+        internal enum NpyIndexTypes
         {
             INTP,
             BOOL,
@@ -88,6 +88,20 @@ namespace NumpyDotNet
             return true;
         }
 
+        public void AddIndex(bool value)
+        {
+            // Write the type
+            int offset = num_indexes * NpyCoreApi.IndexInfo.sizeof_index;
+            Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.BOOL);
+
+            // Write the data
+            offset += NpyCoreApi.IndexInfo.off_union;
+            Byte val = (value ? (Byte)1 : (Byte)0);
+            Marshal.WriteByte(indexes + offset, val);
+
+            ++num_indexes;
+        }
+       
         public void AddIndex(IntPtr value)
         {
             // Write the type
@@ -186,7 +200,7 @@ namespace NumpyDotNet
             ++num_indexes;
         }
 
-        private NpyIndexTypes IndexType(int n)
+        internal NpyIndexTypes IndexType(int n)
         {
             int offset = n * NpyCoreApi.IndexInfo.sizeof_index;
             return (NpyIndexTypes) Marshal.ReadInt32(indexes + offset);
@@ -196,6 +210,13 @@ namespace NumpyDotNet
         {
             int offset = i * NpyCoreApi.IndexInfo.sizeof_index + NpyCoreApi.IndexInfo.off_union;
             return Marshal.ReadIntPtr(indexes, offset);
+        }
+
+        public bool GetBool(int i)
+        {
+            int offset = i * NpyCoreApi.IndexInfo.sizeof_index + NpyCoreApi.IndexInfo.off_union;
+            Byte val = Marshal.ReadByte(indexes, offset);
+            return (val != 0);
         }
 
         private int num_indexes;

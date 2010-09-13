@@ -229,6 +229,10 @@ namespace NumpyDotNet {
             {
                 indexes.AddEllipsis();
             }
+            else if (arg is bool)
+            {
+                indexes.AddIndex((bool)arg);
+            }
             else if (arg is ISlice)
             {
                 indexes.AddIndex((ISlice)arg);
