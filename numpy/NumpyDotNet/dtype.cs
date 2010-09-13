@@ -85,13 +85,8 @@ namespace NumpyDotNet {
             get { return descr; }
         }
 
-        public int Byteorder {
-            get { return 0; }
-            set { }
-        }
-
         public bool IsNativeByteOrder {
-            get { return Byteorder != NpyCoreApi.NativeByteOrder; }
+            get { return ByteOrder != NpyCoreApi.NativeByteOrder; }
         }
 
         public byte Kind {
@@ -106,6 +101,7 @@ namespace NumpyDotNet {
 
         public byte ByteOrder {
             get { return Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_byteorder); }
+            set { Marshal.WriteByte(descr, NpyCoreApi.DescrOffsets.off_byteorder, value); }
         }
 
         public int Flags {

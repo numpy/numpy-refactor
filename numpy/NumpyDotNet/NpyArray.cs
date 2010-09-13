@@ -32,7 +32,6 @@ namespace NumpyDotNet {
                 }
             }
 
-            
             ndarray srcArray;
             if (src is ndarray) {
                 srcArray = (ndarray)src;
@@ -57,7 +56,7 @@ namespace NumpyDotNet {
                     // Descr replace
                 }
                 if (descr != null) {
-                    descr.Byteorder = NpyCoreApi.NativeByteOrder;
+                    descr.ByteOrder = NpyCoreApi.NativeByteOrder;
                 }
             }
 

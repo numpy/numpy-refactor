@@ -102,8 +102,12 @@ namespace NumpyDotNet {
             short f;
 
             unsafe {
-                short* p = (short*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte *)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(short*)p;
+                } else {
+                    CopySwap2((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -112,8 +116,12 @@ namespace NumpyDotNet {
             ushort f;
 
             unsafe {
-                ushort* p = (ushort*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(ushort*)p;
+                } else {
+                    CopySwap2((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -122,8 +130,12 @@ namespace NumpyDotNet {
             int f;
 
             unsafe {
-                int* p = (int*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(int*)p;
+                } else {
+                    CopySwap4((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -132,8 +144,12 @@ namespace NumpyDotNet {
             uint f;
 
             unsafe {
-                uint* p = (uint*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(uint*)p;
+                } else {
+                    CopySwap4((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -142,8 +158,12 @@ namespace NumpyDotNet {
             long f;
 
             unsafe {
-                long* p = (long*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(long*)p;
+                } else {
+                    CopySwap8((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -152,8 +172,12 @@ namespace NumpyDotNet {
             ulong f;
 
             unsafe {
-                ulong* p = (ulong*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(ulong*)p;
+                } else {
+                    CopySwap8((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -162,8 +186,12 @@ namespace NumpyDotNet {
             float f;
 
             unsafe {
-                float* p = (float*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(float*)p;
+                } else {
+                    CopySwap4((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -172,8 +200,12 @@ namespace NumpyDotNet {
             double f;
 
             unsafe {
-                double* p = (double*)((byte *)arr.data.ToPointer() + offset);
-                f = *p;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = *(double*)p;
+                } else {
+                    CopySwap8((byte*)&f, p, !arr.IsNotSwapped);
+                }
             }
             return f;
         }
@@ -182,11 +214,19 @@ namespace NumpyDotNet {
             Complex f;
 
             unsafe {
-                double* p = (double*)((byte *)arr.data.ToPointer() + offset);
-                f = new Complex(*p, *(p+1));
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    f = new Complex(*(double*)p, *((double*)p + 1));
+                } else {
+                    double r, i;
+                    CopySwap8((byte*)&r, p, !arr.IsNotSwapped);
+                    CopySwap8((byte*)&i, (byte*)((double*)p + 1), !arr.IsNotSwapped);
+                    f = new Complex(r, i);
+                }
             }
             return f;
         }
+
         #endregion
 
 
@@ -226,8 +266,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                short* p = (short*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte *)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(short*)p = f;
+                } else {
+                    CopySwap2(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -239,8 +283,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                ushort* p = (ushort*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte *)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(ushort*)p = f;
+                } else {
+                    CopySwap2(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -252,8 +300,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                int* p = (int*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(int*)p = f;
+                } else {
+                    CopySwap4(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -265,8 +317,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                uint* p = (uint*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(uint*)p = f;
+                } else {
+                    CopySwap4(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -278,8 +334,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                long* p = (long*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(long*)p = f;
+                } else {
+                    CopySwap8(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -291,8 +351,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                ulong* p = (ulong*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(ulong*)p = f;
+                } else {
+                    CopySwap8(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -304,8 +368,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                float* p = (float*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(float*)p = f;
+                } else {
+                    CopySwap4(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
 
@@ -318,10 +386,15 @@ namespace NumpyDotNet {
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
-                double* p = (double*)((byte *)arr.data.ToPointer() + offset);
-                *p = f;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(double*)p = f;
+                } else {
+                    CopySwap8(p, (byte*)&f, !arr.IsNotSwapped);
+                }
             }
         }
+
 
         internal static void setitemCDouble(Object o, long offset, ndarray arr) {
             Complex f;
@@ -333,14 +406,76 @@ namespace NumpyDotNet {
             } else throw new NotImplementedException(
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
-
             unsafe {
-                double* p = (double*)((byte *)arr.data.ToPointer() + offset);
-                *p = f.Real;
-                *(p+1) = f.Imaginary;
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    *(double*)p = f.Real;
+                    *((double*)p + 1) = f.Imaginary;
+                } else {
+                    double r = f.Real;
+                    double i = f.Imaginary;
+                    CopySwap8(p, (byte*)&r, !arr.IsNotSwapped);
+                    CopySwap8(p, (byte*)&i, !arr.IsNotSwapped);
+                }
             }
         }
 
         #endregion
+
+        #region Copy ops for swapping and unaligned access
+        /// <summary>
+        /// Copies two bytes from src to dest, optionally swapping the order
+        /// for a change of endianess.  Either way, unaligned access is handled correctly.
+        /// </summary>
+        /// <param name="dest">Destination pointer</param>
+        /// <param name="src">Source pointer</param>
+        /// <param name="swap">True swaps byte order, false preserves the byte ordering</param>
+        private unsafe static void CopySwap2(byte* dest, byte* src, bool swap) {
+            if (!swap) {
+                dest[0] = src[0];
+                dest[1] = src[1];
+            } else {
+                dest[0] = src[1];
+                dest[1] = src[0];
+            }
+        }
+
+        private unsafe static void CopySwap4(byte* dest, byte* src, bool swap) {
+            if (!swap) {
+                dest[0] = src[0];
+                dest[1] = src[1];
+                dest[2] = src[2];
+                dest[3] = src[3];
+            } else {
+                dest[0] = src[3];
+                dest[1] = src[2];
+                dest[2] = src[1];
+                dest[3] = src[0];
+            }
+        }
+
+        private unsafe static void CopySwap8(byte* dest, byte* src, bool swap) {
+            if (!swap) {
+                dest[0] = src[0];
+                dest[1] = src[1];
+                dest[2] = src[2];
+                dest[3] = src[3];
+                dest[4] = src[4];
+                dest[5] = src[5];
+                dest[6] = src[6];
+                dest[7] = src[7];
+            } else {
+                dest[0] = src[7];
+                dest[1] = src[6];
+                dest[2] = src[5];
+                dest[3] = src[4];
+                dest[4] = src[3];
+                dest[5] = src[2];
+                dest[6] = src[1];
+                dest[7] = src[0];
+            }
+        }
+        #endregion
+
     }
 }
