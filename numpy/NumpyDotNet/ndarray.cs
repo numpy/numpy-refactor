@@ -326,6 +326,14 @@ namespace NumpyDotNet
             return this;
         }
 
+        public flatiter flat
+        {
+            get
+            {
+                return NpyCoreApi.IterNew(this);
+            }
+        }
+
 
         #endregion
 

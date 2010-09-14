@@ -112,6 +112,12 @@ namespace NumpyDotNet
             return retArr;
         }
 
+        internal static flatiter IterNew(ndarray ao)
+        {
+            return DecrefToInterface<flatiter>(
+                NpyArray_IterNew(ao.Array));
+        }
+
         #endregion
 
 
@@ -177,6 +183,9 @@ namespace NumpyDotNet
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_IterNew(IntPtr ao);
+
         #endregion
 
         #region NpyAccessLib functions
@@ -217,6 +226,26 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetFieldOffset")]
         internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
+
+        /// <summary>
+        /// Deallocates an NpyObject.
+        /// </summary>
+        /// <param name="obj">The object to deallocate</param>
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_Dealloc")]
+        internal static extern void Dealloc(IntPtr obj);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterNext")]
+        internal static extern IntPtr IterNext(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+            EntryPoint = "NpyArrayAccess_IterReset")]
+        internal static extern void IterReset(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+            EntryPoint = "NpyArrayAccess_IterArray")]
+        internal static extern IntPtr IterArray(IntPtr iter);
 
         //
         // Offset functions - these return the offsets to fields in native structures
@@ -380,6 +409,31 @@ namespace NumpyDotNet
         public delegate int del_ArrayNewWrapper(IntPtr coreArray, int ensureArray,
             int customStrides, IntPtr subtypePtr, IntPtr interfaceData, 
             IntPtr interfaceRet);
+
+        private static int IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet)
+        {
+            int success = 1;
+
+            try
+            {
+                flatiter wrapIter = new flatiter(coreIter);
+                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                Marshal.WriteIntPtr(interfaceRet, ret);
+            }
+            catch (InsufficientMemoryException)
+            {
+                Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
+                success = 0;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Exception while allocating iterator wrapper.");
+                success = 0;
+            }
+            return success;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
 
 
         /// <summary>
@@ -607,6 +661,8 @@ namespace NumpyDotNet
 
         private static readonly del_ArrayNewWrapper ArrayNewWrapDelegate =
             new del_ArrayNewWrapper(ArrayNewWrapper);
+        private static readonly del_IterNewWrapper IterNewWrapperDelegate =
+            new del_IterNewWrapper(IterNewWrapper);
         private static readonly del_DescrNewFromType DescrNewFromTypeDelegate =
             new del_DescrNewFromType(DescrNewFromType);
         private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
@@ -651,7 +707,8 @@ namespace NumpyDotNet
 
             wrapFuncs.array_new_wrapper = 
                 Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
-            wrapFuncs.iter_new_wrapper = IntPtr.Zero;
+            wrapFuncs.iter_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
             wrapFuncs.multi_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.descr_new_from_type =

@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="dtype.cs" />
+    <Compile Include="flatiter.cs" />
     <Compile Include="NpyIndexes.cs" />
     <Compile Include="ModuleMethods.cs" />
     <Compile Include="ndarray.cs" />

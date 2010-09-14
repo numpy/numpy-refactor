@@ -184,3 +184,40 @@ extern "C" __declspec(dllexport)
 	*pDescr = value->descr;
 	return value->offset;
 }
+
+// Deallocates a numpy object.
+extern "C" __declspec(dllexport)
+	void _cdecl NpyArrayAccess_Dealloc(_NpyObject *obj)
+{
+	obj->nob_type->ntp_dealloc(obj);
+}
+
+// Returns a pointer to the current data and advances the iterator.
+// Returns NULL if the iterator is already past the end.
+extern "C" __declspec(dllexport)
+	void* _cdecl NpyArrayAccess_IterNext(NpyArrayIterObject* it)
+{
+	void* result = NULL;
+
+	if (it->index < it->size) {
+		result = it->dataptr;
+		NpyArray_ITER_NEXT(it);
+	}
+	return result;
+}
+
+// Resets the iterator to the first element in the array.
+extern "C" __declspec(dllexport)
+	void _cdecl NpyArrayAccess_IterReset(NpyArrayIterObject* it)
+{
+	NpyArray_ITER_RESET(it);
+}
+
+// Returns the array for the iterator.
+extern "C" __declspec(dllexport)
+	NpyArray* _cdecl NpyArrayAccess_IterArray(NpyArrayIterObject* it)
+{
+	NpyArray* result = it->ao;
+	Npy_INCREF(result);
+	return result;
+}
