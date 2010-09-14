@@ -58,6 +58,36 @@ namespace NumpyDotNet
                     return result;
                 }
             }
+
+            set
+            {
+                using (NpyIndexes indexes = new NpyIndexes())
+                {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+
+                    if (indexes.NumIndexes == 1)
+                    {
+                        // Special cases for single assigment.
+                        switch (indexes.IndexType(0))
+                        {
+                            case NpyIndexes.NpyIndexTypes.INTP:
+                                SingleAssign(indexes.GetIntPtr(0), value);
+                                return;
+                            case NpyIndexes.NpyIndexTypes.BOOL:
+                                if (indexes.GetBool(0))
+                                {
+                                    SingleAssign(IntPtr.Zero, value);
+                                }
+                                return;
+                            default:
+                                break;
+                        }
+                    }
+
+                    ndarray array_val = NpyArray.FromAny(value, arr.dtype, 0, 0, 0, null);
+                    NpyCoreApi.IterSubscriptAssign(this, indexes, array_val);
+                }
+            }
         }
 
         #region IEnumerator<object>
@@ -80,6 +110,20 @@ namespace NumpyDotNet
         {
             current = IntPtr.Zero;
             NpyCoreApi.IterReset(iter);
+        }
+
+        #endregion
+
+        #region internal methods
+
+        private void SingleAssign(IntPtr index, object value)
+        {
+            IntPtr pos = NpyCoreApi.IterGoto1D(iter, index);
+            if (pos == IntPtr.Zero)
+            {
+                NpyCoreApi.CheckError();
+            }
+            arr.SetItem(value, pos.ToInt64() - arr.data.ToInt64());
         }
 
         #endregion

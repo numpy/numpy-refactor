@@ -221,3 +221,22 @@ extern "C" __declspec(dllexport)
 	Npy_INCREF(result);
 	return result;
 }
+
+// Moves the iterator to the location and returns a pointer to the data.
+// Returns NULL if the index is invalid.
+extern "C" __declspec(dllexport)
+	void* _cdecl NpyArrayAccess_IterGoto1D(NpyArrayIterObject* it, npy_intp index)
+{
+	if (index < 0) {
+		index += it->size;
+	}
+	if (index < 0 || index >= it->size) {
+		char buf[1024];
+		sprintf_s<sizeof(buf)>(buf, "index out of bounds 0<=index<%ld", (long)index);
+		NpyErr_SetString(NpyExc_IndexError, buf);
+		return NULL;
+	}
+	NpyArray_ITER_RESET(it);
+	NpyArray_ITER_GOTO1D(it, index);
+	return it->dataptr;
+}

@@ -124,6 +124,14 @@ namespace NumpyDotNet
                 NpyArray_IterSubscript(iter.Iter, indexes.Indexes, indexes.NumIndexes));
         }
 
+        internal static void IterSubscriptAssign(flatiter iter, NpyIndexes indexes, ndarray val)
+        {
+            if (NpyArray_IterSubscriptAssign(iter.Iter, indexes.Indexes, indexes.NumIndexes, val.Array) < 0)
+            {
+                CheckError();
+            }
+        }
+
         #endregion
 
 
@@ -195,6 +203,9 @@ namespace NumpyDotNet
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_IterSubscript(IntPtr iter, IntPtr indexes, int n);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+
         #endregion
 
         #region NpyAccessLib functions
@@ -251,6 +262,10 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
             EntryPoint = "NpyArrayAccess_IterReset")]
         internal static extern void IterReset(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+            EntryPoint = "NpyArrayAccess_IterGoto1D")]
+        internal static extern IntPtr IterGoto1D(IntPtr iter, IntPtr index);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
             EntryPoint = "NpyArrayAccess_IterArray")]
