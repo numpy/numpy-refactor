@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using IronPython.Runtime;
 
 namespace NumpyDotNet
 {
@@ -87,6 +88,14 @@ namespace NumpyDotNet
                     ndarray array_val = NpyArray.FromAny(value, arr.dtype, 0, 0, 0, null);
                     NpyCoreApi.IterSubscriptAssign(this, indexes, array_val);
                 }
+            }
+        }
+
+        // TODO: This should be called "base", but I'm not sure how.
+        public ndarray base_array {
+            get
+            {
+                return arr;
             }
         }
 
