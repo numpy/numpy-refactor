@@ -132,6 +132,13 @@ namespace NumpyDotNet
             }
         }
 
+        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order)
+        {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Flatten(a.Array, order)
+                );
+        }
+
         #endregion
 
 
@@ -205,6 +212,9 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
 
         #endregion
 

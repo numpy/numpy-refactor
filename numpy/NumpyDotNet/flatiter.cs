@@ -92,17 +92,16 @@ namespace NumpyDotNet
             }
         }
 
-        // TODO: This should be called "base", but I'm not sure how.
+        public long __len__()
+        {
+            return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
+        }
+
         public ndarray @base {
             get
             {
                 return arr;
             }
-        }
-
-        public long __len__()
-        {
-            return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
         }
 
         public long index
@@ -127,6 +126,11 @@ namespace NumpyDotNet
                 }
                 return new PythonTuple(result);
             }
+        }
+
+        public ndarray copy()
+        {
+            return NpyCoreApi.Flatten(arr, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
         #region IEnumerator<object>
