@@ -226,7 +226,6 @@ extern "C" __declspec(dllexport)
 }
 
 
-
 extern "C" __declspec(dllexport)
 	npy_intp* _cdecl NpyArrayAccess_IterCoords(NpyArrayIterObject* self)
 {

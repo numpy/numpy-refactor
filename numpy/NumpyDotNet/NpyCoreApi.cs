@@ -140,9 +140,17 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order) {
+        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order)
+        {
             return DecrefToInterface<ndarray>(
                 NpyArray_Flatten(a.Array, order)
+                );
+        }
+
+        internal static ndarray FlatView(ndarray a)
+        {
+            return DecrefToInterface<ndarray>(
+                NpyArray_FlatView(a.Array)
                 );
         }
 
@@ -173,7 +181,7 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr,
+        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, 
             int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -223,30 +231,33 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
+
         #endregion
 
         #region NpyAccessLib functions
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_ArraySetDescr")]
+            EntryPoint="NpyArrayAccess_ArraySetDescr")]
         internal static extern void ArraySetDescr(IntPtr array, IntPtr newDescr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_Incref")]
+            EntryPoint="NpyArrayAccess_Incref")]
         internal static extern void Incref(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_Decref")]
+            EntryPoint="NpyArrayAccess_Decref")]
         internal static extern void Decref(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
-        private static extern byte GetNativeTypeInfo(out int intSize,
+        private static extern byte GetNativeTypeInfo(out int intSize, 
             out int longsize, out int longLongSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
-        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64* dimMem);
+        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64 *dimMem);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
@@ -288,7 +299,7 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_IterArray")]
         internal static extern IntPtr IterArray(IntPtr iter);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
             EntryPoint = "NpyArrayAccess_IterCoords")]
         internal static extern IntPtr IterCoords(IntPtr iter);
 
@@ -783,7 +794,7 @@ namespace NumpyDotNet {
                 wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
                 Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
 
-
+                
                 npy_initlib(IntPtr.Zero,
                     wrapHandle,
                     Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
@@ -826,7 +837,7 @@ namespace NumpyDotNet {
             // fixed-size .NET types.
             int intSize, longSize, longLongSize;
             nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
-
+            
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
                 TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
                 TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;

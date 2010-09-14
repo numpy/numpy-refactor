@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
+using IronPython.Runtime;
 
 namespace NumpyDotNet
 {
@@ -88,6 +90,58 @@ namespace NumpyDotNet
                     NpyCoreApi.IterSubscriptAssign(this, indexes, array_val);
                 }
             }
+        }
+
+        public long __len__()
+        {
+            return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
+        }
+
+        public ndarray @base {
+            get
+            {
+                return arr;
+            }
+        }
+
+        public long index
+        {
+            get
+            {
+                return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_index).ToInt64();
+            }
+        }
+
+        public PythonTuple coords
+        {
+            get
+            {
+                int nd = arr.ndim;
+                long[] result = new long[nd];
+                IntPtr coords = NpyCoreApi.IterCoords(iter);
+                for (int i = 0; i < nd; i++)
+                {
+                    result[i] = Marshal.ReadIntPtr(coords).ToInt64();
+                    coords += IntPtr.Size;
+                }
+                return new PythonTuple(result);
+            }
+        }
+
+        public ndarray copy()
+        {
+            return NpyCoreApi.Flatten(arr, NpyDefs.NPY_ORDER.NPY_CORDER);
+        }
+
+        /// <summary>
+        /// Returns a contiguous, 1-d array that can be used to update the underlying array.  If the array
+        /// is contiguous this is a 1-d view of the array.  Otherwise it is a copy with UPDATEIFCOPY set so that
+        /// the data will be copied back when the returned array is freed.
+        /// </summary>
+        /// <returns></returns>
+        public ndarray __array__()
+        {
+            return NpyCoreApi.FlatView(arr);
         }
 
         #region IEnumerator<object>
