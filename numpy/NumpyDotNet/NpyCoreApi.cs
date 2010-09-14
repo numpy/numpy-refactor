@@ -112,6 +112,19 @@ namespace NumpyDotNet
             return retArr;
         }
 
+
+        internal static ndarray NewFromDescr(dtype descr, long[] dims, long[] strides,
+            int flags, object interfaceData) {
+            GCHandle h = GCHandle.Alloc(interfaceData);
+            try {
+                Incref(descr.Descr);
+                return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
+                    flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
+            } finally {
+                h.Free();
+            }
+        }
+
         #endregion
 
 
@@ -232,6 +245,12 @@ namespace NumpyDotNet
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
         internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
+        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd,
+            int flags, long[] dims, long[] strides, IntPtr data, IntPtr interfaceData);
+
+
         #endregion
 
 
@@ -241,7 +260,7 @@ namespace NumpyDotNet
          * exactly as it is used to determine the platform-specific offsets. The
          * offsets allow the C# code to access these fields directly. */
         [StructLayout(LayoutKind.Sequential)]
-        struct NpyObject_HEAD {
+        internal struct NpyObject_HEAD {
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
@@ -344,7 +363,7 @@ namespace NumpyDotNet
         /// <param name="coreArray">Pointer to the native array object</param>
         /// <param name="ensureArray">If true forces base array type, not subtype</param>
         /// <param name="customStrides">Not sure how this is used</param>
-        /// <param name="interfaceData">Not used</param>
+        /// <param name="interfaceData">Specifies an already allocated ndarray instance to use</param>
         /// <param name="interfaceRet">void ** for us to store the allocated wrapper</param>
         /// <returns>True on success, false on failure</returns>
         private static int ArrayNewWrapper(IntPtr coreArray, int ensureArray,
@@ -355,7 +374,14 @@ namespace NumpyDotNet
             try {
                 // TODO: subtyping is not figured out or implemented yet.
 
-                ndarray wrapArray = new ndarray(coreArray);
+                ndarray wrapArray;
+                if (interfaceData != IntPtr.Zero) {
+                    wrapArray = (ndarray)GCHandle.FromIntPtr(interfaceData).Target;
+                    wrapArray.SetArray(coreArray);
+                } else {
+                    wrapArray = new ndarray(coreArray);
+                }
+
                 IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapArray));
                 Marshal.WriteIntPtr(interfaceRet, ret);
 
@@ -363,8 +389,8 @@ namespace NumpyDotNet
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");
                 success = 0;
-            } catch (Exception) {
-                Console.WriteLine("Exception while allocating array wrapper.");
+            } catch (Exception e) {
+                Console.WriteLine("Exception while allocating array wrapper: {0}", e.Message);
                 success = 0;
             }
             return success;

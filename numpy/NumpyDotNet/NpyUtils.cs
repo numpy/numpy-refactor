@@ -53,11 +53,63 @@ namespace NumpyDotNet {
 
 
         internal static int IntConverter(Object o) {
-            if (o is int) return (int)o;
+            if (o == null) return 0;
+            else if (o is int) return (int)o;
             else if (o is IConvertible) return Convert.ToInt32(o);
 
             throw new ArgumentException(String.Format("Unable to convert argument '{0}' to Boolean value.", o));
         }
+
+        internal static long[] IntArrConverter(Object o) {
+            if (o == null) return null;
+            else if (o is IEnumerable<Object>) {
+                return ((IEnumerable<Object>)o).Select(x => ((IConvertible)x).ToInt64(null)).ToArray();
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Type '{0}' is not supported for array dimensions.",
+                    o.GetType().Name));
+            }
+        }
+
+        /// <summary>
+        /// Converts an argument to an order specification.  Argument can be a string
+        /// starting with 'c', 'f', or 'a' (case-insensitive), a bool type, something
+        /// convertable to bool, or null.
+        /// </summary>
+        /// <param name="o">Order specification</param>
+        /// <returns>Npy order type</returns>
+        internal static NpyDefs.NPY_ORDER OrderConverter(Object o) {
+            NpyDefs.NPY_ORDER order;
+
+            if (o == null) order = NpyDefs.NPY_ORDER.NPY_ANYORDER;
+            else if (o is Boolean) order = ((bool)o) ?
+                         NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER;
+            else if (o is string) {
+                string s = (string)o;
+                switch (s[0]) {
+                    case 'C':
+                    case 'c':
+                        order = NpyDefs.NPY_ORDER.NPY_CORDER;
+                        break;
+                    case 'F':
+                    case 'f':
+                        order = NpyDefs.NPY_ORDER.NPY_FORTRANORDER;
+                        break;
+                    case 'A':
+                    case 'a':
+                        order = NpyDefs.NPY_ORDER.NPY_ANYORDER;
+                        break;
+                    default:
+                        throw new ArgumentTypeException("order not understood");
+                }
+            } else if (o is IConvertible) {
+                order = ((IConvertible)o).ToBoolean(null) ?
+                    NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER;
+            } else throw new ArgumentTypeException("order not understood");
+
+            return order;
+        }
+
 
         internal static Object[] BuildArgsArray(Object[] posArgs, String[] kwds,
             IAttributesCollection namedArgs) {
@@ -93,105 +145,6 @@ namespace NumpyDotNet {
             return args;
         }
 
-        // Don't like how this turned out, will probably go away, but might
-        // be useful for another function.
-#if goaway
-        internal static bool parseArgKeywords<T0>(Object[] posArgs, String[] kwds,
-            IAttributesCollection namedArgs, 
-            Func<Object, T0> f0, out T0 arg0) {
-
-            if (kwds.Length != 1)
-                throw new ArgumentOutOfRangeException(String.Format("Internal error: parseArgKeywords call with incorrect number of argument keywords ({0}, expected {1}.",
-                    kwds.Length, 1));
-
-            Object[] args = buildArgsArray(posArgs, kwds, namedArgs);
-
-            if (f0 == null) arg0 = (T0)args[0];
-            else arg0 = f0(args[0]);
-
-            return false;
-        }
-
-        internal static bool parseArgKeywords<T0, T1>(Object[] posArgs, String[] kwds,
-            IAttributesCollection namedArgs, 
-            Func<Object, T0> f0, out T0 arg0,
-            Func<Object, T1> f1, out T1 arg1) {
-
-            if (kwds.Length != 2)
-                throw new ArgumentOutOfRangeException(String.Format("Internal error: parseArgKeywords call with incorrect number of argument keywords ({0}, expected {1}.",
-                    kwds.Length, 2));
-
-            Object[] args = buildArgsArray(posArgs, kwds, namedArgs);
-
-            if (f0 == null) arg0 = (T0)args[0];
-            else arg0 = f0(args[0]);
-
-            if (f1 == null) arg1 = (T1)args[1];
-            else arg1 = f1(args[1]);
-
-            return false;
-        }
-
-        internal static bool parseArgKeywords<T0, T1, T2>(Object[] posArgs, String[] kwds,
-            IAttributesCollection namedArgs, 
-            Func<Object, T0> f0, out T0 arg0,
-            Func<Object, T1> f1, out T1 arg1,
-            Func<Object, T2> f2, out T2 arg2) {
-
-            if (kwds.Length != 3)
-                throw new ArgumentOutOfRangeException(String.Format("Internal error: parseArgKeywords call with incorrect number of argument keywords ({0}, expected {1}.",
-                    kwds.Length, 3));
-
-            Object[] args = buildArgsArray(posArgs, kwds, namedArgs);
-
-            if (f0 == null) arg0 = (T0)args[0];
-            else arg0 = f0(args[0]);
-
-            if (f1 == null) arg1 = (T1)args[1];
-            else arg1 = f1(args[1]);
-
-            if (f2 == null) arg2 = (T2)args[2];
-            else arg2 = f2(args[2]);
-
-            return false;
-        }
-
-        internal static bool parseArgKeywords<T0, T1, T2, T3, T4, T5>(Object[] posArgs, String[] kwds,
-            IAttributesCollection namedArgs, 
-            Func<Object, T0> f0, out T0 arg0,
-            Func<Object, T1> f1, out T1 arg1,
-            Func<Object, T2> f2, out T2 arg2,
-            Func<Object, T3> f3, out T3 arg3,
-            Func<Object, T4> f4, out T4 arg4,
-            Func<Object, T5> f5, out T5 arg5) {
-
-            if (kwds.Length != 3)
-                throw new ArgumentOutOfRangeException(String.Format("Internal error: parseArgKeywords call with incorrect number of argument keywords ({0}, expected {1}.",
-                    kwds.Length, 3));
-
-            Object[] args = buildArgsArray(posArgs, kwds, namedArgs);
-
-            if (f0 == null) arg0 = (T0)args[0];
-            else arg0 = f0(args[0]);
-
-            if (f1 == null) arg1 = (T1)args[1];
-            else arg1 = f1(args[1]);
-
-            if (f2 == null) arg2 = (T2)args[2];
-            else arg2 = f2(args[2]);
-
-            if (f3 == null) arg3 = (T3)args[3];
-            else arg3 = f3(args[3]);
-
-            if (f4 == null) arg4 = (T4)args[4];
-            else arg4 = f4(args[4]);
-
-            if (f5 == null) arg5 = (T5)args[5];
-            else arg5 = f5(args[5]);
-
-            return false;
-        }
-#endif
     }
 
 

@@ -45,6 +45,28 @@ namespace NumpyDotNet {
         }
 
 
+
+        /// <summary>
+        /// Checks the strides against the shape of the array.  This duplicates 
+        /// NpyArray_CheckStrides and is only here because we don't currently support
+        /// buffers and can simplify this function plus it's much faster to do here
+        /// than to pass the arrays into the native world.
+        /// </summary>
+        /// <param name="elSize">Size of array element in bytes</param>
+        /// <param name="shape">Size of each dimension of the array</param>
+        /// <param name="strides">Stride of each dimension</param>
+        /// <returns>True if strides are ok, false if not</returns>
+        internal static bool CheckStrides(int elSize, long[] shape, long[] strides) {
+            // Product of all dimension sizes * element size in bytes.
+            long numbytes = shape.Aggregate(1L, (acc, x) => acc * x) * elSize;
+            long end = numbytes - elSize;
+            for (int i = 0; i < shape.Length; i++) {
+                if (strides[i] * (shape[i] - 1) > end) return false;
+            }
+            return true;
+        }
+
+
         internal static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
             int maxDepth, int requires, Object context) {
 

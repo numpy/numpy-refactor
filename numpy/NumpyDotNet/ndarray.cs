@@ -19,43 +19,43 @@ namespace NumpyDotNet
     /// </summary>
     public class ndarray : IDisposable
     {
-        private static String[] ndarryArgNames = { "object", "dtype", "copy",
-                                                     "order", "subok", "ndwin" };
+        private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
+                                                   "offset", "strides", "order" };
 
         public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs)
         {
             Object[] posArgs = { };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2, a3 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2, a3, a4 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
@@ -63,7 +63,7 @@ namespace NumpyDotNet
             Object[] posArgs = { a1, a2, a3, a4, a5 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
@@ -71,7 +71,7 @@ namespace NumpyDotNet
             Object[] posArgs = { a1, a2, a3, a4, a5, a6 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
+            Construct(cntx.LanguageContext, args);
         }
 
 
@@ -80,19 +80,70 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="cntx"></param>
         /// <param name="args"></param>
-        private void Construct(CodeContext cntx, Object[] args) {
-            if (pyContext == null && cntx != null) pyContext = (PythonContext)cntx.LanguageContext;
-
-            Object dims = args[0];
-            dtype type = (dtype)args[1];
+        private void Construct(PythonContext cntx, Object[] args) {
+            dtype type = null;
 
             array = IntPtr.Zero;
+
+            long[] shape = NpyUtil_ArgProcessing.IntArrConverter(args[0]);
+            if (shape == null) 
+                throw new ArgumentException("Array constructor requires a shape to be specified.");
+
+            if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
+            if (args[2] != null)
+                throw new NotImplementedException("Buffer support is not implemented.");
+            long offset = NpyUtil_ArgProcessing.IntConverter(args[3]);
+            long[] strides = NpyUtil_ArgProcessing.IntArrConverter(args[4]);
+            NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(args[5]);
+
+            if (type == null)
+                type = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
+
+            int itemsize = type.ElementSize;
+            if (itemsize == 0) {
+                throw new ArgumentException("data-type with unspecified variable length");
+            }
+
+            if (strides != null) {
+                if (strides.Length != shape.Length) {
+                    throw new ArgumentException("strides, if given, must be the same length as shape");
+                }
+
+                if (!NpyArray.CheckStrides(itemsize, shape, strides)) {
+                    throw new ArgumentException("strides is compatible with shape of requested array and size of buffer");
+                }
+            }
+
+            // Creates a new array object.  By passing 'this' in the current instance
+            // becomes the wrapper object for the new array.
+            ndarray wrap = NpyCoreApi.NewFromDescr(type, shape, strides, 0, this);
+            if (wrap != this) {
+                throw new InvalidOperationException("Internal error: returned array wrapper is different than current instance.");
+            }
+            if ((type.Flags & NpyDefs.NPY__ITEM_HASOBJECT) != 0) {
+                throw new NotImplementedException("PyArray_FillObject not implemented yet");
+            }
         }
 
 
         // Creates a wrapper for an array created on the native side, such as the result of a slice operation.
         internal ndarray(IntPtr a)
         {
+            array = a;
+        }
+
+
+        /// <summary>
+        /// Danger!  This method is only intended to be used indirectly during construction
+        /// when the new instance is passed into the core as the 'interfaceData' field so
+        /// ArrayNewWrapper can pair up this instance with a core object.  If this pointer
+        /// is changed after pairing, bad things can happen.
+        /// </summary>
+        /// <param name="a">Core object to be paired with this wrapper</param>
+        internal void SetArray(IntPtr a) {
+            if (array == null) {
+                throw new InvalidOperationException("Attempt to change core array object for already-constructed wrapper.");
+            }
             array = a;
         }
 
@@ -290,6 +341,7 @@ namespace NumpyDotNet
         /// </summary>
         public dtype dtype {
             get {
+                if (array == IntPtr.Zero) return null;
                 IntPtr descr = Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_descr);
                 return NpyCoreApi.ToInterface<dtype>(descr);
             }

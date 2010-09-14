@@ -129,23 +129,18 @@ extern "C" __declspec(dllexport)
             bool fortran)
 {
     npy_intp *dims = NULL;
+    npy_intp dimMem[NPY_MAXDIMS];
 
     if (sizeof(npy_int64) != sizeof(npy_intp)) {
         // Dimensions uses a different type so we need to copy it.
-        dims = (npy_intp *)malloc(sizeof(npy_intp) * numdims);
         for (int i=0; i < numdims; i++) {
-            dims[i] = (npy_intp)dimensions[i];
+            dimMem[i] = (npy_intp)dimensions[i];
         }
+        dims = dimMem;
     } else {
         dims = (npy_intp *)dimensions;
     }
-    
-    NpyArray *arr = NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
-
-    if (sizeof(npy_int64) != sizeof(npy_intp)) {
-        free(dims);
-    }
-    return arr;
+    return NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
 }
 
 
@@ -167,4 +162,34 @@ extern "C" __declspec(dllexport)
 	int _cdecl NpyArrayAccess_BindIndex(NpyArray* arr, NpyIndex* indexes, int n, NpyIndex* bound_indexes)
 {
 	return NpyArray_IndexBind(indexes, n, arr->dimensions, arr->nd, bound_indexes);
+}
+
+
+
+// A simple translation routine that handles resizing the long[] types to either
+// int or long depending on the sizes of the C types.
+extern "C" __declspec(dllexport)
+    void * _cdecl NpyArrayAccess_NewFromDescrThunk(NpyArray_Descr *descr, int nd,
+    int flags, npy_int64 *dimsLong, npy_int64 *stridesLong, void *data, void *interfaceData)
+{
+    npy_intp *dims = NULL;
+    npy_intp *strides = NULL;
+    npy_intp dimMem[NPY_MAXDIMS], strideMem[NPY_MAXDIMS];
+
+    assert(NPY_VALID_MAGIC == descr->nob_magic_number);
+
+    if (sizeof(npy_int64) != sizeof(npy_intp)) {
+        // Dimensions uses a different type so we need to copy it.
+        for (int i=0; i < nd; i++) {
+            dimMem[i] = (npy_intp)(dimsLong[i]);
+            if (NULL != stridesLong) strideMem[i] = (npy_intp)stridesLong[i];
+        }
+        dims = dimMem;
+        strides = (NULL != stridesLong) ? strideMem : NULL;
+    } else {
+        dims = (npy_intp *)dimsLong;
+        strides = (npy_intp *)stridesLong;
+    }
+    return NpyArray_NewFromDescr(descr, nd, dims, strides, data, flags, 
+        NPY_FALSE, NULL, interfaceData);
 }
