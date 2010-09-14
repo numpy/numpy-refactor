@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 using IronPython.Runtime;
 
 namespace NumpyDotNet
@@ -92,10 +93,39 @@ namespace NumpyDotNet
         }
 
         // TODO: This should be called "base", but I'm not sure how.
-        public ndarray base_array {
+        public ndarray @base {
             get
             {
                 return arr;
+            }
+        }
+
+        public long __len__()
+        {
+            return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
+        }
+
+        public long index
+        {
+            get
+            {
+                return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_index).ToInt64();
+            }
+        }
+
+        public PythonTuple coords
+        {
+            get
+            {
+                int nd = arr.ndim;
+                long[] result = new long[nd];
+                IntPtr coords = NpyCoreApi.IterCoords(iter);
+                for (int i = 0; i < nd; i++)
+                {
+                    result[i] = Marshal.ReadIntPtr(coords).ToInt64();
+                    coords += IntPtr.Size;
+                }
+                return new PythonTuple(result);
             }
         }
 

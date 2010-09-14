@@ -192,6 +192,14 @@ extern "C" __declspec(dllexport)
 	obj->nob_type->ntp_dealloc(obj);
 }
 
+// Gets the offsets for iterator fields.
+extern "C" __declspec(dllexport)
+	void _cdecl NpyArrayAccess_IterGetOffsets(int* off_size, int* off_index)
+{
+	*off_size = offsetof(NpyArrayIterObject, size);
+	*off_index = offsetof(NpyArrayIterObject, index);
+}
+
 // Returns a pointer to the current data and advances the iterator.
 // Returns NULL if the iterator is already past the end.
 extern "C" __declspec(dllexport)
@@ -220,6 +228,30 @@ extern "C" __declspec(dllexport)
 	NpyArray* result = it->ao;
 	Npy_INCREF(result);
 	return result;
+}
+
+extern "C" __declspec(dllexport)
+	npy_intp* _cdecl NpyArrayAccess_IterCoords(NpyArrayIterObject* self)
+{
+	if (self->contiguous) {
+        /*
+         * coordinates not kept track of ---
+         * need to generate from index
+         */
+        npy_intp val;
+		int nd = self->ao->nd;
+        int i;
+        val = self->index;
+        for (i = 0; i < nd; i++) {
+            if (self->factors[i] != 0) {
+                self->coordinates[i] = val / self->factors[i];
+                val = val % self->factors[i];
+            } else {
+                self->coordinates[i] = 0;
+            }
+        }
+    }
+	return self->coordinates;
 }
 
 // Moves the iterator to the location and returns a pointer to the data.

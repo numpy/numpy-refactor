@@ -271,6 +271,10 @@ namespace NumpyDotNet
             EntryPoint = "NpyArrayAccess_IterArray")]
         internal static extern IntPtr IterArray(IntPtr iter);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+            EntryPoint = "NpyArrayAccess_IterCoords")]
+        internal static extern IntPtr IterCoords(IntPtr iter);
+
         //
         // Offset functions - these return the offsets to fields in native structures
         // as a workaround for not being able to include the C header file.
@@ -287,6 +291,10 @@ namespace NumpyDotNet
             out int kindOffset, out int typeOffset, out int byteorderOffset,
             out int flagsOffset, out int typenumOffset, out int elsizeOffset,
             out int alignmentOffset, out int namesOFfset, out int subarrayOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterGetOffsets")]
+        private static extern void IterGetOffsets(out int sizeOffset, out int indexOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
@@ -340,6 +348,12 @@ namespace NumpyDotNet
             internal int off_subarray;
         }
 
+        internal struct NpyArrayIterOffsets
+        {
+            internal int off_size;
+            internal int off_index;
+        }
+
         internal struct NpyArrayIndexInfo
         {
             internal int off_union;
@@ -350,6 +364,7 @@ namespace NumpyDotNet
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
+        internal static readonly NpyArrayIterOffsets IterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
 
         internal static byte nativeByteOrder;
@@ -779,6 +794,9 @@ namespace NumpyDotNet
                             out DescrOffsets.off_alignment,
                             out DescrOffsets.off_names,
                             out DescrOffsets.off_subarray);
+
+            IterGetOffsets(out IterOffsets.off_size,
+                           out IterOffsets.off_index);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 
