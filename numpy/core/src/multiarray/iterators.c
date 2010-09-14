@@ -328,7 +328,7 @@ static PyMappingMethods iter_as_mapping = {
 static PyObject *
 iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
 {
-    RETURN_PYARRAY(NpyArray_FlatView(pit->iter->ao);
+    RETURN_PYARRAY(NpyArray_FlatView(pit->iter->ao));
 }
 
 static PyObject *
