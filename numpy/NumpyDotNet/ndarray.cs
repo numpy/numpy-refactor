@@ -403,6 +403,38 @@ namespace NumpyDotNet
             get { return ChkFlags(NpyDefs.NPY_FORTRAN) && ndim > 1; }
         }
 
+        public bool IsNotSwapped {
+            get { return dtype.IsNativeByteOrder; }
+        }
+
+        public bool IsByteSwapped {
+            get { return !IsNotSwapped; }
+        }
+
+        public bool IsCArray {
+            get { return ChkFlags(NpyDefs.NPY_CARRAY) && IsNotSwapped; }
+        }
+
+        public bool IsCArray_RO {
+            get { return ChkFlags(NpyDefs.NPY_CARRAY_RO) && IsNotSwapped; }
+        }
+
+        public bool IsFArray {
+            get { return ChkFlags(NpyDefs.NPY_FARRAY) && IsNotSwapped; }
+        }
+
+        public bool IsFArray_RO {
+            get { return ChkFlags(NpyDefs.NPY_FARRAY_RO) && IsNotSwapped; }
+        }
+
+        public bool IsBehaved {
+            get { return ChkFlags(NpyDefs.NPY_BEHAVED) && IsNotSwapped; }
+        }
+
+        public bool IsBehaved_RO {
+            get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
+        }
+
 
         /// <summary>
         /// TODO: What does this return?
