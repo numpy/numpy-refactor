@@ -7,6 +7,7 @@ extern "C" {
 #include <npy_arrayobject.h>
 #include <npy_descriptor.h>
 #include <npy_object.h>
+#include <npy_dict.h>
 }
 
 
@@ -167,4 +168,19 @@ extern "C" __declspec(dllexport)
 	int _cdecl NpyArrayAccess_BindIndex(NpyArray* arr, NpyIndex* indexes, int n, NpyIndex* bound_indexes)
 {
 	return NpyArray_IndexBind(indexes, n, arr->dimensions, arr->nd, bound_indexes);
+}
+
+// Returns the offset for a field or -1 if there is no field that name.
+extern "C" __declspec(dllexport)
+	int _cdecl NpyArrayAccess_GetFieldOffset(NpyArray_Descr* descr, const char* fieldName, NpyArray_Descr** pDescr)
+{
+	if (descr->names == NULL) {
+		return -1;
+	}
+	NpyArray_DescrField *value = (NpyArray_DescrField*) NpyDict_Get(descr->fields, fieldName);
+	if (value == NULL) {
+		return -1;
+	}
+	*pDescr = value->descr;
+	return value->offset;
 }

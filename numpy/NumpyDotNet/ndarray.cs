@@ -206,10 +206,20 @@ namespace NumpyDotNet
                 {
                     throw new ArgumentException("array is not writeable.");
                 }
+
+                if (args.Length == 1 && args[0] is string) {
+                    IntPtr descr;
+                    int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, (string)args[0], out descr);
+                    if (offset < 0) {
+                        throw new ArgumentException(String.Format("field name '{0}' not found.", args[0]));
+                    }
+                    NpyArray.SetField(this, descr, offset, value);
+                    return;
+                }
+
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
-                    // TODO: Add SetField call.
 
                     // Special case for boolean on 0-d arrays.
                     if (ndim == 0 && indexes.NumIndexes == 1 && indexes.IndexType(0) == NpyIndexes.NpyIndexTypes.BOOL)

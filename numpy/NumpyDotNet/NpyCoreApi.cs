@@ -171,8 +171,11 @@ namespace NumpyDotNet
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_IndexSimple(IntPtr arr, IntPtr indexes, int n);
 
-        [DllImport("ndArray", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_IndexFancyAssign(IntPtr dest, IntPtr indexes, int n, IntPtr value_array);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
 
         #endregion
 
@@ -210,6 +213,10 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_BindIndex")]
         internal static extern int BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetFieldOffset")]
+        internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
 
         //
         // Offset functions - these return the offsets to fields in native structures
