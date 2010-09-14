@@ -511,6 +511,50 @@ NpyArray_Flatten(NpyArray *a, NPY_ORDER order)
     return ret;
 }
 
+/*
+ * If a is contiguous returns a 1-d view of the array.
+ * Otherwise, returns a 1-d contiguous copy with update-if-copy set.
+ */
+NDARRAY_API NpyArray *
+NpyArray_FlatView(NpyArray *a)
+{
+    NpyArray *r;
+    npy_intp size;
+
+    /* Any argument ignored */
+
+    /* Two options:
+     *  1) underlying array is contiguous
+     *  -- return 1-d wrapper around it
+     * 2) underlying array is not contiguous
+     * -- make new 1-d contiguous array with updateifcopy flag set
+     * to copy back to the old array
+     */
+    size = NpyArray_SIZE(a);
+    Npy_INCREF(a->descr);
+    if (NpyArray_ISCONTIGUOUS(a)) {
+        r = NpyArray_NewView(a->descr, 1, &size, NULL, a, 0,
+                             NPY_TRUE);
+    }
+    else {
+        r = NpyArray_Alloc(a->descr, 1, &size, NPY_FALSE,
+                           Npy_INTERFACE(a));
+        if (r == NULL) {
+            return NULL;
+        }
+        if (_flat_copyinto(r, a,
+                           NPY_CORDER) < 0) {
+            Npy_DECREF(r);
+            return NULL;
+        }
+        NpyArray_FLAGS(r) |= NPY_UPDATEIFCOPY;
+        a->flags &= ~NPY_WRITEABLE;
+        Npy_INCREF(a);
+        NpyArray_BASE_ARRAY(r) = a;
+    }
+    return r;
+}
+
 
 /* inserts 0 for strides where dimension will be 1 */
 static int

@@ -328,44 +328,7 @@ static PyMappingMethods iter_as_mapping = {
 static PyObject *
 iter_array(PyArrayIterObject *pit, PyObject *NPY_UNUSED(op))
 {
-    NpyArrayIterObject *it = pit->iter;
-    NpyArray *r;
-    PyArrayObject *result = NULL;
-    intp size;
-
-    /* Any argument ignored */
-
-    /* Two options:
-     *  1) underlying array is contiguous
-     *  -- return 1-d wrapper around it
-     * 2) underlying array is not contiguous
-     * -- make new 1-d contiguous array with updateifcopy flag set
-     * to copy back to the old array
-     */
-    size = NpyArray_SIZE(it->ao);
-    Npy_INCREF(it->ao->descr);
-    if (NpyArray_ISCONTIGUOUS(it->ao)) {
-        r = NpyArray_NewView(it->ao->descr, 1, &size, NULL, it->ao, 0,
-                             NPY_TRUE);
-    }
-    else {
-        r = NpyArray_Alloc(it->ao->descr, 1, &size, NPY_FALSE,
-                           Npy_INTERFACE(it->ao));
-        if (r == NULL) {
-            return NULL;
-        }
-        if (_flat_copyinto(r, it->ao,
-                           PyArray_CORDER) < 0) {
-            Npy_DECREF(r);
-            return NULL;
-        }
-        NpyArray_FLAGS(r) |= UPDATEIFCOPY;
-        it->ao->flags &= ~WRITEABLE;
-        Npy_INCREF(it->ao);
-        NpyArray_BASE_ARRAY(r) = it->ao;
-    }
-    ASSIGN_TO_PYARRAY(result, r);
-    return (PyObject *)result;
+    RETURN_PYARRAY(NpyArray_FlatView(pit->iter->ao);
 }
 
 static PyObject *

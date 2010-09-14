@@ -139,6 +139,13 @@ namespace NumpyDotNet
                 );
         }
 
+        internal static ndarray FlatView(ndarray a)
+        {
+            return DecrefToInterface<ndarray>(
+                NpyArray_FlatView(a.Array)
+                );
+        }
+
         #endregion
 
 
@@ -215,6 +222,9 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
         #endregion
 

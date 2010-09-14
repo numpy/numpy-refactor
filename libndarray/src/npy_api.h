@@ -217,6 +217,7 @@ NDARRAY_API NpyArray* NpyArray_Transpose(NpyArray *ap, NpyArray_Dims *permute);
 NDARRAY_API int NpyArray_TypestrConvert(int itemsize, int gentype);
 NDARRAY_API NpyArray* NpyArray_Ravel(NpyArray *a, NPY_ORDER fortran);
 NDARRAY_API NpyArray* NpyArray_Flatten(NpyArray *a, NPY_ORDER order);
+NDARRAY_API NpyArray* NpyArray_FlatView(NpyArray *a);
 
 NDARRAY_API NpyArray *NpyArray_CastToType(NpyArray *mp, NpyArray_Descr *at, 
                                           int fortran);

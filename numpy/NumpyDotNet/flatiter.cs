@@ -133,6 +133,17 @@ namespace NumpyDotNet
             return NpyCoreApi.Flatten(arr, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
+        /// <summary>
+        /// Returns a contiguous, 1-d array that can be used to update the underlying array.  If the array
+        /// is contiguous this is a 1-d view of the array.  Otherwise it is a copy with UPDATEIFCOPY set so that
+        /// the data will be copied back when the returned array is freed.
+        /// </summary>
+        /// <returns></returns>
+        public ndarray __array__()
+        {
+            return NpyCoreApi.FlatView(arr);
+        }
+
         #region IEnumerator<object>
 
         public object Current
