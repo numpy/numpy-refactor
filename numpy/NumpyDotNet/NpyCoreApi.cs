@@ -118,6 +118,12 @@ namespace NumpyDotNet
                 NpyArray_IterNew(ao.Array));
         }
 
+        internal static ndarray IterSubscript(flatiter iter, NpyIndexes indexes)
+        {
+            return DecrefToInterface<ndarray>(
+                NpyArray_IterSubscript(iter.Iter, indexes.Indexes, indexes.NumIndexes));
+        }
+
         #endregion
 
 
@@ -185,6 +191,9 @@ namespace NumpyDotNet
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_IterNew(IntPtr ao);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_IterSubscript(IntPtr iter, IntPtr indexes, int n);
 
         #endregion
 

@@ -36,7 +36,31 @@ namespace NumpyDotNet
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        
+
+        public Object this[params object[] args]
+        {
+            get
+            {
+                ndarray result;
+
+                using (NpyIndexes indexes = new NpyIndexes())
+                {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    result = NpyCoreApi.IterSubscript(this, indexes);
+                }
+                if (result.ndim == 0)
+                {
+                    // TODO: Should return a numpy scalar
+                    return result.GetItem(0);
+                }
+                else
+                {
+                    return result;
+                }
+            }
+        }
+
+        #region IEnumerator<object>
 
         public object Current
         {
@@ -58,6 +82,15 @@ namespace NumpyDotNet
             NpyCoreApi.IterReset(iter);
         }
 
+        #endregion
+
+        internal IntPtr Iter
+        {
+            get
+            {
+                return iter;
+            }
+        }
 
         private IntPtr iter;
         private IntPtr current;
