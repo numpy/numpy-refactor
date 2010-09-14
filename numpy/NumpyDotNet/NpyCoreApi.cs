@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
@@ -10,8 +10,7 @@ using IronPython.Modules;
 using Microsoft.Scripting.Runtime;
 using Microsoft.Scripting.Utils;
 
-namespace NumpyDotNet
-{
+namespace NumpyDotNet {
     /// <summary>
     /// NpyCoreApi class wraps the interactions with the libndarray core library. It
     /// also makes use of NpyAccessLib.dll for a few functions that must be
@@ -100,7 +99,7 @@ namespace NumpyDotNet
         /// <returns>Array w/ an array size or stride for each dimension</returns>
         internal static Int64[] GetArrayDimsOrStrides(ndarray arr, bool getDims) {
             Int64[] retArr;
-            
+
             retArr = new Int64[arr.ndim];
             unsafe {
                 fixed (Int64* dimMem = retArr) {
@@ -112,7 +111,6 @@ namespace NumpyDotNet
             return retArr;
         }
 
-
         internal static ndarray NewFromDescr(dtype descr, long[] dims, long[] strides,
             int flags, object interfaceData) {
             GCHandle h = GCHandle.Alloc(interfaceData);
@@ -123,6 +121,29 @@ namespace NumpyDotNet
             } finally {
                 h.Free();
             }
+        }
+
+
+        internal static flatiter IterNew(ndarray ao) {
+            return DecrefToInterface<flatiter>(
+                NpyArray_IterNew(ao.Array));
+        }
+
+        internal static ndarray IterSubscript(flatiter iter, NpyIndexes indexes) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_IterSubscript(iter.Iter, indexes.Indexes, indexes.NumIndexes));
+        }
+
+        internal static void IterSubscriptAssign(flatiter iter, NpyIndexes indexes, ndarray val) {
+            if (NpyArray_IterSubscriptAssign(iter.Iter, indexes.Indexes, indexes.NumIndexes, val.Array) < 0) {
+                CheckError();
+            }
+        }
+
+        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Flatten(a.Array, order)
+                );
         }
 
         #endregion
@@ -152,7 +173,7 @@ namespace NumpyDotNet
         internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, 
+        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr,
             int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -184,33 +205,48 @@ namespace NumpyDotNet
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_IndexSimple(IntPtr arr, IntPtr indexes, int n);
 
-        [DllImport("ndArray", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_IndexFancyAssign(IntPtr dest, IntPtr indexes, int n, IntPtr value_array);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_IterNew(IntPtr ao);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_IterSubscript(IntPtr iter, IntPtr indexes, int n);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
 
         #endregion
 
         #region NpyAccessLib functions
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_ArraySetDescr")]
+            EntryPoint = "NpyArrayAccess_ArraySetDescr")]
         internal static extern void ArraySetDescr(IntPtr array, IntPtr newDescr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_Incref")]
+            EntryPoint = "NpyArrayAccess_Incref")]
         internal static extern void Incref(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_Decref")]
+            EntryPoint = "NpyArrayAccess_Decref")]
         internal static extern void Decref(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
-        private static extern byte GetNativeTypeInfo(out int intSize, 
+        private static extern byte GetNativeTypeInfo(out int intSize,
             out int longsize, out int longLongSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
-        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64 *dimMem);
+        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64* dimMem);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
@@ -223,6 +259,38 @@ namespace NumpyDotNet
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_BindIndex")]
         internal static extern int BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_GetFieldOffset")]
+        internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
+
+        /// <summary>
+        /// Deallocates an NpyObject.
+        /// </summary>
+        /// <param name="obj">The object to deallocate</param>
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_Dealloc")]
+        internal static extern void Dealloc(IntPtr obj);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterNext")]
+        internal static extern IntPtr IterNext(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterReset")]
+        internal static extern void IterReset(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterGoto1D")]
+        internal static extern IntPtr IterGoto1D(IntPtr iter, IntPtr index);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterArray")]
+        internal static extern IntPtr IterArray(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterCoords")]
+        internal static extern IntPtr IterCoords(IntPtr iter);
 
         //
         // Offset functions - these return the offsets to fields in native structures
@@ -242,6 +310,10 @@ namespace NumpyDotNet
             out int alignmentOffset, out int namesOFfset, out int subarrayOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_IterGetOffsets")]
+        private static extern void IterGetOffsets(out int sizeOffset, out int indexOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
         internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
@@ -249,7 +321,6 @@ namespace NumpyDotNet
             EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
         internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd,
             int flags, long[] dims, long[] strides, IntPtr data, IntPtr interfaceData);
-
 
         #endregion
 
@@ -260,7 +331,7 @@ namespace NumpyDotNet
          * exactly as it is used to determine the platform-specific offsets. The
          * offsets allow the C# code to access these fields directly. */
         [StructLayout(LayoutKind.Sequential)]
-        internal struct NpyObject_HEAD {
+        struct NpyObject_HEAD {
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
@@ -299,8 +370,12 @@ namespace NumpyDotNet
             internal int off_subarray;
         }
 
-        internal struct NpyArrayIndexInfo
-        {
+        internal struct NpyArrayIterOffsets {
+            internal int off_size;
+            internal int off_index;
+        }
+
+        internal struct NpyArrayIndexInfo {
             internal int off_union;
             internal int sizeof_index;
             internal int max_dims;
@@ -309,6 +384,7 @@ namespace NumpyDotNet
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
+        internal static readonly NpyArrayIterOffsets IterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
 
         internal static byte nativeByteOrder;
@@ -363,11 +439,11 @@ namespace NumpyDotNet
         /// <param name="coreArray">Pointer to the native array object</param>
         /// <param name="ensureArray">If true forces base array type, not subtype</param>
         /// <param name="customStrides">Not sure how this is used</param>
-        /// <param name="interfaceData">Specifies an already allocated ndarray instance to use</param>
+        /// <param name="interfaceData">Not used</param>
         /// <param name="interfaceRet">void ** for us to store the allocated wrapper</param>
         /// <returns>True on success, false on failure</returns>
         private static int ArrayNewWrapper(IntPtr coreArray, int ensureArray,
-            int customStrides, IntPtr subtypePtr, IntPtr interfaceData, 
+            int customStrides, IntPtr subtypePtr, IntPtr interfaceData,
             IntPtr interfaceRet) {
             int success = 1;     // Success
 
@@ -389,16 +465,35 @@ namespace NumpyDotNet
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");
                 success = 0;
-            } catch (Exception e) {
-                Console.WriteLine("Exception while allocating array wrapper: {0}", e.Message);
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating array wrapper.");
                 success = 0;
             }
             return success;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int del_ArrayNewWrapper(IntPtr coreArray, int ensureArray,
-            int customStrides, IntPtr subtypePtr, IntPtr interfaceData, 
+            int customStrides, IntPtr subtypePtr, IntPtr interfaceData,
             IntPtr interfaceRet);
+
+        private static int IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet) {
+            int success = 1;
+
+            try {
+                flatiter wrapIter = new flatiter(coreIter);
+                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                Marshal.WriteIntPtr(interfaceRet, ret);
+            } catch (InsufficientMemoryException) {
+                Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
+                success = 0;
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating iterator wrapper.");
+                success = 0;
+            }
+            return success;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
 
 
         /// <summary>
@@ -626,6 +721,8 @@ namespace NumpyDotNet
 
         private static readonly del_ArrayNewWrapper ArrayNewWrapDelegate =
             new del_ArrayNewWrapper(ArrayNewWrapper);
+        private static readonly del_IterNewWrapper IterNewWrapperDelegate =
+            new del_IterNewWrapper(IterNewWrapper);
         private static readonly del_DescrNewFromType DescrNewFromTypeDelegate =
             new del_DescrNewFromType(DescrNewFromType);
         private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
@@ -668,9 +765,10 @@ namespace NumpyDotNet
         static NpyCoreApi() {
             wrapFuncs = new NpyInterface_WrapperFuncs();
 
-            wrapFuncs.array_new_wrapper = 
+            wrapFuncs.array_new_wrapper =
                 Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
-            wrapFuncs.iter_new_wrapper = IntPtr.Zero;
+            wrapFuncs.iter_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
             wrapFuncs.multi_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.descr_new_from_type =
@@ -685,7 +783,7 @@ namespace NumpyDotNet
                 wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
                 Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
 
-                
+
                 npy_initlib(IntPtr.Zero,
                     wrapHandle,
                     Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
@@ -718,6 +816,9 @@ namespace NumpyDotNet
                             out DescrOffsets.off_names,
                             out DescrOffsets.off_subarray);
 
+            IterGetOffsets(out IterOffsets.off_size,
+                           out IterOffsets.off_index);
+
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 
             // Check the native byte ordering (make sure it matches what .NET uses) and
@@ -725,7 +826,7 @@ namespace NumpyDotNet
             // fixed-size .NET types.
             int intSize, longSize, longLongSize;
             nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
-            
+
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
                 TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
                 TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
@@ -746,4 +847,3 @@ namespace NumpyDotNet
         #endregion
     }
 }
-

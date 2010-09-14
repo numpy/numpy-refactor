@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,6 +45,42 @@ namespace NumpyDotNet {
         }
 
 
+        internal static void SetField(ndarray dest, IntPtr descr, int offset, object src)
+        {
+            // For char arrays pad the input string.
+            if (dest.dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
+                dest.ndim > 0 && src is String)
+            {
+                int ndimNew = (int)dest.Dims[dest.ndim - 1];
+                int ndimOld = ((String)src).Length;
+
+                if (ndimNew > ndimOld)
+                {
+                    src = ((String)src).PadRight(ndimNew, ' ');
+                }
+            }
+            ndarray srcArray;
+            if (src is ndarray)
+            {
+                srcArray = (ndarray)src;
+            }
+            else if (false)
+            {
+                // TODO: Not handling scalars.  See arrayobject.c:111
+            }
+            else
+            {
+                srcArray = FromAny(src, dest.dtype, 0, dest.ndim,
+                                   dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
+            }
+            if (NpyCoreApi.NpyArray_SetField(dest.Array, descr, offset, srcArray.Array) < 0)
+            {
+                NpyCoreApi.CheckError();
+            }
+        }
+
+
+        
 
         /// <summary>
         /// Checks the strides against the shape of the array.  This duplicates 
@@ -434,3 +470,4 @@ namespace NumpyDotNet {
         }
     }
 }
+

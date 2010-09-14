@@ -221,6 +221,18 @@ NpyArray_IterSubscriptIntp(NpyArrayIterObject *self, npy_intp index)
     NpyArray *result;
     int swap;
 
+	if (index < 0) {
+		index += self->size;
+	}
+	if (index < 0 || index >= self->size) {
+		char msg[1024];
+		sprintf(msg, "index %"NPY_INTP_FMT" out of bounds"
+						" 0<=index<%"NPY_INTP_FMT,
+						index, self->size);
+		NpyErr_SetString(NpyExc_IndexError, msg);
+		return NULL;
+	}
+
     Npy_INCREF(self->ao->descr);
     result = NpyArray_Alloc(self->ao->descr, 0, NULL,
                             NPY_FALSE, Npy_INTERFACE(self->ao));

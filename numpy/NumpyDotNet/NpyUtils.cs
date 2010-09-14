@@ -223,9 +223,9 @@ namespace NumpyDotNet {
             {
                 indexes.AddIndex((ISlice)arg);
             }
-            //else if (arg is string) {
-            //    indexes.AddIndex((string)arg);
-            //}
+            else if (arg is string) {
+                indexes.AddIndex((string)arg);
+            }
             else
             {
                 ndarray array_arg = arg as ndarray;
