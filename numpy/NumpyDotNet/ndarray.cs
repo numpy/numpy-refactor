@@ -18,7 +18,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public class ndarray : IDisposable
+    public class ndarray : Wrapper
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -84,7 +84,7 @@ namespace NumpyDotNet
         private void Construct(PythonContext cntx, Object[] args) {
             dtype type = null;
 
-            array = IntPtr.Zero;
+            core = IntPtr.Zero;
 
             long[] shape = NpyUtil_ArgProcessing.IntArrConverter(args[0]);
             if (shape == null) 
@@ -131,7 +131,7 @@ namespace NumpyDotNet
         // Creates a wrapper for an array created on the native side, such as the result of a slice operation.
         internal ndarray(IntPtr a)
         {
-            array = a;
+            core = a;
         }
 
 
@@ -143,33 +143,10 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="a">Core object to be paired with this wrapper</param>
         internal void SetArray(IntPtr a) {
-            if (array == null) {
+            if (core == null) {
                 throw new InvalidOperationException("Attempt to change core array object for already-constructed wrapper.");
             }
-            array = a;
-        }
-
-        ~ndarray()
-        {
-            Dispose(false);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (array != IntPtr.Zero)
-            {
-                lock (this) {
-                    IntPtr a = array;
-                    array = IntPtr.Zero;
-                    NpyCoreApi.NpyArray_dealloc(a);
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            core = a;
         }
 
         #region Python methods
@@ -301,7 +278,7 @@ namespace NumpyDotNet
                     {
                         // TODO: Handle array subclasses.
                         ndarray view = NpyCoreApi.DecrefToInterface<ndarray>(
-                            NpyCoreApi.NpyArray_IndexSimple(array, indexes.Indexes, indexes.NumIndexes)
+                            NpyCoreApi.NpyArray_IndexSimple(core, indexes.Indexes, indexes.NumIndexes)
                             );
 
                         NpyArray.CopyObject(view, value);
@@ -325,7 +302,7 @@ namespace NumpyDotNet
         /// Number of dimensions in the array
         /// </summary>
         public int ndim {
-            get { return Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_nd); }
+            get { return Marshal.ReadInt32(core, NpyCoreApi.ArrayOffsets.off_nd); }
         }
 
         /// <summary>
@@ -340,7 +317,7 @@ namespace NumpyDotNet
         /// Total number of elements in the array.
         /// </summary>
         public long size {
-            get { return (long)NpyCoreApi.NpyArray_Size(array); }
+            get { return (long)NpyCoreApi.NpyArray_Size(core); }
         }
 
         /// <summary>
@@ -348,7 +325,7 @@ namespace NumpyDotNet
         /// is native memory, not managed memory.
         /// </summary>
         public IntPtr data {
-            get { return Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_data); }
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
 
@@ -357,12 +334,12 @@ namespace NumpyDotNet
         /// </summary>
         public dtype dtype {
             get {
-                if (array == IntPtr.Zero) return null;
-                IntPtr descr = Marshal.ReadIntPtr(array, NpyCoreApi.ArrayOffsets.off_descr);
+                if (core == IntPtr.Zero) return null;
+                IntPtr descr = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_descr);
                 return NpyCoreApi.ToInterface<dtype>(descr);
             }
             set {
-                NpyCoreApi.ArraySetDescr(array, value.Descr);
+                NpyCoreApi.ArraySetDescr(core, value.Descr);
             }
         }
 
@@ -398,7 +375,7 @@ namespace NumpyDotNet
 
         public ndarray NewCopy(NpyDefs.NPY_ORDER order) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_NewCopy(array, (byte)order));
+                NpyCoreApi.NpyArray_NewCopy(core, (byte)order));
         }
 
 
@@ -431,7 +408,7 @@ namespace NumpyDotNet
         /// Handle to the core representation.
         /// </summary>
         public IntPtr Array {
-            get { return array; }
+            get { return core; }
         }
 
         /// <summary>
@@ -506,7 +483,7 @@ namespace NumpyDotNet
         /// TODO: What does this return?
         /// </summary>
         public int ElementStrides {
-            get { return NpyCoreApi.NpyArray_ElementStrides(array); }
+            get { return NpyCoreApi.NpyArray_ElementStrides(core); }
         }
 
         public bool StridingOk(NpyDefs.NPY_ORDER order) {
@@ -516,7 +493,7 @@ namespace NumpyDotNet
         }
 
         private bool ChkFlags(int flag) {
-            int curFlags = Marshal.ReadInt32(array, NpyCoreApi.ArrayOffsets.off_flags);
+            int curFlags = Marshal.ReadInt32(core, NpyCoreApi.ArrayOffsets.off_flags);
             return ((curFlags & flag) == flag);
         }
 
@@ -617,7 +594,7 @@ namespace NumpyDotNet
         /// <summary>
         ///  Pointer to the native object 
         /// </summary>
-        private IntPtr array;
+        private IntPtr core;
 
     }
 }

@@ -8,7 +8,7 @@ namespace NumpyDotNet
     /// <summary>
     /// A multi-array iterator.
     /// </summary>
-    public class broadcast : IDisposable
+    public class broadcast : Wrapper
     {
         public broadcast(params object[] args) {
             // Convert args to arrays.
@@ -18,7 +18,7 @@ namespace NumpyDotNet
             }
             try {
                 BeingCreated = this;
-                iter = NpyCoreApi.MultiIterFromArrays(arrays);
+                core = NpyCoreApi.MultiIterFromArrays(arrays);
             } finally {
                 BeingCreated = null;
             }
@@ -27,29 +27,13 @@ namespace NumpyDotNet
         [ThreadStatic]
         internal static broadcast BeingCreated;
 
-        ~broadcast() {
-            Dispose(false);
-        }
-
-        public void Dispose() {
-            Dispose(true);
-        }
-
-        protected void Dispose(bool disposing) {
-            lock (this) {
-                IntPtr a = iter;
-                iter = IntPtr.Zero;
-                NpyCoreApi.Dealloc(a);
-            }
-        }
-
         internal IntPtr Iter {
             get {
-                return iter;
+                return core;
             }
         }
 
-        private IntPtr iter;
+        private IntPtr core;
 
 
     }

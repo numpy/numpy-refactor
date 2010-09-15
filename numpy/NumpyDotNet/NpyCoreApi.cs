@@ -667,6 +667,11 @@ namespace NumpyDotNet {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
 
+        internal static IntPtr GetRefcnt(IntPtr obj) {
+            // NOTE: I'm relying on the refcnt being first.
+            return Marshal.ReadIntPtr(obj);
+        }
+
         #region Error handling
 
         /// <summary>
