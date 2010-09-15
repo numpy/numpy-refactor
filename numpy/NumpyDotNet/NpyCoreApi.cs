@@ -23,6 +23,18 @@ namespace NumpyDotNet {
     [SuppressUnmanagedCodeSecurity]
     public static class NpyCoreApi {
 
+        /// <summary>
+        /// Stupid hack to allow us to pass an already-allocated wrapper instance
+        /// through the interfaceData argument and tell the wrapper creation functions
+        /// like ArrayNewWrapper to use an existing instance instead of creating a new
+        /// one.  This is necessary because CPython does construction as an allocator
+        /// but .NET only triggers code after allocation.
+        /// </summary>
+        internal struct UseExistingWrapper
+        {
+            internal object Wrapper;
+        }
+
         #region API Wrappers
 
         /// <summary>
@@ -462,8 +474,12 @@ namespace NumpyDotNet {
                 // TODO: subtyping is not figured out or implemented yet.
 
                 ndarray wrapArray;
-                if (interfaceData != IntPtr.Zero) {
-                    wrapArray = (ndarray)GCHandle.FromIntPtr(interfaceData).Target;
+                if (interfaceData != IntPtr.Zero &&
+                    GCHandle.FromIntPtr(interfaceData).Target is UseExistingWrapper) {
+                    // The UseExistingWrapper struct is a hack to allow us to re-use
+                    // the interfaceData pointer for multiple purposes.
+                    UseExistingWrapper w = (UseExistingWrapper)GCHandle.FromIntPtr(interfaceData).Target;
+                    wrapArray = (ndarray)w.Wrapper;
                     wrapArray.SetArray(coreArray);
                 } else {
                     wrapArray = new ndarray(coreArray);
