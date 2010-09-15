@@ -166,6 +166,14 @@ namespace NumpyDotNet {
                 );
         }
 
+        internal static IntPtr MultiIterFromArrays(ndarray[] arrays) {
+            IntPtr[] coreArrays = new IntPtr[arrays.Length];
+            for (int i = 0; i < arrays.Length; i++) {
+                coreArrays[i] = arrays[i].Array;
+            }
+            return NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+        }
+
         #endregion
 
 
@@ -290,6 +298,9 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_GetFieldOffset")]
         internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
+
         /// <summary>
         /// Deallocates an NpyObject.
         /// </summary>
@@ -339,6 +350,10 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_IterGetOffsets")]
         private static extern void IterGetOffsets(out int sizeOffset, out int indexOffset);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_MultiIterGetOffsets")]
+        private static extern void MultiIterGetOffsets(out int numiterOffset, out int sizeOffset,
+            out int indexOffset, out int ndOffset, out int dimensionsOffset, out int itersOffset);
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_UFuncGetOffsets")]
         private static extern void UFuncGetOffsets(out int ninOffset, 
@@ -378,6 +393,7 @@ namespace NumpyDotNet {
             internal IntPtr neighbor_iter_new_wrapper;
             internal IntPtr descr_new_from_type;
             internal IntPtr descr_new_from_wrapper;
+            internal IntPtr ufunc_new_wrapper;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -410,8 +426,17 @@ namespace NumpyDotNet {
             internal int off_index;
         }
 
-        internal struct NpyArrayIndexInfo
+        internal struct NpyArrayMultiIterOffsets
         {
+            internal int off_numiter;
+            internal int off_size;
+            internal int off_index;
+            internal int off_nd;
+            internal int off_dimensions;
+            internal int off_iters;
+        }
+
+        internal struct NpyArrayIndexInfo {
             internal int off_union;
             internal int sizeof_index;
             internal int max_dims;
@@ -434,6 +459,7 @@ namespace NumpyDotNet {
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
         internal static readonly NpyArrayIterOffsets IterOffsets;
+        internal static readonly NpyArrayMultiIterOffsets MultiIterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
         internal static readonly NpyUFuncOffsets UFuncOffsets;
 
@@ -549,6 +575,24 @@ namespace NumpyDotNet {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int del_IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
 
+        private static int MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet) {
+            int success = 1;
+            try {
+                broadcast wrapIter = broadcast.BeingCreated;
+                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                Marshal.WriteIntPtr(interfaceRet, ret);
+            } catch (InsufficientMemoryException) {
+                Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
+                success = 0;
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating iterator wrapper.");
+                success = 0;
+            }
+            return success;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
+
 
         /// <summary>
         /// Allocated a managed wrapper for one of the core, native types
@@ -612,6 +656,29 @@ namespace NumpyDotNet {
 
 
         /// <summary>
+        /// Allocated a managed wrapper for a UFunc object.
+        /// </summary>
+        /// <param name="baseTmp">Pointer to the base object</param>
+        /// <param name="interfaceRet">void** for returning allocated wrapper</param>
+        /// <returns>1 on success, 0 on error</returns>
+        private static void UFuncNewWrapper(IntPtr basePtr, IntPtr interfaceRet) {
+            try {
+                // TODO: Descriptor typeobj not handled. Do we need to?
+
+                ufunc wrap = new ufunc(basePtr);
+                Marshal.WriteIntPtr(interfaceRet,
+                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+            } catch (InsufficientMemoryException) {
+                Console.WriteLine("Insufficient memory while allocating ufunc wrapper.");
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating ufunc wrapper.");
+            }
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void del_UFuncNewWrapper(IntPtr basePtr, IntPtr interfaceRet);
+
+
+        /// <summary>
         /// Accepts a pointer to an existing GCHandle object and allocates
         /// an additional GCHandle to the same object.  This effectively
         /// does an "incref" on the object.  Used in cases where an array
@@ -664,6 +731,11 @@ namespace NumpyDotNet {
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
+
+        internal static IntPtr GetRefcnt(IntPtr obj) {
+            // NOTE: I'm relying on the refcnt being first.
+            return Marshal.ReadIntPtr(obj);
+        }
 
         #region Error handling
 
@@ -777,10 +849,15 @@ namespace NumpyDotNet {
             new del_ArrayNewWrapper(ArrayNewWrapper);
         private static readonly del_IterNewWrapper IterNewWrapperDelegate =
             new del_IterNewWrapper(IterNewWrapper);
+        private static readonly del_MultiIterNewWrapper MultiIterNewWrapperDelegate =
+            new del_MultiIterNewWrapper(MultiIterNewWrapper);
         private static readonly del_DescrNewFromType DescrNewFromTypeDelegate =
             new del_DescrNewFromType(DescrNewFromType);
         private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
             new del_DescrNewFromWrapper(DescrNewFromWrapper);
+        private static readonly del_UFuncNewWrapper UFuncNewWrapperDelegate =
+            new del_UFuncNewWrapper(UFuncNewWrapper);
+
         private static readonly del_Incref IncrefCallbackDelegate =
             new del_Incref(IncrefCallback);
         private static readonly del_Decref DecrefCallbackDelegate =
@@ -823,12 +900,15 @@ namespace NumpyDotNet {
                 Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
             wrapFuncs.iter_new_wrapper =
                 Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
-            wrapFuncs.multi_iter_new_wrapper = IntPtr.Zero;
+            wrapFuncs.multi_iter_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(MultiIterNewWrapperDelegate);
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.descr_new_from_type =
                 Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
             wrapFuncs.descr_new_from_wrapper =
                 Marshal.GetFunctionPointerForDelegate(DescrNewFromWrapperDelegate);
+            wrapFuncs.ufunc_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(UFuncNewWrapperDelegate);
 
             int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
 
@@ -872,6 +952,13 @@ namespace NumpyDotNet {
 
             IterGetOffsets(out IterOffsets.off_size,
                            out IterOffsets.off_index);
+
+            MultiIterGetOffsets(out MultiIterOffsets.off_numiter,
+                                out MultiIterOffsets.off_size,
+                                out MultiIterOffsets.off_index,
+                                out MultiIterOffsets.off_nd,
+                                out MultiIterOffsets.off_dimensions,
+                                out MultiIterOffsets.off_iters);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 

@@ -9,7 +9,7 @@ using Microsoft.Scripting;
 using NumpyDotNet;
 
 namespace NumpyDotNet {
-    public class dtype {
+    public class dtype : Wrapper {
         public dtype(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs) {
             String[] unsupportedArgs = { };
 
@@ -32,7 +32,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Descriptor to duplicate</param>
         public dtype(dtype d) {
-            descr = NpyCoreApi.NpyArray_DescrNew(this.descr);
+            core = NpyCoreApi.NpyArray_DescrNew(this.core);
             Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
             funcs = NumericOps.arrFuncs[(int)this.TypeNum];
         }
@@ -44,7 +44,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
         internal dtype(IntPtr d) {
-            descr = d;
+            core = d;
             funcs = NumericOps.arrFuncs[(int)this.TypeNum];
         }
 
@@ -55,34 +55,14 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
         internal dtype(IntPtr d, int type) {
-            descr = d;
+            core = d;
             funcs = NumericOps.arrFuncs[type];
         }
-
-        ~dtype() {
-            Dispose(false);
-        }
-
-        protected void Dispose(bool disposing) {
-            if (descr != IntPtr.Zero) {
-                lock (this) {
-                    IntPtr a = descr;
-                    descr = IntPtr.Zero;
-                    NpyCoreApi.NpyArray_DescrDestroy(a);
-                }
-            }
-        }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
 
         #region Properties
 
         public IntPtr Descr {
-            get { return descr; }
+            get { return core; }
         }
 
         public bool IsNativeByteOrder {
@@ -91,41 +71,41 @@ namespace NumpyDotNet {
 
         public byte Kind {
             get {
-                return Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_kind);
+                return Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_kind);
             }
         }
 
         public NpyDefs.NPY_TYPECHAR Type {
-            get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_type); }
+            get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_type); }
         }
 
         public byte ByteOrder {
-            get { return Marshal.ReadByte(descr, NpyCoreApi.DescrOffsets.off_byteorder); }
-            set { Marshal.WriteByte(descr, NpyCoreApi.DescrOffsets.off_byteorder, value); }
+            get { return Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_byteorder); }
+            set { Marshal.WriteByte(core, NpyCoreApi.DescrOffsets.off_byteorder, value); }
         }
 
         public int Flags {
-            get { return Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_flags); }
+            get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_flags); }
         }
 
         public NpyDefs.NPY_TYPES TypeNum {
-            get { return (NpyDefs.NPY_TYPES)Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_type_num); }
+            get { return (NpyDefs.NPY_TYPES)Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_type_num); }
         }
 
         public int ElementSize {
-            get { return Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_elsize); }
+            get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_elsize); }
         }
 
         public int Alignment {
-            get { return Marshal.ReadInt32(descr, NpyCoreApi.DescrOffsets.off_alignment); }
+            get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_alignment); }
         }
 
         public bool HasNames {
-            get { return Marshal.ReadIntPtr(descr, NpyCoreApi.DescrOffsets.off_names) == IntPtr.Zero; }
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names) == IntPtr.Zero; }
         }
 
         public bool HasSubarray {
-            get { return Marshal.ReadIntPtr(descr, NpyCoreApi.DescrOffsets.off_subarray) == IntPtr.Zero; }
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) == IntPtr.Zero; }
         }
 
         public ArrFuncs f {
@@ -143,8 +123,8 @@ namespace NumpyDotNet {
 
         public bool Equals(dtype other) {
             if (other == null) return false;
-            return (this.descr == other.descr ||
-                    NpyCoreApi.NpyArray_EquivTypes(descr, other.descr) != 0);
+            return (this.core == other.core ||
+                    NpyCoreApi.NpyArray_EquivTypes(core, other.core) != 0);
         }
 
         /// <summary>
@@ -166,18 +146,13 @@ namespace NumpyDotNet {
         }
 
         public override int GetHashCode() {
-            return (int)descr;
+            return (int)core;
         }
         #endregion
 
 
         #region Internal data
         private static PythonContext pyContext = null;
-
-        /// <summary>
-        ///  Pointer to the native object 
-        /// </summary>
-        private IntPtr descr;
 
         /// <summary>
         /// Type-specific functions

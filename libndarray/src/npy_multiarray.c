@@ -49,7 +49,12 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
     int s = sizeof(functionDefs);
 
     if (NULL != wrapperFuncs) {
+        // Store the passed in set of wrapper funcs.  However, the CPython interface has the ufunc
+        // code in a separate module which may have initialized the ufunc method prior to this so
+        // we don't want to overwrite it.
+        npy_interface_ufunc_new_wrapper x = _NpyArrayWrapperFuncs.ufunc_new_wrapper;
         memmove(&_NpyArrayWrapperFuncs, wrapperFuncs, sizeof(struct NpyInterface_WrapperFuncs));
+        _NpyArrayWrapperFuncs.ufunc_new_wrapper = x;
     }
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;
@@ -64,6 +69,16 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
         _init_type_functions(functionDefs);
     }
     _init_builtin_descr_wrappers();
+}
+
+
+
+// A hack to support the CPython interface because, since it's separate from the multiarray module,
+// it can't initialize this function with everything else.
+NDARRAY_API void 
+npy_set_ufunc_wrapper_func(npy_interface_ufunc_new_wrapper wrapperFunc)
+{
+    _NpyArrayWrapperFuncs.ufunc_new_wrapper = wrapperFunc;
 }
 
 

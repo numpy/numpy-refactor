@@ -7,36 +7,13 @@ using IronPython.Runtime;
 
 namespace NumpyDotNet
 {
-    public class flatiter : IDisposable, IEnumerator<object>
+    public class flatiter : Wrapper, IEnumerator<object>
     {
         internal flatiter(IntPtr coreIter)
         {
-            iter = coreIter;
+            core = coreIter;
             arr = NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.IterArray(iter));
-        }
-
-        ~flatiter()
-        {
-            Dispose(false);
-        }
-
-        protected void Dispose(bool disposing)
-        {
-            if (iter != IntPtr.Zero)
-            {
-                lock (this) {
-                    IntPtr a = iter;
-                    iter = IntPtr.Zero;
-                    NpyCoreApi.Dealloc(a);
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+                NpyCoreApi.IterArray(core));
         }
 
         public Object this[params object[] args]
@@ -92,9 +69,31 @@ namespace NumpyDotNet
             }
         }
 
+        public object this[int index] {
+            set {
+                SingleAssign((IntPtr)index, value);
+            }
+        }
+
+        public object this[long index] {
+            set {
+                SingleAssign((IntPtr)index, value);
+            }
+        }
+
+        public object this[bool index] {
+            set {
+                if (index) {
+                    SingleAssign(IntPtr.Zero, value);
+                }
+            }
+        }
+
+        // TODO: Add comparison operators.
+
         public long __len__()
         {
-            return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
+            return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_size).ToInt64();
         }
 
         public ndarray @base {
@@ -108,7 +107,7 @@ namespace NumpyDotNet
         {
             get
             {
-                return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_index).ToInt64();
+                return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_index).ToInt64();
             }
         }
 
@@ -118,7 +117,7 @@ namespace NumpyDotNet
             {
                 int nd = arr.ndim;
                 long[] result = new long[nd];
-                IntPtr coords = NpyCoreApi.IterCoords(iter);
+                IntPtr coords = NpyCoreApi.IterCoords(core);
                 for (int i = 0; i < nd; i++)
                 {
                     result[i] = Marshal.ReadIntPtr(coords).ToInt64();
@@ -156,14 +155,14 @@ namespace NumpyDotNet
 
         public bool MoveNext()
         {
-            current = NpyCoreApi.IterNext(iter);
+            current = NpyCoreApi.IterNext(core);
             return (current != IntPtr.Zero);
         }
 
         public void Reset()
         {
             current = IntPtr.Zero;
-            NpyCoreApi.IterReset(iter);
+            NpyCoreApi.IterReset(core);
         }
 
         #endregion
@@ -172,7 +171,7 @@ namespace NumpyDotNet
 
         private void SingleAssign(IntPtr index, object value)
         {
-            IntPtr pos = NpyCoreApi.IterGoto1D(iter, index);
+            IntPtr pos = NpyCoreApi.IterGoto1D(core, index);
             if (pos == IntPtr.Zero)
             {
                 NpyCoreApi.CheckError();
@@ -186,11 +185,10 @@ namespace NumpyDotNet
         {
             get
             {
-                return iter;
+                return core;
             }
         }
 
-        private IntPtr iter;
         private IntPtr current;
         private ndarray arr;
     }

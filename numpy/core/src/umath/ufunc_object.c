@@ -1430,25 +1430,9 @@ PyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func, void **data,
     if (NULL == selfCore) {
         return NULL;
     }
-    
-    self = _pya_malloc(sizeof(PyUFuncObject));
-    if (NULL == self) {
-        return NULL;
-    }
-    PyObject_Init((PyObject *)self, &PyUFunc_Type);
-    self->magic_number = NPY_VALID_MAGIC;
-    self->ufunc = selfCore;
-    self->func_obj = NULL;
-
-    /* This is ugly. We need to move the reference from the core to the interface and set
-       the interface object.  This must be done in exactly this order: First inc ref the
-       interface to 2, then set the interface on the core object, and then decref the core.
-       When we decref the core to 0, it will decref the interface back to 1. */
-    Py_INCREF(self);
-    selfCore->nob_interface = self;
-    Npy_DECREF(selfCore);
-    
-    return (PyObject *)self;
+    Py_INCREF(Npy_INTERFACE(selfCore));
+    Npy_DECREF(selfCore);    
+    return (PyObject *)Npy_INTERFACE(selfCore);
 }
 
 

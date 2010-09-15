@@ -316,6 +316,25 @@ ufunc_frompyfunc(PyObject *NPY_UNUSED(dummy), PyObject *args, PyObject *NPY_UNUS
 }
 
 
+void ufunc_new_wrapper(NpyUFuncObject *base, void **interfaceRet)
+{
+    PyUFuncObject *self;
+    
+    self = (PyUFuncObject *)_pya_malloc(sizeof(PyUFuncObject));
+    if (NULL == self) {
+        *interfaceRet = NULL;
+    }
+    PyObject_Init((PyObject *)self, &PyUFunc_Type);
+    self->magic_number = NPY_VALID_MAGIC;
+    self->ufunc = base;
+    self->func_obj = NULL;
+    *interfaceRet = self;
+
+    Py_INCREF(self);
+}
+
+
+
 /*
  *****************************************************************************
  **                            SETUP UFUNCS                                 **
@@ -489,6 +508,9 @@ PyMODINIT_FUNC initumath(void)
     PyDict_SetItemString(d, "__version__", s);
     Py_DECREF(s);
 
+    npy_set_ufunc_wrapper_func((npy_interface_ufunc_new_wrapper)ufunc_new_wrapper);
+
+    
     /* Load the ufunc operators into the array module's namespace */
     InitOperators(d);
 

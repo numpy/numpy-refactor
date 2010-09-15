@@ -15,6 +15,7 @@
 #include "npy_ufunc_object.h"
 #include "npy_os.h"
 #include "npy_math.h"
+#include "npy_internal.h"
 
 
 /*
@@ -1491,6 +1492,10 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func,
             Npy_DECREF(self);
             return NULL;
         }
+    }
+    
+    if (NULL != _NpyArrayWrapperFuncs.ufunc_new_wrapper) {
+        _NpyArrayWrapperFuncs.ufunc_new_wrapper(self, &self->nob_interface);
     }
     return self;
 }
