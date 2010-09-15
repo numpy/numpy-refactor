@@ -413,6 +413,9 @@ typedef int (*npy_interface_descr_new_from_type)(
 typedef int (*npy_interface_descr_new_from_wrapper)(
         void *base, struct NpyArray_Descr *descr,
         void **interfaceRet);
+typedef int (*npy_interface_ufunc_new_wrapper)(
+        void *base, void **interfaceRet);
+
 
 struct NpyInterface_WrapperFuncs {
     npy_interface_array_new_wrapper array_new_wrapper;
@@ -421,6 +424,7 @@ struct NpyInterface_WrapperFuncs {
     npy_interface_neighbor_iter_new_wrapper neighbor_iter_new_wrapper;
     npy_interface_descr_new_from_type descr_new_from_type;
     npy_interface_descr_new_from_wrapper descr_new_from_wrapper;
+    npy_interface_ufunc_new_wrapper ufunc_new_wrapper;
 };
 
 
@@ -434,6 +438,9 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
             npy_tp_cmp_priority cmp_priority,
             npy_interface_incref incref,
             npy_interface_decref decref);
+
+NDARRAY_API extern void 
+npy_set_ufunc_wrapper_func(npy_interface_ufunc_new_wrapper wrapperFunc);
 
 
 /*
