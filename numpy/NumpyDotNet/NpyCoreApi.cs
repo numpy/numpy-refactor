@@ -246,6 +246,9 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void npy_ufunc_dealloc(IntPtr arr);
+        
         #endregion
 
         #region NpyAccessLib functions
@@ -337,6 +340,13 @@ namespace NumpyDotNet {
         private static extern void IterGetOffsets(out int sizeOffset, out int indexOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_UFuncGetOffsets")]
+        private static extern void UFuncGetOffsets(out int ninOffset, 
+            out int noutOffset, out int nargsOffset,
+            out int identifyOffset, out int ntypesOffset, out int checkRetOffset, 
+            out int nameOffset, out int typesOffset, out int coreSigOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
         internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
@@ -354,7 +364,7 @@ namespace NumpyDotNet {
          * exactly as it is used to determine the platform-specific offsets. The
          * offsets allow the C# code to access these fields directly. */
         [StructLayout(LayoutKind.Sequential)]
-        struct NpyObject_HEAD {
+        internal struct NpyObject_HEAD {
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
@@ -380,7 +390,8 @@ namespace NumpyDotNet {
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct NpyArrayDescrOffsets {
+        internal struct NpyArrayDescrOffsets
+        {
             internal int off_magic_number;
             internal int off_kind;
             internal int off_type;
@@ -393,15 +404,30 @@ namespace NumpyDotNet {
             internal int off_subarray;
         }
 
-        internal struct NpyArrayIterOffsets {
+        internal struct NpyArrayIterOffsets
+        {
             internal int off_size;
             internal int off_index;
         }
 
-        internal struct NpyArrayIndexInfo {
+        internal struct NpyArrayIndexInfo
+        {
             internal int off_union;
             internal int sizeof_index;
             internal int max_dims;
+        }
+
+        internal struct NpyUFuncOffsets
+        {
+            internal int off_nin;
+            internal int off_nout;
+            internal int off_nargs;
+            internal int off_identify;
+            internal int off_ntypes;
+            internal int off_check_return;
+            internal int off_name;
+            internal int off_types;
+            internal int off_core_signature;
         }
 
 
@@ -409,6 +435,7 @@ namespace NumpyDotNet {
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
         internal static readonly NpyArrayIterOffsets IterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
+        internal static readonly NpyUFuncOffsets UFuncOffsets;
 
         internal static byte nativeByteOrder;
 
@@ -847,6 +874,13 @@ namespace NumpyDotNet {
                            out IterOffsets.off_index);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
+
+            UFuncGetOffsets(out UFuncOffsets.off_nin, out UFuncOffsets.off_nout,
+                out UFuncOffsets.off_nargs,
+                out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
+                out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
+                out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
+
 
             // Check the native byte ordering (make sure it matches what .NET uses) and
             // figure out the mapping between types that vary in size in the core and

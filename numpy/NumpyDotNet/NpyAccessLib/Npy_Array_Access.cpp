@@ -7,6 +7,7 @@ extern "C" {
 #include <npy_descriptor.h>
 #include <npy_object.h>
 #include <npy_dict.h>
+#include <npy_ufunc_object.h>
 }
 
 
@@ -296,4 +297,27 @@ extern "C" __declspec(dllexport)
     }
     return NpyArray_NewFromDescr(descr, nd, dims, strides, data, flags, 
         NPY_FALSE, NULL, interfaceData);
+}
+
+
+
+
+//
+// UFunc access methods
+//
+
+extern "C" __declspec(dllexport)
+    void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
+    int *nargsOffset, int *identityOffset, int *ntypesOffset, int *checkRetOffset, 
+    int *nameOffset, int *typesOffset, int *coreSigOffset)
+{
+  	*ninOffset = offsetof(NpyUFuncObject, nin);
+  	*noutOffset = offsetof(NpyUFuncObject, nout);
+    *nargsOffset = offsetof(NpyUFuncObject, nargs);
+  	*identityOffset = offsetof(NpyUFuncObject, identity);
+  	*ntypesOffset = offsetof(NpyUFuncObject, ntypes);
+  	*checkRetOffset = offsetof(NpyUFuncObject, check_return);
+  	*nameOffset = offsetof(NpyUFuncObject, name);
+  	*typesOffset = offsetof(NpyUFuncObject, types);
+  	*coreSigOffset = offsetof(NpyUFuncObject, core_signature);
 }
