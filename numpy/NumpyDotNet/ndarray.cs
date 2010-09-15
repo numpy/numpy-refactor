@@ -117,7 +117,8 @@ namespace NumpyDotNet
 
             // Creates a new array object.  By passing 'this' in the current instance
             // becomes the wrapper object for the new array.
-            ndarray wrap = NpyCoreApi.NewFromDescr(type, shape, strides, 0, this);
+            ndarray wrap = NpyCoreApi.NewFromDescr(type, shape, strides, 0, 
+                new NpyCoreApi.UseExistingWrapper { Wrapper = this });
             if (wrap != this) {
                 throw new InvalidOperationException("Internal error: returned array wrapper is different than current instance.");
             }
