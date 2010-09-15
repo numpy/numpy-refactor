@@ -92,6 +92,26 @@ namespace NumpyDotNet
             }
         }
 
+        public object this[int index] {
+            set {
+                SingleAssign((IntPtr)index, value);
+            }
+        }
+
+        public object this[long index] {
+            set {
+                SingleAssign((IntPtr)index, value);
+            }
+        }
+
+        public object this[bool index] {
+            set {
+                if (index) {
+                    SingleAssign(IntPtr.Zero, value);
+                }
+            }
+        }
+
         public long __len__()
         {
             return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();

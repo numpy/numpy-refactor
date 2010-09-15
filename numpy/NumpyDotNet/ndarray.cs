@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Reflection;
+using System.Numerics;
 using IronPython.Runtime;
 using IronPython.Modules;
 using Microsoft.Scripting;
@@ -197,20 +198,34 @@ namespace NumpyDotNet
 
         #region Public interfaces (must match CPython)
 
+        public object this[int index] {
+            get {
+                return ArrayItem((long)index);
+            }
+        }
+
+        public object this[long index] {
+            get {
+                return ArrayItem(index);
+            }
+        }
+
+        public object this[string field] {
+            set {
+                if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
+                    throw new ArgumentException("array is not writeable.");
+                } 
+                IntPtr descr;
+                int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
+                if (offset < 0) {
+                    throw new ArgumentException(String.Format("field name '{0}' not found.", field));
+                }
+                NpyArray.SetField(this, descr, offset, value);
+            }
+        }
+
         public Object this[params object[] args] {
             get {
-                // Optimization for a single integer index.
-                if (args.Length == 1)
-                {
-                    if (args[0] is int)
-                    {
-                        return ArrayItem((long)(int)args[0]);
-                    }
-                    else if (args[0] is long)
-                    {
-                        return ArrayItem((long)args[0]);
-                    }
-                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
@@ -249,23 +264,13 @@ namespace NumpyDotNet
                 }
             }
             set {
-                if (args == null)
+                if (args.Length == 1 && args[0] == null)
                 {
                     throw new ArgumentException("cannot delete array elements.");
                 }
                 if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
                 {
                     throw new ArgumentException("array is not writeable.");
-                }
-
-                if (args.Length == 1 && args[0] is string) {
-                    IntPtr descr;
-                    int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, (string)args[0], out descr);
-                    if (offset < 0) {
-                        throw new ArgumentException(String.Format("field name '{0}' not found.", args[0]));
-                    }
-                    NpyArray.SetField(this, descr, offset, value);
-                    return;
                 }
 
                 using (NpyIndexes indexes = new NpyIndexes())
