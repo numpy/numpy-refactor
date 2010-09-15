@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="broadcast.cs" />
     <Compile Include="dtype.cs" />
     <Compile Include="flatiter.cs" />
     <Compile Include="NpyIndexes.cs" />

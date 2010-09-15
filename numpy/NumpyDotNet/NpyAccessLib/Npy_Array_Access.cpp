@@ -7,6 +7,7 @@ extern "C" {
 #include <npy_descriptor.h>
 #include <npy_object.h>
 #include <npy_dict.h>
+#include <npy_iterators.h>
 }
 
 
@@ -296,4 +297,10 @@ extern "C" __declspec(dllexport)
     }
     return NpyArray_NewFromDescr(descr, nd, dims, strides, data, flags, 
         NPY_FALSE, NULL, interfaceData);
+}
+
+extern "C" __declspec(dllexport)
+    NpyArrayMultiIterObject* NpyArrayAccess_MultiIterFromArrays(NpyArray** arrays, int n)
+{
+    return NpyArray_MultiIterFromArrays(arrays, n, 0);
 }

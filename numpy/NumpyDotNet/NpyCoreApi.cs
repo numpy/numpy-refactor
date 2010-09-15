@@ -166,6 +166,14 @@ namespace NumpyDotNet {
                 );
         }
 
+        internal static IntPtr MultiIterFromArrays(ndarray[] arrays) {
+            IntPtr[] coreArrays = new IntPtr[arrays.Length];
+            for (int i = 0; i < arrays.Length; i++) {
+                coreArrays[i] = arrays[i].Array;
+            }
+            return NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+        }
+
         #endregion
 
 
@@ -286,6 +294,9 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetFieldOffset")]
         internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
 
         /// <summary>
         /// Deallocates an NpyObject.
@@ -522,6 +533,24 @@ namespace NumpyDotNet {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int del_IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
 
+        private static int MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet) {
+            int success = 1;
+            try {
+                broadcast wrapIter = broadcast.BeingCreated;
+                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                Marshal.WriteIntPtr(interfaceRet, ret);
+            } catch (InsufficientMemoryException) {
+                Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
+                success = 0;
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating iterator wrapper.");
+                success = 0;
+            }
+            return success;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate int del_MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
+
 
         /// <summary>
         /// Allocated a managed wrapper for one of the core, native types
@@ -750,6 +779,8 @@ namespace NumpyDotNet {
             new del_ArrayNewWrapper(ArrayNewWrapper);
         private static readonly del_IterNewWrapper IterNewWrapperDelegate =
             new del_IterNewWrapper(IterNewWrapper);
+        private static readonly del_MultiIterNewWrapper MultiIterNewWrapperDelegate =
+            new del_MultiIterNewWrapper(MultiIterNewWrapper);
         private static readonly del_DescrNewFromType DescrNewFromTypeDelegate =
             new del_DescrNewFromType(DescrNewFromType);
         private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
@@ -796,7 +827,8 @@ namespace NumpyDotNet {
                 Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
             wrapFuncs.iter_new_wrapper =
                 Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
-            wrapFuncs.multi_iter_new_wrapper = IntPtr.Zero;
+            wrapFuncs.multi_iter_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(MultiIterNewWrapperDelegate);
             wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
             wrapFuncs.descr_new_from_type =
                 Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
