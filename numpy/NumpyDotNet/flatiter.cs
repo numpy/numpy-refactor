@@ -112,6 +112,8 @@ namespace NumpyDotNet
             }
         }
 
+        // TODO: Add comparison operators.
+
         public long __len__()
         {
             return Marshal.ReadIntPtr(iter + NpyCoreApi.IterOffsets.off_size).ToInt64();
