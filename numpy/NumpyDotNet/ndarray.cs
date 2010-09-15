@@ -588,13 +588,6 @@ namespace NumpyDotNet
 
         #endregion
 
-
         private static PythonContext pyContext = null;
-
-        /// <summary>
-        ///  Pointer to the native object 
-        /// </summary>
-        private IntPtr core;
-
     }
 }

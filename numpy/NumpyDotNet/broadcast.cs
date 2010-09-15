@@ -32,9 +32,5 @@ namespace NumpyDotNet
                 return core;
             }
         }
-
-        private IntPtr core;
-
-
     }
 }

@@ -155,11 +155,6 @@ namespace NumpyDotNet {
         private static PythonContext pyContext = null;
 
         /// <summary>
-        ///  Pointer to the native object 
-        /// </summary>
-        private IntPtr core;
-
-        /// <summary>
         /// Type-specific functions
         /// </summary>
         private readonly ArrFuncs funcs;
