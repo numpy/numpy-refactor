@@ -12,7 +12,7 @@ __*
 
 build
 /dist
-/numpy.egg-inf
+/numpy.egg-info
 /numpy/version.py
 
 /tools/win32build/misc/msvcrt90/msvcr90.def
@@ -40,3 +40,12 @@ libndarray/src/npy_funcs.h
 libndarray/src/npy_loops.c
 libndarray/src/npy_loops.h
 libndarray/stamp-h1
+
+libndarray/windows/Debug
+libndarray/windows/Release
+libndarray/windows/x64
+
+numpy/NumpyDotNet/bin
+numpy/NumpyDotNet/obj
+numpy/NumpyDotNet/Debug
+numpy/NumpyDotNet/NpyAccessLib/Debug
