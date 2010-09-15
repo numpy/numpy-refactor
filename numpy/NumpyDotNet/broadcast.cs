@@ -10,7 +10,7 @@ namespace NumpyDotNet
     /// <summary>
     /// A multi-array iterator.
     /// </summary>
-    public class broadcast : Wrapper
+    public class broadcast : Wrapper, IEnumerator<PythonTuple>
     {
         public broadcast(params object[] args) {
             // Convert args to arrays.
@@ -51,13 +51,16 @@ namespace NumpyDotNet
             get {
                 return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index).ToInt64();
             }
+            private set {
+                Marshal.WriteIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index, (IntPtr)value);
+            }
         }
 
         public int nd {
             get {
                 return Marshal.ReadInt32(core + NpyCoreApi.MultiIterOffsets.off_nd);
             }
-        }
+        }       
 
         public PythonTuple shape {
             get {
@@ -83,7 +86,57 @@ namespace NumpyDotNet
                 }
                 return new PythonTuple(result);
             }
+        }   
+
+
+
+        private flatiter iter(int i) {
+            IntPtr iter = core + NpyCoreApi.MultiIterOffsets.off_iters + i * IntPtr.Size;
+            return NpyCoreApi.ToInterface<flatiter>(Marshal.ReadIntPtr(iter));
         }
-            
+
+        public void reset() {
+            Reset();
+        }
+
+        public PythonTuple Current {
+            get {
+                int n = numiter;
+                object[] result = new object[n];
+                for (int i = 0; i < n; i++) {
+                    result[i] = iter(i).Current;
+                }
+                return new PythonTuple(result);
+            }   
+        }
+
+        object System.Collections.IEnumerator.Current {
+            get {
+                int n = numiter;
+                object[] result = new object[n];
+                for (int i = 0; i < n; i++) {
+                    result[i] = iter(i).Current;
+                }
+                return new PythonTuple(result);
+            }
+        }
+
+        public bool MoveNext() {
+            bool result = false;
+            int n = numiter;
+            index++;
+            for (int i = 0; i < n; i++) {
+                result = iter(i).MoveNext();
+            }
+            return result;
+        }
+
+        public void Reset() {
+            int n = numiter;
+            index = -1;
+            for (int i = 0; i < n; i++) {
+                iter(i).Reset();
+            }
+        }
     }
 }
