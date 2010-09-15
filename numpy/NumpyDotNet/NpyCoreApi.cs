@@ -347,6 +347,10 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_IterGetOffsets")]
         private static extern void IterGetOffsets(out int sizeOffset, out int indexOffset);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_MultiIterGetOffsets")]
+        private static extern void MultiIterGetOffsets(out int numiterOffset, out int sizeOffset,
+            out int indexOffset, out int ndOffset, out int dimensionsOffset, out int itersOffset);
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
         internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
@@ -409,6 +413,16 @@ namespace NumpyDotNet {
             internal int off_index;
         }
 
+        internal struct NpyArrayMultiIterOffsets
+        {
+            internal int off_numiter;
+            internal int off_size;
+            internal int off_index;
+            internal int off_nd;
+            internal int off_dimensions;
+            internal int off_iters;
+        }
+
         internal struct NpyArrayIndexInfo {
             internal int off_union;
             internal int sizeof_index;
@@ -419,6 +433,7 @@ namespace NumpyDotNet {
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
         internal static readonly NpyArrayIterOffsets IterOffsets;
+        internal static readonly NpyArrayMultiIterOffsets MultiIterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
 
         internal static byte nativeByteOrder;
@@ -882,6 +897,13 @@ namespace NumpyDotNet {
 
             IterGetOffsets(out IterOffsets.off_size,
                            out IterOffsets.off_index);
+
+            MultiIterGetOffsets(out MultiIterOffsets.off_numiter,
+                                out MultiIterOffsets.off_size,
+                                out MultiIterOffsets.off_index,
+                                out MultiIterOffsets.off_nd,
+                                out MultiIterOffsets.off_dimensions,
+                                out MultiIterOffsets.off_iters);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 

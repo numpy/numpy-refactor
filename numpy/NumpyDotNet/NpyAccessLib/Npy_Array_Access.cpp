@@ -304,3 +304,14 @@ extern "C" __declspec(dllexport)
 {
     return NpyArray_MultiIterFromArrays(arrays, n, 0);
 }
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_MultiIterGetOffsets(int* off_numiter, int* off_size, int* off_index, int* off_nd, int* off_dimensions, int* off_iters)
+{
+    *off_numiter = offsetof(NpyArrayMultiIterObject, numiter);
+    *off_size = offsetof(NpyArrayMultiIterObject, size);
+    *off_index = offsetof(NpyArrayMultiIterObject, index);
+    *off_nd = offsetof(NpyArrayMultiIterObject, nd);
+    *off_dimensions = offsetof(NpyArrayMultiIterObject, dimensions);
+    *off_iters = offsetof(NpyArrayMultiIterObject, iters);
+}
