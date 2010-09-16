@@ -58,7 +58,7 @@ namespace NumpyDotNet {
             else if (o is int) return (int)o;
             else if (o is IConvertible) return Convert.ToInt32(o);
 
-            throw new ArgumentException(String.Format("Unable to convert argument '{0}' to Boolean value.", o));
+            throw new ArgumentException(String.Format("Unable to convert argument '{0}' to int value.", o));
         }
 
         internal static long[] IntArrConverter(Object o) {
@@ -71,6 +71,44 @@ namespace NumpyDotNet {
                 throw new NotImplementedException(
                     String.Format("Type '{0}' is not supported for array dimensions.",
                     o.GetType().Name));
+            }
+        }
+
+        internal static int AxisConverter(object o) {
+            if (o == null) return NpyDefs.NPY_MAXDIMS;
+            else if (o is int) {
+                return (int)o;
+            } else if (o is IConvertible) {
+                return ((IConvertible)o).ToInt32(null);
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Type '{0}' is not supported for an axis.", o.GetType().Name));
+            }
+        }
+
+        internal static NpyDefs.NPY_CLIPMODE ClipmodeConverter(object o) {
+            if (o == null) return NpyDefs.NPY_CLIPMODE.NPY_RAISE;
+            else if (o is string) {
+                string s = (string)o;
+                switch (s[0]) {
+                    case 'C':
+                    case 'c':
+                        return NpyDefs.NPY_CLIPMODE.NPY_CLIP;
+                    case 'W':
+                    case 'w':
+                        return NpyDefs.NPY_CLIPMODE.NPY_WRAP;
+                    case 'r':
+                    case 'R':
+                        return NpyDefs.NPY_CLIPMODE.NPY_RAISE;
+                    default:
+                        throw new ArgumentTypeException("clipmode not understood");
+                }
+            } else {
+                int i = IntConverter(o);
+                if (i < (int)NpyDefs.NPY_CLIPMODE.NPY_CLIP || i > (int)NpyDefs.NPY_CLIPMODE.NPY_RAISE) {
+                    throw new ArgumentTypeException("clipmode not understood");
+                }
+                return (NpyDefs.NPY_CLIPMODE)i;
             }
         }
 

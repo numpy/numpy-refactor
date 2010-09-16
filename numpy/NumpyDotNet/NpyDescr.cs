@@ -18,8 +18,11 @@ namespace NumpyDotNet {
         internal static dtype DescrConverter(PythonContext cntx, Object obj) {
             dtype result;
 
-            if (obj is dtype) result = (dtype)obj;
-            else if (obj is IronPython.Runtime.Types.PythonType) {
+            if (obj == null) {
+                result = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
+            } else if (obj is dtype) {
+                result = (dtype)obj;
+            } else if (obj is IronPython.Runtime.Types.PythonType) {
                 result = ConvertFromPythonType((IronPython.Runtime.Types.PythonType)obj);
             } else if (obj is string) {
                 string s = (string)obj;
