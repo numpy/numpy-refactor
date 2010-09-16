@@ -174,6 +174,12 @@ namespace NumpyDotNet {
             return NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
         }
 
+        internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_TakeFrom(self.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
+                );
+        }
+
         #endregion
 
 
@@ -256,6 +262,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void npy_ufunc_dealloc(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
         
         #endregion
 

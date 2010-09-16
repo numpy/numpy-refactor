@@ -39,6 +39,7 @@ namespace NumpyDotNet
             }
         }
 
+
         /// <summary>
         /// A pointer to the wrapped core object.
         /// </summary>
