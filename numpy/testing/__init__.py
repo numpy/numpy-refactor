@@ -12,4 +12,4 @@ from utils import *
 from numpytest import *
 from nosetester import NoseTester as Tester
 from nosetester import run_module_suite
-test = Tester().test
+test = Tester(__file__).test

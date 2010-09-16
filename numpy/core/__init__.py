@@ -55,5 +55,5 @@ __all__ += shape_base.__all__
 
 
 from numpy.testing import Tester
-test = Tester().test
-bench = Tester().bench
+test = Tester(__file__).test
+bench = Tester(__file__).bench

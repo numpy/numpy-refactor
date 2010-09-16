@@ -143,8 +143,8 @@ else:
     pkgload.__doc__ = PackageLoader.__call__.__doc__
 
     from testing import Tester
-    test = Tester().test
-    bench = Tester().bench
+    test = Tester(__file__).test
+    bench = Tester(__file__).bench
 
     import core
     from core import *

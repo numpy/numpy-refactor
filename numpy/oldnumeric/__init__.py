@@ -41,5 +41,5 @@ del ufuncs
 del misc
 
 from numpy.testing import Tester
-test = Tester().test
-bench = Tester().bench
+test = Tester(__file__).test
+bench = Tester(__file__).bench
