@@ -189,6 +189,11 @@ namespace NumpyDotNet {
                 NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal static ndarray Byteswap(ndarray arr, bool inplace) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
+        }
+
         internal static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
             Incref(d.Descr);
             return DecrefToInterface<ndarray>(
@@ -292,6 +297,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);

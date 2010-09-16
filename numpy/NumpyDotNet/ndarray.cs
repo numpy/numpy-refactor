@@ -518,9 +518,13 @@ namespace NumpyDotNet
             return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
         }
 
-        public ndarray astype(object dtype = null) {
-            dtype d = NpyDescr.DescrConverter(null, dtype);
+        public ndarray astype(CodeContext cntx, object dtype = null) {
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
+        }
+
+        public ndarray byteswap(bool inplace = false) {
+            return NpyCoreApi.Byteswap(this, inplace);
         }
 
         public object take(object indices,
