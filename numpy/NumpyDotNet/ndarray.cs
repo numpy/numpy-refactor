@@ -499,6 +499,14 @@ namespace NumpyDotNet
             return ((curFlags & flag) == flag);
         }
 
+        #region Operators
+
+        public static ndarray operator +(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_add);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
+        #endregion
 
         #region Internal methods
 
