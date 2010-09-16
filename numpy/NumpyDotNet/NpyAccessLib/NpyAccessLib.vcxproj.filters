@@ -18,5 +18,8 @@
     <ClCompile Include="Npy_Array_Access.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Npy_UFunc_Acess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
