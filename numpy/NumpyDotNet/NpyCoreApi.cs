@@ -187,6 +187,12 @@ namespace NumpyDotNet {
                 NpyArray_Flatten(arr.Array, (int)order));
         }
 
+        internal static ndarray GetField(ndarray arr, dtype d, int offset) {
+            Incref(d.Descr);
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetField(arr.Array, d.Descr, offset));
+        }
+
         /// <summary>
         /// Returns a copy of the passed array in the specified order (C, Fortran)
         /// </summary>
@@ -312,6 +318,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);

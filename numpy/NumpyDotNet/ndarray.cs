@@ -548,6 +548,11 @@ namespace NumpyDotNet
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.Flatten(this, eOrder);
         }
+
+        public ndarray getfield(CodeContext cntx, object dtype, int offset = 0) {
+            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            return NpyCoreApi.GetField(this, dt, offset);
+        }
             
         public PythonTuple nonzero() {
             return new PythonTuple(NpyCoreApi.NonZero(this));
