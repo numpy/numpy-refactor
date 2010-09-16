@@ -527,6 +527,18 @@ namespace NumpyDotNet
             return NpyCoreApi.Byteswap(this, inplace);
         }
 
+        public ndarray compress(object condition, object axis = null, ndarray output = null) {
+            ndarray aCondition = NpyArray.FromAny(condition, null, 0, 0, 0, null);
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+
+            if (aCondition.ndim != 1) {
+                throw new ArgumentException("condition must be 1-d array");
+            }
+
+            ndarray indexes = NpyCoreApi.NonZero(aCondition)[0];
+            return NpyCoreApi.TakeFrom(this, indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
+        }
+
         public PythonTuple nonzero() {
             return new PythonTuple(NpyCoreApi.NonZero(this));
         }
