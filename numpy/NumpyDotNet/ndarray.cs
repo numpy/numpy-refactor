@@ -513,6 +513,13 @@ namespace NumpyDotNet
             return ArrayReturn(NpyCoreApi.Any(this, iAxis, output));
         }
 
+        public object argmax(object axis = null, ndarray output = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
+        }
+
+        // TODO: Add argmin.
+
         public object take(object indices,
                            object axis = null,
                            ndarray output = null,

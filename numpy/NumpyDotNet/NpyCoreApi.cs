@@ -184,6 +184,11 @@ namespace NumpyDotNet {
                 NpyArray_Any(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal static ndarray ArgMax(ndarray self, int axis, ndarray ret) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
         internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
             return DecrefToInterface<ndarray>(
                 NpyArray_TakeFrom(self.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
@@ -280,8 +285,10 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_Any(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
-        
         #endregion
 
         #region NpyAccessLib functions
