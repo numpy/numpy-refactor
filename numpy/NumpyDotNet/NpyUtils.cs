@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Numerics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 using IronPython.Runtime;
@@ -215,9 +216,11 @@ namespace NumpyDotNet {
             {
                 indexes.AddIndex((IntPtr)(int)arg);
             }
-            else if (arg is long)
+            else if (arg is BigInteger)
             {
-                indexes.AddIndex((IntPtr)(long)arg);
+                BigInteger bi = (BigInteger)arg;
+                long lval = (long)bi;
+                indexes.AddIndex((IntPtr)lval);
             }
             else if (arg is ISlice)
             {

@@ -23,7 +23,6 @@ namespace NumpyDotNet {
 
 
 
-
     /// <summary>
     /// Collection of getitem/setitem functions and operations on object types.
     /// These are mostly used as callbacks from the core and operate on native

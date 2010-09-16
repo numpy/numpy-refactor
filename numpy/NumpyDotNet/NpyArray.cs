@@ -162,6 +162,7 @@ namespace NumpyDotNet {
                     }
                 }
             }
+
             return result;
         }
 
