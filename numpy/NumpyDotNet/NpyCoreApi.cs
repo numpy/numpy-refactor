@@ -56,17 +56,6 @@ namespace NumpyDotNet {
                 NpyArray_SmallType(t1.Descr, t2.Descr));
         }
 
-        /// <summary>
-        /// Returns a copy of the passed array in the specified order (C, Fortran)
-        /// </summary>
-        /// <param name="arr">Array to copy</param>
-        /// <param name="order">Desired order</param>
-        /// <returns>New array</returns>
-        internal static ndarray NewCopy(ndarray arr, NpyDefs.NPY_ORDER order) {
-            // TODO: NewCopy is not implemented.
-            return arr;
-        }
-
 
         /// <summary>
         /// Moves the contents of src into dest.  Arrays are assumed to have the
@@ -200,6 +189,17 @@ namespace NumpyDotNet {
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
         }
 
+        /// <summary>
+        /// Returns a copy of the passed array in the specified order (C, Fortran)
+        /// </summary>
+        /// <param name="arr">Array to copy</param>
+        /// <param name="order">Desired order</param>
+        /// <returns>New array</returns>
+        internal static ndarray NewCopy(ndarray arr, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_NewCopy(arr.Array, (int)order));
+        }
+
         internal static ndarray[] NonZero(ndarray arr) {
             int nd = arr.ndim;
             IntPtr[] coreArrays = new IntPtr[nd];
@@ -239,9 +239,6 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_ElementStrides(IntPtr arr);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, byte order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
@@ -317,6 +314,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_NonZero(IntPtr self, 
