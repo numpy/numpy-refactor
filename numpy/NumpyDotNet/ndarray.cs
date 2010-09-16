@@ -518,7 +518,10 @@ namespace NumpyDotNet
             return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
         }
 
-        // TODO: Add argmin.
+        public ndarray astype(object dtype = null) {
+            dtype d = NpyDescr.DescrConverter(null, dtype);
+            return NpyCoreApi.CastToType(this, d, this.IsFortran);
+        }
 
         public object take(object indices,
                            object axis = null,

@@ -189,6 +189,12 @@ namespace NumpyDotNet {
                 NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
+            Incref(d.Descr);
+            return DecrefToInterface<ndarray>(
+                NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+        }
+
         internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
             return DecrefToInterface<ndarray>(
                 NpyArray_TakeFrom(self.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
@@ -286,6 +292,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
