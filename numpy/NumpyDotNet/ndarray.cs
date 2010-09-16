@@ -527,6 +527,10 @@ namespace NumpyDotNet
             return NpyCoreApi.Byteswap(this, inplace);
         }
 
+        public PythonTuple nonzero() {
+            return new PythonTuple(NpyCoreApi.NonZero(this));
+        }
+
         public object take(object indices,
                            object axis = null,
                            ndarray output = null,

@@ -200,6 +200,20 @@ namespace NumpyDotNet {
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
         }
 
+        internal static ndarray[] NonZero(ndarray arr) {
+            int nd = arr.ndim;
+            IntPtr[] coreArrays = new IntPtr[nd];
+            // TODO: We should be passing the managed array as the last arg for subtypes.
+            if (NpyArray_NonZero(arr.Array, coreArrays, IntPtr.Zero) < 0) {
+                CheckError();
+            }
+            ndarray[] result = new ndarray[nd];
+            for (int i = 0; i < nd; i++) {
+                result[i] = DecrefToInterface<ndarray>(coreArrays[i]);
+            }
+            return result;
+        }
+
         internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
             return DecrefToInterface<ndarray>(
                 NpyArray_TakeFrom(self.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
@@ -303,6 +317,11 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_NonZero(IntPtr self, 
+            [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays, 
+            IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
