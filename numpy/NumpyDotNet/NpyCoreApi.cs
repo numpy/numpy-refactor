@@ -254,6 +254,9 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void npy_ufunc_dealloc(IntPtr arr);
+        
         #endregion
 
         #region NpyAccessLib functions
@@ -352,6 +355,13 @@ namespace NumpyDotNet {
             out int indexOffset, out int ndOffset, out int dimensionsOffset, out int itersOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint = "NpyArrayAccess_UFuncGetOffsets")]
+        private static extern void UFuncGetOffsets(out int ninOffset, 
+            out int noutOffset, out int nargsOffset,
+            out int identifyOffset, out int ntypesOffset, out int checkRetOffset, 
+            out int nameOffset, out int typesOffset, out int coreSigOffset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
         internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
@@ -369,7 +379,7 @@ namespace NumpyDotNet {
          * exactly as it is used to determine the platform-specific offsets. The
          * offsets allow the C# code to access these fields directly. */
         [StructLayout(LayoutKind.Sequential)]
-        struct NpyObject_HEAD {
+        internal struct NpyObject_HEAD {
             internal IntPtr nob_refcnt;
             internal IntPtr nob_type;
             internal IntPtr nob_interface;
@@ -383,6 +393,7 @@ namespace NumpyDotNet {
             internal IntPtr neighbor_iter_new_wrapper;
             internal IntPtr descr_new_from_type;
             internal IntPtr descr_new_from_wrapper;
+            internal IntPtr ufunc_new_wrapper;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -395,7 +406,8 @@ namespace NumpyDotNet {
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        internal struct NpyArrayDescrOffsets {
+        internal struct NpyArrayDescrOffsets
+        {
             internal int off_magic_number;
             internal int off_kind;
             internal int off_type;
@@ -408,7 +420,8 @@ namespace NumpyDotNet {
             internal int off_subarray;
         }
 
-        internal struct NpyArrayIterOffsets {
+        internal struct NpyArrayIterOffsets
+        {
             internal int off_size;
             internal int off_index;
         }
@@ -429,12 +442,26 @@ namespace NumpyDotNet {
             internal int max_dims;
         }
 
+        internal struct NpyUFuncOffsets
+        {
+            internal int off_nin;
+            internal int off_nout;
+            internal int off_nargs;
+            internal int off_identify;
+            internal int off_ntypes;
+            internal int off_check_return;
+            internal int off_name;
+            internal int off_types;
+            internal int off_core_signature;
+        }
+
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
         internal static readonly NpyArrayIterOffsets IterOffsets;
         internal static readonly NpyArrayMultiIterOffsets MultiIterOffsets;
         internal static readonly NpyArrayIndexInfo IndexInfo;
+        internal static readonly NpyUFuncOffsets UFuncOffsets;
 
         internal static byte nativeByteOrder;
 
@@ -629,6 +656,29 @@ namespace NumpyDotNet {
 
 
         /// <summary>
+        /// Allocated a managed wrapper for a UFunc object.
+        /// </summary>
+        /// <param name="baseTmp">Pointer to the base object</param>
+        /// <param name="interfaceRet">void** for returning allocated wrapper</param>
+        /// <returns>1 on success, 0 on error</returns>
+        private static void UFuncNewWrapper(IntPtr basePtr, IntPtr interfaceRet) {
+            try {
+                // TODO: Descriptor typeobj not handled. Do we need to?
+
+                ufunc wrap = new ufunc(basePtr);
+                Marshal.WriteIntPtr(interfaceRet,
+                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+            } catch (InsufficientMemoryException) {
+                Console.WriteLine("Insufficient memory while allocating ufunc wrapper.");
+            } catch (Exception) {
+                Console.WriteLine("Exception while allocating ufunc wrapper.");
+            }
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void del_UFuncNewWrapper(IntPtr basePtr, IntPtr interfaceRet);
+
+
+        /// <summary>
         /// Accepts a pointer to an existing GCHandle object and allocates
         /// an additional GCHandle to the same object.  This effectively
         /// does an "incref" on the object.  Used in cases where an array
@@ -805,6 +855,9 @@ namespace NumpyDotNet {
             new del_DescrNewFromType(DescrNewFromType);
         private static readonly del_DescrNewFromWrapper DescrNewFromWrapperDelegate =
             new del_DescrNewFromWrapper(DescrNewFromWrapper);
+        private static readonly del_UFuncNewWrapper UFuncNewWrapperDelegate =
+            new del_UFuncNewWrapper(UFuncNewWrapper);
+
         private static readonly del_Incref IncrefCallbackDelegate =
             new del_Incref(IncrefCallback);
         private static readonly del_Decref DecrefCallbackDelegate =
@@ -854,6 +907,8 @@ namespace NumpyDotNet {
                 Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
             wrapFuncs.descr_new_from_wrapper =
                 Marshal.GetFunctionPointerForDelegate(DescrNewFromWrapperDelegate);
+            wrapFuncs.ufunc_new_wrapper =
+                Marshal.GetFunctionPointerForDelegate(UFuncNewWrapperDelegate);
 
             int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
 
@@ -906,6 +961,13 @@ namespace NumpyDotNet {
                                 out MultiIterOffsets.off_iters);
 
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
+
+            UFuncGetOffsets(out UFuncOffsets.off_nin, out UFuncOffsets.off_nout,
+                out UFuncOffsets.off_nargs,
+                out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
+                out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
+                out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
+
 
             // Check the native byte ordering (make sure it matches what .NET uses) and
             // figure out the mapping between types that vary in size in the core and

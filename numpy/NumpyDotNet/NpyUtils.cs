@@ -65,6 +65,8 @@ namespace NumpyDotNet {
             if (o == null) return null;
             else if (o is IEnumerable<Object>) {
                 return ((IEnumerable<Object>)o).Select(x => ((IConvertible)x).ToInt64(null)).ToArray();
+            } else if (o is IConvertible) {
+                return new long[1] { ((IConvertible)o).ToInt64(null) };
             } else {
                 throw new NotImplementedException(
                     String.Format("Type '{0}' is not supported for array dimensions.",
