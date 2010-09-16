@@ -5,6 +5,7 @@
 # be used except by nosetester.py to avoid a general NumPy
 # dependency on nose.
 
+import sys
 import os
 import doctest
 
@@ -181,7 +182,8 @@ class NumpyDocTestCase(npd.DocTestCase):
                                      checker=checker)
 
 
-print_state = numpy.get_printoptions()
+if sys.platform != 'cli':
+    print_state = numpy.get_printoptions()
 
 class NumpyDoctest(npd.Doctest):
     name = 'numpydoctest'   # call nosetests with --with-numpydoctest
@@ -252,6 +254,8 @@ class NumpyDoctest(npd.Doctest):
     # Add an afterContext method to nose.plugins.doctests.Doctest in order
     # to restore print options to the original state after each doctest
     def afterContext(self):
+        if sys.platform == 'cli':
+            return
         numpy.set_printoptions(**print_state)
 
 
