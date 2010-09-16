@@ -501,6 +501,18 @@ namespace NumpyDotNet
 
         #region python methods from methods.c
 
+        public object all(object axis = null, ndarray output = null) {
+            throw new NotImplementedException("Depends on ufuncs");
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.All(this, iAxis, output));
+        }
+
+        public object any(object axis = null, ndarray output = null) {
+            throw new NotImplementedException("Depends on ufuncs.");
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.Any(this, iAxis, output));
+        }
+
         public object take(object indices,
                            object axis = null,
                            ndarray output = null,
