@@ -1,11 +1,8 @@
 import sys
 import warnings
 
-if sys.platform == 'cli':
-    __all__ = []
-    obj2sctype = isnan = zeros = None
-else:
-    __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
+
+__all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'arange', 'array', 'zeros', 'empty', 'broadcast', 'dtype',
            'fromstring', 'fromfile', 'frombuffer',
            'int_asbuffer', 'where', 'argwhere',
@@ -28,6 +25,17 @@ else:
            'nan', 'NaN', 'False_', 'True_', 'bitwise_not',
            'CLIP', 'RAISE', 'WRAP', 'MAXDIMS', 'BUFSIZE', 'ALLOW_THREADS',
            'ComplexWarning']
+
+if sys.platform == 'cli':
+    obj2sctype = isnan = zeros = None
+    for n in '''ufunc arange empty fromstring fromfile frombuffer int_asbuffer where
+concatenate fastCopyAndTranspose lexsort set_numeric_ops can_cast inner dot vdot
+alterdot restoredot array2string get_printoptions set_printoptions set_string_function
+fromiter compare_chararrays putmask Inf inf infty Infinity nan NaN False_ True_
+bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
+             '''.split():
+        __all__.remove(n)
+
 
 if sys.platform == 'cli':
     import clr
