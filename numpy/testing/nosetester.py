@@ -145,6 +145,9 @@ class NoseTester(object):
             If None, extract calling module path
             Default is None
         '''
+        if sys.platform == 'cli':
+            return
+
         package_name = None
         if package is None:
             f = sys._getframe(1)

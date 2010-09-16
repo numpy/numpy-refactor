@@ -508,8 +508,61 @@ namespace NumpyDotNet
 
         #endregion
 
+
+        #region python methods from methods.c
+
+        public object all(object axis = null, ndarray output = null) {
+            throw new NotImplementedException("Depends on ufuncs");
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.All(this, iAxis, output));
+        }
+
+        public object any(object axis = null, ndarray output = null) {
+            throw new NotImplementedException("Depends on ufuncs.");
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.Any(this, iAxis, output));
+        }
+
+        public object argmax(object axis = null, ndarray output = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
+        }
+
+        public ndarray astype(object dtype = null) {
+            dtype d = NpyDescr.DescrConverter(null, dtype);
+            return NpyCoreApi.CastToType(this, d, this.IsFortran);
+        }
+
+        public object take(object indices,
+                           object axis = null,
+                           ndarray output = null,
+                           object mode = null) {
+            ndarray aIndices;
+            int iAxis;
+            NpyDefs.NPY_CLIPMODE cMode;
+
+            aIndices = (indices as ndarray);
+            if (aIndices == null) {
+                aIndices = NpyArray.FromAny(indices, NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
+                    1, 0, NpyDefs.NPY_CONTIGUOUS, null);
+            }
+            iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
+            return ArrayReturn(NpyCoreApi.TakeFrom(this, aIndices, iAxis, output, cMode));
+        }
+
+        #endregion
+
         #region Internal methods
 
+        internal static object ArrayReturn(ndarray a) {
+            if (a.ndim == 0) {
+                // TODO: This should return a scalar
+                return a.GetItem(0);
+            } else {
+                return a;
+            }
+        }
         private string BuildStringRepr(bool repr) {
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();

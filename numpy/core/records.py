@@ -34,15 +34,21 @@ Record arrays allow us to access fields as properties::
   array([ 2.,  2.])
 
 """
-# All of the functions allow formats to be a dtype
-__all__ = ['record', 'recarray', 'format_parser']
 
-import numeric as sb
-from defchararray import chararray
-import numerictypes as nt
+
 import types
 import os
 import sys
+
+import numeric as sb
+from defchararray import chararray
+
+if sys.platform == 'cli':
+    __all__ = []
+else:
+    import numerictypes as nt
+    # All of the functions allow formats to be a dtype
+    __all__ = ['record', 'recarray', 'format_parser']
 
 from numpy.compat import isfileobj, bytes
 
@@ -68,8 +74,9 @@ _byteorderconv = {'b':'>',
 # of the letter code '(2,3)f4' and ' (  2 ,  3  )  f4  '
 # are equally allowed
 
-numfmt = nt.typeDict
-_typestr = nt._typestr
+if sys.platform != 'cli':
+    numfmt = nt.typeDict
+    _typestr = nt._typestr
 
 def find_duplicate(list):
     """Find duplication in a list, return a list of duplicated elements"""
@@ -211,7 +218,9 @@ class format_parser:
 
         self._descr = descr
 
-class record(nt.void):
+
+if sys.platform != 'cli':
+  class record(nt.void):
     """A data-type scalar that allows field access as attribute lookup.
     """
     def __repr__(self):

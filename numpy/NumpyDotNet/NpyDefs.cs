@@ -79,6 +79,13 @@ namespace NumpyDotNet {
             NPY_FORTRANORDER = 1
         };
 
+        public enum NPY_CLIPMODE
+        {
+            NPY_CLIP = 0,
+            NPY_WRAP = 1,
+            NPY_RAISE = 2
+        }
+
         internal const int NPY_MAXDIMS = 32;
         internal const int NPY_MAXARGS = 32;
 
