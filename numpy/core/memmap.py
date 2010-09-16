@@ -1,8 +1,13 @@
+import sys
+import warnings
+
 __all__ = ['memmap']
 
-import warnings
-from numeric import uint8, ndarray, dtype
-import sys
+if sys.platform == 'cli':
+    from numeric import ndarray, dtype
+    uint8 = None
+else:
+    from numeric import uint8, ndarray, dtype
 
 from numpy.compat import asbytes
 

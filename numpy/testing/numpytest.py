@@ -5,7 +5,10 @@ import traceback
 __all__ = ['IgnoreException', 'importall',]
 
 DEBUG=0
-get_frame = sys._getframe
+if sys.platform == 'cli':
+    get_frame = None
+else:
+    get_frame = sys._getframe
 
 class IgnoreException(Exception):
     "Ignoring this exception due to disabled feature"

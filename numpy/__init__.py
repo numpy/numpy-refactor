@@ -118,6 +118,7 @@ if __NUMPY_SETUP__:
     _sys.stderr.write('Running from numpy source directory.')
     del _sys
 else:
+    import sys
     try:
         from numpy.__config__ import show as show_config
     except ImportError:
@@ -133,38 +134,46 @@ else:
         loader = PackageLoader(infunc=True)
         return loader(*packages, **options)
 
-    import add_newdocs
-    __all__ = ['add_newdocs']
+    if sys.platform == 'cli':
+        __all__ = []
+    else:
+        import add_newdocs
+        __all__ = ['add_newdocs']
 
     pkgload.__doc__ = PackageLoader.__call__.__doc__
 
     from testing import Tester
-    test = Tester().test
-    bench = Tester().bench
+    test = Tester(__file__).test
+    bench = Tester(__file__).bench
 
     import core
     from core import *
     import compat
-    import lib
-    from lib import *
-    import linalg
-    import fft
-    import polynomial
-    import random
-    import ctypeslib
-    import ma
-    import matrixlib as _mat
-    from matrixlib import *
+    if sys.platform != 'cli':
+        import lib
+        from lib import *
+        import linalg
+        import fft
+        import polynomial
+        import random
+        import ctypeslib
+        import ma
+        import matrixlib as _mat
+        from matrixlib import *
 
     # Make these accessible from numpy name-space
     #  but not imported in from numpy import *
     from __builtin__ import bool, int, long, float, complex, \
          object, unicode, str
-    from core import round, abs, max, min
+    if sys.platform == 'cli':
+        from core import round, max, min
+    else:
+        from core import round, abs, max, min
 
     __all__.extend(['__version__', 'pkgload', 'PackageLoader',
                'show_config'])
     __all__.extend(core.__all__)
-    __all__.extend(_mat.__all__)
-    __all__.extend(lib.__all__)
-    __all__.extend(['linalg', 'fft', 'random', 'ctypeslib', 'ma'])
+    if sys.platform != 'cli':
+        __all__.extend(_mat.__all__)
+        __all__.extend(lib.__all__)
+        __all__.extend(['linalg', 'fft', 'random', 'ctypeslib', 'ma'])

@@ -3,6 +3,7 @@
 extern "C" {
 #include <npy_api.h>
 #include <npy_defs.h>
+#include <npy_loops.h>
 #include <npy_ufunc_object.h>
 }
 
@@ -14,9 +15,9 @@ extern "C" {
    where it gets ugly because each type and all methods for some types will be passed
    in - a lot of funcs.  Passing them in through the npy_init stage (npy_multiarray.c)
    might make the most sense or might not. */
-//static NpyUFuncGenericFunction add_functions[] = { npy_BOOL_add, npy_BYTE_add, npy_UBYTE_add, npy_SHORT_add, npy_USHORT_add, npy_INT_add, npy_UINT_add, npy_LONG_add, npy_ULONG_add, npy_LONGLONG_add, npy_ULONGLONG_add, npy_FLOAT_add, npy_DOUBLE_add, npy_LONGDOUBLE_add, npy_CFLOAT_add, npy_CDOUBLE_add, npy_CLONGDOUBLE_add, npy_DATETIME_Mm_M_add, npy_TIMEDELTA_mm_m_add, npy_DATETIME_mM_M_add, NULL };
-//static void * add_data[] = { (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL };
-//static char add_signatures[] = { PyArray_BOOL, PyArray_BOOL, PyArray_BOOL, PyArray_BYTE, PyArray_BYTE, PyArray_BYTE, PyArray_UBYTE, PyArray_UBYTE, PyArray_UBYTE, PyArray_SHORT, PyArray_SHORT, PyArray_SHORT, PyArray_USHORT, PyArray_USHORT, PyArray_USHORT, PyArray_INT, PyArray_INT, PyArray_INT, PyArray_UINT, PyArray_UINT, PyArray_UINT, PyArray_LONG, PyArray_LONG, PyArray_LONG, PyArray_ULONG, PyArray_ULONG, PyArray_ULONG, PyArray_LONGLONG, PyArray_LONGLONG, PyArray_LONGLONG, PyArray_ULONGLONG, PyArray_ULONGLONG, PyArray_ULONGLONG, PyArray_FLOAT, PyArray_FLOAT, PyArray_FLOAT, PyArray_DOUBLE, PyArray_DOUBLE, PyArray_DOUBLE, PyArray_LONGDOUBLE, PyArray_LONGDOUBLE, PyArray_LONGDOUBLE, PyArray_CFLOAT, PyArray_CFLOAT, PyArray_CFLOAT, PyArray_CDOUBLE, PyArray_CDOUBLE, PyArray_CDOUBLE, PyArray_CLONGDOUBLE, PyArray_CLONGDOUBLE, PyArray_CLONGDOUBLE, PyArray_DATETIME, PyArray_TIMEDELTA, PyArray_DATETIME, PyArray_TIMEDELTA, PyArray_TIMEDELTA, PyArray_TIMEDELTA, PyArray_TIMEDELTA, PyArray_DATETIME, PyArray_DATETIME, PyArray_OBJECT, PyArray_OBJECT, PyArray_OBJECT };
+static NpyUFuncGenericFunction add_functions[] = { npy_BOOL_add, npy_BYTE_add, npy_UBYTE_add, npy_SHORT_add, npy_USHORT_add, npy_INT_add, npy_UINT_add, npy_LONG_add, npy_ULONG_add, npy_LONGLONG_add, npy_ULONGLONG_add, npy_FLOAT_add, npy_DOUBLE_add, npy_LONGDOUBLE_add, npy_CFLOAT_add, npy_CDOUBLE_add, npy_CLONGDOUBLE_add, npy_DATETIME_Mm_M_add, npy_TIMEDELTA_mm_m_add, npy_DATETIME_mM_M_add, NULL };
+static void * add_data[] = { (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL };
+static char add_signatures[] = { NPY_BOOL, NPY_BOOL, NPY_BOOL, NPY_BYTE, NPY_BYTE, NPY_BYTE, NPY_UBYTE, NPY_UBYTE, NPY_UBYTE, NPY_SHORT, NPY_SHORT, NPY_SHORT, NPY_USHORT, NPY_USHORT, NPY_USHORT, NPY_INT, NPY_INT, NPY_INT, NPY_UINT, NPY_UINT, NPY_UINT, NPY_LONG, NPY_LONG, NPY_LONG, NPY_ULONG, NPY_ULONG, NPY_ULONG, NPY_LONGLONG, NPY_LONGLONG, NPY_LONGLONG, NPY_ULONGLONG, NPY_ULONGLONG, NPY_ULONGLONG, NPY_FLOAT, NPY_FLOAT, NPY_FLOAT, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_LONGDOUBLE, NPY_LONGDOUBLE, NPY_LONGDOUBLE, NPY_CFLOAT, NPY_CFLOAT, NPY_CFLOAT, NPY_CDOUBLE, NPY_CDOUBLE, NPY_CDOUBLE, NPY_CLONGDOUBLE, NPY_CLONGDOUBLE, NPY_CLONGDOUBLE, NPY_DATETIME, NPY_TIMEDELTA, NPY_DATETIME, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_DATETIME, NPY_DATETIME, NPY_OBJECT, NPY_OBJECT, NPY_OBJECT };
 
 
 // Initializes the ufuncs.  
@@ -30,9 +31,9 @@ void _cdecl NpyUFuncAccess_Init()
     // that goes to a function in number.c that calls NpyArray_SetNumericOp.  The reason
     // for using the PyDict is that it allows any PyCallable object to be given.  In this
     // case for now we can just register all of these directly.
-//    f = NpyUFunc_FromFuncAndData(add_functions, add_data, add_signatures, 21,
-//                                    2, 1, NpyUFunc_Zero, "add",
-//                                    "Add arguments element-wise.\n""\n""Parameters\n""----------\n""x1, x2 : array_like\n""    The arrays to be added.\n""\n""Returns\n""-------\n""y : {ndarray, scalar}\n""    The sum of `x1` and `x2`, element-wise.  Returns scalar if\n""    both  `x1` and `x2` are scalars.\n""\n""Notes\n""-----\n""Equivalent to `x1` + `x2` in terms of array broadcasting.\n""\n""Examples\n""--------\n"">>> np.add(1.0, 4.0)\n""5.0\n"">>> x1 = np.arange(9.0).reshape((3, 3))\n"">>> x2 = np.arange(3.0)\n"">>> np.add(x1, x2)\n""array([[  0.,   2.,   4.],\n""       [  3.,   5.,   7.],\n""       [  6.,   8.,  10.]])", 0);
+    f = NpyUFunc_FromFuncAndData(add_functions, add_data, add_signatures, 21,
+                                 2, 1, NpyUFunc_Zero, "add",
+                                 "Add arguments element-wise.\n""\n""Parameters\n""----------\n""x1, x2 : array_like\n""    The arrays to be added.\n""\n""Returns\n""-------\n""y : {ndarray, scalar}\n""    The sum of `x1` and `x2`, element-wise.  Returns scalar if\n""    both  `x1` and `x2` are scalars.\n""\n""Notes\n""-----\n""Equivalent to `x1` + `x2` in terms of array broadcasting.\n""\n""Examples\n""--------\n"">>> np.add(1.0, 4.0)\n""5.0\n"">>> x1 = np.arange(9.0).reshape((3, 3))\n"">>> x2 = np.arange(3.0)\n"">>> np.add(x1, x2)\n""array([[  0.,   2.,   4.],\n""       [  3.,   5.,   7.],\n""       [  6.,   8.,  10.]])", 0);
     NpyArray_SetNumericOp(npy_op_add, f);
 
 }

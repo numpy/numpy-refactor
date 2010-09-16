@@ -156,6 +156,16 @@ namespace NumpyDotNet {
             return NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
         }
 
+        internal static ufunc GetNumericOp(NpyDefs.NpyArray_Ops op) {
+            IntPtr ufuncPtr = NpyArray_GetNumericOp((int)op);
+            return ToInterface<ufunc>(ufuncPtr);
+        }
+
+        internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f) {
+            IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc);
+            return DecrefToInterface<ndarray>(result);
+        }
+
         internal static ndarray All(ndarray self, int axis, ndarray ret) {
             return DecrefToInterface<ndarray>(
                 NpyArray_All(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
@@ -302,6 +312,12 @@ namespace NumpyDotNet {
         internal static extern void npy_ufunc_dealloc(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetNumericOp(int op);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -335,6 +351,9 @@ namespace NumpyDotNet {
         #endregion
 
         #region NpyAccessLib functions
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyUFuncAccess_Init();
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArraySetDescr")]
@@ -738,8 +757,6 @@ namespace NumpyDotNet {
         /// <returns>1 on success, 0 on error</returns>
         private static void UFuncNewWrapper(IntPtr basePtr, IntPtr interfaceRet) {
             try {
-                // TODO: Descriptor typeobj not handled. Do we need to?
-
                 ufunc wrap = new ufunc(basePtr);
                 Marshal.WriteIntPtr(interfaceRet,
                     GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
@@ -767,6 +784,10 @@ namespace NumpyDotNet {
         /// <param name="nobInterfacePtr">Address of the nob_interface field (not value of it)</param>
         /// <returns>New handle to the input object</returns>
         private static IntPtr IncrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
+            if (ptr == IntPtr.Zero) {
+                return IntPtr.Zero;
+            }
+
             GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
             object wrapperObj = oldWrapRef.Target;
             IntPtr newWrapRef = GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj));
@@ -801,7 +822,9 @@ namespace NumpyDotNet {
                     oldWrapRef.Free();
                 }
             } else {
-                GCHandle.FromIntPtr(ptr).Free();
+                if (ptr != IntPtr.Zero) {
+                    GCHandle.FromIntPtr(ptr).Free();
+                }
             }
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1004,6 +1027,8 @@ namespace NumpyDotNet {
             } finally {
                 Marshal.FreeHGlobal(wrapHandle);
             }
+
+            NpyUFuncAccess_Init();
 
             // Initialize the offsets to each structure type for fast access
             // TODO: Not sure if this is a great way to do this, but for now it's

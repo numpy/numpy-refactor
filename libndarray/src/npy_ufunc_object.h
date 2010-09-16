@@ -206,7 +206,7 @@ typedef struct {
 
 
 enum NpyArray_Ops {
-    npy_op_add,
+    npy_op_add=0,
     npy_op_subtract,
     npy_op_multiply,
     npy_op_divide,
@@ -239,27 +239,23 @@ enum NpyArray_Ops {
     npy_op_maximum,
     npy_op_minimum,
     npy_op_rint,
-    npy_op_conjugate
+    npy_op_conjugate,
+    npy_op_end_of_ops       // Must be the last entry
 };
 
 
 typedef int (*npy_prepare_outputs_func)(NpyUFuncObject* self, NpyArray **mps,
                                         void* data);
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op);
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op);
 
 
 NDARRAY_API NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);
 NDARRAY_API int NpyArray_SetNumericOp(enum NpyArray_Ops, NpyUFuncObject *);
 
-NpyUFuncObject *
-    NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
-                             char *types, int ntypes,
-                             int nin, int nout, int identity,
-                             char *name, char *doc, int check_return);
 NpyArray *
 NpyUFunc_GenericReduction(NpyUFuncObject *self, NpyArray *arr, 
                           NpyArray *indicies, NpyArray *out, int axis, 
@@ -290,7 +286,7 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
                              NpyUFuncGenericFunction function,
                              int *arg_types,
                              void *data);
-NpyUFuncObject *
+NDARRAY_API NpyUFuncObject *
 NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
                          char *types, int ntypes,
                          int nin, int nout, int identity,

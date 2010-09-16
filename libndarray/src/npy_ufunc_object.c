@@ -1501,7 +1501,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func,
 }
 
 
-NpyUFuncObject *
+NDARRAY_API NpyUFuncObject *
 NpyUFunc_FromFuncAndData(NpyUFuncGenericFunction *func, void **data,
                          char *types, int ntypes,
                          int nin, int nout, int identity,

@@ -155,6 +155,8 @@ class NoseTester(object):
         elif isinstance(package, type(os)):
             package_path = os.path.dirname(package.__file__)
             package_name = getattr(package, '__name__', None)
+        elif os.path.isfile(package):
+            package_path = os.path.dirname(package)
         else:
             package_path = str(package)
 

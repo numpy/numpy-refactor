@@ -164,13 +164,14 @@ NpyArray_SetNumericOp(enum NpyArray_Ops op, NpyUFuncObject *func)
 }
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];
 
     assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
+    assert(NULL != m2 && NPY_VALID_MAGIC == m2->nob_magic_number);
 
     mps[0] = m1;
     mps[1] = m2;
@@ -182,7 +183,7 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op)
 }
 
 
-NpyArray *
+NDARRAY_API NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op)
 {
     NpyArray *mps[NPY_MAXARGS];

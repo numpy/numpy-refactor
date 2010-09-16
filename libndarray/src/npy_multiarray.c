@@ -31,7 +31,7 @@ NDARRAY_API npy_interface_incref _NpyInterface_Incref = NULL;
 NDARRAY_API npy_interface_decref _NpyInterface_Decref = NULL;
 
 struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
-    NULL, NULL, NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -54,7 +54,9 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
         // we don't want to overwrite it.
         npy_interface_ufunc_new_wrapper x = _NpyArrayWrapperFuncs.ufunc_new_wrapper;
         memmove(&_NpyArrayWrapperFuncs, wrapperFuncs, sizeof(struct NpyInterface_WrapperFuncs));
-        _NpyArrayWrapperFuncs.ufunc_new_wrapper = x;
+        if (NULL == wrapperFuncs->ufunc_new_wrapper) {
+            _NpyArrayWrapperFuncs.ufunc_new_wrapper = x;
+        }
     }
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;

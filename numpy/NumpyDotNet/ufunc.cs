@@ -9,7 +9,7 @@ using Microsoft.Scripting;
 using NumpyDotNet;
 
 namespace NumpyDotNet {
-    class ufunc : IDisposable
+    class ufunc : Wrapper
     {
         /// <summary>
         /// Initializes the umath module
@@ -77,24 +77,9 @@ namespace NumpyDotNet {
             Dispose(false);
         }
 
-        protected void Dispose(bool disposing)
-        {
-            if (core != IntPtr.Zero)
-            {
-                lock (this) {
-                    IntPtr a = core;
-                    core = IntPtr.Zero;
-                    NpyCoreApi.npy_ufunc_dealloc(a);
-                }
-            }
+        internal IntPtr UFunc {
+            get { return core; }
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
 
         #region Python interface
 
@@ -162,6 +147,5 @@ namespace NumpyDotNet {
                 throw new InvalidOperationException("UFunc object is invalid or already disposed.");
         }
 
-        private IntPtr core;
     }
 }
