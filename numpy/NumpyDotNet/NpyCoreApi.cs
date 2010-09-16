@@ -141,13 +141,6 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order)
-        {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Flatten(a.Array, order)
-                );
-        }
-
         internal static ndarray FlatView(ndarray a)
         {
             return DecrefToInterface<ndarray>(
@@ -187,6 +180,11 @@ namespace NumpyDotNet {
             Incref(d.Descr);
             return DecrefToInterface<ndarray>(
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+        }
+
+        internal static ndarray Flatten(ndarray arr, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Flatten(arr.Array, (int)order));
         }
 
         /// <summary>
@@ -292,9 +290,6 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -314,6 +309,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);

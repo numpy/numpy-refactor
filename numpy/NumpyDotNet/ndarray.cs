@@ -544,6 +544,11 @@ namespace NumpyDotNet
             return NpyCoreApi.NewCopy(this, eOrder);
         }
 
+        public ndarray flatten(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return NpyCoreApi.Flatten(this, eOrder);
+        }
+            
         public PythonTuple nonzero() {
             return new PythonTuple(NpyCoreApi.NonZero(this));
         }
