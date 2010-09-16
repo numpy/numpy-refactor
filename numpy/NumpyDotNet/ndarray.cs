@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Reflection;
 using System.Numerics;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
@@ -165,11 +166,11 @@ namespace NumpyDotNet
         /// Returns the length of dimension zero of the array
         /// </summary>
         /// <returns>Length of the first dimension</returns>
-        public virtual int __len__() {
+        public virtual object __len__() {
             if (ndim == 0) {
                 throw new ArgumentTypeException("len() of unsized object");
             }
-            return (int)Dims[0];
+            return PythonOps.ToPython((IntPtr)Dims[0]);
         }
 
         #endregion
@@ -182,9 +183,10 @@ namespace NumpyDotNet
             }
         }
 
-        public object this[long index] {
+        public object this[BigInteger index] {
             get {
-                return ArrayItem(index);
+                long lIndex = (long)index;
+                return ArrayItem(lIndex);
             }
         }
 
@@ -316,8 +318,8 @@ namespace NumpyDotNet
         /// <summary>
         /// Total number of elements in the array.
         /// </summary>
-        public long size {
-            get { return (long)NpyCoreApi.NpyArray_Size(core); }
+        public object size {
+            get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
         }
 
         /// <summary>

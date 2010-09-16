@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Numerics;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet
 {
@@ -75,9 +77,10 @@ namespace NumpyDotNet
             }
         }
 
-        public object this[long index] {
+        public object this[BigInteger index] {
             set {
-                SingleAssign((IntPtr)index, value);
+                long lIndex = (long)index;
+                SingleAssign((IntPtr)lIndex, value);
             }
         }
 
@@ -91,9 +94,9 @@ namespace NumpyDotNet
 
         // TODO: Add comparison operators.
 
-        public long __len__()
+        public object __len__()
         {
-            return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_size).ToInt64();
+            return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_size).ToPython();
         }
 
         public ndarray @base {
@@ -103,11 +106,11 @@ namespace NumpyDotNet
             }
         }
 
-        public long index
+        public object index
         {
             get
             {
-                return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_index).ToInt64();
+                return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_index).ToPython();
             }
         }
 

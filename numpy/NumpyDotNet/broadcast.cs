@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet
 {
@@ -41,19 +42,24 @@ namespace NumpyDotNet
             }
         }
 
-        public long size {
+        public object size {
             get {
-                return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_size).ToInt64();
+                return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_size).ToPython();
             }
         }
 
-        public long index {
+        public object index {
             get {
-                return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index).ToInt64();
+                return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index).ToPython();
             }
-            private set {
-                Marshal.WriteIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index, (IntPtr)value);
-            }
+        }
+
+        private long getIndex() {
+            return Marshal.ReadIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index).ToInt64();
+        }
+
+        private void setIndex(long value) {
+            Marshal.WriteIntPtr(core + NpyCoreApi.MultiIterOffsets.off_index, (IntPtr)value);
         }
 
         public int nd {
@@ -124,7 +130,7 @@ namespace NumpyDotNet
         public bool MoveNext() {
             bool result = false;
             int n = numiter;
-            index++;
+            setIndex(getIndex() + 1);
             for (int i = 0; i < n; i++) {
                 result = iter(i).MoveNext();
             }
@@ -133,7 +139,7 @@ namespace NumpyDotNet
 
         public void Reset() {
             int n = numiter;
-            index = -1;
+            setIndex(-1);
             for (int i = 0; i < n; i++) {
                 iter(i).Reset();
             }
