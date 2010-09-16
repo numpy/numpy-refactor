@@ -17,10 +17,14 @@ The preferred alias for `defchararray` is `numpy.char`.
 """
 
 import sys
-from numerictypes import string_, unicode_, integer, object_, bool_, character
-from numeric import ndarray, compare_chararrays
+
+if sys.platform == 'cli':
+    from numeric import ndarray
+else:
+    from numerictypes import string_, unicode_, integer, object_, bool_, character
+    from numeric import ndarray, compare_chararrays
+    from numpy.core.multiarray import _vec_string
 from numeric import array as narray
-from numpy.core.multiarray import _vec_string
 from numpy.compat import asbytes
 import numpy
 
@@ -2027,7 +2031,8 @@ class chararray(ndarray):
 
         """
         return self.__array__().argsort(axis, kind, order)
-    argsort.__doc__ = ndarray.argsort.__doc__
+    if sys.platform != 'cli':
+        argsort.__doc__ = ndarray.argsort.__doc__
 
     def capitalize(self):
         """

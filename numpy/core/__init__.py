@@ -1,13 +1,20 @@
+import sys
 
 from info import __doc__
 from numpy.version import version as __version__
 
-import multiarray
-import umath
+if sys.platform != 'cli':
+    import multiarray
+    import umath
+
 import _internal # for freeze programs
-import numerictypes as nt
-multiarray.set_typeDict(nt.sctypeDict)
-import _sort
+
+if sys.platform != 'cli':
+    import numerictypes as nt
+    multiarray.set_typeDict(nt.sctypeDict)
+
+    import _sort
+
 from numeric import *
 from fromnumeric import *
 import defchararray as char
@@ -15,16 +22,25 @@ import records as rec
 from records import *
 from memmap import *
 from defchararray import chararray
-import scalarmath
+
+if sys.platform != 'cli':
+    import scalarmath
+
 from function_base import *
 from machar import *
-from getlimits import *
-from shape_base import *
-del nt
 
-from fromnumeric import amax as max, amin as min, \
-     round_ as round
-from numeric import absolute as abs
+if sys.platform != 'cli':
+    from getlimits import *
+
+from shape_base import *
+
+if sys.platform != 'cli':
+    del nt
+
+from fromnumeric import amax as max, amin as min, round_ as round
+
+if sys.platform != 'cli':
+    from numeric import absolute as abs
 
 __all__ = ['char','rec','memmap']
 __all__ += numeric.__all__
@@ -33,7 +49,8 @@ __all__ += rec.__all__
 __all__ += ['chararray']
 __all__ += function_base.__all__
 __all__ += machar.__all__
-__all__ += getlimits.__all__
+if sys.platform != 'cli':
+    __all__ += getlimits.__all__
 __all__ += shape_base.__all__
 
 

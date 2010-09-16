@@ -1,4 +1,11 @@
-__all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
+import sys
+import warnings
+
+if sys.platform == 'cli':
+    __all__ = []
+    obj2sctype = isnan = zeros = None
+else:
+    __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'arange', 'array', 'zeros', 'empty', 'broadcast', 'dtype',
            'fromstring', 'fromfile', 'frombuffer',
            'int_asbuffer', 'where', 'argwhere',
@@ -22,16 +29,20 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'CLIP', 'RAISE', 'WRAP', 'MAXDIMS', 'BUFSIZE', 'ALLOW_THREADS',
            'ComplexWarning']
 
-import sys
-import warnings
-import multiarray
-import umath
-from umath import *
-import numerictypes
-from numerictypes import *
+if sys.platform == 'cli':
+    import clr
+    clr.AddReference('NumpyDotNet')
+    import NumpyDotNet as NDN
+    import NumpyDotNet.ModuleMethods as NDNMM
+else:
+    import multiarray
+    import umath
+    from umath import *
+    import numerictypes
+    from numerictypes import *
 
-if sys.version_info[0] < 3:
-    __all__.extend(['getbuffer', 'newbuffer'])
+    if sys.version_info[0] < 3:
+        __all__.extend(['getbuffer', 'newbuffer'])
 
 class ComplexWarning(RuntimeWarning):
     """
@@ -43,20 +54,26 @@ class ComplexWarning(RuntimeWarning):
     """
     pass
 
-bitwise_not = invert
+if sys.platform == 'cli':
+    ndarray = NDN.ndarray
+    flatiter = NDN.flatiter
+    broadcast = NDN.broadcast
+    dtype = NDN.dtype
+else:
+    bitwise_not = invert
 
-CLIP = multiarray.CLIP
-WRAP = multiarray.WRAP
-RAISE = multiarray.RAISE
-MAXDIMS = multiarray.MAXDIMS
-ALLOW_THREADS = multiarray.ALLOW_THREADS
-BUFSIZE = multiarray.BUFSIZE
+    CLIP = multiarray.CLIP
+    WRAP = multiarray.WRAP
+    RAISE = multiarray.RAISE
+    MAXDIMS = multiarray.MAXDIMS
+    ALLOW_THREADS = multiarray.ALLOW_THREADS
+    BUFSIZE = multiarray.BUFSIZE
 
-ndarray = multiarray.ndarray
-flatiter = multiarray.flatiter
-broadcast = multiarray.broadcast
-dtype = multiarray.dtype
-ufunc = type(sin)
+    ndarray = multiarray.ndarray
+    flatiter = multiarray.flatiter
+    broadcast = multiarray.broadcast
+    dtype = multiarray.dtype
+    ufunc = type(sin)
 
 
 # originally from Fernando Perez's IPython
@@ -186,32 +203,36 @@ def extend_all(module):
         if a not in adict:
             __all__.append(a)
 
-extend_all(umath)
-extend_all(numerictypes)
+if sys.platform != 'cli':
+    extend_all(umath)
+    extend_all(numerictypes)
 
 newaxis = None
 
 
-arange = multiarray.arange
-array = multiarray.array
-zeros = multiarray.zeros
-empty = multiarray.empty
-fromstring = multiarray.fromstring
-fromiter = multiarray.fromiter
-fromfile = multiarray.fromfile
-frombuffer = multiarray.frombuffer
-if sys.version_info[0] < 3:
-    newbuffer = multiarray.newbuffer
-    getbuffer = multiarray.getbuffer
-int_asbuffer = multiarray.int_asbuffer
-where = multiarray.where
-concatenate = multiarray.concatenate
-fastCopyAndTranspose = multiarray._fastCopyAndTranspose
-set_numeric_ops = multiarray.set_numeric_ops
-can_cast = multiarray.can_cast
-lexsort = multiarray.lexsort
-compare_chararrays = multiarray.compare_chararrays
-putmask = multiarray.putmask
+if sys.platform == 'cli':
+    array = NDNMM.array
+else:
+    arange = multiarray.arange
+    array = multiarray.array
+    zeros = multiarray.zeros
+    empty = multiarray.empty
+    fromstring = multiarray.fromstring
+    fromiter = multiarray.fromiter
+    fromfile = multiarray.fromfile
+    frombuffer = multiarray.frombuffer
+    if sys.version_info[0] < 3:
+        newbuffer = multiarray.newbuffer
+        getbuffer = multiarray.getbuffer
+    int_asbuffer = multiarray.int_asbuffer
+    where = multiarray.where
+    concatenate = multiarray.concatenate
+    fastCopyAndTranspose = multiarray._fastCopyAndTranspose
+    set_numeric_ops = multiarray.set_numeric_ops
+    can_cast = multiarray.can_cast
+    lexsort = multiarray.lexsort
+    compare_chararrays = multiarray.compare_chararrays
+    putmask = multiarray.putmask
 
 def asarray(a, dtype=None, order=None):
     """
@@ -872,14 +893,15 @@ try:
     from _dotblas import dot, vdot, inner, alterdot, restoredot
 except ImportError:
     # docstrings are in add_newdocs.py
-    inner = multiarray.inner
-    dot = multiarray.dot
-    def vdot(a, b):
-        return dot(asarray(a).ravel().conj(), asarray(b).ravel())
-    def alterdot():
-        pass
-    def restoredot():
-        pass
+    if sys.platform != 'cli':
+        inner = multiarray.inner
+        dot = multiarray.dot
+        def vdot(a, b):
+            return dot(asarray(a).ravel().conj(), asarray(b).ravel())
+        def alterdot():
+            pass
+        def restoredot():
+            pass
 
 def tensordot(a, b, axes=2):
     """
@@ -1321,14 +1343,15 @@ def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
 
 
 #Use numarray's printing function
-from arrayprint import array2string, get_printoptions, set_printoptions
+if sys.platform != 'cli':
+    from arrayprint import array2string, get_printoptions, set_printoptions
 
-_typelessdata = [int_, float_, complex_]
-if issubclass(intc, int):
-    _typelessdata.append(intc)
+    _typelessdata = [int_, float_, complex_]
+    if issubclass(intc, int):
+        _typelessdata.append(intc)
 
-if issubclass(longlong, int):
-    _typelessdata.append(longlong)
+    if issubclass(longlong, int):
+        _typelessdata.append(longlong)
 
 def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
     """
@@ -1430,9 +1453,10 @@ def array_str(a, max_line_width=None, precision=None, suppress_small=None):
     """
     return array2string(a, max_line_width, precision, suppress_small, ' ', "", str)
 
-set_string_function = multiarray.set_string_function
-set_string_function(array_str, 0)
-set_string_function(array_repr, 1)
+if sys.platform != 'cli':
+    set_string_function = multiarray.set_string_function
+    set_string_function(array_str, 0)
+    set_string_function(array_repr, 1)
 
 little_endian = (sys.byteorder == 'little')
 
@@ -2010,17 +2034,18 @@ def array_equiv(a1, a2):
         return False
 
 
-_errdict = {"ignore":ERR_IGNORE,
-            "warn":ERR_WARN,
-            "raise":ERR_RAISE,
-            "call":ERR_CALL,
-            "print":ERR_PRINT,
-            "log":ERR_LOG}
+if sys.platform != 'cli':
+    _errdict = {"ignore":ERR_IGNORE,
+                "warn":ERR_WARN,
+                "raise":ERR_RAISE,
+                "call":ERR_CALL,
+                "print":ERR_PRINT,
+                "log":ERR_LOG}
 
-_errdict_rev = {}
-for key in _errdict.keys():
-    _errdict_rev[_errdict[key]] = key
-del key
+    _errdict_rev = {}
+    for key in _errdict.keys():
+        _errdict_rev[_errdict[key]] = key
+    del key
 
 def seterr(all=None, divide=None, over=None, under=None, invalid=None):
     """
@@ -2413,13 +2438,14 @@ def _setdef():
     umath.seterrobj(defval)
 
 # set the default values
-_setdef()
+if sys.platform != 'cli':
+    _setdef()
 
-Inf = inf = infty = Infinity = PINF
-nan = NaN = NAN
-False_ = bool_(False)
-True_ = bool_(True)
+    Inf = inf = infty = Infinity = PINF
+    nan = NaN = NAN
+    False_ = bool_(False)
+    True_ = bool_(True)
 
-import fromnumeric
-from fromnumeric import *
-extend_all(fromnumeric)
+    import fromnumeric
+    from fromnumeric import *
+    extend_all(fromnumeric)

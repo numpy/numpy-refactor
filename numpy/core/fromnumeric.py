@@ -1,3 +1,5 @@
+import sys
+
 # Module containing non-deprecated functions borrowed from Numeric.
 __docformat__ = "restructuredtext en"
 
@@ -12,11 +14,14 @@ __all__ = ['take', 'reshape', 'choose', 'repeat', 'put',
            'amax', 'amin',
           ]
 
-import multiarray as mu
-import umath as um
-import numerictypes as nt
-from numeric import asarray, array, asanyarray, concatenate
-_dt_ = nt.sctype2char
+if sys.platform == 'cli':
+    from numeric import asarray, array, asanyarray
+else:
+    import multiarray as mu
+    import umath as um
+    import numerictypes as nt
+    from numeric import asarray, array, asanyarray, concatenate
+    _dt_ = nt.sctype2char
 
 import types
 
