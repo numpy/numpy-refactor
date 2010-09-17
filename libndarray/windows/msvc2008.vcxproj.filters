@@ -181,5 +181,11 @@
     <None Include="..\src\npy_ieee754.c.src">
       <Filter>Core</Filter>
     </None>
+    <None Include="..\src\npy_loops.c.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\src\npy_loops.h.src">
+      <Filter>Core</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -1051,7 +1051,7 @@ namespace NumpyDotNet {
                 Marshal.FreeHGlobal(wrapHandle);
             }
 
-            NpyUFuncAccess_Init();
+            //NpyUFuncAccess_Init();
 
             // Initialize the offsets to each structure type for fast access
             // TODO: Not sure if this is a great way to do this, but for now it's

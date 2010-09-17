@@ -4,36 +4,213 @@ extern "C" {
 #include <npy_api.h>
 #include <npy_defs.h>
 #include <npy_loops.h>
+#include <npy_number.h>
+#include <npy_math.h>
+#include <npy_funcs.h>
 #include <npy_ufunc_object.h>
 }
 
-/* This code comes from __umath_generated.c and each array is indexed by type where
-   the entries are the looping function for each type and the signature. The functions
-   like npy_BOOL_add are from another generated file. 
 
-   Some of these functions will need to be passed in from the managed world.  This is
-   where it gets ugly because each type and all methods for some types will be passed
-   in - a lot of funcs.  Passing them in through the npy_init stage (npy_multiarray.c)
-   might make the most sense or might not. */
-static NpyUFuncGenericFunction add_functions[] = { npy_BOOL_add, npy_BYTE_add, npy_UBYTE_add, npy_SHORT_add, npy_USHORT_add, npy_INT_add, npy_UINT_add, npy_LONG_add, npy_ULONG_add, npy_LONGLONG_add, npy_ULONGLONG_add, npy_FLOAT_add, npy_DOUBLE_add, npy_LONGDOUBLE_add, npy_CFLOAT_add, npy_CDOUBLE_add, npy_CLONGDOUBLE_add, npy_DATETIME_Mm_M_add, npy_TIMEDELTA_mm_m_add, npy_DATETIME_mM_M_add, NULL };
-static void * add_data[] = { (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL, (void *)NULL };
-static char add_signatures[] = { NPY_BOOL, NPY_BOOL, NPY_BOOL, NPY_BYTE, NPY_BYTE, NPY_BYTE, NPY_UBYTE, NPY_UBYTE, NPY_UBYTE, NPY_SHORT, NPY_SHORT, NPY_SHORT, NPY_USHORT, NPY_USHORT, NPY_USHORT, NPY_INT, NPY_INT, NPY_INT, NPY_UINT, NPY_UINT, NPY_UINT, NPY_LONG, NPY_LONG, NPY_LONG, NPY_ULONG, NPY_ULONG, NPY_ULONG, NPY_LONGLONG, NPY_LONGLONG, NPY_LONGLONG, NPY_ULONGLONG, NPY_ULONGLONG, NPY_ULONGLONG, NPY_FLOAT, NPY_FLOAT, NPY_FLOAT, NPY_DOUBLE, NPY_DOUBLE, NPY_DOUBLE, NPY_LONGDOUBLE, NPY_LONGDOUBLE, NPY_LONGDOUBLE, NPY_CFLOAT, NPY_CFLOAT, NPY_CFLOAT, NPY_CDOUBLE, NPY_CDOUBLE, NPY_CDOUBLE, NPY_CLONGDOUBLE, NPY_CLONGDOUBLE, NPY_CLONGDOUBLE, NPY_DATETIME, NPY_TIMEDELTA, NPY_DATETIME, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_TIMEDELTA, NPY_DATETIME, NPY_DATETIME, NPY_OBJECT, NPY_OBJECT, NPY_OBJECT };
+
+typedef void *(*unaryfunc)(void *);
+typedef void *(*binaryfunc)(void *, void *);
+
+
+// Defined in __umath_generated.c, included below.
+static void InitOperators(void *);
+
+
+// Utility calls provided by the managed layer.
+void *(*IPyCallMethod)(void *obj, char *meth, void *arg);
+void (*IPyAddToDict)(void *dictObj, char *funcStr, void *ufuncObj);
+
+
+// This structure defines all of the artimetic functions not provided by
+// the core, such as those that operate on objects.
+struct ExternFuncs {
+    // Loop functions, may be provided by the managed or native layer.
+    void (*loop_equal)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_not_equal)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_greater)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_greater_equal)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_less)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_less_equal)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+    void (*loop_sign)(char **args, npy_intp *dimensions, npy_intp *steps, 
+        void *NPY_UNUSED(func));
+
+    // Generic arithmatic functions that operate on objects and are provided by
+    // the managed layer.  These typically call into IronPython to perform the
+    // operation.
+    unaryfunc absolute;
+    binaryfunc add, subtract, multiply, divide;
+    binaryfunc trueDivide, floorDivide;
+    unaryfunc invert, negative;
+    binaryfunc remainder, square, power;
+    binaryfunc min, max, reciprocal;
+    binaryfunc and, or, xor;
+    binaryfunc lshift, rshift, get_one;
+
+    int sentinel;   // Used to verify matching structure sizes, must be last.
+};
+
+static ExternFuncs managedFuncs;
+
+
+
+// These defines re-write the naming used by the CPython layer so we can re-use the
+// generated file __umath_generated.c.
+// TODO: Would be nice to refactor the CPython interface to use the same structure
+// as above so we don't need this and both can share the same naming.  However, that
+// isn't a priority right now.
+#define npy_OBJECT_equal managedFuncs.loop_equal
+#define npy_OBJECT_not_equal managedFuncs.loop_not_equal
+#define npy_OBJECT_greater managedFuncs.loop_greater
+#define npy_OBJECT_greater_equal managedFuncs.loop_greater_equal
+#define npy_OBJECT_less managedFuncs.loop_less
+#define npy_OBJECT_less_equal managedFuncs.loop_less_equal
+#define npy_OBJECT_sign managedFuncs.loop_sign
+#define PyNumber_Absolute managedFuncs.absolute
+#define PyNumber_Add managedFuncs.add
+#define PyNumber_Subtract managedFuncs.subtract
+#define PyNumber_Multiply managedFuncs.multiply
+#define PyNumber_Divide managedFuncs.divide
+#define PyNumber_TrueDivide managedFuncs.trueDivide
+#define PyNumber_FloorDivide managedFuncs.floorDivide
+#define PyNumber_Invert managedFuncs.invert
+#define PyNumber_Negative managedFuncs.negative
+#define PyNumber_Remainder managedFuncs.remainder
+#define Py_square managedFuncs.square
+#define npy_ObjectPower managedFuncs.power
+#define npy_ObjectMax managedFuncs.max
+#define npy_ObjectMin managedFuncs.min
+#define Py_reciprocal managedFuncs.reciprocal
+#define PyNumber_And managedFuncs.and
+#define PyNumber_Or managedFuncs.or
+#define PyNumber_Xor managedFuncs.xor
+#define PyNumber_Lshift managedFuncs.lshift
+#define PyNumber_Rshift managedFuncs.rshift
+#define Py_get_one managedFuncs.get_one
 
 
 // Initializes the ufuncs.  
 extern "C" __declspec(dllexport)
-void _cdecl NpyUFuncAccess_Init()
+    void _cdecl NpyUFuncAccess_Init(void *dictionary, ExternFuncs *funcs,
+    void *(*callMethod)(void *obj, char *meth, void *arg),
+    void (*addToDict)(void *dictObj, char *funcStr, void *ufuncObj))
 {
-    NpyUFuncObject *f;
+    // Copies the provided function pointers to our local storage.  The
+    // sentinel field is used to verify that the managed structure
+    // lines up with the native one.
+    assert(NPY_VALID_MAGIC == funcs->sentinel);
+    managedFuncs.sentinel = NPY_VALID_MAGIC;
+    memcpy(&managedFuncs, funcs, sizeof(managedFuncs));
+    assert(NPY_VALID_MAGIC == managedFuncs.sentinel);
 
-    // This list code is similar to the function at the end of __umath_generated.c that
-    // registers each of the arrays of functions.  That code sticks everything in a PyDict
-    // that goes to a function in number.c that calls NpyArray_SetNumericOp.  The reason
-    // for using the PyDict is that it allows any PyCallable object to be given.  In this
-    // case for now we can just register all of these directly.
-    f = NpyUFunc_FromFuncAndData(add_functions, add_data, add_signatures, 21,
-                                 2, 1, NpyUFunc_Zero, "add",
-                                 "Add arguments element-wise.\n""\n""Parameters\n""----------\n""x1, x2 : array_like\n""    The arrays to be added.\n""\n""Returns\n""-------\n""y : {ndarray, scalar}\n""    The sum of `x1` and `x2`, element-wise.  Returns scalar if\n""    both  `x1` and `x2` are scalars.\n""\n""Notes\n""-----\n""Equivalent to `x1` + `x2` in terms of array broadcasting.\n""\n""Examples\n""--------\n"">>> np.add(1.0, 4.0)\n""5.0\n"">>> x1 = np.arange(9.0).reshape((3, 3))\n"">>> x2 = np.arange(3.0)\n"">>> np.add(x1, x2)\n""array([[  0.,   2.,   4.],\n""       [  3.,   5.,   7.],\n""       [  6.,   8.,  10.]])", 0);
-    NpyArray_SetNumericOp(npy_op_add, f);
+    IPyCallMethod = callMethod;
+    IPyAddToDict = addToDict;
 
+    // Populates the dictionary with the function names and corresponding ufunc
+    // instance.
+    InitOperators(dictionary);
 }
+
+
+
+/******************************************************************************
+ **                         GENERIC OBJECT lOOPS                             **
+ *****************************************************************************/
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    unaryfunc f = (unaryfunc)func;
+    UNARY_LOOP {
+        void *in1 = *(void **)ip1;
+        void **out = (void **)op1;
+        void *ret = f(in1);
+        if (NULL == ret) {
+            return;
+        }
+        NpyInterface_DECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_O_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    UNARY_LOOP {
+        void *in1 = *(void **)ip1;
+        void **out = (void **)op1;
+        void *ret = IPyCallMethod(in1, meth, NULL);
+        if (NULL == ret) {
+            return;
+        }
+        NpyInterface_DECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    binaryfunc f = (binaryfunc)func;
+    BINARY_LOOP {
+        void *in1 = *(void **)ip1;
+        void *in2 = *(void **)ip2;
+        void **out = (void **)op1;
+        void *ret = f(in1, in2);
+        if (NULL == ret) {
+            return;
+        }
+        NpyInterface_DECREF(*out);
+        *out = ret;
+    }
+}
+
+/*UFUNC_API*/
+void
+NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func)
+{
+    char *meth = (char *)func;
+    BINARY_LOOP {
+        void *in1 = *(void **)ip1;
+        void *in2 = *(void **)ip2;
+        void **out = (void **)op1;
+        void *ret = IPyCallMethod(in1, meth, in2);
+        if (NULL == ret) {
+            return;
+        }
+        NpyInterface_DECREF(*out);
+        *out = ret;
+    }
+}
+
+
+// This macro is called by the code in __umath_generated.c to create the ufunc
+// object and register it with the core.  The macro is needed because the same
+// __umath_generated.c file is used by multiple interfaces.
+#define AddFunction(func, numTypes, nin, nout, identity, nameStr, doc, check_return) \
+    do {                                                                             \
+        NpyUFuncObject *f = NpyUFunc_FromFuncAndData(func ## _functions,                 \
+                                                     func ## _data,                      \
+                                                     func ## _signatures, numTypes, nin, \
+                                                     nout, identity, nameStr, doc,   \
+                                                     check_return);                  \
+        IPyAddToDict(dictionary, nameStr, Npy_INTERFACE(f));                         \
+        Npy_DECREF(f);                                                               \
+    } while (0);
+
+#include "..\..\core\__umath_generated.c"
+
+#undef AddFunction

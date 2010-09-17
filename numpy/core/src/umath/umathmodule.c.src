@@ -255,13 +255,20 @@ NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *f
     }
 }
 
-#define AddFunction(funcName, funcs, data, types, numTypes, nin, nout, identity, name, doc, check_return) \
+
+/* This macro is called by the code in __umath_generated.c to create the ufunc
+   and add it to the provided dictionary.  This is necessary because other interfaces
+   also use the same generated code and do other things to add the ufuncs. */
+#define AddFunction(func, numTypes, nin, nout, identity, nameStr, doc, check_return) \
     do {                                                                                \
-        NpyUFuncObject *f = NpyUFunc_FromFuncAndData(funcs, data, types, numTypes, nin, \
-                                                     nout, identity, name, doc,         \
-                                                     check_return);                     \
-        PyDict_SetItemString((PyObject *)dictionary, funcName, (PyObject *)Npy_INTERFACE(f));       \
-        Npy_DECREF(f);                                                                  \
+        NpyUFuncObject *f = NpyUFunc_FromFuncAndData(func ## _functions,             \
+                                                     func ## _data,                  \
+                                                     func ## _signature,             \
+                                                     numTypes, nin,                  \
+                                                     nout, identity, nameStr, doc,   \
+                                                     check_return);                  \
+        PyDict_SetItemString((PyObject *)dictionary, nameStr, (PyObject *)Npy_INTERFACE(f));       \
+        Npy_DECREF(f);                                                               \
     } while (0);
 
 #include "__umath_generated.c"
