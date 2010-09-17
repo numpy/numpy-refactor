@@ -192,10 +192,6 @@ namespace NumpyDotNet {
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
         }
 
-        internal static ndarray Flatten(ndarray arr, NpyDefs.NPY_ORDER order) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Flatten(arr.Array, (int)order));
-        }
 
         internal static ndarray GetField(ndarray arr, dtype d, int offset) {
             Incref(d.Descr);
@@ -352,6 +348,15 @@ namespace NumpyDotNet {
             IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Ravel(IntPtr arr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_SwapAxes(IntPtr arr, int a1, int a2);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
         #endregion
 
@@ -404,6 +409,14 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
             int order);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] newshape, int resize, int fortran);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] permute);
 
         /// <summary>
         /// Deallocates an NpyObject.
