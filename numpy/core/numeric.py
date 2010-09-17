@@ -28,10 +28,11 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 
 if sys.platform == 'cli':
     obj2sctype = isnan = zeros = None
-    for n in '''ufunc arange empty fromstring fromfile frombuffer int_asbuffer where
-concatenate fastCopyAndTranspose lexsort set_numeric_ops can_cast inner dot vdot
-alterdot restoredot array2string get_printoptions set_printoptions set_string_function
-fromiter compare_chararrays putmask Inf inf infty Infinity nan NaN False_ True_
+    for n in '''ufunc arange empty fromstring fromfile frombuffer int_asbuffer
+where concatenate fastCopyAndTranspose lexsort set_numeric_ops can_cast inner
+dot vdot alterdot restoredot array2string get_printoptions set_printoptions
+set_string_function fromiter compare_chararrays putmask
+Inf inf infty Infinity nan NaN False_ True_
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
              '''.split():
         __all__.remove(n)
