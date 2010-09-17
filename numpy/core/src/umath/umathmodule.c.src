@@ -263,7 +263,7 @@ NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *f
     do {                                                                                \
         NpyUFuncObject *f = NpyUFunc_FromFuncAndData(func ## _functions,             \
                                                      func ## _data,                  \
-                                                     func ## _signature,             \
+                                                     func ## _signatures,            \
                                                      numTypes, nin,                  \
                                                      nout, identity, nameStr, doc,   \
                                                      check_return);                  \
