@@ -599,10 +599,10 @@ NPY_NO_EXPORT PyObject *
 PyArray_Any(PyArrayObject *self, int axis, PyArrayObject *out)
 {
     PyArrayObject *ret = NULL;
-    
+
     ASSIGN_TO_PYARRAY(ret, NpyArray_Any(PyArray_ARRAY(self), axis,
                                         (NULL != out) ? PyArray_ARRAY(out) : NULL));
-    return (PyObject *)ret;
+    return PyArray_Return(ret);
 }
 
 /*NUMPY_API
@@ -612,10 +612,10 @@ NPY_NO_EXPORT PyObject *
 PyArray_All(PyArrayObject *self, int axis, PyArrayObject *out)
 {
     PyArrayObject *ret = NULL;
-    
+
     ASSIGN_TO_PYARRAY(ret, NpyArray_All(PyArray_ARRAY(self), axis,
                                         (NULL != out) ? PyArray_ARRAY(out) : NULL));
-    return (PyObject *)ret;
+    return PyArray_Return(ret);
 }
 
 

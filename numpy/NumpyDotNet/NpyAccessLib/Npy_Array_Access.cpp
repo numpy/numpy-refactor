@@ -324,7 +324,7 @@ extern "C" __declspec(dllexport)
 //
 
 extern "C" __declspec(dllexport)
-    void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
+void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
     int *nargsOffset, int *identityOffset, int *ntypesOffset, int *checkRetOffset, 
     int *nameOffset, int *typesOffset, int *coreSigOffset)
 {
