@@ -543,10 +543,6 @@ namespace NumpyDotNet
             return ArrayReturn(ArgSort(iAxis, sortkind));
         }
 
-        public object argsort(int axis = NpyDefs.NPY_MAXDIMS) {
-            return ArrayReturn(ArgSort(axis, NpyDefs.NPY_SORTKIND.NPY_QUICKSORT));
-        }
-
         public ndarray astype(CodeContext cntx, object dtype = null) {
             dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
