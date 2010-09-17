@@ -40,6 +40,16 @@ if 1:
 if 'NDARRAY_INC_DIR' not in os.environ:
     os.environ['NDARRAY_INC_DIR'] = os.path.abspath('libndarray/src')
 
+if 'NDARRAY_LIB_DIR' not in os.environ:
+    if sys.platform == 'win32':
+        if platform.architecture()[0] == '64bit':
+            lib_dir = 'libndarray/windows/x64/Release'
+        else:
+            lib_dir = 'libndarray/windows/Release'
+    else:
+        lib_dir = 'libndarray/.libs'
+    os.environ['NDARRAY_LIB_DIR'] = os.path.abspath(lib_dir)
+
 
 CLASSIFIERS = """\
 Development Status :: 4 - Beta
