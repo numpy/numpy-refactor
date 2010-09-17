@@ -151,6 +151,32 @@ namespace NumpyDotNet {
             return order;
         }
 
+        internal static IntPtr IntpConverter(object arg) {
+            if (IntPtr.Size == 4) {
+                if (arg is int) {
+                    return (IntPtr)(int)arg;
+                } else if (arg is IConvertible) {
+                    return (IntPtr)Convert.ToInt32((IConvertible)arg);
+                }
+            } else {
+                if (arg is long) {
+                    return (IntPtr)(long)arg;
+                } else if (arg is IConvertible) {
+                    return (IntPtr)Convert.ToInt64((IConvertible)arg);
+                }
+            }
+            throw new ArgumentTypeException("Argument can't be converted to an integer.");
+        }
+
+        internal static IntPtr[] IntpListConverter(IList<object> args) {
+            IntPtr[] result = new IntPtr[args.Count];
+            int i=0;
+            foreach (object arg in args) {
+                result[i++] = IntpConverter(arg);
+            }
+            return result;
+        }
+
 
         internal static Object[] BuildArgsArray(Object[] posArgs, String[] kwds,
             IAttributesCollection namedArgs) {

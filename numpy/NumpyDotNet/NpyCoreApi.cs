@@ -56,17 +56,6 @@ namespace NumpyDotNet {
                 NpyArray_SmallType(t1.Descr, t2.Descr));
         }
 
-        /// <summary>
-        /// Returns a copy of the passed array in the specified order (C, Fortran)
-        /// </summary>
-        /// <param name="arr">Array to copy</param>
-        /// <param name="order">Desired order</param>
-        /// <returns>New array</returns>
-        internal static ndarray NewCopy(ndarray arr, NpyDefs.NPY_ORDER order) {
-            // TODO: NewCopy is not implemented.
-            return arr;
-        }
-
 
         /// <summary>
         /// Moves the contents of src into dest.  Arrays are assumed to have the
@@ -152,13 +141,6 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray Flatten(ndarray a, NpyDefs.NPY_ORDER order)
-        {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Flatten(a.Array, order)
-                );
-        }
-
         internal static ndarray FlatView(ndarray a)
         {
             return DecrefToInterface<ndarray>(
@@ -199,10 +181,56 @@ namespace NumpyDotNet {
                 NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal static ndarray Byteswap(ndarray arr, bool inplace) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
+        }
+
         internal static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
             Incref(d.Descr);
             return DecrefToInterface<ndarray>(
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+        }
+
+        internal static ndarray Flatten(ndarray arr, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_Flatten(arr.Array, (int)order));
+        }
+
+        internal static ndarray GetField(ndarray arr, dtype d, int offset) {
+            Incref(d.Descr);
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetField(arr.Array, d.Descr, offset));
+        }
+
+        internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
+        }
+
+        /// <summary>
+        /// Returns a copy of the passed array in the specified order (C, Fortran)
+        /// </summary>
+        /// <param name="arr">Array to copy</param>
+        /// <param name="order">Desired order</param>
+        /// <returns>New array</returns>
+        internal static ndarray NewCopy(ndarray arr, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_NewCopy(arr.Array, (int)order));
+        }
+
+        internal static ndarray[] NonZero(ndarray arr) {
+            int nd = arr.ndim;
+            IntPtr[] coreArrays = new IntPtr[nd];
+            // TODO: We should be passing the managed array as the last arg for subtypes.
+            if (NpyArray_NonZero(arr.Array, coreArrays, IntPtr.Zero) < 0) {
+                CheckError();
+            }
+            ndarray[] result = new ndarray[nd];
+            for (int i = 0; i < nd; i++) {
+                result[i] = DecrefToInterface<ndarray>(coreArrays[i]);
+            }
+            return result;
         }
 
         internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
@@ -230,9 +258,6 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_ElementStrides(IntPtr arr);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, byte order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
@@ -286,9 +311,6 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, NpyDefs.NPY_ORDER order);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -310,7 +332,24 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_NonZero(IntPtr self, 
+            [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays, 
+            IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
@@ -360,6 +399,11 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
+            int order);
 
         /// <summary>
         /// Deallocates an NpyObject.

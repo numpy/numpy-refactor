@@ -528,9 +528,59 @@ namespace NumpyDotNet
             return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
         }
 
-        public ndarray astype(object dtype = null) {
-            dtype d = NpyDescr.DescrConverter(null, dtype);
+        public ndarray astype(CodeContext cntx, object dtype = null) {
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
+        }
+
+        public ndarray byteswap(bool inplace = false) {
+            return NpyCoreApi.Byteswap(this, inplace);
+        }
+
+        public ndarray compress(object condition, object axis = null, ndarray output = null) {
+            ndarray aCondition = NpyArray.FromAny(condition, null, 0, 0, 0, null);
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+
+            if (aCondition.ndim != 1) {
+                throw new ArgumentException("condition must be 1-d array");
+            }
+
+            ndarray indexes = NpyCoreApi.NonZero(aCondition)[0];
+            return NpyCoreApi.TakeFrom(this, indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
+        }
+
+        public ndarray copy(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public ndarray flatten(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return NpyCoreApi.Flatten(this, eOrder);
+        }
+
+        public ndarray getfield(CodeContext cntx, object dtype, int offset = 0) {
+            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            return NpyCoreApi.GetField(this, dt, offset);
+        }
+            
+        public PythonTuple nonzero() {
+            return new PythonTuple(NpyCoreApi.NonZero(this));
+        }
+
+        private static string[] reshapeKeywords = { "order" };
+
+        public ndarray reshape([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+            object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], reshapeKeywords, kwds);
+            NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(keywordArgs[0]);
+            IntPtr[] newshape;
+            // TODO: Add NpyArray_View call for (None) case. (Why?)
+            if (args.Length == 1 && args[0] is IList<object>) {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]);
+            } else {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
+            }
+            return NpyCoreApi.Newshape(this, newshape, order);
         }
 
         public object take(object indices,
