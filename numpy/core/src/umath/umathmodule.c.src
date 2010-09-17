@@ -255,7 +255,18 @@ NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *f
     }
 }
 
+#define AddFunction(funcName, funcs, data, types, numTypes, nin, nout, identity, name, doc, check_return) \
+    do {                                                                                \
+        NpyUFuncObject *f = NpyUFunc_FromFuncAndData(funcs, data, types, numTypes, nin, \
+                                                     nout, identity, name, doc,         \
+                                                     check_return);                     \
+        PyDict_SetItemString((PyObject *)dictionary, funcName, (PyObject *)Npy_INTERFACE(f));       \
+        Npy_DECREF(f);                                                                  \
+    } while (0);
+
 #include "__umath_generated.c"
+
+#undef AddFunction
 
 /*
  * A general-purpose ufunc that deals with general-purpose Python callable.
