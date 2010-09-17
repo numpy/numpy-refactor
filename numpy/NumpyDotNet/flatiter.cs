@@ -132,7 +132,7 @@ namespace NumpyDotNet
 
         public ndarray copy()
         {
-            return NpyCoreApi.Flatten(arr, NpyDefs.NPY_ORDER.NPY_CORDER);
+            return arr.Flatten(NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
         /// <summary>

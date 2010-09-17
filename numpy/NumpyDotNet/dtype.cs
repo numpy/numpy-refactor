@@ -88,6 +88,14 @@ namespace NumpyDotNet {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_flags); }
         }
 
+        internal bool ChkFlags(int flags) {
+            return (Flags & flags) == flags;
+        }
+
+        internal bool IsObject {
+            get { return ChkFlags(NpyDefs.NPY_ITEM_REFCOUNT); }
+        }
+
         public NpyDefs.NPY_TYPES TypeNum {
             get { return (NpyDefs.NPY_TYPES)Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_type_num); }
         }

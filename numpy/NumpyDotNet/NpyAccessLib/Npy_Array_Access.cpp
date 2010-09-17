@@ -326,6 +326,28 @@ extern "C" __declspec(dllexport)
     return NpyArray_Newshape(self, &newdims, order);
 }
 
+extern "C" __declspec(dllexport)
+    int NpyArrayAccess_Resize(NpyArray *self, int ndim, npy_intp* newshape, int refcheck, NPY_ORDER fortran)
+{
+    NpyArray_Dims newdims;
+    newdims.len = ndim;
+    newdims.ptr = newshape;
+    return NpyArray_Resize(self, &newdims, refcheck, fortran);
+}
+
+extern "C" __declspec(dllexport)
+    NpyArray* NpyArrayAccess_Transpose(NpyArray *self, int ndim, npy_intp* permute)
+{
+    if (ndim == 0) {
+        return NpyArray_Transpose(self, NULL);
+    } else {
+        NpyArray_Dims p;
+        p.len = ndim;
+        p.ptr = permute;
+        return NpyArray_Transpose(self, &p);
+    }
+}
+
 
 //
 // UFunc access methods

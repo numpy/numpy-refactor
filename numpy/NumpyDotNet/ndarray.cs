@@ -11,6 +11,7 @@ using IronPython.Runtime.Operations;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
+using System.Collections;
 
 namespace NumpyDotNet
 {
@@ -19,7 +20,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public class ndarray : Wrapper
+    public partial class ndarray : Wrapper
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -322,6 +323,10 @@ namespace NumpyDotNet
             get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
         }
 
+        public long Size {
+            get { return NpyCoreApi.NpyArray_Size(core).ToInt64(); }
+        }
+
         /// <summary>
         /// Pointer to the internal memory. Should be used with great caution - memory
         /// is native memory, not managed memory.
@@ -480,7 +485,6 @@ namespace NumpyDotNet
             get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
         }
 
-
         /// <summary>
         /// TODO: What does this return?
         /// </summary>
@@ -556,7 +560,7 @@ namespace NumpyDotNet
 
         public ndarray flatten(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
-            return NpyCoreApi.Flatten(this, eOrder);
+            return Flatten(eOrder);
         }
 
         public ndarray getfield(CodeContext cntx, object dtype, int offset = 0) {
@@ -583,6 +587,44 @@ namespace NumpyDotNet
             return NpyCoreApi.Newshape(this, newshape, order);
         }
 
+        public ndarray ravel(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return Ravel(eOrder);
+        }
+
+        private static string[] resizeKeywords = { "refcheck" };
+
+        public void resize([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+            object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], resizeKeywords, kwds);
+            bool refcheck = NpyUtil_ArgProcessing.BoolConverter(keywordArgs[0]);
+            IntPtr[] newshape;
+
+            if (args.Length == 0) {
+                return;
+            }
+            if (args.Length == 1 && args[0] is IList<object>) {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]);
+            } else {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
+            }
+            Resize(newshape, refcheck, NpyDefs.NPY_ORDER.NPY_CORDER);
+        }
+        
+        public ndarray squeeze() {
+            return Squeeze();
+        }
+
+        public ndarray swapaxes(int a1, int a2) {
+            return SwapAxes(a1, a2);
+        }
+
+        public ndarray swapaxes(object a1, object a2) {
+            int iA1 = NpyUtil_ArgProcessing.IntConverter(a1);
+            int iA2 = NpyUtil_ArgProcessing.IntConverter(a2);
+            return SwapAxes(iA1, iA2);
+        }
+                
+
         public object take(object indices,
                            object axis = null,
                            ndarray output = null,
@@ -599,6 +641,16 @@ namespace NumpyDotNet
             iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
             return ArrayReturn(NpyCoreApi.TakeFrom(this, aIndices, iAxis, output, cMode));
+        }
+
+        public ndarray transpose(params object[] args) {
+            if (args.Length == 0 || args.Length == 1 && args[0] == null) {
+                return Transpose();
+            } else if (args.Length == 1 && args[0] is IList<object>) {
+                return Transpose(NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]));
+            } else {
+                return Transpose(NpyUtil_ArgProcessing.IntpListConverter(args));
+            }
         }
 
         #endregion

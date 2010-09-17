@@ -46,7 +46,8 @@ namespace NumpyDotNet {
     internal static class NpyUtil_ArgProcessing {
 
         internal static bool BoolConverter(Object o) {
-            if (o is Boolean) return (bool)o;
+            if (o == null) return false;
+            else if (o is Boolean) return (bool)o;
             else if (o is IConvertible) return Convert.ToBoolean(o);
 
             throw new ArgumentException(String.Format("Unable to convert argument '{0}' to Boolean value.", o));

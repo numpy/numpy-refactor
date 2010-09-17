@@ -72,6 +72,7 @@
     <Compile Include="NpyCoreApi.cs" />
     <Compile Include="NpyDefs.cs" />
     <Compile Include="NpyDescr.cs" />
+    <Compile Include="shape.cs" />
     <Compile Include="NpyUtils.cs" />
     <Compile Include="NumericOps.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
