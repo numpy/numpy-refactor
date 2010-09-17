@@ -133,5 +133,23 @@ namespace NumpyDotNet {
             }
             return result;
         }
+
+        public static void putmask(ndarray arr, object mask, object values) {
+            ndarray aMask;
+            ndarray aValues;
+
+            aMask = (mask as ndarray);
+            if (aMask == null) {
+                aMask = NpyArray.FromAny(mask, NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL),
+                    0, 0, NpyDefs.NPY_CARRAY | NpyDefs.NPY_FORCECAST, null);
+            }
+
+            aValues = (values as ndarray);
+            if (aValues == null) {
+                aValues = NpyArray.FromAny(values, arr.dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+
+            arr.PutMask(aValues, aMask);
+        }
     }
 }

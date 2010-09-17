@@ -213,6 +213,28 @@ namespace NumpyDotNet {
             return args;
         }
 
+
+        internal static NpyDefs.NPY_SORTKIND SortkindConverter(string kind) {
+            if (kind == null) {
+                return NpyDefs.NPY_SORTKIND.NPY_QUICKSORT;
+            }
+            if (kind.Length < 1) {
+                throw new ArgumentException("Sort kind string must be at least length 1");
+            }
+            switch (kind[0]) {
+                case 'q':
+                case 'Q':
+                    return NpyDefs.NPY_SORTKIND.NPY_QUICKSORT;
+                case 'h':
+                case 'H':
+                    return NpyDefs.NPY_SORTKIND.NPY_HEAPSORT;
+                case 'm':
+                case 'M':
+                    return NpyDefs.NPY_SORTKIND.NPY_MERGESORT;
+                default:
+                    throw new ArgumentException(String.Format("{0} is an unrecognized kind of SortedDictionary", kind));
+            }
+        }
     }
 
 

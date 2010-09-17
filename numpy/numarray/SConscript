@@ -1,18 +1,14 @@
-# Last Change: Thu Jun 12 06:00 PM 2008 J
-# vim:syntax=python
+import os
 import sys
-from os.path import expanduser as pexpanduser, join as pjoin
 
 from numscons import GetNumpyEnvironment
 
 
-usr_lib_dir = pjoin(pexpanduser('~'), 'usr', 'lib')
-usr_inc_dir = pjoin(pexpanduser('~'), 'usr', 'include')
 
 env = GetNumpyEnvironment(ARGUMENTS)
 env.Prepend(CPPPATH=['numpy', "#$build_prefix/numpy/core/src/private",
-                     usr_inc_dir])
+                              os.environ['NDARRAY_INC_DIR']])
 if sys.platform == 'win32':
-    env.Prepend(LIBPATH=[usr_lib_dir])
+    env.Prepend(LIBPATH=[os.environ['NDARRAY_LIB_DIR']])
     env.Prepend(LIBS=['ndarray'])
 env.NumpyPythonExtension('_capi', source = ['_capi.c'])

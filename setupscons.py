@@ -22,16 +22,12 @@ import subprocess
 import platform
 
 
-if (sys.platform == 'win32' or
-    platform.platform() == 'Linux-2.6.24-11-pve-i686-with-redhat-4.7-Final'
-    ):
-    pass
-else:
+if sys.platform != 'win32':
     # During development, we update the core library every time we build
     library_dir = os.path.abspath('libndarray')
-    for cmd in [['make'], ['make', 'install']]:
-        print "RUNNING: %r in %r" % (cmd, library_dir)
-        assert subprocess.call(cmd, cwd=library_dir) == 0
+    cmd = ['make']
+    print "RUNNING: %r in %r" % (cmd, library_dir)
+    assert subprocess.call(cmd, cwd=library_dir) == 0
 
 
 if 1:
@@ -39,6 +35,20 @@ if 1:
     cmd = ['cython', 'mtrand.pyx']
     cwd = os.path.join('numpy', 'random', 'mtrand')
     assert subprocess.call(cmd, cwd=cwd) == 0
+
+
+if 'NDARRAY_INC_DIR' not in os.environ:
+    os.environ['NDARRAY_INC_DIR'] = os.path.abspath('libndarray/src')
+
+if 'NDARRAY_LIB_DIR' not in os.environ:
+    if sys.platform == 'win32':
+        if platform.architecture()[0] == '64bit':
+            lib_dir = 'libndarray/windows/x64/Release'
+        else:
+            lib_dir = 'libndarray/windows/Release'
+    else:
+        lib_dir = 'libndarray/.libs'
+    os.environ['NDARRAY_LIB_DIR'] = os.path.abspath(lib_dir)
 
 
 CLASSIFIERS = """\

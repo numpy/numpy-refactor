@@ -1,8 +1,6 @@
-# Last Change: Sun Apr 26 05:00 PM 2009 J
-# vim:syntax=python
 import os
 import sys
-from os.path import join as pjoin, expanduser as pexpanduser
+from os.path import join as pjoin
 
 from numscons import get_pythonlib_dir
 from numscons import GetNumpyEnvironment
@@ -22,7 +20,11 @@ from scons_support import (CheckBrokenMathlib, define_no_smp,
 import SCons
 
 
-usr_dir = pjoin(pexpanduser('~'), 'usr')
+ndarray_inc_dir = os.environ['NDARRAY_INC_DIR']
+ndarray_lib_dir = os.environ['NDARRAY_LIB_DIR']
+print 'ndarray_inc_dir = %r' % ndarray_inc_dir
+print 'ndarray_lib_dir = %r' % ndarray_lib_dir
+
 
 
 env = GetNumpyEnvironment(ARGUMENTS)
@@ -210,9 +212,9 @@ generated_headers.append(ufunc_api[0])
 # needed for __multiarray_api.c and __ufunc_api.c included from multiarray and
 # ufunc.
 env.Prepend(CPPPATH = ['src/private', 'include', '.', 'include/numpy',
-                       pjoin(usr_dir, 'include')])
+                       ndarray_inc_dir])
 
-env.Prepend(LIBPATH=[".", pjoin(usr_dir, 'lib')])
+env.Prepend(LIBPATH=[".", ndarray_lib_dir])
 
 subst_dict = {'@prefix@': '$distutils_install_prefix',
               '@pkgname@': 'numpy.core', '@sep@': os.path.sep}
@@ -256,7 +258,7 @@ if PYTHON_HAS_UNICODE_WIDE:
 multiarray = env.DistutilsPythonExtension(
          'multiarray',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib')],
+         LIBPATH=[ndarray_lib_dir],
          source = multiarray_src)
 env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 
@@ -266,7 +268,7 @@ env.DistutilsPythonExtension('multiarray_tests', source=multiarray_tests_src)
 sort = env.DistutilsPythonExtension(
          '_sort',
          LIBS=['ndarray'],
-         LIBPATH=[pjoin(usr_dir, 'lib')],
+         LIBPATH=[ndarray_lib_dir],
          source = sortmodule_src)
 
 #-------------------

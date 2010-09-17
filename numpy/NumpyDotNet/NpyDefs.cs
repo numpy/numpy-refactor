@@ -72,6 +72,13 @@ namespace NumpyDotNet {
             NPY_NOTYPELTR = 0
         }
 
+        public enum NPY_SORTKIND
+        {
+            NPY_QUICKSORT = 0,
+            NPY_HEAPSORT = 1,
+            NPY_MERGESORT = 2
+        }
+        internal const int NPY_NSORTS = 3; 
 
         public enum NPY_ORDER {
             NPY_ANYORDER = -1,

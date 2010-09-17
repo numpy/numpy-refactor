@@ -532,6 +532,17 @@ namespace NumpyDotNet
             return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
         }
 
+        public object argsort(object axis = null, string kind = null, object order = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
+
+            if (order != null) {
+                throw new NotImplementedException("Sort field order not yet implemented.");
+            }
+
+            return ArrayReturn(ArgSort(iAxis, sortkind));
+        }
+
         public ndarray astype(CodeContext cntx, object dtype = null) {
             dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
@@ -550,7 +561,7 @@ namespace NumpyDotNet
             }
 
             ndarray indexes = NpyCoreApi.NonZero(aCondition)[0];
-            return NpyCoreApi.TakeFrom(this, indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
+            return TakeFrom(indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
         public ndarray copy(object order = null) {
@@ -570,6 +581,34 @@ namespace NumpyDotNet
             
         public PythonTuple nonzero() {
             return new PythonTuple(NpyCoreApi.NonZero(this));
+        }
+
+        public void put(object indices, object values, object mode = null) {
+            ndarray aIndices;
+            ndarray aValues;
+            NpyDefs.NPY_CLIPMODE eMode;
+
+            aIndices = (indices as ndarray);
+            if (aIndices == null) {
+                aIndices = NpyArray.FromAny(indices, NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
+                    0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+            aValues = (values as ndarray);
+            if (aValues == null) {
+                aValues = NpyArray.FromAny(values, dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+            eMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
+            PutTo(aValues, aIndices, eMode);
+        }
+
+        public object repeat(object repeats, object axis = null) {
+            ndarray aRepeats = (repeats as ndarray);
+            if (aRepeats == null) {
+                aRepeats = NpyArray.FromAny(repeats, NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
+                    0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(Repeat(aRepeats, iAxis));
         }
 
         private static string[] reshapeKeywords = { "order" };
@@ -609,8 +648,17 @@ namespace NumpyDotNet
             }
             Resize(newshape, refcheck, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
-        
-        public ndarray squeeze() {
+
+        public void sort(int axis = -1, string kind = null, object order = null) {
+            NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
+            if (order != null) {
+                throw new NotImplementedException("Field sort order not yet implemented.");
+            }
+            Sort(axis, sortkind);
+        }
+
+            
+            public ndarray squeeze() {
             return Squeeze();
         }
 
@@ -640,7 +688,7 @@ namespace NumpyDotNet
             }
             iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
-            return ArrayReturn(NpyCoreApi.TakeFrom(this, aIndices, iAxis, output, cMode));
+            return ArrayReturn(TakeFrom(aIndices, iAxis, output, cMode));
         }
 
         public ndarray transpose(params object[] args) {
