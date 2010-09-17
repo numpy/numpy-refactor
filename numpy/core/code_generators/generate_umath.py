@@ -776,14 +776,14 @@ def make_arrays(funcdict):
                 tname = english_upper(chartoname[t.type])
                 datalist.append('(void *)NULL')
                 funclist.append('npy_%s_%s_%s_%s' % (tname, t.in_, t.out, name))
-                code2list.append('PyUFunc_SetUsesArraysAsData(%s_data, %s);' % (name, k))
+                code2list.append('NpyUFunc_SetUsesArraysAsData(%s_data, %s);' % (name, k))
             else:
                 datalist.append('(void *)NULL')
                 tname = english_upper(chartoname[t.type])
                 funclist.append('npy_%s_%s' % (tname, name))
 
             for x in t.in_ + t.out:
-                siglist.append('PyArray_%s' % (english_upper(chartoname[x]),))
+                siglist.append('NPY_%s' % (english_upper(chartoname[x]),))
 
             k += 1
 
@@ -820,17 +820,16 @@ def make_ufuncs(funcdict):
         # do not play well with \n
         docstring = '\\n\"\"'.join(docstring.split(r"\n"))
         mlist.append(\
-r"""AddFunction("%s", %s_functions, %s_data, %s_signatures, %d, %d, %d, %s, 
+r"""AddFunction(%s, %d, %d, %d, %s, 
             "%s", "%s", 0);"""
-                                % (name, name, name, name,
-                                                len(uf.type_descriptions),
-                                                uf.nin, uf.nout,
-                                                uf.identity,
-                                                name, docstring))
+                                % (name, 
+                                   len(uf.type_descriptions),
+                                   uf.nin, uf.nout,
+                                   uf.identity,
+                                   name, docstring))
         code3list.append('\n'.join(mlist))
     return '\n'.join(code3list)
 
-#define AddFunction(funcName, funcs, data, types, numTypes, nin, nout, identity, name, doc, check_return) \
 
 def make_code(funcdict,filename):
     code1, code2 = make_arrays(funcdict)

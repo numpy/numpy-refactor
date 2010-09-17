@@ -31,7 +31,7 @@ if sys.platform == 'cli':
     for n in '''ufunc arange empty fromstring fromfile frombuffer int_asbuffer
 where concatenate fastCopyAndTranspose lexsort set_numeric_ops can_cast inner
 dot vdot alterdot restoredot array2string get_printoptions set_printoptions
-set_string_function fromiter compare_chararrays putmask
+set_string_function fromiter compare_chararrays
 Inf inf infty Infinity nan NaN False_ True_
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
              '''.split():
@@ -221,6 +221,7 @@ newaxis = None
 
 if sys.platform == 'cli':
     array = NDNMM.array
+    putmask = NDNMM.putmask
 else:
     arange = multiarray.arange
     array = multiarray.array
