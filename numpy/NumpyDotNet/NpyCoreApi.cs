@@ -229,11 +229,6 @@ namespace NumpyDotNet {
             return result;
         }
 
-        internal static ndarray TakeFrom(ndarray self, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_TakeFrom(self.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
-                );
-        }
 
         #endregion
 
@@ -328,6 +323,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_ArgSort(IntPtr arr, int axis, int sortkind);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -348,7 +346,19 @@ namespace NumpyDotNet {
             IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_PutMask(IntPtr arr, IntPtr values, IntPtr mask);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_PutTo(IntPtr arr, IntPtr values, IntPtr indices, int clipmode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Ravel(IntPtr arr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Repeat(IntPtr arr, IntPtr repeats, int axis);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_Sort(IntPtr arr, int axis, int sortkind);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
@@ -358,6 +368,7 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
+
         #endregion
 
         #region NpyAccessLib functions
