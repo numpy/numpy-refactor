@@ -8,10 +8,6 @@ rm -rf tools/.deps tools/.dirstamp Makefile Makefile.in
 
 autoreconf -fvi
 
-bash configure --disable-static --prefix="$HOME/usr"
+bash configure --disable-static
 
 make
-
-rm -rf "$HOME/usr"
-
-make install
