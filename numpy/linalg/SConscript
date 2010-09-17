@@ -1,16 +1,10 @@
-# Last Change: Thu Jun 12 06:00 PM 2008 J
-# vim:syntax=python
-from os.path import expanduser as pexpanduser, join as pjoin
-
+import os
 from numscons import GetNumpyEnvironment, scons_get_mathlib
 from numscons import CheckF77LAPACK
 from numscons import write_info
 
-usr_lib_dir = pjoin(pexpanduser('~'), 'usr', 'lib')
-usr_inc_dir = pjoin(pexpanduser('~'), 'usr', 'include')
-
 env = GetNumpyEnvironment(ARGUMENTS)
-env.Prepend(CPPPATH=[usr_inc_dir])
+env.Prepend(CPPPATH=[os.environ['NDARRAY_INC_DIR']])
 
 config = env.NumpyConfigure(custom_tests = {'CheckLAPACK' : CheckF77LAPACK})
 
