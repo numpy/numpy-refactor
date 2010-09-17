@@ -568,6 +568,21 @@ namespace NumpyDotNet
             return new PythonTuple(NpyCoreApi.NonZero(this));
         }
 
+        private static string[] reshapeKeywords = { "order" };
+
+        public ndarray reshape([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+            object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], reshapeKeywords, kwds);
+            NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(keywordArgs[0]);
+            IntPtr[] newshape;
+            // TODO: Add NpyArray_View call for (None) case. (Why?)
+            if (args.Length == 1 && args[0] is IList<object>) {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]);
+            } else {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
+            }
+            return NpyCoreApi.Newshape(this, newshape, order);
+        }
+
         public object take(object indices,
                            object axis = null,
                            ndarray output = null,

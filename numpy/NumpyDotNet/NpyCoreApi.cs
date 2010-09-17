@@ -203,6 +203,11 @@ namespace NumpyDotNet {
                 NpyArray_GetField(arr.Array, d.Descr, offset));
         }
 
+        internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
+            return DecrefToInterface<ndarray>(
+                NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
+        }
+
         /// <summary>
         /// Returns a copy of the passed array in the specified order (C, Fortran)
         /// </summary>
@@ -394,6 +399,11 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
+            int order);
 
         /// <summary>
         /// Deallocates an NpyObject.

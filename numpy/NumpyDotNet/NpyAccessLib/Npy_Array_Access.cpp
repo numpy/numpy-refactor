@@ -317,6 +317,14 @@ extern "C" __declspec(dllexport)
     *off_iters = offsetof(NpyArrayMultiIterObject, iters);
 }
 
+extern "C" __declspec(dllexport)
+    NpyArray* NpyArrayAccess_Newshape(NpyArray* self, int ndim, npy_intp* dims, NPY_ORDER order)
+{
+    NpyArray_Dims newdims;
+    newdims.len = ndim;
+    newdims.ptr = dims;
+    return NpyArray_Newshape(self, &newdims, order);
+}
 
 
 //
