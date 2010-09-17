@@ -78,7 +78,14 @@ namespace NumpyDotNet {
             NPY_HEAPSORT = 1,
             NPY_MERGESORT = 2
         }
-        internal const int NPY_NSORTS = 3; 
+        internal const int NPY_NSORTS = 3;
+
+        public enum NPY_SEARCHSIDE
+        {
+            NPY_SEARCHLEFT = 0,
+            NPY_SEARCHRIGHT = 1
+        }
+        internal const int NPY_NSEARCHSIDES = 2;
 
         public enum NPY_ORDER {
             NPY_ANYORDER = -1,

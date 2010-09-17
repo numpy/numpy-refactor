@@ -40,5 +40,35 @@ namespace NumpyDotNet
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_ArgSort(Array, axis, (int)sortkind));
         }
+
+        internal static ndarray LexSort(ndarray[] arrays, int axis) {
+            int n = arrays.Length;
+            IntPtr[] coreArrays = new IntPtr[n];
+            for (int i = 0; i < n; i++) {
+                coreArrays[i] = arrays[i].Array;
+            }
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_LexSort(coreArrays, n, axis));
+        }
+
+        internal ndarray SearchSorted(ndarray keys, NpyDefs.NPY_SEARCHSIDE side) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_SearchSorted(Array, keys.Array, (int)side));
+        }
+
+        internal ndarray[] NonZero() {
+            int nd = ndim;
+            IntPtr[] coreArrays = new IntPtr[nd];
+            // TODO: We should be passing the managed array as the last arg for subtypes.
+            if (NpyCoreApi.NpyArray_NonZero(Array, coreArrays, IntPtr.Zero) < 0) {
+                NpyCoreApi.CheckError();
+            }
+            ndarray[] result = new ndarray[nd];
+            for (int i = 0; i < nd; i++) {
+                result[i] = NpyCoreApi.DecrefToInterface<ndarray>(coreArrays[i]);
+            }
+            return result;
+        }
+
     }
 }

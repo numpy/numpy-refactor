@@ -215,19 +215,6 @@ namespace NumpyDotNet {
                 NpyArray_NewCopy(arr.Array, (int)order));
         }
 
-        internal static ndarray[] NonZero(ndarray arr) {
-            int nd = arr.ndim;
-            IntPtr[] coreArrays = new IntPtr[nd];
-            // TODO: We should be passing the managed array as the last arg for subtypes.
-            if (NpyArray_NonZero(arr.Array, coreArrays, IntPtr.Zero) < 0) {
-                CheckError();
-            }
-            ndarray[] result = new ndarray[nd];
-            for (int i = 0; i < nd; i++) {
-                result[i] = DecrefToInterface<ndarray>(coreArrays[i]);
-            }
-            return result;
-        }
 
 
         #endregion
@@ -338,6 +325,10 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_LexSort(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] mps, int n, int axis);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -356,6 +347,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Repeat(IntPtr arr, IntPtr repeats, int axis);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_SearchSorted(IntPtr op1, IntPtr op2, int side);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_Sort(IntPtr arr, int axis, int sortkind);
