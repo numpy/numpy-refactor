@@ -485,11 +485,6 @@ namespace NumpyDotNet
             get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
         }
 
-        public bool IsObject {
-            get { return ChkFlags(NpyDefs.NPY_ITEM_REFCOUNT); }
-        }
-
-
         /// <summary>
         /// TODO: What does this return?
         /// </summary>
