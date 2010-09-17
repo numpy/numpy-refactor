@@ -12,6 +12,22 @@ Zero = "NpyUFunc_Zero"
 One = "NpyUFunc_One"
 None_ = "NpyUFunc_None"
 
+#
+# NOTE: This code generator is used in both the CPython AND .NET interface layers. To
+# use the generated code, the file should be included into another .c file that defines
+# a bunch of aditional functions to handle object types, such as npy_OBJECT_equal. 
+#
+# Also, the code needs to define the macro or function AddFunction() used at the end of
+# this file.  This function eventually calls NpyUFunc_FromFuncAndData and takes similar
+# arguments.  In the CPython interface, AddFunction creates the ufunc and adds it to a
+# caller-provided dictionary.  In the .NET interface it just directly adds registers
+# the function.
+#
+# Since the resulting file is used in multiple interfaces, it can not have any
+# Python or .NET specific code - that is all provided via the AddFunction macro.
+#
+
+
 # Sentinel value to specify that the loop for the given TypeDescription uses the
 # pointer to arrays as its func_data.
 UsesArraysAsData = object()
@@ -804,18 +820,17 @@ def make_ufuncs(funcdict):
         # do not play well with \n
         docstring = '\\n\"\"'.join(docstring.split(r"\n"))
         mlist.append(\
-r"""f = PyUFunc_FromFuncAndData(%s_functions, %s_data, %s_signatures, %d,
-                                %d, %d, %s, "%s",
-                                "%s", 0);""" % (name, name, name,
+r"""AddFunction("%s", %s_functions, %s_data, %s_signatures, %d, %d, %d, %s, 
+            "%s", "%s", 0);"""
+                                % (name, name, name, name,
                                                 len(uf.type_descriptions),
                                                 uf.nin, uf.nout,
                                                 uf.identity,
                                                 name, docstring))
-        mlist.append(r"""PyDict_SetItemString(dictionary, "%s", f);""" % name)
-        mlist.append(r"""Py_DECREF(f);""")
         code3list.append('\n'.join(mlist))
     return '\n'.join(code3list)
 
+#define AddFunction(funcName, funcs, data, types, numTypes, nin, nout, identity, name, doc, check_return) \
 
 def make_code(funcdict,filename):
     code1, code2 = make_arrays(funcdict)
@@ -832,8 +847,7 @@ def make_code(funcdict,filename):
 %s
 
 static void
-InitOperators(PyObject *dictionary) {
-    PyObject *f;
+InitOperators(void *dictionary) {
 
 %s
 %s
