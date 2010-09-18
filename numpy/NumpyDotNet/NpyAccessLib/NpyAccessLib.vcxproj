@@ -76,7 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Npy_Array_Access.cpp" />
-    <ClCompile Include="Npy_UFunc_Acess.cpp" />
+    <ClCompile Include="Npy_UFunc_Access.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
