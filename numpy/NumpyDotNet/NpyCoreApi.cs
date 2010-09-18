@@ -311,6 +311,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_GetNumericOp(int op);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -374,7 +377,8 @@ namespace NumpyDotNet {
         #region NpyAccessLib functions
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyUFuncAccess_Init();
+        internal static extern void NpyUFuncAccess_Init(IntPtr funcDict,
+            IntPtr funcDefs, IntPtr callMethodFunc, IntPtr addToDictFunc);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_ArraySetDescr")]
@@ -548,12 +552,14 @@ namespace NumpyDotNet {
             internal int off_subarray;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         internal struct NpyArrayIterOffsets
         {
             internal int off_size;
             internal int off_index;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         internal struct NpyArrayMultiIterOffsets
         {
             internal int off_numiter;
@@ -564,12 +570,14 @@ namespace NumpyDotNet {
             internal int off_iters;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         internal struct NpyArrayIndexInfo {
             internal int off_union;
             internal int sizeof_index;
             internal int max_dims;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
         internal struct NpyUFuncOffsets
         {
             internal int off_nin;
@@ -582,6 +590,38 @@ namespace NumpyDotNet {
             internal int off_types;
             internal int off_core_signature;
         }
+
+        /// <summary>
+        /// Structure for passing loop and arithmetic functions into the native
+        /// world.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct ExternFuncs
+        {
+            // Loop functions, may be provided by the managed or native layer.
+            internal IntPtr loop_equal;
+            internal IntPtr loop_not_equal;
+            internal IntPtr loop_greater;
+            internal IntPtr loop_greater_equal;
+            internal IntPtr loop_less;
+            internal IntPtr loop_less_equal;
+            internal IntPtr loop_sign;
+
+            // Generic arithmatic functions that operate on objects and are provided by
+            // the managed layer.  These typically call into IronPython to perform the
+            // operation.
+            internal IntPtr absolute;
+            internal IntPtr add, subtract, multiply, divide;
+            internal IntPtr trueDivide, floorDivide;
+            internal IntPtr invert, negative;
+            internal IntPtr remainder, square, power;
+            internal IntPtr min, max, reciprocal;
+            internal IntPtr and, or, xor;
+            internal IntPtr lshift, rshift, get_one;
+
+            internal int sentinel;   // Used to verify matching structure sizes, must be last.
+        }
+
 
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
@@ -864,6 +904,26 @@ namespace NumpyDotNet {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_Decref(IntPtr ptr, IntPtr wrapPtr);
 
+
+        /// <summary>
+        /// Callback function to allow native code to add ufuncs to the function
+        /// dictionary
+        /// </summary>
+        /// <param name="dictHandle">GCHandle for a dictionary</param>
+        /// <param name="bStr">IntPtr to a null-terminated char string</param>
+        /// <param name="ufuncHandle">GCHandle to ufunc</param>
+        private unsafe static void AddToDict(IntPtr dictHandle, sbyte *bStr, IntPtr ufuncHandle) {
+            Dictionary<string, ufunc> dict =
+                (Dictionary<string, ufunc>)GCHandle.FromIntPtr(dictHandle).Target;
+            String funcStr = new String(bStr);
+            ufunc f = (ufunc)GCHandle.FromIntPtr(ufuncHandle).Target;
+
+            dict.Add(funcStr, f);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public unsafe delegate void del_AddToDict(IntPtr dict, sbyte *str, IntPtr ufunc);
+
+
         internal static IntPtr GetRefcnt(IntPtr obj) {
             // NOTE: I'm relying on the refcnt being first.
             return Marshal.ReadIntPtr(obj);
@@ -1000,6 +1060,9 @@ namespace NumpyDotNet {
             new del_ErrorOccurredCallback(ErrorOccurredCallback);
         private static readonly del_ClearErrorCallback ClearErrorCallbackDelegate =
             new del_ClearErrorCallback(ClearErrorCallback);
+        private unsafe static readonly del_AddToDict AddToDictDelegate =
+            new del_AddToDict(AddToDict);
+
 
         /// <summary>
         /// The native type code that matches up to a 32-bit int.
@@ -1062,7 +1125,61 @@ namespace NumpyDotNet {
                 Marshal.FreeHGlobal(wrapHandle);
             }
 
-            //NpyUFuncAccess_Init();
+
+            ExternFuncs funcs = new ExternFuncs();
+
+            // External loop functions - these are provided by the native code,
+            // not passed in.
+            funcs.loop_equal = IntPtr.Zero;
+            funcs.loop_not_equal = IntPtr.Zero;
+            funcs.loop_greater = IntPtr.Zero;
+            funcs.loop_greater_equal = IntPtr.Zero;
+            funcs.loop_less = IntPtr.Zero;
+            funcs.loop_less_equal = IntPtr.Zero;
+            funcs.loop_sign = IntPtr.Zero;
+
+            // Generic arithmatic functions that operate on objects and are provided by
+            // the managed layer.  These typically call into IronPython to perform the
+            // operation.
+            funcs.absolute = IntPtr.Zero;
+            funcs.add = IntPtr.Zero;
+            funcs.subtract = IntPtr.Zero;
+            funcs.multiply = IntPtr.Zero;
+            funcs.divide = IntPtr.Zero;
+            funcs.trueDivide = IntPtr.Zero;
+            funcs.floorDivide = IntPtr.Zero;
+            funcs.invert = IntPtr.Zero;
+            funcs.negative = IntPtr.Zero;
+            funcs.remainder = IntPtr.Zero;
+            funcs.square = IntPtr.Zero;
+            funcs.power = IntPtr.Zero;
+            funcs.min = IntPtr.Zero;
+            funcs.max = IntPtr.Zero;
+            funcs.reciprocal = IntPtr.Zero;
+            funcs.and = IntPtr.Zero;
+            funcs.or = IntPtr.Zero;
+            funcs.xor = IntPtr.Zero;
+            funcs.lshift = IntPtr.Zero;
+            funcs.rshift = IntPtr.Zero;
+            funcs.get_one = IntPtr.Zero;
+
+            funcs.sentinel = NpyDefs.NPY_VALID_MAGIC;
+
+            Dictionary<string, ufunc> funcDefs = new Dictionary<string, ufunc>();
+            GCHandle dictHandle = GCHandle.Alloc(funcDefs);
+            IntPtr funcsHandle = IntPtr.Zero;
+            try {
+                funcsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ExternFuncs)));
+                Marshal.StructureToPtr(funcs, funcsHandle, true);
+                NpyUFuncAccess_Init(GCHandle.ToIntPtr(dictHandle),
+                    funcsHandle, IntPtr.Zero, 
+                    Marshal.GetFunctionPointerForDelegate(AddToDictDelegate));
+                RegisterCoreUFuncs(funcDefs);
+            } finally {
+                dictHandle.Free();
+                Marshal.FreeHGlobal(funcsHandle);
+            }
+
 
             // Initialize the offsets to each structure type for fast access
             // TODO: Not sure if this is a great way to do this, but for now it's
@@ -1124,6 +1241,51 @@ namespace NumpyDotNet {
                     String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
                                   intSize, longSize, longLongSize));
             }
+        }
+
+
+        private static void RegisterCoreUFuncs(Dictionary<string, ufunc> funcDict) {
+            Action<NpyDefs.NpyArray_Ops, string> set = (op, opStr) => {
+                ufunc f;
+                if (funcDict.TryGetValue(opStr, out f)) {
+                    NpyArray_SetNumericOp((int)op, f.UFunc);
+                }
+            };
+
+            set(NpyDefs.NpyArray_Ops.npy_op_add, "add");
+            set(NpyDefs.NpyArray_Ops.npy_op_subtract, "subtract");
+            set(NpyDefs.NpyArray_Ops.npy_op_multiply, "multiply");
+            set(NpyDefs.NpyArray_Ops.npy_op_divide, "divide");
+            set(NpyDefs.NpyArray_Ops.npy_op_remainder, "remainder");
+            set(NpyDefs.NpyArray_Ops.npy_op_power, "power");
+            set(NpyDefs.NpyArray_Ops.npy_op_square, "square");
+            set(NpyDefs.NpyArray_Ops.npy_op_reciprocal, "reciprocal");
+            set(NpyDefs.NpyArray_Ops.npy_op_ones_like, "ones_like");
+            set(NpyDefs.NpyArray_Ops.npy_op_sqrt, "sqrt");
+            set(NpyDefs.NpyArray_Ops.npy_op_negative, "negative");
+            set(NpyDefs.NpyArray_Ops.npy_op_absolute, "absolute");
+            set(NpyDefs.NpyArray_Ops.npy_op_invert, "invert");
+            set(NpyDefs.NpyArray_Ops.npy_op_left_shift, "left_shift");
+            set(NpyDefs.NpyArray_Ops.npy_op_right_shift, "right_shift");
+            set(NpyDefs.NpyArray_Ops.npy_op_bitwise_and, "bitwise_and");
+            set(NpyDefs.NpyArray_Ops.npy_op_bitwise_or, "bitwise_or");
+            set(NpyDefs.NpyArray_Ops.npy_op_bitwise_xor, "bitwise_xor");
+            set(NpyDefs.NpyArray_Ops.npy_op_less, "less");
+            set(NpyDefs.NpyArray_Ops.npy_op_less_equal, "less_equal");
+            set(NpyDefs.NpyArray_Ops.npy_op_equal, "equal");
+            set(NpyDefs.NpyArray_Ops.npy_op_not_equal, "not_equal");
+            set(NpyDefs.NpyArray_Ops.npy_op_greater, "greater");
+            set(NpyDefs.NpyArray_Ops.npy_op_greater_equal, "greater_equal");
+            set(NpyDefs.NpyArray_Ops.npy_op_floor_divide, "floor_divide");
+            set(NpyDefs.NpyArray_Ops.npy_op_true_divide, "true_divide");
+            set(NpyDefs.NpyArray_Ops.npy_op_logical_or, "logical_or");
+            set(NpyDefs.NpyArray_Ops.npy_op_logical_and, "logical_and");
+            set(NpyDefs.NpyArray_Ops.npy_op_floor, "floor");
+            set(NpyDefs.NpyArray_Ops.npy_op_ceil, "ceil");
+            set(NpyDefs.NpyArray_Ops.npy_op_maximum, "maximum");
+            set(NpyDefs.NpyArray_Ops.npy_op_minimum, "minimum");
+            set(NpyDefs.NpyArray_Ops.npy_op_rint, "rint");
+            set(NpyDefs.NpyArray_Ops.npy_op_conjugate, "conjugate");
         }
 
         #endregion
