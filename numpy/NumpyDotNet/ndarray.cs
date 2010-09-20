@@ -174,6 +174,12 @@ namespace NumpyDotNet
             return PythonOps.ToPython((IntPtr)Dims[0]);
         }
 
+        internal long Length {
+            get {
+                return Dims[0];
+            }
+        }
+
         #endregion
 
         #region Public interfaces (must match CPython)
@@ -392,7 +398,7 @@ namespace NumpyDotNet
         #endregion
 
 
-        public ndarray NewCopy(NpyDefs.NPY_ORDER order) {
+        public ndarray NewCopy(NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_NewCopy(core, (byte)order));
         }
@@ -577,6 +583,11 @@ namespace NumpyDotNet
 
         public ndarray byteswap(bool inplace = false) {
             return NpyCoreApi.Byteswap(this, inplace);
+        }
+
+        public object choose(IEnumerable<object> choices, ndarray output=null, object mode=null) {
+            NpyDefs.NPY_CLIPMODE clipMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
+            return ArrayReturn(Choose(choices, output, clipMode));
         }
 
         public ndarray compress(object condition, object axis = null, ndarray output = null) {
@@ -846,7 +857,7 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="index">The index into the array.</param>
         /// <returns>The sub-array.</returns>
-        ndarray ArrayBigItem(long index)
+        internal ndarray ArrayBigItem(long index)
         {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                     NpyCoreApi.NpyArray_ArrayItem(Array, (IntPtr)index)

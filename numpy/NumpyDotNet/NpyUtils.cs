@@ -254,6 +254,29 @@ namespace NumpyDotNet {
                     throw new ArgumentException(String.Format("'{0}' is an InvalidCastException value for keyword 'side'", side));
             }
         }
+
+        internal static ndarray[] ConvertToCommonType(IEnumerable<object> objs) {
+            // Determine the type and size;
+            // TODO: Handle scalars correctly.
+            long n = 0;
+            dtype intype = null;
+            foreach (object o in objs) {
+                intype = NpyArray.FindArrayType(o, intype, NpyDefs.NPY_MAXDIMS);
+                ++n;
+            }
+
+            if (n == 0) {
+                throw new ArgumentException("0-length sequence");
+            }
+
+            // Convert items to array objects
+            ndarray[] result = new ndarray[n];
+            n = 0;
+            foreach (object o in objs) {
+                result[n++] = NpyArray.FromAny(o, intype, 0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+            return result;
+        }
     }
 
 
