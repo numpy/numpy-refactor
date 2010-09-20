@@ -83,7 +83,6 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(ProjectDir)$(ConfigurationName)\ndarray.*" "$(TargetDir)"
-copy "$(ProjectDir)$(ConfigurationName)\NpyAccessLib.*" "$(TargetDir)"
 copy "$(ProjectDir)numpy.py" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

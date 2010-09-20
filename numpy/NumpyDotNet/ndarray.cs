@@ -510,6 +510,21 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
+        public static ndarray operator -(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
+        public static ndarray operator *(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
+        public static ndarray operator /(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
         #endregion
 
 

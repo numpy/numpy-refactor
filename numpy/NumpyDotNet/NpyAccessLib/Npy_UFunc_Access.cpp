@@ -21,8 +21,8 @@ static void InitOperators(void *);
 
 
 // Utility calls provided by the managed layer.
-void *(*IPyCallMethod)(void *obj, char *meth, void *arg);
-void (*IPyAddToDict)(void *dictObj, char *funcStr, void *ufuncObj);
+void *(*IPyCallMethod)(void *obj, const char *meth, void *arg);
+void (*IPyAddToDict)(void *dictObj, const char *funcStr, void *ufuncObj);
 
 
 // This structure defines all of the artimetic functions not provided by
@@ -101,14 +101,14 @@ static ExternFuncs managedFuncs;
 // Initializes the ufuncs.  
 extern "C" __declspec(dllexport)
     void _cdecl NpyUFuncAccess_Init(void *dictionary, ExternFuncs *funcs,
-    void *(*callMethod)(void *obj, char *meth, void *arg),
-    void (*addToDict)(void *dictObj, char *funcStr, void *ufuncObj))
+    void *(*callMethod)(void *obj, const char *meth, void *arg),
+    void (*addToDict)(void *dictObj, const char *funcStr, void *ufuncObj))
 {
     // Copies the provided function pointers to our local storage.  The
     // sentinel field is used to verify that the managed structure
     // lines up with the native one.
     assert(NPY_VALID_MAGIC == funcs->sentinel);
-    managedFuncs.sentinel = NPY_VALID_MAGIC;
+    managedFuncs.sentinel = NPY_INVALID_MAGIC;  // Ensure it gets overwritten
     memcpy(&managedFuncs, funcs, sizeof(managedFuncs));
     assert(NPY_VALID_MAGIC == managedFuncs.sentinel);
 

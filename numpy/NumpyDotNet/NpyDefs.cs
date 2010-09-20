@@ -6,6 +6,9 @@ using System.Text;
 namespace NumpyDotNet {
     public class NpyDefs {
         #region ConstantDefs
+
+        public const int NPY_VALID_MAGIC = 1234567;
+
         public enum NPY_TYPES {
             NPY_BOOL = 0,
             NPY_BYTE, NPY_UBYTE,
