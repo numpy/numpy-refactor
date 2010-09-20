@@ -399,14 +399,22 @@ namespace NumpyDotNet
             return this;
         }
 
-        public flatiter flat
-        {
-            get
-            {
+        public object flat {
+            get {
                 return NpyCoreApi.IterNew(this);
+            }
+            set {
+                // Assing like a.flat[:] = value
+                flatiter it = NpyCoreApi.IterNew(this);
+                it[new Slice(null)] = value;
             }
         }
 
+        internal flatiter Flat {
+            get {
+                return NpyCoreApi.IterNew(this);
+            }
+        }
 
         #endregion
 
