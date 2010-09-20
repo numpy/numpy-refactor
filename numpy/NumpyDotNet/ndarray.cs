@@ -392,13 +392,6 @@ namespace NumpyDotNet
             return BuildStringRepr(false);
         }
 
-
-        // TODO: Temporary for testing CopyObject method
-        public ndarray AssignTo(object src) {
-            NpyArray.CopyObject(this, src);
-            return this;
-        }
-
         public object flat {
             get {
                 return NpyCoreApi.IterNew(this);

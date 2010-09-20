@@ -212,6 +212,13 @@ namespace NumpyDotNet {
                 NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
         }
 
+        internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
+            ndarray arr, IntPtr offset, bool ensure_array) {
+            Incref(d.Descr);
+            return DecrefToInterface<ndarray>(
+                NpyArray_NewView(d.Descr, nd, dims, strides, arr.Array, offset, ensure_array ? 1 : 0));
+        }
+
         /// <summary>
         /// Returns a copy of the passed array in the specified order (C, Fortran)
         /// </summary>
@@ -351,6 +358,12 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_NewView(IntPtr descr, int nd,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] strides,
+            IntPtr arr, IntPtr offset, int ensureArray);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_NonZero(IntPtr self, 
