@@ -32,6 +32,14 @@ namespace NumpyDotNet
                 NpyCoreApi.NpyArray_Repeat(Array, repeats.Array, axis));
         }
 
+        internal ndarray Choose(IEnumerable<object> objs, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
+            ndarray[] arrays = NpyUtil_ArgProcessing.ConvertToCommonType(objs);
+            IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Choose(Array, coreArrays, coreArrays.Length,
+                ret==null ? IntPtr.Zero : ret.Array, (int)clipMode));
+        }
+
         internal void Sort(int axis, NpyDefs.NPY_SORTKIND sortkind) {
             if (NpyCoreApi.NpyArray_Sort(Array, axis, (int)sortkind) < 0) {
                 NpyCoreApi.CheckError();
@@ -45,10 +53,7 @@ namespace NumpyDotNet
 
         internal static ndarray LexSort(ndarray[] arrays, int axis) {
             int n = arrays.Length;
-            IntPtr[] coreArrays = new IntPtr[n];
-            for (int i = 0; i < n; i++) {
-                coreArrays[i] = arrays[i].Array;
-            }
+            IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_LexSort(coreArrays, n, axis));
         }

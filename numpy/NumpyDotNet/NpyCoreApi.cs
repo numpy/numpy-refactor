@@ -322,6 +322,10 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Choose(IntPtr array,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -1283,5 +1287,7 @@ namespace NumpyDotNet {
         }
 
         #endregion
+
+
     }
 }
