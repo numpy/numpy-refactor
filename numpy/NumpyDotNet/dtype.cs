@@ -23,6 +23,7 @@ namespace NumpyDotNet {
                 if (y.ContainsKey(bad))
                     throw new NotImplementedException(String.Format("ndarray argument '%s' is not yet implemented.", bad));
             }
+            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
         }
 
 
