@@ -567,19 +567,19 @@ namespace NumpyDotNet
 
         #region python methods from methods.c
 
-        public object all(object axis = null, ndarray output = null) {
+        public object all(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.All(this, iAxis, output));
+            return ArrayReturn(NpyCoreApi.All(this, iAxis, @out));
         }
 
-        public object any(object axis = null, ndarray output = null) {
+        public object any(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.Any(this, iAxis, output));
+            return ArrayReturn(NpyCoreApi.Any(this, iAxis, @out));
         }
 
-        public object argmax(object axis = null, ndarray output = null) {
+        public object argmax(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, output));
+            return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, @out));
         }
 
         public object argsort(object axis = null, string kind = null, object order = null) {
@@ -602,12 +602,12 @@ namespace NumpyDotNet
             return NpyCoreApi.Byteswap(this, inplace);
         }
 
-        public object choose(IEnumerable<object> choices, ndarray output=null, object mode=null) {
+        public object choose(IEnumerable<object> choices, ndarray @out=null, object mode=null) {
             NpyDefs.NPY_CLIPMODE clipMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
-            return ArrayReturn(Choose(choices, output, clipMode));
+            return ArrayReturn(Choose(choices, @out, clipMode));
         }
 
-        public ndarray compress(object condition, object axis = null, ndarray output = null) {
+        public ndarray compress(object condition, object axis = null, ndarray @out = null) {
             ndarray aCondition = NpyArray.FromAny(condition, null, 0, 0, 0, null);
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
 
@@ -616,7 +616,7 @@ namespace NumpyDotNet
             }
 
             ndarray indexes = aCondition.NonZero()[0];
-            return TakeFrom(indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
+            return TakeFrom(indexes, iAxis, @out, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
         public ndarray copy(object order = null) {
@@ -779,7 +779,7 @@ namespace NumpyDotNet
 
         public object take(object indices,
                            object axis = null,
-                           ndarray output = null,
+                           ndarray @out = null,
                            object mode = null) {
             ndarray aIndices;
             int iAxis;
@@ -792,7 +792,7 @@ namespace NumpyDotNet
             }
             iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
-            return ArrayReturn(TakeFrom(aIndices, iAxis, output, cMode));
+            return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
         public ndarray transpose(params object[] args) {
