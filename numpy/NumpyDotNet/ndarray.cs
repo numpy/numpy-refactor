@@ -86,6 +86,10 @@ namespace NumpyDotNet
         private void Construct(PythonContext cntx, Object[] args) {
             dtype type = null;
 
+            // Ensures that the numeric operations are initialized once at startup.
+            // TODO: This is unpleasant, there must be a better way to do this.
+            NumericOps.InitUFuncOps(cntx);
+
             core = IntPtr.Zero;
 
             long[] shape = NpyUtil_ArgProcessing.IntArrConverter(args[0]);
@@ -525,6 +529,12 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
+        // TODO: Temporary test function
+        public static ndarray Compare(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
         #endregion
 
 
@@ -815,7 +825,5 @@ namespace NumpyDotNet
         }
 
         #endregion
-
-        private static PythonContext pyContext = null;
     }
 }

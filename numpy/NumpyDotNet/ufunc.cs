@@ -11,43 +11,9 @@ using NumpyDotNet;
 namespace NumpyDotNet {
     class ufunc : Wrapper
     {
-        /// <summary>
-        /// Initializes the umath module
-        /// </summary>
-        static ufunc() {
-            
-        }
+         private static String[] ufuncArgNames = { "extobj", "sig" };
 
-
-        private static String[] ufuncArgNames = { "extobj", "sig" };
-
-
-
-
-/*        public ufunc(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs)
-        {
-            Object[] posArgs = { };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ufuncArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ufunc(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ufuncArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ufunc(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ufuncArgNames, kwargs);
-
-            Construct(cntx, args);
-        } */
-
-
-        internal ufunc(IntPtr corePtr) {
+         internal ufunc(IntPtr corePtr) {
             core = corePtr;
 
             // The core object comes with a reference so we need to set the interface
@@ -57,18 +23,6 @@ namespace NumpyDotNet {
             Marshal.WriteIntPtr(corePtr, (int)offset,
                 GCHandle.ToIntPtr(GCHandle.Alloc(this, GCHandleType.Weak)));
             NpyCoreApi.Decref(corePtr);
-        }
-
-        /// <summary>
-        /// Arguments are: object, dtype, copy, order, subok
-        /// </summary>
-        /// <param name="cntx"></param>
-        /// <param name="args"></param>
-        private void Construct(CodeContext cntx, Object[] args) {
-            Object dims = args[0];
-            dtype type = (dtype)args[1];
-
-            core = IntPtr.Zero;
         }
 
 

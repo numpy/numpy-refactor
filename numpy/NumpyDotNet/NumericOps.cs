@@ -476,5 +476,103 @@ namespace NumpyDotNet {
         }
         #endregion
 
+        #region Comparison Functions
+
+        private static Object SyncRoot = new Object();
+        private static LanguageContext PyContext = null;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_Equal;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_NotEqual;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_Greater;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_GreaterEqual;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_Less;
+        private static CallSite<Func<CallSite, Object, Object, int>> Site_LessEqual;
+        private static CallSite<Func<CallSite, Object, int>> Site_Sign;
+
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Add;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Subtract;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Multiply;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Divide;
+
+        internal static void InitUFuncOps(LanguageContext cntx) {
+            // Fast escape which will occur all except the first time.
+            if (PyContext != null) {
+                if (PyContext != cntx) {
+                    // I don't think this can happen, but just in case...
+                    throw new NotImplementedException("Internal error: multiply IronPython contexts are not supported.");
+                }
+                return;
+            }
+
+            lock (SyncRoot) {
+                if (PyContext == null) {
+                    // Construct the call sites for each operation we will need. This is much
+                    // faster than constructing/destroying them with each loop.
+                    Site_Equal = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
+                    Site_NotEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
+                    Site_Greater = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
+                    Site_GreaterEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
+                    Site_Less = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
+                    Site_LessEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
+
+                    Site_Add = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Add));
+                    Site_Subtract = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Subtract));
+                    Site_Multiply = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
+                    Site_Divide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
+
+                    // Set this last so any other accesses will block while we create
+                    // the sites.
+                    PyContext = cntx;
+                }
+            }
+        }
+
+        private static int GenericCmp(CallSite<Func<CallSite, Object, Object, int>> site,
+            IntPtr aPtr, IntPtr bPtr) {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            return site.Target(Site_Equal, a, b);
+        }
+
+        private static Object GenericOp(CallSite<Func<CallSite, Object, Object, Object>> site,
+            IntPtr aPtr, IntPtr bPtr) {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            return site.Target(Site_Equal, a, b);
+        }
+
+        static internal Func<IntPtr, IntPtr, int> Compare_Equal =
+            (a, b) => GenericCmp(Site_Equal, a, b);
+        static internal Func<IntPtr, IntPtr, int> Compare_NotEqual =
+            (a, b) => GenericCmp(Site_NotEqual, a, b);
+        static internal Func<IntPtr, IntPtr, int> Compare_Greater =
+            (a, b) => GenericCmp(Site_Greater, a, b);
+        static internal Func<IntPtr, IntPtr, int> Compare_GreaterEqual =
+            (a, b) => GenericCmp(Site_GreaterEqual, a, b);
+        static internal Func<IntPtr, IntPtr, int> Compare_Less =
+            (a, b) => GenericCmp(Site_Less, a, b);
+        static internal Func<IntPtr, IntPtr, int> Compare_LessEqual =
+            (a, b) => GenericCmp(Site_LessEqual, a, b);
+
+        static internal Func<IntPtr, IntPtr, Object> Compare_Add =
+            (a, b) => GenericOp(Site_Add, a, b);
+        static internal Func<IntPtr, IntPtr, Object> Compare_Subtract =
+            (a, b) => GenericOp(Site_Subtract, a, b);
+        static internal Func<IntPtr, IntPtr, Object> Compare_Multiply =
+            (a, b) => GenericOp(Site_Multiply, a, b);
+        static internal Func<IntPtr, IntPtr, Object> Compare_Divide =
+            (a, b) => GenericOp(Site_Divide, a, b);
+
+        #endregion
+
     }
 }

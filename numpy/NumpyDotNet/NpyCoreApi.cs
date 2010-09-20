@@ -598,14 +598,14 @@ namespace NumpyDotNet {
         [StructLayout(LayoutKind.Sequential)]
         internal struct ExternFuncs
         {
-            // Loop functions, may be provided by the managed or native layer.
-            internal IntPtr loop_equal;
-            internal IntPtr loop_not_equal;
-            internal IntPtr loop_greater;
-            internal IntPtr loop_greater_equal;
-            internal IntPtr loop_less;
-            internal IntPtr loop_less_equal;
-            internal IntPtr loop_sign;
+            // Comparison funtions, returns 1 on true, 0 on false, -1 on error.
+            internal IntPtr cmp_equal;
+            internal IntPtr cmp_not_equal;
+            internal IntPtr cmp_greater;
+            internal IntPtr cmp_greater_equal;
+            internal IntPtr cmp_less;
+            internal IntPtr cmp_less_equal;
+            internal IntPtr cmp_sign;
 
             // Generic arithmatic functions that operate on objects and are provided by
             // the managed layer.  These typically call into IronPython to perform the
@@ -1130,13 +1130,13 @@ namespace NumpyDotNet {
 
             // External loop functions - these are provided by the native code,
             // not passed in.
-            funcs.loop_equal = IntPtr.Zero;
-            funcs.loop_not_equal = IntPtr.Zero;
-            funcs.loop_greater = IntPtr.Zero;
-            funcs.loop_greater_equal = IntPtr.Zero;
-            funcs.loop_less = IntPtr.Zero;
-            funcs.loop_less_equal = IntPtr.Zero;
-            funcs.loop_sign = IntPtr.Zero;
+            funcs.cmp_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_Equal);
+            funcs.cmp_not_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_NotEqual);
+            funcs.cmp_greater = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_Greater);
+            funcs.cmp_greater_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_GreaterEqual);
+            funcs.cmp_less = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_Less);
+            funcs.cmp_less_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_LessEqual);
+            funcs.cmp_sign = IntPtr.Zero;
 
             // Generic arithmatic functions that operate on objects and are provided by
             // the managed layer.  These typically call into IronPython to perform the
