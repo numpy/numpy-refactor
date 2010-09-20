@@ -111,7 +111,7 @@ namespace NumpyDotNet
                 }
 
                 Slice slice = new Slice(((IntPtr)start).ToPython(), ((IntPtr)stop).ToPython(), ((IntPtr)step).ToPython());
-                return (ndarray)newarray.flat[slice];
+                return (ndarray)newarray.Flat[slice];
             } else {
                 // my_diagonal = []
                 // for i in range(s[0]):
@@ -142,8 +142,6 @@ namespace NumpyDotNet
             }
             return result;
         }
-
-
 
     }
 
