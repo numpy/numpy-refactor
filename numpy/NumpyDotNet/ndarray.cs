@@ -20,7 +20,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public partial class ndarray : Wrapper
+    public partial class ndarray : Wrapper, IEnumerable<object>
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -181,6 +181,18 @@ namespace NumpyDotNet
         public object this[int index] {
             get {
                 return ArrayItem((long)index);
+            }
+        }
+
+        public object this[long index] {
+            get {
+                return ArrayItem(index);
+            }
+        }
+
+        public object this[IntPtr index] {
+            get {
+                return ArrayItem(index.ToInt64());
             }
         }
 
@@ -584,6 +596,10 @@ namespace NumpyDotNet
             return NpyCoreApi.NewCopy(this, eOrder);
         }
 
+        public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
+            return Diagonal(offset, axis1, axis2);
+        }
+
         public ndarray flatten(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return Flatten(eOrder);
@@ -729,6 +745,18 @@ namespace NumpyDotNet
 
         #endregion
 
+        #region IEnumerable<object> interface
+
+        public IEnumerator<object> GetEnumerator() {
+            return new ndarray_Enumerator(this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            return new ndarray_Enumerator(this);
+        }
+
+        #endregion
+
         #region Internal methods
 
         internal static object ArrayReturn(ndarray a) {
@@ -828,5 +856,34 @@ namespace NumpyDotNet
         #endregion
 
         private static PythonContext pyContext = null;
+    }
+
+    internal class ndarray_Enumerator : IEnumerator<object>
+    {
+        public ndarray_Enumerator(ndarray a) {
+            arr = a;
+            index = (IntPtr)(-1);
+        }
+
+        public object Current {
+            get { return arr[index.ToPython()]; }
+        }
+
+        public void Dispose() {
+            arr = null;
+        }
+
+
+        public bool MoveNext() {
+            index += 1;
+            return (index.ToInt64() < arr.Dims[0]);
+        }
+
+        public void Reset() {
+            index = (IntPtr)(-1);
+        }
+
+        private ndarray arr;
+        private IntPtr index;
     }
 }
