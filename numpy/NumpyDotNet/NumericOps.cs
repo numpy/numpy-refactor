@@ -536,41 +536,64 @@ namespace NumpyDotNet {
             }
         }
 
+        
+        /// <summary>
+        /// Generic comparison function.  First argument should be bound to one of
+        /// the callsite operations.
+        /// </summary>
+        /// <param name="site">CallSite operation to be performed</param>
+        /// <param name="aPtr">First argument</param>
+        /// <param name="bPtr">Second argument</param>
+        /// <returns>1 if true, 0 if false, -1 on error</returns>
         private static int GenericCmp(CallSite<Func<CallSite, Object, Object, int>> site,
             IntPtr aPtr, IntPtr bPtr) {
             Object a = GCHandle.FromIntPtr(aPtr).Target;
             Object b = GCHandle.FromIntPtr(bPtr).Target;
             return site.Target(Site_Equal, a, b);
         }
+        internal delegate int del_GenericCmp(IntPtr a, IntPtr b);
 
-        private static Object GenericOp(CallSite<Func<CallSite, Object, Object, Object>> site,
+
+        /// <summary>
+        /// Generic binary operation.  First argument should be bound to a binary
+        /// callsite function.
+        /// </summary>
+        /// <param name="site">Callsite of some binary operation to perform</param>
+        /// <param name="aPtr">First argument</param>
+        /// <param name="bPtr">Second argument</param>
+        /// <returns>IntPtr to GCHandle referencing the result</returns>
+        private static IntPtr GenericBinOp(CallSite<Func<CallSite, Object, Object, Object>> site,
             IntPtr aPtr, IntPtr bPtr) {
             Object a = GCHandle.FromIntPtr(aPtr).Target;
             Object b = GCHandle.FromIntPtr(bPtr).Target;
-            return site.Target(Site_Equal, a, b);
+            Object r = site.Target(Site_Equal, a, b);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(r));
         }
+        internal delegate IntPtr del_GenericBinOp(IntPtr a, IntPtr b);
 
-        static internal Func<IntPtr, IntPtr, int> Compare_Equal =
+        //static internal Func<IntPtr, IntPtr, int> Compare_Equal =
+        //    (a, b) => GenericCmp(Site_Equal, a, b);
+        static internal del_GenericCmp Compare_Equal =
             (a, b) => GenericCmp(Site_Equal, a, b);
-        static internal Func<IntPtr, IntPtr, int> Compare_NotEqual =
+        static internal del_GenericCmp  Compare_NotEqual =
             (a, b) => GenericCmp(Site_NotEqual, a, b);
-        static internal Func<IntPtr, IntPtr, int> Compare_Greater =
+        static internal del_GenericCmp Compare_Greater =
             (a, b) => GenericCmp(Site_Greater, a, b);
-        static internal Func<IntPtr, IntPtr, int> Compare_GreaterEqual =
+        static internal del_GenericCmp Compare_GreaterEqual =
             (a, b) => GenericCmp(Site_GreaterEqual, a, b);
-        static internal Func<IntPtr, IntPtr, int> Compare_Less =
+        static internal del_GenericCmp Compare_Less =
             (a, b) => GenericCmp(Site_Less, a, b);
-        static internal Func<IntPtr, IntPtr, int> Compare_LessEqual =
+        static internal del_GenericCmp Compare_LessEqual =
             (a, b) => GenericCmp(Site_LessEqual, a, b);
 
-        static internal Func<IntPtr, IntPtr, Object> Compare_Add =
-            (a, b) => GenericOp(Site_Add, a, b);
-        static internal Func<IntPtr, IntPtr, Object> Compare_Subtract =
-            (a, b) => GenericOp(Site_Subtract, a, b);
-        static internal Func<IntPtr, IntPtr, Object> Compare_Multiply =
-            (a, b) => GenericOp(Site_Multiply, a, b);
-        static internal Func<IntPtr, IntPtr, Object> Compare_Divide =
-            (a, b) => GenericOp(Site_Divide, a, b);
+        static internal del_GenericBinOp Compare_Add =
+            (a, b) => GenericBinOp(Site_Add, a, b);
+        static internal del_GenericBinOp Compare_Subtract =
+            (a, b) => GenericBinOp(Site_Subtract, a, b);
+        static internal del_GenericBinOp Compare_Multiply =
+            (a, b) => GenericBinOp(Site_Multiply, a, b);
+        static internal del_GenericBinOp Compare_Divide =
+            (a, b) => GenericBinOp(Site_Divide, a, b);
 
         #endregion
 
