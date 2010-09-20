@@ -235,6 +235,25 @@ namespace NumpyDotNet {
                     throw new ArgumentException(String.Format("{0} is an unrecognized kind of SortedDictionary", kind));
             }
         }
+
+        internal static NpyDefs.NPY_SEARCHSIDE SearchsideConverter(string side) {
+            if (side == null) {
+                return NpyDefs.NPY_SEARCHSIDE.NPY_SEARCHLEFT;
+            }
+            if (side.Length < 1) {
+                throw new ArgumentException("Expected nonexpty string for keyword 'side'");
+            }
+            switch (side[0]) {
+                case 'l':
+                case 'L':
+                    return NpyDefs.NPY_SEARCHSIDE.NPY_SEARCHLEFT;
+                case 'r':
+                case 'R':
+                    return NpyDefs.NPY_SEARCHSIDE.NPY_SEARCHRIGHT;
+                default:
+                    throw new ArgumentException(String.Format("'{0}' is an InvalidCastException value for keyword 'side'", side));
+            }
+        }
     }
 
 

@@ -20,7 +20,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public partial class ndarray : Wrapper
+    public partial class ndarray : Wrapper, IEnumerable<object>
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -185,6 +185,18 @@ namespace NumpyDotNet
         public object this[int index] {
             get {
                 return ArrayItem((long)index);
+            }
+        }
+
+        public object this[long index] {
+            get {
+                return ArrayItem(index);
+            }
+        }
+
+        public object this[IntPtr index] {
+            get {
+                return ArrayItem(index.ToInt64());
             }
         }
 
@@ -585,13 +597,17 @@ namespace NumpyDotNet
                 throw new ArgumentException("condition must be 1-d array");
             }
 
-            ndarray indexes = NpyCoreApi.NonZero(aCondition)[0];
+            ndarray indexes = aCondition.NonZero()[0];
             return TakeFrom(indexes, iAxis, output, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
+            return Diagonal(offset, axis1, axis2);
         }
 
         public ndarray flatten(object order = null) {
@@ -605,7 +621,7 @@ namespace NumpyDotNet
         }
             
         public PythonTuple nonzero() {
-            return new PythonTuple(NpyCoreApi.NonZero(this));
+            return new PythonTuple(NonZero());
         }
 
         public void put(object indices, object values, object mode = null) {
@@ -674,6 +690,17 @@ namespace NumpyDotNet
             Resize(newshape, refcheck, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
+        public object searchsorted(object keys, string side = null) {
+            NpyDefs.NPY_SEARCHSIDE eSide = NpyUtil_ArgProcessing.SearchsideConverter(side);
+            ndarray aKeys = (keys as ndarray);
+            if (aKeys == null) {
+                aKeys = NpyArray.FromAny(keys, NpyArray.FindArrayType(keys, dtype, NpyDefs.NPY_MAXDIMS),
+                    0, 0, NpyDefs.NPY_CARRAY, null);
+            }
+            return ArrayReturn(SearchSorted(aKeys, eSide));
+        }
+
+
         public void sort(int axis = -1, string kind = null, object order = null) {
             NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
             if (order != null) {
@@ -724,6 +751,18 @@ namespace NumpyDotNet
             } else {
                 return Transpose(NpyUtil_ArgProcessing.IntpListConverter(args));
             }
+        }
+
+        #endregion
+
+        #region IEnumerable<object> interface
+
+        public IEnumerator<object> GetEnumerator() {
+            return new ndarray_Enumerator(this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            return new ndarray_Enumerator(this);
         }
 
         #endregion
@@ -825,5 +864,34 @@ namespace NumpyDotNet
         }
 
         #endregion
+    }
+
+    internal class ndarray_Enumerator : IEnumerator<object>
+    {
+        public ndarray_Enumerator(ndarray a) {
+            arr = a;
+            index = (IntPtr)(-1);
+        }
+
+        public object Current {
+            get { return arr[index.ToPython()]; }
+        }
+
+        public void Dispose() {
+            arr = null;
+        }
+
+
+        public bool MoveNext() {
+            index += 1;
+            return (index.ToInt64() < arr.Dims[0]);
+        }
+
+        public void Reset() {
+            index = (IntPtr)(-1);
+        }
+
+        private ndarray arr;
+        private IntPtr index;
     }
 }

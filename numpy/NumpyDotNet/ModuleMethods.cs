@@ -151,5 +151,21 @@ namespace NumpyDotNet {
 
             arr.PutMask(aValues, aMask);
         }
+
+        public static ndarray lexsort(IList<object> keys, int axis = -1) {
+            int n = keys.Count;
+            ndarray[] arrays = new ndarray[n];
+            int i = 0;
+            foreach (object k in keys) {
+                ndarray a = (k as ndarray);
+                if (a == null) {
+                    a = NpyArray.FromAny(a, null, 0, 0, 0, null);
+                }
+                arrays[i++] = a;
+            }
+            return ndarray.LexSort(arrays, axis);
+        }
+
+
     }
 }
