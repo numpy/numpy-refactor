@@ -348,6 +348,18 @@ extern "C" __declspec(dllexport)
     }
 }
 
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_ClearUPDATEIFCOPY(NpyArray *self) 
+{
+        if (self->flags | NPY_UPDATEIFCOPY) {
+            if (self->base_arr != NULL) {
+                self->base_arr->flags &= ~NPY_WRITEABLE;
+                Npy_DECREF(self->base_arr);
+                self->base_arr = NULL;
+            }
+            self->flags &= ~NPY_UPDATEIFCOPY;
+        }
+}
 
 //
 // UFunc access methods

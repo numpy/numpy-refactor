@@ -64,6 +64,7 @@
   <ItemGroup>
     <Compile Include="broadcast.cs" />
     <Compile Include="dtype.cs" />
+    <Compile Include="flagsobj.cs" />
     <Compile Include="flatiter.cs" />
     <Compile Include="item_selection.cs" />
     <Compile Include="NpyIndexes.cs" />

@@ -369,6 +369,15 @@ namespace NumpyDotNet
         }
 
         /// <summary>
+        /// Flags for this array
+        /// </summary>
+        public flagsobj flags {
+            get {
+                return new flagsobj(this);
+            }
+        }
+
+        /// <summary>
         /// Returns an array of the stride of each dimension.
         /// </summary>
         public Int64[] strides {
@@ -517,8 +526,7 @@ namespace NumpyDotNet
         }
 
         private bool ChkFlags(int flag) {
-            int curFlags = Marshal.ReadInt32(core, NpyCoreApi.ArrayOffsets.off_flags);
-            return ((curFlags & flag) == flag);
+            return ((RawFlags & flag) == flag);
         }
 
         #region Operators
@@ -701,6 +709,40 @@ namespace NumpyDotNet
             return ArrayReturn(SearchSorted(aKeys, eSide));
         }
 
+        public void setflags(object write = null, object align = null, object uic = null) {
+            int flags = RawFlags;
+            if (align != null) {
+                bool bAlign = NpyUtil_ArgProcessing.BoolConverter(align);
+                if (bAlign) {
+                    flags |= NpyDefs.NPY_ALIGNED;
+                } else {
+                    if (!NpyCoreApi.IsAligned(this)) {
+                        throw new ArgumentException("cannot set aligned flag of mis-aligned array to True");
+                    }
+                    flags &= ~NpyDefs.NPY_ALIGNED;
+                }
+            }
+            if (uic != null) {
+                bool bUic = NpyUtil_ArgProcessing.BoolConverter(uic);
+                if (bUic) {
+                    throw new ArgumentException("cannot set UPDATEIFCOPY flag to True");
+                } else {
+                    NpyCoreApi.ClearUPDATEIFCOPY(Array);
+                }
+            }
+            if (write != null) {
+                bool bWrite = NpyUtil_ArgProcessing.BoolConverter(write);
+                if (bWrite) {
+                    if (!NpyCoreApi.IsWriteable(this)) {
+                        throw new ArgumentException("cannot set WRITEABLE flag to true on this array");
+                    }
+                    flags |= NpyDefs.NPY_WRITEABLE;
+                } else {
+                    flags &= ~NpyDefs.NPY_WRITEABLE;
+                }
+            }
+            RawFlags = flags;
+        }
 
         public void sort(int axis = -1, string kind = null, object order = null) {
             NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
@@ -862,6 +904,15 @@ namespace NumpyDotNet
             return NpyCoreApi.DecrefToInterface<ndarray>(
                     NpyCoreApi.NpyArray_ArrayItem(Array, (IntPtr)index)
                    );
+        }
+
+        Int32 RawFlags {
+            get {
+                return Marshal.ReadInt32(Array + NpyCoreApi.ArrayOffsets.off_flags);
+            }
+            set {
+                Marshal.WriteInt32(Array + NpyCoreApi.ArrayOffsets.off_flags, value);
+            }
         }
 
         #endregion

@@ -47,6 +47,14 @@ namespace NumpyDotNet {
             return DecrefToInterface<dtype>(descr);
         }
 
+        internal static bool IsAligned(ndarray arr) {
+            return Npy_IsAligned(arr.Array) != 0;
+        }
+
+        internal static bool IsWriteable(ndarray arr) {
+            return Npy_IsWriteable(arr.Array) != 0;
+        }
+
         internal static byte NativeByteOrder {
             get { return nativeByteOrder; }
         }
@@ -280,6 +288,12 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Npy_IsAligned(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Npy_IsWriteable(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_IterNew(IntPtr ao);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -430,6 +444,9 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] permute);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_ClearUPDATEIFCOPY")]
+        internal static extern void ClearUPDATEIFCOPY(IntPtr arr);
 
         /// <summary>
         /// Deallocates an NpyObject.
