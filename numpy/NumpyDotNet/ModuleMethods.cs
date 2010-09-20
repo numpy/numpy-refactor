@@ -54,6 +54,10 @@ namespace NumpyDotNet {
             int ndmin = 0;
             ndarray result = null;
 
+            // Ensures that the numeric operations are initialized once at startup.
+            // TODO: This is unpleasant, there must be a better way to do this.
+            NumericOps.InitUFuncOps(cntx);
+
             try {
                 if (src == null) {
                     throw new IronPython.Runtime.Exceptions.RuntimeException(
@@ -76,11 +80,6 @@ namespace NumpyDotNet {
                         String.Format("ndmin ({0} bigger than allowable number of dimension ({1}).",
                         ndmin, NpyDefs.NPY_MAXDIMS - 1));
                 }
-
-                Console.WriteLine("copy = {0}, order = {1}, subok = {2}, ndmin = {3}",
-                    copy, order, subok, ndmin);
-                Console.WriteLine("magic_offset = {0}, descr offset = {1}",
-                    NpyCoreApi.ArrayOffsets.off_magic_number, NpyCoreApi.ArrayOffsets.off_descr);
 
                 // TODO: Check that the first is equiv to PyArray_Check() and the
                 // second is equiv to PyArray_CheckExact().

@@ -864,8 +864,10 @@ namespace NumpyDotNet
                 Object value = dtype.f.GetItem(offset, this);
                 if (value == null) return false;
 
-                MethodInfo repr = value.GetType().GetMethod("__repr__");
-                sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+                // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
+                //MethodInfo repr = value.GetType().GetMethod("__repr__");
+                //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+                sb.Append(value.ToString());
             } else {
                 sb.Append('[');
                 for (int i = 0; i < dimensions[dimIdx]; i++) {

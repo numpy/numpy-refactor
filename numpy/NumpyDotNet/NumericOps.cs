@@ -67,7 +67,8 @@ namespace NumpyDotNet {
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] = null;
+            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
+                new ArrFuncs() { GetItem = NumericOps.getitemObject, SetItem = NumericOps.setitemObject };
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_STRING] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_VOID] = null;
@@ -224,6 +225,39 @@ namespace NumpyDotNet {
                 }
             }
             return f;
+        }
+
+        internal static Object getitemObject(long offset, ndarray arr) {
+            IntPtr f;
+
+            unsafe {
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    switch (IntPtr.Size) {
+                        case 4:
+                            f = new IntPtr(*(int*)p);
+                            break;
+                        case 8:
+                            f = new IntPtr(*(long*)p);
+                            break;
+                        default:
+                            throw new NotImplementedException(
+                                String.Format("IntPtr of size {0} is not supported.", IntPtr.Size));
+                    }
+                } else if (IntPtr.Size == 4) {
+                    int r;
+                    CopySwap4((byte*)&r, p, !arr.IsNotSwapped);
+                    f = new IntPtr(*(int*)p);
+                } else if (IntPtr.Size == 8) {
+                    long r;
+                    CopySwap8((byte*)&r, p, !arr.IsNotSwapped);
+                    f = new IntPtr(*(long*)p);
+                } else {
+                    throw new NotImplementedException(
+                        String.Format("IntPtr of size {0} is not implemented.", IntPtr.Size));
+                }
+            }
+            return GCHandle.FromIntPtr(f).Target;
         }
 
         #endregion
@@ -419,6 +453,38 @@ namespace NumpyDotNet {
             }
         }
 
+
+
+        internal static void setitemObject(Object o, long offset, ndarray arr) {
+            IntPtr f = GCHandle.ToIntPtr(GCHandle.Alloc(o));
+
+            unsafe {
+                byte* p = (byte*)arr.data.ToPointer() + offset;
+                if (arr.IsBehaved) {
+                    switch (IntPtr.Size) {
+                        case 4:
+                            *(int*)p = (int)f;
+                            break;
+                        case 8:
+                            *(long*)p = (long)f;
+                            break;
+                        default:
+                            throw new NotImplementedException(
+                                String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
+                    }
+                } else if (IntPtr.Size == 4) {
+                    int r = (int)f;
+                    CopySwap4(p, (byte*)&r, !arr.IsNotSwapped);
+                } else if (IntPtr.Size == 4) {
+                    long r = (long)f;
+                    CopySwap8(p, (byte*)&r, !arr.IsNotSwapped);
+                } else {
+                    throw new NotImplementedException(
+                        String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
+                }                    
+            }
+        }
+
         #endregion
 
         #region Copy ops for swapping and unaligned access
@@ -480,12 +546,12 @@ namespace NumpyDotNet {
 
         private static Object SyncRoot = new Object();
         private static LanguageContext PyContext = null;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_Equal;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_NotEqual;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_Greater;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_GreaterEqual;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_Less;
-        private static CallSite<Func<CallSite, Object, Object, int>> Site_LessEqual;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Greater;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_GreaterEqual;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Less;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_LessEqual;
         private static CallSite<Func<CallSite, Object, int>> Site_Sign;
 
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Add;
@@ -507,17 +573,17 @@ namespace NumpyDotNet {
                 if (PyContext == null) {
                     // Construct the call sites for each operation we will need. This is much
                     // faster than constructing/destroying them with each loop.
-                    Site_Equal = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_Equal = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
-                    Site_NotEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_NotEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
-                    Site_Greater = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_Greater = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
-                    Site_GreaterEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_GreaterEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
-                    Site_Less = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_Less = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
-                    Site_LessEqual = CallSite<Func<CallSite, Object, Object, int>>.Create(
+                    Site_LessEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
 
                     Site_Add = CallSite<Func<CallSite, Object, Object, Object>>.Create(
@@ -545,12 +611,13 @@ namespace NumpyDotNet {
         /// <param name="aPtr">First argument</param>
         /// <param name="bPtr">Second argument</param>
         /// <returns>1 if true, 0 if false, -1 on error</returns>
-        private static int GenericCmp(CallSite<Func<CallSite, Object, Object, int>> site,
+        private static int GenericCmp(CallSite<Func<CallSite, Object, Object, Object>> site,
             IntPtr aPtr, IntPtr bPtr) {
             Object a = GCHandle.FromIntPtr(aPtr).Target;
             Object b = GCHandle.FromIntPtr(bPtr).Target;
-            return site.Target(Site_Equal, a, b);
+            return (bool)site.Target(Site_Equal, a, b) ? 1 : 0;
         }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int del_GenericCmp(IntPtr a, IntPtr b);
 
 
@@ -566,9 +633,10 @@ namespace NumpyDotNet {
             IntPtr aPtr, IntPtr bPtr) {
             Object a = GCHandle.FromIntPtr(aPtr).Target;
             Object b = GCHandle.FromIntPtr(bPtr).Target;
-            Object r = site.Target(Site_Equal, a, b);
+            Object r = site.Target(site, a, b);
             return GCHandle.ToIntPtr(GCHandle.Alloc(r));
         }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr del_GenericBinOp(IntPtr a, IntPtr b);
 
         //static internal Func<IntPtr, IntPtr, int> Compare_Equal =
@@ -586,13 +654,13 @@ namespace NumpyDotNet {
         static internal del_GenericCmp Compare_LessEqual =
             (a, b) => GenericCmp(Site_LessEqual, a, b);
 
-        static internal del_GenericBinOp Compare_Add =
+        static internal del_GenericBinOp Op_Add =
             (a, b) => GenericBinOp(Site_Add, a, b);
-        static internal del_GenericBinOp Compare_Subtract =
+        static internal del_GenericBinOp Op_Subtract =
             (a, b) => GenericBinOp(Site_Subtract, a, b);
-        static internal del_GenericBinOp Compare_Multiply =
+        static internal del_GenericBinOp Op_Multiply =
             (a, b) => GenericBinOp(Site_Multiply, a, b);
-        static internal del_GenericBinOp Compare_Divide =
+        static internal del_GenericBinOp Op_Divide =
             (a, b) => GenericBinOp(Site_Divide, a, b);
 
         #endregion

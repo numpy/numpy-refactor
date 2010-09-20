@@ -1170,10 +1170,10 @@ namespace NumpyDotNet {
             // the managed layer.  These typically call into IronPython to perform the
             // operation.
             funcs.absolute = IntPtr.Zero;
-            funcs.add = IntPtr.Zero;
-            funcs.subtract = IntPtr.Zero;
-            funcs.multiply = IntPtr.Zero;
-            funcs.divide = IntPtr.Zero;
+            funcs.add = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Add);
+            funcs.subtract = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Subtract);
+            funcs.multiply = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Multiply);
+            funcs.divide = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Divide);
             funcs.trueDivide = IntPtr.Zero;
             funcs.floorDivide = IntPtr.Zero;
             funcs.invert = IntPtr.Zero;

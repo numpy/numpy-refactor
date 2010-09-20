@@ -334,7 +334,8 @@ namespace NumpyDotNet {
         }
 
         private static dtype UseDefaultType(Object src) {
-            throw new NotImplementedException("UseDefaultType (see common.c: _use_default_type) not implemented.");
+            // TODO: User-defined types are not implemented yet.
+            return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT);
         }
 
 
