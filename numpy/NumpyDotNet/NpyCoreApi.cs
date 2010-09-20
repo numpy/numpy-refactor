@@ -184,10 +184,6 @@ namespace NumpyDotNet {
                 NpyArray_Any(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal static ndarray ArgMax(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(

@@ -579,7 +579,12 @@ namespace NumpyDotNet
 
         public object argmax(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.ArgMax(this, iAxis, @out));
+            return ArrayReturn(ArgMax(iAxis, @out));
+        }
+
+        public object argmin(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(ArgMin(iAxis, @out));
         }
 
         public object argsort(object axis = null, string kind = null, object order = null) {
