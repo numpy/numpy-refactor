@@ -33,6 +33,8 @@ namespace NumpyDotNet {
                 } else {
                     result = ConvertSimpleString(s);
                 }
+            } else if (obj is List) {
+                result = ConvertFromArrayDescr((List)obj, 0);
             } else {
                 throw new NotImplementedException(
                     String.Format("Convertion of type '{0}' to type descriptor is not supported.",
@@ -173,6 +175,57 @@ namespace NumpyDotNet {
                 result = new dtype(result, elsize);
             }
             return result;
+        }
+
+        private static dtype ConvertFromArrayDescr(List l, int align) {
+            // TODO: Need to be completed.  Right now only handles pairs
+            // of (name, type) as items.
+            int n = l.Count;
+            int totalSize = 0;
+            int maxalign = 0;
+            int dtypeflags = 0;
+            IntPtr names = NpyCoreApi.NpyArray_DescrAllocNames(n);
+            IntPtr fields = NpyCoreApi.NpyArray_DescrAllocFields();
+            try {
+                for (int i=0; i<n; i++) {
+                    object item = l[i];
+                    PythonTuple t = (item as PythonTuple);
+                    if (t == null || t.Count != 2) {
+                        throw new ArgumentTypeException("data type not understood");
+                    }
+                    string name = (t[0] as string);
+                    object type_descr = t[1];
+                    if (name == null) {
+                        throw new ArgumentTypeException("data type not understood");
+                    }
+                    if (name.Length == 0) {
+                        name = String.Format("f{0}", i);
+                    }
+                    dtype field_type = DescrConverter(null, type_descr);
+
+                    dtypeflags |= field_type.Flags & NpyDefs.NPY_FROM_FIELDS;
+
+                    if (align != 0) {
+                        int field_align = field_type.Alignment;
+                        if (field_align > 0) {
+                            totalSize = ((totalSize + field_align - 1) / field_align) * field_align;
+                        }
+                        maxalign = Math.Max(maxalign, field_align);
+                    }
+                    NpyCoreApi.AddField(fields, names, i, name, field_type, totalSize, null);
+                    totalSize += field_type.ElementSize;
+                }
+            } catch {
+                NpyCoreApi.DescrDestroyNames(names, n);
+                NpyCoreApi.DescrDestroyFields(fields);
+                throw;
+            }
+
+            if (maxalign > 1) {
+                totalSize = ((totalSize + maxalign - 1) / maxalign) * maxalign;
+            }
+            int alignment = (align == 0 ? maxalign : 1);
+            return NpyCoreApi.DescrNewVoid(fields, names, totalSize, dtypeflags, alignment);
         }
 
         private static IEnumerable<Object> ParseDatetimeString(PythonContext cntx, String s) {

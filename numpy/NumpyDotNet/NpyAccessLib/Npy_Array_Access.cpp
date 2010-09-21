@@ -361,6 +361,40 @@ extern "C" __declspec(dllexport)
         }
 }
 
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_DescrDestroyNames(char** names, int n) 
+{
+    for (int i=0; i<n; i++) {
+        if (names[i]) free(names[i]);
+    }
+    free(names);
+}
+
+extern "C" __declspec(dllexport)
+    int NpyArrayAccess_AddField(NpyDict* fields, char** names, int i, 
+    char* name, NpyArray_Descr* fieldType, int offset, char* title)
+{
+    if (NpyDict_ContainsKey(fields, name)) {
+        NpyErr_SetString(NpyExc_ValueError, "two fields with the same name");
+        return -1;
+    }
+    names[i] = _strdup(name);
+    NpyArray_DescrSetField(fields, names[i], fieldType, offset, title);
+    return 0;
+}
+
+extern "C" __declspec(dllexport)
+    NpyArray_Descr* NpyArrayAccess_DescrNewVoid(NpyDict* fields, char **names, int elsize, int flags, int alignment)
+{
+    NpyArray_Descr* result = NpyArray_DescrNewFromType(NPY_VOID);
+    result->fields = fields;
+    result->names = names;
+    result->elsize = elsize;
+    result->flags = flags;
+    result->alignment = alignment;
+    return result;
+}
+
 //
 // UFunc access methods
 //
