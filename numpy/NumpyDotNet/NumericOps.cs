@@ -459,15 +459,18 @@ namespace NumpyDotNet {
 
         internal static void setitemObject(Object o, long offset, ndarray arr) {
             IntPtr f = GCHandle.ToIntPtr(GCHandle.Alloc(o));
+            IntPtr prev = IntPtr.Zero;
 
             unsafe {
                 byte* p = (byte*)arr.data.ToPointer() + offset;
                 if (arr.IsBehaved) {
                     switch (IntPtr.Size) {
                         case 4:
+                            prev = new IntPtr(* (int*)p);
                             *(int*)p = (int)f;
                             break;
                         case 8:
+                            prev = new IntPtr(* (int*)p);
                             *(long*)p = (long)f;
                             break;
                         default:
@@ -475,15 +478,26 @@ namespace NumpyDotNet {
                                 String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
                     }
                 } else if (IntPtr.Size == 4) {
-                    int r = (int)f;
+                    int r;
+                    CopySwap4((byte *)&r, p, !arr.IsNotSwapped);
+                    prev = new IntPtr(r);
+                    r = (int)f;
                     CopySwap4(p, (byte*)&r, !arr.IsNotSwapped);
                 } else if (IntPtr.Size == 4) {
-                    long r = (long)f;
+                    long r;
+                    CopySwap8((byte *)&r, p, !arr.IsNotSwapped);
+                    prev = new IntPtr(r);
+                    r = (long)f;
                     CopySwap8(p, (byte*)&r, !arr.IsNotSwapped);
                 } else {
                     throw new NotImplementedException(
                         String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
                 }                    
+            }
+
+            // Release our handle to any previous object.
+            if (prev != IntPtr.Zero) {
+                GCHandle.FromIntPtr(prev).Free();
             }
         }
 
