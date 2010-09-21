@@ -92,6 +92,11 @@ namespace NumpyDotNet {
 
         #endregion
 
+        public static ufunc GetFunction(string name) {
+            return NpyCoreApi.GetUFunc(name);
+        }
+
+
         /// <summary>
         /// Simply checks to verify that the object was correctly initialized and hasn't
         /// already been disposed before we go accessing native memory.

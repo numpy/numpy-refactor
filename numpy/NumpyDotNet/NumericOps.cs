@@ -548,8 +548,6 @@ namespace NumpyDotNet {
 
         private static Object SyncRoot = new Object();
         private static LanguageContext PyContext = null;
-        private static CallSite<Func<CallSite, Object, Object>> Site_MethodCall0;
-        private static CallSite<Func<CallSite, Object, Object, Object>> Site_MethodCall1;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Greater;

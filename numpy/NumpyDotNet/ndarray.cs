@@ -569,7 +569,7 @@ namespace NumpyDotNet
         }
 
         public ndarray fmod(ndarray b) {
-            ufunc f = NpyCoreApi.UFuncDefs["fmod"];
+            ufunc f = ufunc.GetFunction("fmod");
             return NpyCoreApi.GenericBinaryOp(this, b, f);
         }
         // TODO: end of test functions

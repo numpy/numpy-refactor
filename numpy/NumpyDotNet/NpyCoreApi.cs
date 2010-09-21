@@ -1118,7 +1118,26 @@ namespace NumpyDotNet {
         /// </summary>
         internal static readonly NpyDefs.NPY_TYPES TypeOf_UInt64;
 
-        internal static readonly Dictionary<string, ufunc> UFuncDefs;
+
+        /// <summary>
+        /// Map of function names to all defined ufunc objects.
+        /// </summary>
+        private static readonly Dictionary<string, ufunc> UFuncDefs;
+
+
+        /// <summary>
+        /// Returns the ufunc matching a named function or null if not defined.
+        /// </summary>
+        /// <param name="name">Function name</param>
+        /// <returns>ufunc implementing the function or null</returns>
+        internal static ufunc GetUFunc(string name) {
+            ufunc result = null;
+            if (!UFuncDefs.TryGetValue(name, out result)) {
+                result = null;
+            }
+            return result;
+        }
+
 
         /// <summary>
         /// Initializes the core library with necessary callbacks on load.
