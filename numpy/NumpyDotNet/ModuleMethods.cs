@@ -123,7 +123,7 @@ namespace NumpyDotNet {
                     result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
                 }
 
-                if (result != null || result.ndim < ndmin) {
+                if (result != null && result.ndim < ndmin) {
                     result = NpyArray.PrependOnes(result, result.ndim, ndmin);
                 }
             } catch (Exception e) {

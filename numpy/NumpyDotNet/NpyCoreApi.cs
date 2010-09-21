@@ -189,10 +189,6 @@ namespace NumpyDotNet {
                 NpyArray_Any(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal static ndarray ArgMax(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
@@ -215,6 +211,13 @@ namespace NumpyDotNet {
         internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
             return DecrefToInterface<ndarray>(
                 NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
+        }
+
+        internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
+            ndarray arr, IntPtr offset, bool ensure_array) {
+            Incref(d.Descr);
+            return DecrefToInterface<ndarray>(
+                NpyArray_NewView(d.Descr, nd, dims, strides, arr.Array, offset, ensure_array ? 1 : 0));
         }
 
         /// <summary>
@@ -359,6 +362,12 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_NewView(IntPtr descr, int nd,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] strides,
+            IntPtr arr, IntPtr offset, int ensureArray);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_NonZero(IntPtr self, 

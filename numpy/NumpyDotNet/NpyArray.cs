@@ -264,8 +264,22 @@ namespace NumpyDotNet {
         }
         
         internal static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
-            // TODO: Unimplemented
-            return arr;
+            IntPtr[] newdims = new IntPtr[ndmin];
+            IntPtr[] newstrides = new IntPtr[ndmin];
+            int num = ndmin - nd;
+            // Set the first num dims and strides for the 1's
+            for (int i=0; i<num; i++) {
+                newdims[i] = (IntPtr)1;
+                newstrides[i] = (IntPtr)arr.dtype.ElementSize;
+            }
+            // Copy in the rest of dims and strides
+            for (int i=num; i<ndmin; i++) {
+                int k = i-num;
+                newdims[i] = (IntPtr)arr.Dims[k];
+                newstrides[i] = (IntPtr)arr.strides[k];
+            }
+
+            return NpyCoreApi.NewView(arr.dtype, ndmin, newdims, newstrides, arr, IntPtr.Zero, false);
         }
 
         internal static dtype FindArrayType(Object src, dtype minitype, int max) {

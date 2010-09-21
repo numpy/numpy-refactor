@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="broadcast.cs" />
+    <Compile Include="calculation.cs" />
     <Compile Include="dtype.cs" />
     <Compile Include="flagsobj.cs" />
     <Compile Include="flatiter.cs" />
