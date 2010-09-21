@@ -69,7 +69,8 @@ namespace NumpyDotNet {
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
                 new ArrFuncs() { GetItem = NumericOps.getitemObject, SetItem = NumericOps.setitemObject };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_STRING] = null;
+            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
+                new ArrFuncs() { GetItem = NumericOps.getitemString, SetItem = NumericOps.setitemString };
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_VOID] = null;
         }
@@ -259,6 +260,13 @@ namespace NumpyDotNet {
             }
             return GCHandle.FromIntPtr(f).Target;
         }
+
+        internal static Object getitemString(long offset, ndarray arr) {
+            IntPtr p = new IntPtr(arr.data.ToInt64() + offset);
+            String s = Marshal.PtrToStringAnsi(p, arr.dtype.ElementSize);
+            return s.TrimEnd((char)0);
+        }
+
 
         #endregion
 
@@ -482,6 +490,21 @@ namespace NumpyDotNet {
                     throw new NotImplementedException(
                         String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
                 }                    
+            }
+        }
+
+        internal static void setitemString(Object o, long offset, ndarray arr) {
+            string s = o.ToString();
+            byte[] bytes = Encoding.UTF8.GetBytes(s);
+            int elsize = arr.dtype.ElementSize;
+            int copySize = Math.Min(bytes.Length, elsize);
+            int i;
+            IntPtr p = new IntPtr(arr.data.ToInt64() + offset);
+            for (i = 0; i < copySize; i++) {
+                Marshal.WriteByte(p, i, bytes[i]);
+            }
+            for (; i < elsize; i++) {
+                Marshal.WriteByte(p, i, (byte)0);
             }
         }
 

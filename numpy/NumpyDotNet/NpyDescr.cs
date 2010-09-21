@@ -31,7 +31,7 @@ namespace NumpyDotNet {
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(s);
                 } else {
-                    result = ConvertBracketString(s);
+                    result = ConvertSimpleString(s);
                 }
             } else {
                 throw new NotImplementedException(
@@ -114,8 +114,65 @@ namespace NumpyDotNet {
         }
 
 
-        private static dtype ConvertBracketString(String s) {
-            throw new NotImplementedException();
+        private static dtype ConvertSimpleString(String s) {
+            byte endian = (byte)'=';
+            if (s.Length == 0) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            switch (s[0]) {
+                case '<':
+                case '>':
+                case '|':
+                case '=':
+                    endian = (byte)s[0];
+                    s = s.Substring(1);
+                    if (endian == (byte)'|') {
+                        endian = (byte)'=';
+                    }
+                    break;
+            }
+            return ConvertSimpleString(s, endian);
+        }
+
+        private static dtype ConvertSimpleString(string s, byte endian) {
+            byte type_char = (byte)' ';
+            NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_NOTYPE+10;
+            int elsize = 0;
+
+            if (s.Length == 0) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            type_char = (byte)s[0];
+            if (s.Length > 1) {
+                elsize = int.Parse(s.Substring(1));
+                if (elsize == 0) {
+                } else if (type_char == (byte)NpyDefs.NPY_TYPECHAR.NPY_UNICODELTR) {
+                    elsize <<= 2;
+                } else if (type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR &&
+                           type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_VOIDLTR &&
+                           type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR2) {
+                    type = NpyCoreApi.TypestrConvert(elsize, type_char);
+                    // The size is encoded in the type, so reset.
+                    elsize = 0;
+                } else {
+                    // For some types the char is the type, even though the type is not defined in NPY_TYPES!
+                    type = (NpyDefs.NPY_TYPES)type_char;
+                }
+            } else {
+                type = (NpyDefs.NPY_TYPES)type_char;
+            }
+            // TODO: Handle typeDict.
+            dtype result = null;
+            if (type != NpyDefs.NPY_TYPES.NPY_NOTYPE+10) {
+                result = NpyCoreApi.DescrFromType(type);
+            }
+            if (result == null) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            if (elsize != 0 && result.ElementSize == 0) {
+                result = new dtype(result, elsize);
+            }
+            return result;
         }
 
         private static IEnumerable<Object> ParseDatetimeString(PythonContext cntx, String s) {

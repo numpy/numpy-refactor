@@ -226,7 +226,9 @@ namespace NumpyDotNet {
                 NpyArray_NewCopy(arr.Array, (int)order));
         }
 
-
+        internal static NpyDefs.NPY_TYPES TypestrConvert(int elsize, byte letter) {
+            return (NpyDefs.NPY_TYPES)NpyArray_TypestrConvert(elsize, (int)letter);
+        }
 
         #endregion
 
@@ -392,6 +394,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
 
         #endregion
 

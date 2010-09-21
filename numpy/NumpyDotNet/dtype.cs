@@ -33,10 +33,22 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Descriptor to duplicate</param>
         public dtype(dtype d) {
-            core = NpyCoreApi.NpyArray_DescrNew(this.core);
+            core = NpyCoreApi.NpyArray_DescrNew(d.core);
             Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
             funcs = NumericOps.arrFuncs[(int)this.TypeNum];
         }
+
+        /// <summary>
+        /// Construct a new dtype with a diffent ElementSize.
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="elsize"></param>
+        internal dtype(dtype d, int elsize) {
+            core = NpyCoreApi.NpyArray_DescrNew(d.core);
+            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
+            ElementSize = elsize;
+        }
+
         
         
         /// <summary>
@@ -103,6 +115,7 @@ namespace NumpyDotNet {
 
         public int ElementSize {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_elsize); }
+            private set { Marshal.WriteInt32(core, NpyCoreApi.DescrOffsets.off_elsize, value); }
         }
 
         public int Alignment {
@@ -112,6 +125,30 @@ namespace NumpyDotNet {
         public bool HasNames {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names) == IntPtr.Zero; }
         }
+
+        public List<string> Names {
+            get {
+                List<string> result = new List<string>();
+                IntPtr names = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names);
+                if (names != IntPtr.Zero) {
+                    int offset = 0;
+                    while (true) {
+                        IntPtr namePtr = Marshal.ReadIntPtr(names, offset);
+                        if (namePtr == IntPtr.Zero) {
+                            break;
+                        }
+                        offset += IntPtr.Size;
+                        result.Add(Marshal.PtrToStringAnsi(namePtr));
+                    }
+                }
+                return result;
+            }
+        }
+
+        public PythonTuple names {
+            get { return new PythonTuple(Names); }
+        }
+
 
         public bool HasSubarray {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) == IntPtr.Zero; }
