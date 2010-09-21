@@ -9,6 +9,8 @@ using IronPython.Runtime;
 using IronPython.Modules;
 using Microsoft.Scripting.Runtime;
 using Microsoft.Scripting.Utils;
+using Microsoft.CSharp.RuntimeBinder;
+using System.Dynamic;
 
 namespace NumpyDotNet {
 
@@ -546,6 +548,8 @@ namespace NumpyDotNet {
 
         private static Object SyncRoot = new Object();
         private static LanguageContext PyContext = null;
+        private static CallSite<Func<CallSite, Object, Object>> Site_MethodCall0;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_MethodCall1;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Greater;
@@ -558,6 +562,16 @@ namespace NumpyDotNet {
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Subtract;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Multiply;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Divide;
+        private static CallSite<Func<CallSite, Object, Object>> Site_Negative;
+
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Power;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Remainder;
+        private static CallSite<Func<CallSite, Object, Object>> Site_Not;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_And;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Or;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_Xor;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_LShift;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_RShift;
 
         internal static void InitUFuncOps(LanguageContext cntx) {
             // Fast escape which will occur all except the first time.
@@ -571,6 +585,7 @@ namespace NumpyDotNet {
 
             lock (SyncRoot) {
                 if (PyContext == null) {
+                    
                     // Construct the call sites for each operation we will need. This is much
                     // faster than constructing/destroying them with each loop.
                     Site_Equal = CallSite<Func<CallSite, Object, Object, Object>>.Create(
@@ -594,7 +609,28 @@ namespace NumpyDotNet {
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
                     Site_Divide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
+                    Site_Negative = CallSite<Func<CallSite, Object, Object>>.Create(
+                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
 
+                    Site_Power = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
+                    Site_Remainder = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Modulo));
+                    Site_Not = CallSite<Func<CallSite, Object, Object>>.Create(
+                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Not));
+                    Site_And = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.And));
+                    Site_Or = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Or));
+                    Site_Xor = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.ExclusiveOr));
+                    Site_LShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LeftShift));
+                    Site_RShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
+
+                    
+                    
                     // Set this last so any other accesses will block while we create
                     // the sites.
                     PyContext = cntx;
@@ -602,7 +638,77 @@ namespace NumpyDotNet {
             }
         }
 
+
+        /// <summary>
+        /// Cache of method call sites taking zero arguments.
+        /// </summary>
+        private static Dictionary<string, CallSite<Func<CallSite, Object, Object>>> ZeroArgMethodSites =
+            new Dictionary<string, CallSite<Func<CallSite, Object, Object>>>();
+
+        /// <summary>
+        /// Cache of method call sites taking one argument.
+        /// </summary>
+        private static Dictionary<string, CallSite<Func<CallSite, Object, Object, Object>>> OneArgMethodSites =
+            new Dictionary<string, CallSite<Func<CallSite, Object, Object, Object>>>();
+
+        /// <summary>
+        /// Executes a specified method taking one argument on an object. In order to
+        /// be efficient, each method name is cached with the call site instance so
+        /// future calls (this will likely be called in a loop) execute faster.
+        /// 
+        /// Passing IntPtr.Zero for argPtr causes it to execute a zero-argument method,
+        /// otherwise it executes a one-argument method.  No facility is in place for
+        /// passing null to a one-argument method.
+        /// </summary>
+        /// <param name="objPtr">Object method should be invoked on</param>
+        /// <param name="methodName">Method name</param>
+        /// <param name="argPtr">Optional argument, pass IntPtr.Zero if not needed</param>
+        /// <returns>IntPtr to GCHandle of result object</returns>
+        unsafe internal static IntPtr MethodCall(IntPtr objPtr, sbyte *methodName, IntPtr argPtr) {
+            Object obj = GCHandle.FromIntPtr(objPtr).Target;
+            Object result = null;
+            String method = new String(methodName);
+
+            if (argPtr != IntPtr.Zero) {
+                Object arg = GCHandle.FromIntPtr(argPtr).Target;
+                CallSite<Func<CallSite, Object, Object, Object>> site;
+
+                // Cache the call site object based on method name.
+                lock (OneArgMethodSites) {
+                    if (!OneArgMethodSites.TryGetValue(method, out site)) {
+                        site = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                            Binder.InvokeMember(CSharpBinderFlags.None, method,
+                            null, typeof(NumericOps),
+                            new CSharpArgumentInfo[] { 
+                                CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
+                                CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
+                            }));
+                        OneArgMethodSites.Add(method, site);
+                    }
+                }
+                result = site.Target(site, obj, arg);
+            } else {
+                CallSite<Func<CallSite, Object, Object>> site;
+
+                lock (ZeroArgMethodSites) {
+                    if (!ZeroArgMethodSites.TryGetValue(method, out site)) {
+                        site = CallSite<Func<CallSite, Object, Object>>.Create(
+                            Binder.InvokeMember(CSharpBinderFlags.None, method,
+                            null, typeof(NumericOps),
+                            new CSharpArgumentInfo[] { 
+                                CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null) 
+                            }));
+                        ZeroArgMethodSites.Add(method, site);
+                    }
+                }
+                result = site.Target(site, obj);
+            }
+            return (result != null) ? GCHandle.ToIntPtr(GCHandle.Alloc(result)) : IntPtr.Zero;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        unsafe internal delegate IntPtr del_MethodCall(IntPtr a, sbyte *b, IntPtr arg);
         
+
         /// <summary>
         /// Generic comparison function.  First argument should be bound to one of
         /// the callsite operations.
@@ -619,6 +725,23 @@ namespace NumpyDotNet {
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int del_GenericCmp(IntPtr a, IntPtr b);
+
+
+        /// <summary>
+        /// Generic unary operation.  First argument should be bound to a binary
+        /// callsite function.
+        /// </summary>
+        /// <param name="site">Callsite of some binary operation to perform</param>
+        /// <param name="aPtr">Function argument</param>
+        /// <returns>IntPtr to GCHandle referencing the result</returns>
+        private static IntPtr GenericUnaryOp(CallSite<Func<CallSite, Object, Object>> site,
+            IntPtr aPtr) {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object r = site.Target(site, a);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(r));
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate IntPtr del_GenericUnaryOp(IntPtr a);
 
 
         /// <summary>
@@ -662,6 +785,67 @@ namespace NumpyDotNet {
             (a, b) => GenericBinOp(Site_Multiply, a, b);
         static internal del_GenericBinOp Op_Divide =
             (a, b) => GenericBinOp(Site_Divide, a, b);
+        static internal del_GenericUnaryOp Op_Negate = 
+            a => GenericUnaryOp(Site_Negative, a);
+
+        // TODO: trueDivide
+        // TODO: floorDivide
+
+        static internal del_GenericBinOp Op_Remainder =
+            (a, b) => GenericBinOp(Site_Remainder, a, b);
+
+        static internal del_GenericUnaryOp Op_Square = aPtr => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object result = Site_Divide.Target(Site_Multiply, a, a);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+
+        static internal del_GenericBinOp Op_Power =
+            (a, b) => GenericBinOp(Site_Power, a, b);
+
+        static internal del_GenericUnaryOp Op_Reciprocal = aPtr => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object result = Site_Divide.Target(Site_Divide, 1.0, a);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+
+        static internal del_GenericBinOp Op_Min = (aPtr, bPtr) => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object result = (bool)Site_LessEqual.Target(Site_LessEqual, a, b) ? a : b;
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+
+        static internal del_GenericBinOp Op_Max = (aPtr, bPtr) => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object result = (bool)Site_GreaterEqual.Target(Site_GreaterEqual, a, b) ? a : b;
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+
+
+        // Logical NOT - not reciprocal
+        static internal del_GenericUnaryOp Op_Invert = aPtr => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object result = Site_Not.Target(Site_Not, a);
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+
+        static internal del_GenericBinOp Op_And =
+            (a, b) => GenericBinOp(Site_And, a, b);
+        static internal del_GenericBinOp Op_Or =
+            (a, b) => GenericBinOp(Site_Or, a, b);
+        static internal del_GenericBinOp Op_Xor =
+            (a, b) => GenericBinOp(Site_Xor, a, b);
+        static internal del_GenericBinOp Op_LShift =
+            (a, b) => GenericBinOp(Site_LShift, a, b);
+        static internal del_GenericBinOp Op_RShift =
+            (a, b) => GenericBinOp(Site_RShift, a, b);
+
+        // Just returns the number 1.
+        static internal del_GenericUnaryOp Op_GetOne = aPtr => {
+            return GCHandle.ToIntPtr(GCHandle.Alloc(1));
+        };
 
         #endregion
 

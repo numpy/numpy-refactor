@@ -563,11 +563,23 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
+
         // TODO: Temporary test function
         public static ndarray Compare(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
+
+        public ndarray sqrt() {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
+            return NpyCoreApi.GenericUnaryOp(this, f);
+        }
+
+        public ndarray fmod(ndarray b) {
+            ufunc f = NpyCoreApi.UFuncDefs["fmod"];
+            return NpyCoreApi.GenericBinaryOp(this, b, f);
+        }
+        // TODO: end of test functions
 
         #endregion
 
