@@ -637,7 +637,7 @@ namespace NumpyDotNet {
             internal IntPtr cmp_greater_equal;
             internal IntPtr cmp_less;
             internal IntPtr cmp_less_equal;
-            internal IntPtr cmp_sign;
+            internal IntPtr op_sign;
 
             // Generic arithmatic functions that operate on objects and are provided by
             // the managed layer.  These typically call into IronPython to perform the
@@ -1190,12 +1190,12 @@ namespace NumpyDotNet {
             funcs.cmp_greater_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_GreaterEqual);
             funcs.cmp_less = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_Less);
             funcs.cmp_less_equal = Marshal.GetFunctionPointerForDelegate(NumericOps.Compare_LessEqual);
-            funcs.cmp_sign = IntPtr.Zero;
+            funcs.op_sign = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Sign);
 
             // Generic arithmatic functions that operate on objects and are provided by
             // the managed layer.  These typically call into IronPython to perform the
             // operation.
-            funcs.absolute = IntPtr.Zero;
+            funcs.absolute = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Absolute);
             funcs.add = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Add);
             funcs.subtract = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Subtract);
             funcs.multiply = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Multiply);

@@ -184,6 +184,31 @@ namespace NumpyDotNet
             }
         }
 
+        public ndarray __abs__() {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_absolute);
+            return NpyCoreApi.GenericUnaryOp(this, f);
+        }
+
+        public ndarray __lshift__(Object b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
+            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
+        }
+
+        public ndarray __rshift__(Object b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_right_shift);
+            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
+        }
+
+        public ndarray __sqrt__() {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
+            return NpyCoreApi.GenericUnaryOp(this, f);
+        }
+
+        public ndarray __mod__(Object b) {
+            ufunc f = ufunc.GetFunction("fmod");
+            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b), f);
+        }
+
         #endregion
 
         #region Public interfaces (must match CPython)
@@ -534,27 +559,45 @@ namespace NumpyDotNet
             return ((RawFlags & flag) == flag);
         }
 
+        // These operators are useful from other C# code and also turn into the
+        // appropriate Python functions (+ goes to __add__, etc).
         #region Operators
 
-        public static ndarray operator +(ndarray a, ndarray b) {
+        public static ndarray operator +(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_add);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
         public static ndarray operator -(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator *(ndarray a, ndarray b) {
+        public static ndarray operator *(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator /(ndarray a, ndarray b) {
+        public static ndarray operator /(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
+
+        public static ndarray operator&(ndarray a, Object b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
+        }
+
+        public static ndarray operator |(ndarray a, Object b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
+        }
+
+        public static ndarray operator ^(ndarray a, Object b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
+        }
+
 
 
         // TODO: Temporary test function
@@ -563,15 +606,6 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
-        public ndarray sqrt() {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
-            return NpyCoreApi.GenericUnaryOp(this, f);
-        }
-
-        public ndarray fmod(ndarray b) {
-            ufunc f = ufunc.GetFunction("fmod");
-            return NpyCoreApi.GenericBinaryOp(this, b, f);
-        }
         // TODO: end of test functions
 
         #endregion
