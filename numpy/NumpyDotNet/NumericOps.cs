@@ -31,51 +31,113 @@ namespace NumpyDotNet {
     /// memory.
     /// </summary>
     internal static class NumericOps {
-        internal static ArrFuncs[] arrFuncs = new ArrFuncs[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+        private static ArrFuncs[] ArrFuncs = null;
+        private static Object ArrFuncsSyncRoot = new Object();
+
+        /// <summary>
+        /// Returns the array of functions appropriate to a given type.  The actual
+        /// functions in the array will vary with the type sizes in the native code.
+        /// </summary>
+        /// <param name="t">Native array type</param>
+        /// <returns>Functions matching that type</returns>
+        internal static ArrFuncs FuncsForType(NpyDefs.NPY_TYPES t) {
+            if (ArrFuncs == null) {
+                InitArrFuncs();
+            }
+            return ArrFuncs[(int)t];
+        }
+
+        private static void GetGetSetItems(int numBytes, 
+            out Func<long, ndarray, Object> getter,
+            out Action<Object, long, ndarray> setter,
+            out Func<long, ndarray, Object> ugetter,
+            out Action<Object, long, ndarray> usetter) {
+            switch (numBytes) {
+                case 4:
+                    getter = NumericOps.getitemInt32;
+                    setter = NumericOps.setitemInt32;
+                    ugetter = NumericOps.getitemUInt32;
+                    usetter = NumericOps.setitemUInt32;
+                    break;
+
+                case 8:
+                    getter = NumericOps.getitemInt64;
+                    setter = NumericOps.setitemInt64;
+                    ugetter = NumericOps.getitemUInt64;
+                    usetter = NumericOps.setitemUInt64;
+                    break;
+                    
+                default:
+                    throw new NotImplementedException(
+                        String.Format("Numeric size of {0} is not yet implemented.", numBytes));
+            }
+        }
 
 
         /// <summary>
         /// Initializes the type-specific functions for each native type.
         /// </summary>
-        static NumericOps() {
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_BOOL] =
-                new ArrFuncs() { GetItem = NumericOps.getitemBool, SetItem = NumericOps.setitemBool };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_BYTE] =
-                new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UBYTE] =
-                new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_SHORT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemShort, SetItem = NumericOps.setitemShort };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_USHORT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemUShort, SetItem = NumericOps.setitemUShort };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_INT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemInt32, SetItem = NumericOps.setitemInt32 };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UINT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemUInt32, SetItem = NumericOps.setitemUInt32 };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_LONG] =
-                new ArrFuncs() { GetItem = NumericOps.getitemLong, SetItem = NumericOps.setitemLong };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_ULONG] =
-                new ArrFuncs() { GetItem = NumericOps.getitemULong, SetItem = NumericOps.setitemULong };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_LONGLONG] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_ULONGLONG] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_FLOAT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemFloat, SetItem = NumericOps.setitemFloat };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
-                new ArrFuncs() { GetItem = NumericOps.getitemDouble, SetItem = NumericOps.setitemDouble };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_CDOUBLE] =
-                new ArrFuncs() { GetItem = NumericOps.getitemCDouble, SetItem = NumericOps.setitemCDouble };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
-                new ArrFuncs() { GetItem = NumericOps.getitemObject, SetItem = NumericOps.setitemObject };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
-                new ArrFuncs() { GetItem = NumericOps.getitemString, SetItem = NumericOps.setitemString };
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_VOID] =
-                new ArrFuncs() { GetItem = NumericOps.getitemVOID, SetItem = NumericOps.setitemVOID };
+        private static void InitArrFuncs() {
+            lock (ArrFuncsSyncRoot) {
+                if (ArrFuncs == null) {
+                    ArrFuncs[] arr = new ArrFuncs[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+
+                    Func<long, ndarray, Object> intGet, longGet, longLongGet;
+                    Func<long, ndarray, Object> uintGet, ulongGet, ulongLongGet;
+                    Action<Object, long, ndarray> intSet, longSet, longLongSet;
+                    Action<Object, long, ndarray> uintSet, ulongSet, ulongLongSet;
+
+                    GetGetSetItems(NpyCoreApi.Native_SizeOfInt, out intGet, out intSet,
+                        out uintGet, out uintSet);
+                    GetGetSetItems(NpyCoreApi.Native_SizeOfLong, out longGet, out longSet,
+                        out ulongGet, out ulongSet);
+                    GetGetSetItems(NpyCoreApi.Native_SizeOfLongLong, out longLongGet,
+                        out longLongSet, out ulongLongGet, out ulongLongSet);
+
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_BOOL] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemBool, SetItem = NumericOps.setitemBool };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_BYTE] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_UBYTE] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_SHORT] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemShort, SetItem = NumericOps.setitemShort };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_USHORT] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemUShort, SetItem = NumericOps.setitemUShort };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_INT] =
+                        new ArrFuncs() { GetItem = intGet, SetItem = intSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_UINT] =
+                        new ArrFuncs() { GetItem = uintGet, SetItem = uintSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_LONG] =
+                        new ArrFuncs() { GetItem = longGet, SetItem = longSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_ULONG] =
+                        new ArrFuncs() { GetItem = ulongGet, SetItem = ulongSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_LONGLONG] =
+                        new ArrFuncs() { GetItem = longLongGet, SetItem = longLongSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_ULONGLONG] =
+                        new ArrFuncs() { GetItem = ulongLongGet, SetItem = ulongLongSet };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_FLOAT] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemFloat, SetItem = NumericOps.setitemFloat };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemDouble, SetItem = NumericOps.setitemDouble };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_CDOUBLE] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemCDouble, SetItem = NumericOps.setitemCDouble };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemObject, SetItem = NumericOps.setitemObject };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemString, SetItem = NumericOps.setitemString };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_VOID] =
+                        new ArrFuncs() { GetItem = NumericOps.getitemVOID, SetItem = NumericOps.setitemVOID };
+
+                    ArrFuncs = arr;
+                }
+            }
         }
 
 
@@ -158,7 +220,7 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemLong(long offset, ndarray arr) {
+        internal static Object getitemInt64(long offset, ndarray arr) {
             long f;
 
             unsafe {
@@ -172,7 +234,7 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemULong(long offset, ndarray arr) {
+        internal static Object getitemUInt64(long offset, ndarray arr) {
             ulong f;
 
             unsafe {
@@ -371,6 +433,7 @@ namespace NumpyDotNet {
 
             if (o is Int32) f = (int)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt32(null);
+            else if (o is BigInteger) ((BigInteger)o).AsInt32(out f);
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
@@ -388,6 +451,7 @@ namespace NumpyDotNet {
 
             if (o is UInt32) f = (uint)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt32(null);
+            else if (o is BigInteger) ((BigInteger)o).AsUInt32(out f);
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
@@ -400,11 +464,12 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemLong(Object o, long offset, ndarray arr) {
+        internal static void setitemInt64(Object o, long offset, ndarray arr) {
             long f;
 
             if (o is Int64) f = (long)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt64(null);
+            else if (o is BigInteger) ((BigInteger)o).AsInt64(out f);
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
@@ -417,11 +482,12 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemULong(Object o, long offset, ndarray arr) {
+        internal static void setitemUInt64(Object o, long offset, ndarray arr) {
             ulong f;
 
             if (o is UInt64) f = (ulong)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt64(null);
+            else if (o is BigInteger) ((BigInteger)o).AsUInt64(out f);
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {

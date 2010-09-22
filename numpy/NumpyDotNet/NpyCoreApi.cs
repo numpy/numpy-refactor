@@ -1191,6 +1191,20 @@ namespace NumpyDotNet {
         /// </summary>
         internal static readonly NpyDefs.NPY_TYPES TypeOf_UInt64;
 
+        /// <summary>
+        /// Size of element in integer arrays, in bytes.
+        /// </summary>
+        internal static readonly int Native_SizeOfInt;
+
+        /// <summary>
+        /// Size of element in long arrays, in bytes.
+        /// </summary>
+        internal static readonly int Native_SizeOfLong;
+
+        /// <summary>
+        /// Size of element in long long arrays, in bytes.
+        /// </summary>
+        internal static readonly int Native_SizeOfLongLong;
 
         /// <summary>
         /// Map of function names to all defined ufunc objects.
@@ -1216,6 +1230,33 @@ namespace NumpyDotNet {
         /// Initializes the core library with necessary callbacks on load.
         /// </summary>
         static NpyCoreApi() {
+            // Check the native byte ordering (make sure it matches what .NET uses) and
+            // figure out the mapping between types that vary in size in the core and
+            // fixed-size .NET types.
+            int intSize, longSize, longLongSize;
+            nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+
+            Native_SizeOfInt = intSize;
+            Native_SizeOfLong = longSize;
+            Native_SizeOfLongLong = longLongSize;
+
+            if (intSize == 4 && longSize == 4 && longLongSize == 8) {
+                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
+                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
+                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
+                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONGLONG;
+            } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
+                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
+                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONG;
+                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
+                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONG;
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
+                                  intSize, longSize, longLongSize));
+            }
+
+            
             wrapFuncs = new NpyInterface_WrapperFuncs();
 
             wrapFuncs.array_new_wrapper =
@@ -1248,6 +1289,8 @@ namespace NumpyDotNet {
                     IntPtr.Zero,
                     Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate));
+            } catch (Exception e) {
+                Console.WriteLine("Failed during initialization: {0}", e);
             } finally {
                 Marshal.FreeHGlobal(wrapHandle);
             }
@@ -1346,29 +1389,6 @@ namespace NumpyDotNet {
                 out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
                 out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
                 out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
-
-
-            // Check the native byte ordering (make sure it matches what .NET uses) and
-            // figure out the mapping between types that vary in size in the core and
-            // fixed-size .NET types.
-            int intSize, longSize, longLongSize;
-            nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
-            
-            if (intSize == 4 && longSize == 4 && longLongSize == 8) {
-                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
-                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
-                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
-                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONGLONG;
-            } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
-                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
-                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONG;
-                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
-                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONG;
-            } else {
-                throw new NotImplementedException(
-                    String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
-                                  intSize, longSize, longLongSize));
-            }
         }
 
 

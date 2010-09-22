@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 
 namespace NumpyDotNet {
@@ -361,6 +362,7 @@ namespace NumpyDotNet {
             else if (src is UInt16) type = NpyDefs.NPY_TYPES.NPY_USHORT;
             else if (src is UInt32) type = NpyCoreApi.TypeOf_UInt32;
             else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
+            else if (src is BigInteger) type = NpyDefs.NPY_TYPES.NPY_LONG;
             else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
             return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ?
