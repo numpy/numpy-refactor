@@ -236,6 +236,7 @@ namespace NumpyDotNet {
 
         internal static void AddField(IntPtr fields, IntPtr names, int i,
             string name, dtype fieldType, int offset, string title) {
+            Incref(fieldType.Descr);
             if (NpyArrayAccess_AddField(fields, names, i, name, fieldType.Descr, offset, title) < 0) {
                 CheckError();
             }
@@ -245,6 +246,12 @@ namespace NumpyDotNet {
             return DecrefToInterface<dtype>(
                 NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
         }
+
+        internal static dtype DescrNew(dtype d) {
+            return DecrefToInterface<dtype>(
+                NpyArray_DescrNew(d.Descr));
+        }
+
         #endregion
 
 
@@ -453,7 +460,7 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
-            [MarshalAs(UnmanagedType.LPArray)] long[] dims, bool fortran);
+            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims, bool fortran);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayStride")]

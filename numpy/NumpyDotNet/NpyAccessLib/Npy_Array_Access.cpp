@@ -142,7 +142,8 @@ extern "C" __declspec(dllexport)
     } else {
         dims = (npy_intp *)dimensions;
     }
-    return NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
+    NpyArray* result = NpyArray_Alloc((NpyArray_Descr *)descr, numdims, dims, fortran, NULL);
+    return result;
 }
 
 

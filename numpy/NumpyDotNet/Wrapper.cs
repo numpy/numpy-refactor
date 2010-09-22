@@ -39,6 +39,11 @@ namespace NumpyDotNet
             }
         }
 
+        // For debugging
+        internal IntPtr NpyRefCnt {
+            get { return NpyCoreApi.GetRefcnt(core); }
+        }
+
 
         /// <summary>
         /// A pointer to the wrapped core object.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Numerics;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
 using IronPython.Modules;
@@ -172,7 +173,8 @@ namespace NumpyDotNet {
                 throw new ArgumentTypeException("data type not understood");
             }
             if (elsize != 0 && result.ElementSize == 0) {
-                result = new dtype(result, elsize);
+                result = NpyCoreApi.DescrNew(result);
+                result.ElementSize = elsize;
             }
             return result;
         }
@@ -242,7 +244,7 @@ namespace NumpyDotNet {
 
 
         private static readonly PythonType PyInt_Type = DynamicHelpers.GetPythonTypeFromType(typeof(int));
-        private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(long));
+        private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(BigInteger));
         private static readonly PythonType PyFloat_Type = DynamicHelpers.GetPythonTypeFromType(typeof(float));
         private static readonly PythonType PyDouble_Type = DynamicHelpers.GetPythonTypeFromType(typeof(double));
         private static readonly PythonType PyBool_Type = DynamicHelpers.GetPythonTypeFromType(typeof(bool));
