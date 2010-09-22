@@ -212,6 +212,12 @@ namespace NumpyDotNet {
                 NpyArray_GetField(arr.Array, d.Descr, offset));
         }
 
+        internal static ndarray GetField(ndarray arr, string name) {
+            NpyArray_DescrField field = GetDescrField(arr.dtype, name);
+            dtype field_dtype = ToInterface<dtype>(field.descr);
+            return GetField(arr, field_dtype, field.offset);
+        }
+
         internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
             return DecrefToInterface<ndarray>(
                 NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
