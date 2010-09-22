@@ -200,6 +200,7 @@ extern "C" __declspec(dllexport)
 extern "C" __declspec(dllexport)
 	void _cdecl NpyArrayAccess_Dealloc(_NpyObject *obj)
 {
+    assert(NPY_VALID_MAGIC == obj->nob_magic_number);
 	obj->nob_type->ntp_dealloc(obj);
 }
 

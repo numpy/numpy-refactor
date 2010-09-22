@@ -661,6 +661,7 @@ namespace NumpyDotNet {
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Multiply;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Divide;
         private static CallSite<Func<CallSite, Object, Object>> Site_Negative;
+        private static CallSite<Func<CallSite, Object, Object>> Site_Abs;
 
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Power;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Remainder;
@@ -709,6 +710,13 @@ namespace NumpyDotNet {
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
                     Site_Negative = CallSite<Func<CallSite, Object, Object>>.Create(
                         cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
+
+                    Site_Abs = CallSite<Func<CallSite, Object, Object>>.Create(
+                        Binder.InvokeMember(CSharpBinderFlags.None, "__abs__",
+                        null, typeof(NumericOps),
+                        new CSharpArgumentInfo[] { 
+                            CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
+                        }));
 
                     Site_Power = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
@@ -874,7 +882,7 @@ namespace NumpyDotNet {
             (a, b) => GenericCmp(Site_Less, a, b);
         static internal del_GenericCmp Compare_LessEqual =
             (a, b) => GenericCmp(Site_LessEqual, a, b);
-
+        
         static internal del_GenericBinOp Op_Add =
             (a, b) => GenericBinOp(Site_Add, a, b);
         static internal del_GenericBinOp Op_Subtract =
@@ -885,6 +893,17 @@ namespace NumpyDotNet {
             (a, b) => GenericBinOp(Site_Divide, a, b);
         static internal del_GenericUnaryOp Op_Negate = 
             a => GenericUnaryOp(Site_Negative, a);
+        static internal del_GenericUnaryOp Op_Sign = aPtr => {
+            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            int result;
+
+            if ((bool)Site_Less.Target(Site_Less, a, 0.0)) result = -1;
+            else if ((bool)Site_Greater.Target(Site_Greater, a, 0.0)) result = 1;
+            else result = 0;
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        };
+        static internal del_GenericUnaryOp Op_Absolute =
+            a => GenericUnaryOp(Site_Abs, a);
 
         // TODO: trueDivide
         // TODO: floorDivide

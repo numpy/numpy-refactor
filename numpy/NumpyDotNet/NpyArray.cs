@@ -138,8 +138,8 @@ namespace NumpyDotNet {
         /// <param name="requires"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        internal static ndarray FromAny(Object src, dtype descr, int minDepth,
-            int maxDepth, int flags, Object context) {
+        internal static ndarray FromAny(Object src, dtype descr=null, int minDepth=0,
+            int maxDepth=0, int flags=0, Object context=null) {
             ndarray result = null;
 
             if (src is ndarray) {
@@ -175,6 +175,7 @@ namespace NumpyDotNet {
         /// <param name="flags">New array flags</param>
         /// <returns>New array (may be source array)</returns>
         internal static ndarray FromArray(ndarray src, dtype descr, int flags) {
+            if (descr == null) descr = src.dtype;
             if (descr != null) NpyCoreApi.Incref(descr.Descr);
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_FromArray(src.Array, descr.Descr, flags));
