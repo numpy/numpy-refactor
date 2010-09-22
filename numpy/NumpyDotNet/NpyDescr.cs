@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Numerics;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
 using IronPython.Modules;
@@ -31,8 +32,10 @@ namespace NumpyDotNet {
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(s);
                 } else {
-                    result = ConvertBracketString(s);
+                    result = ConvertSimpleString(s);
                 }
+            } else if (obj is List) {
+                result = ConvertFromArrayDescr((List)obj, 0);
             } else {
                 throw new NotImplementedException(
                     String.Format("Convertion of type '{0}' to type descriptor is not supported.",
@@ -114,8 +117,117 @@ namespace NumpyDotNet {
         }
 
 
-        private static dtype ConvertBracketString(String s) {
-            throw new NotImplementedException();
+        private static dtype ConvertSimpleString(String s) {
+            byte endian = (byte)'=';
+            if (s.Length == 0) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            switch (s[0]) {
+                case '<':
+                case '>':
+                case '|':
+                case '=':
+                    endian = (byte)s[0];
+                    s = s.Substring(1);
+                    if (endian == (byte)'|') {
+                        endian = (byte)'=';
+                    }
+                    break;
+            }
+            return ConvertSimpleString(s, endian);
+        }
+
+        private static dtype ConvertSimpleString(string s, byte endian) {
+            byte type_char = (byte)' ';
+            NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_NOTYPE+10;
+            int elsize = 0;
+
+            if (s.Length == 0) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            type_char = (byte)s[0];
+            if (s.Length > 1) {
+                elsize = int.Parse(s.Substring(1));
+                if (elsize == 0) {
+                } else if (type_char == (byte)NpyDefs.NPY_TYPECHAR.NPY_UNICODELTR) {
+                    elsize <<= 2;
+                } else if (type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR &&
+                           type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_VOIDLTR &&
+                           type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR2) {
+                    type = NpyCoreApi.TypestrConvert(elsize, type_char);
+                    // The size is encoded in the type, so reset.
+                    elsize = 0;
+                } else {
+                    // For some types the char is the type, even though the type is not defined in NPY_TYPES!
+                    type = (NpyDefs.NPY_TYPES)type_char;
+                }
+            } else {
+                type = (NpyDefs.NPY_TYPES)type_char;
+            }
+            // TODO: Handle typeDict.
+            dtype result = null;
+            if (type != NpyDefs.NPY_TYPES.NPY_NOTYPE+10) {
+                result = NpyCoreApi.DescrFromType(type);
+            }
+            if (result == null) {
+                throw new ArgumentTypeException("data type not understood");
+            }
+            if (elsize != 0 && result.ElementSize == 0) {
+                result = NpyCoreApi.DescrNew(result);
+                result.ElementSize = elsize;
+            }
+            return result;
+        }
+
+        private static dtype ConvertFromArrayDescr(List l, int align) {
+            // TODO: Need to be completed.  Right now only handles pairs
+            // of (name, type) as items.
+            int n = l.Count;
+            int totalSize = 0;
+            int maxalign = 0;
+            int dtypeflags = 0;
+            IntPtr names = NpyCoreApi.NpyArray_DescrAllocNames(n);
+            IntPtr fields = NpyCoreApi.NpyArray_DescrAllocFields();
+            try {
+                for (int i=0; i<n; i++) {
+                    object item = l[i];
+                    PythonTuple t = (item as PythonTuple);
+                    if (t == null || t.Count != 2) {
+                        throw new ArgumentTypeException("data type not understood");
+                    }
+                    string name = (t[0] as string);
+                    object type_descr = t[1];
+                    if (name == null) {
+                        throw new ArgumentTypeException("data type not understood");
+                    }
+                    if (name.Length == 0) {
+                        name = String.Format("f{0}", i);
+                    }
+                    dtype field_type = DescrConverter(null, type_descr);
+
+                    dtypeflags |= field_type.Flags & NpyDefs.NPY_FROM_FIELDS;
+
+                    if (align != 0) {
+                        int field_align = field_type.Alignment;
+                        if (field_align > 0) {
+                            totalSize = ((totalSize + field_align - 1) / field_align) * field_align;
+                        }
+                        maxalign = Math.Max(maxalign, field_align);
+                    }
+                    NpyCoreApi.AddField(fields, names, i, name, field_type, totalSize, null);
+                    totalSize += field_type.ElementSize;
+                }
+            } catch {
+                NpyCoreApi.DescrDestroyNames(names, n);
+                NpyCoreApi.DescrDestroyFields(fields);
+                throw;
+            }
+
+            if (maxalign > 1) {
+                totalSize = ((totalSize + maxalign - 1) / maxalign) * maxalign;
+            }
+            int alignment = (align == 0 ? maxalign : 1);
+            return NpyCoreApi.DescrNewVoid(fields, names, totalSize, dtypeflags, alignment);
         }
 
         private static IEnumerable<Object> ParseDatetimeString(PythonContext cntx, String s) {
@@ -132,7 +244,7 @@ namespace NumpyDotNet {
 
 
         private static readonly PythonType PyInt_Type = DynamicHelpers.GetPythonTypeFromType(typeof(int));
-        private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(long));
+        private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(BigInteger));
         private static readonly PythonType PyFloat_Type = DynamicHelpers.GetPythonTypeFromType(typeof(float));
         private static readonly PythonType PyDouble_Type = DynamicHelpers.GetPythonTypeFromType(typeof(double));
         private static readonly PythonType PyBool_Type = DynamicHelpers.GetPythonTypeFromType(typeof(bool));

@@ -201,6 +201,10 @@ namespace NumpyDotNet {
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
         }
 
+        internal static void DescrDestroyFields(IntPtr fields) {
+            NpyDict_Destroy(fields);
+        }
+
 
         internal static ndarray GetField(ndarray arr, dtype d, int offset) {
             Incref(d.Descr);
@@ -231,7 +235,27 @@ namespace NumpyDotNet {
                 NpyArray_NewCopy(arr.Array, (int)order));
         }
 
+        internal static NpyDefs.NPY_TYPES TypestrConvert(int elsize, byte letter) {
+            return (NpyDefs.NPY_TYPES)NpyArray_TypestrConvert(elsize, (int)letter);
+        }
 
+        internal static void AddField(IntPtr fields, IntPtr names, int i,
+            string name, dtype fieldType, int offset, string title) {
+            Incref(fieldType.Descr);
+            if (NpyArrayAccess_AddField(fields, names, i, name, fieldType.Descr, offset, title) < 0) {
+                CheckError();
+            }
+        }
+
+        internal static dtype DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment) {
+            return DecrefToInterface<dtype>(
+                NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
+        }
+
+        internal static dtype DescrNew(dtype d) {
+            return DecrefToInterface<dtype>(
+                NpyArray_DescrNew(d.Descr));
+        }
 
         #endregion
 
@@ -351,6 +375,12 @@ namespace NumpyDotNet {
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DescrAllocNames(int n);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DescrAllocFields();
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -401,6 +431,12 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyDict_Destroy(IntPtr dict);
+
         #endregion
 
         #region NpyAccessLib functions
@@ -432,7 +468,7 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
-            [MarshalAs(UnmanagedType.LPArray)] long[] dims, bool fortran);
+            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims, bool fortran);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayStride")]
@@ -533,6 +569,17 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
         internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd,
             int flags, long[] dims, long[] strides, IntPtr data, IntPtr interfaceData);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DescrDestroyNames")]
+        internal static extern void DescrDestroyNames(IntPtr p, int n);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_AddField(IntPtr fields, IntPtr names, int i,
+            [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr descr, int offset,
+            [MarshalAs(UnmanagedType.LPStr)]string title);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
 
         #endregion
 

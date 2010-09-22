@@ -2245,14 +2245,20 @@ void _init_type_functions(struct NpyArray_FunctionDefs *externDefs)
  layer.  This should only ever be performed once. */
 void _init_builtin_descr_wrappers()
 {
-    int type;
+    int type, i;
+
+    for (i = 0; i < _MAX_LETTER; i++) {
+        _npy_letter_to_num[i] = NPY_NTYPES;
+    }
 
     for (type=0; type < NPY_NTYPES; type++) {
         /* Should only ever be called once. */
         assert(Npy_INTERFACE(_builtin_descrs[type]) == NULL);
         NpyInterface_DescrNewFromType(type, _builtin_descrs[type],
                                       &_builtin_descrs[type]->nob_interface);
+        _npy_letter_to_num[_builtin_descrs[type]->type] = type;
     }
+    _npy_letter_to_num[NPY_STRINGLTR2] = NPY_STRING;
 }
 
 
