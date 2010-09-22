@@ -413,7 +413,9 @@ NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
 
     if (NULL != self->names) {
         for (i=0; NULL != self->names[i]; i++) {
-            free(self->names[i]);
+            if (self->names[0] != NULL) {
+                free(self->names[i]);
+            }
             self->names[i] = NULL;
         }
         free(self->names);

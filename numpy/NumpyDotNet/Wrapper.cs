@@ -40,8 +40,8 @@ namespace NumpyDotNet
         }
 
         // For debugging
-        internal IntPtr NpyRefCnt {
-            get { return NpyCoreApi.GetRefcnt(core); }
+        public long NpyRefCnt {
+            get { return NpyCoreApi.GetRefcnt(core).ToInt64(); }
         }
 
 
