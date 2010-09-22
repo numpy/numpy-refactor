@@ -110,7 +110,7 @@ namespace NumpyDotNet {
         }
 
         public bool HasNames {
-            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names) == IntPtr.Zero; }
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names) != IntPtr.Zero; }
         }
 
         public List<string> Names {

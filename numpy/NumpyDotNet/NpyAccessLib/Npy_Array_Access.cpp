@@ -182,6 +182,20 @@ extern "C" __declspec(dllexport)
 	return value->offset;
 }
 
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_GetDescrField(NpyArray_Descr* descr, const char* fieldName, NpyArray_DescrField* pField)
+{
+    if (descr->names == NULL) {
+        return -1;
+    }
+    NpyArray_DescrField *value = (NpyArray_DescrField*) NpyDict_Get(descr->fields, fieldName);
+    if (value == NULL) {
+        return -1;
+    }
+    *pField = *value;
+    return 0;
+}
+
 // Deallocates a numpy object.
 extern "C" __declspec(dllexport)
 	void _cdecl NpyArrayAccess_Dealloc(_NpyObject *obj)
@@ -367,7 +381,9 @@ extern "C" __declspec(dllexport)
     void NpyArrayAccess_DescrDestroyNames(char** names, int n) 
 {
     for (int i=0; i<n; i++) {
-        if (names[i]) free(names[i]);
+        if (names[i]) {
+            free(names[i]);
+        }
     }
     free(names);
 }

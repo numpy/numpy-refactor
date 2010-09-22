@@ -226,7 +226,7 @@ namespace NumpyDotNet {
             if (maxalign > 1) {
                 totalSize = ((totalSize + maxalign - 1) / maxalign) * maxalign;
             }
-            int alignment = (align == 0 ? maxalign : 1);
+            int alignment = (align != 0 ? maxalign : 1);
             return NpyCoreApi.DescrNewVoid(fields, names, totalSize, dtypeflags, alignment);
         }
 
