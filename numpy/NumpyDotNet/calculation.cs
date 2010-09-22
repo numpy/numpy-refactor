@@ -29,5 +29,30 @@ namespace NumpyDotNet
             tmp = tmp - this;
             return tmp.ArgMax(axis, ret);
         }
+
+        internal ndarray Max(int axis, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Max(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray Min(int axis, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Min(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray Sum(int axis, dtype rtype, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Sum(Array, axis, 
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                    (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray Prod(int axis, dtype rtype, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Prod(Array, axis, 
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                    (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
     }
 }

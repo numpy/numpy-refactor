@@ -404,6 +404,13 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_LexSort(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] mps, int n, int axis);
 
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Max(IntPtr arr, int axis, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Min(IntPtr arr, int axis, IntPtr ret);
+
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
 
@@ -417,6 +424,10 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_NonZero(IntPtr self, 
             [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays, 
             IntPtr obj);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int 
+                                                    rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_PutMask(IntPtr arr, IntPtr values, IntPtr mask);
@@ -438,6 +449,10 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int 
+                                                   rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_SwapAxes(IntPtr arr, int a1, int a2);
