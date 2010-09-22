@@ -74,7 +74,8 @@ namespace NumpyDotNet {
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
                 new ArrFuncs() { GetItem = NumericOps.getitemString, SetItem = NumericOps.setitemString };
             arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
-            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_VOID] = null;
+            arrFuncs[(int)NpyDefs.NPY_TYPES.NPY_VOID] =
+                new ArrFuncs() { GetItem = NumericOps.getitemVOID, SetItem = NumericOps.setitemVOID };
         }
 
 
@@ -269,6 +270,36 @@ namespace NumpyDotNet {
             return s.TrimEnd((char)0);
         }
 
+        internal static Object getitemVOID(long offset, ndarray arr) {
+            dtype d = arr.dtype;
+            if (d.HasNames) {
+                List<string> names = d.Names;
+                object[] result = new object[names.Count];
+                Int32 savedflags = arr.RawFlags;
+                try {
+                    int i = 0;
+                    foreach (string name in names) {
+                        NpyCoreApi.NpyArray_DescrField field = NpyCoreApi.GetDescrField(d, name);
+                        dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
+                        Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
+                        int alignment = arr.dtype.Alignment;
+                        if (alignment > 1 &&
+                            (offset + field.offset) % alignment != 0) {
+                            arr.RawFlags = savedflags & ~NpyDefs.NPY_ALIGNED;
+                        } else {
+                            arr.RawFlags = savedflags | NpyDefs.NPY_ALIGNED;
+                        }
+                        result[i++] = field_dtype.f.GetItem(offset + field.offset, arr);
+                    }
+                    return new PythonTuple(result);
+                } finally {
+                    arr.RawFlags = savedflags;
+                    Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, d.Descr);
+                }
+            } else {
+                throw new NotImplementedException("VOID type only implemented for fields");
+            }
+        }
 
         #endregion
 
@@ -524,6 +555,38 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void setitemVOID(object value, long offset, ndarray arr) {
+            dtype d = arr.dtype;
+            PythonTuple t = (value as PythonTuple);
+            if (d.HasNames && t != null) {
+                List<string> names = d.Names;
+                if (names.Count != t.Count) {
+                    throw new ArgumentException("size of tuple must match number of fields");
+                }
+                Int32 savedflags = arr.RawFlags;
+                try {
+                    int i = 0;
+                    foreach (string name in names) {
+                        NpyCoreApi.NpyArray_DescrField field = NpyCoreApi.GetDescrField(d, name);
+                        dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
+                        Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
+                        int alignment = arr.dtype.Alignment;
+                        if (alignment > 1 &&
+                            (offset + field.offset) % alignment != 0) {
+                            arr.RawFlags = savedflags & ~NpyDefs.NPY_ALIGNED;
+                        } else {
+                            arr.RawFlags = savedflags | NpyDefs.NPY_ALIGNED;
+                        }
+                        field_dtype.f.SetItem(t[i++], offset + field.offset, arr);
+                    }
+                } finally {
+                    arr.RawFlags = savedflags;
+                    Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, d.Descr);
+                }
+            } else {
+                throw new NotImplementedException("VOID type only implemented for fields");
+            }
+        }
         #endregion
 
         #region Copy ops for swapping and unaligned access

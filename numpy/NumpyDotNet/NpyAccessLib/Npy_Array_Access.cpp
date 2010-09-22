@@ -182,6 +182,20 @@ extern "C" __declspec(dllexport)
 	return value->offset;
 }
 
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_GetDescrField(NpyArray_Descr* descr, const char* fieldName, NpyArray_DescrField* pField)
+{
+    if (descr->names == NULL) {
+        return -1;
+    }
+    NpyArray_DescrField *value = (NpyArray_DescrField*) NpyDict_Get(descr->fields, fieldName);
+    if (value == NULL) {
+        return -1;
+    }
+    *pField = *value;
+    return 0;
+}
+
 // Deallocates a numpy object.
 extern "C" __declspec(dllexport)
 	void _cdecl NpyArrayAccess_Dealloc(_NpyObject *obj)
@@ -381,7 +395,7 @@ extern "C" __declspec(dllexport)
         NpyErr_SetString(NpyExc_ValueError, "two fields with the same name");
         return -1;
     }
-    names[i] = strdup(name);
+    names[i] = _strdup(name);
     NpyArray_DescrSetField(fields, names[i], fieldType, offset, title);
     return 0;
 }

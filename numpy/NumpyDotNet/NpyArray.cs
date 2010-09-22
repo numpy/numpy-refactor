@@ -385,7 +385,7 @@ namespace NumpyDotNet {
                 IEnumerable<Object> seq = (IEnumerable<Object>)src;
 
                 if (stopAtTuple && seq is IronPython.Runtime.PythonTuple)
-                    d = 1;
+                    d = 0;
                 else if (seq.Count() == 0) d = 1;
                 else {
                     d = DiscoverDepth(seq.First(), max - 1, stopAtString, stopAtTuple);

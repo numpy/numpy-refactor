@@ -934,7 +934,7 @@ namespace NumpyDotNet
                    );
         }
 
-        Int32 RawFlags {
+        internal Int32 RawFlags {
             get {
                 return Marshal.ReadInt32(Array + NpyCoreApi.ArrayOffsets.off_flags);
             }

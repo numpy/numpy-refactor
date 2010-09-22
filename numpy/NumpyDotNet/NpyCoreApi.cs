@@ -247,6 +247,14 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static NpyArray_DescrField GetDescrField(dtype d, string name) {
+            NpyArray_DescrField result;
+            if (NpyArrayAccess_GetDescrField(d.Descr, name, out result) < 0) {
+                throw new ArgumentException(String.Format("Field {0} does not exist", name));
+            }
+            return result;
+        }
+
         internal static dtype DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment) {
             return DecrefToInterface<dtype>(
                 NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
@@ -477,6 +485,18 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_BindIndex")]
         internal static extern int BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct NpyArray_DescrField
+        {
+            internal IntPtr descr;
+            internal int offset;
+            internal IntPtr title;
+        }
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_GetDescrField(IntPtr descr, 
+            [In][MarshalAs(UnmanagedType.LPStr)]string name, out NpyArray_DescrField field);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetFieldOffset")]
