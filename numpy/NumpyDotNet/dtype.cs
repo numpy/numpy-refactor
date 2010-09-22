@@ -23,7 +23,7 @@ namespace NumpyDotNet {
                 if (y.ContainsKey(bad))
                     throw new NotImplementedException(String.Format("ndarray argument '%s' is not yet implemented.", bad));
             }
-            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
+            funcs = NumericOps.FuncsForType(this.TypeNum);
         }
 
 
@@ -35,7 +35,7 @@ namespace NumpyDotNet {
         public dtype(dtype d) {
             core = NpyCoreApi.NpyArray_DescrNew(d.core);
             Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
-            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
+            funcs = NumericOps.FuncsForType(this.TypeNum);
         }
         
         /// <summary>
@@ -45,7 +45,7 @@ namespace NumpyDotNet {
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
         internal dtype(IntPtr d) {
             core = d;
-            funcs = NumericOps.arrFuncs[(int)this.TypeNum];
+            funcs = NumericOps.FuncsForType(this.TypeNum);
         }
 
 
@@ -56,7 +56,7 @@ namespace NumpyDotNet {
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
         internal dtype(IntPtr d, int type) {
             core = d;
-            funcs = NumericOps.arrFuncs[type];
+            funcs = NumericOps.FuncsForType((NpyDefs.NPY_TYPES)type);
         }
 
         #region Properties
