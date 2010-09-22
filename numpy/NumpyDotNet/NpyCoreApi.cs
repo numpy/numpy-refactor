@@ -169,6 +169,11 @@ namespace NumpyDotNet {
             return ToInterface<ufunc>(ufuncPtr);
         }
 
+        internal static ndarray GenericUnaryOp(ndarray a1, ufunc f) {
+            IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc);
+            return DecrefToInterface<ndarray>(result);
+        }
+
         internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f) {
             IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc);
             return DecrefToInterface<ndarray>(result);
@@ -340,6 +345,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc);
@@ -1133,6 +1141,8 @@ namespace NumpyDotNet {
             new del_ClearErrorCallback(ClearErrorCallback);
         private unsafe static readonly del_AddToDict AddToDictDelegate =
             new del_AddToDict(AddToDict);
+        private unsafe static readonly NumericOps.del_MethodCall MethodCallDelegate =
+            new NumericOps.del_MethodCall(NumericOps.MethodCall);
 
 
         /// <summary>
@@ -1154,6 +1164,26 @@ namespace NumpyDotNet {
         /// Native type code that matches up to a 64-bit unsigned int.
         /// </summary>
         internal static readonly NpyDefs.NPY_TYPES TypeOf_UInt64;
+
+
+        /// <summary>
+        /// Map of function names to all defined ufunc objects.
+        /// </summary>
+        private static readonly Dictionary<string, ufunc> UFuncDefs;
+
+
+        /// <summary>
+        /// Returns the ufunc matching a named function or null if not defined.
+        /// </summary>
+        /// <param name="name">Function name</param>
+        /// <returns>ufunc implementing the function or null</returns>
+        internal static ufunc GetUFunc(string name) {
+            ufunc result = null;
+            if (!UFuncDefs.TryGetValue(name, out result)) {
+                result = null;
+            }
+            return result;
+        }
 
 
         /// <summary>
@@ -1219,33 +1249,34 @@ namespace NumpyDotNet {
             funcs.divide = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Divide);
             funcs.trueDivide = IntPtr.Zero;
             funcs.floorDivide = IntPtr.Zero;
-            funcs.invert = IntPtr.Zero;
-            funcs.negative = IntPtr.Zero;
-            funcs.remainder = IntPtr.Zero;
-            funcs.square = IntPtr.Zero;
-            funcs.power = IntPtr.Zero;
-            funcs.min = IntPtr.Zero;
-            funcs.max = IntPtr.Zero;
-            funcs.reciprocal = IntPtr.Zero;
-            funcs.and = IntPtr.Zero;
-            funcs.or = IntPtr.Zero;
-            funcs.xor = IntPtr.Zero;
-            funcs.lshift = IntPtr.Zero;
-            funcs.rshift = IntPtr.Zero;
-            funcs.get_one = IntPtr.Zero;
+            funcs.invert = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Invert);
+            funcs.negative = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Negate);
+            funcs.remainder = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Remainder);
+            funcs.square = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Square);
+            funcs.power = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Power);
+            funcs.min = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Min);
+            funcs.max = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Max);
+            funcs.reciprocal = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Reciprocal);
+            funcs.and = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_And);
+            funcs.or = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Or);
+            funcs.xor = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Xor);
+            funcs.lshift = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_LShift);
+            funcs.rshift = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_RShift);
+            funcs.get_one = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_GetOne);
 
             funcs.sentinel = NpyDefs.NPY_VALID_MAGIC;
 
-            Dictionary<string, ufunc> funcDefs = new Dictionary<string, ufunc>();
-            GCHandle dictHandle = GCHandle.Alloc(funcDefs);
+            UFuncDefs = new Dictionary<string, ufunc>();
+            GCHandle dictHandle = GCHandle.Alloc(UFuncDefs);
             IntPtr funcsHandle = IntPtr.Zero;
             try {
                 funcsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ExternFuncs)));
                 Marshal.StructureToPtr(funcs, funcsHandle, true);
                 NpyUFuncAccess_Init(GCHandle.ToIntPtr(dictHandle),
-                    funcsHandle, IntPtr.Zero, 
+                    funcsHandle,
+                    Marshal.GetFunctionPointerForDelegate(MethodCallDelegate),
                     Marshal.GetFunctionPointerForDelegate(AddToDictDelegate));
-                RegisterCoreUFuncs(funcDefs);
+                RegisterCoreUFuncs(UFuncDefs);
             } finally {
                 dictHandle.Free();
                 Marshal.FreeHGlobal(funcsHandle);
