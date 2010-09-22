@@ -366,7 +366,9 @@ extern "C" __declspec(dllexport)
     void NpyArrayAccess_DescrDestroyNames(char** names, int n) 
 {
     for (int i=0; i<n; i++) {
-        if (names[i]) free(names[i]);
+        if (names[i]) {
+            free(names[i]);
+        }
     }
     free(names);
 }
@@ -379,7 +381,7 @@ extern "C" __declspec(dllexport)
         NpyErr_SetString(NpyExc_ValueError, "two fields with the same name");
         return -1;
     }
-    names[i] = _strdup(name);
+    names[i] = strdup(name);
     NpyArray_DescrSetField(fields, names[i], fieldType, offset, title);
     return 0;
 }
