@@ -179,17 +179,6 @@ namespace NumpyDotNet {
             return DecrefToInterface<ndarray>(result);
         }
 
-        internal static ndarray All(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_All(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
-
-        internal static ndarray Any(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Any(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
-
-
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
                 NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
@@ -387,6 +376,15 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Choose(IntPtr array,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int 
+                                                       rtype, IntPtr ret);
+
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int 
+                                                      rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrAllocNames(int n);

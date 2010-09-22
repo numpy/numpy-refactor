@@ -615,12 +615,12 @@ namespace NumpyDotNet
 
         public object all(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.All(this, iAxis, @out));
+            return ArrayReturn(All(iAxis, @out));
         }
 
         public object any(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.Any(this, iAxis, @out));
+            return ArrayReturn(Any(iAxis, @out));
         }
 
         public object argmax(object axis = null, ndarray @out = null) {
@@ -673,6 +673,27 @@ namespace NumpyDotNet
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public object cumsum(CodeContext cntx, object axis = null, object dtype = null, 
+                             ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumSum(iAxis, rtype, @out);
+        }
+
+
+        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
+                              ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumProd(iAxis, rtype, @out);
         }
 
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {

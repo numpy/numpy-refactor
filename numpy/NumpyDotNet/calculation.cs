@@ -54,5 +54,28 @@ namespace NumpyDotNet
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal ndarray CumSum(int axis, dtype rtype, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_CumSum(Array, axis, 
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                    (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray CumProd(int axis, dtype rtype, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_CumProd(Array, axis, 
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                    (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray All(int axis, ndarray ret) {
+             return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_All(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal ndarray Any(int axis, ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Any(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
     }
 }
