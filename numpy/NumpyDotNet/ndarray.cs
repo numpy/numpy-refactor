@@ -413,6 +413,26 @@ namespace NumpyDotNet
             get { return NpyCoreApi.GetArrayDimsOrStrides(this, false); }
         }
 
+        public object real {
+            get {
+                return NpyCoreApi.GetReal(this);
+            }
+            set {
+                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                NpyCoreApi.MoveInto(NpyCoreApi.GetReal(this), val);
+            }
+        }
+
+        public object imag {
+            get {
+                return NpyCoreApi.GetImag(this);
+            }
+            set {
+                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+            }
+        }
+
         public override string ToString() {
             return BuildStringRepr(false);
         }

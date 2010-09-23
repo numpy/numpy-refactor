@@ -111,3 +111,48 @@ NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides)
     NpyArray_UpdateFlags(self, NPY_CONTIGUOUS | NPY_FORTRAN);
     return 0;
 }
+
+static NpyArray *
+_get_part(NpyArray *self, int imag)
+{
+    NpyArray_Descr *type;
+    int offset;
+
+    type = NpyArray_DescrFromType(NpyArray_TYPE(self) - NPY_NUM_FLOATTYPE);
+    offset = (imag ? type->elsize : 0);
+
+    if (!NpyArray_ISNBO(self->descr->byteorder)) {
+        NpyArray_Descr *nw;
+        nw = NpyArray_DescrNew(type);
+        nw->byteorder = self->descr->byteorder;
+        Npy_DECREF(type);
+        type = nw;
+    }
+    return NpyArray_NewView(type,
+                            self->nd,
+                            self->dimensions,
+                            self->strides,
+                            self, offset, NPY_FALSE);
+}
+
+NDARRAY_API NpyArray*
+NpyArray_GetReal(NpyArray* self)
+{
+    if (NpyArray_ISCOMPLEX(self)) {
+        return _get_part(self, 0);
+    } else {
+        Npy_INCREF(self);
+        return self;
+    }
+}
+
+NDARRAY_API NpyArray*
+NpyArray_GetImag(NpyArray* self)
+{
+    if (NpyArray_ISCOMPLEX(self)) {
+        return _get_part(self, 1);
+    } else {
+        Npy_INCREF(self);
+        return self;
+    }
+}

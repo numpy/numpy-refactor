@@ -220,6 +220,15 @@ namespace NumpyDotNet {
                 NpyArray_GetField(arr.Array, d.Descr, offset));
         }
 
+        internal static ndarray GetImag(ndarray arr) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetImag(arr.Array));
+        }
+
+        internal static ndarray GetReal(ndarray arr) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetReal(arr.Array));
+        }
         internal static ndarray GetField(ndarray arr, string name) {
             NpyArray_DescrField field = GetDescrField(arr.dtype, name);
             dtype field_dtype = ToInterface<dtype>(field.descr);
@@ -423,6 +432,11 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetImag(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetReal(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_LexSort(

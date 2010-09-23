@@ -56,10 +56,6 @@
 /* default scalar priority */
 #define NPY_SCALAR_PRIORITY -1000000.0
 
-/* How many floating point types are there */
-#define NPY_NUM_FLOATTYPE 3
-
-
 typedef NpyArray_CopySwapFunc PyArray_CopySwapFunc;
 typedef NpyArray_CopySwapNFunc PyArray_CopySwapNFunc;
 typedef NpyArray_ArgFunc PyArray_ArgFunc;
