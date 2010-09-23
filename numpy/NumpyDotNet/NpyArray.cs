@@ -363,6 +363,7 @@ namespace NumpyDotNet {
             else if (src is UInt32) type = NpyCoreApi.TypeOf_UInt32;
             else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
             else if (src is BigInteger) type = NpyDefs.NPY_TYPES.NPY_LONG;
+            else if (src is Complex) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
             else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
             return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ?

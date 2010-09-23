@@ -95,5 +95,10 @@ namespace NumpyDotNet
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Any(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
+
+        internal ndarray Conjugate(ndarray ret) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Conjugate(Array, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
     }
 }

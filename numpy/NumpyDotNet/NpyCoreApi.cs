@@ -401,6 +401,9 @@ namespace NumpyDotNet {
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int 
                                                        rtype, IntPtr ret);
 

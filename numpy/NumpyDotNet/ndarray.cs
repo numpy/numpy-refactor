@@ -670,6 +670,10 @@ namespace NumpyDotNet
             return TakeFrom(indexes, iAxis, @out, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
+        public ndarray conjugate(ndarray @out = null) {
+            return Conjugate(@out);
+        }
+
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
