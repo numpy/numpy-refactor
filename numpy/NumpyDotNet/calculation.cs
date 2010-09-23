@@ -26,7 +26,7 @@ namespace NumpyDotNet
                 obj = 0;
             }
             ndarray tmp = NpyArray.FromAny(obj, dtype, 0, 0, 0, null);
-            tmp = tmp - this;
+            tmp = NpyArray.FromAny(tmp - this, null, 0, 0, 0, null);
             return tmp.ArgMax(axis, ret);
         }
 
@@ -38,6 +38,14 @@ namespace NumpyDotNet
         internal ndarray Min(int axis, ndarray ret) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Min(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal object Ptp(int axis, ndarray ret) {
+            ndarray arr = NpyCoreApi.CheckAxis(this, ref axis, 0);
+            ndarray a1 = arr.Max(axis, ret);
+            ndarray a2 = arr.Min(axis, null);
+            ufunc subtract = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return NpyCoreApi.GenericBinaryOp(a1, a2, subtract, ret);
         }
 
         internal ndarray Sum(int axis, dtype rtype, ndarray ret) {
@@ -68,7 +76,7 @@ namespace NumpyDotNet
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray Mean(int axis, dtype rtype, ndarray ret) {
+        internal object Mean(int axis, dtype rtype, ndarray ret) {
             ndarray newArray = NpyCoreApi.CheckAxis(this, ref axis, 0);
             ndarray sum = newArray.Sum(axis, rtype, ret);
             ndarray denom = NpyArray.FromAny(newArray.Dims[axis], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE),

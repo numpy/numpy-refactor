@@ -184,27 +184,27 @@ namespace NumpyDotNet
             }
         }
 
-        public ndarray __abs__() {
+        public object __abs__() {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_absolute);
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
-        public ndarray __lshift__(Object b) {
+        public object __lshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
         }
 
-        public ndarray __rshift__(Object b) {
+        public object __rshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_right_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
         }
 
-        public ndarray __sqrt__() {
+        public object __sqrt__() {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
-        public ndarray __mod__(Object b) {
+        public object __mod__(Object b) {
             ufunc f = ufunc.GetFunction("fmod");
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b), f);
         }
@@ -563,37 +563,37 @@ namespace NumpyDotNet
         // appropriate Python functions (+ goes to __add__, etc).
         #region Operators
 
-        public static ndarray operator +(ndarray a, Object b) {
+        public static object operator +(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_add);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator -(ndarray a, ndarray b) {
+        public static object operator -(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator *(ndarray a, Object b) {
+        public static object operator *(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator /(ndarray a, Object b) {
+        public static object operator /(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator&(ndarray a, Object b) {
+        public static object operator&(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator |(ndarray a, Object b) {
+        public static object operator |(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator ^(ndarray a, Object b) {
+        public static object operator ^(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
@@ -601,7 +601,7 @@ namespace NumpyDotNet
 
 
         // TODO: Temporary test function
-        public static ndarray Compare(ndarray a, ndarray b) {
+        public static object Compare(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
@@ -742,6 +742,11 @@ namespace NumpyDotNet
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
             return ArrayReturn(Prod(iAxis, rtype, @out));
+        }
+
+        public object ptp(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return Ptp(iAxis, @out);
         }
 
         public void put(object indices, object values, object mode = null) {

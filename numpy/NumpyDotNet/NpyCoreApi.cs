@@ -169,18 +169,28 @@ namespace NumpyDotNet {
             return ToInterface<ufunc>(ufuncPtr);
         }
 
-        internal static ndarray GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
+        internal static object GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
             // TODO: We need to do the error handling and wrapping of outputs.
             IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc,
                 (ret == null ? IntPtr.Zero : ret.Array));
-            return DecrefToInterface<ndarray>(result);
+            ndarray rval = DecrefToInterface<ndarray>(result);
+            if (ret == null) {
+                return ndarray.ArrayReturn(rval);
+            } else {
+                return rval;
+            }
         }
 
-        internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f, ndarray ret = null) {
+        internal static object GenericBinaryOp(ndarray a1, ndarray a2, ufunc f, ndarray ret = null) {
             // TODO: We need to do the error handling and wrapping of outputs.
             IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc,
                 (ret == null ? IntPtr.Zero : ret.Array));
-            return DecrefToInterface<ndarray>(result);
+            ndarray rval = DecrefToInterface<ndarray>(result);
+            if (ret == null) {
+                return ndarray.ArrayReturn(rval);
+            } else {
+                return rval;
+            }
         }
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
