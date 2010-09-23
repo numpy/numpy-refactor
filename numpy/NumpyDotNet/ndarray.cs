@@ -728,7 +728,7 @@ namespace NumpyDotNet
             if (dtype != null) {
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
-            return Mean(iAxis, rtype, @out);
+            return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
         }
 
         public PythonTuple nonzero() {
@@ -912,6 +912,12 @@ namespace NumpyDotNet
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
+        public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
+            object dtype = null, ndarray @out = null) {
+            ndarray diag = Diagonal(offset, axis1, axis2);
+            return diag.sum(cntx, dtype = dtype, @out = @out);
+        }
+
         public ndarray transpose(params object[] args) {
             if (args.Length == 0 || args.Length == 1 && args[0] == null) {
                 return Transpose();
@@ -1043,6 +1049,16 @@ namespace NumpyDotNet
             }
         }
 
+        internal static dtype GetTypeDouble(dtype dtype1, dtype dtype2) {
+            if (dtype2 != null) {
+                return dtype2;
+            }
+            if (dtype1.TypeNum < NpyDefs.NPY_TYPES.NPY_FLOAT) {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE);
+            } else {
+                return dtype1;
+            }
+        }
         #endregion
     }
 
