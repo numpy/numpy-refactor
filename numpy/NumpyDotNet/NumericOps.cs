@@ -20,11 +20,11 @@ namespace NumpyDotNet {
     /// </summary>
     public class ArrFuncs {
         internal Object GetItem(long offset, ndarray arr) {
-            return GetFunc(new IntPtr(arr.data.ToInt64() + offset), arr);
+            return GetFunc((IntPtr)(arr.data.ToInt64() + offset), arr);
         }
 
         internal void SetItem(Object value, long offset, ndarray arr) {
-            SetFunc(value, new IntPtr(arr.data.ToInt64() + offset), arr);
+            SetFunc(value, (IntPtr)(arr.data.ToInt64() + offset), arr);
         }
 
         internal Func<IntPtr, ndarray, Object> GetFunc { get; set; }
@@ -150,6 +150,34 @@ namespace NumpyDotNet {
 
 
         #region GetItem functions
+
+        /// <summary>
+        /// Delegate type for getitem* functions given to the core.  These take a
+        /// pointer to the raw memory location and a pointer to the core NpyArray
+        /// structure and return a boxed result.
+        /// </summary>
+        /// <param name="ptr">Pointer into some memory array data, may be unaligned</param>
+        /// <param name="arr">Pointer to NpyArray core data structure</param>
+        /// <returns>IntPtr to a GCHandle to the result object (boxed)</returns>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate IntPtr GetitemDelegate(IntPtr ptr, IntPtr arr);
+
+        /// <summary>
+        /// Allocating the GCHandle and getting the interface pointer to the array
+        /// object is slow and unnecessary for callers from the managed layer so
+        /// this generic function takes care of the unwrapping / wrapping of arguments
+        /// and return values.
+        /// </summary>
+        /// <param name="f">Specific getitem function to use</param>
+        /// <param name="ptr">Array memory pointer (may be unaligned)</param>
+        /// <param name="arrPtr">Point to the NpyArray core data structure</param>
+        /// <returns>GCHandle to the result object</returns>
+        private static IntPtr GetItemWrapper(Func<IntPtr, ndarray, Object> f, IntPtr ptr, IntPtr arrPtr) {
+            Object result = f(ptr, NpyCoreApi.ToInterface<ndarray>(arrPtr));
+            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+        }
+
+
         internal static Object getitemBool(IntPtr ptr, ndarray arr) {
             bool f;
 
@@ -159,6 +187,9 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemBoolDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemBool, ptr, arrPtr);
+
 
         // Both Byte and UByte
         internal static Object getitemByte(IntPtr ptr, ndarray arr) {
@@ -170,6 +201,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemByteDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemByte, ptr, arrPtr);
 
 
         internal static Object getitemShort(IntPtr ptr, ndarray arr) {
@@ -185,6 +218,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemShortDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemShort, ptr, arrPtr);
 
         internal static Object getitemUShort(IntPtr ptr, ndarray arr) {
             ushort f;
@@ -199,6 +234,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemUShortDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemUShort, ptr, arrPtr);
 
         internal static Object getitemInt32(IntPtr ptr, ndarray arr) {
             int f;
@@ -213,6 +250,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemInt32Delegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemInt32, ptr, arrPtr);
 
         internal static Object getitemUInt32(IntPtr ptr, ndarray arr) {
             uint f;
@@ -227,6 +266,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemUInt32Delegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemUInt32, ptr, arrPtr);
 
         internal static Object getitemInt64(IntPtr ptr, ndarray arr) {
             long f;
@@ -241,6 +282,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemInt64Delegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemInt64, ptr, arrPtr);
 
         internal static Object getitemUInt64(IntPtr ptr, ndarray arr) {
             ulong f;
@@ -255,6 +298,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemUInt64Delegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemUInt64, ptr, arrPtr);
 
         internal static Object getitemFloat(IntPtr ptr, ndarray arr) {
             float f;
@@ -269,6 +314,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemFloatDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemFloat, ptr, arrPtr);
 
         internal static Object getitemDouble(IntPtr ptr, ndarray arr) {
             double f;
@@ -283,6 +330,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemDoubleDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemDouble, ptr, arrPtr);
 
         internal static Object getitemCDouble(IntPtr ptr, ndarray arr) {
             Complex f;
@@ -300,6 +349,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
+        internal static GetitemDelegate getitemCDoubleDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemCDouble, ptr, arrPtr);
 
         internal static Object getitemObject(IntPtr ptr, ndarray arr) {
             IntPtr f;
@@ -333,11 +384,16 @@ namespace NumpyDotNet {
             }
             return GCHandle.FromIntPtr(f).Target;
         }
+        internal static GetitemDelegate getitemObjectDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
 
         internal static Object getitemString(IntPtr ptr, ndarray arr) {
             String s = Marshal.PtrToStringAnsi(ptr, arr.dtype.ElementSize);
             return s.TrimEnd((char)0);
         }
+        internal static GetitemDelegate getitemStringDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemString, ptr, arrPtr);
+
 
         internal static Object getitemVOID(IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
@@ -371,44 +427,88 @@ namespace NumpyDotNet {
                 throw new NotImplementedException("VOID type only implemented for fields");
             }
         }
+        internal static GetitemDelegate getitemVOIDDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemVOID, ptr, arrPtr);
 
         #endregion
 
 
         #region SetItem methods
 
+        /// <summary>
+        /// Delegate type for setitem* functions given to the core.  These take an
+        /// IntPtr to a value (GCHandle), a pointer to the raw memory location and 
+        /// a pointer to the core NpyArray structure. The value is written into the
+        /// array in the appropriate native type.
+        /// </summary>
+        /// <param name="value">GCHandle to the value to be written</param>
+        /// <param name="ptr">Pointer into some memory array data, may be unaligned</param>
+        /// <param name="arr">Pointer to NpyArray core data structure</param>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void SetitemDelegate(IntPtr value, IntPtr ptr, IntPtr arr);
+
+        /// <summary>
+        /// Allocating the GCHandle and getting the interface pointer to the array
+        /// object is slow and unnecessary for callers from the managed layer so
+        /// this generic function takes care of the unwrapping the arguments.
+        /// </summary>
+        /// <param name="f">Specific getitem function to use</param>
+        /// <param name="value">GCHandle to the value to be written</param>
+        /// <param name="ptr">Array memory pointer (may be unaligned)</param>
+        /// <param name="arrPtr">Point to the NpyArray core data structure</param>
+        private static void SetItemWrapper(Action<Object, IntPtr, ndarray> f, IntPtr value, IntPtr ptr, IntPtr arrPtr) {
+            Object v = GCHandle.FromIntPtr(value);
+            f(v, ptr, NpyCoreApi.ToInterface<ndarray>(arrPtr));
+        }
+
         internal static void setitemBool(Object o, IntPtr ptr, ndarray arr) {
             bool f;
 
             if (o is Boolean) f = (bool)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToBoolean(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else if (o is BigInteger) {
+                int fTmp;
+                ((BigInteger)o).AsInt32(out fTmp);
+                f = (fTmp != 0);
+            }  else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 bool* p = (bool*)ptr.ToPointer();
                 *p = f;
             }
         }
+        internal static SetitemDelegate setitemBoolDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemBool, value, ptr, arrPtr);
 
         internal static void setitemByte(Object o, IntPtr ptr, ndarray arr) {
             byte f;
 
             if (o is Byte) f = (byte)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToByte(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else if (o is BigInteger) {
+                int fTmp;
+                ((BigInteger)o).AsInt32(out fTmp);
+                f = (byte)fTmp;
+            } else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
                 *p = f;
             }
         }
+        internal static SetitemDelegate setitemByteDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemByte, value, ptr, arrPtr);
 
         internal static void setitemShort(Object o, IntPtr ptr, ndarray arr) {
             short f;
 
             if (o is Int16) f = (short)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt16(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else if (o is BigInteger) {
+                int fTmp;
+                ((BigInteger)o).AsInt32(out fTmp);
+                f = (short)fTmp;
+            }  else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 byte* p = (byte *)ptr.ToPointer();
@@ -419,13 +519,19 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemShortDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemShort, value, ptr, arrPtr);
 
         internal static void setitemUShort(Object o, IntPtr ptr, ndarray arr) {
             ushort f;
 
             if (o is UInt16) f = (ushort)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt16(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else if (o is BigInteger) {
+                int fTmp;
+                ((BigInteger)o).AsInt32(out fTmp);
+                f = (ushort)fTmp;
+            } else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
                 byte* p = (byte *)ptr.ToPointer();
@@ -436,6 +542,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemUShortDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemUShort, value, ptr, arrPtr);
 
         internal static void setitemInt32(Object o, IntPtr ptr, ndarray arr) {
             int f;
@@ -454,6 +562,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemInt32Delegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemInt32, value, ptr, arrPtr);
 
         internal static void setitemUInt32(Object o, IntPtr ptr, ndarray arr) {
             uint f;
@@ -472,6 +582,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemUInt32Delegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemUInt32, value, ptr, arrPtr);
 
         internal static void setitemInt64(Object o, IntPtr ptr, ndarray arr) {
             long f;
@@ -490,6 +602,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemInt64Delegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemInt64, value, ptr, arrPtr);
 
         internal static void setitemUInt64(Object o, IntPtr ptr, ndarray arr) {
             ulong f;
@@ -508,6 +622,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemUInt64Delegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemUInt64, value, ptr, arrPtr);
 
         internal static void setitemFloat(Object o, IntPtr ptr, ndarray arr) {
             float f;
@@ -525,6 +641,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemFloatDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemFloat, value, ptr, arrPtr);
 
         internal static void setitemDouble(Object o, IntPtr ptr, ndarray arr) {
             double f;
@@ -543,6 +661,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemDoubleDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemDouble, value, ptr, arrPtr);
 
 
         internal static void setitemCDouble(Object o, IntPtr ptr, ndarray arr) {
@@ -568,6 +688,8 @@ namespace NumpyDotNet {
                 }
             }
         }
+        internal static SetitemDelegate setitemCDoubleDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemCDouble, value, ptr, arrPtr);
 
 
 
@@ -580,11 +702,11 @@ namespace NumpyDotNet {
                 if (arr.IsBehaved) {
                     switch (IntPtr.Size) {
                         case 4:
-                            prev = new IntPtr(* (int*)p);
+                            prev = (IntPtr)(* (int*)p);
                             *(int*)p = (int)f;
                             break;
                         case 8:
-                            prev = new IntPtr(* (int*)p);
+                            prev = (IntPtr)(* (int*)p);
                             *(long*)p = (long)f;
                             break;
                         default:
@@ -614,6 +736,9 @@ namespace NumpyDotNet {
                 GCHandle.FromIntPtr(prev).Free();
             }
         }
+        internal static SetitemDelegate setitemObjectDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemObject, value, ptr, arrPtr);
+
 
         internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
             string s = o.ToString();
@@ -628,6 +753,9 @@ namespace NumpyDotNet {
                 Marshal.WriteByte(ptr, i, (byte)0);
             }
         }
+        internal static SetitemDelegate setitemStringDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
+
 
         internal static void setitemVOID(object value, IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
@@ -662,9 +790,36 @@ namespace NumpyDotNet {
                 throw new NotImplementedException("VOID type only implemented for fields");
             }
         }
+        internal static SetitemDelegate setitemVOIDDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemVOID, value, ptr, arrPtr);
+
         #endregion
 
         #region Copy ops for swapping and unaligned access
+
+        /// <summary>
+        /// Delegate for single copy/swap operation.  Copies potentially unaligned
+        /// n-byte value from src to dest. If 'swap' is set, byte order is reversed.
+        /// </summary>
+        /// <param name="dest">Destination pointer</param>
+        /// <param name="src">Source pointer</param>
+        /// <param name="swap">Unused</param>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void CopySwapDelegate(byte *dest, byte *src, bool swap);
+
+        /// <summary>
+        /// Same as copyswap, but copies or swaps n values.
+        /// </summary>
+        /// <param name="dest">Destination pointer</param>
+        /// <param name="dstride">Destination stride (bytes per iteration)</param>
+        /// <param name="src">Source pointer</param>
+        /// <param name="sstride">Source stride (bytes per iteration</param>
+        /// <param name="n">Number of elements to copy</param>
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void CopySwapNDelegate(byte* dest, IntPtr dstride,
+            byte* src, IntPtr sstride, IntPtr n, bool swap);
+
+
         /// <summary>
         /// Copies two bytes from src to dest, optionally swapping the order
         /// for a change of endianess.  Either way, unaligned access is handled correctly.
@@ -672,22 +827,26 @@ namespace NumpyDotNet {
         /// <param name="dest">Destination pointer</param>
         /// <param name="src">Source pointer</param>
         /// <param name="swap">True swaps byte order, false preserves the byte ordering</param>
+        private unsafe static void CopySwap1(byte* dest, byte* src, bool swap) {
+            dest[0] = src[0];
+        }
+        unsafe internal static CopySwapDelegate CopySwap1Delegate =
+            new CopySwapDelegate(CopySwap1);
+
         private unsafe static void CopySwap2(byte* dest, byte* src, bool swap) {
             if (!swap) {
-                dest[0] = src[0];
-                dest[1] = src[1];
+                Marshal.WriteInt16((IntPtr)dest, Marshal.ReadInt16((IntPtr)src));
             } else {
                 dest[0] = src[1];
                 dest[1] = src[0];
             }
         }
+        unsafe internal static CopySwapDelegate CopySwap2Delegate =
+            new CopySwapDelegate(CopySwap2);
 
         private unsafe static void CopySwap4(byte* dest, byte* src, bool swap) {
             if (!swap) {
-                dest[0] = src[0];
-                dest[1] = src[1];
-                dest[2] = src[2];
-                dest[3] = src[3];
+                Marshal.WriteInt32((IntPtr)dest, Marshal.ReadInt32((IntPtr)src));
             } else {
                 dest[0] = src[3];
                 dest[1] = src[2];
@@ -695,17 +854,12 @@ namespace NumpyDotNet {
                 dest[3] = src[0];
             }
         }
+        unsafe internal static CopySwapDelegate CopySwap4Delegate =
+            new CopySwapDelegate(CopySwap4);
 
         private unsafe static void CopySwap8(byte* dest, byte* src, bool swap) {
             if (!swap) {
-                dest[0] = src[0];
-                dest[1] = src[1];
-                dest[2] = src[2];
-                dest[3] = src[3];
-                dest[4] = src[4];
-                dest[5] = src[5];
-                dest[6] = src[6];
-                dest[7] = src[7];
+                Marshal.WriteInt64((IntPtr)dest, Marshal.ReadInt64((IntPtr)src));
             } else {
                 dest[0] = src[7];
                 dest[1] = src[6];
@@ -717,6 +871,38 @@ namespace NumpyDotNet {
                 dest[7] = src[0];
             }
         }
+        unsafe internal static CopySwapDelegate CopySwap8Delegate =
+            new CopySwapDelegate(CopySwap8);
+
+        private unsafe static void CopySwapObject(byte* dest, byte* src, bool notused) {
+            IntPtr tmp = IntPtr.Zero;
+            tmp = Marshal.ReadIntPtr((IntPtr)dest);
+            if (tmp != IntPtr.Zero) {
+                GCHandle.FromIntPtr(tmp).Free();
+            }
+            tmp = Marshal.ReadIntPtr((IntPtr)src);
+            if (tmp != IntPtr.Zero) {
+                tmp = GCHandle.ToIntPtr(GCHandle.Alloc(GCHandle.FromIntPtr(tmp).Target));
+            }
+            Marshal.WriteIntPtr((IntPtr)dest, tmp);
+        }
+        unsafe internal static CopySwapDelegate CopySwapObjectDelegate =
+            new CopySwapDelegate(CopySwapObject);
+
+
+
+        private unsafe static void CopySwapNObject(byte* dest, IntPtr dstride, 
+            byte* src, IntPtr sstride, IntPtr n, bool notused) {
+            if ((IntPtr)src == IntPtr.Zero) return;
+
+            for (long i = 0; i < (long)n; i++) {
+                CopySwapObject(dest, src, false);
+                dest += (int)dstride;
+                src += (int)sstride;
+            }
+        }
+        unsafe internal static CopySwapNDelegate CopySwapNObjectDelegate =
+            new CopySwapNDelegate(CopySwapNObject);
         #endregion
 
         #region Comparison Functions
@@ -1041,5 +1227,197 @@ namespace NumpyDotNet {
 
         #endregion
 
+
+        #region Core registration
+
+        static internal NpyArray_FunctionDefs GetFunctionDefs() {
+            NpyArray_FunctionDefs defs = new NpyArray_FunctionDefs();
+
+            defs.cast_from_obj = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_from_string = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_from_unicode = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_from_void = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_to_obj = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_to_string = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_to_unicode = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            defs.cast_to_void = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+
+            defs.BOOL_getitem = Marshal.GetFunctionPointerForDelegate(getitemBoolDelegate);
+            defs.BOOL_setitem = Marshal.GetFunctionPointerForDelegate(setitemBoolDelegate);
+            defs.BYTE_getitem = Marshal.GetFunctionPointerForDelegate(getitemByteDelegate);
+            defs.BYTE_setitem = Marshal.GetFunctionPointerForDelegate(setitemByteDelegate);
+            defs.SHORT_getitem = Marshal.GetFunctionPointerForDelegate(getitemShortDelegate);
+            defs.SHORT_setitem = Marshal.GetFunctionPointerForDelegate(setitemShortDelegate);
+            defs.USHORT_getitem = Marshal.GetFunctionPointerForDelegate(getitemUShortDelegate);
+            defs.USHORT_setitem = Marshal.GetFunctionPointerForDelegate(setitemUShortDelegate);
+
+            switch (NpyCoreApi.Native_SizeOfInt) {
+                case 4:
+                    defs.INT_getitem = Marshal.GetFunctionPointerForDelegate(getitemInt32Delegate);
+                    defs.INT_setitem = Marshal.GetFunctionPointerForDelegate(setitemInt32Delegate);
+                    defs.UINT_getitem = Marshal.GetFunctionPointerForDelegate(getitemUInt32Delegate);
+                    defs.UINT_setitem = Marshal.GetFunctionPointerForDelegate(setitemUInt32Delegate);
+                    break;
+                case 8:
+                    defs.INT_getitem = Marshal.GetFunctionPointerForDelegate(getitemInt64Delegate);
+                    defs.INT_setitem = Marshal.GetFunctionPointerForDelegate(setitemInt64Delegate);
+                    defs.UINT_getitem = Marshal.GetFunctionPointerForDelegate(getitemUInt64Delegate);
+                    defs.UINT_setitem = Marshal.GetFunctionPointerForDelegate(setitemUInt64Delegate);
+                    break;
+                default:
+                    throw new NotImplementedException(
+                        String.Format("Int size {0} is not yet supported.", NpyCoreApi.Native_SizeOfInt));
+            }
+
+            switch (NpyCoreApi.Native_SizeOfLong) {
+                case 4:
+                    defs.LONG_getitem = Marshal.GetFunctionPointerForDelegate(getitemInt32Delegate);
+                    defs.LONG_setitem = Marshal.GetFunctionPointerForDelegate(setitemInt32Delegate);
+                    defs.ULONG_getitem = Marshal.GetFunctionPointerForDelegate(getitemUInt32Delegate);
+                    defs.ULONG_setitem = Marshal.GetFunctionPointerForDelegate(setitemUInt32Delegate);
+                    break;
+                case 8:
+                    defs.LONG_getitem = Marshal.GetFunctionPointerForDelegate(getitemInt64Delegate);
+                    defs.LONG_setitem = Marshal.GetFunctionPointerForDelegate(setitemInt64Delegate);
+                    defs.ULONG_getitem = Marshal.GetFunctionPointerForDelegate(getitemUInt64Delegate);
+                    defs.ULONG_setitem = Marshal.GetFunctionPointerForDelegate(setitemUInt64Delegate);
+                    break;
+                default:
+                    throw new NotImplementedException(
+                        String.Format("Int size {0} is not yet supported.", NpyCoreApi.Native_SizeOfInt));
+            }
+
+            defs.FLOAT_getitem = Marshal.GetFunctionPointerForDelegate(getitemFloatDelegate);
+            defs.FLOAT_setitem = Marshal.GetFunctionPointerForDelegate(setitemFloatDelegate);
+            defs.DOUBLE_getitem = Marshal.GetFunctionPointerForDelegate(getitemDoubleDelegate);
+            defs.DOUBLE_setitem = Marshal.GetFunctionPointerForDelegate(setitemDoubleDelegate);
+            defs.CDOUBLE_getitem = Marshal.GetFunctionPointerForDelegate(getitemCDoubleDelegate);
+            defs.CDOUBLE_setitem = Marshal.GetFunctionPointerForDelegate(setitemCDoubleDelegate);
+            defs.OBJECT_getitem = Marshal.GetFunctionPointerForDelegate(getitemObjectDelegate);
+            defs.OBJECT_setitem = Marshal.GetFunctionPointerForDelegate(setitemObjectDelegate);
+            defs.STRING_getitem = Marshal.GetFunctionPointerForDelegate(getitemStringDelegate);
+            defs.STRING_setitem = Marshal.GetFunctionPointerForDelegate(setitemStringDelegate);
+            defs.VOID_getitem = Marshal.GetFunctionPointerForDelegate(getitemVOIDDelegate);
+            defs.VOID_setitem = Marshal.GetFunctionPointerForDelegate(setitemVOIDDelegate);
+
+            defs.OBJECT_copyswapn = Marshal.GetFunctionPointerForDelegate(CopySwapNObjectDelegate);
+            defs.OBJECT_copyswap = Marshal.GetFunctionPointerForDelegate(CopySwapObjectDelegate);
+            
+
+            for (int i = 0; i < (int)NpyDefs.NPY_TYPES.NPY_NTYPES; i++) {
+                defs.cast_to_obj[i] = (IntPtr)i;
+            }
+            defs.sentinel = NpyDefs.NPY_VALID_MAGIC;
+            return defs;
+        }
+
+
+        /// <summary>
+        /// MUST MATCH THE LAYOUT OF NpyArray_FunctionDefs IN THE CORE!!!
+        /// The memory layout must be exact.  In C# the arrays are allocated
+        /// separately but the marshal attribute 'ByValArray' causes them
+        /// to be placed in-line like the C structure.  The sentinel value
+        /// at the end must be set to NPY_VALID_MAGIC so the core can verify
+        /// that the structure was correctly initialized and that the memory
+        /// layouts are correct.
+        /// </summary>
+        [StructLayout(LayoutKind.Sequential), Serializable]
+        internal struct NpyArray_FunctionDefs
+        {
+            // Get-set methods per type. 
+            internal IntPtr BOOL_getitem;
+            internal IntPtr BYTE_getitem;
+            internal IntPtr UBYTE_getitem;
+            internal IntPtr SHORT_getitem;
+            internal IntPtr USHORT_getitem;
+            internal IntPtr INT_getitem;
+            internal IntPtr LONG_getitem;
+            internal IntPtr UINT_getitem;
+            internal IntPtr ULONG_getitem;
+            internal IntPtr LONGLONG_getitem;
+            internal IntPtr ULONGLONG_getitem;
+            internal IntPtr FLOAT_getitem;
+            internal IntPtr DOUBLE_getitem;
+            internal IntPtr LONGDOUBLE_getitem;
+            internal IntPtr CFLOAT_getitem;
+            internal IntPtr CDOUBLE_getitem;
+            internal IntPtr CLONGDOUBLE_getitem;
+            internal IntPtr UNICODE_getitem;
+            internal IntPtr STRING_getitem;
+            internal IntPtr OBJECT_getitem;
+            internal IntPtr VOID_getitem;
+            internal IntPtr DATETIME_getitem;
+            internal IntPtr TIMEDELTA_getitem;
+
+            internal IntPtr BOOL_setitem;
+            internal IntPtr BYTE_setitem;
+            internal IntPtr UBYTE_setitem;
+            internal IntPtr SHORT_setitem;
+            internal IntPtr USHORT_setitem;
+            internal IntPtr INT_setitem;
+            internal IntPtr LONG_setitem;
+            internal IntPtr UINT_setitem;
+            internal IntPtr ULONG_setitem;
+            internal IntPtr LONGLONG_setitem;
+            internal IntPtr ULONGLONG_setitem;
+            internal IntPtr FLOAT_setitem;
+            internal IntPtr DOUBLE_setitem;
+            internal IntPtr LONGDOUBLE_setitem;
+            internal IntPtr CFLOAT_setitem;
+            internal IntPtr CDOUBLE_setitem;
+            internal IntPtr CLONGDOUBLE_setitem;
+            internal IntPtr UNICODE_setitem;
+            internal IntPtr STRING_setitem;
+            internal IntPtr OBJECT_setitem;
+            internal IntPtr VOID_setitem;
+            internal IntPtr DATETIME_setitem;
+            internal IntPtr TIMEDELTA_setitem;
+
+            /* Object type methods. */
+            internal IntPtr OBJECT_copyswapn;
+            internal IntPtr OBJECT_copyswap;
+            internal IntPtr OBJECT_compare;
+            internal IntPtr OBJECT_argmax;
+            internal IntPtr OBJECT_dotfunc;
+            internal IntPtr OBJECT_scanfunc;
+            internal IntPtr OBJECT_fromstr;
+            internal IntPtr OBJECT_nonzero;
+            internal IntPtr OBJECT_fill;
+            internal IntPtr OBJECT_fillwithscalar;
+            internal IntPtr OBJECT_scalarkind;
+            internal IntPtr OBJECT_fastclip;
+            internal IntPtr OBJECT_fastputmask;
+            internal IntPtr OBJECT_fasttake;
+
+            // Unboxing (object-to-type) 
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_from_obj;
+            // String-to-type 
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_from_string;
+            // Unicode-to-type 
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_from_unicode;
+            // Void-to-type
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_from_void;
+
+            // Boxing (type-to-object)
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_to_obj;
+            // Type-to-string 
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_to_string;
+            // Type-to-unicode 
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_to_unicode;
+            // Type-to-void
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
+            internal IntPtr[] cast_to_void;
+
+            internal int sentinel;
+        }
+
+        #endregion
     }
 }

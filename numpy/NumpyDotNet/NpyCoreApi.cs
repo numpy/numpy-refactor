@@ -1269,14 +1269,16 @@ namespace NumpyDotNet {
 
             int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
 
+            NumericOps.NpyArray_FunctionDefs funcDefs = NumericOps.GetFunctionDefs();
+            IntPtr funcDefsHandle = IntPtr.Zero;
             IntPtr wrapHandle = IntPtr.Zero;
             try {
+                funcDefsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(funcDefs));
+                Marshal.StructureToPtr(funcDefs, funcDefsHandle, true);
                 wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
                 Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
 
-                
-                npy_initlib(IntPtr.Zero,
-                    wrapHandle,
+                npy_initlib(funcDefsHandle, wrapHandle,
                     Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(ErrorOccurredCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
@@ -1286,6 +1288,7 @@ namespace NumpyDotNet {
             } catch (Exception e) {
                 Console.WriteLine("Failed during initialization: {0}", e);
             } finally {
+                Marshal.FreeHGlobal(funcDefsHandle);
                 Marshal.FreeHGlobal(wrapHandle);
             }
 

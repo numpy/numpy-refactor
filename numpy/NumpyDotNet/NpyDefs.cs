@@ -29,6 +29,7 @@ namespace NumpyDotNet {
         };
         internal const NPY_TYPES DefaultType = NPY_TYPES.NPY_DOUBLE;
         internal static readonly NPY_TYPES NPY_INTP = (IntPtr.Size == 4 ? NPY_TYPES.NPY_INT : NPY_TYPES.NPY_LONG);
+        internal const int NPY_NTYPES = (int)NPY_TYPES.NPY_NTYPES;
 
         public enum NPY_TYPECHAR : byte {
             NPY_BOOLLTR = (byte)'?',

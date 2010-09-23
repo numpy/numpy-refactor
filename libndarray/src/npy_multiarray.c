@@ -48,6 +48,10 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
 {
     int s = sizeof(functionDefs);
 
+    // Verify that the structure definition is correct and has the memory layout
+    // that we expect. 
+    assert(NULL == functionDefs || NPY_VALID_MAGIC == functionDefs->sentinel);
+
     if (NULL != wrapperFuncs) {
         // Store the passed in set of wrapper funcs.  However, the CPython interface has the ufunc
         // code in a separate module which may have initialized the ufunc method prior to this so
