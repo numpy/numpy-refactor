@@ -183,6 +183,10 @@ namespace NumpyDotNet {
             IAttributesCollection namedArgs) {
             // For some reason the name of the attribute can only be access via ToString
             // and not as a key so we fix that here.
+            if (namedArgs == null) {
+                return new Object[kwds.Length];
+            }
+
             Dictionary<String, Object> argsDict = namedArgs
                 .Select(kvPair => new KeyValuePair<String, Object>(kvPair.Key.ToString(), kvPair.Value))
                 .ToDictionary((kvPair => kvPair.Key), (kvPair => kvPair.Value));

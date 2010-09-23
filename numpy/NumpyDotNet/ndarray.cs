@@ -423,6 +423,10 @@ namespace NumpyDotNet
             }
         }
 
+        internal ndarray Real {
+            get { return NpyCoreApi.GetReal(this); }
+        }
+
         public object imag {
             get {
                 return NpyCoreApi.GetImag(this);
@@ -431,6 +435,10 @@ namespace NumpyDotNet
                 ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
                 NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
             }
+        }
+
+        internal ndarray Imag {
+            get { return NpyCoreApi.GetImag(this); }
         }
 
         public override string ToString() {
@@ -560,6 +568,14 @@ namespace NumpyDotNet
 
         public bool IsBehaved_RO {
             get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
+        }
+
+        internal bool IsComplex {
+            get { return NpyDefs.IsComplex(dtype.TypeNum); }
+        }
+
+        internal bool IsInteger {
+            get { return NpyDefs.IsInteger(dtype.TypeNum); }
         }
 
         /// <summary>
@@ -839,6 +855,10 @@ namespace NumpyDotNet
             Resize(newshape, refcheck, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
+        public object round(int decimals = 0, ndarray @out = null) {
+            return Round(decimals, @out);
+        }
+
         public object searchsorted(object keys, string side = null) {
             NpyDefs.NPY_SEARCHSIDE eSide = NpyUtil_ArgProcessing.SearchsideConverter(side);
             ndarray aKeys = (keys as ndarray);
@@ -939,7 +959,7 @@ namespace NumpyDotNet
         public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
             object dtype = null, ndarray @out = null) {
             ndarray diag = Diagonal(offset, axis1, axis2);
-            return diag.sum(cntx, dtype = dtype, @out = @out);
+            return diag.sum(cntx, dtype:dtype, @out:@out);
         }
 
         public ndarray transpose(params object[] args) {

@@ -85,6 +85,85 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(sum, denom, divide, ret);
         }
 
+        private static readonly double[] p10 = new double[] { 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9 };
+
+        private static double PowerOfTen(int n) {
+            double ret;
+            if (n < p10.Length) {
+                ret = p10[n];
+            } else {
+                int start = p10.Length - 1;
+                ret = p10[start];
+                while (n-- > start) {
+                    ret *= 10;
+                }
+            }
+            return ret;
+        }
+
+        internal object Round(int decimals, ndarray ret) {
+            // For complex just round both parts.
+            if (IsComplex) {
+                if (ret == null) {
+                    ret = copy();
+                }
+                Real.Round(decimals, ret.Real);
+                Imag.Round(decimals, ret.Imag);
+                return ret;
+            }
+
+            if (decimals >= 0 && IsInteger) {
+                // There is nothing to do for integers.
+                if (ret != null) {
+                    NpyCoreApi.CopyAnyInto(ret, this);
+                    return ret;
+                } else {
+                    return this;
+                }
+            }
+            
+            ufunc round_op = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_rint);
+            if (decimals == 0) {
+                // This is just a ufunc
+                return NpyCoreApi.GenericUnaryOp(this, round_op, ret);
+            }
+
+            // Set up to do a multiply, round, divide, or the other way around.
+            ufunc pre;
+            ufunc post;
+            if (decimals >= 0) {
+                pre = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
+                post = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
+            } else {
+                pre = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
+                post = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
+                decimals = -decimals;
+            }
+            ndarray factor = NpyArray.FromAny(PowerOfTen(decimals));
+
+            // Make a temporary array, if we need it.
+            NpyDefs.NPY_TYPES tmpType = NpyDefs.NPY_TYPES.NPY_DOUBLE;
+            if (!IsInteger) {
+                tmpType = dtype.TypeNum;
+            }
+            ndarray tmp;
+            if (ret != null && ret.dtype.TypeNum == tmpType) {
+                tmp = ret;
+            } else {
+                tmp = NpyCoreApi.NewFromDescr(NpyCoreApi.DescrFromType(tmpType), Dims, null, 0, null);
+            }
+
+            // Do the work
+            NpyCoreApi.GenericBinaryOp(this, factor, pre, tmp);
+            NpyCoreApi.GenericUnaryOp(tmp, round_op, tmp);
+            if (!IsInteger || ret != null) {
+                return NpyCoreApi.GenericBinaryOp(tmp, factor, post, ret);
+            } else {
+                // We need to convert to the integer type
+                ret = NpyCoreApi.NewFromDescr(dtype, Dims, null, 0, null);
+                return NpyCoreApi.GenericBinaryOp(tmp, factor, post, ret);
+            }
+        }
 
         internal ndarray All(int axis, ndarray ret) {
              return NpyCoreApi.DecrefToInterface<ndarray>(
