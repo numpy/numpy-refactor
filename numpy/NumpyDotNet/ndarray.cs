@@ -429,11 +429,22 @@ namespace NumpyDotNet
 
         public object imag {
             get {
-                return NpyCoreApi.GetImag(this);
+                if (IsComplex) {
+                    return NpyCoreApi.GetImag(this);
+                } else {
+                    // TODO: np.zeros_like when we have it.
+                    ndarray result = copy();
+                    result.flat = 0;
+                    return result;
+                }
             }
             set {
-                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
-                NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+                if (IsComplex) {
+                    ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                    NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+                } else {
+                    throw new ArgumentTypeException("array does not have an imaginary part to set.");
+                }
             }
         }
 
