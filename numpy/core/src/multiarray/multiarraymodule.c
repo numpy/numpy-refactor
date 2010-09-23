@@ -2466,6 +2466,7 @@ PyMODINIT_FUNC initmultiarray(void) {
     /* Initialize the core libnumpy library. Basically this is just providing
        pointers to functions that it can use for coverting type-to-object,
        object-to-type, and similar operations. */
+    _array_function_defs.sentinel = NPY_VALID_MAGIC;
     npy_initlib(&_array_function_defs,
                 &_wrapper_funcs,
                 (npy_tp_error_set) error_set,
