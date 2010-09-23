@@ -299,6 +299,8 @@ struct NpyArray_FunctionDefs {
     NpyArray_VectorUnaryFunc *cast_to_unicode[NPY_NTYPES];
     /* Type-to-void */
     NpyArray_VectorUnaryFunc *cast_to_void[NPY_NTYPES];
+
+    int sentinel;       /* Not used except to test validity of structure sizes */
 };
 
 NDARRAY_API extern NpyTypeObject NpyArrayDescr_Type;
