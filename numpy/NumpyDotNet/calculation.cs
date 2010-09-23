@@ -68,6 +68,16 @@ namespace NumpyDotNet
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal ndarray Mean(int axis, dtype rtype, ndarray ret) {
+            ndarray newArray = NpyCoreApi.CheckAxis(this, ref axis, 0);
+            ndarray sum = newArray.Sum(axis, rtype, ret);
+            ndarray denom = NpyArray.FromAny(newArray.Dims[axis], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE),
+                0, 0, 0, null);
+            ufunc divide = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
+            return NpyCoreApi.GenericBinaryOp(sum, denom, divide, ret);
+        }
+
+
         internal ndarray All(int axis, ndarray ret) {
              return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_All(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));

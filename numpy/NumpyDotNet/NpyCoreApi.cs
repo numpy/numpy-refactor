@@ -169,13 +169,17 @@ namespace NumpyDotNet {
             return ToInterface<ufunc>(ufuncPtr);
         }
 
-        internal static ndarray GenericUnaryOp(ndarray a1, ufunc f) {
-            IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc);
+        internal static ndarray GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
+            // TODO: We need to do the error handling and wrapping of outputs.
+            IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc,
+                (ret == null ? IntPtr.Zero : ret.Array));
             return DecrefToInterface<ndarray>(result);
         }
 
-        internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f) {
-            IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc);
+        internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f, ndarray ret = null) {
+            // TODO: We need to do the error handling and wrapping of outputs.
+            IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc,
+                (ret == null ? IntPtr.Zero : ret.Array));
             return DecrefToInterface<ndarray>(result);
         }
 
@@ -188,6 +192,11 @@ namespace NumpyDotNet {
             Incref(d.Descr);
             return DecrefToInterface<ndarray>(
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+        }
+
+        internal static ndarray CheckAxis(ndarray arr, ref int axis, int flags) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_CheckAxis(arr.Array, ref axis, flags));
         }
 
         internal static void DescrDestroyFields(IntPtr fields) {
@@ -350,10 +359,10 @@ namespace NumpyDotNet {
         internal static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc);
+        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc);
+        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
@@ -372,6 +381,10 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis, 
+                                                         int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Choose(IntPtr array,

@@ -710,9 +710,6 @@ namespace NumpyDotNet
             return NpyCoreApi.GetField(this, dt, offset);
         }
 
-        public PythonTuple nonzero() {
-            return new PythonTuple(NonZero());
-        }
 
         public object max(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
@@ -722,6 +719,20 @@ namespace NumpyDotNet
         public object min(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             return ArrayReturn(Min(iAxis, @out));
+        }
+
+        public object mean(CodeContext cntx, object axis = null, object dtype = null, 
+                           ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Mean(iAxis, rtype, @out);
+        }
+
+        public PythonTuple nonzero() {
+            return new PythonTuple(NonZero());
         }
 
         public object prod(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
