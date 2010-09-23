@@ -19,8 +19,16 @@ namespace NumpyDotNet {
     /// Records the type-specific get/set items for each descriptor type.
     /// </summary>
     public class ArrFuncs {
-        internal Func<long, ndarray, Object> GetItem { get; set; }
-        internal Action<Object, long, ndarray> SetItem { get; set; }
+        internal Object GetItem(long offset, ndarray arr) {
+            return GetFunc(new IntPtr(arr.data.ToInt64() + offset), arr);
+        }
+
+        internal void SetItem(Object value, long offset, ndarray arr) {
+            SetFunc(value, new IntPtr(arr.data.ToInt64() + offset), arr);
+        }
+
+        internal Func<IntPtr, ndarray, Object> GetFunc { get; set; }
+        internal Action<Object, IntPtr, ndarray> SetFunc { get; set; }
     }
 
 
@@ -48,10 +56,10 @@ namespace NumpyDotNet {
         }
 
         private static void GetGetSetItems(int numBytes, 
-            out Func<long, ndarray, Object> getter,
-            out Action<Object, long, ndarray> setter,
-            out Func<long, ndarray, Object> ugetter,
-            out Action<Object, long, ndarray> usetter) {
+            out Func<IntPtr, ndarray, Object> getter,
+            out Action<Object, IntPtr, ndarray> setter,
+            out Func<IntPtr, ndarray, Object> ugetter,
+            out Action<Object, IntPtr, ndarray> usetter) {
             switch (numBytes) {
                 case 4:
                     getter = NumericOps.getitemInt32;
@@ -82,10 +90,10 @@ namespace NumpyDotNet {
                 if (ArrFuncs == null) {
                     ArrFuncs[] arr = new ArrFuncs[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
 
-                    Func<long, ndarray, Object> intGet, longGet, longLongGet;
-                    Func<long, ndarray, Object> uintGet, ulongGet, ulongLongGet;
-                    Action<Object, long, ndarray> intSet, longSet, longLongSet;
-                    Action<Object, long, ndarray> uintSet, ulongSet, ulongLongSet;
+                    Func<IntPtr, ndarray, Object> intGet, longGet, longLongGet;
+                    Func<IntPtr, ndarray, Object> uintGet, ulongGet, ulongLongGet;
+                    Action<Object, IntPtr, ndarray> intSet, longSet, longLongSet;
+                    Action<Object, IntPtr, ndarray> uintSet, ulongSet, ulongLongSet;
 
                     GetGetSetItems(NpyCoreApi.Native_SizeOfInt, out intGet, out intSet,
                         out uintGet, out uintSet);
@@ -95,45 +103,45 @@ namespace NumpyDotNet {
                         out longLongSet, out ulongLongGet, out ulongLongSet);
 
                     arr[(int)NpyDefs.NPY_TYPES.NPY_BOOL] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemBool, SetItem = NumericOps.setitemBool };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemBool, SetFunc = NumericOps.setitemBool };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_BYTE] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemByte, SetFunc = NumericOps.setitemByte };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_UBYTE] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemByte, SetItem = NumericOps.setitemByte };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemByte, SetFunc = NumericOps.setitemByte };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_SHORT] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemShort, SetItem = NumericOps.setitemShort };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemShort, SetFunc = NumericOps.setitemShort };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_USHORT] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemUShort, SetItem = NumericOps.setitemUShort };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemUShort, SetFunc = NumericOps.setitemUShort };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_INT] =
-                        new ArrFuncs() { GetItem = intGet, SetItem = intSet };
+                        new ArrFuncs() { GetFunc = intGet, SetFunc = intSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_UINT] =
-                        new ArrFuncs() { GetItem = uintGet, SetItem = uintSet };
+                        new ArrFuncs() { GetFunc = uintGet, SetFunc = uintSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_LONG] =
-                        new ArrFuncs() { GetItem = longGet, SetItem = longSet };
+                        new ArrFuncs() { GetFunc = longGet, SetFunc = longSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_ULONG] =
-                        new ArrFuncs() { GetItem = ulongGet, SetItem = ulongSet };
+                        new ArrFuncs() { GetFunc = ulongGet, SetFunc = ulongSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_LONGLONG] =
-                        new ArrFuncs() { GetItem = longLongGet, SetItem = longLongSet };
+                        new ArrFuncs() { GetFunc = longLongGet, SetFunc = longLongSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_ULONGLONG] =
-                        new ArrFuncs() { GetItem = ulongLongGet, SetItem = ulongLongSet };
+                        new ArrFuncs() { GetFunc = ulongLongGet, SetFunc = ulongLongSet };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_FLOAT] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemFloat, SetItem = NumericOps.setitemFloat };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemFloat, SetFunc = NumericOps.setitemFloat };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemDouble, SetItem = NumericOps.setitemDouble };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CDOUBLE] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemCDouble, SetItem = NumericOps.setitemCDouble };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, SetFunc = NumericOps.setitemCDouble };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemObject, SetItem = NumericOps.setitemObject };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemObject, SetFunc = NumericOps.setitemObject };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemString, SetItem = NumericOps.setitemString };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemString, SetFunc = NumericOps.setitemString };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
                     arr[(int)NpyDefs.NPY_TYPES.NPY_VOID] =
-                        new ArrFuncs() { GetItem = NumericOps.getitemVOID, SetItem = NumericOps.setitemVOID };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemVOID, SetFunc = NumericOps.setitemVOID };
 
                     ArrFuncs = arr;
                 }
@@ -142,33 +150,33 @@ namespace NumpyDotNet {
 
 
         #region GetItem functions
-        internal static Object getitemBool(long offset, ndarray arr) {
+        internal static Object getitemBool(IntPtr ptr, ndarray arr) {
             bool f;
 
             unsafe {
-                bool* p = (bool*)((byte *)arr.data.ToPointer() + offset);
+                bool* p = (bool*)ptr.ToPointer();
                 f = *p;
             }
             return f;
         }
 
         // Both Byte and UByte
-        internal static Object getitemByte(long offset, ndarray arr) {
+        internal static Object getitemByte(IntPtr ptr, ndarray arr) {
             byte f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 f = *p;
             }
             return f;
         }
 
 
-        internal static Object getitemShort(long offset, ndarray arr) {
+        internal static Object getitemShort(IntPtr ptr, ndarray arr) {
             short f;
 
             unsafe {
-                byte* p = (byte *)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(short*)p;
                 } else {
@@ -178,11 +186,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemUShort(long offset, ndarray arr) {
+        internal static Object getitemUShort(IntPtr ptr, ndarray arr) {
             ushort f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(ushort*)p;
                 } else {
@@ -192,11 +200,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemInt32(long offset, ndarray arr) {
+        internal static Object getitemInt32(IntPtr ptr, ndarray arr) {
             int f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(int*)p;
                 } else {
@@ -206,11 +214,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemUInt32(long offset, ndarray arr) {
+        internal static Object getitemUInt32(IntPtr ptr, ndarray arr) {
             uint f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(uint*)p;
                 } else {
@@ -220,11 +228,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemInt64(long offset, ndarray arr) {
+        internal static Object getitemInt64(IntPtr ptr, ndarray arr) {
             long f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(long*)p;
                 } else {
@@ -234,11 +242,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemUInt64(long offset, ndarray arr) {
+        internal static Object getitemUInt64(IntPtr ptr, ndarray arr) {
             ulong f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(ulong*)p;
                 } else {
@@ -248,11 +256,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemFloat(long offset, ndarray arr) {
+        internal static Object getitemFloat(IntPtr ptr, ndarray arr) {
             float f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(float*)p;
                 } else {
@@ -262,11 +270,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemDouble(long offset, ndarray arr) {
+        internal static Object getitemDouble(IntPtr ptr, ndarray arr) {
             double f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = *(double*)p;
                 } else {
@@ -276,11 +284,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemCDouble(long offset, ndarray arr) {
+        internal static Object getitemCDouble(IntPtr ptr, ndarray arr) {
             Complex f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     f = new Complex(*(double*)p, *((double*)p + 1));
                 } else {
@@ -293,11 +301,11 @@ namespace NumpyDotNet {
             return f;
         }
 
-        internal static Object getitemObject(long offset, ndarray arr) {
+        internal static Object getitemObject(IntPtr ptr, ndarray arr) {
             IntPtr f;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     switch (IntPtr.Size) {
                         case 4:
@@ -326,13 +334,12 @@ namespace NumpyDotNet {
             return GCHandle.FromIntPtr(f).Target;
         }
 
-        internal static Object getitemString(long offset, ndarray arr) {
-            IntPtr p = new IntPtr(arr.data.ToInt64() + offset);
-            String s = Marshal.PtrToStringAnsi(p, arr.dtype.ElementSize);
+        internal static Object getitemString(IntPtr ptr, ndarray arr) {
+            String s = Marshal.PtrToStringAnsi(ptr, arr.dtype.ElementSize);
             return s.TrimEnd((char)0);
         }
 
-        internal static Object getitemVOID(long offset, ndarray arr) {
+        internal static Object getitemVOID(IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
             if (d.HasNames) {
                 List<string> names = d.Names;
@@ -345,13 +352,15 @@ namespace NumpyDotNet {
                         dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
                         Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
                         int alignment = arr.dtype.Alignment;
+
+                        long fieldPtr = ptr.ToInt64() + field.offset;
                         if (alignment > 1 &&
-                            (offset + field.offset) % alignment != 0) {
+                            fieldPtr % alignment != 0) {
                             arr.RawFlags = savedflags & ~NpyDefs.NPY_ALIGNED;
                         } else {
                             arr.RawFlags = savedflags | NpyDefs.NPY_ALIGNED;
                         }
-                        result[i++] = field_dtype.f.GetItem(offset + field.offset, arr);
+                        result[i++] = field_dtype.f.GetFunc(new IntPtr(fieldPtr), arr);
                     }
                     return new PythonTuple(result);
                 } finally {
@@ -368,7 +377,7 @@ namespace NumpyDotNet {
 
         #region SetItem methods
 
-        internal static void setitemBool(Object o, long offset, ndarray arr) {
+        internal static void setitemBool(Object o, IntPtr ptr, ndarray arr) {
             bool f;
 
             if (o is Boolean) f = (bool)o;
@@ -376,12 +385,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                bool* p = (bool*)((byte *)arr.data.ToPointer() + offset);
+                bool* p = (bool*)ptr.ToPointer();
                 *p = f;
             }
         }
 
-        internal static void setitemByte(Object o, long offset, ndarray arr) {
+        internal static void setitemByte(Object o, IntPtr ptr, ndarray arr) {
             byte f;
 
             if (o is Byte) f = (byte)o;
@@ -389,12 +398,12 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 *p = f;
             }
         }
 
-        internal static void setitemShort(Object o, long offset, ndarray arr) {
+        internal static void setitemShort(Object o, IntPtr ptr, ndarray arr) {
             short f;
 
             if (o is Int16) f = (short)o;
@@ -402,7 +411,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte *)arr.data.ToPointer() + offset;
+                byte* p = (byte *)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(short*)p = f;
                 } else {
@@ -411,7 +420,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemUShort(Object o, long offset, ndarray arr) {
+        internal static void setitemUShort(Object o, IntPtr ptr, ndarray arr) {
             ushort f;
 
             if (o is UInt16) f = (ushort)o;
@@ -419,7 +428,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte *)arr.data.ToPointer() + offset;
+                byte* p = (byte *)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(ushort*)p = f;
                 } else {
@@ -428,7 +437,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemInt32(Object o, long offset, ndarray arr) {
+        internal static void setitemInt32(Object o, IntPtr ptr, ndarray arr) {
             int f;
 
             if (o is Int32) f = (int)o;
@@ -437,7 +446,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(int*)p = f;
                 } else {
@@ -446,7 +455,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemUInt32(Object o, long offset, ndarray arr) {
+        internal static void setitemUInt32(Object o, IntPtr ptr, ndarray arr) {
             uint f;
 
             if (o is UInt32) f = (uint)o;
@@ -455,7 +464,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(uint*)p = f;
                 } else {
@@ -464,7 +473,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemInt64(Object o, long offset, ndarray arr) {
+        internal static void setitemInt64(Object o, IntPtr ptr, ndarray arr) {
             long f;
 
             if (o is Int64) f = (long)o;
@@ -473,7 +482,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(long*)p = f;
                 } else {
@@ -482,7 +491,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemUInt64(Object o, long offset, ndarray arr) {
+        internal static void setitemUInt64(Object o, IntPtr ptr, ndarray arr) {
             ulong f;
 
             if (o is UInt64) f = (ulong)o;
@@ -491,7 +500,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(ulong*)p = f;
                 } else {
@@ -500,7 +509,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemFloat(Object o, long offset, ndarray arr) {
+        internal static void setitemFloat(Object o, IntPtr ptr, ndarray arr) {
             float f;
 
             if (o is Single) f = (float)o;
@@ -508,7 +517,7 @@ namespace NumpyDotNet {
             else throw new NotImplementedException("Elvis has just left Wichita.");
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(float*)p = f;
                 } else {
@@ -517,7 +526,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemDouble(Object o, long offset, ndarray arr) {
+        internal static void setitemDouble(Object o, IntPtr ptr, ndarray arr) {
             double f;
 
             if (o is Double) f = (double)o;
@@ -526,7 +535,7 @@ namespace NumpyDotNet {
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(double*)p = f;
                 } else {
@@ -536,7 +545,7 @@ namespace NumpyDotNet {
         }
 
 
-        internal static void setitemCDouble(Object o, long offset, ndarray arr) {
+        internal static void setitemCDouble(Object o, IntPtr ptr, ndarray arr) {
             Complex f;
 
             if (o is Complex) f = (Complex)o;
@@ -547,7 +556,7 @@ namespace NumpyDotNet {
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *(double*)p = f.Real;
                     *((double*)p + 1) = f.Imaginary;
@@ -562,12 +571,12 @@ namespace NumpyDotNet {
 
 
 
-        internal static void setitemObject(Object o, long offset, ndarray arr) {
+        internal static void setitemObject(Object o, IntPtr ptr, ndarray arr) {
             IntPtr f = GCHandle.ToIntPtr(GCHandle.Alloc(o));
             IntPtr prev = IntPtr.Zero;
 
             unsafe {
-                byte* p = (byte*)arr.data.ToPointer() + offset;
+                byte* p = (byte*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     switch (IntPtr.Size) {
                         case 4:
@@ -606,22 +615,21 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static void setitemString(Object o, long offset, ndarray arr) {
+        internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
             string s = o.ToString();
             byte[] bytes = Encoding.UTF8.GetBytes(s);
             int elsize = arr.dtype.ElementSize;
             int copySize = Math.Min(bytes.Length, elsize);
             int i;
-            IntPtr p = new IntPtr(arr.data.ToInt64() + offset);
             for (i = 0; i < copySize; i++) {
-                Marshal.WriteByte(p, i, bytes[i]);
+                Marshal.WriteByte(ptr, i, bytes[i]);
             }
             for (; i < elsize; i++) {
-                Marshal.WriteByte(p, i, (byte)0);
+                Marshal.WriteByte(ptr, i, (byte)0);
             }
         }
 
-        internal static void setitemVOID(object value, long offset, ndarray arr) {
+        internal static void setitemVOID(object value, IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
             PythonTuple t = (value as PythonTuple);
             if (d.HasNames && t != null) {
@@ -637,13 +645,14 @@ namespace NumpyDotNet {
                         dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
                         Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
                         int alignment = arr.dtype.Alignment;
+                        long fieldPtr = ptr.ToInt64() + field.offset;
                         if (alignment > 1 &&
-                            (offset + field.offset) % alignment != 0) {
+                            fieldPtr % alignment != 0) {
                             arr.RawFlags = savedflags & ~NpyDefs.NPY_ALIGNED;
                         } else {
                             arr.RawFlags = savedflags | NpyDefs.NPY_ALIGNED;
                         }
-                        field_dtype.f.SetItem(t[i++], offset + field.offset, arr);
+                        field_dtype.f.SetFunc(t[i++], new IntPtr(fieldPtr), arr);
                     }
                 } finally {
                     arr.RawFlags = savedflags;
