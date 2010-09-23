@@ -265,7 +265,7 @@ array_add(PyArrayObject *m1, PyObject *m2)
         NpyArray *ret = NULL;
         ret = NpyArray_GenericBinaryFunction(PyArray_ARRAY(m1), 
                                              PyArray_ARRAY(m2), 
-                                             NpyArray_GetNumericOp(npy_op_add));
+                                             NpyArray_GetNumericOp(npy_op_add), NULL);
         Py_INCREF(Npy_INTERFACE(ret));
         Npy_DECREF(ret);
         return (PyObject *)Npy_INTERFACE(ret);

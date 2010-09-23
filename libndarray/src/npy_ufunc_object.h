@@ -247,10 +247,11 @@ enum NpyArray_Ops {
 typedef int (*npy_prepare_outputs_func)(NpyUFuncObject* self, NpyArray **mps,
                                         void* data);
 NDARRAY_API NpyArray *
-NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op);
+NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op, 
+                               NpyArray *out);
 
 NDARRAY_API NpyArray *
-NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op);
+NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray *out);
 
 
 NDARRAY_API NpyUFuncObject *NpyArray_GetNumericOp(enum NpyArray_Ops);

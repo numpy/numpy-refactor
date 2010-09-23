@@ -184,27 +184,27 @@ namespace NumpyDotNet
             }
         }
 
-        public ndarray __abs__() {
+        public object __abs__() {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_absolute);
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
-        public ndarray __lshift__(Object b) {
+        public object __lshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
         }
 
-        public ndarray __rshift__(Object b) {
+        public object __rshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_right_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
         }
 
-        public ndarray __sqrt__() {
+        public object __sqrt__() {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
-        public ndarray __mod__(Object b) {
+        public object __mod__(Object b) {
             ufunc f = ufunc.GetFunction("fmod");
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b), f);
         }
@@ -413,6 +413,26 @@ namespace NumpyDotNet
             get { return NpyCoreApi.GetArrayDimsOrStrides(this, false); }
         }
 
+        public object real {
+            get {
+                return NpyCoreApi.GetReal(this);
+            }
+            set {
+                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                NpyCoreApi.MoveInto(NpyCoreApi.GetReal(this), val);
+            }
+        }
+
+        public object imag {
+            get {
+                return NpyCoreApi.GetImag(this);
+            }
+            set {
+                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+            }
+        }
+
         public override string ToString() {
             return BuildStringRepr(false);
         }
@@ -563,37 +583,37 @@ namespace NumpyDotNet
         // appropriate Python functions (+ goes to __add__, etc).
         #region Operators
 
-        public static ndarray operator +(ndarray a, Object b) {
+        public static object operator +(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_add);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator -(ndarray a, ndarray b) {
+        public static object operator -(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator *(ndarray a, Object b) {
+        public static object operator *(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator /(ndarray a, Object b) {
+        public static object operator /(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator&(ndarray a, Object b) {
+        public static object operator&(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator |(ndarray a, Object b) {
+        public static object operator |(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static ndarray operator ^(ndarray a, Object b) {
+        public static object operator ^(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
@@ -601,7 +621,7 @@ namespace NumpyDotNet
 
 
         // TODO: Temporary test function
-        public static ndarray Compare(ndarray a, ndarray b) {
+        public static object Compare(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
@@ -615,12 +635,12 @@ namespace NumpyDotNet
 
         public object all(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.All(this, iAxis, @out));
+            return ArrayReturn(All(iAxis, @out));
         }
 
         public object any(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(NpyCoreApi.Any(this, iAxis, @out));
+            return ArrayReturn(Any(iAxis, @out));
         }
 
         public object argmax(object axis = null, ndarray @out = null) {
@@ -670,9 +690,34 @@ namespace NumpyDotNet
             return TakeFrom(indexes, iAxis, @out, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
+        public ndarray conjugate(ndarray @out = null) {
+            return Conjugate(@out);
+        }
+
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public object cumsum(CodeContext cntx, object axis = null, object dtype = null, 
+                             ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumSum(iAxis, rtype, @out);
+        }
+
+
+        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
+                              ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumProd(iAxis, rtype, @out);
         }
 
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
@@ -688,9 +733,44 @@ namespace NumpyDotNet
             NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             return NpyCoreApi.GetField(this, dt, offset);
         }
-            
+
+
+        public object max(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(Max(iAxis, @out));
+        }
+
+        public object min(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(Min(iAxis, @out));
+        }
+
+        public object mean(CodeContext cntx, object axis = null, object dtype = null, 
+                           ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
+        }
+
         public PythonTuple nonzero() {
             return new PythonTuple(NonZero());
+        }
+
+        public object prod(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return ArrayReturn(Prod(iAxis, rtype, @out));
+        }
+
+        public object ptp(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return Ptp(iAxis, @out);
         }
 
         public void put(object indices, object values, object mode = null) {
@@ -813,9 +893,19 @@ namespace NumpyDotNet
         }
 
             
-            public ndarray squeeze() {
+        public ndarray squeeze() {
             return Squeeze();
         }
+
+        public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return ArrayReturn(Sum(iAxis, rtype, @out));
+        }
+
 
         public ndarray swapaxes(int a1, int a2) {
             return SwapAxes(a1, a2);
@@ -844,6 +934,12 @@ namespace NumpyDotNet
             iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
+        }
+
+        public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
+            object dtype = null, ndarray @out = null) {
+            ndarray diag = Diagonal(offset, axis1, axis2);
+            return diag.sum(cntx, dtype = dtype, @out = @out);
         }
 
         public ndarray transpose(params object[] args) {
@@ -977,6 +1073,16 @@ namespace NumpyDotNet
             }
         }
 
+        internal static dtype GetTypeDouble(dtype dtype1, dtype dtype2) {
+            if (dtype2 != null) {
+                return dtype2;
+            }
+            if (dtype1.TypeNum < NpyDefs.NPY_TYPES.NPY_FLOAT) {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE);
+            } else {
+                return dtype1;
+            }
+        }
         #endregion
     }
 

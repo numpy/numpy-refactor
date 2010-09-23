@@ -182,6 +182,8 @@ NpyArray_XDECREF(NpyArray *arr);
 /* getset.c */
 NDARRAY_API int NpyArray_SetShape(NpyArray *self, NpyArray_Dims *newdims);
 NDARRAY_API int NpyArray_SetStrides(NpyArray *self, NpyArray_Dims *newstrides);
+NDARRAY_API NpyArray *NpyArray_GetReal(NpyArray *self);
+NDARRAY_API NpyArray *NpyArray_GetImag(NpyArray *self);
 
 
 /*

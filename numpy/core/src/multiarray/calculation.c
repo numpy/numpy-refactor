@@ -585,7 +585,7 @@ PyArray_Mean(PyArrayObject *self, int axis, int rtype, PyArrayObject *out)
 #endif
     }
     else {
-        ret = PyObject_CallFunction(PyArray_GetNumericOp(npy_op_divide), "OOO", out, obj2, out);
+        ret = PyObject_CallFunction(PyArray_GetNumericOp(npy_op_divide), "OOO", obj1, obj2, out);
     }
     Py_DECREF(obj1);
     Py_DECREF(obj2);

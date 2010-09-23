@@ -125,16 +125,10 @@ NDARRAY_API NpyArray *
 NpyArray_Conjugate(NpyArray *self, NpyArray *out)
 {
     if (NpyArray_ISCOMPLEX(self)) {
-        if (out == NULL) {
-            return NpyArray_GenericUnaryFunction(
-                self,
-                NpyArray_GetNumericOp(npy_op_conjugate));
-        }
-        else {
-            return NpyArray_GenericBinaryFunction(
-                self, out,
-                NpyArray_GetNumericOp(npy_op_conjugate));
-        }
+        return NpyArray_GenericUnaryFunction(
+            self,
+            NpyArray_GetNumericOp(npy_op_conjugate),
+            out);
     }
     else {
         NpyArray *ret;

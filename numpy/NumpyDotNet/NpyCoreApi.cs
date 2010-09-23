@@ -169,26 +169,29 @@ namespace NumpyDotNet {
             return ToInterface<ufunc>(ufuncPtr);
         }
 
-        internal static ndarray GenericUnaryOp(ndarray a1, ufunc f) {
-            IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc);
-            return DecrefToInterface<ndarray>(result);
+        internal static object GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
+            // TODO: We need to do the error handling and wrapping of outputs.
+            IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc,
+                (ret == null ? IntPtr.Zero : ret.Array));
+            ndarray rval = DecrefToInterface<ndarray>(result);
+            if (ret == null) {
+                return ndarray.ArrayReturn(rval);
+            } else {
+                return rval;
+            }
         }
 
-        internal static ndarray GenericBinaryOp(ndarray a1, ndarray a2, ufunc f) {
-            IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc);
-            return DecrefToInterface<ndarray>(result);
+        internal static object GenericBinaryOp(ndarray a1, ndarray a2, ufunc f, ndarray ret = null) {
+            // TODO: We need to do the error handling and wrapping of outputs.
+            IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc,
+                (ret == null ? IntPtr.Zero : ret.Array));
+            ndarray rval = DecrefToInterface<ndarray>(result);
+            if (ret == null) {
+                return ndarray.ArrayReturn(rval);
+            } else {
+                return rval;
+            }
         }
-
-        internal static ndarray All(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_All(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
-
-        internal static ndarray Any(ndarray self, int axis, ndarray ret) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Any(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
-        }
-
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
@@ -201,6 +204,11 @@ namespace NumpyDotNet {
                 NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
         }
 
+        internal static ndarray CheckAxis(ndarray arr, ref int axis, int flags) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_CheckAxis(arr.Array, ref axis, flags));
+        }
+
         internal static void DescrDestroyFields(IntPtr fields) {
             NpyDict_Destroy(fields);
         }
@@ -210,6 +218,21 @@ namespace NumpyDotNet {
             Incref(d.Descr);
             return DecrefToInterface<ndarray>(
                 NpyArray_GetField(arr.Array, d.Descr, offset));
+        }
+
+        internal static ndarray GetImag(ndarray arr) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetImag(arr.Array));
+        }
+
+        internal static ndarray GetReal(ndarray arr) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_GetReal(arr.Array));
+        }
+        internal static ndarray GetField(ndarray arr, string name) {
+            NpyArray_DescrField field = GetDescrField(arr.dtype, name);
+            dtype field_dtype = ToInterface<dtype>(field.descr);
+            return GetField(arr, field_dtype, field.offset);
         }
 
         internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
@@ -355,10 +378,10 @@ namespace NumpyDotNet {
         internal static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc);
+        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc);
+        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
@@ -379,8 +402,24 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis, 
+                                                         int flags);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Choose(IntPtr array,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int 
+                                                       rtype, IntPtr ret);
+
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int 
+                                                      rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrAllocNames(int n);
@@ -393,10 +432,22 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetImag(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_GetReal(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_LexSort(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] mps, int n, int axis);
+
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Max(IntPtr arr, int axis, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Min(IntPtr arr, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
@@ -411,6 +462,10 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_NonZero(IntPtr self, 
             [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays, 
             IntPtr obj);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int 
+                                                    rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_PutMask(IntPtr arr, IntPtr values, IntPtr mask);
@@ -432,6 +487,10 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int 
+                                                   rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_SwapAxes(IntPtr arr, int a1, int a2);

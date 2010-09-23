@@ -169,6 +169,10 @@ enum NPY_TYPES {    NPY_BOOL=0,
 };
 
 
+/* How many floating point types are there */
+#define NPY_NUM_FLOATTYPE 3
+
+
 typedef enum {
     NPY_QUICKSORT=0,
     NPY_HEAPSORT=1,
