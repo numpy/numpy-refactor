@@ -755,6 +755,10 @@ namespace NumpyDotNet
             return Diagonal(offset, axis1, axis2);
         }
 
+        public void fill(object scalar) {
+            FillWithScalar(scalar);
+        }
+
         public ndarray flatten(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return Flatten(eOrder);
@@ -977,6 +981,11 @@ namespace NumpyDotNet
             iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             cMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
+        }
+
+        public void tofile(object file = null, string sep = null, string format = null) {
+            PythonFile f;
+            Console.WriteLine("File = {0}", file);
         }
 
         public object tolist() {

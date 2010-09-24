@@ -232,3 +232,119 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
     }
     return 0;
 }
+
+NDARRAY_API int
+NpyArray_FillWithObject(NpyArray* arr, void** fromptr)
+{
+    int itemsize;
+    NpyArray_Descr *descr;
+    npy_intp size;
+    NpyArray_CopySwapFunc *copyswap;
+
+    if (!NpyArray_ISOBJECT(arr)) {
+        NpyErr_SetString(NpyExc_ValueError, "Array is not an object array.");
+    }
+
+    size = NpyArray_SIZE(arr);
+    if (size == 0) {
+        return 0;
+    }
+
+    copyswap = NpyArray_DESCR(arr)->f->copyswap;
+    if (NpyArray_ISONESEGMENT(arr)) {
+        char *toptr=NpyArray_BYTES(arr);
+        NpyArray_FillWithScalarFunc* fillwithscalar =
+            NpyArray_DESCR(arr)->f->fillwithscalar;
+        itemsize = NpyArray_ITEMSIZE(arr);
+        if (fillwithscalar && NpyArray_ISALIGNED(arr)) {
+            copyswap(toptr, fromptr, 0, NULL);
+            fillwithscalar(toptr + itemsize, size-1, toptr, arr);
+        }
+        else {
+            while (size--) {
+                copyswap(toptr, fromptr, 0, arr);
+                toptr += itemsize;
+            }
+        }
+    }
+    else {
+        NpyArrayIterObject *iter;
+
+        iter = NpyArray_IterNew(arr);
+        if (iter == NULL) {
+            return -1;
+        }
+        while (size--) {
+            copyswap(iter->dataptr, fromptr, 0, arr);
+            NpyArray_ITER_NEXT(iter);
+        }
+        Npy_DECREF(iter);
+    }
+    return 0;
+}
+
+
+NDARRAY_API int
+NpyArray_FillWithScalar(NpyArray* arr, NpyArray* zero_d_array)
+{
+    int itemsize, swap;
+    NpyArray_Descr *descr;
+    npy_intp size;
+    NpyArray_CopySwapFunc *copyswap;
+    NpyArray* from;
+    void* fromptr;
+
+    size=NpyArray_SIZE(arr);
+    if (size == 0) {
+        return 0;
+    }
+
+    if (!NpyArray_ISALIGNED(zero_d_array) || zero_d_array->descr->type != arr->descr->type) {
+        Npy_INCREF(arr->descr);
+        from = NpyArray_FromArray(zero_d_array, arr->descr, NPY_ALIGNED);
+        if (from == NULL) {
+            return -1;
+        }
+    } else {
+        from = zero_d_array;
+        Npy_INCREF(from);
+    }
+    
+    swap = (NpyArray_ISNOTSWAPPED(arr) != NpyArray_ISNOTSWAPPED(from));
+    fromptr = from->data;
+
+
+    copyswap = NpyArray_DESCR(arr)->f->copyswap;
+    if (NpyArray_ISONESEGMENT(arr)) {
+        char *toptr=NpyArray_BYTES(arr);
+        NpyArray_FillWithScalarFunc* fillwithscalar =
+            NpyArray_DESCR(arr)->f->fillwithscalar;
+        itemsize = NpyArray_ITEMSIZE(arr);
+        if (fillwithscalar && NpyArray_ISALIGNED(arr)) {
+            copyswap(toptr, fromptr, swap, from);
+            fillwithscalar(toptr+itemsize, size-1, toptr, arr);
+        }
+        else {
+            while (size--) {
+                copyswap(toptr, fromptr, swap, arr);
+                toptr += itemsize;
+            }
+        }
+    }
+    else {
+        NpyArrayIterObject *iter;
+
+        iter = NpyArray_IterNew(arr);
+        if (iter == NULL) {
+            Npy_DECREF(from);
+            return -1;
+        }
+        while (size--) {
+            copyswap(iter->dataptr, fromptr, swap, arr);
+            NpyArray_ITER_NEXT(iter);
+        }
+        Npy_DECREF(iter);
+    }
+    Npy_DECREF(from);
+    return 0;
+}

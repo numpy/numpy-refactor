@@ -306,6 +306,12 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void FillWithScalar(ndarray arr, ndarray zero_d_array) {
+            if (NpyArray_FillWithScalar(arr.Array, zero_d_array.Array) < 0) {
+                CheckError();
+            }
+        }
+
         #endregion
 
 
@@ -382,6 +388,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_FillWithScalar(IntPtr arr, IntPtr zero_d_array);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);

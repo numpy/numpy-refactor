@@ -15,5 +15,14 @@ namespace NumpyDotNet
             NpyCoreApi.GetBytes(this, data, order);
             return new Bytes(data);
         }
+
+        internal void FillWithScalar(object scalar) {
+            if (dtype.IsObject) {
+                // TODO: Fix this.
+                throw new NotImplementedException("Can't fill object arrays.");
+            }
+            ndarray zero_d_array = NpyArray.FromAny(scalar, dtype, flags: NpyDefs.NPY_ALIGNED);
+            NpyCoreApi.FillWithScalar(this, zero_d_array);
+        }
     }
 }

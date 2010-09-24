@@ -234,17 +234,11 @@ NPY_NO_EXPORT int
 PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
 {
     PyObject *newarr;
-    int itemsize, swap;
-    void *fromptr;
     NpyArray_Descr *descr;
-    intp size;
-    PyArray_CopySwapFunc *copyswap;
+    int result;
 
-    itemsize = PyArray_ITEMSIZE(arr);
     if (PyArray_ISOBJECT(arr)) {
-        fromptr = &obj;
-        swap = 0;
-        newarr = NULL;
+        return NpyArray_FillWithObject(PyArray_ARRAY(arr), &obj);
     }
     else {
         descr = PyArray_DESCR(arr);
@@ -253,42 +247,10 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
         if (newarr == NULL) {
             return -1;
         }
-        fromptr = PyArray_DATA(newarr);
-        swap = (PyArray_ISNOTSWAPPED(arr) != PyArray_ISNOTSWAPPED(newarr));
+        result = NpyArray_FillWithScalar(PyArray_ARRAY(arr), PyArray_ARRAY(newarr));
+        Py_DECREF(newarr);
+        return result;
     }
-    size=PyArray_SIZE(arr);
-    copyswap = PyArray_DESCR(arr)->f->copyswap;
-    if (PyArray_ISONESEGMENT(arr)) {
-        char *toptr=PyArray_DATA(arr);
-        PyArray_FillWithScalarFunc* fillwithscalar =
-            PyArray_DESCR(arr)->f->fillwithscalar;
-        if (fillwithscalar && PyArray_ISALIGNED(arr)) {
-            copyswap(fromptr, NULL, swap, PyArray_ARRAY(newarr));
-            fillwithscalar(toptr, size, fromptr, PyArray_ARRAY(arr));
-        }
-        else {
-            while (size--) {
-                copyswap(toptr, fromptr, swap, PyArray_ARRAY(arr));
-                toptr += itemsize;
-            }
-        }
-    }
-    else {
-        NpyArrayIterObject *iter;
-
-        iter = NpyArray_IterNew(PyArray_ARRAY(arr));
-        if (iter == NULL) {
-            Py_XDECREF(newarr);
-            return -1;
-        }
-        while (size--) {
-            copyswap(iter->dataptr, fromptr, swap, PyArray_ARRAY(arr));
-            NpyArray_ITER_NEXT(iter);
-        }
-        Npy_DECREF(iter);
-    }
-    Py_XDECREF(newarr);
-    return 0;
 }
 
 /*NUMPY_API
