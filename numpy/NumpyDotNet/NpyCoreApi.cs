@@ -300,6 +300,12 @@ namespace NumpyDotNet {
                 NpyArray_DescrNew(d.Descr));
         }
 
+        internal static void GetBytes(ndarray arr, byte[] bytes, NpyDefs.NPY_ORDER order) {
+            if (NpyArrayAccess_GetBytes(arr.Array, bytes, bytes.LongLength, (int)order) < 0) {
+                CheckError();
+            }
+        }
+
         #endregion
 
 
@@ -675,6 +681,10 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
+            [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);
 
         #endregion
 

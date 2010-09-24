@@ -979,6 +979,11 @@ namespace NumpyDotNet
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
+        public Bytes tostring(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return ToString(eOrder);
+        }
+
         public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
             object dtype = null, ndarray @out = null) {
             ndarray diag = Diagonal(offset, axis1, axis2);

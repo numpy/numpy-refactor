@@ -432,3 +432,52 @@ void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
   	*typesOffset = offsetof(NpyUFuncObject, types);
   	*coreSigOffset = offsetof(NpyUFuncObject, core_signature);
 }
+
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_GetBytes(NpyArray* arr, char* buffer, npy_int64 length, NPY_ORDER order)
+{
+    npy_intp numbytes;
+
+
+    if (order == NPY_ANYORDER) {
+        order = NpyArray_ISFORTRAN(arr) ? NPY_FORTRANORDER : NPY_CORDER;
+    }
+
+    numbytes = NpyArray_NBYTES(arr);
+    if (length != (npy_int64)numbytes) {
+        NpyErr_SetString(NpyExc_ValueError, "length is not the size of the array.");
+        return -1;
+    }
+
+    if (NpyArray_ISCONTIGUOUS(arr) && order == NPY_CORDER ||
+        NpyArray_ISFORTRAN(arr) && order == NPY_FORTRANORDER) {
+            memcpy(buffer, arr->data, numbytes);
+    } else {
+        NpyArray *src;
+        NpyArrayIterObject *it;
+        npy_intp index;
+        int elsize;
+
+        if (order == NPY_FORTRANORDER) {
+            src = NpyArray_Transpose(arr, NULL);
+        } else {
+            src = arr;
+            Npy_INCREF(src);
+        }
+
+        it = NpyArray_IterNew(src);
+        Npy_DECREF(src);
+        if (it == NULL) {
+            return -1;
+        }
+        index = it->size;
+        elsize = NpyArray_ITEMSIZE(arr);
+        while (index--) {
+            memcpy(buffer, it->dataptr, elsize);
+            buffer += elsize;
+            NpyArray_ITER_NEXT(it);
+        }
+        Npy_DECREF(it);
+    }
+    return 0;
+}
