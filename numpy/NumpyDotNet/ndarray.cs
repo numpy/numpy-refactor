@@ -423,14 +423,33 @@ namespace NumpyDotNet
             }
         }
 
+        internal ndarray Real {
+            get { return NpyCoreApi.GetReal(this); }
+        }
+
         public object imag {
             get {
-                return NpyCoreApi.GetImag(this);
+                if (IsComplex) {
+                    return NpyCoreApi.GetImag(this);
+                } else {
+                    // TODO: np.zeros_like when we have it.
+                    ndarray result = copy();
+                    result.flat = 0;
+                    return result;
+                }
             }
             set {
-                ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
-                NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+                if (IsComplex) {
+                    ndarray val = NpyArray.FromAny(value, null, 0, 0, 0, null);
+                    NpyCoreApi.MoveInto(NpyCoreApi.GetImag(this), val);
+                } else {
+                    throw new ArgumentTypeException("array does not have an imaginary part to set.");
+                }
             }
+        }
+
+        internal ndarray Imag {
+            get { return NpyCoreApi.GetImag(this); }
         }
 
         public override string ToString() {
@@ -560,6 +579,14 @@ namespace NumpyDotNet
 
         public bool IsBehaved_RO {
             get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
+        }
+
+        internal bool IsComplex {
+            get { return NpyDefs.IsComplex(dtype.TypeNum); }
+        }
+
+        internal bool IsInteger {
+            get { return NpyDefs.IsInteger(dtype.TypeNum); }
         }
 
         /// <summary>
@@ -839,6 +866,10 @@ namespace NumpyDotNet
             Resize(newshape, refcheck, NpyDefs.NPY_ORDER.NPY_CORDER);
         }
 
+        public object round(int decimals = 0, ndarray @out = null) {
+            return Round(decimals, @out);
+        }
+
         public object searchsorted(object keys, string side = null) {
             NpyDefs.NPY_SEARCHSIDE eSide = NpyUtil_ArgProcessing.SearchsideConverter(side);
             ndarray aKeys = (keys as ndarray);
@@ -892,9 +923,17 @@ namespace NumpyDotNet
             Sort(axis, sortkind);
         }
 
-            
         public ndarray squeeze() {
             return Squeeze();
+        }
+
+        public object std(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, false, ddof);
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
@@ -939,7 +978,7 @@ namespace NumpyDotNet
         public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
             object dtype = null, ndarray @out = null) {
             ndarray diag = Diagonal(offset, axis1, axis2);
-            return diag.sum(cntx, dtype = dtype, @out = @out);
+            return diag.sum(cntx, dtype:dtype, @out:@out);
         }
 
         public ndarray transpose(params object[] args) {
@@ -952,6 +991,15 @@ namespace NumpyDotNet
             }
         }
 
+        public object var(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
+        }
+        
         #endregion
 
         #region IEnumerable<object> interface

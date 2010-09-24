@@ -122,13 +122,19 @@ namespace NumpyDotNet {
 
         internal static ndarray NewFromDescr(dtype descr, long[] dims, long[] strides,
             int flags, object interfaceData) {
-            GCHandle h = GCHandle.Alloc(interfaceData);
-            try {
+            if (interfaceData == null) {
                 Incref(descr.Descr);
-                return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
-                    flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
-            } finally {
-                h.Free();
+                return DecrefToInterface<ndarray>(
+                    NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, IntPtr.Zero, IntPtr.Zero));
+            } else {
+                GCHandle h = GCHandle.Alloc(interfaceData);
+                try {
+                    Incref(descr.Descr);
+                    return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
+                        flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
+                } finally {
+                    h.Free();
+                }
             }
         }
 
@@ -207,6 +213,12 @@ namespace NumpyDotNet {
         internal static ndarray CheckAxis(ndarray arr, ref int axis, int flags) {
             return DecrefToInterface<ndarray>(
                 NpyArray_CheckAxis(arr.Array, ref axis, flags));
+        }
+
+        internal static void CopyAnyInto(ndarray dest, ndarray src) {
+            if (NpyArray_CopyAnyInto(dest.Array, src.Array) < 0) {
+                CheckError();
+            }
         }
 
         internal static void DescrDestroyFields(IntPtr fields) {
@@ -411,6 +423,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_CopyAnyInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int 
@@ -648,8 +663,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
-        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd,
-            int flags, long[] dims, long[] strides, IntPtr data, IntPtr interfaceData);
+        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd, int flags, 
+            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims, 
+            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] strides, IntPtr data, IntPtr interfaceData);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DescrDestroyNames")]
         internal static extern void DescrDestroyNames(IntPtr p, int n);

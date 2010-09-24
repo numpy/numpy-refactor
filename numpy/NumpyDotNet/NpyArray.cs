@@ -176,6 +176,7 @@ namespace NumpyDotNet {
         /// <param name="flags">New array flags</param>
         /// <returns>New array (may be source array)</returns>
         internal static ndarray FromArray(ndarray src, dtype descr, int flags) {
+            if (descr == null && flags == 0) return src;
             if (descr == null) descr = src.dtype;
             if (descr != null) NpyCoreApi.Incref(descr.Descr);
             return NpyCoreApi.DecrefToInterface<ndarray>(

@@ -169,6 +169,7 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
                                NpyArray *out)
 {
     NpyArray *mps[NPY_MAXARGS];
+    NpyArray *result;
 
     assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
@@ -177,11 +178,24 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
 
     mps[0] = m1;
     mps[1] = m2;
+    Npy_XINCREF(out);
     mps[2] = out;
+
     if (0 > NpyUFunc_GenericFunction(op, 3, mps, NULL, NPY_FALSE, NULL, NULL)) {
-        return NULL;
+        result = NULL;
+        goto finish;
     }
-    return mps[op->nin];
+
+    if (out) {
+        result = out;
+    } else {
+        result = mps[op->nin];
+    }
+
+finish:
+    Npy_XDECREF(mps[2]);
+    Npy_XINCREF(result);
+    return result;
 }
 
 
@@ -189,15 +203,27 @@ NDARRAY_API NpyArray *
 NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
 {
     NpyArray *mps[NPY_MAXARGS];
+    NpyArray *result;
 
     assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
     assert(out == NULL || out->nob_magic_number == NPY_VALID_MAGIC);
 
     mps[0] = m1;
+    Npy_XINCREF(out);
     mps[1] = out;
     if (0 > NpyUFunc_GenericFunction(op, 2, mps, NULL, NPY_FALSE, NULL, NULL)) {
-        return NULL;
+        result = NULL;
+        goto finish;
     }
-    return mps[op->nin];
+
+    if (out) {
+        result = out;
+    } else {
+        result = mps[op->nin];
+    }
+  finish:
+    Npy_XDECREF(mps[1]);
+    Npy_XINCREF(result);
+    return result;
 }
