@@ -908,6 +908,7 @@ namespace NumpyDotNet {
         #region Object Operation Functions
 
         private static Object SyncRoot = new Object();
+        private static CodeContext CodeCntx = null;
         private static LanguageContext PyContext = null;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
@@ -933,10 +934,10 @@ namespace NumpyDotNet {
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_LShift;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_RShift;
 
-        internal static void InitUFuncOps(LanguageContext cntx) {
+        internal static void InitUFuncOps(CodeContext cntx) {
             // Fast escape which will occur all except the first time.
-            if (PyContext != null) {
-                if (PyContext != cntx) {
+            if (CodeCntx != null) {
+                if (CodeCntx != cntx) {
                     // I don't think this can happen, but just in case...
                     throw new NotImplementedException("Internal error: multiply IronPython contexts are not supported.");
                 }
@@ -945,32 +946,35 @@ namespace NumpyDotNet {
 
             lock (SyncRoot) {
                 if (PyContext == null) {
-                    
+                    LanguageContext pyCntx = cntx.LanguageContext;
+                    PyContext = pyCntx;
+                    CodeCntx = cntx;
+
                     // Construct the call sites for each operation we will need. This is much
                     // faster than constructing/destroying them with each loop.
                     Site_Equal = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
                     Site_NotEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
                     Site_Greater = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
                     Site_GreaterEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
                     Site_Less = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
                     Site_LessEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
 
                     Site_Add = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Add));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Add));
                     Site_Subtract = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Subtract));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Subtract));
                     Site_Multiply = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
                     Site_Divide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
                     Site_Negative = CallSite<Func<CallSite, Object, Object>>.Create(
-                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
+                        pyCntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
 
                     Site_Abs = CallSite<Func<CallSite, Object, Object>>.Create(
                         Binder.InvokeMember(CSharpBinderFlags.None, "__abs__",
@@ -980,27 +984,27 @@ namespace NumpyDotNet {
                         }));
 
                     Site_Power = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
                     Site_Remainder = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Modulo));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Modulo));
                     Site_Not = CallSite<Func<CallSite, Object, Object>>.Create(
-                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Not));
+                        pyCntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Not));
                     Site_And = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.And));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.And));
                     Site_Or = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Or));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Or));
                     Site_Xor = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.ExclusiveOr));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.ExclusiveOr));
                     Site_LShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LeftShift));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LeftShift));
                     Site_RShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
 
                     
                     
                     // Set this last so any other accesses will block while we create
                     // the sites.
-                    PyContext = cntx;
+                    PyContext = pyCntx;
                 }
             }
         }
@@ -1289,7 +1293,7 @@ namespace NumpyDotNet {
                 if (in1 == null || in2 == null) {
                     prod = (Object)false;
                 } else {
-                    prod = Site_Add.Target(Site_Add, in1, in2);
+                    prod = Site_Multiply.Target(Site_Multiply, in1, in2);
                     if (prod == null) {
                         cumsum = null;
                         break;
@@ -1299,7 +1303,7 @@ namespace NumpyDotNet {
                 if (i == 0) {
                     cumsum = prod;
                 } else {
-                    cumsum = Site_Multiply.Target(Site_Multiply, cumsum, prod);
+                    cumsum = Site_Add.Target(Site_Add, cumsum, prod);
                     if (cumsum == null) {
                         break;
                     }
@@ -1340,6 +1344,44 @@ namespace NumpyDotNet {
             IntPtr oPtr = Marshal.ReadIntPtr((IntPtr)((long)ptr + offset));
             return (oPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(oPtr).Target : null;
         }
+
+
+        private static double GetPriority(Object o, double defaultValue) {
+            double priority = 0.0;
+
+            if (o.GetType() != typeof(ndarray) &&
+                IronPython.Runtime.Operations.PythonOps.HasAttr(CodeCntx, o, "__array_priority__")) {
+                try {
+                    Object a = IronPython.Runtime.Operations.PythonOps.GetBoundAttr(CodeCntx, o, "__array_priority__");
+                    if (a != null) {
+                        priority = (double)a;
+                    }
+                } catch (Exception) {
+                    priority = defaultValue;
+                }
+            }
+            return priority;
+        }
+
+
+        private static int ComparePriorityCallback(IntPtr obj1Ptr, IntPtr obj2Ptr) {
+            Object obj1 = GCHandle.FromIntPtr(obj1Ptr).Target;
+            Object obj2 = GCHandle.FromIntPtr(obj2Ptr).Target;
+            int result = 0;
+
+            if (IronPython.Runtime.Operations.PythonOps.CompareTypesNotEqual(CodeCntx, obj1, obj2) &&
+                GetPriority(obj1, 0.0) > GetPriority(obj2, 0.0)) {
+                // PyArray_GetPriority
+            } else {
+                result = 0;
+            }
+            return result;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_ComparePriorityCallback(IntPtr objPtr1, IntPtr objPtr2);
+        static internal del_ComparePriorityCallback ComparePriorityDelegate = 
+            new del_ComparePriorityCallback(ComparePriorityCallback);
+
 
         #endregion
 
