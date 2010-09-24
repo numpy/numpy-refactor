@@ -218,6 +218,25 @@ namespace NumpyDotNet
                 NpyCoreApi.NpyArray_Any(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
+        internal object Clip(object min, object max, ndarray ret = null) {
+            // TODO: Add fast clipping
+            if (min == null && max == null) {
+                throw new ArgumentException("must set either max or min");
+            }
+            if (min == null) {
+                return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(max),
+                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_minimum), ret);
+            } else if (max == null) {
+                return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(min),
+                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_maximum), ret);
+            } else {
+                object tmp = NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(max),
+                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_minimum));
+                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(tmp), NpyArray.FromAny(min),
+                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_maximum), ret);
+            }
+        }
+
         internal ndarray Conjugate(ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Conjugate(Array, (ret == null ? IntPtr.Zero : ret.Array)));

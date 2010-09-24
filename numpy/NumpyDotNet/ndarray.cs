@@ -705,6 +705,10 @@ namespace NumpyDotNet
             return ArrayReturn(Choose(choices, @out, clipMode));
         }
 
+        public object clip(object min = null, object max = null, ndarray @out = null) {
+            return Clip(min, max, @out);
+        }
+
         public ndarray compress(object condition, object axis = null, ndarray @out = null) {
             ndarray aCondition = NpyArray.FromAny(condition, null, 0, 0, 0, null);
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
