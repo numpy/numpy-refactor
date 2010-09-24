@@ -156,13 +156,13 @@ namespace NumpyDotNet
             // Do the work
             NpyCoreApi.GenericBinaryOp(this, factor, pre, tmp);
             NpyCoreApi.GenericUnaryOp(tmp, round_op, tmp);
-            if (!IsInteger || ret != null) {
-                return NpyCoreApi.GenericBinaryOp(tmp, factor, post, ret);
-            } else {
-                // We need to convert to the integer type
-                ret = NpyCoreApi.NewFromDescr(dtype, Dims, null, 0, null);
-                return NpyCoreApi.GenericBinaryOp(tmp, factor, post, ret);
+            NpyCoreApi.GenericBinaryOp(tmp, factor, post, tmp);
+
+            if (ret != null && tmp != ret) {
+                NpyCoreApi.CopyAnyInto(ret, tmp);
+                return ret;
             }
+            return tmp;
         }
 
         internal ndarray All(int axis, ndarray ret) {
