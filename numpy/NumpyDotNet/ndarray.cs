@@ -923,9 +923,17 @@ namespace NumpyDotNet
             Sort(axis, sortkind);
         }
 
-            
         public ndarray squeeze() {
             return Squeeze();
+        }
+
+        public object std(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, false, ddof);
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
@@ -983,6 +991,15 @@ namespace NumpyDotNet
             }
         }
 
+        public object var(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
+        }
+        
         #endregion
 
         #region IEnumerable<object> interface

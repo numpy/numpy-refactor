@@ -9,12 +9,12 @@ namespace NumpyDotNet
 {
     public partial class ndarray 
     {
-        internal ndarray ArgMax(int axis, ndarray ret) {
+        internal ndarray ArgMax(int axis, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_ArgMax(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray ArgMin(int axis, ndarray ret) {
+        internal ndarray ArgMin(int axis, ndarray ret = null) {
             object obj;
             if (NpyDefs.IsFlexible(dtype.TypeNum)) {
                 throw new ArgumentTypeException("argmin is unuspporeted for this type.");
@@ -30,17 +30,17 @@ namespace NumpyDotNet
             return tmp.ArgMax(axis, ret);
         }
 
-        internal ndarray Max(int axis, ndarray ret) {
+        internal ndarray Max(int axis, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Max(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray Min(int axis, ndarray ret) {
+        internal ndarray Min(int axis, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Min(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal object Ptp(int axis, ndarray ret) {
+        internal object Ptp(int axis, ndarray ret = null) {
             ndarray arr = NpyCoreApi.CheckAxis(this, ref axis, 0);
             ndarray a1 = arr.Max(axis, ret);
             ndarray a2 = arr.Min(axis, null);
@@ -48,35 +48,78 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a1, a2, subtract, ret);
         }
 
-        internal ndarray Sum(int axis, dtype rtype, ndarray ret) {
+        internal object Std(int axis, dtype rtype, ndarray ret, bool variance, int ddof) {
+            ndarray x, mean, tmp;
+            object result;
+            long n;
+            IntPtr[] newshape;
+
+            // Reshape and get axis
+            x = NpyCoreApi.CheckAxis(this, ref axis, 0);
+            // Compute the mean
+            mean = NpyArray.FromAny(x.Mean(axis, rtype, null), rtype);
+            // Add an axis back to the mean so it will broadcast correctly
+            newshape = x.Dims.Select(y => (IntPtr)y).ToArray();
+            newshape[axis] = (IntPtr)1;
+            tmp = NpyCoreApi.Newshape(mean, newshape, NpyDefs.NPY_ORDER.NPY_CORDER);
+            // Compute x - mean
+            tmp = NpyArray.FromAny(x - tmp);
+            // Square the difference
+            if (tmp.IsComplex) {
+                tmp = NpyArray.FromAny(tmp * tmp.Conjugate());
+            } else {
+                tmp = NpyArray.FromAny(tmp * tmp);
+            }
+
+            // Sum the square
+            tmp = tmp.Sum(axis, rtype);
+
+            // Divide by n (or n-ddof) and maybe take the sqrt
+            n = x.Dims[axis] - ddof;
+            if (n == 0) n = 1;
+            if (!variance) {
+                result = NpyArray.FromAny(tmp * (1.0 / n)).__sqrt__();
+            } else {
+                result = tmp * (1.0 / n);
+            }
+            // TODO: Deal with subclasses
+            // Copy into ret, if necessary
+            if (ret != null) {
+                NpyCoreApi.CopyAnyInto(ret, NpyArray.FromAny(result));
+                return ret;
+            }
+            return result;
+        }
+
+        internal ndarray Sum(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Sum(Array, axis, 
                     (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray Prod(int axis, dtype rtype, ndarray ret) {
+        internal ndarray Prod(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Prod(Array, axis, 
                     (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray CumSum(int axis, dtype rtype, ndarray ret) {
+        internal ndarray CumSum(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_CumSum(Array, axis, 
                     (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray CumProd(int axis, dtype rtype, ndarray ret) {
+        internal ndarray CumProd(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_CumProd(Array, axis, 
                     (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal object Mean(int axis, dtype rtype, ndarray ret) {
+        internal object Mean(int axis, dtype rtype, ndarray ret = null) {
             ndarray newArray = NpyCoreApi.CheckAxis(this, ref axis, 0);
             ndarray sum = newArray.Sum(axis, rtype, ret);
             ndarray denom = NpyArray.FromAny(newArray.Dims[axis], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE),
@@ -101,7 +144,7 @@ namespace NumpyDotNet
             return ret;
         }
 
-        internal object Round(int decimals, ndarray ret) {
+        internal object Round(int decimals, ndarray ret = null) {
             // For complex just round both parts.
             if (IsComplex) {
                 if (ret == null) {
@@ -165,17 +208,17 @@ namespace NumpyDotNet
             return tmp;
         }
 
-        internal ndarray All(int axis, ndarray ret) {
+        internal ndarray All(int axis, ndarray ret = null) {
              return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_All(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray Any(int axis, ndarray ret) {
+        internal ndarray Any(int axis, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Any(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
-        internal ndarray Conjugate(ndarray ret) {
+        internal ndarray Conjugate(ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_Conjugate(Array, (ret == null ? IntPtr.Zero : ret.Array)));
         }
