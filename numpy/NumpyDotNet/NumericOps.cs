@@ -905,9 +905,10 @@ namespace NumpyDotNet {
             new CopySwapNDelegate(CopySwapNObject);
         #endregion
 
-        #region Comparison Functions
+        #region Object Operation Functions
 
         private static Object SyncRoot = new Object();
+        private static CodeContext CodeCntx = null;
         private static LanguageContext PyContext = null;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
@@ -933,10 +934,10 @@ namespace NumpyDotNet {
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_LShift;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_RShift;
 
-        internal static void InitUFuncOps(LanguageContext cntx) {
+        internal static void InitUFuncOps(CodeContext cntx) {
             // Fast escape which will occur all except the first time.
-            if (PyContext != null) {
-                if (PyContext != cntx) {
+            if (CodeCntx != null) {
+                if (CodeCntx != cntx) {
                     // I don't think this can happen, but just in case...
                     throw new NotImplementedException("Internal error: multiply IronPython contexts are not supported.");
                 }
@@ -945,32 +946,35 @@ namespace NumpyDotNet {
 
             lock (SyncRoot) {
                 if (PyContext == null) {
-                    
+                    LanguageContext pyCntx = cntx.LanguageContext;
+                    PyContext = pyCntx;
+                    CodeCntx = cntx;
+
                     // Construct the call sites for each operation we will need. This is much
                     // faster than constructing/destroying them with each loop.
                     Site_Equal = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Equal));
                     Site_NotEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.NotEqual));
                     Site_Greater = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThan));
                     Site_GreaterEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.GreaterThanOrEqual));
                     Site_Less = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThan));
                     Site_LessEqual = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LessThanOrEqual));
 
                     Site_Add = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Add));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Add));
                     Site_Subtract = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Subtract));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Subtract));
                     Site_Multiply = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Multiply));
                     Site_Divide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Divide));
                     Site_Negative = CallSite<Func<CallSite, Object, Object>>.Create(
-                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
+                        pyCntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Negate));
 
                     Site_Abs = CallSite<Func<CallSite, Object, Object>>.Create(
                         Binder.InvokeMember(CSharpBinderFlags.None, "__abs__",
@@ -980,27 +984,27 @@ namespace NumpyDotNet {
                         }));
 
                     Site_Power = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Power));
                     Site_Remainder = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Modulo));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Modulo));
                     Site_Not = CallSite<Func<CallSite, Object, Object>>.Create(
-                        cntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Not));
+                        pyCntx.CreateUnaryOperationBinder(System.Linq.Expressions.ExpressionType.Not));
                     Site_And = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.And));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.And));
                     Site_Or = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Or));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.Or));
                     Site_Xor = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.ExclusiveOr));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.ExclusiveOr));
                     Site_LShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LeftShift));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.LeftShift));
                     Site_RShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
-                        cntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
+                        pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
 
                     
                     
                     // Set this last so any other accesses will block while we create
                     // the sites.
-                    PyContext = cntx;
+                    PyContext = pyCntx;
                 }
             }
         }
@@ -1225,6 +1229,160 @@ namespace NumpyDotNet {
             return GCHandle.ToIntPtr(GCHandle.Alloc(1));
         };
 
+        static internal int OBJECT_compare(IntPtr objPtrPtr1, IntPtr objPtrPtr2, IntPtr unused) {
+            Object obj1 = DerefObjPtr(objPtrPtr1, 0);
+            Object obj2 = DerefObjPtr(objPtrPtr2, 0);
+            return IronPython.Runtime.Operations.PythonOps.Compare(obj1, obj2);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_OBJECT_compare(IntPtr ObjPtrPtr1, IntPtr objPtrPtr2,
+            IntPtr unused);
+        static internal del_OBJECT_compare OBJECT_compare_delegate = new del_OBJECT_compare(OBJECT_compare);
+
+
+        static internal int OBJECT_argmax(IntPtr objArr, IntPtr nTmp, out IntPtr maxIndx, IntPtr unused) {
+            long i;
+            long n = (long)nTmp;
+            IntPtr maxPtr = IntPtr.Zero;
+
+            maxIndx = (IntPtr)0;
+            for (i = 0; i < n && maxPtr == IntPtr.Zero; i++) {
+                // Not using offset argument to ReadIntPtr because it's only 'int' size.
+                maxPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
+            }
+            Object maxObj = (maxPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(maxPtr).Target : null;
+            for (; i < n; i++) {
+                IntPtr curPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
+                Object curObj = GCHandle.FromIntPtr(curPtr).Target;
+                if (IronPython.Runtime.Operations.PythonOps.Compare(curObj, maxObj) > 0) {
+                    maxPtr = curPtr;
+                    maxObj = curObj;
+                    maxIndx = (IntPtr)i;
+                }
+            }
+            return 0;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_OBJECT_argmax(IntPtr objArr, IntPtr n, out IntPtr maxIndex, IntPtr unused);
+        static internal del_OBJECT_argmax OBJECT_argmax_delegate = new del_OBJECT_argmax(OBJECT_argmax);
+
+
+        /// <summary>
+        /// Computes the dot product of two array of object pointers (GCHandles).
+        /// </summary>
+        /// <param name="inPtr1"></param>
+        /// <param name="stride1"></param>
+        /// <param name="inPtr2"></param>
+        /// <param name="stride2"></param>
+        /// <param name="outPtr"></param>
+        /// <param name="n"></param>
+        /// <param name="unused"></param>
+        static internal void OBJECT_dot(IntPtr inPtrPtr1, IntPtr stride1Tmp, IntPtr inPtrPtr2,
+            IntPtr stride2Tmp, ref IntPtr outPtr, IntPtr nTmp, IntPtr unused) {
+            Object cumsum = null;
+            Object prod = null;
+            long stride1 = (long)stride1Tmp;
+            long stride2 = (long)stride2Tmp;
+            long i;
+            long n = (long)nTmp;
+
+            for (i = 0; i < n; i++) {
+                Object in1 = DerefObjPtr(inPtrPtr1, stride1 * i);
+                Object in2 = DerefObjPtr(inPtrPtr2, stride2 * i);
+
+                if (in1 == null || in2 == null) {
+                    prod = (Object)false;
+                } else {
+                    prod = Site_Multiply.Target(Site_Multiply, in1, in2);
+                    if (prod == null) {
+                        cumsum = null;
+                        break;
+                    }
+                }
+
+                if (i == 0) {
+                    cumsum = prod;
+                } else {
+                    cumsum = Site_Add.Target(Site_Add, cumsum, prod);
+                    if (cumsum == null) {
+                        break;
+                    }
+                }
+            }
+
+            if (outPtr != IntPtr.Zero) {
+                GCHandle.FromIntPtr(outPtr).Free();
+            }
+            outPtr = GCHandle.ToIntPtr(GCHandle.Alloc(cumsum));
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void del_OBJECT_dot(IntPtr inPtrPtr1, IntPtr stride1Tmp, IntPtr inPtrPtr2,
+            IntPtr stride2Tmp, ref IntPtr outPtr, IntPtr nTmp, IntPtr unused);
+        static internal del_OBJECT_dot OBJECT_dot_delegate = new del_OBJECT_dot(OBJECT_dot);
+
+
+        static internal bool OBJECT_nonzero(IntPtr inPtrPtr, IntPtr arrUnused) {
+            Object obj = DerefObjPtr(inPtrPtr, 0);
+            return (obj == null) ? false :
+                IronPython.Runtime.Operations.PythonOps.IsTrue(obj);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate bool del_OBJECT_nonzero(IntPtr inPtrPtr1, IntPtr unused);
+        static internal del_OBJECT_nonzero OBJECT_nonzero_delegate = new del_OBJECT_nonzero(OBJECT_nonzero);
+
+
+
+        /// <summary>
+        /// Reads an IntPtr from a memory location and converts the GCHandle back
+        /// to an object.  If the value is 0 then null is returned.  Unaligned
+        /// addresses are handled correctly.
+        /// </summary>
+        /// <param name="ptr">Base memory location from which to read an IntPtr</param>
+        /// <param name="offset">Offset past ptr in bytes</param>
+        /// <returns>Object or null</returns>
+        static private Object DerefObjPtr(IntPtr ptr, long offset) {
+            IntPtr oPtr = Marshal.ReadIntPtr((IntPtr)((long)ptr + offset));
+            return (oPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(oPtr).Target : null;
+        }
+
+
+        private static double GetPriority(Object o, double defaultValue) {
+            double priority = 0.0;
+
+            if (o.GetType() != typeof(ndarray) &&
+                IronPython.Runtime.Operations.PythonOps.HasAttr(CodeCntx, o, "__array_priority__")) {
+                try {
+                    Object a = IronPython.Runtime.Operations.PythonOps.GetBoundAttr(CodeCntx, o, "__array_priority__");
+                    if (a != null) {
+                        priority = (double)a;
+                    }
+                } catch (Exception) {
+                    priority = defaultValue;
+                }
+            }
+            return priority;
+        }
+
+
+        private static int ComparePriorityCallback(IntPtr obj1Ptr, IntPtr obj2Ptr) {
+            Object obj1 = GCHandle.FromIntPtr(obj1Ptr).Target;
+            Object obj2 = GCHandle.FromIntPtr(obj2Ptr).Target;
+            int result = 0;
+
+            if (IronPython.Runtime.Operations.PythonOps.CompareTypesNotEqual(CodeCntx, obj1, obj2) &&
+                GetPriority(obj1, 0.0) > GetPriority(obj2, 0.0)) {
+                // PyArray_GetPriority
+            } else {
+                result = 0;
+            }
+            return result;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_ComparePriorityCallback(IntPtr objPtr1, IntPtr objPtr2);
+        static internal del_ComparePriorityCallback ComparePriorityDelegate = 
+            new del_ComparePriorityCallback(ComparePriorityCallback);
+
+
         #endregion
 
 
@@ -1302,12 +1460,16 @@ namespace NumpyDotNet {
 
             defs.OBJECT_copyswapn = Marshal.GetFunctionPointerForDelegate(CopySwapNObjectDelegate);
             defs.OBJECT_copyswap = Marshal.GetFunctionPointerForDelegate(CopySwapObjectDelegate);
-            
+            defs.OBJECT_argmax = Marshal.GetFunctionPointerForDelegate(OBJECT_argmax_delegate);
+            defs.OBJECT_compare = Marshal.GetFunctionPointerForDelegate(OBJECT_compare_delegate);
+            defs.OBJECT_dotfunc = Marshal.GetFunctionPointerForDelegate(OBJECT_dot_delegate);
+            defs.OBJECT_nonzero = Marshal.GetFunctionPointerForDelegate(OBJECT_nonzero_delegate);
 
             for (int i = 0; i < (int)NpyDefs.NPY_TYPES.NPY_NTYPES; i++) {
                 defs.cast_to_obj[i] = (IntPtr)i;
             }
             defs.sentinel = NpyDefs.NPY_VALID_MAGIC;
+
             return defs;
         }
 

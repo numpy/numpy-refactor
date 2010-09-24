@@ -469,9 +469,11 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_GetReal(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_InnerProduct(IntPtr arr, IntPtr arr2, int type);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_LexSort(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] mps, int n, int axis);
-
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Max(IntPtr arr, int axis, IntPtr ret);
@@ -1122,6 +1124,8 @@ namespace NumpyDotNet {
             return Marshal.ReadIntPtr(obj);
         }
 
+
+
         #region Error handling
 
         /// <summary>
@@ -1376,7 +1380,7 @@ namespace NumpyDotNet {
                     Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(ErrorOccurredCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
-                    IntPtr.Zero,
+                    Marshal.GetFunctionPointerForDelegate(NumericOps.ComparePriorityDelegate),
                     Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate));
             } catch (Exception e) {
