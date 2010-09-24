@@ -905,7 +905,7 @@ namespace NumpyDotNet {
             new CopySwapNDelegate(CopySwapNObject);
         #endregion
 
-        #region Comparison Functions
+        #region Object Operation Functions
 
         private static Object SyncRoot = new Object();
         private static LanguageContext PyContext = null;
@@ -1225,6 +1225,122 @@ namespace NumpyDotNet {
             return GCHandle.ToIntPtr(GCHandle.Alloc(1));
         };
 
+        static internal int OBJECT_compare(IntPtr objPtrPtr1, IntPtr objPtrPtr2, IntPtr unused) {
+            Object obj1 = DerefObjPtr(objPtrPtr1, 0);
+            Object obj2 = DerefObjPtr(objPtrPtr2, 0);
+            return IronPython.Runtime.Operations.PythonOps.Compare(obj1, obj2);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_OBJECT_compare(IntPtr ObjPtrPtr1, IntPtr objPtrPtr2,
+            IntPtr unused);
+        static internal del_OBJECT_compare OBJECT_compare_delegate = new del_OBJECT_compare(OBJECT_compare);
+
+
+        static internal int OBJECT_argmax(IntPtr objArr, IntPtr nTmp, out IntPtr maxIndx, IntPtr unused) {
+            long i;
+            long n = (long)nTmp;
+            IntPtr maxPtr = IntPtr.Zero;
+
+            maxIndx = (IntPtr)0;
+            for (i = 0; i < n && maxPtr == IntPtr.Zero; i++) {
+                // Not using offset argument to ReadIntPtr because it's only 'int' size.
+                maxPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
+            }
+            Object maxObj = (maxPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(maxPtr).Target : null;
+            for (; i < n; i++) {
+                IntPtr curPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
+                Object curObj = GCHandle.FromIntPtr(curPtr).Target;
+                if (IronPython.Runtime.Operations.PythonOps.Compare(curObj, maxObj) > 0) {
+                    maxPtr = curPtr;
+                    maxObj = curObj;
+                    maxIndx = (IntPtr)i;
+                }
+            }
+            return 0;
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate int del_OBJECT_argmax(IntPtr objArr, IntPtr n, out IntPtr maxIndex, IntPtr unused);
+        static internal del_OBJECT_argmax OBJECT_argmax_delegate = new del_OBJECT_argmax(OBJECT_argmax);
+
+
+        /// <summary>
+        /// Computes the dot product of two array of object pointers (GCHandles).
+        /// </summary>
+        /// <param name="inPtr1"></param>
+        /// <param name="stride1"></param>
+        /// <param name="inPtr2"></param>
+        /// <param name="stride2"></param>
+        /// <param name="outPtr"></param>
+        /// <param name="n"></param>
+        /// <param name="unused"></param>
+        static internal void OBJECT_dot(IntPtr inPtrPtr1, IntPtr stride1Tmp, IntPtr inPtrPtr2,
+            IntPtr stride2Tmp, ref IntPtr outPtr, IntPtr nTmp, IntPtr unused) {
+            Object cumsum = null;
+            Object prod = null;
+            long stride1 = (long)stride1Tmp;
+            long stride2 = (long)stride2Tmp;
+            long i;
+            long n = (long)nTmp;
+
+            for (i = 0; i < n; i++) {
+                Object in1 = DerefObjPtr(inPtrPtr1, stride1 * i);
+                Object in2 = DerefObjPtr(inPtrPtr2, stride2 * i);
+
+                if (in1 == null || in2 == null) {
+                    prod = (Object)false;
+                } else {
+                    prod = Site_Add.Target(Site_Add, in1, in2);
+                    if (prod == null) {
+                        cumsum = null;
+                        break;
+                    }
+                }
+
+                if (i == 0) {
+                    cumsum = prod;
+                } else {
+                    cumsum = Site_Multiply.Target(Site_Multiply, cumsum, prod);
+                    if (cumsum == null) {
+                        break;
+                    }
+                }
+            }
+
+            if (outPtr != IntPtr.Zero) {
+                GCHandle.FromIntPtr(outPtr).Free();
+            }
+            outPtr = GCHandle.ToIntPtr(GCHandle.Alloc(cumsum));
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void del_OBJECT_dot(IntPtr inPtrPtr1, IntPtr stride1Tmp, IntPtr inPtrPtr2,
+            IntPtr stride2Tmp, ref IntPtr outPtr, IntPtr nTmp, IntPtr unused);
+        static internal del_OBJECT_dot OBJECT_dot_delegate = new del_OBJECT_dot(OBJECT_dot);
+
+
+        static internal bool OBJECT_nonzero(IntPtr inPtrPtr, IntPtr arrUnused) {
+            Object obj = DerefObjPtr(inPtrPtr, 0);
+            return (obj == null) ? false :
+                IronPython.Runtime.Operations.PythonOps.IsTrue(obj);
+        }
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate bool del_OBJECT_nonzero(IntPtr inPtrPtr1, IntPtr unused);
+        static internal del_OBJECT_nonzero OBJECT_nonzero_delegate = new del_OBJECT_nonzero(OBJECT_nonzero);
+
+
+
+        /// <summary>
+        /// Reads an IntPtr from a memory location and converts the GCHandle back
+        /// to an object.  If the value is 0 then null is returned.  Unaligned
+        /// addresses are handled correctly.
+        /// </summary>
+        /// <param name="ptr">Base memory location from which to read an IntPtr</param>
+        /// <param name="offset">Offset past ptr in bytes</param>
+        /// <returns>Object or null</returns>
+        static private Object DerefObjPtr(IntPtr ptr, long offset) {
+            IntPtr oPtr = Marshal.ReadIntPtr((IntPtr)((long)ptr + offset));
+            return (oPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(oPtr).Target : null;
+        }
+
         #endregion
 
 
@@ -1302,12 +1418,16 @@ namespace NumpyDotNet {
 
             defs.OBJECT_copyswapn = Marshal.GetFunctionPointerForDelegate(CopySwapNObjectDelegate);
             defs.OBJECT_copyswap = Marshal.GetFunctionPointerForDelegate(CopySwapObjectDelegate);
-            
+            defs.OBJECT_argmax = Marshal.GetFunctionPointerForDelegate(OBJECT_argmax_delegate);
+            defs.OBJECT_compare = Marshal.GetFunctionPointerForDelegate(OBJECT_compare_delegate);
+            defs.OBJECT_dotfunc = Marshal.GetFunctionPointerForDelegate(OBJECT_dot_delegate);
+            defs.OBJECT_nonzero = Marshal.GetFunctionPointerForDelegate(OBJECT_nonzero_delegate);
 
             for (int i = 0; i < (int)NpyDefs.NPY_TYPES.NPY_NTYPES; i++) {
                 defs.cast_to_obj[i] = (IntPtr)i;
             }
             defs.sentinel = NpyDefs.NPY_VALID_MAGIC;
+
             return defs;
         }
 
