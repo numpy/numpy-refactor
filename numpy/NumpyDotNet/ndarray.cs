@@ -30,35 +30,35 @@ namespace NumpyDotNet
             Object[] posArgs = { };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2, a3 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, [ParamDictionary] IAttributesCollection kwargs) {
             Object[] posArgs = { a1, a2, a3, a4 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
@@ -66,7 +66,7 @@ namespace NumpyDotNet
             Object[] posArgs = { a1, a2, a3, a4, a5 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
         public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
@@ -74,7 +74,7 @@ namespace NumpyDotNet
             Object[] posArgs = { a1, a2, a3, a4, a5, a6 };
             Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx.LanguageContext, args);
+            Construct(cntx, args);
         }
 
 
@@ -83,7 +83,7 @@ namespace NumpyDotNet
         /// </summary>
         /// <param name="cntx"></param>
         /// <param name="args"></param>
-        private void Construct(PythonContext cntx, Object[] args) {
+        private void Construct(CodeContext cntx, Object[] args) {
             dtype type = null;
 
             // Ensures that the numeric operations are initialized once at startup.
@@ -96,7 +96,7 @@ namespace NumpyDotNet
             if (shape == null) 
                 throw new ArgumentException("Array constructor requires a shape to be specified.");
 
-            if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
+            if (args[1] != null) type = NpyDescr.DescrConverter(cntx.LanguageContext, args[1]);
             if (args[2] != null)
                 throw new NotImplementedException("Buffer support is not implemented.");
             long offset = NpyUtil_ArgProcessing.IntConverter(args[3]);
