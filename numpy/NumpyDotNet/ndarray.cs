@@ -979,6 +979,19 @@ namespace NumpyDotNet
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
+        public object tolist() {
+            if (ndim == 0) {
+                return GetItem(0);
+            } else {
+                List result = new List();
+                long size = Dims[0];
+                for (long i = 0; i < size; i++) {
+                    result.append(ArrayBigItem(i).tolist());
+                }
+                return result;
+            }
+        }
+
         public Bytes tostring(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return ToString(eOrder);
