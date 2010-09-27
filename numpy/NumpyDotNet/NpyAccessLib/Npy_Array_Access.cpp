@@ -94,7 +94,7 @@ extern "C" __declspec(dllexport)
     *intSize = sizeof(npy_int);
     *longSize = sizeof(npy_long);
     *longlongSize = sizeof(npy_longlong);
-    return NPY_NATBYTE;
+    return NPY_OPPBYTE;
 }
 
 

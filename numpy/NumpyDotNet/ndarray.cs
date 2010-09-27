@@ -795,7 +795,7 @@ namespace NumpyDotNet
             return ArrayReturn(Min(iAxis, @out));
         }
 
-        public ndarray newbyteoder(string endian = null) {
+        public ndarray newbyteorder(string endian = null) {
             dtype newtype = NpyCoreApi.DescrNewByteorder(dtype, NpyUtil_ArgProcessing.ByteorderConverter(endian));
             return NpyCoreApi.View(this, newtype, null);
         }

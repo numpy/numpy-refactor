@@ -55,8 +55,8 @@ namespace NumpyDotNet {
             return Npy_IsWriteable(arr.Array) != 0;
         }
 
-        internal static byte NativeByteOrder {
-            get { return nativeByteOrder; }
+        internal static byte OppositeByteOrder {
+            get { return oppositeByteOrder; }
         }
 
         internal static dtype SmallType(dtype t1, dtype t2) {
@@ -859,7 +859,7 @@ namespace NumpyDotNet {
         internal static readonly NpyArrayIndexInfo IndexInfo;
         internal static readonly NpyUFuncOffsets UFuncOffsets;
 
-        internal static byte nativeByteOrder;
+        internal static byte oppositeByteOrder;
 
         /// <summary>
         /// Used for synchronizing modifications to interface pointer.
@@ -1359,7 +1359,7 @@ namespace NumpyDotNet {
             // figure out the mapping between types that vary in size in the core and
             // fixed-size .NET types.
             int intSize, longSize, longLongSize;
-            nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
 
             Native_SizeOfInt = intSize;
             Native_SizeOfLong = longSize;
