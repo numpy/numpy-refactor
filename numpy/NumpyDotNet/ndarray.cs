@@ -26,55 +26,9 @@ namespace NumpyDotNet
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
 
-        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs)
-        {
-            Object[] posArgs = { };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
-            Object a5, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4, a5 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
-            Object a5, Object a6, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4, a5, a6 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
+        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] posArgs) {
+            object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
             Construct(cntx, args);
         }
 
