@@ -279,7 +279,7 @@ extern "C" __declspec(dllexport)
 	}
 	if (index < 0 || index >= it->size) {
 		char buf[1024];
-		sprintf_s<sizeof(buf)>(buf, "index out of bounds 0<=index<%ld", (long)index);
+		sprintf_s<sizeof(buf)>(buf, "index out of bounds 0<=index<%ld", (long)it->size);
 		NpyErr_SetString(NpyExc_IndexError, buf);
 		return NULL;
 	}

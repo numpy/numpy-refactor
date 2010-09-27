@@ -774,7 +774,76 @@ namespace NumpyDotNet
             return NpyCoreApi.GetField(this, dt, offset);
         }
 
+        public object item(params object[] args) {
+            if (args.Length == 1 && args[0] is PythonTuple) {
+                PythonTuple t = (PythonTuple)args[0];
+                args = t.ToArray();
+            }
+            if (args.Length == 0) {
+                if (ndim == 0 || Size == 1) {
+                    return GetItem(0);
+                } else {
+                    throw new ArgumentException("can only convert an array of size 1 to a Python scalar");
+                }
+            } else {
+                using (NpyIndexes indexes = new NpyIndexes()) {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (args.Length == 1) {
+                        if (indexes.IndexType(0) != NpyIndexes.NpyIndexTypes.INTP) {
+                            throw new ArgumentException("invalid integer");
+                        }
+                        // Do flat indexing
+                        return Flat.Get(indexes.GetIntPtr(0));
+                    } else {
+                        if (indexes.IsSingleItem(ndim)) {
+                            long offset = indexes.SingleAssignOffset(this);
+                            return GetItem(offset);
+                        } else {
+                            throw new ArgumentException("Incorrect number of indices for the array");
+                        }
+                    }
+                }
+            }
+        }
 
+        public void itemset(params object[] args) {
+            // Convert args to value and args
+            if (args.Length == 0) {
+                throw new ArgumentException("itemset must have at least one argument");
+            }
+            object value = args.Last();
+            args = args.Take(args.Length - 1).ToArray();
+
+            if (args.Length == 1 && args[0] is PythonTuple) {
+                PythonTuple t = (PythonTuple)args[0];
+                args = t.ToArray();
+            }
+            if (args.Length == 0) {
+                if (ndim == 0 || Size == 1) {
+                    SetItem(value, 0);
+                } else {
+                    throw new ArgumentException("can only convert an array of size 1 to a Python scalar");
+                }
+            } else {
+                using (NpyIndexes indexes = new NpyIndexes()) {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (args.Length == 1) {
+                        if (indexes.IndexType(0) != NpyIndexes.NpyIndexTypes.INTP) {
+                            throw new ArgumentException("invalid integer");
+                        }
+                        // Do flat indexing
+                        Flat.SingleAssign(indexes.GetIntPtr(0), value);
+                    } else {
+                        if (indexes.IsSingleItem(ndim)) {
+                            long offset = indexes.SingleAssignOffset(this);
+                            SetItem(value, offset);
+                        } else {
+                            throw new ArgumentException("Incorrect number of indices for the array");
+                        }
+                    }
+                }
+            }
+        }
         public object max(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             return ArrayReturn(Max(iAxis, @out));
