@@ -66,7 +66,7 @@ namespace NumpyDotNet {
         }
 
         public bool IsNativeByteOrder {
-            get { return ByteOrder != NpyCoreApi.NativeByteOrder; }
+            get { return ByteOrder != NpyCoreApi.OppositeByteOrder; }
         }
 
         public byte Kind {

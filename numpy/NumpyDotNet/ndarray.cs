@@ -9,6 +9,7 @@ using System.Numerics;
 using IronPython.Modules;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 using Microsoft.Scripting;
 using NumpyDotNet;
 using System.Collections;
@@ -25,55 +26,9 @@ namespace NumpyDotNet
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
 
-        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs)
-        {
-            Object[] posArgs = { };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
 
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
-            Object a5, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4, a5 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
-            Construct(cntx, args);
-        }
-
-        public ndarray(CodeContext cntx, Object a1, Object a2, Object a3, Object a4, 
-            Object a5, Object a6, [ParamDictionary] IAttributesCollection kwargs) {
-            Object[] posArgs = { a1, a2, a3, a4, a5, a6 };
-            Object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-
+        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] posArgs) {
+            object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
             Construct(cntx, args);
         }
 
@@ -706,6 +661,10 @@ namespace NumpyDotNet
             return ArrayReturn(Choose(choices, @out, clipMode));
         }
 
+        public object clip(object min = null, object max = null, ndarray @out = null) {
+            return Clip(min, max, @out);
+        }
+
         public ndarray compress(object condition, object axis = null, ndarray @out = null) {
             ndarray aCondition = NpyArray.FromAny(condition, null, 0, 0, 0, null);
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
@@ -718,6 +677,10 @@ namespace NumpyDotNet
             return TakeFrom(indexes, iAxis, @out, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
+        public ndarray conj(ndarray @out = null) {
+            return conjugate(@out);
+        }
+
         public ndarray conjugate(ndarray @out = null) {
             return Conjugate(@out);
         }
@@ -725,6 +688,16 @@ namespace NumpyDotNet
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
+                              ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumProd(iAxis, rtype, @out);
         }
 
         public object cumsum(CodeContext cntx, object axis = null, object dtype = null, 
@@ -738,18 +711,12 @@ namespace NumpyDotNet
         }
 
 
-        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
-                              ndarray @out = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            dtype rtype = null;
-            if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
-            }
-            return CumProd(iAxis, rtype, @out);
-        }
-
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
             return Diagonal(offset, axis1, axis2);
+        }
+
+        public void fill(object scalar) {
+            FillWithScalar(scalar);
         }
 
         public ndarray flatten(object order = null) {
@@ -762,15 +729,80 @@ namespace NumpyDotNet
             return NpyCoreApi.GetField(this, dt, offset);
         }
 
+        public object item(params object[] args) {
+            if (args.Length == 1 && args[0] is PythonTuple) {
+                PythonTuple t = (PythonTuple)args[0];
+                args = t.ToArray();
+            }
+            if (args.Length == 0) {
+                if (ndim == 0 || Size == 1) {
+                    return GetItem(0);
+                } else {
+                    throw new ArgumentException("can only convert an array of size 1 to a Python scalar");
+                }
+            } else {
+                using (NpyIndexes indexes = new NpyIndexes()) {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (args.Length == 1) {
+                        if (indexes.IndexType(0) != NpyIndexes.NpyIndexTypes.INTP) {
+                            throw new ArgumentException("invalid integer");
+                        }
+                        // Do flat indexing
+                        return Flat.Get(indexes.GetIntPtr(0));
+                    } else {
+                        if (indexes.IsSingleItem(ndim)) {
+                            long offset = indexes.SingleAssignOffset(this);
+                            return GetItem(offset);
+                        } else {
+                            throw new ArgumentException("Incorrect number of indices for the array");
+                        }
+                    }
+                }
+            }
+        }
+
+        public void itemset(params object[] args) {
+            // Convert args to value and args
+            if (args.Length == 0) {
+                throw new ArgumentException("itemset must have at least one argument");
+            }
+            object value = args.Last();
+            args = args.Take(args.Length - 1).ToArray();
+
+            if (args.Length == 1 && args[0] is PythonTuple) {
+                PythonTuple t = (PythonTuple)args[0];
+                args = t.ToArray();
+            }
+            if (args.Length == 0) {
+                if (ndim == 0 || Size == 1) {
+                    SetItem(value, 0);
+                } else {
+                    throw new ArgumentException("can only convert an array of size 1 to a Python scalar");
+                }
+            } else {
+                using (NpyIndexes indexes = new NpyIndexes()) {
+                    NpyUtil_IndexProcessing.IndexConverter(args, indexes);
+                    if (args.Length == 1) {
+                        if (indexes.IndexType(0) != NpyIndexes.NpyIndexTypes.INTP) {
+                            throw new ArgumentException("invalid integer");
+                        }
+                        // Do flat indexing
+                        Flat.SingleAssign(indexes.GetIntPtr(0), value);
+                    } else {
+                        if (indexes.IsSingleItem(ndim)) {
+                            long offset = indexes.SingleAssignOffset(this);
+                            SetItem(value, offset);
+                        } else {
+                            throw new ArgumentException("Incorrect number of indices for the array");
+                        }
+                    }
+                }
+            }
+        }
 
         public object max(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             return ArrayReturn(Max(iAxis, @out));
-        }
-
-        public object min(object axis = null, ndarray @out = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(Min(iAxis, @out));
         }
 
         public object mean(CodeContext cntx, object axis = null, object dtype = null, 
@@ -781,6 +813,16 @@ namespace NumpyDotNet
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
             return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
+        }
+
+        public object min(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(Min(iAxis, @out));
+        }
+
+        public ndarray newbyteorder(string endian = null) {
+            dtype newtype = NpyCoreApi.DescrNewByteorder(dtype, NpyUtil_ArgProcessing.ByteorderConverter(endian));
+            return NpyCoreApi.View(this, newtype, null);
         }
 
         public PythonTuple nonzero() {
@@ -819,6 +861,11 @@ namespace NumpyDotNet
             PutTo(aValues, aIndices, eMode);
         }
 
+        public ndarray ravel(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return Ravel(eOrder);
+        }
+
         public object repeat(object repeats, object axis = null) {
             ndarray aRepeats = (repeats as ndarray);
             if (aRepeats == null) {
@@ -842,11 +889,6 @@ namespace NumpyDotNet
                 newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
             }
             return NpyCoreApi.Newshape(this, newshape, order);
-        }
-
-        public ndarray ravel(object order = null) {
-            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
-            return Ravel(eOrder);
         }
 
         private static string[] resizeKeywords = { "refcheck" };
@@ -879,6 +921,11 @@ namespace NumpyDotNet
                     0, 0, NpyDefs.NPY_CARRAY, null);
             }
             return ArrayReturn(SearchSorted(aKeys, eSide));
+        }
+
+        public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NpyArray.SetField(this, d.Descr, offset, value);
         }
 
         public void setflags(object write = null, object align = null, object uic = null) {
@@ -976,6 +1023,38 @@ namespace NumpyDotNet
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
+        public void tofile(CodeContext cntx, PythonFile file, string sep = null, string format = null) {
+            ToFile(cntx, file, sep, format);
+        }
+
+        public void tofile(CodeContext cntx, string filename, string sep = null, string format = null) {
+            BuiltinFunction open = (BuiltinFunction) cntx.LanguageContext.BuiltinModuleDict.get("open");
+            PythonFile f = (PythonFile)PythonOps.CallWithContext(cntx, open, filename, "wb");
+            try {
+                tofile(cntx, f, sep, format);
+            } finally {
+                f.close();
+            }
+        }
+
+        public object tolist() {
+            if (ndim == 0) {
+                return GetItem(0);
+            } else {
+                List result = new List();
+                long size = Dims[0];
+                for (long i = 0; i < size; i++) {
+                    result.append(ArrayBigItem(i).tolist());
+                }
+                return result;
+            }
+        }
+
+        public Bytes tostring(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return ToString(eOrder);
+        }
+
         public object trace(CodeContext cntx, int offset = 0, int axis1 = 0, int axis2 = 1,
             object dtype = null, ndarray @out = null) {
             ndarray diag = Diagonal(offset, axis1, axis2);
@@ -999,6 +1078,25 @@ namespace NumpyDotNet
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
+        }
+
+
+        public ndarray view(CodeContext cntx, object dtype = null, object type = null) {
+            if (dtype != null && type == null) {
+                if (IsNdarraySubtype(dtype)) {
+                    type = dtype;
+                    dtype = null;
+                }
+            }
+
+            if (type != null && !IsNdarraySubtype(type)) {
+                throw new ArgumentException("Type must be a subtype of ndarray.");
+            }
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return NpyCoreApi.View(this, rtype, type);
         }
         
         #endregion
@@ -1132,6 +1230,18 @@ namespace NumpyDotNet
                 return dtype1;
             }
         }
+
+        private static bool IsNdarraySubtype(object type) {
+            if (type == null) {
+                return false;
+            }
+            PythonType pt = type as PythonType;
+            if (pt == null) {
+                return false;
+            }
+            return PythonOps.IsSubClass(pt, DynamicHelpers.GetPythonTypeFromType(typeof(ndarray)));
+        }
+
         #endregion
     }
 

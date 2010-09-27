@@ -208,6 +208,9 @@ NDARRAY_API NpyArray *NpyArray_CheckFromArray(NpyArray *arr,
                                               NpyArray_Descr *descr,
                                               int requires);
 NDARRAY_API int NpyArray_ToBinaryFile(NpyArray *self, FILE *fp);
+NDARRAY_API int NpyArray_FillWithObject(NpyArray* arr, void* object);
+NDARRAY_API int NpyArray_FillWithScalar(NpyArray* arr, NpyArray* zero_d_array);
+
 
 NDARRAY_API int NpyArray_MoveInto(NpyArray *dest, NpyArray *src);
 

@@ -94,7 +94,7 @@ extern "C" __declspec(dllexport)
     *intSize = sizeof(npy_int);
     *longSize = sizeof(npy_long);
     *longlongSize = sizeof(npy_longlong);
-    return NPY_NATBYTE;
+    return NPY_OPPBYTE;
 }
 
 
@@ -279,7 +279,7 @@ extern "C" __declspec(dllexport)
 	}
 	if (index < 0 || index >= it->size) {
 		char buf[1024];
-		sprintf_s<sizeof(buf)>(buf, "index out of bounds 0<=index<%ld", (long)index);
+		sprintf_s<sizeof(buf)>(buf, "index out of bounds 0<=index<%ld", (long)it->size);
 		NpyErr_SetString(NpyExc_IndexError, buf);
 		return NULL;
 	}
@@ -431,4 +431,53 @@ void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
   	*nameOffset = offsetof(NpyUFuncObject, name);
   	*typesOffset = offsetof(NpyUFuncObject, types);
   	*coreSigOffset = offsetof(NpyUFuncObject, core_signature);
+}
+
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_GetBytes(NpyArray* arr, char* buffer, npy_int64 length, NPY_ORDER order)
+{
+    npy_intp numbytes;
+
+
+    if (order == NPY_ANYORDER) {
+        order = NpyArray_ISFORTRAN(arr) ? NPY_FORTRANORDER : NPY_CORDER;
+    }
+
+    numbytes = NpyArray_NBYTES(arr);
+    if (length != (npy_int64)numbytes) {
+        NpyErr_SetString(NpyExc_ValueError, "length is not the size of the array.");
+        return -1;
+    }
+
+    if (NpyArray_ISCONTIGUOUS(arr) && order == NPY_CORDER ||
+        NpyArray_ISFORTRAN(arr) && order == NPY_FORTRANORDER) {
+            memcpy(buffer, arr->data, numbytes);
+    } else {
+        NpyArray *src;
+        NpyArrayIterObject *it;
+        npy_intp index;
+        int elsize;
+
+        if (order == NPY_FORTRANORDER) {
+            src = NpyArray_Transpose(arr, NULL);
+        } else {
+            src = arr;
+            Npy_INCREF(src);
+        }
+
+        it = NpyArray_IterNew(src);
+        Npy_DECREF(src);
+        if (it == NULL) {
+            return -1;
+        }
+        index = it->size;
+        elsize = NpyArray_ITEMSIZE(arr);
+        while (index--) {
+            memcpy(buffer, it->dataptr, elsize);
+            buffer += elsize;
+            NpyArray_ITER_NEXT(it);
+        }
+        Npy_DECREF(it);
+    }
+    return 0;
 }

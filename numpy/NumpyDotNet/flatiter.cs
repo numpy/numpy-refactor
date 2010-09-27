@@ -99,6 +99,10 @@ namespace NumpyDotNet
             return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_size).ToPython();
         }
 
+        internal long Length {
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.IterOffsets.off_size).ToInt64(); }
+        }
+
         public ndarray @base {
             get
             {
@@ -172,7 +176,7 @@ namespace NumpyDotNet
 
         #region internal methods
 
-        private void SingleAssign(IntPtr index, object value)
+        internal void SingleAssign(IntPtr index, object value)
         {
             IntPtr pos = NpyCoreApi.IterGoto1D(core, index);
             if (pos == IntPtr.Zero)
@@ -180,6 +184,14 @@ namespace NumpyDotNet
                 NpyCoreApi.CheckError();
             }
             arr.SetItem(value, pos.ToInt64() - arr.data.ToInt64());
+        }
+
+        internal object Get(IntPtr index) {
+            IntPtr pos = NpyCoreApi.IterGoto1D(core, index);
+            if (pos == IntPtr.Zero) {
+                NpyCoreApi.CheckError();
+            }
+            return arr.GetItem(pos.ToInt64() - arr.data.ToInt64());
         }
 
         #endregion

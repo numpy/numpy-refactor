@@ -55,8 +55,8 @@ namespace NumpyDotNet {
             return Npy_IsWriteable(arr.Array) != 0;
         }
 
-        internal static byte NativeByteOrder {
-            get { return nativeByteOrder; }
+        internal static byte OppositeByteOrder {
+            get { return oppositeByteOrder; }
         }
 
         internal static dtype SmallType(dtype t1, dtype t2) {
@@ -300,6 +300,42 @@ namespace NumpyDotNet {
                 NpyArray_DescrNew(d.Descr));
         }
 
+        internal static void GetBytes(ndarray arr, byte[] bytes, NpyDefs.NPY_ORDER order) {
+            if (NpyArrayAccess_GetBytes(arr.Array, bytes, bytes.LongLength, (int)order) < 0) {
+                CheckError();
+            }
+        }
+
+        internal static void FillWithObject(ndarray arr, object obj) {
+            GCHandle h = GCHandle.Alloc(obj);
+            try {
+                if (NpyArray_FillWithObject(arr.Array, GCHandle.ToIntPtr(h)) < 0) {
+                    CheckError();
+                }
+            } finally {
+                h.Free();
+            }
+        }
+
+        internal static void FillWithScalar(ndarray arr, ndarray zero_d_array) {
+            if (NpyArray_FillWithScalar(arr.Array, zero_d_array.Array) < 0) {
+                CheckError();
+            }
+        }
+
+        internal static ndarray View(ndarray arr, dtype d, object subtype) {
+            if (subtype != null) {
+                throw new NotImplementedException("Subtypes not yet implemented");
+            }
+            return DecrefToInterface<ndarray>(
+                NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+        }
+
+        internal static dtype DescrNewByteorder(dtype d, char order) {
+            return DecrefToInterface<dtype>(
+                NpyArray_DescrNewByteorder(d.Descr, (byte)order));
+        }
+
         #endregion
 
 
@@ -378,6 +414,12 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_FillWithObject(IntPtr arr, IntPtr obj);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_FillWithScalar(IntPtr arr, IntPtr zero_d_array);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -441,6 +483,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrAllocFields();
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DescrNewByteorder(IntPtr descr, byte order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
@@ -517,6 +562,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_View(IntPtr arr, IntPtr descr, IntPtr subtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyDict_Destroy(IntPtr dict);
@@ -678,6 +726,10 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
+            [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);
+
         #endregion
 
 
@@ -774,7 +826,7 @@ namespace NumpyDotNet {
         internal static readonly NpyArrayIndexInfo IndexInfo;
         internal static readonly NpyUFuncOffsets UFuncOffsets;
 
-        internal static byte nativeByteOrder;
+        internal static byte oppositeByteOrder;
 
         /// <summary>
         /// Used for synchronizing modifications to interface pointer.
@@ -1232,7 +1284,7 @@ namespace NumpyDotNet {
             // figure out the mapping between types that vary in size in the core and
             // fixed-size .NET types.
             int intSize, longSize, longLongSize;
-            nativeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
 
             Native_SizeOfInt = intSize;
             Native_SizeOfLong = longSize;

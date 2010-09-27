@@ -115,7 +115,7 @@ namespace NumpyDotNet {
                     // Descr replace
                 }
                 if (descr != null) {
-                    descr.ByteOrder = NpyCoreApi.NativeByteOrder;
+                    descr.ByteOrder = (byte)'=';
                 }
             }
 
