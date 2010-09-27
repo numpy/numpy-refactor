@@ -193,8 +193,8 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
     }
 
 finish:
-    Npy_XDECREF(mps[2]);
     Npy_XINCREF(result);
+    Npy_XDECREF(mps[2]);
     return result;
 }
 
