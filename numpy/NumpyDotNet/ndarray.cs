@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Numerics;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
@@ -984,7 +985,6 @@ namespace NumpyDotNet
         }
 
         public void tofile(object file = null, string sep = null, string format = null) {
-            PythonFile f;
             Console.WriteLine("File = {0}", file);
         }
 
@@ -1029,6 +1029,25 @@ namespace NumpyDotNet
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
+        }
+
+
+        public ndarray view(CodeContext cntx, object dtype = null, object type = null) {
+            if (dtype != null && type == null) {
+                if (IsNdarraySubtype(dtype)) {
+                    type = dtype;
+                    dtype = null;
+                }
+            }
+
+            if (type != null && !IsNdarraySubtype(type)) {
+                throw new ArgumentException("Type must be a subtype of ndarray.");
+            }
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return NpyCoreApi.View(this, rtype, type);
         }
         
         #endregion
@@ -1162,6 +1181,18 @@ namespace NumpyDotNet
                 return dtype1;
             }
         }
+
+        private static bool IsNdarraySubtype(object type) {
+            if (type == null) {
+                return false;
+            }
+            PythonType pt = type as PythonType;
+            if (pt == null) {
+                return false;
+            }
+            return PythonOps.IsSubClass(pt, DynamicHelpers.GetPythonTypeFromType(typeof(ndarray)));
+        }
+
         #endregion
     }
 

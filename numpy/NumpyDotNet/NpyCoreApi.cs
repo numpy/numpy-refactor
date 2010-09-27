@@ -323,6 +323,14 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static ndarray View(ndarray arr, dtype d, object subtype) {
+            if (subtype != null) {
+                throw new NotImplementedException("Subtypes not yet implemented");
+            }
+            return DecrefToInterface<ndarray>(
+                NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+        }
+
         #endregion
 
 
@@ -546,6 +554,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_View(IntPtr arr, IntPtr descr, IntPtr subtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyDict_Destroy(IntPtr dict);
