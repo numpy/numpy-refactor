@@ -306,6 +306,17 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void FillWithObject(ndarray arr, object obj) {
+            GCHandle h = GCHandle.Alloc(obj);
+            try {
+                if (NpyArray_FillWithObject(arr.Array, GCHandle.ToIntPtr(h)) < 0) {
+                    CheckError();
+                }
+            } finally {
+                h.Free();
+            }
+        }
+
         internal static void FillWithScalar(ndarray arr, ndarray zero_d_array) {
             if (NpyArray_FillWithScalar(arr.Array, zero_d_array.Array) < 0) {
                 CheckError();
@@ -388,6 +399,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_FillWithObject(IntPtr arr, IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_FillWithScalar(IntPtr arr, IntPtr zero_d_array);

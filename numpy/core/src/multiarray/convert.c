@@ -238,7 +238,7 @@ PyArray_FillWithScalar(PyArrayObject *arr, PyObject *obj)
     int result;
 
     if (PyArray_ISOBJECT(arr)) {
-        return NpyArray_FillWithObject(PyArray_ARRAY(arr), &obj);
+        return NpyArray_FillWithObject(PyArray_ARRAY(arr), obj);
     }
     else {
         descr = PyArray_DESCR(arr);

@@ -18,11 +18,11 @@ namespace NumpyDotNet
 
         internal void FillWithScalar(object scalar) {
             if (dtype.IsObject) {
-                // TODO: Fix this.
-                throw new NotImplementedException("Can't fill object arrays.");
+                NpyCoreApi.FillWithObject(this, scalar);
+            } else {
+                ndarray zero_d_array = NpyArray.FromAny(scalar, dtype, flags: NpyDefs.NPY_ALIGNED);
+                NpyCoreApi.FillWithScalar(this, zero_d_array);
             }
-            ndarray zero_d_array = NpyArray.FromAny(scalar, dtype, flags: NpyDefs.NPY_ALIGNED);
-            NpyCoreApi.FillWithScalar(this, zero_d_array);
         }
     }
 }

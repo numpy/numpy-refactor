@@ -234,7 +234,7 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 }
 
 NDARRAY_API int
-NpyArray_FillWithObject(NpyArray* arr, void** fromptr)
+NpyArray_FillWithObject(NpyArray* arr, void* object)
 {
     int itemsize;
     NpyArray_Descr *descr;
@@ -257,12 +257,12 @@ NpyArray_FillWithObject(NpyArray* arr, void** fromptr)
             NpyArray_DESCR(arr)->f->fillwithscalar;
         itemsize = NpyArray_ITEMSIZE(arr);
         if (fillwithscalar && NpyArray_ISALIGNED(arr)) {
-            copyswap(toptr, fromptr, 0, NULL);
+            copyswap(toptr, &object, 0, NULL);
             fillwithscalar(toptr + itemsize, size-1, toptr, arr);
         }
         else {
             while (size--) {
-                copyswap(toptr, fromptr, 0, arr);
+                copyswap(toptr, &object, 0, arr);
                 toptr += itemsize;
             }
         }
@@ -275,7 +275,7 @@ NpyArray_FillWithObject(NpyArray* arr, void** fromptr)
             return -1;
         }
         while (size--) {
-            copyswap(iter->dataptr, fromptr, 0, arr);
+            copyswap(iter->dataptr, &object, 0, arr);
             NpyArray_ITER_NEXT(iter);
         }
         Npy_DECREF(iter);
