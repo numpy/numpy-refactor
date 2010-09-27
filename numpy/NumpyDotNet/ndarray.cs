@@ -836,6 +836,11 @@ namespace NumpyDotNet
             PutTo(aValues, aIndices, eMode);
         }
 
+        public ndarray ravel(object order = null) {
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            return Ravel(eOrder);
+        }
+
         public object repeat(object repeats, object axis = null) {
             ndarray aRepeats = (repeats as ndarray);
             if (aRepeats == null) {
@@ -859,11 +864,6 @@ namespace NumpyDotNet
                 newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
             }
             return NpyCoreApi.Newshape(this, newshape, order);
-        }
-
-        public ndarray ravel(object order = null) {
-            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
-            return Ravel(eOrder);
         }
 
         private static string[] resizeKeywords = { "refcheck" };
@@ -896,6 +896,11 @@ namespace NumpyDotNet
                     0, 0, NpyDefs.NPY_CARRAY, null);
             }
             return ArrayReturn(SearchSorted(aKeys, eSide));
+        }
+
+        public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NpyArray.SetField(this, d.Descr, offset, value);
         }
 
         public void setflags(object write = null, object align = null, object uic = null) {
