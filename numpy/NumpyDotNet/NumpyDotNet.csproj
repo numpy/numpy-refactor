@@ -34,23 +34,18 @@
   <ItemGroup>
     <Reference Include="IronPython">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.6 for .NET 4.0\IronPython.dll</HintPath>
-      <HintPath>C:\Program Files\IronPython 2.6 for .NET 4.0\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.6 for .NET 4.0\IronPython.Modules.dll</HintPath>
-      <HintPath>C:\Program Files\IronPython 2.6 for .NET 4.0\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.6 for .NET 4.0\Microsoft.Dynamic.dll</HintPath>
-      <HintPath>C:\Program Files\IronPython 2.6 for .NET 4.0\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.6 for .NET 4.0\Microsoft.Scripting.dll</HintPath>
-      <HintPath>C:\Program Files\IronPython 2.6 for .NET 4.0\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Debugging">
       <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.6 for .NET 4.0\Microsoft.Scripting.Debugging.dll</HintPath>
-      <HintPath>C:\Program Files\IronPython 2.6 for .NET 4.0\Microsoft.Scripting.Debugging.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -80,6 +75,7 @@
     <Compile Include="NumericOps.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ufunc.cs" />
+    <Compile Include="umath.cs" />
     <Compile Include="Wrapper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

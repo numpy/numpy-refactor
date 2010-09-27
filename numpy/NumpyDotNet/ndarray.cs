@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using System.Numerics;
+using IronPython.Modules;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
-using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
 using System.Collections;
@@ -189,6 +189,7 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
+        
         public object __lshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
