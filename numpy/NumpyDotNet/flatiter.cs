@@ -99,6 +99,10 @@ namespace NumpyDotNet
             return Marshal.ReadIntPtr(core + NpyCoreApi.IterOffsets.off_size).ToPython();
         }
 
+        internal long Length {
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.IterOffsets.off_size).ToInt64(); }
+        }
+
         public ndarray @base {
             get
             {

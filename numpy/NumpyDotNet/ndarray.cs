@@ -984,8 +984,18 @@ namespace NumpyDotNet
             return ArrayReturn(TakeFrom(aIndices, iAxis, @out, cMode));
         }
 
-        public void tofile(object file = null, string sep = null, string format = null) {
-            Console.WriteLine("File = {0}", file);
+        public void tofile(CodeContext cntx, PythonFile file, string sep = null, string format = null) {
+            ToFile(cntx, file, sep, format);
+        }
+
+        public void tofile(CodeContext cntx, string filename, string sep = null, string format = null) {
+            BuiltinFunction open = (BuiltinFunction) cntx.LanguageContext.BuiltinModuleDict.get("open");
+            PythonFile f = (PythonFile)PythonOps.CallWithContext(cntx, open, filename, "wb");
+            try {
+                tofile(cntx, f, sep, format);
+            } finally {
+                f.close();
+            }
         }
 
         public object tolist() {
