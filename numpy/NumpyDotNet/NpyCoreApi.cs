@@ -331,6 +331,11 @@ namespace NumpyDotNet {
                 NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
         }
 
+        internal static dtype DescrNewByteorder(dtype d, char order) {
+            return DecrefToInterface<dtype>(
+                NpyArray_DescrNewByteorder(d.Descr, (byte)order));
+        }
+
         #endregion
 
 
@@ -478,6 +483,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrAllocFields();
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DescrNewByteorder(IntPtr descr, byte order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);

@@ -152,6 +152,35 @@ namespace NumpyDotNet {
             return order;
         }
 
+        internal static char ByteorderConverter(string s) {
+            if (s == null) {
+                return 's';
+            } else {
+                if (s.Length == 0) {
+                    throw new ArgumentException("Byteorder string must be at least length 1");
+                }
+                switch (s[0]) {
+                    case '>':
+                    case 'b':
+                    case 'B':
+                        return '>';
+                    case '<':
+                    case 'l':
+                    case 'L':
+                        return '<';
+                    case '=':
+                    case 'n':
+                    case 'N':
+                        return '=';
+                    case 's':
+                    case 'S':
+                        return 's';
+                    default:
+                        throw new ArgumentException(String.Format("{0} is an unrecognized byte order"));
+                }
+            }
+        }
+
         internal static IntPtr IntpConverter(object arg) {
             if (IntPtr.Size == 4) {
                 if (arg is int) {

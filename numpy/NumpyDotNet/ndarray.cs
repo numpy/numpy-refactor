@@ -722,6 +722,10 @@ namespace NumpyDotNet
             return TakeFrom(indexes, iAxis, @out, NpyDefs.NPY_CLIPMODE.NPY_RAISE);
         }
 
+        public ndarray conj(ndarray @out = null) {
+            return conjugate(@out);
+        }
+
         public ndarray conjugate(ndarray @out = null) {
             return Conjugate(@out);
         }
@@ -729,6 +733,16 @@ namespace NumpyDotNet
         public ndarray copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
+        }
+
+        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
+                              ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return CumProd(iAxis, rtype, @out);
         }
 
         public object cumsum(CodeContext cntx, object axis = null, object dtype = null, 
@@ -741,16 +755,6 @@ namespace NumpyDotNet
             return CumSum(iAxis, rtype, @out);
         }
 
-
-        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
-                              ndarray @out = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            dtype rtype = null;
-            if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
-            }
-            return CumProd(iAxis, rtype, @out);
-        }
 
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
             return Diagonal(offset, axis1, axis2);
@@ -776,11 +780,6 @@ namespace NumpyDotNet
             return ArrayReturn(Max(iAxis, @out));
         }
 
-        public object min(object axis = null, ndarray @out = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
-            return ArrayReturn(Min(iAxis, @out));
-        }
-
         public object mean(CodeContext cntx, object axis = null, object dtype = null, 
                            ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
@@ -789,6 +788,16 @@ namespace NumpyDotNet
                 rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
             }
             return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
+        }
+
+        public object min(object axis = null, ndarray @out = null) {
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            return ArrayReturn(Min(iAxis, @out));
+        }
+
+        public ndarray newbyteoder(string endian = null) {
+            dtype newtype = NpyCoreApi.DescrNewByteorder(dtype, NpyUtil_ArgProcessing.ByteorderConverter(endian));
+            return NpyCoreApi.View(this, newtype, null);
         }
 
         public PythonTuple nonzero() {
