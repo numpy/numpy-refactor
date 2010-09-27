@@ -844,6 +844,7 @@ namespace NumpyDotNet
                 }
             }
         }
+
         public object max(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             return ArrayReturn(Max(iAxis, @out));
