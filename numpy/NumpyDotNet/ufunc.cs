@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 using IronPython.Runtime;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
 
 namespace NumpyDotNet {
-    class ufunc : Wrapper
+    public class ufunc : Wrapper
     {
          private static String[] ufuncArgNames = { "extobj", "sig" };
 
@@ -34,6 +35,32 @@ namespace NumpyDotNet {
         internal IntPtr UFunc {
             get { return core; }
         }
+
+        public object Call(Object a) {
+            if (nin == 1) {
+                return NpyCoreApi.GenericUnaryOp(NpyArray.FromAny(a), this);
+            }
+            throw new ArgumentException("Insufficient number of arguments.");
+        }
+
+        public object Call(Object a, Object b) {
+            if (nin == 1) {
+                return NpyCoreApi.GenericUnaryOp(NpyArray.FromAny(a), this, (ndarray)b);
+            } else if (nin == 2) {
+                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(a), NpyArray.FromAny(b), this);
+            }
+            throw new ArgumentException("Insufficient number of arguments.");
+        }
+
+        public object Call(Object a, Object b, Object c) {
+            if (nin == 2) {
+                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(a),
+                    NpyArray.FromAny(b), this, (ndarray)c);
+            }
+            throw new ArgumentException("Insufficient number of arguments.");
+        }
+
+
 
         #region Python interface
 
@@ -75,25 +102,29 @@ namespace NumpyDotNet {
         }
 
         // TODO: Implement 'types'
+        public override string ToString() {
+            return __name__();
+        }
 
         public string __name__() {
             CheckValid();
             IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_name);
-            return Marshal.PtrToStringAuto(strPtr);
+            return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
         }
 
         // TODO: Implement 'identity'
+
         public string signature() {
             CheckValid();
             IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_core_signature);
-            return Marshal.PtrToStringAuto(strPtr);
+            return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
         }
 
 
         #endregion
 
         public static ufunc GetFunction(string name) {
-            return NpyCoreApi.GetUFunc(name);
+            return umath.GetUFunc(name);
         }
 
 
