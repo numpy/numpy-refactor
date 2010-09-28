@@ -90,7 +90,7 @@ namespace NumpyDotNet
 
 
         // Creates a wrapper for an array created on the native side, such as the result of a slice operation.
-        internal ndarray(IntPtr a)
+        public ndarray(IntPtr a)
         {
             core = a;
         }

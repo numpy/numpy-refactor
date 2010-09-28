@@ -6,6 +6,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using IronPython.Runtime;
+using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using IronPython.Modules;
 using Microsoft.Scripting.Runtime;
 using Microsoft.Scripting.Utils;
@@ -325,15 +327,28 @@ namespace NumpyDotNet {
 
         internal static ndarray View(ndarray arr, dtype d, object subtype) {
             if (subtype != null) {
-                throw new NotImplementedException("Subtypes not yet implemented");
+                GCHandle h = GCHandle.Alloc(subtype);
+                try {
+                    return DecrefToInterface<ndarray>(
+                        NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr),
+                            GCHandle.ToIntPtr(h)));
+                } finally {
+                    h.Free();
+                }
             }
-            return DecrefToInterface<ndarray>(
-                NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+            else {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+            }
         }
 
         internal static dtype DescrNewByteorder(dtype d, char order) {
             return DecrefToInterface<dtype>(
                 NpyArray_DescrNewByteorder(d.Descr, (byte)order));
+        }
+
+        internal static void UpdateFlags(ndarray arr, int flagmask) {
+            NpyArray_UpdateFlags(arr.Array, flagmask);
         }
 
         #endregion
@@ -562,6 +577,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_UpdateFlags(IntPtr arr, int flagmask);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_View(IntPtr arr, IntPtr descr, IntPtr subtype);
@@ -920,16 +938,40 @@ namespace NumpyDotNet {
             int success = 1;     // Success
 
             try {
-                // TODO: subtyping is not figured out or implemented yet.
+                // TODO: subtyping is not figured out or implemented yet
+                PythonType subtype = null;
+                object useExisting = null;
+                object interfaceObj = null;
 
+                if (ensureArray == 0 && subtypePtr != IntPtr.Zero) {
+                    subtype = (PythonType)GCHandle.FromIntPtr(subtypePtr).Target;
+                } else if (ensureArray == 0 && interfaceData != IntPtr.Zero) {
+                    interfaceObj = GCHandle.FromIntPtr(interfaceData).Target;
+                    if (interfaceObj is UseExistingWrapper) {
+                        useExisting = interfaceObj;
+                        interfaceObj = null;
+                    }
+                    subtype = DynamicHelpers.GetPythonType(interfaceObj);
+                }
+  
                 ndarray wrapArray;
-                if (interfaceData != IntPtr.Zero &&
-                    GCHandle.FromIntPtr(interfaceData).Target is UseExistingWrapper) {
+                if (useExisting != null) {
                     // The UseExistingWrapper struct is a hack to allow us to re-use
                     // the interfaceData pointer for multiple purposes.
-                    UseExistingWrapper w = (UseExistingWrapper)GCHandle.FromIntPtr(interfaceData).Target;
+                    UseExistingWrapper w = (UseExistingWrapper)useExisting;
                     wrapArray = (ndarray)w.Wrapper;
                     wrapArray.SetArray(coreArray);
+                } else if (subtype != null) {
+                    CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
+                    wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
+                    object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
+                    if (func != null) {
+                        if (customStrides != 0) {
+                            UpdateFlags(wrapArray, NpyDefs.NPY_UPDATE_ALL);
+                        }
+                        // TODO: Check for a Capsule
+                        PythonOps.CallWithContext(cntx, func, interfaceObj);
+                    }
                 } else {
                     wrapArray = new ndarray(coreArray);
                 }
@@ -941,8 +983,8 @@ namespace NumpyDotNet {
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");
                 success = 0;
-            } catch (Exception) {
-                Console.WriteLine("Exception while allocating array wrapper.");
+            } catch (Exception e) {
+                Console.WriteLine("Exception while allocating array wrapper: {0}", e);
                 success = 0;
             }
             return success;
