@@ -21,7 +21,7 @@ namespace NumpyDotNet
             Dispose(true);
         }
 
-        protected void Dispose(bool disposing) {
+        protected virtual void Dispose(bool disposing) {
             if (core != IntPtr.Zero) {
                 lock (this) {
                     // If the core reference count is non-zero then

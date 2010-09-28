@@ -967,6 +967,8 @@ namespace NumpyDotNet {
                 IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapArray));
                 Marshal.WriteIntPtr(interfaceRet, ret);
 
+                ndarray.IncreaseMemoryPressure(wrapArray);
+
                 // TODO: Skipping subtype-specific initialization (ctors.c:718)
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");

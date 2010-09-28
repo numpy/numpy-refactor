@@ -92,6 +92,14 @@ namespace NumpyDotNet
             core = a;
         }
 
+        protected override void Dispose(bool disposing) {
+            if (core != IntPtr.Zero) {
+                lock (this) {
+                    DecreaseMemoryPressure(this);
+                    base.Dispose(disposing);
+                }
+            }
+        }
 
         /// <summary>
         /// Danger!  This method is only intended to be used indirectly during construction
@@ -1253,6 +1261,61 @@ namespace NumpyDotNet
                 return false;
             }
             return PythonOps.IsSubClass(pt, DynamicHelpers.GetPythonTypeFromType(typeof(ndarray)));
+        }
+
+        #endregion
+
+        #region Memory pressure handling
+
+        // The GC only knows about the managed memory that has been allocated,
+        // not the large pool of native array data.  This means that the GC
+        // may not run even if we are about to run out of memory.  Adding
+        // memory pressure tells the GC how much native memory is associated
+        // with managed objects.
+
+        /// <summary>
+        /// Track the total pressure allocated by numpy.  This is just for
+        /// error checking and to make sure it goes back to 0 in the end.
+        /// </summary>
+        private static long TotalMemPressure = 0;
+
+        internal static void IncreaseMemoryPressure(ndarray arr) {
+            if (arr.flags.owndata) {
+                int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
+
+                // Stupid annoying hack.  What happens is the finalizer queue
+                // is processed by a low-priority background thread and can fall
+                // behind, allowing memory to be filled if the primary thread is
+                // creating garbage faster than the finalizer thread is cleaning
+                // it up.  This is a heuristic to cause the main thread to pause
+                // when needed.  All of this is necessary because the ndarray
+                // object defines a finalizer, which most .NET objects don't have
+                // and .NET doesn't appear well optimized for cases with huge
+                // numbers of finalizable objects.
+                // TODO: What do we do for a collection heuristic for 64-bit? Don't
+                // want to collect too often but don't want to page either.
+                if (IntPtr.Size == 4 &&
+                    (TotalMemPressure > 1500000000 || TotalMemPressure + newBytes > 1700000000)) {
+                    Console.WriteLine("Forcing collection");
+                    System.GC.Collect();
+                    System.GC.WaitForPendingFinalizers();
+                }
+
+                System.Threading.Interlocked.Add(ref TotalMemPressure, newBytes);
+                System.GC.AddMemoryPressure(newBytes);
+                //Console.WriteLine("Added {0} bytes of pressure, now {1}",
+                //    newBytes, TotalMemPressure);
+            }
+        }
+
+        internal static void DecreaseMemoryPressure(ndarray arr) {
+            if (arr.flags.owndata) {
+                int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
+                System.Threading.Interlocked.Add(ref TotalMemPressure, -newBytes);
+                System.GC.RemoveMemoryPressure(newBytes);
+                //Console.WriteLine("Removed {0} bytes of pressure, now {1}",
+                //    newBytes, TotalMemPressure);
+            }
         }
 
         #endregion
