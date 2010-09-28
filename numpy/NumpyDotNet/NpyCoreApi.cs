@@ -952,7 +952,7 @@ namespace NumpyDotNet {
                 } else if (subtype != null) {
                     CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
                     wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
-                    try {
+                    if (PythonOps.HasAttr(cntx, wrapArray, "__array_finalize__")) {
                         object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
                         if (func != null) {
                             if (customStrides != 0) {
@@ -961,8 +961,6 @@ namespace NumpyDotNet {
                             // TODO: Check for a Capsule
                             PythonOps.CallWithContext(cntx, func, interfaceObj);
                         }
-                    } catch (MissingMemberException) {
-                        // Ignore
                     }
                 } else {
                     wrapArray = new ndarray(coreArray);
