@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Scripting;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 
 namespace NumpyDotNet
 {
@@ -82,7 +83,22 @@ namespace NumpyDotNet
             } else {
                 result = tmp * (1.0 / n);
             }
-            // TODO: Deal with subclasses
+
+            // Deal with subclasses
+            if (result is ndarray && result.GetType() != GetType()) {
+                ndarray aresult;
+                if (result.GetType() != typeof(ndarray)) {
+                    aresult = NpyArray.FromAny(result, flags: NpyDefs.NPY_ENSUREARRAY);
+                } else {
+                    aresult = (ndarray)result;
+                }
+                if (GetType() != typeof(ndarray)) {
+                    PythonType t = DynamicHelpers.GetPythonType(this);
+                    aresult = NpyCoreApi.View(aresult, null, t);
+                }
+                result = aresult;
+            }
+
             // Copy into ret, if necessary
             if (ret != null) {
                 NpyCoreApi.CopyAnyInto(ret, NpyArray.FromAny(result));
