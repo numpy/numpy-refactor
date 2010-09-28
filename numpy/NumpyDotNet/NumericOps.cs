@@ -905,6 +905,32 @@ namespace NumpyDotNet {
             new CopySwapNDelegate(CopySwapNObject);
         #endregion
 
+
+        #region Cast operators
+
+        private static void GenericCastToObject(Func<IntPtr, ndarray, Object> castFunc,
+            IntPtr inPtr, IntPtr outPtr, IntPtr nTmp, IntPtr arrPtr, IntPtr unused) {
+            ndarray arr = NpyCoreApi.ToInterface<ndarray>(arrPtr);
+            long n = (long)nTmp;
+            int stride = arr.dtype.ElementSize;
+
+            for (long i = 0; i < n; i++) {
+                IntPtr tmp = Marshal.ReadIntPtr(outPtr);
+                if (tmp != IntPtr.Zero) {
+                    GCHandle.FromIntPtr(tmp).Free();
+                }
+                tmp = Marshal.ReadIntPtr(inPtr);
+                Object val = castFunc(tmp, arr);
+                Marshal.WriteIntPtr(outPtr, GCHandle.ToIntPtr(GCHandle.Alloc(val)));
+
+                inPtr = inPtr + stride;
+                outPtr = outPtr + IntPtr.Size;
+            }
+        }
+
+
+        #endregion
+
         #region Object Operation Functions
 
         private static Object SyncRoot = new Object();
@@ -1465,9 +1491,6 @@ namespace NumpyDotNet {
             defs.OBJECT_dotfunc = Marshal.GetFunctionPointerForDelegate(OBJECT_dot_delegate);
             defs.OBJECT_nonzero = Marshal.GetFunctionPointerForDelegate(OBJECT_nonzero_delegate);
 
-            for (int i = 0; i < (int)NpyDefs.NPY_TYPES.NPY_NTYPES; i++) {
-                defs.cast_to_obj[i] = (IntPtr)i;
-            }
             defs.sentinel = NpyDefs.NPY_VALID_MAGIC;
 
             return defs;
