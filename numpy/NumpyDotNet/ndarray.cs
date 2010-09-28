@@ -42,10 +42,6 @@ namespace NumpyDotNet
         private void Construct(CodeContext cntx, Object[] args) {
             dtype type = null;
 
-            // Ensures that the numeric operations are initialized once at startup.
-            // TODO: This is unpleasant, there must be a better way to do this.
-            NumericOps.InitUFuncOps(cntx);
-
             core = IntPtr.Zero;
 
             long[] shape = NpyUtil_ArgProcessing.IntArrConverter(args[0]);
