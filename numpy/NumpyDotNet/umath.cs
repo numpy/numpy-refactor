@@ -34,6 +34,9 @@ namespace NumpyDotNet
 
 
         public static void __init__(CodeContext cntx) {
+            // Initialize the ufunc instances.
+            NumericOps.InitUFuncOps(cntx);
+
             ExternFuncs funcs = new ExternFuncs();
 
             // External loop functions - these are provided by the native code,

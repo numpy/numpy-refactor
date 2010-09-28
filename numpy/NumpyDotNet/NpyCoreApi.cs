@@ -937,7 +937,7 @@ namespace NumpyDotNet {
                         useExisting = interfaceObj;
                         interfaceObj = null;
                     }
-                    if (interfaceObj.GetType() != typeof(ndarray)) {
+                    if (interfaceObj != null && interfaceObj.GetType() != typeof(ndarray)) {
                         subtype = DynamicHelpers.GetPythonType(interfaceObj);
                     }
                 }
