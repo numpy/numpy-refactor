@@ -10,6 +10,7 @@ using IronPython.Modules;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
+using IronPython.Runtime.Exceptions;
 using Microsoft.Scripting;
 using NumpyDotNet;
 using System.Collections;
@@ -282,10 +283,21 @@ namespace NumpyDotNet
 
                     if (indexes.IsSimple)
                     {
-                        // TODO: Handle array subclasses.
-                        ndarray view = NpyCoreApi.DecrefToInterface<ndarray>(
-                            NpyCoreApi.NpyArray_IndexSimple(core, indexes.Indexes, indexes.NumIndexes)
-                            );
+                        ndarray view;
+                        if (GetType() == typeof(ndarray)) {
+                            view = NpyCoreApi.DecrefToInterface<ndarray>(
+                                NpyCoreApi.NpyArray_IndexSimple(core, indexes.Indexes, indexes.NumIndexes)
+                                );
+                        } else {
+                            // Call through python to let the subtype returns the correct view
+                            // TODO: Do we really need this? Why only for set with simple indexing?
+                            CodeContext cntx = PythonOps.GetPythonTypeContext(DynamicHelpers.GetPythonType(this));
+                            object item = PythonOps.GetIndex(cntx, this, new PythonTuple(args));
+                            view = (item as ndarray);
+                            if (view == null) {
+                                throw new RuntimeException("Getitem not returning array");
+                            }
+                        }
 
                         NpyArray.CopyObject(view, value);
                     }

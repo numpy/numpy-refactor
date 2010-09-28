@@ -925,7 +925,6 @@ namespace NumpyDotNet {
             int success = 1;     // Success
 
             try {
-                // TODO: subtyping is not figured out or implemented yet
                 PythonType subtype = null;
                 object useExisting = null;
                 object interfaceObj = null;
@@ -938,7 +937,9 @@ namespace NumpyDotNet {
                         useExisting = interfaceObj;
                         interfaceObj = null;
                     }
-                    subtype = DynamicHelpers.GetPythonType(interfaceObj);
+                    if (interfaceObj.GetType() != typeof(ndarray)) {
+                        subtype = DynamicHelpers.GetPythonType(interfaceObj);
+                    }
                 }
   
                 ndarray wrapArray;
