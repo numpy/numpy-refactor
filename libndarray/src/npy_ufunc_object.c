@@ -1536,6 +1536,9 @@ construct_loop(NpyUFuncObject *self)
         NpyErr_MEMORY;
         return loop;
     }
+    loop->nob_interface = NULL;
+    loop->nob_refcnt = 1;
+    loop->nob_type = NULL;
     loop->nob_magic_number = NPY_VALID_MAGIC;
 
     loop->iter = NpyArray_MultiIterNew();

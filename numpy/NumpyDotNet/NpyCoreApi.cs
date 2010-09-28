@@ -952,13 +952,15 @@ namespace NumpyDotNet {
                 } else if (subtype != null) {
                     CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
                     wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
-                    object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
-                    if (func != null) {
-                        if (customStrides != 0) {
-                            UpdateFlags(wrapArray, NpyDefs.NPY_UPDATE_ALL);
+                    if (PythonOps.HasAttr(cntx, wrapArray, "__array_finalize__")) {
+                        object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
+                        if (func != null) {
+                            if (customStrides != 0) {
+                                UpdateFlags(wrapArray, NpyDefs.NPY_UPDATE_ALL);
+                            }
+                            // TODO: Check for a Capsule
+                            PythonOps.CallWithContext(cntx, func, interfaceObj);
                         }
-                        // TODO: Check for a Capsule
-                        PythonOps.CallWithContext(cntx, func, interfaceObj);
                     }
                 } else {
                     wrapArray = new ndarray(coreArray);
@@ -966,7 +968,6 @@ namespace NumpyDotNet {
 
                 IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapArray));
                 Marshal.WriteIntPtr(interfaceRet, ret);
-
                 ndarray.IncreaseMemoryPressure(wrapArray);
 
                 // TODO: Skipping subtype-specific initialization (ctors.c:718)
