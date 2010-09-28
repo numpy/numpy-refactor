@@ -545,6 +545,11 @@ namespace NumpyDotNet
             get { return NpyDefs.IsInteger(dtype.TypeNum); }
         }
 
+        public bool IsFlexible {
+            get { return NpyDefs.IsFlexible(dtype.TypeNum); }
+        }
+
+
         /// <summary>
         /// TODO: What does this return?
         /// </summary>

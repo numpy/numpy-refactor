@@ -199,6 +199,21 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static object GenericReduction(ufunc f, ndarray arr, 
+            ndarray indices, ndarray ret, int axis, dtype otype, ufunc.ReduceOp op) {
+            ndarray rval = DecrefToInterface<ndarray>(
+                NpyUFunc_GenericReduction(f.UFunc, arr.Array,
+                    (indices != null) ? indices.Array : IntPtr.Zero,
+                    (ret != null) ? ret.Array : IntPtr.Zero,
+                    axis, (otype != null) ? otype.Descr : IntPtr.Zero, (int)op));
+            if (rval != null) {
+                // TODO: Call array wrap processing: ufunc_object.c:1011
+            }
+            return ndarray.ArrayReturn(rval);
+        }
+
+
+
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
                 NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
@@ -568,6 +583,11 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyDict_Destroy(IntPtr dict);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,
+            IntPtr arr, IntPtr indices, IntPtr arrOut, int axis, IntPtr descr,
+            int operation);
 
         #endregion
 
