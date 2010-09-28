@@ -5,8 +5,9 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Text;
-using IronPython.Runtime;
 using IronPython.Modules;
+using IronPython.Runtime;
+using IronPython.Runtime.Types;
 using Microsoft.Scripting.Runtime;
 using Microsoft.Scripting.Utils;
 using Microsoft.CSharp.RuntimeBinder;
@@ -934,8 +935,7 @@ namespace NumpyDotNet {
         #region Object Operation Functions
 
         private static Object SyncRoot = new Object();
-        private static CodeContext CodeCntx = null;
-        private static LanguageContext PyContext = null;
+        private static bool Sites_Initialized = false;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Equal;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_NotEqual;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Greater;
@@ -962,19 +962,11 @@ namespace NumpyDotNet {
 
         internal static void InitUFuncOps(CodeContext cntx) {
             // Fast escape which will occur all except the first time.
-            if (CodeCntx != null) {
-                if (CodeCntx != cntx) {
-                    // I don't think this can happen, but just in case...
-                    throw new NotImplementedException("Internal error: multiply IronPython contexts are not supported.");
-                }
-                return;
-            }
+            if (Sites_Initialized) return;
 
             lock (SyncRoot) {
-                if (PyContext == null) {
+                if (!Sites_Initialized) {
                     LanguageContext pyCntx = cntx.LanguageContext;
-                    PyContext = pyCntx;
-                    CodeCntx = cntx;
 
                     // Construct the call sites for each operation we will need. This is much
                     // faster than constructing/destroying them with each loop.
@@ -1030,7 +1022,7 @@ namespace NumpyDotNet {
                     
                     // Set this last so any other accesses will block while we create
                     // the sites.
-                    PyContext = pyCntx;
+                    Sites_Initialized = true;
                 }
             }
         }
@@ -1372,13 +1364,13 @@ namespace NumpyDotNet {
         }
 
 
-        private static double GetPriority(Object o, double defaultValue) {
+        private static double GetPriority(CodeContext cntx, Object o, double defaultValue) {
             double priority = 0.0;
 
             if (o.GetType() != typeof(ndarray) &&
-                IronPython.Runtime.Operations.PythonOps.HasAttr(CodeCntx, o, "__array_priority__")) {
+                IronPython.Runtime.Operations.PythonOps.HasAttr(cntx, o, "__array_priority__")) {
                 try {
-                    Object a = IronPython.Runtime.Operations.PythonOps.GetBoundAttr(CodeCntx, o, "__array_priority__");
+                    Object a = IronPython.Runtime.Operations.PythonOps.GetBoundAttr(cntx, o, "__array_priority__");
                     if (a != null) {
                         priority = (double)a;
                     }
@@ -1395,8 +1387,15 @@ namespace NumpyDotNet {
             Object obj2 = GCHandle.FromIntPtr(obj2Ptr).Target;
             int result = 0;
 
-            if (IronPython.Runtime.Operations.PythonOps.CompareTypesNotEqual(CodeCntx, obj1, obj2) &&
-                GetPriority(obj1, 0.0) > GetPriority(obj2, 0.0)) {
+            if (obj1 == null || obj2 == null) {
+                throw new NotImplementedException("ComparePriorityCallback called with null objects.");
+            }
+
+            PythonType pyType = DynamicHelpers.GetPythonType(obj1Ptr);
+            CodeContext cntx = IronPython.Runtime.Operations.PythonOps.GetPythonTypeContext(pyType);
+
+            if (IronPython.Runtime.Operations.PythonOps.CompareTypesNotEqual(cntx, obj1, obj2) &&
+                GetPriority(cntx, obj1, 0.0) > GetPriority(cntx, obj2, 0.0)) {
                 // PyArray_GetPriority
             } else {
                 result = 0;

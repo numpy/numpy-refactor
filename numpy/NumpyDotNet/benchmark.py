@@ -130,14 +130,14 @@ def addTest(iters):
 def derivativeTest(iters):
     # Derivative test
     for size in sizes:
-       a = ndarray(size, 1)
+       a = ndarray(size)
        a[0] = 1.0
        for j in range(1, size):
            a[j] = a[j-1] + random() - 0.5            # Simple random walk
        dt = 1.0
 	    
        # Time the derivative calc.
-       tmp = ndarray(size-1, 1)
+       tmp = ndarray(size-1)
        t0 = time.clock()
        for j in range(iters):
             subtract(a[1:], a[:-1], tmp)
@@ -154,8 +154,8 @@ def convolutionTest(iters):
     for i in range(1, len(sizes)):
         size = sizes[i]
         size2 = sizes[0]
-        a = array(size, 1)
-        b = array(size2, 1)
+        a = array(size)
+        b = array(size2)
         a[0] = 1.0
         b[0] = 1.0
         for j in range(1, size):
@@ -237,7 +237,7 @@ for k in range(3):
     collect()
         
     #print "Add test"
-    addTest(50)
+    addTest(5)
     collect()
         
     #print "Derivative test"
