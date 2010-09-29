@@ -72,7 +72,8 @@ _getidentity(NpyUFuncObject *self, int otype, char *str);
 
 
 NpyTypeObject NpyUFunc_Type = {
-    (void (*)(_NpyObject *))npy_ufunc_dealloc
+    (void (*)(_NpyObject *))npy_ufunc_dealloc,
+    NULL
 };
 
 

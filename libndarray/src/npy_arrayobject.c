@@ -182,4 +182,5 @@ NpyArray_dealloc(NpyArray *self)
 
 NpyTypeObject NpyArray_Type = {
     (npy_destructor)NpyArray_dealloc,
+    NULL
 };

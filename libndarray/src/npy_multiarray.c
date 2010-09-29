@@ -13,6 +13,7 @@
 #include "npy_calculation.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
+#include "npy_iterators.h"
 #include "npy_os.h"
 #include "npy_calculation.h"
 
@@ -61,6 +62,10 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
         if (NULL == wrapperFuncs->ufunc_new_wrapper) {
             _NpyArrayWrapperFuncs.ufunc_new_wrapper = x;
         }
+        
+        NpyArrayIter_Type.ntp_interface_alloc = (npy_wrapper_construct)wrapperFuncs->iter_new_wrapper;
+        NpyArrayMultiIter_Type.ntp_interface_alloc = (npy_wrapper_construct)wrapperFuncs->multi_iter_new_wrapper;
+        NpyArrayNeighborhoodIter_Type.ntp_interface_alloc = (npy_wrapper_construct)wrapperFuncs->neighbor_iter_new_wrapper;
     }
     NpyErr_SetString = error_set;
     NpyErr_Occurred = error_occurred;

@@ -13,10 +13,13 @@
 typedef struct _NpyObject _NpyObject;
 
 typedef void (*npy_destructor)(_NpyObject *);
+typedef int (*npy_wrapper_construct)(void *, void **);
 
 typedef struct NpyTypeObject {
     npy_destructor ntp_dealloc;
+    npy_wrapper_construct ntp_interface_alloc;
 } NpyTypeObject;
+
 
 #define NpyObject_HEAD                         \
     npy_uintp nob_refcnt;                      \
@@ -35,7 +38,16 @@ typedef struct _NpyObject NpyObject;
 #define NpyObject_SIZE_OFFSET \
     ((npy_intp)(&((struct _NpyObject *)0)->nob_magic_number) + sizeof(((struct _NpyObject *)0)->nob_magic_number))
 
-#define Npy_INTERFACE(a) ((a)->nob_interface)
+
+/* Returns the interface pointer for the object.  If the interface pointer is null and the interface allocator
+   function is defined, the interface is created and that instance is returned.  This allows types such as
+   iterators that typically don't need a wrapper to skip that step until needed. */
+#define Npy_INTERFACE(a)                                                                     \
+    (NULL != (a)->nob_interface ?                                                            \
+       (a)->nob_interface :                                                                  \
+       ((NULL != (a)->nob_type->ntp_interface_alloc) ?                                       \
+          (a)->nob_type->ntp_interface_alloc((a), &(a)->nob_interface), (a)->nob_interface : \
+          NULL))
 
 
 /* These are platform-dependent macros implementing thread-safe
@@ -53,18 +65,19 @@ typedef struct _NpyObject NpyObject;
 #endif
 
 
+/* NOTE: Do not use Npy_INTERFACE macro in these macros as it can trigger
+   construction of a new interface object. */
 #define Npy_INCREF(a)                                                      \
     do {                                                                   \
         if (1 == AtomicIncrement((a)->nob_refcnt) &&                       \
-                  NULL != Npy_INTERFACE(a))                                \
-           _NpyInterface_Incref(Npy_INTERFACE(a), &((a)->nob_interface));  \
+                  NULL != (a)->nob_interface)                              \
+           _NpyInterface_Incref((a)->nob_interface, &((a)->nob_interface));  \
     } while(0)
-
 
 #define Npy_DECREF(a)                                                       \
     if (0 == AtomicDecrement((a)->nob_refcnt)) {                            \
-        if (NULL != Npy_INTERFACE(a))                                       \
-            _NpyInterface_Decref(Npy_INTERFACE(a), &((a)->nob_interface));  \
+        if (NULL != (a)->nob_interface)                                     \
+            _NpyInterface_Decref((a)->nob_interface, &((a)->nob_interface));  \
         else                                                                \
            (a)->nob_type->ntp_dealloc((_NpyObject*)a);                      \
     }

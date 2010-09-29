@@ -33,6 +33,7 @@ NpyArray_DescrDestroy(NpyArray_Descr *self);
 
 NDARRAY_API NpyTypeObject NpyArrayDescr_Type = {
     (npy_destructor)NpyArray_DescrDestroy,
+    NULL
 };
 
 
@@ -109,7 +110,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     /* Allocate the interface wrapper object. */
     if (NPY_FALSE == NpyInterface_DescrNewFromWrapper(Npy_INTERFACE(base),
                                                  new, &new->nob_interface)) {
-        Npy_INTERFACE(new) = NULL;
+        new->nob_interface = NULL;
         Npy_DECREF(new);
         return NULL;
     }

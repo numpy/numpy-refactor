@@ -43,7 +43,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 {
     int nd, i;
 
-    Npy_INTERFACE(it) = NULL;
+    it->nob_interface = NULL;
     it->nob_magic_number = NPY_VALID_MAGIC;
     nd = ao->nd;
     NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
@@ -82,7 +82,7 @@ array_iter_base_init(NpyArrayIterObject *it, NpyArray *ao)
 static void
 array_iter_base_dealloc(NpyArrayIterObject *it)
 {
-    Npy_INTERFACE(it) = NULL;
+    it->nob_interface = NULL;
     Npy_XDECREF(it->ao);
     it->nob_magic_number = NPY_INVALID_MAGIC;
 }
@@ -102,11 +102,7 @@ NpyArray_IterNew(NpyArray *ao)
     }
 
     array_iter_base_init(it, ao);
-    if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
-        Npy_INTERFACE(it) = NULL;
-        Npy_DECREF(it);
-        return NULL;
-    }
+    /* Defer creation of the wrapper - will be handled by Npy_INTERFACE. */
     return it;
 }
 
@@ -141,11 +137,7 @@ NpyArray_BroadcastToShape(NpyArray *ao, npy_intp *dims, int nd)
         return NULL;
     }
     NpyObject_Init((_NpyObject *)it, &NpyArrayIter_Type);
-    if (NPY_FALSE == NpyInterface_IterNewWrapper(it, &it->nob_interface)) {
-        Npy_INTERFACE(it) = NULL;
-        Npy_DECREF(it);
-        return NULL;
-    }
+    /* Defer creation of the wrapper - will be handled by Npy_INTERFACE. */
 
     NpyArray_UpdateFlags(ao, NPY_CONTIGUOUS);
     if (NpyArray_ISCONTIGUOUS(ao)) {
@@ -989,6 +981,7 @@ arrayiter_dealloc(NpyArrayIterObject *it)
 
 NDARRAY_API NpyTypeObject NpyArrayIter_Type = {
     (npy_destructor)arrayiter_dealloc,
+    NULL
 };
 
 static void
@@ -1007,6 +1000,7 @@ arraymultiter_dealloc(NpyArrayMultiIterObject *multi)
 
 NDARRAY_API NpyTypeObject NpyArrayMultiIter_Type =   {
     (npy_destructor)arraymultiter_dealloc,
+    NULL
 };
 
 
@@ -1056,12 +1050,7 @@ NpyArray_vMultiIterFromArrays(NpyArray **mps, int n, int nadd, va_list va)
         return NULL;
     }
     NpyArray_MultiIter_RESET(multi);
-    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(multi,
-                                                      &multi->nob_interface)) {
-        Npy_INTERFACE(multi) = NULL;
-        Npy_DECREF(multi);
-        return NULL;
-    }
+    /* Defer creation of the wrapper - will be handled by Npy_INTERFACE. */
     return multi;
 }
 
@@ -1077,12 +1066,7 @@ NpyArray_MultiIterNew()
         return NULL;
     }
     NpyObject_Init(ret, &NpyArrayMultiIter_Type);
-    if (NPY_FALSE == NpyInterface_MultiIterNewWrapper(ret,
-                                                      &ret->nob_interface)) {
-        Npy_INTERFACE(ret) = NULL;
-        Npy_DECREF(ret);
-        return NULL;
-    }
+    /* Defer creation of the wrapper - will be handled by Npy_INTERFACE. */
     return ret;
 }
 
@@ -1311,14 +1295,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     x->contiguous = 0;
 
     NpyArrayNeighborhoodIter_Reset(ret);
-    if (NPY_FALSE == NpyInterface_NeighborhoodIterNewWrapper(ret, &ret->nob_interface)) {
-        if (fill && fillfree) {
-            (*fillfree)(fill);
-        }
-        Npy_INTERFACE(ret) = NULL;
-        Npy_DECREF(ret);
-        return NULL;
-    }
+    /* Defer creation of the wrapper - will be handled by Npy_INTERFACE. */
 
     return ret;
 
@@ -1349,4 +1326,5 @@ static void neighiter_dealloc(NpyArrayNeighborhoodIterObject* iter)
 
 NDARRAY_API NpyTypeObject NpyArrayNeighborhoodIter_Type = {
     (npy_destructor)neighiter_dealloc,
+    NULL
 };

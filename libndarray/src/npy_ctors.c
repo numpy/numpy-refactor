@@ -999,7 +999,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
                                                   (NULL != strides),
                                                   subtype, interfaceData,
                                                   &self->nob_interface)) {
-        Npy_INTERFACE(self) = NULL;
+        self->nob_interface = NULL;
         Npy_DECREF(self);
         return NULL;
     }

@@ -19,6 +19,7 @@ NpyArray_IndexExpandBool(NpyIndex *indexes, int n, NpyIndex *out_indexes);
 
 NpyTypeObject NpyArrayMapIter_Type = {
     (npy_destructor)arraymapiter_dealloc,
+    NULL
 };
 
 
@@ -114,7 +115,7 @@ arraymapiter_dealloc(NpyArrayMapIterObject *mit)
 
     assert(0 == mit->nob_refcnt);
 
-    Npy_INTERFACE(mit) = NULL;
+    mit->nob_interface = NULL;
     Npy_XDECREF(mit->ait);
     Npy_XDECREF(mit->subspace);
     for (i = 0; i < mit->numiter; i++) {
