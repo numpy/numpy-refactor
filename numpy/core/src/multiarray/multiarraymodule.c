@@ -587,11 +587,14 @@ PyArray_Correlate2(PyObject *op1, PyObject *op2, int mode)
         goto fail_clean_ap1;
     }
 
+    Npy_INCREF(PyArray_ARRAY(ap1)); Py_DECREF(ap1);
+    Npy_INCREF(PyArray_ARRAY(ap2)); Py_DECREF(ap2);
+    
     ASSIGN_TO_PYARRAY(ret,
                       NpyArray_Correlate2(PyArray_ARRAY(ap1),
                                           PyArray_ARRAY(ap2), typenum, mode));
-    Py_DECREF(ap1);
-    Py_DECREF(ap2);
+    Npy_DECREF(PyArray_ARRAY(ap1));
+    Npy_DECREF(PyArray_ARRAY(ap2));
     return ret;
 
 fail_clean_ap1:

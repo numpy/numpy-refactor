@@ -223,7 +223,7 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
         result = mps[op->nin];
     }
   finish:
-    Npy_XDECREF(mps[1]);
     Npy_XINCREF(result);
+    Npy_XDECREF(mps[1]);
     return result;
 }
