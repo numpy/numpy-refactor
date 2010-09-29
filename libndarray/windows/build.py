@@ -33,27 +33,11 @@ def convert_templates():
         process_file(path)
 
 
-def install():
-    usr_dir = expanduser(r'~\usr')
-    rm_rf(usr_dir)
-
-    usr_inc_dir = join(usr_dir, 'include')
-    os.makedirs(usr_inc_dir)
-    for path in glob(join(src_dir, '*.h')):
-        shutil.copy(path, usr_inc_dir)
-
-    usr_lib_dir = join(usr_dir, 'lib')
-    os.makedirs(usr_lib_dir)
-    shutil.copy(r'Release\ndarray.lib', usr_lib_dir)
-    shutil.copy(join(sys.prefix, 'libs', 'python26.lib'), usr_lib_dir)
-    shutil.copy(r'Release\ndarray.dll', sys.prefix)
-
-
 def main():
     convert_templates()
     write_config()
     os.system("msbuild /v:diag msvc2008.vcproj")
-    install()
+    # shutil.copy(r'Release\ndarray.dll', sys.prefix)
 
 
 if __name__ == '__main__':
