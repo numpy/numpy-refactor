@@ -35,6 +35,17 @@ void _cdecl NpyArrayAccess_Decref(NpyObject *obj)
 }
 
 
+// This function is here because the Npy_INTERFACE macro does some
+// magic with creating interface objects on an as-needed basis so it's
+// more code than simply reading the nob_interface field.
+extern "C" __declspec(dllexport)
+void * _cdecl NpyArrayAccess_ToInterface(NpyObject *obj)
+{
+    assert(NPY_VALID_MAGIC == obj->nob_magic_number);
+    return Npy_INTERFACE(obj);
+}
+
+
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *nd, 
                                            int *flags, int *data)

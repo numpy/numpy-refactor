@@ -768,6 +768,9 @@ namespace NumpyDotNet {
         internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
             [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_ToInterface(IntPtr arr);
+
         #endregion
 
 
@@ -887,8 +890,13 @@ namespace NumpyDotNet {
             }
             IntPtr wrapper = Marshal.ReadIntPtr(ptr, (int)Offset_InterfacePtr);
             if (wrapper == IntPtr.Zero) {
-                throw new IronPython.Runtime.Exceptions.RuntimeException(
-                    String.Format("Managed wrapper for type '{0}' is NULL.", typeof(TResult).Name));
+                // The wrapper object is dynamically created for some instances
+                // so this call into native land triggers that magic.
+                wrapper = NpyArrayAccess_ToInterface(ptr);
+                if (wrapper == IntPtr.Zero) {
+                    throw new IronPython.Runtime.Exceptions.RuntimeException(
+                        String.Format("Managed wrapper for type '{0}' is NULL.", typeof(TResult).Name));
+                }
             }
             return (TResult)GCHandle.FromIntPtr(wrapper).Target;
         }
@@ -985,13 +993,27 @@ namespace NumpyDotNet {
             int customStrides, IntPtr subtypePtr, IntPtr interfaceData,
             IntPtr interfaceRet);
 
-        private static int IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet) {
+
+        /// <summary>
+        /// Constructs a new managed wrapper for an interator object. This function
+        /// is thread-safe.
+        /// </summary>
+        /// <param name="coreIter">Pointer to the native instance</param>
+        /// <param name="interfaceRet">Location to store GCHandle to the wrapper</param>
+        /// <returns>1 on success, 0 on error</returns>
+        private static int IterNewWrapper(IntPtr coreIter, ref IntPtr interfaceRet) {
             int success = 1;
 
             try {
-                flatiter wrapIter = new flatiter(coreIter);
-                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
-                Marshal.WriteIntPtr(interfaceRet, ret);
+                lock (interfaceSyncRoot) {
+                    // Check interfaceRet inside the lock because some interface
+                    // wrappers are dynamically created and two threads could
+                    // trigger these event at the same time.
+                    if (interfaceRet == IntPtr.Zero) {
+                        flatiter wrapIter = new flatiter(coreIter);
+                        interfaceRet = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                    }
+                }
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
                 success = 0;
@@ -1002,14 +1024,29 @@ namespace NumpyDotNet {
             return success;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int del_IterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
+        public delegate int del_IterNewWrapper(IntPtr coreIter, ref IntPtr interfaceRet);
 
-        private static int MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet) {
+
+
+        /// <summary>
+        /// Constructs a new managed wrapper for a multi-iterator.  This funtion
+        /// is thread safe.
+        /// </summary>
+        /// <param name="coreIter">Pointer to the native instance</param>
+        /// <param name="interfaceRet">Location to store the wrapper handle</param>
+        /// <returns></returns>
+        private static int MultiIterNewWrapper(IntPtr coreIter, ref IntPtr interfaceRet) {
             int success = 1;
             try {
-                broadcast wrapIter = broadcast.BeingCreated;
-                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
-                Marshal.WriteIntPtr(interfaceRet, ret);
+                lock (interfaceSyncRoot) {
+                    // Check interfaceRet inside the lock because some interface
+                    // wrappers are dynamically created and two threads could
+                    // trigger these event at the same time.
+                    if (interfaceRet == IntPtr.Zero) {
+                        broadcast wrapIter = broadcast.BeingCreated;
+                        interfaceRet = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                    }
+                }
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating iterator wrapper.");
                 success = 0;
@@ -1020,7 +1057,7 @@ namespace NumpyDotNet {
             return success;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-        public delegate int del_MultiIterNewWrapper(IntPtr coreIter, IntPtr interfaceRet);
+        public delegate int del_MultiIterNewWrapper(IntPtr coreIter, ref IntPtr interfaceRet);
 
 
         /// <summary>
