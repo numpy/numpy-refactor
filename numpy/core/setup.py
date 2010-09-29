@@ -505,6 +505,8 @@ def configuration(parent_package='', top_path=None):
                                   join('blasdot','cblas.h'),
                                   ],
                          include_dirs = ['blasdot'],
+                         library_dirs=[ndarray_lib_dir()],
+                         libraries=['ndarray'],
                          extra_info = blas_info
                          )
 
