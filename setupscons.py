@@ -32,7 +32,7 @@ if sys.platform != 'win32':
 
 if 1:
     import subprocess
-    cmd = ['cython', 'mtrand.pyx']
+    cmd = [sys.executable, 'generate_mtrand_c.py']
     cwd = os.path.join('numpy', 'random', 'mtrand')
     assert subprocess.call(cmd, cwd=cwd) == 0
 
