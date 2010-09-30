@@ -23,7 +23,7 @@
 
 include "numpy.pxi"
 
-from python cimport bytes as bytes_type
+from cpython cimport bytes as bytes_type
 
 cdef extern from "string.h":
     void *memcpy(void *s1, void *s2, int n)
