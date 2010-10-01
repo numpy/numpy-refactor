@@ -477,8 +477,9 @@ namespace NumpyDotNet {
             if (d.IsObject) {
                 if (d.HasNames) {
                     foreach (string name in d.Names) {
-                        ndarray view = NpyCoreApi.GetField(arr, name);
-                        FillObjects(view, o);
+                        using (ndarray view = NpyCoreApi.GetField(arr, name)) {
+                            FillObjects(view, o);
+                        }
                     }
                 } else {
                     NpyCoreApi.FillWithObject(arr, o);

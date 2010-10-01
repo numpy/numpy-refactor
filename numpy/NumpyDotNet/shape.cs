@@ -30,8 +30,9 @@ namespace NumpyDotNet
             }
 
             if (newsize > oldsize && dtype.IsObject) {
-                ndarray view = (ndarray)Ravel(fortran)[new Slice(oldsize, null)];
-                NpyArray.FillObjects(view, 0);
+                using (ndarray view = (ndarray)Ravel(fortran)[new Slice(oldsize, null)]) {
+                    NpyArray.FillObjects(view, 0);
+                }
             }
         }
 
