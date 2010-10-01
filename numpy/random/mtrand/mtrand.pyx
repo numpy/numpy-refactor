@@ -700,7 +700,7 @@ cdef class RandomState:
         else:
             has_gauss, cached_gaussian = state[3:5]
 
-        obj = flat_array(key, np.long)
+        obj = flat_array(key, {4: np.uint32, 8: np.uint64}[sizeof(long)])
         if obj.shape[0] != 624:
             raise ValueError("state must be 624 longs")
         memcpy(<void *>(self.internal_state.key),
