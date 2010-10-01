@@ -132,6 +132,18 @@ extern "C" __declspec(dllexport)
     return true;
 }
 
+extern "C" __declspec(dllexport)
+    void _cdecl NpyArrayAccess_ZeroFill(NpyArray* arr, npy_intp offset) 
+{
+    int itemsize = NpyArray_ITEMSIZE(arr);
+    npy_intp size = NpyArray_SIZE(arr)*itemsize;
+    npy_intp off = offset * itemsize;
+    npy_intp fill_size = size-off;
+    char* p = arr->data + off;
+    memset(p, 0, fill_size);
+}
+
+
 
 
 // Trivial wrapper around NpyArray_Alloc.  The only reason for this is that .NET doesn't

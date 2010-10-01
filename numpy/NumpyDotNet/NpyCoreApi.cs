@@ -808,6 +808,9 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_ToInterface(IntPtr arr);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_ZeroFill(IntPtr arr, IntPtr offset);
+
         #endregion
 
 

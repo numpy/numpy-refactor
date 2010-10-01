@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using IronPython.Runtime;
 
 namespace NumpyDotNet
 {
@@ -23,12 +24,14 @@ namespace NumpyDotNet
             foreach (IntPtr dim in newdims) {
                 newsize *= dim.ToInt64();
             }
-            if (newsize > oldsize && dtype.IsObject) {
-                throw new NotImplementedException("Expanding object arrays with Resize not yet supported.");
-            }
 
             if (NpyCoreApi.NpyArrayAccess_Resize(Array, newdims.Length, newdims, (refcheck ? 1 : 0), (int)fortran) < 0) {
                 NpyCoreApi.CheckError();
+            }
+
+            if (newsize > oldsize && dtype.IsObject) {
+                ndarray view = (ndarray)Ravel(fortran)[new Slice(oldsize, null)];
+                NpyArray.FillObjects(view, 0);
             }
         }
 

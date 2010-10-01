@@ -211,6 +211,9 @@ namespace NumpyDotNet
                 }
                 NpyArray.SetField(this, descr, offset, value);
             }
+            get {
+                return NpyCoreApi.GetField(this, field);
+            }
         }
 
         public Object this[params object[] args] {
@@ -1282,6 +1285,9 @@ namespace NumpyDotNet
         internal static void IncreaseMemoryPressure(ndarray arr) {
             if (arr.flags.owndata) {
                 int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
+                if (newBytes == 0) {
+                    return;
+                }
 
                 // Stupid annoying hack.  What happens is the finalizer queue
                 // is processed by a low-priority background thread and can fall

@@ -133,6 +133,22 @@ namespace NumpyDotNet {
             return result;
         }
 
+        public static ndarray empty(CodeContext cntx, object shape, object dtype = null, object order = null) {
+            long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+
+            return NpyArray.Empty(aShape, d, eOrder);
+        }
+
+        public static ndarray zeros(CodeContext cntx, object shape, object dtype = null, object order = null) {
+            long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
+            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+
+            return NpyArray.Zeros(aShape, d, eOrder);
+        }
+
         public static void putmask(ndarray arr, object mask, object values) {
             ndarray aMask;
             ndarray aValues;

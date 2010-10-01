@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -455,6 +456,35 @@ namespace NumpyDotNet {
             return !error;
         }
 
+        internal static ndarray Empty(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
+            if (type == null) {
+                type = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
+            }
+            return NpyCoreApi.NewFromDescr(type, shape, null, (int)order, null);
+        }
+
+        internal static ndarray Zeros(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
+            ndarray result = Empty(shape, type, order);
+            NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
+            if (type.IsObject) {
+                FillObjects(result, 0);
+            }
+            return result;
+        }
+
+        internal static void FillObjects(ndarray arr, object o) {
+            dtype d = arr.dtype;
+            if (d.IsObject) {
+                if (d.HasNames) {
+                    foreach (string name in d.Names) {
+                        ndarray view = NpyCoreApi.GetField(arr, name);
+                        FillObjects(view, o);
+                    }
+                } else {
+                    NpyCoreApi.FillWithObject(arr, o);
+                }
+            }
+        }
 
         internal static void AssignToArray(Object src, ndarray result) {
             if (src is IEnumerable<Object>) {
