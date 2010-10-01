@@ -400,6 +400,7 @@ get_rtypenums(NpyUFuncObject *self, PyObject *type_tup, int *rtypenums)
             ptr++;
             i++;
         }
+        return n;
     }
     else if (PyTuple_Check(type_tup)) {
         for (i = 0; i < n; i++) {
@@ -410,6 +411,7 @@ get_rtypenums(NpyUFuncObject *self, PyObject *type_tup, int *rtypenums)
             rtypenums[i] = dtype->descr->type_num;
             Py_DECREF(dtype);
         }
+        return n;
     }
     else {
         if (PyArray_DescrConverter(type_tup, &dtype) == NPY_FAIL) {
@@ -417,9 +419,8 @@ get_rtypenums(NpyUFuncObject *self, PyObject *type_tup, int *rtypenums)
         }
         rtypenums[0] = dtype->descr->type_num;
         Py_DECREF(dtype);
+        return 1;
     }
-
-    return 0;
 }
 
 
@@ -761,6 +762,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
     NpyUFuncObject *self;
     int typenumbuf[NPY_MAXARGS];
     int *rtypenums = NULL;
+    int ntypenums = 0;
     char* name = PyUFunc_UFUNC(pySelf)->name ? PyUFunc_UFUNC(pySelf)->name : "";
     PyObject *obj;
     int originalArgWasObjArray = 0;
@@ -797,16 +799,15 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
 
     /* Convert typetup to an array of typenums. */
     if (typetup != NULL) {
-        if (get_rtypenums(PyUFunc_UFUNC(pySelf), typetup, typenumbuf) < 0) {
+        int ntypenums = get_rtypenums(PyUFunc_UFUNC(pySelf), typetup, 
+                                      typenumbuf);
+        if (ntypenums < 0) {
             return -1;
         }
         rtypenums = typenumbuf;
-    } else {
-        rtypenums = NULL;
     }
     Py_XDECREF(typetup);
-    
-    
+
     /* Setup error handling. */
     /* TODO: Is extobj ever used? */
     assert(NULL == extobj);
@@ -853,8 +854,7 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
                                   && PyObject_HasAttrString(obj, "__array_priority__")
                                   && _has_reflected_op(obj, self->name));
     } else originalArgWasObjArray = 0;
-    
-    
+
     /* Strip the python wrappers from the arrays before passing down. */
     nargs = PyTuple_Size(args);
     for (i=0; i < self->nargs; i++) {
@@ -865,11 +865,12 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
             Py_DECREF(mps[i]);
         }
     }
-    
-    result = NpyUFunc_GenericFunction(self, nargs, mpsCore, rtypenums,
+
+    result = NpyUFunc_GenericFunction(self, nargs, mpsCore, 
+                                      ntypenums, rtypenums,
                                       originalArgWasObjArray,
-                                      (npy_prepare_outputs_func)prepare_outputs, args);    
-    
+                                      (npy_prepare_outputs_func)prepare_outputs, args);
+
     for (i=0; i < self->nargs; i++) {
         if (NULL == mpsCore[i]) mps[i] = NULL;
         else {

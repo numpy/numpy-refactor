@@ -25,7 +25,8 @@ static NpyUFuncLoopObject *
 construct_loop(NpyUFuncObject *self);
 static size_t
 construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
-                 int *rtypenums, npy_prepare_outputs_func prepare,
+                 int ntypenums, int *rtypenums, 
+                 npy_prepare_outputs_func prepare,
                  void *prepare_data);
 static NpyUFuncReduceObject *
 construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
@@ -34,11 +35,11 @@ static int
 select_types(NpyUFuncObject *self, int *arg_types,
              NpyUFuncGenericFunction *function, void **data,
              NPY_SCALARKIND *scalars,
-             int *rtypenums);
+             int ntypenums, int *rtypenums);
 static int
 extract_specified_loop(NpyUFuncObject *self, int *arg_types,
                        NpyUFuncGenericFunction *function, void **data,
-                       int *rtypenums, int userdef);
+                       int ntypesnum, int *rtypenums, int userdef);
 static void
 ufuncloop_dealloc(NpyUFuncLoopObject *self);
 static void
@@ -121,7 +122,7 @@ static void (*fp_error_handler)(int, void *, int,
 
 
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
-                             int *rtypenums,
+                             int ntypenums, int *rtypenums,
                              int originalArgWasObjArray,
                              npy_prepare_outputs_func prepare_outputs,
                              void *prepare_out_args)
@@ -141,7 +142,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
 
     /* Setup the arrays */
-    res = construct_arrays(loop, nargs, mps, rtypenums,
+    res = construct_arrays(loop, nargs, mps, ntypenums, rtypenums,
                            prepare_outputs, prepare_out_args);
 
     if (res < 0) {
@@ -1592,7 +1593,8 @@ fail:
 
 static size_t
 construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
-                 int *rtypenums, npy_prepare_outputs_func prepare,
+                 int ntypenums, int *rtypenums, 
+                 npy_prepare_outputs_func prepare,
                  void *prepare_data)
 {
     int i;
@@ -1664,7 +1666,8 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
 
     /* Select an appropriate function for these argument types. */
     if (select_types(loop->ufunc, arg_types, &(loop->function),
-                     &(loop->funcdata), scalars, rtypenums) == -1) {
+                     &(loop->funcdata), scalars, ntypenums, 
+                     rtypenums) == -1) {
         return -1;
     }
 
@@ -2187,7 +2190,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     loop->instrides = NpyArray_STRIDE(*arr, axis);
     fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
     if (select_types(loop->ufunc, arg_types, &(loop->function),
-                     &(loop->funcdata), scalars, NULL) == -1) {
+                     &(loop->funcdata), scalars, 0, NULL) == -1) {
         goto fail;
     }
 
@@ -2201,7 +2204,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
         arg_types[0] = otype;
         arg_types[1] = otype;
         if (select_types(loop->ufunc, arg_types, &(loop->function),
-                         &(loop->funcdata), scalars, NULL) == -1) {
+                         &(loop->funcdata), scalars, 0, NULL) == -1) {
             goto fail;
         }
     }
@@ -2437,7 +2440,7 @@ static int
 select_types(NpyUFuncObject *self, int *arg_types,
              NpyUFuncGenericFunction *function, void **data,
              NPY_SCALARKIND *scalars,
-             int *rtypenums)
+             int ntypenums, int *rtypenums)
 {
     int i, j;
     char start_type;
@@ -2456,7 +2459,7 @@ select_types(NpyUFuncObject *self, int *arg_types,
 
     if (rtypenums != NULL)
         return extract_specified_loop(self, arg_types, function, data,
-                                      rtypenums, userdef);
+                                      ntypenums, rtypenums, userdef);
 
     if (userdef > 0) {
         int ret = -1;
@@ -2628,7 +2631,7 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
 static int
 extract_specified_loop(NpyUFuncObject *self, int *arg_types,
                        NpyUFuncGenericFunction *function, void **data,
-                       int *rtypenums, int userdef)
+                       int ntypenums, int *rtypenums, int userdef)
 {
     static char msg[] = "loop written to specified type(s) not found";
     int nargs;
@@ -2651,11 +2654,19 @@ extract_specified_loop(NpyUFuncObject *self, int *arg_types,
          * data and argtypes
          */
         while (funcdata != NULL) {
-            if (rtypenums[0] == funcdata->arg_types[self->nin]) {
-                i = nargs;
-            }
-            else {
-                i = -1;
+            if (ntypenums == 1) {
+                if (rtypenums[0] == funcdata->arg_types[self->nin]) {
+                    i = nargs;
+                }
+                else {
+                    i = -1;
+                }
+            } else {
+                for (i=0; i<nargs; i++) {
+                    if (rtypenums[i] != funcdata->arg_types[i]) {
+                        break;
+                    }
+                }
             }
             if (i == nargs) {
                 *function = funcdata->func;

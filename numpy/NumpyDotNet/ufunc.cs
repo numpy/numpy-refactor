@@ -5,16 +5,19 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
 
-namespace NumpyDotNet {
+namespace NumpyDotNet
+{
     public class ufunc : Wrapper
     {
-         private static String[] ufuncArgNames = { "extobj", "sig" };
+        private static String[] ufuncArgNames = { "extobj", "sig" };
 
-         internal ufunc(IntPtr corePtr) {
+        internal ufunc(IntPtr corePtr) {
             core = corePtr;
 
             // The core object comes with a reference so we need to set the interface
@@ -27,8 +30,7 @@ namespace NumpyDotNet {
         }
 
 
-        ~ufunc()
-        {
+        ~ufunc() {
             Dispose(false);
         }
 
@@ -36,28 +38,35 @@ namespace NumpyDotNet {
             get { return core; }
         }
 
-        public object Call(Object a) {
-            if (nin == 1) {
-                return NpyCoreApi.GenericUnaryOp(NpyArray.FromAny(a), this);
+        public object Call(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] args) {
+            object extobj = null;
+            NpyDefs.NPY_TYPES[] sig = null;
+            if (kwargs != null) {
+                foreach (var pair in kwargs) {
+                    string skey = (string)pair.Key;
+                    if (skey.Length >= 6 && skey.Substring(0, 6) == "extobj") {
+                        extobj = pair.Value;
+                    } else if (skey.Length >= 3 && skey.Substring(0, 3) == "sig") {
+                        sig = ConvertSig(cntx, pair.Value);
+                    } else {
+                        throw new ArgumentTypeException(String.Format("'{0}' is an invalid keywork argument to {1}", skey, this));
+                    }
+                }
             }
-            throw new ArgumentException("Insufficient number of arguments.");
-        }
 
-        public object Call(Object a, Object b) {
-            if (nin == 1) {
-                return NpyCoreApi.GenericUnaryOp(NpyArray.FromAny(a), this, (ndarray)b);
-            } else if (nin == 2) {
-                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(a), NpyArray.FromAny(b), this);
+            if (extobj != null) {
+                throw new NotImplementedException("extobj not supported yet.");
             }
-            throw new ArgumentException("Insufficient number of arguments.");
-        }
 
-        public object Call(Object a, Object b, Object c) {
-            if (nin == 2) {
-                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(a),
-                    NpyArray.FromAny(b), this, (ndarray)c);
+            ndarray[] arrays = ConvertArgs(args);
+
+            NpyCoreApi.GenericFunction(this, arrays, sig);
+
+            if (nout == 1) {
+                return arrays[nin];
+            } else {
+                return new PythonTuple(arrays.Skip(nin).ToArray());
             }
-            throw new ArgumentException("Insufficient number of arguments.");
         }
 
 
@@ -146,7 +155,7 @@ namespace NumpyDotNet {
         public int nout {
             get {
                 CheckValid();
-                return Marshal.ReadInt32(core, NpyCoreApi.UFuncOffsets.off_nout); 
+                return Marshal.ReadInt32(core, NpyCoreApi.UFuncOffsets.off_nout);
             }
         }
 
@@ -206,11 +215,12 @@ namespace NumpyDotNet {
         /// the values NPY_UFUNC_REDUCE, NPY_UFUNC_ACCUMULATE, etc defined in
         /// npy_ufunc_object.h in the core.
         /// </summary>
-        internal enum ReduceOp { 
-            NPY_UFUNC_REDUCE=0, 
-            NPY_UFUNC_ACCUMULATE=1, 
-            NPY_UFUNC_REDUCEAT=2,
-            NPY_UFUNC_OUTER=3
+        internal enum ReduceOp
+        {
+            NPY_UFUNC_REDUCE = 0,
+            NPY_UFUNC_ACCUMULATE = 1,
+            NPY_UFUNC_REDUCEAT = 2,
+            NPY_UFUNC_OUTER = 3
         };
 
 
@@ -252,5 +262,112 @@ namespace NumpyDotNet {
             return NpyCoreApi.GenericReduction(this, arr, indices,
                 outArr, axis, otype, operation);
         }
+
+        class WithPrepare
+        {
+            public object arg;
+            public object prepare;
+        }
+
+        internal object[] FindArrayPrepare(object[] args) {
+            // Get a context to work with
+            CodeContext cntx = PythonOps.GetPythonTypeContext(DynamicHelpers.GetPythonTypeFromType(typeof(ufunc)));
+
+            var with_prepare = args.Take(nin)
+                .Where(x => x is ndarray && x.GetType() != typeof(ndarray) && PythonOps.HasAttr(cntx, x, "__array_prepare__"))
+                .Select(x => new WithPrepare { arg = x, prepare = PythonOps.ObjectGetAttribute(cntx, x, "__array_prepare__") })
+                .Where(x => PythonOps.IsCallable(cntx, x.prepare)).ToList();
+
+            // Find the one with the highest priority
+            object wrap = null;
+            if (with_prepare.Count == 1) {
+                wrap = with_prepare.First().prepare;
+            } else if (with_prepare.Count > 1) {
+                wrap = with_prepare.OrderByDescending(x => NumericOps.GetPriority(cntx, x.arg, 1.0)).First().prepare;
+            }
+
+            // Use the output __array_prepare__ if it has one, otherwise wrap
+            object[] result = Enumerable.Repeat(wrap, nout).ToArray();
+            int i = 0;
+            foreach (var output in args.Skip(nin).Take(nout)) {
+                result[i] = wrap;
+                if (PythonOps.HasAttr(cntx, output, "__array__prepare__")) {
+                    object prepare = PythonOps.ObjectGetAttribute(cntx, output, "__array_prepare__");
+                    if (PythonOps.IsCallable(cntx, prepare)) {
+                        result[i] = prepare;
+                    }
+                }
+                i++;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Converts a sig argument into an array of types.
+        /// </summary>
+        /// <param name="sig"></param>
+        /// <returns></returns>
+        private NpyDefs.NPY_TYPES[] ConvertSig(CodeContext cntx, object sig) {
+            string ssig = (sig as string);
+            if (sig is PythonTuple) {
+                PythonTuple s = (PythonTuple)sig;
+                int n = s.Count;
+                if (n != 1 && n != nargs) {
+                    throw new ArgumentException(
+                        String.Format("a type-tuple must be specified of length 1 or {0} for {1}", nargs, this));
+                }
+                return s.Select(x => NpyDescr.DescrConverter(cntx.LanguageContext, x).TypeNum).ToArray();
+            } else if (ssig != null && IsStringType(ssig)) {
+                return ssig.Where(x => (x != '-' && x != '>'))
+                    .Select(x => NpyCoreApi.DescrFromType((NpyDefs.NPY_TYPES)x).TypeNum).ToArray();
+            } else {
+                return new NpyDefs.NPY_TYPES[] { NpyDescr.DescrConverter(cntx.LanguageContext, sig).TypeNum };
+            }
+        }
+
+        private bool IsStringType(string sig) {
+            int pos = sig.IndexOf("->");
+            if (pos == -1) {
+                return false;
+            } else {
+                int n = sig.Length - 2;
+                if (pos != nin || n - 2 != nout) {
+                    throw new ArgumentException(
+                        String.Format("a type-string for {0}, requires {1} typecode(s) before and {2} after the -> sign",
+                                      this, nin, nout));
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Converts args to arrays and return an array nargs long containing the arrays and
+        /// nulls.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private ndarray[] ConvertArgs(object[] args) {
+            if (args.Length < nin || args.Length > nargs) {
+                throw new ArgumentException("invalid number of arguments");
+            }
+            ndarray[] result = new ndarray[nargs];
+            for (int i = 0; i < args.Length; i++) {
+                // TODO: Add check for scalars
+                object arg = args[i];
+                object context = null;
+                object[] contextArray = null;
+                if (!(arg is ndarray)) {
+                    if (contextArray == null) {
+                        contextArray = new object[] { this, new PythonTuple(args), i };
+                    } else {
+                        contextArray[2] = i;
+                    }
+                    context = new PythonTuple(contextArray);
+                }
+                result[i] = NpyArray.FromAny(arg, context: context);
+            }
+            return result;
+        }
     }
 }
+

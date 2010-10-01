@@ -214,6 +214,37 @@ namespace NumpyDotNet {
             return ndarray.ArrayReturn(rval);
         }
 
+        internal static void GenericFunction(ufunc f, ndarray[] arrays, NpyDefs.NPY_TYPES[] sig) {
+            // Convert the typenums
+            int[] rtypenums = null;
+            int ntypenums = 0;
+            if (sig != null) {
+                rtypenums = sig.Cast<int>().ToArray();
+                ntypenums = rtypenums.Length;
+            }
+            // Convert and INCREF the arrays
+            IntPtr[] mps = arrays.Select(x => x == null ? IntPtr.Zero : x.Array).ToArray();
+            foreach (IntPtr a in mps) {
+                if (a != IntPtr.Zero) {
+                    NpyCoreApi.Incref(a);
+                }
+            }
+
+            try {
+                if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0, IntPtr.Zero, IntPtr.Zero) < 0) {
+                    CheckError();
+                }
+            } finally {
+                // Convert the args back.
+                for (int i = 0; i < arrays.Length; i++) {
+                    if (mps[i] != IntPtr.Zero) {
+                        arrays[i] = DecrefToInterface<ndarray>(mps[i]);
+                    } else {
+                        arrays[i] = null;
+                    }
+                }
+            }
+        }
 
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
@@ -601,6 +632,12 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyDict_Destroy(IntPtr dict);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyUFunc_GenericFunction(IntPtr func, int nargs,
+            [MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)]IntPtr[] mps, 
+            int ntypenums, [In][MarshalAs(UnmanagedType.LPArray)] int[] rtypenums,
+            int originalObjectWasArray, IntPtr npy_prepare_outputs_func, IntPtr prepare_out_args);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,

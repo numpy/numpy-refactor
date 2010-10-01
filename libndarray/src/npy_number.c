@@ -181,7 +181,7 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
     Npy_XINCREF(out);
     mps[2] = out;
 
-    if (0 > NpyUFunc_GenericFunction(op, 3, mps, NULL, NPY_FALSE, NULL, NULL)) {
+    if (0 > NpyUFunc_GenericFunction(op, 3, mps, 0, NULL, NPY_FALSE, NULL, NULL)) {
         result = NULL;
         goto finish;
     }
@@ -212,7 +212,7 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
     mps[0] = m1;
     Npy_XINCREF(out);
     mps[1] = out;
-    if (0 > NpyUFunc_GenericFunction(op, 2, mps, NULL, NPY_FALSE, NULL, NULL)) {
+    if (0 > NpyUFunc_GenericFunction(op, 2, mps, 0, NULL, NPY_FALSE, NULL, NULL)) {
         result = NULL;
         goto finish;
     }

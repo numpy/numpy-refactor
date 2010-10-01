@@ -266,7 +266,7 @@ NpyArray *
 NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
                 int axis, int otype);
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
-                             int *rtypenums,
+                             int ntypenums, int *rtypenums,
                              int originalArgWasObjArray,
                              npy_prepare_outputs_func prepare_output_func,
                              void *args);

@@ -1364,7 +1364,7 @@ namespace NumpyDotNet {
         }
 
 
-        private static double GetPriority(CodeContext cntx, Object o, double defaultValue) {
+        internal static double GetPriority(CodeContext cntx, Object o, double defaultValue) {
             double priority = 0.0;
 
             if (o.GetType() != typeof(ndarray) &&
