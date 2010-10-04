@@ -1324,7 +1324,9 @@ namespace NumpyDotNet
             if (arr.flags.owndata) {
                 int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
                 System.Threading.Interlocked.Add(ref TotalMemPressure, -newBytes);
-                System.GC.RemoveMemoryPressure(newBytes);
+                if (newBytes > 0) {
+                    System.GC.RemoveMemoryPressure(newBytes);
+                }
                 //Console.WriteLine("Removed {0} bytes of pressure, now {1}",
                 //    newBytes, TotalMemPressure);
             }

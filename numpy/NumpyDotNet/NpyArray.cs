@@ -4,6 +4,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Runtime.InteropServices;
+using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -286,7 +288,7 @@ namespace NumpyDotNet {
             return NpyCoreApi.NewView(arr.dtype, ndmin, newdims, newstrides, arr, IntPtr.Zero, false);
         }
 
-        internal static dtype FindArrayType(Object src, dtype minitype, int max) {
+        internal static dtype FindArrayType(Object src, dtype minitype, int max = NpyDefs.NPY_MAXDIMS) {
             dtype chktype = null;
 
             if (src is ndarray) {
@@ -469,6 +471,90 @@ namespace NumpyDotNet {
             if (type.IsObject) {
                 FillObjects(result, 0);
             }
+            return result;
+        }
+
+        internal static ndarray Arange(CodeContext cntx, object start, object stop = null, object step = null, dtype d = null) {
+            long[] dims;
+
+            if (d == null) {
+                d = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_LONG);
+                d = FindArrayType(start, d);
+                if (stop != null) {
+                    d = FindArrayType(stop, d);
+                }
+                if (step != null) {
+                    d = FindArrayType(step, d);
+                }
+
+            }
+            if (step == null) {
+                step = 1;
+            }
+            if (stop == null) {
+                stop = start;
+                start = 0;
+            }
+
+            object next;
+            IntPtr len = CalcLength(cntx, start, stop, step, out next, NpyDefs.IsComplex(d.TypeNum));
+            if (len.ToInt64() < 0) {
+                dims = new long[] { 0 };
+                return NpyCoreApi.NewFromDescr(d, dims, null, 0, null);
+            }
+
+            dtype native;
+            bool swap;
+            if (!d.IsNativeByteOrder) {
+                native = NpyCoreApi.DescrNewByteorder(d, '=');
+                swap = true;
+            } else {
+                native = d;
+                swap = false;
+            }
+
+            dims = new long[] { len.ToInt64() };
+            ndarray result = NpyCoreApi.NewFromDescr(native, dims, null, 0, null);
+            result.SetItem(start, 0);
+            result.SetItem(next, d.ElementSize);
+
+            if (len.ToInt64() > 2) {
+                NpyCoreApi.Fill(result);
+            }
+            if (swap) {
+                NpyCoreApi.Byteswap(result, true);
+            }
+            return result;
+        }
+
+        internal static IntPtr CeilToIntPtr(double d) {
+            d = Math.Ceiling(d);
+            if (IntPtr.Size == 4) {
+                if (d > int.MaxValue || d < int.MinValue) {
+                    throw new OverflowException();
+                }
+                return (IntPtr)(int)d;
+            } else {
+                if (d > long.MaxValue || d < long.MinValue) {
+                    throw new OverflowException();
+                }
+                return (IntPtr)(long)d;
+            }
+        }
+
+        internal static IntPtr CalcLength(CodeContext cntx, object start, object stop, object step, out object next, bool complex) {
+            dynamic ops = PythonOps.ImportTop(cntx, "operator", 0);
+            object n = ops.sub(stop, start);
+            object val = ops.truediv(n, step);
+            IntPtr result;
+            if (complex && val is Complex) {
+                Complex c = (Complex)val;
+                result = CeilToIntPtr(Math.Min(c.Real, c.Imaginary));
+            } else {
+                double d = Convert.ToDouble(val);
+                result = CeilToIntPtr(d);
+            }
+            next = ops.add(start, step);
             return result;
         }
 

@@ -108,7 +108,7 @@ namespace NumpyDotNet {
                     arr[(int)NpyDefs.NPY_TYPES.NPY_BYTE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemByte, SetFunc = NumericOps.setitemByte };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_UBYTE] =
-                        new ArrFuncs() { GetFunc = NumericOps.getitemByte, SetFunc = NumericOps.setitemByte };
+                        new ArrFuncs() { GetFunc = NumericOps.getitemUByte, SetFunc = NumericOps.setitemUByte };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_SHORT] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemShort, SetFunc = NumericOps.setitemShort };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_USHORT] =
@@ -192,8 +192,20 @@ namespace NumpyDotNet {
             (ptr, arrPtr) => GetItemWrapper(getitemBool, ptr, arrPtr);
 
 
-        // Both Byte and UByte
         internal static Object getitemByte(IntPtr ptr, ndarray arr) {
+            sbyte f;
+
+            unsafe {
+                sbyte* p = (sbyte*)ptr.ToPointer();
+                f = *p;
+            }
+            return f;
+        }
+        internal static GetitemDelegate getitemByteDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemByte, ptr, arrPtr);
+
+
+        internal static Object getitemUByte(IntPtr ptr, ndarray arr) {
             byte f;
 
             unsafe {
@@ -202,9 +214,8 @@ namespace NumpyDotNet {
             }
             return f;
         }
-        internal static GetitemDelegate getitemByteDelegate =
-            (ptr, arrPtr) => GetItemWrapper(getitemByte, ptr, arrPtr);
-
+        internal static GetitemDelegate getitemUByteDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemUByte, ptr, arrPtr);
 
         internal static Object getitemShort(IntPtr ptr, ndarray arr) {
             short f;
@@ -482,9 +493,28 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemBool, value, ptr, arrPtr);
 
         internal static void setitemByte(Object o, IntPtr ptr, ndarray arr) {
+            sbyte f;
+
+            if (o is sbyte) f = (sbyte)o;
+            else if (o is IConvertible) f = ((IConvertible)o).ToSByte(null);
+            else if (o is BigInteger) {
+                int fTmp;
+                ((BigInteger)o).AsInt32(out fTmp);
+                f = (sbyte)fTmp;
+            } else throw new NotImplementedException("Elvis has just left Wichita.");
+
+            unsafe {
+                sbyte* p = (sbyte*)ptr.ToPointer();
+                *p = f;
+            }
+        }
+        internal static SetitemDelegate setitemByteDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemByte, value, ptr, arrPtr);
+
+        internal static void setitemUByte(Object o, IntPtr ptr, ndarray arr) {
             byte f;
 
-            if (o is Byte) f = (byte)o;
+            if (o is byte) f = (byte)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToByte(null);
             else if (o is BigInteger) {
                 int fTmp;
@@ -497,8 +527,8 @@ namespace NumpyDotNet {
                 *p = f;
             }
         }
-        internal static SetitemDelegate setitemByteDelegate =
-            (value, ptr, arrPtr) => SetItemWrapper(setitemByte, value, ptr, arrPtr);
+        internal static SetitemDelegate setitemUByteDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemUByte, value, ptr, arrPtr);
 
         internal static void setitemShort(Object o, IntPtr ptr, ndarray arr) {
             short f;

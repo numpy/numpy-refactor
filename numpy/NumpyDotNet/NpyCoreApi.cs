@@ -397,6 +397,17 @@ namespace NumpyDotNet {
             NpyArray_UpdateFlags(arr.Array, flagmask);
         }
 
+        /// <summary>
+        /// Calls the fill function on the array dtype.  This takes the first 2 values in the array and fills the array 
+        /// so the difference between each pair of elements is the same.
+        /// </summary>
+        /// <param name="arr"></param>
+        internal static void Fill(ndarray arr) {
+            if (NpyArrayAccess_Fill(arr.Array) < 0) {
+                CheckError();
+            }
+        }
+
         #endregion
 
 
@@ -810,6 +821,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyArrayAccess_ZeroFill(IntPtr arr, IntPtr offset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_Fill(IntPtr arr);
 
         #endregion
 

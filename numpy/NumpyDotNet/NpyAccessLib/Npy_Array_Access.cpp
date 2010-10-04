@@ -504,3 +504,18 @@ extern "C" __declspec(dllexport)
     }
     return 0;
 }
+
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_Fill(NpyArray* arr)
+{
+    NpyArray_FillFunc* fill = arr->descr->f->fill;
+    if (fill == NULL) {
+        NpyErr_SetString(NpyExc_ValueError, "no fill-function for data-type");
+        return -1;
+    }
+    fill(arr->data, NpyArray_SIZE(arr), arr);
+    if (NpyErr_Occurred()) {
+        return -1;
+    }
+    return 0;
+}

@@ -133,6 +133,14 @@ namespace NumpyDotNet {
             return result;
         }
 
+        public static ndarray arange(CodeContext cntx, object start, object stop = null, object step = null, object dtype = null) {
+            dtype rtype = null;
+            if (dtype != null) {
+                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            }
+            return NpyArray.Arange(cntx, start, stop, step, rtype);
+        }
+
         public static ndarray empty(CodeContext cntx, object shape, object dtype = null, object order = null) {
             long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
             dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
