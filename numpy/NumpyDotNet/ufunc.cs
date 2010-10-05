@@ -60,11 +60,11 @@ namespace NumpyDotNet
 
             ndarray[] arrays = ConvertArgs(args);
             NpyCoreApi.GenericFunction(cntx, this, arrays, sig, (ctx, ufunc, ars, ag) => ufunc.PrepareOutputs(ctx, ars, ag), args);
-
+            object[] result = WrapOutputs(cntx, arrays, args);
             if (nout == 1) {
-                return arrays[nin];
+                return result[0];
             } else {
-                return new PythonTuple(arrays.Skip(nin).ToArray());
+                return new PythonTuple(result);
             }
         }
 
@@ -262,14 +262,14 @@ namespace NumpyDotNet
                 outArr, axis, otype, operation);
         }
 
-        class WithPrepare
+        class WithFunc
         {
             public object arg;
-            public object prepare;
+            public object func;
         }
 
         internal void PrepareOutputs(CodeContext cntx, ndarray[] arrays, object[] args) {
-            object[] wraparr = FindArrayPrepare(cntx, args);
+            object[] wraparr = FindArrayWrap(cntx, args, "__array_prepare__");
             object[] wraparg = null;
             for (int i = 0; i < nout; i++) {
                 int j = nin + i;
@@ -289,34 +289,69 @@ namespace NumpyDotNet
             }
         }
 
-        internal object[] FindArrayPrepare(CodeContext cntx, object[] args) {
+        private object[] FindArrayWrap(CodeContext cntx, object[] args, string methodName) {
 
-
-            var with_prepare = args.Take(nin)
-                .Where(x => x is ndarray && x.GetType() != typeof(ndarray) && PythonOps.HasAttr(cntx, x, "__array_prepare__"))
-                .Select(x => new WithPrepare { arg = x, prepare = PythonOps.ObjectGetAttribute(cntx, x, "__array_prepare__") })
-                .Where(x=>PythonOps.IsCallable(cntx, x.prepare)).ToList();
+            // Find inputs with the wrap method
+            var with_wrap = args.Take(nin)
+                .Where(x => x is ndarray && x.GetType() != typeof(ndarray) && PythonOps.HasAttr(cntx, x, methodName))
+                .Select(x => new WithFunc { arg = x, func = PythonOps.ObjectGetAttribute(cntx, x, methodName) })
+                .Where(x => PythonOps.IsCallable(cntx, x.func)).ToList();
 
             // Find the one with the highest priority
             object wrap = null;
-            if (with_prepare.Count == 1) {
-                wrap = with_prepare.First().prepare;
-            } else if (with_prepare.Count > 1) {
-                wrap = with_prepare.OrderByDescending(x => NumericOps.GetPriority(cntx, x.arg, 1.0)).First().prepare;
+            if (with_wrap.Count == 1) {
+                wrap = with_wrap.First().func;
+            } else if (with_wrap.Count > 1) {
+                wrap = with_wrap.OrderByDescending(x => NumericOps.GetPriority(cntx, x.arg, 1.0)).First().func;
             }
 
-            // Use the output __array_prepare__ if it has one, otherwise wrap
+            // Use the output method if it has one, otherwise wrap
             object[] result = Enumerable.Repeat(wrap, nout).ToArray();
             int i = 0;
             foreach (var output in args.Skip(nin).Take(nout)) {
-                result[i] = wrap;
-                if (PythonOps.HasAttr(cntx, output, "__array__prepare__")) {
-                    object prepare = PythonOps.ObjectGetAttribute(cntx, output, "__array_prepare__");
-                    if (PythonOps.IsCallable(cntx, prepare)) {
-                        result[i] = prepare;
+                if (output != null) {
+                    if (output.GetType() == typeof(ndarray)) {
+                        result[i] = null;
+                    } else if (PythonOps.HasAttr(cntx, output, methodName)) {
+                        wrap = PythonOps.ObjectGetAttribute(cntx, output, methodName);
+                        if (PythonOps.IsCallable(cntx, wrap)) {
+                            result[i] = wrap;
+                        }
                     }
                 }
                 i++;
+            }
+            return result;
+        }
+
+        internal object[] WrapOutputs(CodeContext cntx, ndarray[] mps, object[] args) {
+            object[] wraps = FindArrayWrap(cntx, args, "__array_wrap__");
+            object[] wrapargs = null;
+            object[] result = new object[nout];
+            for (int i = 0; i < nout; i++) {
+                int j = nin + i;
+                if (mps[j].flags.updateifcopy) {
+                    throw new NotImplementedException("We don't have a base yet");
+                }
+                object wrap = wraps[i];
+                if (wrap != null) {
+                    if (wrapargs == null) {
+                        wrapargs = new object[] { this, new PythonTuple(args), i };
+                    } else {
+                        wrapargs[2] = i;
+                    }
+                    object res;
+                    try {
+                        res = PythonOps.CallWithContext(cntx, wrap, mps[j], new PythonTuple(wrapargs), null);
+                    } catch (ArgumentTypeException) {
+                        res = PythonOps.CallWithContext(cntx, wrap, mps[j]);
+                    }
+                    if (res != null) {
+                        result[i] = res;
+                    }
+                } else {
+                    result[i] = ndarray.ArrayReturn(mps[j]);
+                }
             }
             return result;
         }
