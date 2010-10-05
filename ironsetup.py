@@ -12,8 +12,14 @@ if sys.platform != 'cli':
 src_dir = os.getcwd()
 
 
+def gen_umath():
+    os.chdir(join(src_dir, r'numpy\core'))
+    os.system(r'ipy code_generators\generate_umath.py')
+    os.chdir(src_dir)
+
+
 def msbuild():
-    os.chdir(join(src_dir, 'numpy\NumpyDotNet'))
+    os.chdir(join(src_dir, r'numpy\NumpyDotNet'))
     os.system('msbuild')
     os.chdir(src_dir)
 
@@ -59,5 +65,6 @@ def install():
 
 
 if __name__ == '__main__':
+    gen_umath()
     msbuild()
     install()
