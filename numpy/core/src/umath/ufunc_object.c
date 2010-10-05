@@ -708,7 +708,7 @@ prepare_outputs(NpyUFuncObject *self, NpyArray **mps, PyObject* args)
             res = PyObject_CallFunction(wrap, "O(OOi)",
                                         Npy_INTERFACE(mps[j]), 
                                         Npy_INTERFACE(self), args, i);
-            if ((res == NULL) || (res == Py_None)) {
+            if ((res == NULL) || (res == Py_None) || !PyArray_Check(res)) {
                 if (!PyErr_Occurred()){
                     PyErr_SetString(PyExc_TypeError,
                             "__array_prepare__ must return an ndarray or subclass thereof");

@@ -59,8 +59,7 @@ namespace NumpyDotNet
             }
 
             ndarray[] arrays = ConvertArgs(args);
-
-            NpyCoreApi.GenericFunction(this, arrays, sig);
+            NpyCoreApi.GenericFunction(cntx, this, arrays, sig, (ctx, ufunc, ars, ag) => ufunc.PrepareOutputs(ctx, ars, ag), args);
 
             if (nout == 1) {
                 return arrays[nin];
@@ -269,14 +268,34 @@ namespace NumpyDotNet
             public object prepare;
         }
 
-        internal object[] FindArrayPrepare(object[] args) {
-            // Get a context to work with
-            CodeContext cntx = PythonOps.GetPythonTypeContext(DynamicHelpers.GetPythonTypeFromType(typeof(ufunc)));
+        internal void PrepareOutputs(CodeContext cntx, ndarray[] arrays, object[] args) {
+            object[] wraparr = FindArrayPrepare(cntx, args);
+            object[] wraparg = null;
+            for (int i = 0; i < nout; i++) {
+                int j = nin + i;
+                object wrap = wraparr[i];
+                if (wrap != null) {
+                    if (wraparg == null) {
+                        wraparg = new object[] { this, new PythonTuple(args), i };
+                    } else {
+                        wraparg[2] = i;
+                    }
+                    ndarray wrapped = (PythonOps.CallWithContext(cntx, wrap, arrays[j], new PythonTuple(wraparg)) as ndarray);
+                    if (wrapped == null) {
+                        throw new ArgumentTypeException("__array_prepare__ must returns an ndarray or subclass thereof.");
+                    }
+                    arrays[j] = wrapped;
+                }
+            }
+        }
+
+        internal object[] FindArrayPrepare(CodeContext cntx, object[] args) {
+
 
             var with_prepare = args.Take(nin)
                 .Where(x => x is ndarray && x.GetType() != typeof(ndarray) && PythonOps.HasAttr(cntx, x, "__array_prepare__"))
                 .Select(x => new WithPrepare { arg = x, prepare = PythonOps.ObjectGetAttribute(cntx, x, "__array_prepare__") })
-                .Where(x => PythonOps.IsCallable(cntx, x.prepare)).ToList();
+                .Where(x=>PythonOps.IsCallable(cntx, x.prepare)).ToList();
 
             // Find the one with the highest priority
             object wrap = null;
