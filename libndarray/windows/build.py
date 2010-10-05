@@ -4,10 +4,7 @@ import shutil
 from glob import glob
 from os.path import expanduser, join
 
-from egginst.utils import rm_rf
 
-
-assert sys.platform == 'win32'
 sys.path.insert(0, r'..\tools')
 
 from conv_template import process_file
