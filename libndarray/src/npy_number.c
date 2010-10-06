@@ -141,7 +141,6 @@ NDARRAY_API NpyUFuncObject *
 NpyArray_GetNumericOp(enum NpyArray_Ops op)
 {
     NpyUFuncObject **loc = get_op_loc(op);
-    printf("Op = %p, %p, %d\n", *loc, (*loc)->nob_interface, (*loc)->nob_refcnt);
     return (NULL != loc) ? *loc : NULL;
 }
 
@@ -202,7 +201,6 @@ finish:
     for (i=0; i < 3; i++) {
         Npy_XDECREF(mps[i]);
     }
-    printf("Moose: %p, %p, %d\n", result, result->nob_interface, result->nob_refcnt);
     return result;
 }
 
