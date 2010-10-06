@@ -175,7 +175,7 @@ namespace NumpyDotNet {
         /// <returns>GCHandle to the result object</returns>
         private static IntPtr GetItemWrapper(Func<IntPtr, ndarray, Object> f, IntPtr ptr, IntPtr arrPtr) {
             Object result = f(ptr, NpyCoreApi.ToInterface<ndarray>(arrPtr));
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         }
 
 
@@ -394,7 +394,7 @@ namespace NumpyDotNet {
                         String.Format("IntPtr of size {0} is not implemented.", IntPtr.Size));
                 }
             }
-            return GCHandle.FromIntPtr(f).Target;
+            return NpyCoreApi.GCHandleFromIntPtr(f).Target;
         }
         internal static GetitemDelegate getitemObjectDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
@@ -469,7 +469,7 @@ namespace NumpyDotNet {
         /// <param name="ptr">Array memory pointer (may be unaligned)</param>
         /// <param name="arrPtr">Point to the NpyArray core data structure</param>
         private static void SetItemWrapper(Action<Object, IntPtr, ndarray> f, IntPtr value, IntPtr ptr, IntPtr arrPtr) {
-            Object v = GCHandle.FromIntPtr(value);
+            Object v = NpyCoreApi.GCHandleFromIntPtr(value);
             f(v, ptr, NpyCoreApi.ToInterface<ndarray>(arrPtr));
         }
 
@@ -725,7 +725,7 @@ namespace NumpyDotNet {
 
 
         internal static void setitemObject(Object o, IntPtr ptr, ndarray arr) {
-            IntPtr f = GCHandle.ToIntPtr(GCHandle.Alloc(o));
+            IntPtr f = GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(o));
             IntPtr prev = IntPtr.Zero;
 
             unsafe {
@@ -764,7 +764,7 @@ namespace NumpyDotNet {
 
             // Release our handle to any previous object.
             if (prev != IntPtr.Zero) {
-                GCHandle.FromIntPtr(prev).Free();
+                NpyCoreApi.FreeGCHandle(NpyCoreApi.GCHandleFromIntPtr(prev));
             }
         }
         internal static SetitemDelegate setitemObjectDelegate =
@@ -909,11 +909,11 @@ namespace NumpyDotNet {
             IntPtr tmp = IntPtr.Zero;
             tmp = Marshal.ReadIntPtr((IntPtr)dest);
             if (tmp != IntPtr.Zero) {
-                GCHandle.FromIntPtr(tmp).Free();
+                NpyCoreApi.FreeGCHandle(NpyCoreApi.GCHandleFromIntPtr(tmp));
             }
             tmp = Marshal.ReadIntPtr((IntPtr)src);
             if (tmp != IntPtr.Zero) {
-                tmp = GCHandle.ToIntPtr(GCHandle.Alloc(GCHandle.FromIntPtr(tmp).Target));
+                tmp = GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(NpyCoreApi.GCHandleFromIntPtr(tmp).Target));
             }
             Marshal.WriteIntPtr((IntPtr)dest, tmp);
         }
@@ -948,11 +948,11 @@ namespace NumpyDotNet {
             for (long i = 0; i < n; i++) {
                 IntPtr tmp = Marshal.ReadIntPtr(outPtr);
                 if (tmp != IntPtr.Zero) {
-                    GCHandle.FromIntPtr(tmp).Free();
+                    NpyCoreApi.FreeGCHandle(NpyCoreApi.GCHandleFromIntPtr(tmp));
                 }
                 tmp = Marshal.ReadIntPtr(inPtr);
                 Object val = castFunc(tmp, arr);
-                Marshal.WriteIntPtr(outPtr, GCHandle.ToIntPtr(GCHandle.Alloc(val)));
+                Marshal.WriteIntPtr(outPtr, GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(val)));
 
                 inPtr = inPtr + stride;
                 outPtr = outPtr + IntPtr.Size;
@@ -1084,12 +1084,12 @@ namespace NumpyDotNet {
         /// <param name="argPtr">Optional argument, pass IntPtr.Zero if not needed</param>
         /// <returns>IntPtr to GCHandle of result object</returns>
         unsafe internal static IntPtr MethodCall(IntPtr objPtr, sbyte *methodName, IntPtr argPtr) {
-            Object obj = GCHandle.FromIntPtr(objPtr).Target;
+            Object obj = NpyCoreApi.GCHandleFromIntPtr(objPtr).Target;
             Object result = null;
             String method = new String(methodName);
 
             if (argPtr != IntPtr.Zero) {
-                Object arg = GCHandle.FromIntPtr(argPtr).Target;
+                Object arg = NpyCoreApi.GCHandleFromIntPtr(argPtr).Target;
                 CallSite<Func<CallSite, Object, Object, Object>> site;
 
                 // Cache the call site object based on method name.
@@ -1122,7 +1122,7 @@ namespace NumpyDotNet {
                 }
                 result = site.Target(site, obj);
             }
-            return (result != null) ? GCHandle.ToIntPtr(GCHandle.Alloc(result)) : IntPtr.Zero;
+            return (result != null) ? GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result)) : IntPtr.Zero;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe internal delegate IntPtr del_MethodCall(IntPtr a, sbyte *b, IntPtr arg);
@@ -1138,8 +1138,8 @@ namespace NumpyDotNet {
         /// <returns>1 if true, 0 if false, -1 on error</returns>
         private static int GenericCmp(CallSite<Func<CallSite, Object, Object, Object>> site,
             IntPtr aPtr, IntPtr bPtr) {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
-            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
             return (bool)site.Target(Site_Equal, a, b) ? 1 : 0;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -1155,9 +1155,9 @@ namespace NumpyDotNet {
         /// <returns>IntPtr to GCHandle referencing the result</returns>
         private static IntPtr GenericUnaryOp(CallSite<Func<CallSite, Object, Object>> site,
             IntPtr aPtr) {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object r = site.Target(site, a);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(r));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(r));
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr del_GenericUnaryOp(IntPtr a);
@@ -1173,8 +1173,8 @@ namespace NumpyDotNet {
         /// <returns>IntPtr to GCHandle referencing the result</returns>
         private static IntPtr GenericBinOp(CallSite<Func<CallSite, Object, Object, Object>> site,
             IntPtr aPtr, IntPtr bPtr) {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
-            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
             Object r = site.Target(site, a, b);
             return GCHandle.ToIntPtr(GCHandle.Alloc(r));
         }
@@ -1207,13 +1207,13 @@ namespace NumpyDotNet {
         static internal del_GenericUnaryOp Op_Negate = 
             a => GenericUnaryOp(Site_Negative, a);
         static internal del_GenericUnaryOp Op_Sign = aPtr => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             int result;
 
             if ((bool)Site_Less.Target(Site_Less, a, 0.0)) result = -1;
             else if ((bool)Site_Greater.Target(Site_Greater, a, 0.0)) result = 1;
             else result = 0;
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
         static internal del_GenericUnaryOp Op_Absolute =
             a => GenericUnaryOp(Site_Abs, a);
@@ -1225,32 +1225,32 @@ namespace NumpyDotNet {
             (a, b) => GenericBinOp(Site_Remainder, a, b);
 
         static internal del_GenericUnaryOp Op_Square = aPtr => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object result = Site_Divide.Target(Site_Multiply, a, a);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
 
         static internal del_GenericBinOp Op_Power =
             (a, b) => GenericBinOp(Site_Power, a, b);
 
         static internal del_GenericUnaryOp Op_Reciprocal = aPtr => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object result = Site_Divide.Target(Site_Divide, 1.0, a);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
 
         static internal del_GenericBinOp Op_Min = (aPtr, bPtr) => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
-            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
             Object result = (bool)Site_LessEqual.Target(Site_LessEqual, a, b) ? a : b;
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
 
         static internal del_GenericBinOp Op_Max = (aPtr, bPtr) => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
-            Object b = GCHandle.FromIntPtr(bPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
             Object result = (bool)Site_GreaterEqual.Target(Site_GreaterEqual, a, b) ? a : b;
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
 
 
@@ -1258,7 +1258,7 @@ namespace NumpyDotNet {
         static internal del_GenericUnaryOp Op_Invert = aPtr => {
             Object a = GCHandle.FromIntPtr(aPtr).Target;
             Object result = Site_Not.Target(Site_Not, a);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(result));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
 
         static internal del_GenericBinOp Op_And =
@@ -1274,7 +1274,7 @@ namespace NumpyDotNet {
 
         // Just returns the number 1.
         static internal del_GenericUnaryOp Op_GetOne = aPtr => {
-            return GCHandle.ToIntPtr(GCHandle.Alloc(1));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(1));
         };
 
         static internal int OBJECT_compare(IntPtr objPtrPtr1, IntPtr objPtrPtr2, IntPtr unused) {
@@ -1298,10 +1298,10 @@ namespace NumpyDotNet {
                 // Not using offset argument to ReadIntPtr because it's only 'int' size.
                 maxPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
             }
-            Object maxObj = (maxPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(maxPtr).Target : null;
+            Object maxObj = (maxPtr != IntPtr.Zero) ? NpyCoreApi.GCHandleFromIntPtr(maxPtr).Target : null;
             for (; i < n; i++) {
                 IntPtr curPtr = Marshal.ReadIntPtr((IntPtr)((long)objArr + i * IntPtr.Size));
-                Object curObj = GCHandle.FromIntPtr(curPtr).Target;
+                Object curObj = NpyCoreApi.GCHandleFromIntPtr(curPtr).Target;
                 if (IronPython.Runtime.Operations.PythonOps.Compare(curObj, maxObj) > 0) {
                     maxPtr = curPtr;
                     maxObj = curObj;
@@ -1359,9 +1359,9 @@ namespace NumpyDotNet {
             }
 
             if (outPtr != IntPtr.Zero) {
-                GCHandle.FromIntPtr(outPtr).Free();
+                NpyCoreApi.FreeGCHandle(NpyCoreApi.GCHandleFromIntPtr(outPtr));
             }
-            outPtr = GCHandle.ToIntPtr(GCHandle.Alloc(cumsum));
+            outPtr = GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(cumsum));
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate void del_OBJECT_dot(IntPtr inPtrPtr1, IntPtr stride1Tmp, IntPtr inPtrPtr2,
@@ -1390,7 +1390,7 @@ namespace NumpyDotNet {
         /// <returns>Object or null</returns>
         static private Object DerefObjPtr(IntPtr ptr, long offset) {
             IntPtr oPtr = Marshal.ReadIntPtr((IntPtr)((long)ptr + offset));
-            return (oPtr != IntPtr.Zero) ? GCHandle.FromIntPtr(oPtr).Target : null;
+            return (oPtr != IntPtr.Zero) ? NpyCoreApi.GCHandleFromIntPtr(oPtr).Target : null;
         }
 
 
@@ -1413,8 +1413,8 @@ namespace NumpyDotNet {
 
 
         private static int ComparePriorityCallback(IntPtr obj1Ptr, IntPtr obj2Ptr) {
-            Object obj1 = GCHandle.FromIntPtr(obj1Ptr).Target;
-            Object obj2 = GCHandle.FromIntPtr(obj2Ptr).Target;
+            Object obj1 = NpyCoreApi.GCHandleFromIntPtr(obj1Ptr).Target;
+            Object obj2 = NpyCoreApi.GCHandleFromIntPtr(obj2Ptr).Target;
             int result = 0;
 
             if (obj1 == null || obj2 == null) {

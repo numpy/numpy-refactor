@@ -141,6 +141,7 @@ NDARRAY_API NpyUFuncObject *
 NpyArray_GetNumericOp(enum NpyArray_Ops op)
 {
     NpyUFuncObject **loc = get_op_loc(op);
+    printf("Op = %p, %p, %d\n", *loc, (*loc)->nob_interface, (*loc)->nob_refcnt);
     return (NULL != loc) ? *loc : NULL;
 }
 
@@ -170,6 +171,7 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
 {
     NpyArray *mps[NPY_MAXARGS];
     NpyArray *result;
+    int i;
 
     assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);
@@ -181,6 +183,9 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
     Npy_XINCREF(out);
     mps[2] = out;
 
+    for (i = 0; i < 3; i++) {
+        Npy_XINCREF(mps[i]);
+    }
     if (0 > NpyUFunc_GenericFunction(op, 3, mps, 0, NULL, NPY_FALSE, NULL, NULL)) {
         result = NULL;
         goto finish;
@@ -194,7 +199,10 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
 
 finish:
     Npy_XINCREF(result);
-    Npy_XDECREF(mps[2]);
+    for (i=0; i < 3; i++) {
+        Npy_XDECREF(mps[i]);
+    }
+    printf("Moose: %p, %p, %d\n", result, result->nob_interface, result->nob_refcnt);
     return result;
 }
 

@@ -245,8 +245,10 @@ namespace NumpyDotNet
                     }
 
                     // General subscript case.
+                    NpyCoreApi.Incref(Array);
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
+                    NpyCoreApi.Decref(Array);
                     if (result.ndim == 0) {
                         // TODO: This should return a numpy scalar.
                         return result.dtype.f.GetItem(0, result);
@@ -601,7 +603,7 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }
 
-        public static object operator -(ndarray a, ndarray b) {
+        public static object operator -(ndarray a, Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
             return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
         }

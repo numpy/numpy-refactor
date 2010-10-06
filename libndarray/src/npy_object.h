@@ -54,33 +54,52 @@ typedef struct _NpyObject NpyObject;
  * atomic increment/decrement behavior to make the reference counting
  * re-entrant. Both macros return the modified value. */
 #if defined(_WIN32)
-#define AtomicIncrement(i) InterlockedIncrement(&(i))
-#define AtomicDecrement(i) InterlockedDecrement(&(i))
-
-#else
-/* NOT THREAD SAFE! */
-#define AtomicIncrement(i) (++(i))
-#define AtomicDecrement(i) (--(i))
-
-#endif
-
+NDARRAY_API CRITICAL_SECTION Npy_RefCntLock;
 
 /* NOTE: Do not use Npy_INTERFACE macro in these macros as it can trigger
    construction of a new interface object. */
 #define Npy_INCREF(a)                                                      \
     do {                                                                   \
-        if (1 == AtomicIncrement((a)->nob_refcnt) &&                       \
+        EnterCriticalSection(&Npy_RefCntLock);                             \
+        if (1 == ++(a)->nob_refcnt &&                                      \
+                  NULL != (a)->nob_interface)                              \
+           _NpyInterface_Incref((a)->nob_interface, &((a)->nob_interface));  \
+        LeaveCriticalSection(&Npy_RefCntLock);                             \
+    } while(0)
+
+#define Npy_DECREF(a)                                                       \
+    do {                                                                    \
+        EnterCriticalSection(&Npy_RefCntLock);                              \
+        if (0 == --(a)->nob_refcnt) {                                       \
+            if (NULL != (a)->nob_interface)                                 \
+                _NpyInterface_Decref((a)->nob_interface, &((a)->nob_interface));  \
+            else                                                            \
+               (a)->nob_type->ntp_dealloc((_NpyObject*)a);                  \
+        }                                                                   \
+        LeaveCriticalSection(&Npy_RefCntLock);                              \
+    } while(0);
+
+#else
+/* NOTE: Do not use Npy_INTERFACE macro in these macros as it can trigger
+   construction of a new interface object. */
+#define Npy_INCREF(a)                                                      \
+    do {                                                                   \
+        if (1 == ++(a)->nob_refcnt &&                                      \
                   NULL != (a)->nob_interface)                              \
            _NpyInterface_Incref((a)->nob_interface, &((a)->nob_interface));  \
     } while(0)
 
 #define Npy_DECREF(a)                                                       \
-    if (0 == AtomicDecrement((a)->nob_refcnt)) {                            \
+    if (0 == --(a)->nob_refcnt) {                                           \
         if (NULL != (a)->nob_interface)                                     \
             _NpyInterface_Decref((a)->nob_interface, &((a)->nob_interface));  \
         else                                                                \
            (a)->nob_type->ntp_dealloc((_NpyObject*)a);                      \
     }
+
+#endif
+
+
 
 
 #define Npy_XINCREF(a) if ((a) == NULL) ; else Npy_INCREF(a)

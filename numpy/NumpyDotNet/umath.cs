@@ -78,7 +78,7 @@ namespace NumpyDotNet
 
             ModuleDict = cntx.ModuleContext.Module.Get__dict__();
 
-            GCHandle dictHandle = GCHandle.Alloc(ModuleDict);
+            GCHandle dictHandle = NpyCoreApi.AllocGCHandle(ModuleDict);
             IntPtr funcsHandle = IntPtr.Zero;
             try {
                 funcsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(ExternFuncs)));
@@ -89,7 +89,7 @@ namespace NumpyDotNet
                     Marshal.GetFunctionPointerForDelegate(AddToDictDelegate));
                 RegisterCoreUFuncs(ModuleDict);
             } finally {
-                dictHandle.Free();
+                NpyCoreApi.FreeGCHandle(dictHandle);
                 Marshal.FreeHGlobal(funcsHandle);
             }
 
@@ -186,9 +186,9 @@ namespace NumpyDotNet
         /// <param name="ufuncHandle">GCHandle to ufunc</param>
         private unsafe static void AddToDict(IntPtr dictHandle, sbyte* bStr, IntPtr ufuncHandle) {
             PythonDictionary dict =
-                (PythonDictionary)GCHandle.FromIntPtr(dictHandle).Target;
+                (PythonDictionary)NpyCoreApi.GCHandleFromIntPtr(dictHandle).Target;
             String funcStr = new String(bStr);
-            ufunc f = (ufunc)GCHandle.FromIntPtr(ufuncHandle).Target;
+            ufunc f = (ufunc)NpyCoreApi.GCHandleFromIntPtr(ufuncHandle).Target;
             dict.Add(funcStr, f);
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

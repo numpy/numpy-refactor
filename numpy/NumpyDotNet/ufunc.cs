@@ -25,7 +25,7 @@ namespace NumpyDotNet
             // as the sole reference to it.
             IntPtr offset = Marshal.OffsetOf(typeof(NpyCoreApi.NpyObject_HEAD), "nob_interface");
             Marshal.WriteIntPtr(corePtr, (int)offset,
-                GCHandle.ToIntPtr(GCHandle.Alloc(this, GCHandleType.Weak)));
+                GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(this, GCHandleType.Normal)));
             NpyCoreApi.Decref(corePtr);
         }
 

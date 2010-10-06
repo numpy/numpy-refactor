@@ -17,6 +17,9 @@
 #include "npy_os.h"
 #include "npy_calculation.h"
 
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
 
 npy_tp_error_set NpyErr_SetString;
 npy_tp_error_occurred NpyErr_Occurred;
@@ -36,6 +39,11 @@ struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
 };
 
 
+// TODO: Need cross-platform switch/support for thread-safe reference counting macros.
+#if defined(_WIN32)
+NDARRAY_API CRITICAL_SECTION Npy_RefCntLock;
+#endif
+
 /* Initializes the library at startup.
    This functions must be called exactly once by the interface layer.*/
 NDARRAY_API void 
@@ -46,8 +54,13 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
             npy_tp_error_clear error_clear,
             npy_tp_cmp_priority cmp_priority,
             npy_interface_incref incref, npy_interface_decref decref)
+
 {
     int s = sizeof(functionDefs);
+
+#if defined(_WIN32)
+    InitializeCriticalSection(&Npy_RefCntLock);
+#endif
 
     // Verify that the structure definition is correct and has the memory layout
     // that we expect. 
