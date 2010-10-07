@@ -342,8 +342,10 @@ namespace NumpyDotNet
                     }
 
                     // General subscript case.
+                    NpyCoreApi.Incref(Array);
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
+                    NpyCoreApi.Decref(Array);
                     if (result.ndim == 0) {
                         // TODO: This should return a numpy scalar.
                         return result.dtype.f.GetItem(0, result);

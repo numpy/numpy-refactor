@@ -129,13 +129,13 @@ namespace NumpyDotNet {
                 return DecrefToInterface<ndarray>(
                     NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, IntPtr.Zero, IntPtr.Zero));
             } else {
-                GCHandle h = GCHandle.Alloc(interfaceData);
+                GCHandle h = AllocGCHandle(interfaceData);
                 try {
                     Incref(descr.Descr);
                     return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
                         flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
                 } finally {
-                    h.Free();
+                    FreeGCHandle(h);
                 }
             }
         }
@@ -179,21 +179,35 @@ namespace NumpyDotNet {
 
         internal static object GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
             // TODO: We need to do the error handling and wrapping of outputs.
+            Incref(a1.Array);
+            Incref(f.UFunc);
+            if (ret != null) {
+                Incref(ret.Array);
+            }
             IntPtr result = NpyArray_GenericUnaryFunction(a1.Array, f.UFunc,
                 (ret == null ? IntPtr.Zero : ret.Array));
             ndarray rval = DecrefToInterface<ndarray>(result);
+            Decref(a1.Array);
+            Decref(f.UFunc);
             if (ret == null) {
                 return ndarray.ArrayReturn(rval);
             } else {
+                Decref(ret.Array);
                 return rval;
             }
         }
 
         internal static object GenericBinaryOp(ndarray a1, ndarray a2, ufunc f, ndarray ret = null) {
+            //ndarray arr = new ndarray[] { a1, a2, ret };
+            //return GenericFunction(f, arr, null);
             // TODO: We need to do the error handling and wrapping of outputs.
+            Incref(f.UFunc);
+
             IntPtr result = NpyArray_GenericBinaryFunction(a1.Array, a2.Array, f.UFunc,
                 (ret == null ? IntPtr.Zero : ret.Array));
             ndarray rval = DecrefToInterface<ndarray>(result);
+            Decref(f.UFunc);
+
             if (ret == null) {
                 return ndarray.ArrayReturn(rval);
             } else {
@@ -223,7 +237,7 @@ namespace NumpyDotNet {
         }
 
         internal static int PrepareCallback(IntPtr ufunc, IntPtr arrays, IntPtr prepare_args) {
-            PrepareArgs args = (PrepareArgs)GCHandle.FromIntPtr(prepare_args).Target;
+            PrepareArgs args = (PrepareArgs)GCHandleFromIntPtr(prepare_args).Target;
             ufunc f = ToInterface<ufunc>(ufunc);
             ndarray[] arrs = new ndarray[f.nargs];
             // Copy the data into the array
@@ -264,8 +278,9 @@ namespace NumpyDotNet {
 
             if (prepare_outputs != null) {
                 PrepareArgs pargs = new PrepareArgs { cntx = cntx, prepare = prepare_outputs, args = args, ex = null };
-                GCHandle h = GCHandle.Alloc(pargs);
+                GCHandle h = AllocGCHandle(pargs);
                 try {
+                    Incref(f.UFunc);
                     if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
                             PrepareCallback, GCHandle.ToIntPtr(h)) < 0) {
                         CheckError();
@@ -275,7 +290,7 @@ namespace NumpyDotNet {
                     }
                 } finally {
                     // Release the handle
-                    h.Free();
+                    FreeGCHandle(h);
                     // Convert the args back.
                     for (int i = 0; i < arrays.Length; i++) {
                         if (mps[i] != IntPtr.Zero) {
@@ -284,9 +299,11 @@ namespace NumpyDotNet {
                             arrays[i] = null;
                         }
                     }
+                    Decref(f.UFunc);
                 }
             } else {
                 try {
+                    Incref(f.UFunc);
                     if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
                             null, IntPtr.Zero) < 0) {
                         CheckError();
@@ -300,6 +317,7 @@ namespace NumpyDotNet {
                             arrays[i] = null;
                         }
                     }
+                    Decref(f.UFunc);
                 }
             }
         }
@@ -413,13 +431,13 @@ namespace NumpyDotNet {
         }
 
         internal static void FillWithObject(ndarray arr, object obj) {
-            GCHandle h = GCHandle.Alloc(obj);
+            GCHandle h = AllocGCHandle(obj);
             try {
                 if (NpyArray_FillWithObject(arr.Array, GCHandle.ToIntPtr(h)) < 0) {
                     CheckError();
                 }
             } finally {
-                h.Free();
+                FreeGCHandle(h);
             }
         }
 
@@ -431,13 +449,13 @@ namespace NumpyDotNet {
 
         internal static ndarray View(ndarray arr, dtype d, object subtype) {
             if (subtype != null) {
-                GCHandle h = GCHandle.Alloc(subtype);
+                GCHandle h = AllocGCHandle(subtype);
                 try {
                     return DecrefToInterface<ndarray>(
                         NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr),
                             GCHandle.ToIntPtr(h)));
                 } finally {
-                    h.Free();
+                    FreeGCHandle(h);
                 }
             }
             else {
@@ -707,7 +725,7 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyUFunc_GenericFunction(IntPtr func, int nargs,
-            [MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)]IntPtr[] mps, 
+            [MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] IntPtr[] mps, 
             int ntypenums, [In][MarshalAs(UnmanagedType.LPArray)] int[] rtypenums,
             int originalObjectWasArray, del_PrepareOutputs npy_prepare_outputs_func, IntPtr prepare_out_args);
 
@@ -994,6 +1012,8 @@ namespace NumpyDotNet {
         /// </summary>
         private static int Offset_InterfacePtr = (int)Marshal.OffsetOf(typeof(NpyObject_HEAD), "nob_interface");
 
+        private static IntPtr lastArrayHandle = IntPtr.Zero;
+
         /// <summary>
         /// Given a pointer to a core (native) object, returns the managed wrapper.
         /// </summary>
@@ -1013,7 +1033,7 @@ namespace NumpyDotNet {
                         String.Format("Managed wrapper for type '{0}' is NULL.", typeof(TResult).Name));
                 }
             }
-            return (TResult)GCHandle.FromIntPtr(wrapper).Target;
+            return (TResult)GCHandleFromIntPtr(wrapper).Target;
         }
 
         /// <summary>
@@ -1053,9 +1073,9 @@ namespace NumpyDotNet {
                 object interfaceObj = null;
 
                 if (ensureArray == 0 && subtypePtr != IntPtr.Zero) {
-                    subtype = (PythonType)GCHandle.FromIntPtr(subtypePtr).Target;
+                    subtype = (PythonType)GCHandleFromIntPtr(subtypePtr).Target;
                 } else if (ensureArray == 0 && interfaceData != IntPtr.Zero) {
-                    interfaceObj = GCHandle.FromIntPtr(interfaceData).Target;
+                    interfaceObj = GCHandleFromIntPtr(interfaceData, true).Target;
                     if (interfaceObj is UseExistingWrapper) {
                         useExisting = interfaceObj;
                         interfaceObj = null;
@@ -1089,7 +1109,8 @@ namespace NumpyDotNet {
                     wrapArray = new ndarray(coreArray);
                 }
 
-                IntPtr ret = GCHandle.ToIntPtr(GCHandle.Alloc(wrapArray));
+                IntPtr ret = GCHandle.ToIntPtr(AllocGCHandle(wrapArray));
+                lastArrayHandle = ret;
                 Marshal.WriteIntPtr(interfaceRet, ret);
                 ndarray.IncreaseMemoryPressure(wrapArray);
 
@@ -1126,7 +1147,7 @@ namespace NumpyDotNet {
                     // trigger these event at the same time.
                     if (interfaceRet == IntPtr.Zero) {
                         flatiter wrapIter = new flatiter(coreIter);
-                        interfaceRet = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                        interfaceRet = GCHandle.ToIntPtr(AllocGCHandle(wrapIter));
                     }
                 }
             } catch (InsufficientMemoryException) {
@@ -1159,7 +1180,7 @@ namespace NumpyDotNet {
                     // trigger these event at the same time.
                     if (interfaceRet == IntPtr.Zero) {
                         broadcast wrapIter = broadcast.BeingCreated;
-                        interfaceRet = GCHandle.ToIntPtr(GCHandle.Alloc(wrapIter));
+                        interfaceRet = GCHandle.ToIntPtr(AllocGCHandle(wrapIter));
                     }
                 }
             } catch (InsufficientMemoryException) {
@@ -1190,7 +1211,7 @@ namespace NumpyDotNet {
 
                 dtype wrap = new dtype(descr, type);
                 Marshal.WriteIntPtr(interfaceRet,
-                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+                    GCHandle.ToIntPtr(AllocGCHandle(wrap)));
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
                 success = 0;
@@ -1221,7 +1242,7 @@ namespace NumpyDotNet {
 
                 dtype wrap = new dtype(descr);
                 Marshal.WriteIntPtr(interfaceRet,
-                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+                    GCHandle.ToIntPtr(AllocGCHandle(wrap)));
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating descriptor wrapper.");
                 success = 0;
@@ -1246,7 +1267,7 @@ namespace NumpyDotNet {
             try {
                 ufunc wrap = new ufunc(basePtr);
                 Marshal.WriteIntPtr(interfaceRet,
-                    GCHandle.ToIntPtr(GCHandle.Alloc(wrap)));
+                    GCHandle.ToIntPtr(AllocGCHandle(wrap)));
             } catch (InsufficientMemoryException) {
                 Console.WriteLine("Insufficient memory while allocating ufunc wrapper.");
             } catch (Exception) {
@@ -1275,14 +1296,15 @@ namespace NumpyDotNet {
                 return IntPtr.Zero;
             }
 
-            GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
-            object wrapperObj = oldWrapRef.Target;
-            IntPtr newWrapRef = GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj));
-            if (nobInterfacePtr != IntPtr.Zero) {
-                lock (interfaceSyncRoot) {
+            IntPtr newWrapRef = IntPtr.Zero;
+            lock (interfaceSyncRoot) {
+                GCHandle oldWrapRef = GCHandleFromIntPtr(ptr, true);
+                object wrapperObj = oldWrapRef.Target;
+                newWrapRef = GCHandle.ToIntPtr(AllocGCHandle(wrapperObj));
+                if (nobInterfacePtr != IntPtr.Zero) {
                     // Replace the contents of nobInterfacePtr with the new reference.
                     Marshal.WriteIntPtr(nobInterfacePtr, newWrapRef);
-                    oldWrapRef.Free();
+                    FreeGCHandle(oldWrapRef);
                 }
             }
             return newWrapRef;
@@ -1297,20 +1319,20 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="ptr">Interface object to 'decref'</param>
         private static void DecrefCallback(IntPtr ptr, IntPtr nobInterfacePtr) {
-            if (nobInterfacePtr != IntPtr.Zero) {
-                // Deferencing the interface wrapper.  We can't just null the
-                // wrapPtr because we have to have maintain the link so we
-                // allocate a weak reference instead.
-                lock (interfaceSyncRoot) {
-                    GCHandle oldWrapRef = GCHandle.FromIntPtr(ptr);
+            lock (interfaceSyncRoot) {
+                if (nobInterfacePtr != IntPtr.Zero) {
+                    // Deferencing the interface wrapper.  We can't just null the
+                    // wrapPtr because we have to have maintain the link so we
+                    // allocate a weak reference instead.
+                    GCHandle oldWrapRef = GCHandleFromIntPtr(ptr);
                     Object wrapperObj = oldWrapRef.Target;
                     Marshal.WriteIntPtr(nobInterfacePtr,
-                        GCHandle.ToIntPtr(GCHandle.Alloc(wrapperObj, GCHandleType.Weak)));
-                    oldWrapRef.Free();
-                }
-            } else {
-                if (ptr != IntPtr.Zero) {
-                    GCHandle.FromIntPtr(ptr).Free();
+                        GCHandle.ToIntPtr(AllocGCHandle(wrapperObj, GCHandleType.Weak)));
+                    FreeGCHandle(oldWrapRef);
+                } else {
+                    if (ptr != IntPtr.Zero) {
+                        FreeGCHandle(GCHandleFromIntPtr(ptr));
+                    }
                 }
             }
         }
@@ -1400,7 +1422,6 @@ namespace NumpyDotNet {
             }
             ErrorCode = (NpyExc_Type)exceptType;
             ErrorMessage = new string(bStr);
-            Console.WriteLine("Set error {0}: {1}", exceptType, ErrorMessage);
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe public delegate void del_SetErrorCallback(int exceptType, sbyte* msg);
@@ -1607,5 +1628,97 @@ namespace NumpyDotNet {
         #endregion
 
 
+        #region Memory verification
+
+        private const bool CheckMemoryAccesses = true;
+
+        /// <summary>
+        /// Set of all currently allocated GCHandles and the type of handle.
+        /// </summary>
+        private static readonly Dictionary<IntPtr, GCHandleType> AllocatedHandles = new Dictionary<IntPtr, GCHandleType>();
+
+        /// <summary>
+        /// Set of freed GC handles that we should not be accessing.
+        /// </summary>
+        private static readonly HashSet<IntPtr> FreedHandles = new HashSet<IntPtr>();
+
+        /// <summary>
+        /// Allocates a GCHandle for a given object. If CheckMemoryAccesses is false,
+        /// this is inlined into the normal GCHandle call.  If not, it performs the
+        /// access checking.
+        /// </summary>
+        /// <param name="o">Object to get a handle to</param>
+        /// <param name="type">Handle type, default is normal</param>
+        /// <returns>GCHandle instance</returns>
+        internal static GCHandle AllocGCHandle(Object o, GCHandleType type=GCHandleType.Normal) {
+            GCHandle h = GCHandle.Alloc(o, type);
+            if (CheckMemoryAccesses) {
+                lock (AllocatedHandles) {
+                    IntPtr p = GCHandle.ToIntPtr(h);
+                    if (AllocatedHandles.ContainsKey(p)) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: detected duplicate allocation of GCHandle. Probably a bookkeeping error. Handle is {0}.",
+                            p));
+                    }
+                    if (FreedHandles.Contains(p)) {
+                        FreedHandles.Remove(p);
+                    }
+                    AllocatedHandles.Add(p, type);
+                }
+            }
+            return h;
+        }
+
+        /// <summary>
+        /// Verifies that a GCHandle is known and good prior to using it.  If
+        /// CheckMemoryAccesses is false, this is a no-op and goes away.
+        /// </summary>
+        /// <param name="h">Handle to verify</param>
+        internal static GCHandle GCHandleFromIntPtr(IntPtr p, bool weakOk=false) {
+            if (CheckMemoryAccesses) {
+                lock (AllocatedHandles) {
+                    GCHandleType handleType;
+                    if (FreedHandles.Contains(p)) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: accessing already freed GCHandle {0}.", p));
+                    }
+                    if (!AllocatedHandles.TryGetValue(p, out handleType)) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: attempt to access unknown GCHandle {0}.", p));
+                    } else if (false && handleType == GCHandleType.Weak && !weakOk) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: invalid attempt to access weak reference {0}.", p));
+                    }
+                }
+            }
+            return GCHandle.FromIntPtr(p);
+        }
+
+        /// <summary>
+        /// Releases a GCHandle instance for an object.  If CheckMemoryAccesses is
+        /// false this is inlined to the GCHandle.Free() method.  Otherwise it verifies
+        /// that the handle is legit.
+        /// </summary>
+        /// <param name="h">GCHandle to release</param>
+        internal static void FreeGCHandle(GCHandle h) {
+            if (CheckMemoryAccesses) {
+                lock (AllocatedHandles) {
+                    IntPtr p = GCHandle.ToIntPtr(h);
+                    if (FreedHandles.Contains(p)) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: freeing already freed GCHandle {0}.", p));
+                    }
+                    if (!AllocatedHandles.ContainsKey(p)) {
+                        throw new AccessViolationException(
+                            String.Format("Internal error: freeing unknown GCHandle {0}.", p));
+                    }
+                    AllocatedHandles.Remove(p);
+                    FreedHandles.Add(p);
+                }
+            }
+            h.Free();
+        }
+
+        #endregion
     }
 }

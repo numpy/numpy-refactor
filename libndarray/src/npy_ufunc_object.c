@@ -1600,7 +1600,7 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
     int i;
     int arg_types[NPY_MAXARGS];
     NPY_SCALARKIND scalars[NPY_MAXARGS];
-    NPY_SCALARKIND maxarrkind, maxsckind, new;
+    NPY_SCALARKIND maxarrkind, maxsckind, newArr;
     NpyUFuncObject *self = loop->ufunc;
     npy_bool allscalars = NPY_TRUE;
     int flexible = 0;
@@ -1639,8 +1639,8 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
         if (NpyArray_NDIM(mps[i]) > 0) {
             scalars[i] = NPY_NOSCALAR;
             allscalars = NPY_FALSE;
-            new = NpyArray_ScalarKind(arg_types[i], NULL);
-            maxarrkind = NpyArray_MAX(new, maxarrkind);
+            newArr = NpyArray_ScalarKind(arg_types[i], NULL);
+            maxarrkind = NpyArray_MAX(newArr, maxarrkind);
         }
         else {
             scalars[i] = NpyArray_ScalarKind(arg_types[i], &(mps[i]));
@@ -1787,19 +1787,19 @@ construct_arrays(NpyUFuncLoopObject *loop, size_t nargs, NpyArray **mps,
             if (NpyArray_TYPE(mps[i]) != arg_types[i]
                 || !NpyArray_ISBEHAVED_RO(mps[i])) {
                 if (loop->iter->size < loop->bufsize || self->core_enabled) {
-                    NpyArray *new;
+                    NpyArray *newArr;
                     /*
                      * Copy the array to a temporary copy
                      * and set the UPDATEIFCOPY flag
                      */
                     ntype = NpyArray_DescrFromType(arg_types[i]);
-                    new = NpyArray_FromArray(mps[i], ntype,
+                    newArr = NpyArray_FromArray(mps[i], ntype,
                              NPY_FORCECAST | NPY_ALIGNED | NPY_UPDATEIFCOPY);
-                    if (new == NULL) {
+                    if (newArr == NULL) {
                         return -1;
                     }
                     Npy_DECREF(mps[i]);
-                    mps[i] = new;
+                    mps[i] = newArr;
                 }
             }
         }

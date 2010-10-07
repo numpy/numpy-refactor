@@ -139,9 +139,15 @@ def derivativeTest(iters):
        # Time the derivative calc.
        tmp = ndarray(size-1)
        t0 = time.clock()
+       dx = ndarray(size-1)
        for j in range(iters):
-            subtract(a[1:], a[:-1], tmp)
-            dx = tmp / dt
+           try:
+                subtract(a[1:], a[:-1], tmp)
+                #dx = divide(tmp, dt, dx)
+                dx = tmp / dt
+           except Exception as e:
+               print "j = %s, tmp = %d\ndt = %s" % (j, len(tmp), dt)
+               raise e
        t1 = time.clock()
        times[size] = t1-t0
     
@@ -227,24 +233,24 @@ for k in range(3):
 
     #time.sleep(10);
     #print "Starting creation test."
-    creationTest(longIter)
+    #creationTest(longIter)
     collect()
-    viewCreationTest(10000)
+    #viewCreationTest(10000)
     collect()
 
     #print "Multiply test"
-    multiplyTest(longIter)
+    #multiplyTest(longIter)
     collect()
         
     #print "Add test"
-    addTest(5)
+    #addTest(5)
     collect()
         
     #print "Derivative test"
     derivativeTest(2000)
     collect()
     
-    convolutionTest(5)   
+    #convolutionTest(5)   
     collect()
     
     if 0 and UsingIronPython:
