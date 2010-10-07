@@ -22,7 +22,7 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
-    public partial class ndarray : Wrapper, IEnumerable<object>
+    public partial class ndarray : Wrapper, IEnumerable<object>, NumpyDotNet.IArray
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -115,6 +115,9 @@ namespace NumpyDotNet
             core = a;
         }
 
+
+        #region Public interfaces (must match CPython)
+
         #region Python methods
 
         public virtual string __repr__(CodeContext context) {
@@ -138,18 +141,11 @@ namespace NumpyDotNet
             return PythonOps.ToPython((IntPtr)Dims[0]);
         }
 
-        internal long Length {
-            get {
-                return Dims[0];
-            }
-        }
-
         public object __abs__() {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_absolute);
             return NpyCoreApi.GenericUnaryOp(this, f);
         }
 
-        
         public object __lshift__(Object b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
             return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
@@ -172,7 +168,108 @@ namespace NumpyDotNet
 
         #endregion
 
-        #region Public interfaces (must match CPython)
+        #region Operators
+
+        internal static object BinaryOp(ndarray a, ndarray b, NpyDefs.NpyArray_Ops op) {
+            ufunc f = NpyCoreApi.GetNumericOp(op);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
+        public static object operator +(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
+        }
+
+        public static object operator +(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_add);
+        }
+
+        public static object operator +(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_add);
+        }
+
+        public static object operator -(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_subtract);
+        }
+
+        public static object operator -(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_subtract);
+        }
+
+        public static object operator -(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
+        }
+
+        public static object operator *(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_multiply);
+        }
+
+        public static object operator *(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_multiply);
+        }
+
+        public static object operator *(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
+        }
+
+        public static object operator /(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_divide);
+        }
+
+        public static object operator /(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_divide);
+        }
+
+        public static object operator /(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
+        }
+
+        public static object operator &(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+        }
+
+        public static object operator &(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+        }
+
+        public static object operator &(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+        }
+
+        public static object operator |(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+        }
+
+        public static object operator |(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+        }
+
+        public static object operator |(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+        }
+
+        public static object operator ^(ndarray a, Object b) {
+            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        public static object operator ^(object a, ndarray b) {
+            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        public static object operator ^(ndarray a, ndarray b) {
+            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        // TODO: Temporary test function
+        public static object Compare(ndarray a, ndarray b) {
+            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
+            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        }
+
+        // TODO: end of test functions
+
+        #endregion
+
+        #region indexing
 
         public object this[int index] {
             get {
@@ -328,6 +425,9 @@ namespace NumpyDotNet
             }
         }
 
+        #endregion
+
+        #region properties
 
         /// <summary>
         /// Number of dimensions in the array
@@ -349,10 +449,6 @@ namespace NumpyDotNet
         /// </summary>
         public object size {
             get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
-        }
-
-        public long Size {
-            get { return NpyCoreApi.NpyArray_Size(core).ToInt64(); }
         }
 
         /// <summary>
@@ -404,10 +500,6 @@ namespace NumpyDotNet
             }
         }
 
-        internal ndarray Real {
-            get { return NpyCoreApi.GetReal(this); }
-        }
-
         public object imag {
             get {
                 if (IsComplex) {
@@ -429,14 +521,6 @@ namespace NumpyDotNet
             }
         }
 
-        internal ndarray Imag {
-            get { return NpyCoreApi.GetImag(this); }
-        }
-
-        public override string ToString() {
-            return BuildStringRepr(false);
-        }
-
         public object flat {
             get {
                 return NpyCoreApi.IterNew(this);
@@ -448,203 +532,9 @@ namespace NumpyDotNet
             }
         }
 
-        internal flatiter Flat {
-            get {
-                return NpyCoreApi.IterNew(this);
-            }
-        }
-
         #endregion
 
-
-        public ndarray NewCopy(NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_NewCopy(core, (byte)order));
-        }
-
-
-        /// <summary>
-        /// Directly accesses the array memory and returns the object at that
-        /// offset.  No checks are made, caller can easily crash the program
-        /// or retrieve garbage data.
-        /// </summary>
-        /// <param name="offset">Offset into data array in bytes</param>
-        /// <returns>Contents of the location</returns>
-        internal object GetItem(long offset) {
-            return dtype.f.GetItem(offset, this);
-        }
-
-
-        /// <summary>
-        /// Directly sets a given location in the data array.  No checks are
-        /// made to make sure the offset is sensible or the data is valid in
-        /// anyway -- caller beware.
-        /// 'internal' because this is a security vulnerability.
-        /// </summary>
-        /// <param name="src">Value to write</param>
-        /// <param name="offset">Offset into array in bytes</param>
-        internal void SetItem(object src, long offset) {
-            dtype.f.SetItem(src, offset, this);
-        }
-
-
-        /// <summary>
-        /// Handle to the core representation.
-        /// </summary>
-        public IntPtr Array {
-            get { return core; }
-        }
-
-        /// <summary>
-        /// Returns an array of the sizes of each dimension. This property allocates
-        /// a new array with each call and must make a managed-to-native call so it's
-        /// worth caching the results if used in a loop.
-        /// </summary>
-        public Int64[] Dims {
-            get { return NpyCoreApi.GetArrayDimsOrStrides(this, true); }
-        }
-
-
-        /// <summary>
-        /// Returns the stride of a given dimension. For looping over all dimensions,
-        /// use 'strides'.  This is more efficient if only one dimension is of interest.
-        /// </summary>
-        /// <param name="dimension">Dimension to query</param>
-        /// <returns>Data stride in bytes</returns>
-        public long Stride(int dimension) {
-            return NpyCoreApi.GetArrayStride(Array, dimension);
-        }
-
-
-        /// <summary>
-        /// True if memory layout of array is contiguous
-        /// </summary>
-        public bool IsContiguous {
-            get { return ChkFlags(NpyDefs.NPY_CONTIGUOUS); }
-        }
-
-        /// <summary>
-        /// True if memory layout is Fortran order, false implies C order
-        /// </summary>
-        public bool IsFortran {
-            get { return ChkFlags(NpyDefs.NPY_FORTRAN) && ndim > 1; }
-        }
-
-        public bool IsNotSwapped {
-            get { return dtype.IsNativeByteOrder; }
-        }
-
-        public bool IsByteSwapped {
-            get { return !IsNotSwapped; }
-        }
-
-        public bool IsCArray {
-            get { return ChkFlags(NpyDefs.NPY_CARRAY) && IsNotSwapped; }
-        }
-
-        public bool IsCArray_RO {
-            get { return ChkFlags(NpyDefs.NPY_CARRAY_RO) && IsNotSwapped; }
-        }
-
-        public bool IsFArray {
-            get { return ChkFlags(NpyDefs.NPY_FARRAY) && IsNotSwapped; }
-        }
-
-        public bool IsFArray_RO {
-            get { return ChkFlags(NpyDefs.NPY_FARRAY_RO) && IsNotSwapped; }
-        }
-
-        public bool IsBehaved {
-            get { return ChkFlags(NpyDefs.NPY_BEHAVED) && IsNotSwapped; }
-        }
-
-        public bool IsBehaved_RO {
-            get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
-        }
-
-        internal bool IsComplex {
-            get { return NpyDefs.IsComplex(dtype.TypeNum); }
-        }
-
-        internal bool IsInteger {
-            get { return NpyDefs.IsInteger(dtype.TypeNum); }
-        }
-
-        public bool IsFlexible {
-            get { return NpyDefs.IsFlexible(dtype.TypeNum); }
-        }
-
-
-        /// <summary>
-        /// TODO: What does this return?
-        /// </summary>
-        public int ElementStrides {
-            get { return NpyCoreApi.NpyArray_ElementStrides(core); }
-        }
-
-        public bool StridingOk(NpyDefs.NPY_ORDER order) {
-            return order == NpyDefs.NPY_ORDER.NPY_ANYORDER ||
-                order == NpyDefs.NPY_ORDER.NPY_CORDER && IsContiguous ||
-                order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
-        }
-
-        private bool ChkFlags(int flag) {
-            return ((RawFlags & flag) == flag);
-        }
-
-        // These operators are useful from other C# code and also turn into the
-        // appropriate Python functions (+ goes to __add__, etc).
-        #region Operators
-
-        public static object operator +(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_add);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator -(ndarray a, ndarray b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator *(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_multiply);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator /(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator&(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator |(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-        public static object operator ^(ndarray a, Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
-            return NpyCoreApi.GenericBinaryOp(a, NpyArray.FromAny(b), f);
-        }
-
-
-
-        // TODO: Temporary test function
-        public static object Compare(ndarray a, ndarray b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
-        }
-
-        // TODO: end of test functions
-
-        #endregion
-
-
-        #region python methods from methods.c
+        #region methods
 
         public object all(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
@@ -1128,8 +1018,171 @@ namespace NumpyDotNet
             }
             return NpyCoreApi.View(this, rtype, type);
         }
-        
+
         #endregion
+
+        #endregion
+
+
+        public long Size {
+            get { return NpyCoreApi.NpyArray_Size(core).ToInt64(); }
+        }
+
+        internal ndarray Real {
+            get { return NpyCoreApi.GetReal(this); }
+        }
+
+        internal ndarray Imag {
+            get { return NpyCoreApi.GetImag(this); }
+        }
+
+        public override string ToString() {
+            return BuildStringRepr(false);
+        }
+
+        internal flatiter Flat {
+            get {
+                return NpyCoreApi.IterNew(this);
+            }
+        }
+
+        public ndarray NewCopy(NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_NewCopy(core, (byte)order));
+        }
+
+
+        /// <summary>
+        /// Directly accesses the array memory and returns the object at that
+        /// offset.  No checks are made, caller can easily crash the program
+        /// or retrieve garbage data.
+        /// </summary>
+        /// <param name="offset">Offset into data array in bytes</param>
+        /// <returns>Contents of the location</returns>
+        internal object GetItem(long offset) {
+            return dtype.f.GetItem(offset, this);
+        }
+
+
+        /// <summary>
+        /// Directly sets a given location in the data array.  No checks are
+        /// made to make sure the offset is sensible or the data is valid in
+        /// anyway -- caller beware.
+        /// 'internal' because this is a security vulnerability.
+        /// </summary>
+        /// <param name="src">Value to write</param>
+        /// <param name="offset">Offset into array in bytes</param>
+        internal void SetItem(object src, long offset) {
+            dtype.f.SetItem(src, offset, this);
+        }
+
+
+        /// <summary>
+        /// Handle to the core representation.
+        /// </summary>
+        public IntPtr Array {
+            get { return core; }
+        }
+
+        /// <summary>
+        /// Returns an array of the sizes of each dimension. This property allocates
+        /// a new array with each call and must make a managed-to-native call so it's
+        /// worth caching the results if used in a loop.
+        /// </summary>
+        public Int64[] Dims {
+            get { return NpyCoreApi.GetArrayDimsOrStrides(this, true); }
+        }
+
+
+        /// <summary>
+        /// Returns the stride of a given dimension. For looping over all dimensions,
+        /// use 'strides'.  This is more efficient if only one dimension is of interest.
+        /// </summary>
+        /// <param name="dimension">Dimension to query</param>
+        /// <returns>Data stride in bytes</returns>
+        public long Stride(int dimension) {
+            return NpyCoreApi.GetArrayStride(Array, dimension);
+        }
+
+
+        /// <summary>
+        /// True if memory layout of array is contiguous
+        /// </summary>
+        public bool IsContiguous {
+            get { return ChkFlags(NpyDefs.NPY_CONTIGUOUS); }
+        }
+
+        /// <summary>
+        /// True if memory layout is Fortran order, false implies C order
+        /// </summary>
+        public bool IsFortran {
+            get { return ChkFlags(NpyDefs.NPY_FORTRAN) && ndim > 1; }
+        }
+
+        public bool IsNotSwapped {
+            get { return dtype.IsNativeByteOrder; }
+        }
+
+        public bool IsByteSwapped {
+            get { return !IsNotSwapped; }
+        }
+
+        public bool IsCArray {
+            get { return ChkFlags(NpyDefs.NPY_CARRAY) && IsNotSwapped; }
+        }
+
+        public bool IsCArray_RO {
+            get { return ChkFlags(NpyDefs.NPY_CARRAY_RO) && IsNotSwapped; }
+        }
+
+        public bool IsFArray {
+            get { return ChkFlags(NpyDefs.NPY_FARRAY) && IsNotSwapped; }
+        }
+
+        public bool IsFArray_RO {
+            get { return ChkFlags(NpyDefs.NPY_FARRAY_RO) && IsNotSwapped; }
+        }
+
+        public bool IsBehaved {
+            get { return ChkFlags(NpyDefs.NPY_BEHAVED) && IsNotSwapped; }
+        }
+
+        public bool IsBehaved_RO {
+            get { return ChkFlags(NpyDefs.NPY_ALIGNED) && IsNotSwapped; }
+        }
+
+        internal bool IsComplex {
+            get { return NpyDefs.IsComplex(dtype.TypeNum); }
+        }
+
+        internal bool IsInteger {
+            get { return NpyDefs.IsInteger(dtype.TypeNum); }
+        }
+
+        public bool IsFlexible {
+            get { return NpyDefs.IsFlexible(dtype.TypeNum); }
+        }
+
+
+        /// <summary>
+        /// TODO: What does this return?
+        /// </summary>
+        public int ElementStrides {
+            get { return NpyCoreApi.NpyArray_ElementStrides(core); }
+        }
+
+        public bool StridingOk(NpyDefs.NPY_ORDER order) {
+            return order == NpyDefs.NPY_ORDER.NPY_ANYORDER ||
+                order == NpyDefs.NPY_ORDER.NPY_CORDER && IsContiguous ||
+                order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER && IsFortran;
+        }
+
+        private bool ChkFlags(int flag) {
+            return ((RawFlags & flag) == flag);
+        }
+
+        // These operators are useful from other C# code and also turn into the
+        // appropriate Python functions (+ goes to __add__, etc).
 
         #region IEnumerable<object> interface
 
@@ -1144,6 +1197,12 @@ namespace NumpyDotNet
         #endregion
 
         #region Internal methods
+
+        internal long Length {
+            get {
+                return Dims[0];
+            }
+        }
 
         internal static object ArrayReturn(ndarray a) {
             if (a.ndim == 0) {

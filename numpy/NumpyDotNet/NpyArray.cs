@@ -148,6 +148,13 @@ namespace NumpyDotNet {
 
             if (src is ndarray) {
                 result = FromArray((ndarray)src, descr, flags);
+            } else if (src is Scalar) {
+                if (descr == null && flags == 0) {
+                    return ((Scalar)src).ToArray();
+                } else {
+                    // TODO: Figure out how to avoid the double conversion.
+                    return FromArray(((Scalar)src).ToArray(), descr, flags);
+                }
             } else {
                 dtype type = FindScalarType(src);
                 if (type != null) {

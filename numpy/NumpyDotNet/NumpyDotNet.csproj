@@ -63,6 +63,7 @@
     <Compile Include="dtype.cs" />
     <Compile Include="flagsobj.cs" />
     <Compile Include="flatiter.cs" />
+    <Compile Include="IArray.cs" />
     <Compile Include="item_selection.cs" />
     <Compile Include="NpyIndexes.cs" />
     <Compile Include="ModuleMethods.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="NpyCoreApi.cs" />
     <Compile Include="NpyDefs.cs" />
     <Compile Include="NpyDescr.cs" />
+    <Compile Include="Scalar.cs" />
     <Compile Include="shape.cs" />
     <Compile Include="NpyUtils.cs" />
     <Compile Include="NumericOps.cs" />
