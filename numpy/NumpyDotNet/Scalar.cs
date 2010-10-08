@@ -990,6 +990,43 @@ namespace NumpyDotNet
 
     public class character : flexible { }
 
+    public class string_ : character
+    {
+        public string_() {
+            value = new Bytes();
+        }
+
+        public string_(Bytes s) {
+            value = s;
+        }
+
+        public string_(dynamic s) {
+            value = s;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    dtype_ = GetDtype(value.Count, 'S');
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            result.SetItem(value, 0);
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            value = (Bytes)arr.GetItem(offset);
+        }
+
+        private Bytes value;
+        private dtype dtype_;
+    }
+
     public class unicode : character
     {
         public unicode() {

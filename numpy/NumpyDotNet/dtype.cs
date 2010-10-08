@@ -269,6 +269,8 @@ namespace NumpyDotNet {
                 }
             } else if (type == NpyDefs.NPY_TYPES.NPY_UNICODE) {
                 info = ScalarInfo.Make<unicode>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_STRING) {
+                info = ScalarInfo.Make<string_>();
             }
 
             if (info == null) {
