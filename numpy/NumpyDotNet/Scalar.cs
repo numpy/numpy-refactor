@@ -5,6 +5,7 @@ using System.Text;
 using IronPython.Runtime;
 using System.Runtime.InteropServices;
 using System.Numerics;
+using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
@@ -143,12 +144,12 @@ namespace NumpyDotNet
         }
 
         public flagsobj flags {
-            get { throw new NotImplementedException(); }
+            get { return new flagsobj(null); }
         }
 
         public object flat {
             get {
-                throw new NotImplementedException();
+                return ToArray().flat;
             }
             set {
                 throw new NotImplementedException();
@@ -163,9 +164,9 @@ namespace NumpyDotNet
             return ToArray().getfield(cntx, dtype, offset);
         }
 
-        public object imag {
+        public virtual object imag {
             get {
-                throw new NotImplementedException();
+                return ndarray.ArrayReturn((ndarray)ToArray().imag);
             }
             set {
                 throw new NotImplementedException();
@@ -193,7 +194,9 @@ namespace NumpyDotNet
         }
 
         public int ndim {
-            get { throw new NotImplementedException(); }
+            get {
+                return 0;
+            }
         }
 
         public ndarray newbyteorder(string endian = null) {
@@ -221,9 +224,9 @@ namespace NumpyDotNet
             return ToArray().ravel(order);
         }
 
-        public object real {
+        public virtual object real {
             get {
-                throw new NotImplementedException();
+                return ndarray.ArrayReturn((ndarray)ToArray().real);
             }
             set {
                 throw new NotImplementedException();
@@ -234,11 +237,11 @@ namespace NumpyDotNet
             return ToArray().repeat(repeats, axis);
         }
 
-        public ndarray reshape(Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
-            throw new NotImplementedException();
+        public ndarray reshape([ParamDictionary]Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
+            return ToArray().reshape(args:args, kwds:kwds);
         }
 
-        public void resize(Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
+        public void resize([ParamDictionary]Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
             // TODO: This doesn't make any sense, but CPython does the same
             ToArray().resize(args:args, kwds:kwds);
         }
@@ -979,6 +982,18 @@ namespace NumpyDotNet
             unsafe {
                 Complex* ptr = (Complex*)p.ToPointer();
                 value = *ptr;
+            }
+        }
+
+        public override object imag {
+            get {
+                return new float64(value.Imaginary);
+            }
+        }
+
+        public override object real {
+            get {
+                return new float64(value.Real);
             }
         }
 
