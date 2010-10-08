@@ -199,50 +199,89 @@ namespace NumpyDotNet {
 
         #region Scalar type support
 
-        private static bool ScalarTypesInited = false;
-        private Type ScalarType_ = null;
-        private Func<generic> ScalarConstructor = null;
+        class ScalarInfo {
+            internal Type ScalarType;
+            internal Func<generic> ScalarConstructor;
+
+            internal static ScalarInfo Make<T>() where T: generic, new() {
+                return new ScalarInfo { ScalarType = typeof(Type), ScalarConstructor = (() => new T()) };
+            }
+        };
+
+        private ScalarInfo scalarInfo = null;
 
         public Type ScalarType {
             get {
-                if (!ScalarTypesInited) {
-                    lock (typeof(dtype)) {
-                        if (!ScalarTypesInited) {
-                            InitScalarTypes();
-                        }
-                    }
+                if (scalarInfo == null) {
+                    FindScalarInfo();
                 }
-                return ScalarType_;
+                return scalarInfo.ScalarType;
             }
+        }
+
+        private void FindScalarInfo() {
+            ScalarInfo info = null;
+            NpyDefs.NPY_TYPES type = TypeNum;
+            if (NpyDefs.IsSigned(type)) {
+                switch (ElementSize) {
+                    case 1:
+                        info = ScalarInfo.Make<int8>();
+                        break;
+                    case 2:
+                        info = ScalarInfo.Make<int16>();
+                        break;
+                    case 4:
+                        info = ScalarInfo.Make<int32>();
+                        break;
+                    case 8:
+                        info = ScalarInfo.Make<int64>();
+                        break;
+                }
+            } else if (NpyDefs.IsUnsigned(type)) {
+                switch (ElementSize) {
+                    case 1:
+                        info = ScalarInfo.Make<uint8>();
+                        break;
+                    case 2:
+                        info = ScalarInfo.Make<uint16>();
+                        break;
+                    case 4:
+                        info = ScalarInfo.Make<uint32>();
+                        break;
+                    case 8:
+                        info = ScalarInfo.Make<uint64>();
+                        break;
+                }
+            } else if (NpyDefs.IsFloat(type)) {
+                switch (ElementSize) {
+                    case 4:
+                        info = ScalarInfo.Make<float32>();
+                        break;
+                    case 8:
+                        info = ScalarInfo.Make<float64>();
+                        break;
+                }
+            } else if (NpyDefs.IsComplex(type)) {
+                switch (ElementSize) {
+                    case 8:
+                        info = ScalarInfo.Make<complex128>();
+                        break;
+                }
+            } else if (type == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                info = ScalarInfo.Make<unicode>();
+            }
+
+            if (info == null) {
+                info = new ScalarInfo();
+            }
+
+            scalarInfo = info;
         }
 
         public PythonType type {
             get {
                 return DynamicHelpers.GetPythonTypeFromType(ScalarType);
             }
-        }
-
-        private static void InitScalarTypes() {
-            RegisterScalarType<int8>();
-            RegisterScalarType<int16>();
-            RegisterScalarType<int32>();
-            RegisterScalarType<int64>();
-            RegisterScalarType<uint8>();
-            RegisterScalarType<uint16>();
-            RegisterScalarType<uint32>();
-            RegisterScalarType<uint64>();
-            RegisterScalarType<float32>();
-            RegisterScalarType<float64>();
-            RegisterScalarType<complex128>();
-        }
-
-        private static void RegisterScalarType<T>() 
-            where T : generic, new()
-        {
-            T scalar = new T();
-            dtype d = scalar.dtype;
-            d.ScalarType_ = typeof(T);
-            d.ScalarConstructor = (() => new T());
         }
 
         /// <summary>
@@ -254,7 +293,7 @@ namespace NumpyDotNet {
             if (ScalarType == null) {
                 return arr.GetItem(offset);
             } else {
-                generic result = ScalarConstructor();
+                generic result = scalarInfo.ScalarConstructor();
                 result.FillData(arr, offset);
                 return result;
             }

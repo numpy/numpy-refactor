@@ -473,8 +473,20 @@ namespace NumpyDotNet
         #endregion
 
         internal static dtype GetDtype(int size, char typechar) {
-            NpyDefs.NPY_TYPES t = NpyCoreApi.TypestrConvert(size, (byte)typechar);
-            return NpyCoreApi.DescrFromType(t);
+            if (typechar == 'U') {
+                dtype d = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_UNICODE);
+                d = NpyCoreApi.DescrNew(d);
+                d.ElementSize = size * 4;
+                return d;
+            } else if (typechar == 'S') {
+                dtype d = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_STRING);
+                d = NpyCoreApi.DescrNew(d);
+                d.ElementSize = size;
+                return d;
+            } else {
+                NpyDefs.NPY_TYPES t = NpyCoreApi.TypestrConvert(size, (byte)typechar);
+                return NpyCoreApi.DescrFromType(t);
+            }
         }
 
     }
@@ -502,7 +514,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(1, 'i');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BYTE);
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -520,7 +536,7 @@ namespace NumpyDotNet
         }
 
         private sbyte value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class int16 : signedinteger
@@ -540,7 +556,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(2, 'i');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(2, 'i');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -558,7 +578,7 @@ namespace NumpyDotNet
         }
 
         private Int16 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class int32 : signedinteger
@@ -578,7 +598,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(4, 'i');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(4, 'i');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -596,7 +620,7 @@ namespace NumpyDotNet
         }
 
         private Int32 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class int64 : signedinteger
@@ -616,7 +640,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(8, 'i');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(8, 'i');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -634,7 +662,7 @@ namespace NumpyDotNet
         }
 
         private Int64 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
 
@@ -657,7 +685,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(1, 'u');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(1, 'u');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -675,7 +707,7 @@ namespace NumpyDotNet
         }
 
         private byte value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class uint16 : unsignedinteger
@@ -695,7 +727,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(2, 'u');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(2, 'u');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -713,7 +749,7 @@ namespace NumpyDotNet
         }
 
         private UInt16 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class uint32 : unsignedinteger
@@ -733,7 +769,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(4, 'u');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(4, 'u');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -751,7 +791,7 @@ namespace NumpyDotNet
         }
 
         private UInt32 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class uint64 : unsignedinteger
@@ -771,7 +811,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(8, 'i');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(8, 'i');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -789,7 +833,7 @@ namespace NumpyDotNet
         }
 
         private UInt64 value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class inexact : generic { }
@@ -813,7 +857,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(4, 'f');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(4, 'f');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -837,7 +885,7 @@ namespace NumpyDotNet
         }
 
         private Single value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class float64 : floating
@@ -857,7 +905,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(8, 'f');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(8, 'f');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -881,7 +933,7 @@ namespace NumpyDotNet
         }
 
         private Double value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class complexfloating : inexact { }
@@ -903,7 +955,11 @@ namespace NumpyDotNet
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
-                    dtype_ = GetDtype(16, 'c');
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(16, 'c');
+                        }
+                    }
                 }
                 return dtype_;
             }
@@ -927,12 +983,47 @@ namespace NumpyDotNet
         }
 
         private Complex value;
-        private dtype dtype_;
+        static private dtype dtype_;
     }
 
     public class flexible : generic { }
 
     public class character : flexible { }
 
+    public class unicode : character
+    {
+        public unicode() {
+            value = "";
+        }
 
+        public unicode(string s) {
+            value = s;
+        }
+
+        public unicode(dynamic s) {
+            value = s;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    dtype_ = GetDtype(value.Length, 'U');
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            result.SetItem(value, 0);
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            value = (string)arr.GetItem(offset);
+        }
+
+        private string value;
+        private dtype dtype_;
+    }
 }
