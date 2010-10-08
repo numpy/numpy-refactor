@@ -140,7 +140,8 @@ namespace NumpyDotNet {
                         new ArrFuncs() { GetFunc = NumericOps.getitemObject, SetFunc = NumericOps.setitemObject };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemString, SetFunc = NumericOps.setitemString };
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_UNICODE] =
+                        new ArrFuncs() { GetFunc = NumericOps.getitemUnicode, SetFunc = NumericOps.setitemUnicode };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_VOID] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemVOID, SetFunc = NumericOps.setitemVOID };
 
@@ -400,12 +401,57 @@ namespace NumpyDotNet {
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
 
         internal static Object getitemString(IntPtr ptr, ndarray arr) {
-            String s = Marshal.PtrToStringAnsi(ptr, arr.dtype.ElementSize);
-            return s.TrimEnd((char)0);
+            int max = arr.dtype.ElementSize;
+            List<byte> bytes = new List<byte>();
+            unsafe {
+                byte* p = (byte*)ptr.ToPointer();
+                for (int i=0; i<max; i++) {
+                    byte b = *p++;
+                    if (b == 0) {
+                        break;
+                    }
+                    bytes.Add(b);
+                }
+            }
+            return new Bytes(bytes);
         }
+
         internal static GetitemDelegate getitemStringDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemString, ptr, arrPtr);
 
+
+        private static unsafe string Decode(Decoder d, byte* ptr, int nb) {
+            string result;
+            int n = d.GetCharCount(ptr, nb, true);
+            char* buffer = stackalloc char[n];
+            d.GetChars(ptr, nb, buffer, n, true);
+            return new string(buffer, 0, n);
+        }
+
+        internal static Object getitemUnicode(IntPtr ptr, ndarray arr) {
+            if (!arr.IsNotSwapped) {
+                unsafe {
+                    int elsize = arr.dtype.ElementSize;
+                    byte* buffer = stackalloc byte[elsize];
+                    byte* pSrc = (byte*)ptr.ToPointer();
+                    byte* pDest = buffer;
+                    int n = elsize / 4;
+                    for (int i=0; i<n; i++) {
+                        CopySwap4(pDest, pSrc, true);
+                        pSrc += 4;
+                        pDest += 4;
+                    }
+                    return Decode(Encoding.UTF32.GetDecoder(), buffer, elsize);
+                }
+            } else {
+                unsafe {
+                    return Decode(Encoding.UTF32.GetDecoder(), (byte*)ptr.ToPointer(), arr.dtype.ElementSize);
+                }
+            }
+        }
+
+        internal static GetitemDelegate getitemUnicodeDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemUnicode, ptr, arrPtr);
 
         internal static Object getitemVOID(IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
@@ -784,9 +830,37 @@ namespace NumpyDotNet {
                 Marshal.WriteByte(ptr, i, (byte)0);
             }
         }
+
+
         internal static SetitemDelegate setitemStringDelegate =
             (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
 
+        internal static void setitemUnicode(Object o, IntPtr ptr, ndarray arr) {
+            string s = o.ToString();
+            byte[] bytes = Encoding.UTF32.GetBytes(s);
+            int elsize = arr.dtype.ElementSize/4;
+            int copySize = Math.Min(bytes.Length/4, elsize);
+            int i;
+            unsafe {
+                fixed (byte* src = &bytes[0]) {
+                    byte* pSrc = src;
+                    byte* pDest = (byte*)ptr.ToPointer();
+                    bool swap = !arr.IsNotSwapped;
+                    for (i=0; i<copySize; i++) {
+                        CopySwap4(pDest, pSrc, swap);
+                        pDest += 4;
+                        pSrc += 4;
+                    }
+                    for (; i<elsize; i++) {
+                        *(Int32*)pDest = 0;
+                        pDest += 4;
+                    }
+                }
+            }
+        }
+
+        internal static SetitemDelegate setitemUnicodeDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemUnicode, value, ptr, arrPtr);
 
         internal static void setitemVOID(object value, IntPtr ptr, ndarray arr) {
             dtype d = arr.dtype;
@@ -1510,6 +1584,8 @@ namespace NumpyDotNet {
             defs.OBJECT_setitem = Marshal.GetFunctionPointerForDelegate(setitemObjectDelegate);
             defs.STRING_getitem = Marshal.GetFunctionPointerForDelegate(getitemStringDelegate);
             defs.STRING_setitem = Marshal.GetFunctionPointerForDelegate(setitemStringDelegate);
+            defs.UNICODE_getitem = Marshal.GetFunctionPointerForDelegate(getitemUnicodeDelegate);
+            defs.UNICODE_setitem = Marshal.GetFunctionPointerForDelegate(setitemUnicodeDelegate);
             defs.VOID_getitem = Marshal.GetFunctionPointerForDelegate(getitemVOIDDelegate);
             defs.VOID_setitem = Marshal.GetFunctionPointerForDelegate(setitemVOIDDelegate);
 

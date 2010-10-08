@@ -846,7 +846,7 @@ namespace NumpyDotNet
             value = 0;
         }
 
-        public float64(Single value) {
+        public float64(Double value) {
             this.value = value;
         }
 
@@ -883,4 +883,56 @@ namespace NumpyDotNet
         private Double value;
         private dtype dtype_;
     }
+
+    public class complexfloating : inexact { }
+
+    public class complex128 : complexfloating
+    {
+        public complex128() {
+            value = 0;
+        }
+
+        public complex128(Single value) {
+            this.value = value;
+        }
+
+        public complex128(dynamic value) {
+            this.value = (Complex)value;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    dtype_ = GetDtype(16, 'c');
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            unsafe {
+                Complex* p = (Complex*)result.data.ToPointer();
+                *p = value;
+            }
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            unsafe {
+                Complex* ptr = (Complex*)p.ToPointer();
+                value = *ptr;
+            }
+        }
+
+        private Complex value;
+        private dtype dtype_;
+    }
+
+    public class flexible : generic { }
+
+    public class character : flexible { }
+
+
 }

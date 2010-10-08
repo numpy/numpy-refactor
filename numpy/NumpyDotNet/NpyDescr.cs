@@ -150,6 +150,7 @@ namespace NumpyDotNet {
                 elsize = int.Parse(s.Substring(1));
                 if (elsize == 0) {
                 } else if (type_char == (byte)NpyDefs.NPY_TYPECHAR.NPY_UNICODELTR) {
+                    type = (NpyDefs.NPY_TYPES)type_char;
                     elsize <<= 2;
                 } else if (type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR &&
                            type_char != (byte)NpyDefs.NPY_TYPECHAR.NPY_VOIDLTR &&
@@ -175,6 +176,11 @@ namespace NumpyDotNet {
             if (elsize != 0 && result.ElementSize == 0) {
                 result = NpyCoreApi.DescrNew(result);
                 result.ElementSize = elsize;
+            }
+            if (endian != (byte)'=' && result.ByteOrder != (byte)'|' &&
+                result.ByteOrder != endian) {
+                result = NpyCoreApi.DescrNew(result);
+                result.ByteOrder = endian;
             }
             return result;
         }

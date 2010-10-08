@@ -233,6 +233,7 @@ namespace NumpyDotNet {
             RegisterScalarType<uint64>();
             RegisterScalarType<float32>();
             RegisterScalarType<float64>();
+            RegisterScalarType<complex128>();
         }
 
         private static void RegisterScalarType<T>() 
