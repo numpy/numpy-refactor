@@ -346,12 +346,7 @@ namespace NumpyDotNet
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
                     NpyCoreApi.Decref(Array);
-                    if (result.ndim == 0) {
-                        // TODO: This should return a numpy scalar.
-                        return result.dtype.f.GetItem(0, result);
-                    } else {
-                        return result;
-                    }
+                    return ArrayReturn(result);
                 }
             }
             set {
@@ -1208,8 +1203,7 @@ namespace NumpyDotNet
 
         internal static object ArrayReturn(ndarray a) {
             if (a.ndim == 0) {
-                // TODO: This should return a scalar
-                return a.GetItem(0);
+                return a.dtype.ToScalar(a);
             } else {
                 return a;
             }
@@ -1275,7 +1269,6 @@ namespace NumpyDotNet
         /// <param name="index">The index into the array</param>
         object ArrayItem(long index) {
             if (ndim == 1) {
-                // TODO: This should really returns a Numpy scalar.
                 long dim0 = Dims[0];
                 if (index < 0) {
                     index += dim0;
@@ -1284,7 +1277,7 @@ namespace NumpyDotNet
                     throw new IndexOutOfRangeException("Index out of range");
                 }
                 long offset = index * strides[0];
-                return GetItem(offset);
+                return dtype.ToScalar(this, offset);
             } else {
                 return ArrayBigItem(index);
             }

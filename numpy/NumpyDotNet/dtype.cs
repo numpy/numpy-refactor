@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using IronPython.Runtime;
+using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
 using NumpyDotNet;
@@ -146,6 +147,7 @@ namespace NumpyDotNet {
             get { return funcs; }
         }
 
+
         #endregion
 
 
@@ -192,6 +194,70 @@ namespace NumpyDotNet {
         /// Type-specific functions
         /// </summary>
         private readonly ArrFuncs funcs;
+
+        #endregion
+
+        #region Scalar type support
+
+        private static bool ScalarTypesInited = false;
+        private Type ScalarType_ = null;
+        private Func<generic> ScalarConstructor = null;
+
+        public Type ScalarType {
+            get {
+                if (!ScalarTypesInited) {
+                    lock (typeof(dtype)) {
+                        if (!ScalarTypesInited) {
+                            InitScalarTypes();
+                        }
+                    }
+                }
+                return ScalarType_;
+            }
+        }
+
+        public PythonType type {
+            get {
+                return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+            }
+        }
+
+        private static void InitScalarTypes() {
+            RegisterScalarType<int8>();
+            RegisterScalarType<int16>();
+            RegisterScalarType<int32>();
+            RegisterScalarType<int64>();
+            RegisterScalarType<uint8>();
+            RegisterScalarType<uint16>();
+            RegisterScalarType<uint32>();
+            RegisterScalarType<uint64>();
+            RegisterScalarType<float32>();
+            RegisterScalarType<float64>();
+        }
+
+        private static void RegisterScalarType<T>() 
+            where T : generic, new()
+        {
+            T scalar = new T();
+            dtype d = scalar.dtype;
+            d.ScalarType_ = typeof(T);
+            d.ScalarConstructor = (() => new T());
+        }
+
+        /// <summary>
+        /// Converts a 0-d array to a scalar
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <returns></returns>
+        internal object ToScalar(ndarray arr, long offset = 0) {
+            if (ScalarType == null) {
+                return arr.GetItem(offset);
+            } else {
+                generic result = ScalarConstructor();
+                result.FillData(arr, offset);
+                return result;
+            }
+        }
 
         #endregion
     }
