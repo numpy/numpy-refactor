@@ -259,6 +259,22 @@ namespace NumpyDotNet
             return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        public static explicit operator int(ndarray a) {
+            return ConvertTo<int>(a);
+        }
+
+        public static explicit operator BigInteger(ndarray a) {
+            return ConvertTo<BigInteger>(a);
+        }
+
+        public static explicit operator double(ndarray a) {
+            return ConvertTo<double>(a);
+        }
+
+        public static explicit operator Complex(ndarray a) {
+            return ConvertTo<Complex>(a);
+        }
+
         // TODO: Temporary test function
         public static object Compare(ndarray a, ndarray b) {
             ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
@@ -1324,6 +1340,14 @@ namespace NumpyDotNet
                 return false;
             }
             return PythonOps.IsSubClass(pt, DynamicHelpers.GetPythonTypeFromType(typeof(ndarray)));
+        }
+
+        private static T ConvertTo<T>(ndarray a) {
+            if (a.Size != 1) {
+                throw new ArgumentException("only length 1 arrays can be converted to scalars.");
+            }
+            dynamic item = a.GetItem(0);
+            return item;
         }
 
         #endregion

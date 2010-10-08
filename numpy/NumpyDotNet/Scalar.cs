@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using IronPython.Runtime;
 using System.Runtime.InteropServices;
+using System.Numerics;
 
 namespace NumpyDotNet
 {
@@ -451,6 +452,22 @@ namespace NumpyDotNet
 
         public static object operator ^(object a, generic b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        public static explicit operator int(generic a) {
+            return (int)a.ToArray();
+        }
+
+        public static explicit operator BigInteger(generic a) {
+            return (BigInteger)a.ToArray();
+        }
+
+        public static explicit operator double(generic a) {
+            return (double)a.ToArray();
+        }
+
+        public static explicit operator Complex(generic a) {
+            return (Complex)a.ToArray();
         }
 
         #endregion
