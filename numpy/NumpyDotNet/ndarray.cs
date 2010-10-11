@@ -464,12 +464,10 @@ namespace NumpyDotNet
             get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
         }
 
-        /// <summary>
-        /// Pointer to the internal memory. Should be used with great caution - memory
-        /// is native memory, not managed memory.
-        /// </summary>
-        public IntPtr data {
-            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
+        public PythonBuffer data {
+            get {
+                throw new NotImplementedException();
+            }
         }
 
 
@@ -904,7 +902,7 @@ namespace NumpyDotNet
             Sort(axis, sortkind);
         }
 
-        public ndarray squeeze() {
+        public object squeeze() {
             return Squeeze();
         }
 
@@ -1348,6 +1346,14 @@ namespace NumpyDotNet
             }
             dynamic item = a.GetItem(0);
             return item;
+        }
+
+        /// <summary>
+        /// Pointer to the internal memory. Should be used with great caution - memory
+        /// is native memory, not managed memory.
+        /// </summary>
+        internal IntPtr UnsafeAddress {
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
         #endregion

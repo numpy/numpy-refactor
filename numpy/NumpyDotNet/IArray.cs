@@ -1,4 +1,6 @@
 ﻿using System;
+using IronPython.Runtime;
+
 namespace NumpyDotNet
 {
     interface IArray
@@ -26,7 +28,7 @@ namespace NumpyDotNet
         ndarray copy(object order = null);
         object cumprod(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         object cumsum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
-        IntPtr data { get; }
+        PythonBuffer data { get; }
         ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1);
         dtype dtype { get; set; }
         void fill(object scalar);
@@ -58,7 +60,7 @@ namespace NumpyDotNet
         IronPython.Runtime.PythonTuple shape { get; }
         object size { get; }
         void sort(int axis = -1, string kind = null, object order = null);
-        ndarray squeeze();
+        object squeeze();
         object std(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0);
         long[] strides { get; }
         object sum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);

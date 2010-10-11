@@ -121,8 +121,10 @@ namespace NumpyDotNet
             return ToArray().cumsum(cntx, axis, dtype, @out);
         }
 
-        public IntPtr data {
-            get { throw new NotImplementedException(); }
+        public PythonBuffer data {
+            get {
+                throw new NotImplementedException();
+            }
         }
 
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
@@ -134,7 +136,7 @@ namespace NumpyDotNet
                 return ToArray().dtype;
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -152,7 +154,7 @@ namespace NumpyDotNet
                 return ToArray().flat;
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -169,7 +171,7 @@ namespace NumpyDotNet
                 return ndarray.ArrayReturn((ndarray)ToArray().imag);
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -178,7 +180,7 @@ namespace NumpyDotNet
         }
 
         public void itemset(params object[] args) {
-            throw new NotImplementedException();
+            throw new ArgumentException("array-scalars are immutable");
         }
 
         public object max(object axis = null, ndarray @out = null) {
@@ -229,7 +231,7 @@ namespace NumpyDotNet
                 return ndarray.ArrayReturn((ndarray)ToArray().real);
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -255,19 +257,19 @@ namespace NumpyDotNet
         }
 
         public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
-            throw new NotImplementedException();
+            throw new ArgumentException("array-scalars are immutable");
         }
 
         public void setflags(object write = null, object align = null, object uic = null) {
-            throw new NotImplementedException();
+            // CPython implementation simply does nothing, so we will too.
         }
 
         public PythonTuple shape {
-            get { throw new NotImplementedException(); }
+            get { return new PythonTuple(); }
         }
 
         public object size {
-            get { throw new NotImplementedException(); }
+            get { return 1; }
         }
 
         public void sort(int axis = -1, string kind = null, object order = null) {
@@ -275,8 +277,8 @@ namespace NumpyDotNet
             ToArray().sort(axis, kind, order);
         }
 
-        public ndarray squeeze() {
-            throw new NotImplementedException();
+        public object squeeze() {
+            return this;
         }
 
         public object std(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
@@ -284,7 +286,7 @@ namespace NumpyDotNet
         }
 
         public long[] strides {
-            get { throw new NotImplementedException(); }
+            get { return new long[0]; }
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
@@ -305,35 +307,43 @@ namespace NumpyDotNet
 
         public object this[params object[] args] {
             get {
-                throw new NotImplementedException();
+                return ToArray()[args: args];
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
         public object this[int index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[long index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[IntPtr index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[System.Numerics.BigInteger index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[string field] {
             get {
-                throw new NotImplementedException();
+                return ToArray()[field];
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -491,7 +501,6 @@ namespace NumpyDotNet
                 return NpyCoreApi.DescrFromType(t);
             }
         }
-
     }
 
     public class number : generic { }
@@ -529,12 +538,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteByte(result.data, (byte)value);
+            Marshal.WriteByte(result.UnsafeAddress, (byte)value);
             return result;
         }
   
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (sbyte)Marshal.ReadByte(p);
         }
 
@@ -571,12 +580,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt16(result.data, value);
+            Marshal.WriteInt16(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt16(p);
         }
 
@@ -613,12 +622,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt32(result.data, value);
+            Marshal.WriteInt32(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt32(p);
         }
 
@@ -655,12 +664,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt64(result.data, value);
+            Marshal.WriteInt64(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt64(p);
         }
 
@@ -700,12 +709,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteByte(result.data, value);
+            Marshal.WriteByte(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadByte(p);
         }
 
@@ -742,12 +751,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt16(result.data, (Int16)value);
+            Marshal.WriteInt16(result.UnsafeAddress, (Int16)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt16)Marshal.ReadInt16(p);
         }
 
@@ -784,12 +793,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt32(result.data, (Int32)value);
+            Marshal.WriteInt32(result.UnsafeAddress, (Int32)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt32)Marshal.ReadInt32(p);
         }
 
@@ -826,12 +835,12 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt64(result.data, (Int64)value);
+            Marshal.WriteInt64(result.UnsafeAddress, (Int64)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt64)Marshal.ReadInt64(p);
         }
 
@@ -873,14 +882,14 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Single* p = (Single*) result.data.ToPointer();
+                Single* p = (Single*) result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Single* ptr = (Single*)p.ToPointer();
                 value = *ptr;
@@ -921,14 +930,14 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Double* p = (Double*)result.data.ToPointer();
+                Double* p = (Double*)result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Double* ptr = (Double*)p.ToPointer();
                 value = *ptr;
@@ -971,14 +980,14 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Complex* p = (Complex*)result.data.ToPointer();
+                Complex* p = (Complex*)result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Complex* ptr = (Complex*)p.ToPointer();
                 value = *ptr;

@@ -21,11 +21,11 @@ namespace NumpyDotNet {
     /// </summary>
     public class ArrFuncs {
         internal Object GetItem(long offset, ndarray arr) {
-            return GetFunc((IntPtr)(arr.data.ToInt64() + offset), arr);
+            return GetFunc((IntPtr)(arr.UnsafeAddress.ToInt64() + offset), arr);
         }
 
         internal void SetItem(Object value, long offset, ndarray arr) {
-            SetFunc(value, (IntPtr)(arr.data.ToInt64() + offset), arr);
+            SetFunc(value, (IntPtr)(arr.UnsafeAddress.ToInt64() + offset), arr);
         }
 
         internal Func<IntPtr, ndarray, Object> GetFunc { get; set; }
