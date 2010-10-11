@@ -264,6 +264,9 @@ namespace NumpyDotNet {
             } else if (NpyDefs.IsComplex(type)) {
                 switch (ElementSize) {
                     case 8:
+                        info = ScalarInfo.Make<complex64>();
+                        break;
+                    case 16:
                         info = ScalarInfo.Make<complex128>();
                         break;
                 }

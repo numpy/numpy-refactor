@@ -950,13 +950,93 @@ namespace NumpyDotNet
 
     public class complexfloating : inexact { }
 
+    public class complex64 : complexfloating
+    {
+        public complex64() {
+            Real = 0.0f;
+            Imag = 0.0f;
+        }
+
+        public complex64(Single value) {
+            this.Real = value;
+            this.Imag = 0.0f;
+        }
+
+        public complex64(Single real, Single imag) {
+            Real = real;
+            Imag = imag;
+        }
+
+        public complex64(dynamic value) {
+            Complex c = (Complex)value;
+            Real = (float)c.Real;
+            Imag = (float)c.Imaginary;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(8, 'c');
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            unsafe {
+                float* p = (float*)result.UnsafeAddress.ToPointer();
+                *p++ = Real;
+                *p = Imag;
+            }
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
+            unsafe {
+                float* ptr = (float*)p.ToPointer();
+                Real = *ptr++;
+                Imag = *ptr;
+            }
+        }
+
+        public override object imag {
+            get {
+                return new float32(Imag);
+            }
+        }
+
+        public override object real {
+            get {
+                return new float32(Real);
+            }
+        }
+
+        public override string ToString() {
+            if (Real == 0.0) {
+                return String.Format("{0}j", Imag);
+            } else {
+                return String.Format("({0}+{1}j)", Real, Imag);
+            }
+        }
+
+        private float Real;
+        private float Imag;
+        static private dtype dtype_;
+    }
+
     public class complex128 : complexfloating
     {
         public complex128() {
             value = 0;
         }
 
-        public complex128(Single value) {
+        public complex128(double value) {
             this.value = value;
         }
 
