@@ -28,7 +28,7 @@ namespace NumpyDotNet
                                                    "offset", "strides", "order" };
 
 
-        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] posArgs) {
+        public ndarray(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
             Construct(cntx, args);
         }
@@ -809,7 +809,7 @@ namespace NumpyDotNet
 
         private static string[] reshapeKeywords = { "order" };
 
-        public ndarray reshape([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+        public ndarray reshape([ParamDictionary] IDictionary<object,object> kwds, params object[] args) {
             object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], reshapeKeywords, kwds);
             NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(keywordArgs[0]);
             IntPtr[] newshape;
@@ -824,7 +824,7 @@ namespace NumpyDotNet
 
         private static string[] resizeKeywords = { "refcheck" };
 
-        public void resize([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+        public void resize([ParamDictionary] IDictionary<object,object> kwds, params object[] args) {
             object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], resizeKeywords, kwds);
             bool refcheck = NpyUtil_ArgProcessing.BoolConverter(keywordArgs[0]);
             IntPtr[] newshape;

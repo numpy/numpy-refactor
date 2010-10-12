@@ -209,7 +209,7 @@ namespace NumpyDotNet {
 
 
         internal static Object[] BuildArgsArray(Object[] posArgs, String[] kwds,
-            IAttributesCollection namedArgs) {
+            IDictionary<object, object> namedArgs) {
             // For some reason the name of the attribute can only be access via ToString
             // and not as a key so we fix that here.
             if (namedArgs == null) {

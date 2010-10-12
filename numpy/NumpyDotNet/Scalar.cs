@@ -9,7 +9,8 @@ using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
-    public class generic : IArray
+    [PythonType("numpy.generic")]
+    public class ScalarGeneric : IArray
     {
         internal virtual ndarray ToArray() {
             return null;
@@ -239,11 +240,11 @@ namespace NumpyDotNet
             return ToArray().repeat(repeats, axis);
         }
 
-        public ndarray reshape([ParamDictionary]Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
+        public ndarray reshape([ParamDictionary]IDictionary<object,object> kwds, params object[] args) {
             return ToArray().reshape(args:args, kwds:kwds);
         }
 
-        public void resize([ParamDictionary]Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
+        public void resize([ParamDictionary]IDictionary<object,object> kwds, params object[] args) {
             // TODO: This doesn't make any sense, but CPython does the same
             ToArray().resize(args:args, kwds:kwds);
         }
@@ -383,103 +384,103 @@ namespace NumpyDotNet
 
         #region operators
 
-        public static object operator +(generic a, object b) {
+        public static object operator +(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator +(generic a, generic b) {
+        public static object operator +(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator +(object a, generic b) {
+        public static object operator +(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator -(generic a, object b) {
+        public static object operator -(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator -(generic a, generic b) {
+        public static object operator -(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator -(object a, generic b) {
+        public static object operator -(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator *(generic a, object b) {
+        public static object operator *(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator *(generic a, generic b) {
+        public static object operator *(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator *(object a, generic b) {
+        public static object operator *(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator /(generic a, object b) {
+        public static object operator /(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator /(generic a, generic b) {
+        public static object operator /(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator /(object a, generic b) {
+        public static object operator /(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator &(generic a, object b) {
+        public static object operator &(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator &(generic a, generic b) {
+        public static object operator &(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator &(object a, generic b) {
+        public static object operator &(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator |(generic a, object b) {
+        public static object operator |(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator |(generic a, generic b) {
+        public static object operator |(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator |(object a, generic b) {
+        public static object operator |(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator ^(generic a, object b) {
+        public static object operator ^(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static object operator ^(generic a, generic b) {
+        public static object operator ^(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static object operator ^(object a, generic b) {
+        public static object operator ^(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static explicit operator int(generic a) {
+        public static explicit operator int(ScalarGeneric a) {
             return (int)a.ToArray();
         }
 
-        public static explicit operator BigInteger(generic a) {
+        public static explicit operator BigInteger(ScalarGeneric a) {
             return (BigInteger)a.ToArray();
         }
 
-        public static explicit operator double(generic a) {
+        public static explicit operator double(ScalarGeneric a) {
             return (double)a.ToArray();
         }
 
-        public static explicit operator Complex(generic a) {
+        public static explicit operator Complex(ScalarGeneric a) {
             return (Complex)a.ToArray();
         }
 
@@ -503,23 +504,27 @@ namespace NumpyDotNet
         }
     }
 
-    public class number : generic { }
+    [PythonType("numpy.number")]
+    public class ScalarNumber : ScalarGeneric { }
 
-    public class integer : number { }
+    [PythonType("numpy.integer")]
+    public class ScalarInteger : ScalarNumber { }
 
-    public class signedinteger : integer { }
+    [PythonType("numpy.signedinteger")]
+    public class ScalarSignedInteger : ScalarInteger { }
 
-    public class int8 : signedinteger
+    [PythonType("numpy.int8")]
+    public class ScalarInt8 : ScalarSignedInteger
     {
-        public int8() {
+        public ScalarInt8() {
             value = 0;
         }
 
-        public int8(sbyte value) {
+        public ScalarInt8(sbyte value) {
             this.value = value;
         }
 
-        public int8(IConvertible value) {
+        public ScalarInt8(IConvertible value) {
             this.value = Convert.ToSByte(value);
         }
 
@@ -549,19 +554,23 @@ namespace NumpyDotNet
 
         private sbyte value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = sbyte.MinValue;
+        internal static readonly int MaxValue = sbyte.MaxValue;
     }
 
-    public class int16 : signedinteger
+    [PythonType("numpy.int16")]
+    public class ScalarInt16 : ScalarSignedInteger
     {
-        public int16() {
+        public ScalarInt16() {
             value = 0;
         }
 
-        public int16(Int16 value) {
+        public ScalarInt16(Int16 value) {
             this.value = value;
         }
 
-        public int16(IConvertible value) {
+        public ScalarInt16(IConvertible value) {
             this.value = Convert.ToInt16(value);
         }
 
@@ -591,19 +600,23 @@ namespace NumpyDotNet
 
         private Int16 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = Int16.MinValue;
+        internal static readonly int MaxValue = Int16.MaxValue;
     }
 
-    public class int32 : signedinteger
+    [PythonType("numpy.int32")]
+    public class ScalarInt32 : ScalarSignedInteger
     {
-        public int32() {
+        public ScalarInt32() {
             value = 0;
         }
 
-        public int32(Int32 value) {
+        public ScalarInt32(Int32 value) {
             this.value = value;
         }
 
-        public int32(IConvertible value) {
+        public ScalarInt32(IConvertible value) {
             this.value = Convert.ToInt32(value);
         }
 
@@ -633,19 +646,23 @@ namespace NumpyDotNet
 
         private Int32 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = Int32.MinValue;
+        internal static readonly int MaxValue = Int32.MaxValue;
     }
 
-    public class int64 : signedinteger
+    [PythonType("numpy.int64")]
+    public class ScalarInt64 : ScalarSignedInteger
     {
-        public int64() {
+        public ScalarInt64() {
             value = 0;
         }
 
-        public int64(Int64 value) {
+        public ScalarInt64(Int64 value) {
             this.value = value;
         }
 
-        public int64(IConvertible value) {
+        public ScalarInt64(IConvertible value) {
             this.value = Convert.ToInt64(value);
         }
 
@@ -675,22 +692,26 @@ namespace NumpyDotNet
 
         private Int64 value;
         static private dtype dtype_;
+
+        internal static readonly BigInteger MinValue = new BigInteger(Int64.MinValue);
+        internal static readonly BigInteger MaxValue = new BigInteger(Int64.MaxValue);
     }
 
+    [PythonType("numpy.unsignedinteger")]
+    public class ScalarUnsignedInteger : ScalarInteger { }
 
-    public class unsignedinteger : integer { }
-
-    public class uint8 : unsignedinteger
+    [PythonType("numpy.uint8")]
+    public class ScalarUInt8 : ScalarUnsignedInteger
     {
-        public uint8() {
+        public ScalarUInt8() {
             value = 0;
         }
 
-        public uint8(byte value) {
+        public ScalarUInt8(byte value) {
             this.value = value;
         }
 
-        public uint8(IConvertible value) {
+        public ScalarUInt8(IConvertible value) {
             this.value = Convert.ToByte(value);
         }
 
@@ -720,19 +741,23 @@ namespace NumpyDotNet
 
         private byte value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly int MaxValue = byte.MaxValue;
     }
 
-    public class uint16 : unsignedinteger
+    [PythonType("numpy.uint16")]
+    public class ScalarUInt16 : ScalarUnsignedInteger
     {
-        public uint16() {
+        public ScalarUInt16() {
             value = 0;
         }
 
-        public uint16(UInt16 value) {
+        public ScalarUInt16(UInt16 value) {
             this.value = value;
         }
 
-        public uint16(IConvertible value) {
+        public ScalarUInt16(IConvertible value) {
             this.value = Convert.ToUInt16(value);
         }
 
@@ -762,19 +787,23 @@ namespace NumpyDotNet
 
         private UInt16 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly int MaxValue = UInt16.MaxValue;
     }
 
-    public class uint32 : unsignedinteger
+    [PythonType("numpy.uint32")]
+    public class ScalarUInt32 : ScalarUnsignedInteger
     {
-        public uint32() {
+        public ScalarUInt32() {
             value = 0;
         }
 
-        public uint32(UInt32 value) {
+        public ScalarUInt32(UInt32 value) {
             this.value = value;
         }
 
-        public uint32(IConvertible value) {
+        public ScalarUInt32(IConvertible value) {
             this.value = Convert.ToUInt32(value);
         }
 
@@ -804,19 +833,23 @@ namespace NumpyDotNet
 
         private UInt32 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly BigInteger MaxValue = new BigInteger(UInt32.MaxValue);
     }
 
-    public class uint64 : unsignedinteger
+    [PythonType("numpy.uint64")]
+    public class ScalarUInt64 : ScalarUnsignedInteger
     {
-        public uint64() {
+        public ScalarUInt64() {
             value = 0;
         }
 
-        public uint64(UInt64 value) {
+        public ScalarUInt64(UInt64 value) {
             this.value = value;
         }
 
-        public uint64(IConvertible value) {
+        public ScalarUInt64(IConvertible value) {
             this.value = Convert.ToUInt64(value);
         }
 
@@ -846,23 +879,29 @@ namespace NumpyDotNet
 
         private UInt64 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly BigInteger MaxValue = new BigInteger(UInt64.MaxValue);
     }
 
-    public class inexact : generic { }
+    [PythonType("numpy.inexact")]
+    public class ScalarInexact : ScalarNumber { }
 
-    public class floating : inexact { }
+    [PythonType("numpy.floating")]
+    public class ScalarFloating : ScalarInexact { }
 
-    public class float32 : floating
+    [PythonType("numpy.float32")]
+    public class ScalarFloat32 : ScalarFloating
     {
-        public float32() {
+        public ScalarFloat32() {
             value = 0;
         }
 
-        public float32(Single value) {
+        public ScalarFloat32(Single value) {
             this.value = value;
         }
 
-        public float32(IConvertible value) {
+        public ScalarFloat32(IConvertible value) {
             this.value = Convert.ToSingle(value);
         }
 
@@ -900,17 +939,18 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class float64 : floating
+    [PythonType("numpy.float64")]
+    public class ScalarFloat64 : ScalarFloating
     {
-        public float64() {
+        public ScalarFloat64() {
             value = 0;
         }
 
-        public float64(Double value) {
+        public ScalarFloat64(Double value) {
             this.value = value;
         }
 
-        public float64(IConvertible value) {
+        public ScalarFloat64(IConvertible value) {
             this.value = Convert.ToSingle(value);
         }
 
@@ -948,26 +988,28 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class complexfloating : inexact { }
+    [PythonType("numpy.complexfloating")]
+    public class ScalarComplexFloating : ScalarInexact { }
 
-    public class complex64 : complexfloating
+    [PythonType("numpy.complex64")]
+    public class ScalarComplex64 : ScalarComplexFloating
     {
-        public complex64() {
+        public ScalarComplex64() {
             Real = 0.0f;
             Imag = 0.0f;
         }
 
-        public complex64(Single value) {
+        public ScalarComplex64(Single value) {
             this.Real = value;
             this.Imag = 0.0f;
         }
 
-        public complex64(Single real, Single imag) {
+        public ScalarComplex64(Single real, Single imag) {
             Real = real;
             Imag = imag;
         }
 
-        public complex64(dynamic value) {
+        public ScalarComplex64(dynamic value) {
             Complex c = (Complex)value;
             Real = (float)c.Real;
             Imag = (float)c.Imaginary;
@@ -1007,13 +1049,13 @@ namespace NumpyDotNet
 
         public override object imag {
             get {
-                return new float32(Imag);
+                return new ScalarFloat32(Imag);
             }
         }
 
         public override object real {
             get {
-                return new float32(Real);
+                return new ScalarFloat32(Real);
             }
         }
 
@@ -1030,17 +1072,18 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class complex128 : complexfloating
+    [PythonType("numpy.complex128")]
+    public class ScalarComplex128 : ScalarComplexFloating
     {
-        public complex128() {
+        public ScalarComplex128() {
             value = 0;
         }
 
-        public complex128(double value) {
+        public ScalarComplex128(double value) {
             this.value = value;
         }
 
-        public complex128(dynamic value) {
+        public ScalarComplex128(dynamic value) {
             this.value = (Complex)value;
         }
 
@@ -1076,13 +1119,13 @@ namespace NumpyDotNet
 
         public override object imag {
             get {
-                return new float64(value.Imaginary);
+                return new ScalarFloat64(value.Imaginary);
             }
         }
 
         public override object real {
             get {
-                return new float64(value.Real);
+                return new ScalarFloat64(value.Real);
             }
         }
 
@@ -1090,21 +1133,24 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class flexible : generic { }
+    [PythonType("numpy.flexible")]
+    public class ScalarFlexible : ScalarGeneric { }
 
-    public class character : flexible { }
+    [PythonType("numpy.character")]
+    public class ScalarCharacter : ScalarFlexible { }
 
-    public class string_ : character
+    [PythonType("numpy.string_")]
+    public class ScalarString : ScalarCharacter
     {
-        public string_() {
+        public ScalarString() {
             value = new Bytes();
         }
 
-        public string_(Bytes s) {
+        public ScalarString(Bytes s) {
             value = s;
         }
 
-        public string_(dynamic s) {
+        public ScalarString(dynamic s) {
             value = s;
         }
 
@@ -1131,17 +1177,18 @@ namespace NumpyDotNet
         private dtype dtype_;
     }
 
-    public class unicode : character
+    [PythonType("numpy.unicode_")]
+    public class ScalarUnicode : ScalarCharacter
     {
-        public unicode() {
+        public ScalarUnicode() {
             value = "";
         }
 
-        public unicode(string s) {
+        public ScalarUnicode(string s) {
             value = s;
         }
 
-        public unicode(dynamic s) {
+        public ScalarUnicode(dynamic s) {
             value = s;
         }
 

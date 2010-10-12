@@ -21,8 +21,8 @@ namespace NumpyDotNet {
 
             if (obj == null) {
                 result = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
-            } else if (obj is generic) {
-                return ((generic)obj).dtype;
+            } else if (obj is ScalarGeneric) {
+                return ((ScalarGeneric)obj).dtype;
             } else if (obj is dtype) {
                 result = (dtype)obj;
             } else if (obj is IronPython.Runtime.Types.PythonType) {

@@ -345,7 +345,7 @@ namespace NumpyDotNet {
                     CopySwap4((byte*)&imag, (byte*)p, !arr.IsNotSwapped);
                 }
             }
-            return new complex64(real, imag);
+            return new ScalarComplex64(real, imag);
         }
         internal static GetitemDelegate getitemCFloatDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemCFloat, ptr, arrPtr);

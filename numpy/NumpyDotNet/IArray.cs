@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using IronPython.Runtime;
 
 namespace NumpyDotNet
@@ -51,8 +52,8 @@ namespace NumpyDotNet
         ndarray ravel(object order = null);
         object real { get; set; }
         object repeat(object repeats, object axis = null);
-        ndarray reshape(Microsoft.Scripting.IAttributesCollection kwds, params object[] args);
-        void resize(Microsoft.Scripting.IAttributesCollection kwds, params object[] args);
+        ndarray reshape(IDictionary<object,object> kwds, params object[] args);
+        void resize(IDictionary<object,object> kwds, params object[] args);
         object round(int decimals = 0, ndarray @out = null);
         object searchsorted(object keys, string side = null);
         void setfield(IronPython.Runtime.CodeContext cntx, object value, object dtype, int offset = 0);

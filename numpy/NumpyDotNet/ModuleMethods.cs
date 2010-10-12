@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reflection;
 using IronPython.Runtime;
+using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
 
@@ -21,7 +23,7 @@ namespace NumpyDotNet {
         /// <param name="o">Source object</param>
         /// <param name="kwargs">Optional named args</param>
         /// <returns>New array object</returns>
-        public static ndarray array(CodeContext cntx, Object o, [ParamDictionary] IAttributesCollection kwargs) {
+        public static ndarray array(CodeContext cntx, Object o, [ParamDictionary] IDictionary<object,object> kwargs) {
             Object[] args = { o };
             return arrayFromObject(cntx,
                 NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
@@ -37,7 +39,7 @@ namespace NumpyDotNet {
         /// <param name="kwargs">Optional named args</param>
         /// <returns>New array object</returns>
         public static ndarray array(CodeContext cntx, Object o, Object descr, 
-            [ParamDictionary] IAttributesCollection kwargs) {
+            [ParamDictionary] IDictionary<object,object> kwargs) {
             Object[] args = { o, descr };
             return arrayFromObject(cntx,
                 NpyUtil_ArgProcessing.BuildArgsArray(args, arrayKwds, kwargs));
@@ -189,6 +191,62 @@ namespace NumpyDotNet {
             return ndarray.LexSort(arrays, axis);
         }
 
+        private static object[] TypeInfoArray(NpyDefs.NPY_TYPES typenum) {
+            dtype d = NpyCoreApi.DescrFromType(typenum);
+            if (d.ScalarType == null) {
+                return null;
+            }
+            object[] objs;
+            PythonType pt = DynamicHelpers.GetPythonTypeFromType(d.ScalarType);
+            if (d.ScalarType.IsSubclassOf(typeof(ScalarInteger))) {
+                object maxValue = d.ScalarType.GetField("MaxValue", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                object minValue = d.ScalarType.GetField("MinValue", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+                objs = new object[] { new string((char)d.Type, 1), (int)typenum, 8*d.ElementSize, d.Alignment, maxValue, minValue, pt };
+            } else {
+                objs = new object[] { new string((char)d.Type, 1), (int)typenum, 8*d.ElementSize, d.Alignment, pt };
+            }
+            return objs;
+        }
+
+        private static void AddTypeType(PythonDictionary dict, NpyDefs.NPY_TYPES typenum) {
+            object[] value = TypeInfoArray(typenum);
+            if (value != null) {
+                string name = typenum.ToString().Substring(4);
+                dict[name] = new PythonTuple(value);
+            }
+        }
+
+        public static PythonDictionary typeinfo {
+            get {
+                object[] tmp;
+
+                PythonDictionary result = new PythonDictionary();
+                // Add types for all the C types
+                NpyDefs.NPY_TYPES i;
+                for (i=0; i<NpyDefs.NPY_TYPES.NPY_NTYPES; i++) {
+                    AddTypeType(result, i);
+                }
+                // Add intp
+                tmp = TypeInfoArray(NpyDefs.NPY_INTP);
+                tmp[0] = 'p';
+                result["INTP"] = new PythonTuple(tmp);
+                tmp = TypeInfoArray(NpyDefs.NPY_UINTP);
+                tmp[0] = 'P';
+                result["UINTP"] = new PythonTuple(tmp);
+                // Add the abstract types
+                result["Generic"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarGeneric));
+                result["Number"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarNumber));
+                result["Integer"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarInteger));
+                result["SignedInteger"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarSignedInteger));
+                result["UnsignedInteger"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarUnsignedInteger));
+                result["Inexact"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarInexact));
+                result["Floating"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarFloating));
+                result["ComplexFloating"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarComplexFloating));
+                result["Flexible"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarFlexible));
+                result["Character"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarCharacter));
+                return result;
+            }
+        }
 
     }
 }

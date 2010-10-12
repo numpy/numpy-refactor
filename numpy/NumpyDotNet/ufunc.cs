@@ -38,7 +38,7 @@ namespace NumpyDotNet
             get { return core; }
         }
 
-        public object Call(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] args) {
+        public object Call(CodeContext cntx, [ParamDictionary] IDictionary<object, object> kwargs, params object[] args) {
             object extobj = null;
             NpyDefs.NPY_TYPES[] sig = null;
             if (kwargs != null) {
@@ -76,7 +76,7 @@ namespace NumpyDotNet
             "array", "axis", "dtype", "out" };
 
 
-        public object reduce(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object reduce(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -92,7 +92,7 @@ namespace NumpyDotNet
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCE);
         }
 
-        public object accumulate(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object accumulate(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -113,7 +113,7 @@ namespace NumpyDotNet
         private static string[] ReduceAtArgNames = new String[] { 
             "array", "indices", "axis", "dtype", "out" };
 
-        public object reduceat(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object reduceat(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceAtArgNames, kwargs);
 
             if (args[0] == null || args[1] == null) {

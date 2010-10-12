@@ -14,6 +14,8 @@ if sys.platform != 'cli':
     multiarray.set_typeDict(nt.sctypeDict)
 
     import _sort
+else:
+    import numerictypes as nt
 
 from numeric import *
 from fromnumeric import *
@@ -34,8 +36,7 @@ if sys.platform != 'cli':
 
 from shape_base import *
 
-if sys.platform != 'cli':
-    del nt
+del nt
 
 from fromnumeric import amax as max, amin as min, round_ as round
 

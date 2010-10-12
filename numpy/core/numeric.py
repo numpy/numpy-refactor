@@ -43,6 +43,8 @@ if sys.platform == 'cli':
     clr.AddReference('NumpyDotNet')
     import NumpyDotNet as NDN
     import NumpyDotNet.ModuleMethods as NDNMM
+    import numerictypes
+    from numerictypes import *
 else:
     import multiarray
     import umath
@@ -214,7 +216,8 @@ def extend_all(module):
 
 if sys.platform != 'cli':
     extend_all(umath)
-    extend_all(numerictypes)
+
+extend_all(numerictypes)
 
 newaxis = None
 
