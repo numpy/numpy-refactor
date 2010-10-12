@@ -164,7 +164,6 @@ namespace NumpyDotNet {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
 
                     if (src is IEnumerable<Object>) {
-                        Console.WriteLine("Enumerable type = {0}", src.GetType().ToString());
                         result = FromIEnumerable((IEnumerable<Object>)src, descr,
                             (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
                     } else {

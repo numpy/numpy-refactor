@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using IronPython.Runtime;
+using IronPython.Runtime.Types;
 using System.Runtime.InteropServices;
 using System.Numerics;
 using Microsoft.Scripting;
@@ -502,6 +503,67 @@ namespace NumpyDotNet
                 return NpyCoreApi.DescrFromType(t);
             }
         }
+    }
+
+    [PythonType("numpy.bool_")]
+    public class ScalarBool : ScalarGeneric
+    {
+        public static object __new__(PythonType cls) {
+            return new ScalarBool();
+        }
+
+        public static object __new__(PythonType cls, bool val) {
+            return new ScalarBool(val);
+        }
+
+        public static object __new__(PythonType cls, object val) {
+            ndarray arr = NpyArray.FromAny(val, descr: NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL),
+                                            flags: NpyDefs.NPY_FORCECAST);
+            if (arr.ndim == 0) {
+                byte b = Marshal.ReadByte(arr.UnsafeAddress);
+                return new ScalarBool(b != 0);
+            } else {
+                // TODO: I don't know why we do this here. It means that
+                // np.bool_([True, False]) returns an array, not a scalar.
+                // This matches the behavior in CPython.
+                return ndarray.ArrayReturn(arr);
+            }
+        }
+
+        public ScalarBool() {
+            value = false;
+        }
+
+        public ScalarBool(bool val) {
+            value = val;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            Marshal.WriteByte(result.UnsafeAddress, (byte)(value ? 1 : 0));
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
+            value = (Marshal.ReadByte(p) != 0);
+        }
+
+        private bool value;
+        static private dtype dtype_;
     }
 
     [PythonType("numpy.number")]

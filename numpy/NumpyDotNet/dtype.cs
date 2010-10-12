@@ -25,7 +25,6 @@ namespace NumpyDotNet {
         /// <param name="d">Descriptor to duplicate</param>
         internal dtype(dtype d) {
             core = NpyCoreApi.NpyArray_DescrNew(d.core);
-            Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
             funcs = NumericOps.FuncsForType(this.TypeNum);
         }
         
@@ -281,6 +280,8 @@ namespace NumpyDotNet {
                 info = ScalarInfo.Make<ScalarUnicode>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_STRING) {
                 info = ScalarInfo.Make<ScalarString>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_BOOL) {
+                info = ScalarInfo.Make<ScalarBool>();
             }
 
             if (info == null) {

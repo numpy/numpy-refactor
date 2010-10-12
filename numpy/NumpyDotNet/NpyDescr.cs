@@ -53,9 +53,6 @@ namespace NumpyDotNet {
         /// <param name="t">Python type object</param>
         /// <returns>Corresponding descriptor object</returns>
         private static dtype ConvertFromPythonType(IronPython.Runtime.Types.PythonType t) {
-            Console.WriteLine("Type name = {0}", 
-                IronPython.Runtime.Types.PythonType.Get__name__(t));
-
             NpyDefs.NPY_TYPES type;
             if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_INT;
             else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
