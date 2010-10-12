@@ -28,6 +28,8 @@
 
 #include "numpy/noprefix.h"
 #include "numpy/ufuncobject.h"
+#include "numpy/npy_3kcompat.h"
+
 #include "abstract.h"
 
 #include "npy_math.h"
@@ -54,7 +56,6 @@ Py_reciprocal(PyObject *o);
 #include <npy_loops.h>
 #include <npy_funcs.h>
 #include "ufunc_object.h"
-#include "numpy_3kcompat.h"
 #include "__ufunc_api.c"
 
 
