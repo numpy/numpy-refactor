@@ -26,7 +26,7 @@
 #include "npy_math.h"
 #include "npy_descriptor.h"
 #include "npy_config.h"
-#include "numpy_3kcompat.h"
+#include "numpy/npy_3kcompat.h"
 #include "numpy_config.h"
 #include "usertypes.h"
 

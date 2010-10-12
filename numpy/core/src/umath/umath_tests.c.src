@@ -8,8 +8,7 @@
 #include "Python.h"
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
-
-#include "numpy_3kcompat.h"
+#include "numpy/npy_3kcompat.h"
 
 #include "npy_config.h"
 

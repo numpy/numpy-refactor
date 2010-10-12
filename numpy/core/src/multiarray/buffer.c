@@ -11,7 +11,7 @@
 
 #include "npy_config.h"
 
-#include "numpy_3kcompat.h"
+#include "numpy/npy_3kcompat.h"
 
 #include "buffer.h"
 #include "npy_os.h"
