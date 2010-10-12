@@ -135,7 +135,7 @@ namespace NumpyDotNet
 
         public virtual dtype dtype {
             get {
-                return ToArray().dtype;
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_VOID);
             }
             set {
                 throw new ArgumentException("array-scalars are immutable");
@@ -567,10 +567,24 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.number")]
-    public class ScalarNumber : ScalarGeneric { }
+    public class ScalarNumber : ScalarGeneric
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE);
+            }
+        }
+    }
 
     [PythonType("numpy.integer")]
-    public class ScalarInteger : ScalarNumber { }
+    public class ScalarInteger : ScalarNumber
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_LONG);
+            }
+        }
+    }
 
     [PythonType("numpy.signedinteger")]
     public class ScalarSignedInteger : ScalarInteger { }
@@ -760,7 +774,14 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.unsignedinteger")]
-    public class ScalarUnsignedInteger : ScalarInteger { }
+    public class ScalarUnsignedInteger : ScalarInteger
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_ULONG);
+            }
+        }
+    }
 
     [PythonType("numpy.uint8")]
     public class ScalarUInt8 : ScalarUnsignedInteger
@@ -1051,7 +1072,14 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.complexfloating")]
-    public class ScalarComplexFloating : ScalarInexact { }
+    public class ScalarComplexFloating : ScalarInexact
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_CDOUBLE);
+            }
+        }
+    }
 
     [PythonType("numpy.complex64")]
     public class ScalarComplex64 : ScalarComplexFloating
@@ -1199,7 +1227,14 @@ namespace NumpyDotNet
     public class ScalarFlexible : ScalarGeneric { }
 
     [PythonType("numpy.character")]
-    public class ScalarCharacter : ScalarFlexible { }
+    public class ScalarCharacter : ScalarFlexible
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_STRING);
+            }
+        }
+    }
 
     [PythonType("numpy.string_")]
     public class ScalarString : ScalarCharacter

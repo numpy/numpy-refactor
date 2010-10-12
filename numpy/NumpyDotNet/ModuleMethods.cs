@@ -66,7 +66,7 @@ namespace NumpyDotNet {
                         "Object can not be null/none.");
                 }
 
-                if (args[1] != null) type = NpyDescr.DescrConverter(cntx.LanguageContext, args[1]);
+                if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
                 if (args[3] != null && args[3] is string &&
@@ -138,14 +138,14 @@ namespace NumpyDotNet {
         public static ndarray arange(CodeContext cntx, object start, object stop = null, object step = null, object dtype = null) {
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return NpyArray.Arange(cntx, start, stop, step, rtype);
         }
 
         public static ndarray empty(CodeContext cntx, object shape, object dtype = null, object order = null) {
             long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
 
             return NpyArray.Empty(aShape, d, eOrder);
@@ -153,7 +153,7 @@ namespace NumpyDotNet {
 
         public static ndarray zeros(CodeContext cntx, object shape, object dtype = null, object order = null) {
             long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
 
             return NpyArray.Zeros(aShape, d, eOrder);

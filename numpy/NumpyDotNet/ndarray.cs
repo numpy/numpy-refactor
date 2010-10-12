@@ -48,7 +48,7 @@ namespace NumpyDotNet
             if (shape == null) 
                 throw new ArgumentException("Array constructor requires a shape to be specified.");
 
-            if (args[1] != null) type = NpyDescr.DescrConverter(cntx.LanguageContext, args[1]);
+            if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
             if (args[2] != null)
                 throw new NotImplementedException("Buffer support is not implemented.");
             long offset = NpyUtil_ArgProcessing.IntConverter(args[3]);
@@ -579,7 +579,7 @@ namespace NumpyDotNet
         }
 
         public ndarray astype(CodeContext cntx, object dtype = null) {
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
         }
 
@@ -626,7 +626,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return CumProd(iAxis, rtype, @out);
         }
@@ -636,7 +636,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return CumSum(iAxis, rtype, @out);
         }
@@ -656,7 +656,7 @@ namespace NumpyDotNet
         }
 
         public ndarray getfield(CodeContext cntx, object dtype, int offset = 0) {
-            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx, dtype);
             return NpyCoreApi.GetField(this, dt, offset);
         }
 
@@ -741,7 +741,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
         }
@@ -764,7 +764,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return ArrayReturn(Prod(iAxis, rtype, @out));
         }
@@ -855,7 +855,7 @@ namespace NumpyDotNet
         }
 
         public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             NpyArray.SetField(this, d.Descr, offset, value);
         }
 
@@ -910,7 +910,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, false, ddof);
         }
@@ -919,7 +919,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return ArrayReturn(Sum(iAxis, rtype, @out));
         }
@@ -1006,7 +1006,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
         }
@@ -1025,7 +1025,7 @@ namespace NumpyDotNet
             }
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return NpyCoreApi.View(this, rtype, type);
         }
