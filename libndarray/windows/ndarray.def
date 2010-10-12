@@ -439,6 +439,7 @@ NpyOS_ascii_formatd
 NpyOS_ascii_formatf
 NpyOS_ascii_formatl
 NpyOS_ascii_isspace
+Npy_RefCntLock
 npy_SHORT_absolute
 npy_SHORT_add
 npy_SHORT_bitwise_and
