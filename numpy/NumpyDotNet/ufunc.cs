@@ -13,6 +13,7 @@ using NumpyDotNet;
 
 namespace NumpyDotNet
 {
+    [PythonType]
     public class ufunc : Wrapper
     {
         private static String[] ufuncArgNames = { "extobj", "sig" };

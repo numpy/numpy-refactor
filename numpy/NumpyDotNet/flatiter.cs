@@ -9,6 +9,7 @@ using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet
 {
+    [PythonType]
     public class flatiter : Wrapper, IEnumerator<object>
     {
         internal flatiter(IntPtr coreIter)
