@@ -470,6 +470,106 @@ namespace NumpyDotNet
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        // NOTE: For comparison operators we use the Python names
+        // since these operators usually return boolean arrays and
+        // .NET seems to expect them to return bool
+
+        public object __eq__(ndarray a) {
+            return ToArray().__eq__(a);
+        }
+
+        public object __eq__(object o) {
+            return ToArray().__eq__(o);
+        }
+
+        public object __req__(ndarray a) {
+            return ToArray().__req__(a);
+        }
+
+        public object __req__(object o) {
+            return ToArray().__req__(o);
+        }
+
+        public object __ne__(ndarray a) {
+            return ToArray().__ne__(a);
+        }
+
+        public object __ne__(object o) {
+            return ToArray().__ne__(o);
+        }
+
+        public object __rne__(ndarray a) {
+            return ToArray().__rne__(a);
+        }
+
+        public object __rne__(object o) {
+            return ToArray().__rne__(o);
+        }
+
+        public object __lt__(ndarray a) {
+            return ToArray().__lt__(a);
+        }
+
+        public object __lt__(object o) {
+            return ToArray().__lt__(o);
+        }
+
+        public object __rlt__(ndarray a) {
+            return ToArray().__rlt__(a);
+        }
+
+        public object __rlt__(object o) {
+            return ToArray().__rlt__(o);
+        }
+
+        public object __le__(ndarray a) {
+            return ToArray().__le__(a);
+        }
+
+        public object __le__(object o) {
+            return ToArray().__le__(o);
+        }
+
+        public object __rle__(ndarray a) {
+            return ToArray().__rle__(a);
+        }
+
+        public object __rle__(object o) {
+            return ToArray().__rle__(o);
+        }
+
+        public object __gt__(ndarray a) {
+            return ToArray().__gt__(a);
+        }
+
+        public object __gt__(object o) {
+            return ToArray().__gt__(o);
+        }
+
+        public object __rgt__(ndarray a) {
+            return ToArray().__rgt__(a);
+        }
+
+        public object __rgt__(object o) {
+            return ToArray().__rgt__(o);
+        }
+
+        public object __ge__(ndarray a) {
+            return ToArray().__ge__(a);
+        }
+
+        public object __ge__(object o) {
+            return ToArray().__ge__(o);
+        }
+
+        public object __rge__(ndarray a) {
+            return ToArray().__rge__(a);
+        }
+
+        public object __rge__(object o) {
+            return ToArray().__rge__(o);
+        }
+
         public static explicit operator int(ScalarGeneric a) {
             return (int)a.ToArray();
         }
