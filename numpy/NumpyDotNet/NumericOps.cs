@@ -8,6 +8,7 @@ using System.Text;
 using IronPython.Modules;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using Microsoft.Scripting.Runtime;
 using Microsoft.Scripting.Utils;
 using Microsoft.CSharp.RuntimeBinder;
@@ -441,7 +442,6 @@ namespace NumpyDotNet {
 
 
         private static unsafe string Decode(Decoder d, byte* ptr, int nb) {
-            string result;
             int n = d.GetCharCount(ptr, nb, true);
             char* buffer = stackalloc char[n];
             d.GetChars(ptr, nb, buffer, n, true);
@@ -501,10 +501,23 @@ namespace NumpyDotNet {
                     arr.RawFlags = savedflags;
                     Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, d.Descr);
                 }
-            } else {
-                throw new NotImplementedException("VOID type only implemented for fields");
             }
+            if (d.HasSubarray) {
+                throw new NotImplementedException("VOID type not implemented for subarrays.");
+            }
+
+            if (d.IsObject) {
+                throw new ArgumentException("tried to get void-array with object members as buffer");
+            }
+
+            // TODO: Returns a byte array due to IronPython restrictions, but should return a buffer.
+            dtype bdesc = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BYTE);
+            int flags = arr.IsWriteable ? NpyDefs.NPY_WRITEABLE : 0;
+            ndarray aresult = NpyCoreApi.NewFromDescr(bdesc, new long[] { d.ElementSize }, null, ptr, flags, null);
+            aresult.BaseArray = arr;
+            return aresult;
         }
+
         internal static GetitemDelegate getitemVOIDDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemVOID, ptr, arrPtr);
 
@@ -916,6 +929,7 @@ namespace NumpyDotNet {
                 if (names.Count != t.Count) {
                     throw new ArgumentException("size of tuple must match number of fields");
                 }
+                // TODO: This isn't thread safe. We modify the array's descr and flags!
                 Int32 savedflags = arr.RawFlags;
                 try {
                     int i = 0;
@@ -934,13 +948,41 @@ namespace NumpyDotNet {
                         field_dtype.f.SetFunc(t[i++], new IntPtr(fieldPtr), arr);
                     }
                 } finally {
+                    // Restory the original flags and fields
                     arr.RawFlags = savedflags;
                     Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, d.Descr);
                 }
+            } else if (d.HasSubarray) {
+                throw new NotImplementedException("VOID type not implemented for subarrays.");
+            } else if (value is ndarray) {
+                ndarray avalue = (ndarray)value;
+                if (!avalue.IsContiguous) {
+                    throw new ArgumentException("VOID items can't be set with non-continuous arrays.");
+                }
+                if (d.IsObject) {
+                    // TODO: How is this possible? Also, the CPython code checks for NPY_ITEM_IS_POINTER too.
+                    throw new ArgumentException("Setting void-array with object members using buffer");
+                }
+                unsafe {
+                    // TODO: Make a memcpy or call one
+                    byte* src = (byte*)avalue.UnsafeAddress.ToPointer();
+                    byte* dest = (byte*)ptr.ToPointer();
+                    int dlen = arr.dtype.ElementSize;
+                    int slen = (int)(avalue.Size * avalue.dtype.ElementSize);
+                    int copyLen = Math.Min(dlen, slen);
+                    int fillLen = Math.Max(0, dlen - slen);
+                    while (copyLen-- > 0) {
+                        *dest++ = *src++;
+                    }
+                    while (fillLen-- > 0) {
+                        *dest++ = 0;
+                    }
+                }
             } else {
-                throw new NotImplementedException("VOID type only implemented for fields");
+                throw new ArgumentException(String.Format("VOID items can't bet set with {0}", value.GetType()));
             }
         }
+
         internal static SetitemDelegate setitemVOIDDelegate =
             (value, ptr, arrPtr) => SetItemWrapper(setitemVOID, value, ptr, arrPtr);
 

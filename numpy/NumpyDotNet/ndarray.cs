@@ -260,6 +260,106 @@ namespace NumpyDotNet
             return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        // NOTE: For comparison operators we use the Python names
+        // since these operators usually return boolean arrays and
+        // .NET seems to expect them to return bool
+
+        public object __eq__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __eq__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __req__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __req__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __ne__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __ne__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __rne__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __rne__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __lt__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __lt__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __rlt__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __rlt__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __le__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __le__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __rle__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __rle__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __gt__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __gt__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __rgt__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __rgt__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __ge__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __ge__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __rge__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __rge__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
         public static explicit operator int(ndarray a) {
             return ConvertTo<int>(a);
         }
@@ -326,7 +426,7 @@ namespace NumpyDotNet
                 NpyArray.SetField(this, descr, offset, value);
             }
             get {
-                return NpyCoreApi.GetField(this, field);
+                return ArrayReturn(NpyCoreApi.GetField(this, field));
             }
         }
 
@@ -541,6 +641,13 @@ namespace NumpyDotNet
                 // Assing like a.flat[:] = value
                 flatiter it = NpyCoreApi.IterNew(this);
                 it[new Slice(null)] = value;
+            }
+        }
+
+        public object @base {
+            get {
+                // TODO: Handle non-array bases
+                return BaseArray;
             }
         }
 
@@ -1175,6 +1282,10 @@ namespace NumpyDotNet
             get { return NpyDefs.IsFlexible(dtype.TypeNum); }
         }
 
+        public bool IsWriteable {
+            get { return ChkFlags(NpyDefs.NPY_WRITEABLE); }
+        }
+
 
         /// <summary>
         /// TODO: What does this return?
@@ -1355,6 +1466,35 @@ namespace NumpyDotNet
         /// </summary>
         internal IntPtr UnsafeAddress {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
+        }
+
+        internal ndarray BaseArray {
+            get {
+                IntPtr p = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array);
+                if (p == IntPtr.Zero) {
+                    return null;
+                } else {
+                    return NpyCoreApi.ToInterface<ndarray>(p);
+                }
+            }
+            set {
+                lock (this) {
+                    IntPtr p = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array);
+                    if (p != IntPtr.Zero) {
+                        NpyCoreApi.Decref(p);
+                    }
+                    NpyCoreApi.Incref(value.core);
+                    Marshal.WriteIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array, value.core);
+                }
+            }
+        }
+
+        internal unsafe void CopySwapIn(long offset, void* data, bool swap) {
+            NpyCoreApi.NpyArrayAccess_CopySwapIn(core, offset, data, swap ? 1 : 0);
+        }
+
+        internal unsafe void CopySwapOut(long offset, void* data, bool swap) {
+            NpyCoreApi.NpyArrayAccess_CopySwapOut(core, offset, data, swap ? 1 : 0);
         }
 
         #endregion

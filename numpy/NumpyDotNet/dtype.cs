@@ -129,7 +129,7 @@ namespace NumpyDotNet {
 
 
         public bool HasSubarray {
-            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) == IntPtr.Zero; }
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) != IntPtr.Zero; }
         }
 
         public ArrFuncs f {
@@ -147,8 +147,8 @@ namespace NumpyDotNet {
                     size /= 4;
                 }
                 StringBuilder result = new StringBuilder();
-                result.Append(endian);
-                result.Append(Type);
+                result.Append((char)endian);
+                result.Append((char)Type);
                 result.Append(size);
                 return result.ToString();
             }
@@ -282,6 +282,8 @@ namespace NumpyDotNet {
                 info = ScalarInfo.Make<ScalarString>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_BOOL) {
                 info = ScalarInfo.Make<ScalarBool>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
+                info = ScalarInfo.Make<ScalarVoid>();
             }
 
             if (info == null) {
