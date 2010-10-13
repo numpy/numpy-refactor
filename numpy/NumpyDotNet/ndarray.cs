@@ -260,6 +260,106 @@ namespace NumpyDotNet
             return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        // NOTE: For comparison operators we use the Python names
+        // since these operators usually return boolean arrays and
+        // .NET seems to expect them to return bool
+
+        public object __eq__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __eq__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __req__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __req__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        }
+
+        public object __ne__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __ne__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __rne__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __rne__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        }
+
+        public object __lt__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __lt__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __rlt__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __rlt__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less);
+        }
+
+        public object __le__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __le__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __rle__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __rle__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+        }
+
+        public object __gt__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __gt__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __rgt__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __rgt__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater);
+        }
+
+        public object __ge__(ndarray a) {
+            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __ge__(object o) {
+            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __rge__(ndarray a) {
+            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
+        public object __rge__(object o) {
+            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        }
+
         public static explicit operator int(ndarray a) {
             return ConvertTo<int>(a);
         }

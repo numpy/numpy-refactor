@@ -45,6 +45,8 @@ if sys.platform == 'cli':
     import NumpyDotNet.ModuleMethods as NDNMM
     import numerictypes
     from numerictypes import *
+    NDN.umath.__init__()
+
 else:
     import multiarray
     import umath
