@@ -544,6 +544,13 @@ namespace NumpyDotNet
             }
         }
 
+        public object @base {
+            get {
+                // TODO: Handle non-array bases
+                return BaseArray;
+            }
+        }
+
         #endregion
 
         #region methods
@@ -1175,6 +1182,10 @@ namespace NumpyDotNet
             get { return NpyDefs.IsFlexible(dtype.TypeNum); }
         }
 
+        public bool IsWriteable {
+            get { return ChkFlags(NpyDefs.NPY_WRITEABLE); }
+        }
+
 
         /// <summary>
         /// TODO: What does this return?
@@ -1355,6 +1366,27 @@ namespace NumpyDotNet
         /// </summary>
         internal IntPtr UnsafeAddress {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
+        }
+
+        internal ndarray BaseArray {
+            get {
+                IntPtr p = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array);
+                if (p == IntPtr.Zero) {
+                    return null;
+                } else {
+                    return NpyCoreApi.ToInterface<ndarray>(p);
+                }
+            }
+            set {
+                lock (this) {
+                    IntPtr p = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array);
+                    if (p != IntPtr.Zero) {
+                        NpyCoreApi.Decref(p);
+                    }
+                    NpyCoreApi.Incref(value.core);
+                    Marshal.WriteIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array, value.core);
+                }
+            }
         }
 
         #endregion

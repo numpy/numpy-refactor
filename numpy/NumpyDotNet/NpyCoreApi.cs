@@ -150,6 +150,23 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static ndarray NewFromDescr(dtype descr, long[] dims, long[] strides, IntPtr data,
+            int flags, object interfaceData) {
+            if (interfaceData == null) {
+                Incref(descr.Descr);
+                return DecrefToInterface<ndarray>(
+                    NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, data, IntPtr.Zero));
+            } else {
+                GCHandle h = AllocGCHandle(interfaceData);
+                try {
+                    Incref(descr.Descr);
+                    return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
+                        flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
+                } finally {
+                    FreeGCHandle(h);
+                }
+            }
+        }
 
         internal static flatiter IterNew(ndarray ao) {
             return DecrefToInterface<flatiter>(
@@ -856,7 +873,8 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_ArrayGetOffsets")]
         private static extern void ArrayGetOffsets(out int magicNumOffset,
-            out int descrOffset, out int ndOffset, out int flagsOffset, out int dataOffset);
+            out int descrOffset, out int ndOffset, out int flagsOffset, out int dataOffset,
+            out int baseObjOffset, out int baseArrayOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_DescrGetOffsets")]
@@ -947,6 +965,8 @@ namespace NumpyDotNet {
             internal int off_nd;
             internal int off_flags;
             internal int off_data;
+            internal int off_base_obj;
+            internal int off_base_array;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1604,7 +1624,9 @@ namespace NumpyDotNet {
                             out ArrayOffsets.off_descr,
                             out ArrayOffsets.off_nd,
                             out ArrayOffsets.off_flags,
-                            out ArrayOffsets.off_data);
+                            out ArrayOffsets.off_data,
+                            out ArrayOffsets.off_base_obj,
+                            out ArrayOffsets.off_base_array);
 
             DescrGetOffsets(out DescrOffsets.off_magic_number,
                             out DescrOffsets.off_kind,
