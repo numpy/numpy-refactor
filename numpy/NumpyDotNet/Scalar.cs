@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using IronPython.Runtime;
+using IronPython.Runtime.Types;
 using System.Runtime.InteropServices;
 using System.Numerics;
+using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
-    public class generic : IArray
+    [PythonType("numpy.generic")]
+    public class ScalarGeneric : IArray
     {
         internal virtual ndarray ToArray() {
             return null;
@@ -120,8 +123,10 @@ namespace NumpyDotNet
             return ToArray().cumsum(cntx, axis, dtype, @out);
         }
 
-        public IntPtr data {
-            get { throw new NotImplementedException(); }
+        public PythonBuffer data {
+            get {
+                throw new NotImplementedException();
+            }
         }
 
         public ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1) {
@@ -130,10 +135,10 @@ namespace NumpyDotNet
 
         public virtual dtype dtype {
             get {
-                return ToArray().dtype;
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_VOID);
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -143,15 +148,15 @@ namespace NumpyDotNet
         }
 
         public flagsobj flags {
-            get { throw new NotImplementedException(); }
+            get { return new flagsobj(null); }
         }
 
         public object flat {
             get {
-                throw new NotImplementedException();
+                return ToArray().flat;
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -163,12 +168,12 @@ namespace NumpyDotNet
             return ToArray().getfield(cntx, dtype, offset);
         }
 
-        public object imag {
+        public virtual object imag {
             get {
-                throw new NotImplementedException();
+                return ndarray.ArrayReturn((ndarray)ToArray().imag);
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -177,7 +182,7 @@ namespace NumpyDotNet
         }
 
         public void itemset(params object[] args) {
-            throw new NotImplementedException();
+            throw new ArgumentException("array-scalars are immutable");
         }
 
         public object max(object axis = null, ndarray @out = null) {
@@ -193,7 +198,9 @@ namespace NumpyDotNet
         }
 
         public int ndim {
-            get { throw new NotImplementedException(); }
+            get {
+                return 0;
+            }
         }
 
         public ndarray newbyteorder(string endian = null) {
@@ -221,12 +228,12 @@ namespace NumpyDotNet
             return ToArray().ravel(order);
         }
 
-        public object real {
+        public virtual object real {
             get {
-                throw new NotImplementedException();
+                return ndarray.ArrayReturn((ndarray)ToArray().real);
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -234,11 +241,11 @@ namespace NumpyDotNet
             return ToArray().repeat(repeats, axis);
         }
 
-        public ndarray reshape(Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
-            throw new NotImplementedException();
+        public ndarray reshape([ParamDictionary]IDictionary<object,object> kwds, params object[] args) {
+            return ToArray().reshape(args:args, kwds:kwds);
         }
 
-        public void resize(Microsoft.Scripting.IAttributesCollection kwds, params object[] args) {
+        public void resize([ParamDictionary]IDictionary<object,object> kwds, params object[] args) {
             // TODO: This doesn't make any sense, but CPython does the same
             ToArray().resize(args:args, kwds:kwds);
         }
@@ -252,19 +259,19 @@ namespace NumpyDotNet
         }
 
         public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
-            throw new NotImplementedException();
+            throw new ArgumentException("array-scalars are immutable");
         }
 
         public void setflags(object write = null, object align = null, object uic = null) {
-            throw new NotImplementedException();
+            // CPython implementation simply does nothing, so we will too.
         }
 
         public PythonTuple shape {
-            get { throw new NotImplementedException(); }
+            get { return new PythonTuple(); }
         }
 
         public object size {
-            get { throw new NotImplementedException(); }
+            get { return 1; }
         }
 
         public void sort(int axis = -1, string kind = null, object order = null) {
@@ -272,8 +279,8 @@ namespace NumpyDotNet
             ToArray().sort(axis, kind, order);
         }
 
-        public ndarray squeeze() {
-            throw new NotImplementedException();
+        public object squeeze() {
+            return this;
         }
 
         public object std(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0) {
@@ -281,7 +288,7 @@ namespace NumpyDotNet
         }
 
         public long[] strides {
-            get { throw new NotImplementedException(); }
+            get { return new long[0]; }
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
@@ -302,35 +309,43 @@ namespace NumpyDotNet
 
         public object this[params object[] args] {
             get {
-                throw new NotImplementedException();
+                return ToArray()[args: args];
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
         public object this[int index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[long index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[IntPtr index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[System.Numerics.BigInteger index] {
-            get { throw new NotImplementedException(); }
+            get {
+                return ToArray()[index];
+            }
         }
 
         public object this[string field] {
             get {
-                throw new NotImplementedException();
+                return ToArray()[field];
             }
             set {
-                throw new NotImplementedException();
+                throw new ArgumentException("array-scalars are immutable");
             }
         }
 
@@ -370,103 +385,103 @@ namespace NumpyDotNet
 
         #region operators
 
-        public static object operator +(generic a, object b) {
+        public static object operator +(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator +(generic a, generic b) {
+        public static object operator +(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator +(object a, generic b) {
+        public static object operator +(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
-        public static object operator -(generic a, object b) {
+        public static object operator -(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator -(generic a, generic b) {
+        public static object operator -(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator -(object a, generic b) {
+        public static object operator -(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
-        public static object operator *(generic a, object b) {
+        public static object operator *(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator *(generic a, generic b) {
+        public static object operator *(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator *(object a, generic b) {
+        public static object operator *(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
-        public static object operator /(generic a, object b) {
+        public static object operator /(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator /(generic a, generic b) {
+        public static object operator /(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator /(object a, generic b) {
+        public static object operator /(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
-        public static object operator &(generic a, object b) {
+        public static object operator &(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator &(generic a, generic b) {
+        public static object operator &(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator &(object a, generic b) {
+        public static object operator &(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator |(generic a, object b) {
+        public static object operator |(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator |(generic a, generic b) {
+        public static object operator |(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator |(object a, generic b) {
+        public static object operator |(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator ^(generic a, object b) {
+        public static object operator ^(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static object operator ^(generic a, generic b) {
+        public static object operator ^(ScalarGeneric a, ScalarGeneric b) {
             return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static object operator ^(object a, generic b) {
+        public static object operator ^(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
-        public static explicit operator int(generic a) {
+        public static explicit operator int(ScalarGeneric a) {
             return (int)a.ToArray();
         }
 
-        public static explicit operator BigInteger(generic a) {
+        public static explicit operator BigInteger(ScalarGeneric a) {
             return (BigInteger)a.ToArray();
         }
 
-        public static explicit operator double(generic a) {
+        public static explicit operator double(ScalarGeneric a) {
             return (double)a.ToArray();
         }
 
-        public static explicit operator Complex(generic a) {
+        public static explicit operator Complex(ScalarGeneric a) {
             return (Complex)a.ToArray();
         }
 
@@ -488,26 +503,104 @@ namespace NumpyDotNet
                 return NpyCoreApi.DescrFromType(t);
             }
         }
-
     }
 
-    public class number : generic { }
-
-    public class integer : number { }
-
-    public class signedinteger : integer { }
-
-    public class int8 : signedinteger
+    [PythonType("numpy.bool_")]
+    public class ScalarBool : ScalarGeneric
     {
-        public int8() {
+        public static object __new__(PythonType cls) {
+            return new ScalarBool();
+        }
+
+        public static object __new__(PythonType cls, bool val) {
+            return new ScalarBool(val);
+        }
+
+        public static object __new__(PythonType cls, object val) {
+            ndarray arr = NpyArray.FromAny(val, descr: NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL),
+                                            flags: NpyDefs.NPY_FORCECAST);
+            if (arr.ndim == 0) {
+                byte b = Marshal.ReadByte(arr.UnsafeAddress);
+                return new ScalarBool(b != 0);
+            } else {
+                // TODO: I don't know why we do this here. It means that
+                // np.bool_([True, False]) returns an array, not a scalar.
+                // This matches the behavior in CPython.
+                return ndarray.ArrayReturn(arr);
+            }
+        }
+
+        public ScalarBool() {
+            value = false;
+        }
+
+        public ScalarBool(bool val) {
+            value = val;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_BOOL);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            Marshal.WriteByte(result.UnsafeAddress, (byte)(value ? 1 : 0));
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
+            value = (Marshal.ReadByte(p) != 0);
+        }
+
+        private bool value;
+        static private dtype dtype_;
+    }
+
+    [PythonType("numpy.number")]
+    public class ScalarNumber : ScalarGeneric
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE);
+            }
+        }
+    }
+
+    [PythonType("numpy.integer")]
+    public class ScalarInteger : ScalarNumber
+    {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_LONG);
+            }
+        }
+    }
+
+    [PythonType("numpy.signedinteger")]
+    public class ScalarSignedInteger : ScalarInteger { }
+
+    [PythonType("numpy.int8")]
+    public class ScalarInt8 : ScalarSignedInteger
+    {
+        public ScalarInt8() {
             value = 0;
         }
 
-        public int8(sbyte value) {
+        public ScalarInt8(sbyte value) {
             this.value = value;
         }
 
-        public int8(IConvertible value) {
+        public ScalarInt8(IConvertible value) {
             this.value = Convert.ToSByte(value);
         }
 
@@ -526,30 +619,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteByte(result.data, (byte)value);
+            Marshal.WriteByte(result.UnsafeAddress, (byte)value);
             return result;
         }
   
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (sbyte)Marshal.ReadByte(p);
         }
 
         private sbyte value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = sbyte.MinValue;
+        internal static readonly int MaxValue = sbyte.MaxValue;
     }
 
-    public class int16 : signedinteger
+    [PythonType("numpy.int16")]
+    public class ScalarInt16 : ScalarSignedInteger
     {
-        public int16() {
+        public ScalarInt16() {
             value = 0;
         }
 
-        public int16(Int16 value) {
+        public ScalarInt16(Int16 value) {
             this.value = value;
         }
 
-        public int16(IConvertible value) {
+        public ScalarInt16(IConvertible value) {
             this.value = Convert.ToInt16(value);
         }
 
@@ -568,30 +665,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt16(result.data, value);
+            Marshal.WriteInt16(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt16(p);
         }
 
         private Int16 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = Int16.MinValue;
+        internal static readonly int MaxValue = Int16.MaxValue;
     }
 
-    public class int32 : signedinteger
+    [PythonType("numpy.int32")]
+    public class ScalarInt32 : ScalarSignedInteger
     {
-        public int32() {
+        public ScalarInt32() {
             value = 0;
         }
 
-        public int32(Int32 value) {
+        public ScalarInt32(Int32 value) {
             this.value = value;
         }
 
-        public int32(IConvertible value) {
+        public ScalarInt32(IConvertible value) {
             this.value = Convert.ToInt32(value);
         }
 
@@ -610,30 +711,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt32(result.data, value);
+            Marshal.WriteInt32(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt32(p);
         }
 
         private Int32 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = Int32.MinValue;
+        internal static readonly int MaxValue = Int32.MaxValue;
     }
 
-    public class int64 : signedinteger
+    [PythonType("numpy.int64")]
+    public class ScalarInt64 : ScalarSignedInteger
     {
-        public int64() {
+        public ScalarInt64() {
             value = 0;
         }
 
-        public int64(Int64 value) {
+        public ScalarInt64(Int64 value) {
             this.value = value;
         }
 
-        public int64(IConvertible value) {
+        public ScalarInt64(IConvertible value) {
             this.value = Convert.ToInt64(value);
         }
 
@@ -652,33 +757,44 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt64(result.data, value);
+            Marshal.WriteInt64(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadInt64(p);
         }
 
         private Int64 value;
         static private dtype dtype_;
+
+        internal static readonly BigInteger MinValue = new BigInteger(Int64.MinValue);
+        internal static readonly BigInteger MaxValue = new BigInteger(Int64.MaxValue);
     }
 
-
-    public class unsignedinteger : integer { }
-
-    public class uint8 : unsignedinteger
+    [PythonType("numpy.unsignedinteger")]
+    public class ScalarUnsignedInteger : ScalarInteger
     {
-        public uint8() {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_ULONG);
+            }
+        }
+    }
+
+    [PythonType("numpy.uint8")]
+    public class ScalarUInt8 : ScalarUnsignedInteger
+    {
+        public ScalarUInt8() {
             value = 0;
         }
 
-        public uint8(byte value) {
+        public ScalarUInt8(byte value) {
             this.value = value;
         }
 
-        public uint8(IConvertible value) {
+        public ScalarUInt8(IConvertible value) {
             this.value = Convert.ToByte(value);
         }
 
@@ -697,30 +813,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteByte(result.data, value);
+            Marshal.WriteByte(result.UnsafeAddress, value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadByte(p);
         }
 
         private byte value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly int MaxValue = byte.MaxValue;
     }
 
-    public class uint16 : unsignedinteger
+    [PythonType("numpy.uint16")]
+    public class ScalarUInt16 : ScalarUnsignedInteger
     {
-        public uint16() {
+        public ScalarUInt16() {
             value = 0;
         }
 
-        public uint16(UInt16 value) {
+        public ScalarUInt16(UInt16 value) {
             this.value = value;
         }
 
-        public uint16(IConvertible value) {
+        public ScalarUInt16(IConvertible value) {
             this.value = Convert.ToUInt16(value);
         }
 
@@ -739,30 +859,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt16(result.data, (Int16)value);
+            Marshal.WriteInt16(result.UnsafeAddress, (Int16)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt16)Marshal.ReadInt16(p);
         }
 
         private UInt16 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly int MaxValue = UInt16.MaxValue;
     }
 
-    public class uint32 : unsignedinteger
+    [PythonType("numpy.uint32")]
+    public class ScalarUInt32 : ScalarUnsignedInteger
     {
-        public uint32() {
+        public ScalarUInt32() {
             value = 0;
         }
 
-        public uint32(UInt32 value) {
+        public ScalarUInt32(UInt32 value) {
             this.value = value;
         }
 
-        public uint32(IConvertible value) {
+        public ScalarUInt32(IConvertible value) {
             this.value = Convert.ToUInt32(value);
         }
 
@@ -781,30 +905,34 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt32(result.data, (Int32)value);
+            Marshal.WriteInt32(result.UnsafeAddress, (Int32)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt32)Marshal.ReadInt32(p);
         }
 
         private UInt32 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly BigInteger MaxValue = new BigInteger(UInt32.MaxValue);
     }
 
-    public class uint64 : unsignedinteger
+    [PythonType("numpy.uint64")]
+    public class ScalarUInt64 : ScalarUnsignedInteger
     {
-        public uint64() {
+        public ScalarUInt64() {
             value = 0;
         }
 
-        public uint64(UInt64 value) {
+        public ScalarUInt64(UInt64 value) {
             this.value = value;
         }
 
-        public uint64(IConvertible value) {
+        public ScalarUInt64(IConvertible value) {
             this.value = Convert.ToUInt64(value);
         }
 
@@ -823,34 +951,40 @@ namespace NumpyDotNet
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
-            Marshal.WriteInt64(result.data, (Int64)value);
+            Marshal.WriteInt64(result.UnsafeAddress, (Int64)value);
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = (UInt64)Marshal.ReadInt64(p);
         }
 
         private UInt64 value;
         static private dtype dtype_;
+
+        internal static readonly int MinValue = 0;
+        internal static readonly BigInteger MaxValue = new BigInteger(UInt64.MaxValue);
     }
 
-    public class inexact : generic { }
+    [PythonType("numpy.inexact")]
+    public class ScalarInexact : ScalarNumber { }
 
-    public class floating : inexact { }
+    [PythonType("numpy.floating")]
+    public class ScalarFloating : ScalarInexact { }
 
-    public class float32 : floating
+    [PythonType("numpy.float32")]
+    public class ScalarFloat32 : ScalarFloating
     {
-        public float32() {
+        public ScalarFloat32() {
             value = 0;
         }
 
-        public float32(Single value) {
+        public ScalarFloat32(Single value) {
             this.value = value;
         }
 
-        public float32(IConvertible value) {
+        public ScalarFloat32(IConvertible value) {
             this.value = Convert.ToSingle(value);
         }
 
@@ -870,14 +1004,14 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Single* p = (Single*) result.data.ToPointer();
+                Single* p = (Single*) result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Single* ptr = (Single*)p.ToPointer();
                 value = *ptr;
@@ -888,17 +1022,18 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class float64 : floating
+    [PythonType("numpy.float64")]
+    public class ScalarFloat64 : ScalarFloating
     {
-        public float64() {
+        public ScalarFloat64() {
             value = 0;
         }
 
-        public float64(Double value) {
+        public ScalarFloat64(Double value) {
             this.value = value;
         }
 
-        public float64(IConvertible value) {
+        public ScalarFloat64(IConvertible value) {
             this.value = Convert.ToSingle(value);
         }
 
@@ -918,14 +1053,14 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Double* p = (Double*)result.data.ToPointer();
+                Double* p = (Double*)result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Double* ptr = (Double*)p.ToPointer();
                 value = *ptr;
@@ -936,19 +1071,109 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class complexfloating : inexact { }
-
-    public class complex128 : complexfloating
+    [PythonType("numpy.complexfloating")]
+    public class ScalarComplexFloating : ScalarInexact
     {
-        public complex128() {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_CDOUBLE);
+            }
+        }
+    }
+
+    [PythonType("numpy.complex64")]
+    public class ScalarComplex64 : ScalarComplexFloating
+    {
+        public ScalarComplex64() {
+            Real = 0.0f;
+            Imag = 0.0f;
+        }
+
+        public ScalarComplex64(Single value) {
+            this.Real = value;
+            this.Imag = 0.0f;
+        }
+
+        public ScalarComplex64(Single real, Single imag) {
+            Real = real;
+            Imag = imag;
+        }
+
+        public ScalarComplex64(dynamic value) {
+            Complex c = (Complex)value;
+            Real = (float)c.Real;
+            Imag = (float)c.Imaginary;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = GetDtype(8, 'c');
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            unsafe {
+                float* p = (float*)result.UnsafeAddress.ToPointer();
+                *p++ = Real;
+                *p = Imag;
+            }
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
+            unsafe {
+                float* ptr = (float*)p.ToPointer();
+                Real = *ptr++;
+                Imag = *ptr;
+            }
+        }
+
+        public override object imag {
+            get {
+                return new ScalarFloat32(Imag);
+            }
+        }
+
+        public override object real {
+            get {
+                return new ScalarFloat32(Real);
+            }
+        }
+
+        public override string ToString() {
+            if (Real == 0.0) {
+                return String.Format("{0}j", Imag);
+            } else {
+                return String.Format("({0}+{1}j)", Real, Imag);
+            }
+        }
+
+        private float Real;
+        private float Imag;
+        static private dtype dtype_;
+    }
+
+    [PythonType("numpy.complex128")]
+    public class ScalarComplex128 : ScalarComplexFloating
+    {
+        public ScalarComplex128() {
             value = 0;
         }
 
-        public complex128(Single value) {
+        public ScalarComplex128(double value) {
             this.value = value;
         }
 
-        public complex128(dynamic value) {
+        public ScalarComplex128(dynamic value) {
             this.value = (Complex)value;
         }
 
@@ -968,17 +1193,29 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
-                Complex* p = (Complex*)result.data.ToPointer();
+                Complex* p = (Complex*)result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
         }
 
         internal override void FillData(ndarray arr, long offset = 0) {
-            IntPtr p = (IntPtr)(arr.data.ToInt64() + offset);
+            IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             unsafe {
                 Complex* ptr = (Complex*)p.ToPointer();
                 value = *ptr;
+            }
+        }
+
+        public override object imag {
+            get {
+                return new ScalarFloat64(value.Imaginary);
+            }
+        }
+
+        public override object real {
+            get {
+                return new ScalarFloat64(value.Real);
             }
         }
 
@@ -986,21 +1223,31 @@ namespace NumpyDotNet
         static private dtype dtype_;
     }
 
-    public class flexible : generic { }
+    [PythonType("numpy.flexible")]
+    public class ScalarFlexible : ScalarGeneric { }
 
-    public class character : flexible { }
-
-    public class string_ : character
+    [PythonType("numpy.character")]
+    public class ScalarCharacter : ScalarFlexible
     {
-        public string_() {
+        public override dtype dtype {
+            get {
+                return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_STRING);
+            }
+        }
+    }
+
+    [PythonType("numpy.string_")]
+    public class ScalarString : ScalarCharacter
+    {
+        public ScalarString() {
             value = new Bytes();
         }
 
-        public string_(Bytes s) {
+        public ScalarString(Bytes s) {
             value = s;
         }
 
-        public string_(dynamic s) {
+        public ScalarString(dynamic s) {
             value = s;
         }
 
@@ -1027,17 +1274,18 @@ namespace NumpyDotNet
         private dtype dtype_;
     }
 
-    public class unicode : character
+    [PythonType("numpy.unicode_")]
+    public class ScalarUnicode : ScalarCharacter
     {
-        public unicode() {
+        public ScalarUnicode() {
             value = "";
         }
 
-        public unicode(string s) {
+        public ScalarUnicode(string s) {
             value = s;
         }
 
-        public unicode(dynamic s) {
+        public ScalarUnicode(dynamic s) {
             value = s;
         }
 

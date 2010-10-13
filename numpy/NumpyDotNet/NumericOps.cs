@@ -21,11 +21,11 @@ namespace NumpyDotNet {
     /// </summary>
     public class ArrFuncs {
         internal Object GetItem(long offset, ndarray arr) {
-            return GetFunc((IntPtr)(arr.data.ToInt64() + offset), arr);
+            return GetFunc((IntPtr)(arr.UnsafeAddress.ToInt64() + offset), arr);
         }
 
         internal void SetItem(Object value, long offset, ndarray arr) {
-            SetFunc(value, (IntPtr)(arr.data.ToInt64() + offset), arr);
+            SetFunc(value, (IntPtr)(arr.UnsafeAddress.ToInt64() + offset), arr);
         }
 
         internal Func<IntPtr, ndarray, Object> GetFunc { get; set; }
@@ -130,7 +130,8 @@ namespace NumpyDotNet {
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = null;
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] = null;
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] =
+                        new ArrFuncs() { GetFunc = NumericOps.getitemCFloat, SetFunc = NumericOps.setitemCFloat };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CDOUBLE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, SetFunc = NumericOps.setitemCDouble };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
@@ -330,6 +331,25 @@ namespace NumpyDotNet {
         internal static GetitemDelegate getitemFloatDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemFloat, ptr, arrPtr);
 
+        internal static Object getitemCFloat(IntPtr ptr, ndarray arr) {
+            float real;
+            float imag;
+
+            unsafe {
+                float* p = (float*)ptr.ToPointer();
+                if (arr.IsBehaved) {
+                    real = *p++;
+                    imag = *p;
+                } else {
+                    CopySwap4((byte*)&real, (byte*)p++, !arr.IsNotSwapped);
+                    CopySwap4((byte*)&imag, (byte*)p, !arr.IsNotSwapped);
+                }
+            }
+            return new ScalarComplex64(real, imag);
+        }
+        internal static GetitemDelegate getitemCFloatDelegate =
+            (ptr, arrPtr) => GetItemWrapper(getitemCFloat, ptr, arrPtr);
+
         internal static Object getitemDouble(IntPtr ptr, ndarray arr) {
             double f;
 
@@ -350,13 +370,13 @@ namespace NumpyDotNet {
             Complex f;
 
             unsafe {
-                byte* p = (byte*)ptr.ToPointer();
+                double* p = (double*)ptr.ToPointer();
                 if (arr.IsBehaved) {
-                    f = new Complex(*(double*)p, *((double*)p + 1));
+                    f = new Complex(*p, *(p+1));
                 } else {
                     double r, i;
-                    CopySwap8((byte*)&r, p, !arr.IsNotSwapped);
-                    CopySwap8((byte*)&i, (byte*)((double*)p + 1), !arr.IsNotSwapped);
+                    CopySwap8((byte*)&r, (byte*)p, !arr.IsNotSwapped);
+                    CopySwap8((byte*)&i, (byte*)(p + 1), !arr.IsNotSwapped);
                     f = new Complex(r, i);
                 }
             }
@@ -721,6 +741,32 @@ namespace NumpyDotNet {
         internal static SetitemDelegate setitemFloatDelegate =
             (value, ptr, arrPtr) => SetItemWrapper(setitemFloat, value, ptr, arrPtr);
 
+        internal static void setitemCFloat(Object o, IntPtr ptr, ndarray arr) {
+            Complex f;
+
+            if (o is Complex) f = (Complex)o;
+            else if (o is IConvertible) {
+                double d = ((IConvertible)o).ToDouble(null);
+                f = new Complex(d, 0.0);
+            } else throw new NotImplementedException(
+                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
+
+            unsafe {
+                float* p = (float*)ptr.ToPointer();
+                if (arr.IsBehaved) {
+                    *p++ = (float)f.Real;
+                    *p = (float)f.Imaginary;
+                } else {
+                    float r = (float)f.Real;
+                    float i = (float)f.Imaginary;
+                    CopySwap4((byte*)p++, (byte*)&r, !arr.IsNotSwapped);
+                    CopySwap4((byte*)p, (byte*)&i, !arr.IsNotSwapped);
+                }
+            }
+        }
+        internal static SetitemDelegate setitemCFloatDelegate =
+            (value, ptr, arrPtr) => SetItemWrapper(setitemCFloat, value, ptr, arrPtr);
+
         internal static void setitemDouble(Object o, IntPtr ptr, ndarray arr) {
             double f;
 
@@ -753,15 +799,15 @@ namespace NumpyDotNet {
                 String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
 
             unsafe {
-                byte* p = (byte*)ptr.ToPointer();
+                double* p = (double*)ptr.ToPointer();
                 if (arr.IsBehaved) {
-                    *(double*)p = f.Real;
-                    *((double*)p + 1) = f.Imaginary;
+                    *p++ = f.Real;
+                    *p = f.Imaginary;
                 } else {
                     double r = f.Real;
                     double i = f.Imaginary;
-                    CopySwap8(p, (byte*)&r, !arr.IsNotSwapped);
-                    CopySwap8(p, (byte*)&i, !arr.IsNotSwapped);
+                    CopySwap8((byte*)p++, (byte*)&r, !arr.IsNotSwapped);
+                    CopySwap8((byte*)p, (byte*)&i, !arr.IsNotSwapped);
                 }
             }
         }

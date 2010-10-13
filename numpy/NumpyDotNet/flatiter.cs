@@ -9,6 +9,7 @@ using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet
 {
+    [PythonType]
     public class flatiter : Wrapper, IEnumerator<object>
     {
         internal flatiter(IntPtr coreIter)
@@ -155,7 +156,7 @@ namespace NumpyDotNet
         public object Current
         {
             get {
-                return arr.GetItem(current.ToInt64()-arr.data.ToInt64());
+                return arr.GetItem(current.ToInt64()-arr.UnsafeAddress.ToInt64());
             }
         }
 
@@ -183,7 +184,7 @@ namespace NumpyDotNet
             {
                 NpyCoreApi.CheckError();
             }
-            arr.SetItem(value, pos.ToInt64() - arr.data.ToInt64());
+            arr.SetItem(value, pos.ToInt64() - arr.UnsafeAddress.ToInt64());
         }
 
         internal object Get(IntPtr index) {
@@ -191,7 +192,7 @@ namespace NumpyDotNet
             if (pos == IntPtr.Zero) {
                 NpyCoreApi.CheckError();
             }
-            return arr.GetItem(pos.ToInt64() - arr.data.ToInt64());
+            return arr.GetItem(pos.ToInt64() - arr.UnsafeAddress.ToInt64());
         }
 
         #endregion

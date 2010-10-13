@@ -13,6 +13,7 @@ using NumpyDotNet;
 
 namespace NumpyDotNet
 {
+    [PythonType]
     public class ufunc : Wrapper
     {
         private static String[] ufuncArgNames = { "extobj", "sig" };
@@ -38,7 +39,7 @@ namespace NumpyDotNet
             get { return core; }
         }
 
-        public object Call(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] args) {
+        public object Call(CodeContext cntx, [ParamDictionary] IDictionary<object, object> kwargs, params object[] args) {
             object extobj = null;
             NpyDefs.NPY_TYPES[] sig = null;
             if (kwargs != null) {
@@ -76,7 +77,7 @@ namespace NumpyDotNet
             "array", "axis", "dtype", "out" };
 
 
-        public object reduce(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object reduce(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -86,13 +87,13 @@ namespace NumpyDotNet
             // TODO: Not passing context to FromAny - see ufunc_object.c:960
             ndarray arr = NpyArray.FromAny(args[0]);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
-            dtype type = NpyDescr.DescrConverter(cntx.LanguageContext, args[2]);
+            dtype type = NpyDescr.DescrConverter(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCE);
         }
 
-        public object accumulate(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object accumulate(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -102,7 +103,7 @@ namespace NumpyDotNet
             // TODO: Not passing context to FromAny - see ufunc_object.c:960
             ndarray arr = NpyArray.FromAny(args[0]);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
-            dtype type = NpyDescr.DescrConverter(cntx.LanguageContext, args[2]);
+            dtype type = NpyDescr.DescrConverter(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_ACCUMULATE);
@@ -113,7 +114,7 @@ namespace NumpyDotNet
         private static string[] ReduceAtArgNames = new String[] { 
             "array", "indices", "axis", "dtype", "out" };
 
-        public object reduceat(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params Object[] posArgs) {
+        public object reduceat(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceAtArgNames, kwargs);
 
             if (args[0] == null || args[1] == null) {
@@ -126,7 +127,7 @@ namespace NumpyDotNet
                 NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
                 1, 1, NpyDefs.NPY_CARRAY, null);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[2]);
-            dtype type = NpyDescr.DescrConverter(cntx.LanguageContext, args[3]);
+            dtype type = NpyDescr.DescrConverter(cntx, args[3]);
             ndarray arrOut = (args[4] != null) ? NpyArray.FromAny(args[4]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);
@@ -370,12 +371,12 @@ namespace NumpyDotNet
                     throw new ArgumentException(
                         String.Format("a type-tuple must be specified of length 1 or {0} for {1}", nargs, this));
                 }
-                return s.Select(x => NpyDescr.DescrConverter(cntx.LanguageContext, x).TypeNum).ToArray();
+                return s.Select(x => NpyDescr.DescrConverter(cntx, x).TypeNum).ToArray();
             } else if (ssig != null && IsStringType(ssig)) {
                 return ssig.Where(x => (x != '-' && x != '>'))
                     .Select(x => NpyCoreApi.DescrFromType((NpyDefs.NPY_TYPES)x).TypeNum).ToArray();
             } else {
-                return new NpyDefs.NPY_TYPES[] { NpyDescr.DescrConverter(cntx.LanguageContext, sig).TypeNum };
+                return new NpyDefs.NPY_TYPES[] { NpyDescr.DescrConverter(cntx, sig).TypeNum };
             }
         }
 

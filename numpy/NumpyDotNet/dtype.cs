@@ -10,32 +10,21 @@ using Microsoft.Scripting;
 using NumpyDotNet;
 
 namespace NumpyDotNet {
+
+    [PythonType]
     public class dtype : Wrapper {
-        public dtype(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs) {
-            String[] unsupportedArgs = { };
 
-            if (pyContext == null && cntx != null) pyContext = (PythonContext)cntx.LanguageContext;
-
-            Dictionary<String, Object> y = kwargs
-                .Select((k, v) => new KeyValuePair<String, Object>(k.ToString(), v))
-                .ToDictionary((kvPair => kvPair.Key), (kvPair => kvPair.Value));
-
-            foreach (String bad in unsupportedArgs) {
-                if (y.ContainsKey(bad))
-                    throw new NotImplementedException(String.Format("ndarray argument '%s' is not yet implemented.", bad));
-            }
-            funcs = NumericOps.FuncsForType(this.TypeNum);
+        public static object __new__(CodeContext cntx, PythonType cls, object dtype) {
+            return NpyDescr.DescrConverter(cntx, dtype);
         }
-
 
         /// <summary>
         /// Constructs a new NpyArray_Descr objet matching the passed one.
         /// Equivalent to NpyAray_DescrNew.
         /// </summary>
         /// <param name="d">Descriptor to duplicate</param>
-        public dtype(dtype d) {
+        internal dtype(dtype d) {
             core = NpyCoreApi.NpyArray_DescrNew(d.core);
-            Console.WriteLine("Arg = {0}, {1}", this.Type, this.TypeNum);
             funcs = NumericOps.FuncsForType(this.TypeNum);
         }
         
@@ -147,6 +136,23 @@ namespace NumpyDotNet {
             get { return funcs; }
         }
 
+        public string str {
+            get {
+                byte endian = ByteOrder;
+                int size = ElementSize;
+                if (endian == (byte)'=') {
+                    endian = NpyCoreApi.NativeByteOrder;
+                }
+                if (TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    size /= 4;
+                }
+                StringBuilder result = new StringBuilder();
+                result.Append(endian);
+                result.Append(Type);
+                result.Append(size);
+                return result.ToString();
+            }
+        }
 
         #endregion
 
@@ -201,10 +207,10 @@ namespace NumpyDotNet {
 
         class ScalarInfo {
             internal Type ScalarType;
-            internal Func<generic> ScalarConstructor;
+            internal Func<ScalarGeneric> ScalarConstructor;
 
-            internal static ScalarInfo Make<T>() where T: generic, new() {
-                return new ScalarInfo { ScalarType = typeof(Type), ScalarConstructor = (() => new T()) };
+            internal static ScalarInfo Make<T>() where T: ScalarGeneric, new() {
+                return new ScalarInfo { ScalarType = typeof(T), ScalarConstructor = (() => new T()) };
             }
         };
 
@@ -225,52 +231,57 @@ namespace NumpyDotNet {
             if (NpyDefs.IsSigned(type)) {
                 switch (ElementSize) {
                     case 1:
-                        info = ScalarInfo.Make<int8>();
+                        info = ScalarInfo.Make<ScalarInt8>();
                         break;
                     case 2:
-                        info = ScalarInfo.Make<int16>();
+                        info = ScalarInfo.Make<ScalarInt16>();
                         break;
                     case 4:
-                        info = ScalarInfo.Make<int32>();
+                        info = ScalarInfo.Make<ScalarInt32>();
                         break;
                     case 8:
-                        info = ScalarInfo.Make<int64>();
+                        info = ScalarInfo.Make<ScalarInt64>();
                         break;
                 }
             } else if (NpyDefs.IsUnsigned(type)) {
                 switch (ElementSize) {
                     case 1:
-                        info = ScalarInfo.Make<uint8>();
+                        info = ScalarInfo.Make<ScalarUInt8>();
                         break;
                     case 2:
-                        info = ScalarInfo.Make<uint16>();
+                        info = ScalarInfo.Make<ScalarUInt16>();
                         break;
                     case 4:
-                        info = ScalarInfo.Make<uint32>();
+                        info = ScalarInfo.Make<ScalarUInt32>();
                         break;
                     case 8:
-                        info = ScalarInfo.Make<uint64>();
+                        info = ScalarInfo.Make<ScalarUInt64>();
                         break;
                 }
             } else if (NpyDefs.IsFloat(type)) {
                 switch (ElementSize) {
                     case 4:
-                        info = ScalarInfo.Make<float32>();
+                        info = ScalarInfo.Make<ScalarFloat32>();
                         break;
                     case 8:
-                        info = ScalarInfo.Make<float64>();
+                        info = ScalarInfo.Make<ScalarFloat64>();
                         break;
                 }
             } else if (NpyDefs.IsComplex(type)) {
                 switch (ElementSize) {
                     case 8:
-                        info = ScalarInfo.Make<complex128>();
+                        info = ScalarInfo.Make<ScalarComplex64>();
+                        break;
+                    case 16:
+                        info = ScalarInfo.Make<ScalarComplex128>();
                         break;
                 }
             } else if (type == NpyDefs.NPY_TYPES.NPY_UNICODE) {
-                info = ScalarInfo.Make<unicode>();
+                info = ScalarInfo.Make<ScalarUnicode>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_STRING) {
-                info = ScalarInfo.Make<string_>();
+                info = ScalarInfo.Make<ScalarString>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_BOOL) {
+                info = ScalarInfo.Make<ScalarBool>();
             }
 
             if (info == null) {
@@ -295,7 +306,7 @@ namespace NumpyDotNet {
             if (ScalarType == null) {
                 return arr.GetItem(offset);
             } else {
-                generic result = scalarInfo.ScalarConstructor();
+                ScalarGeneric result = scalarInfo.ScalarConstructor();
                 result.FillData(arr, offset);
                 return result;
             }

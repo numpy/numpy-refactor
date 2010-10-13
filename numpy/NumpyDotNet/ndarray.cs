@@ -22,13 +22,14 @@ namespace NumpyDotNet
     /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
     /// instance of this class.
     /// </summary>
+    [PythonType]
     public partial class ndarray : Wrapper, IEnumerable<object>, NumpyDotNet.IArray
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
 
 
-        public ndarray(CodeContext cntx, [ParamDictionary] IAttributesCollection kwargs, params object[] posArgs) {
+        public ndarray(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
             Construct(cntx, args);
         }
@@ -48,7 +49,7 @@ namespace NumpyDotNet
             if (shape == null) 
                 throw new ArgumentException("Array constructor requires a shape to be specified.");
 
-            if (args[1] != null) type = NpyDescr.DescrConverter(cntx.LanguageContext, args[1]);
+            if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
             if (args[2] != null)
                 throw new NotImplementedException("Buffer support is not implemented.");
             long offset = NpyUtil_ArgProcessing.IntConverter(args[3]);
@@ -464,12 +465,10 @@ namespace NumpyDotNet
             get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
         }
 
-        /// <summary>
-        /// Pointer to the internal memory. Should be used with great caution - memory
-        /// is native memory, not managed memory.
-        /// </summary>
-        public IntPtr data {
-            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
+        public PythonBuffer data {
+            get {
+                throw new NotImplementedException();
+            }
         }
 
 
@@ -581,7 +580,7 @@ namespace NumpyDotNet
         }
 
         public ndarray astype(CodeContext cntx, object dtype = null) {
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
         }
 
@@ -628,7 +627,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return CumProd(iAxis, rtype, @out);
         }
@@ -638,7 +637,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return CumSum(iAxis, rtype, @out);
         }
@@ -658,7 +657,7 @@ namespace NumpyDotNet
         }
 
         public ndarray getfield(CodeContext cntx, object dtype, int offset = 0) {
-            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            NumpyDotNet.dtype dt = NpyDescr.DescrConverter(cntx, dtype);
             return NpyCoreApi.GetField(this, dt, offset);
         }
 
@@ -743,7 +742,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
         }
@@ -766,7 +765,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return ArrayReturn(Prod(iAxis, rtype, @out));
         }
@@ -811,7 +810,7 @@ namespace NumpyDotNet
 
         private static string[] reshapeKeywords = { "order" };
 
-        public ndarray reshape([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+        public ndarray reshape([ParamDictionary] IDictionary<object,object> kwds, params object[] args) {
             object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], reshapeKeywords, kwds);
             NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(keywordArgs[0]);
             IntPtr[] newshape;
@@ -826,7 +825,7 @@ namespace NumpyDotNet
 
         private static string[] resizeKeywords = { "refcheck" };
 
-        public void resize([ParamDictionary] IAttributesCollection kwds, params object[] args) {
+        public void resize([ParamDictionary] IDictionary<object,object> kwds, params object[] args) {
             object[] keywordArgs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], resizeKeywords, kwds);
             bool refcheck = NpyUtil_ArgProcessing.BoolConverter(keywordArgs[0]);
             IntPtr[] newshape;
@@ -857,7 +856,7 @@ namespace NumpyDotNet
         }
 
         public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
-            dtype d = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+            dtype d = NpyDescr.DescrConverter(cntx, dtype);
             NpyArray.SetField(this, d.Descr, offset, value);
         }
 
@@ -904,7 +903,7 @@ namespace NumpyDotNet
             Sort(axis, sortkind);
         }
 
-        public ndarray squeeze() {
+        public object squeeze() {
             return Squeeze();
         }
 
@@ -912,7 +911,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, false, ddof);
         }
@@ -921,7 +920,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return ArrayReturn(Sum(iAxis, rtype, @out));
         }
@@ -1008,7 +1007,7 @@ namespace NumpyDotNet
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
         }
@@ -1027,7 +1026,7 @@ namespace NumpyDotNet
             }
             dtype rtype = null;
             if (dtype != null) {
-                rtype = NpyDescr.DescrConverter(cntx.LanguageContext, dtype);
+                rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
             return NpyCoreApi.View(this, rtype, type);
         }
@@ -1348,6 +1347,14 @@ namespace NumpyDotNet
             }
             dynamic item = a.GetItem(0);
             return item;
+        }
+
+        /// <summary>
+        /// Pointer to the internal memory. Should be used with great caution - memory
+        /// is native memory, not managed memory.
+        /// </summary>
+        internal IntPtr UnsafeAddress {
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
         #endregion

@@ -91,8 +91,20 @@ __all__ = ['sctypeDict', 'sctypeNA', 'typeDict', 'typeNA', 'sctypes',
            'ScalarType', 'obj2sctype', 'cast', 'nbytes', 'sctype2char',
            'maximum_sctype', 'issctype', 'typecodes', 'find_common_type',
            'issubdtype']
+import sys
 
-from numpy.core.multiarray import typeinfo, ndarray, array, empty, dtype
+if sys.platform == 'cli':
+    import clr
+    clr.AddReference("NumpyDotNet")
+    import NumpyDotNet as NDN
+    import NumpyDotNet.ModuleMethods as NDNMM
+    ndarray = NDN.ndarray
+    dtype = NDN.dtype
+    typeinfo = NDNMM.typeinfo
+    array = NDNMM.array
+    empty = NDNMM.empty
+else:
+    from numpy.core.multiarray import typeinfo, ndarray, array, empty, dtype
 import types as _types
 import sys
 
@@ -254,7 +266,7 @@ def bitname(obj):
         base = 'void'
     elif name=='object_':
         char = 'O'
-        base = 'object'
+        base = 'object'    
         bits = 0
 
     if sys.version_info[0] >= 3:
@@ -371,8 +383,8 @@ def _add_integer_aliases():
 _add_integer_aliases()
 
 # We use these later
-void = allTypes['void']
-generic = allTypes['generic']
+void = allTypes.get('void')
+generic = allTypes.get('generic')
 
 #
 # Rework the Python names (so that float and complex and int are consistent
@@ -408,8 +420,10 @@ def _set_up_aliases():
                            ('string_', 'string'),
                            ('bytes_', 'string')])
     for alias, t in type_pairs:
-        allTypes[alias] = allTypes[t]
-        sctypeDict[alias] = sctypeDict[t]
+        if t in allTypes:
+            allTypes[alias] = allTypes[t]
+        if t in sctypeDict:
+            sctypeDict[alias] = sctypeDict[t]
     # Remove aliases overriding python types and modules
     to_remove = ['ulong', 'object', 'unicode', 'int', 'long', 'float',
                  'complex', 'bool', 'string', 'datetime', 'timedelta']
@@ -814,7 +828,9 @@ for name in _toadd:
     if isinstance(name, tuple):
         sctypeDict[name[0]] = name[1]
     else:
-        sctypeDict[name] = allTypes['%s_' % name]
+        key = '%s_' % name
+        if key in allTypes:
+            sctypeDict[name] = allTypes['%s_' % name]
 
 del _toadd, name
 

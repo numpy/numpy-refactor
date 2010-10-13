@@ -28,8 +28,8 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 
 if sys.platform == 'cli':
     obj2sctype = isnan = zeros = None
-    for n in '''ufunc arange empty fromstring fromfile frombuffer int_asbuffer
-where concatenate fastCopyAndTranspose lexsort set_numeric_ops can_cast inner
+    for n in '''ufunc fromstring fromfile frombuffer int_asbuffer
+where concatenate fastCopyAndTranspose set_numeric_ops can_cast inner
 dot vdot alterdot restoredot array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
 Inf inf infty Infinity nan NaN False_ True_
@@ -43,6 +43,8 @@ if sys.platform == 'cli':
     clr.AddReference('NumpyDotNet')
     import NumpyDotNet as NDN
     import NumpyDotNet.ModuleMethods as NDNMM
+    import numerictypes
+    from numerictypes import *
 else:
     import multiarray
     import umath
@@ -214,13 +216,19 @@ def extend_all(module):
 
 if sys.platform != 'cli':
     extend_all(umath)
-    extend_all(numerictypes)
+
+extend_all(numerictypes)
 
 newaxis = None
 
 
 if sys.platform == 'cli':
+    arange = NDNMM.arange
     array = NDNMM.array
+    putmask = NDNMM.putmask
+    zeros = NDNMM.zeros
+    empty = NDNMM.empty
+    lexsort = NDNMM.lexsort
     putmask = NDNMM.putmask
 else:
     arange = multiarray.arange

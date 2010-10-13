@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using IronPython.Runtime;
+
 namespace NumpyDotNet
 {
     interface IArray
@@ -26,7 +29,7 @@ namespace NumpyDotNet
         ndarray copy(object order = null);
         object cumprod(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         object cumsum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
-        IntPtr data { get; }
+        PythonBuffer data { get; }
         ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1);
         dtype dtype { get; set; }
         void fill(object scalar);
@@ -49,8 +52,8 @@ namespace NumpyDotNet
         ndarray ravel(object order = null);
         object real { get; set; }
         object repeat(object repeats, object axis = null);
-        ndarray reshape(Microsoft.Scripting.IAttributesCollection kwds, params object[] args);
-        void resize(Microsoft.Scripting.IAttributesCollection kwds, params object[] args);
+        ndarray reshape(IDictionary<object,object> kwds, params object[] args);
+        void resize(IDictionary<object,object> kwds, params object[] args);
         object round(int decimals = 0, ndarray @out = null);
         object searchsorted(object keys, string side = null);
         void setfield(IronPython.Runtime.CodeContext cntx, object value, object dtype, int offset = 0);
@@ -58,7 +61,7 @@ namespace NumpyDotNet
         IronPython.Runtime.PythonTuple shape { get; }
         object size { get; }
         void sort(int axis = -1, string kind = null, object order = null);
-        ndarray squeeze();
+        object squeeze();
         object std(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0);
         long[] strides { get; }
         object sum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);

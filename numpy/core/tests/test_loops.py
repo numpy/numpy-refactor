@@ -1,8 +1,14 @@
 # This is to test things in numpy/core/src/umath/loops.c
 
 import sys
-from numpy.testing import *
+import warnings
+
 import numpy as np
+from numpy.testing import *
+
+
+warnings.filterwarnings('ignore',
+             'Casting complex values to real discards the imaginary part')
 
 types = [np.bool_, np.byte, np.ubyte, np.short, np.ushort, np.intc, np.uintc,
          np.int_, np.uint, np.longlong, np.ulonglong,

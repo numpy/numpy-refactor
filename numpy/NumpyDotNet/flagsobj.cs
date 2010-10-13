@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
+using IronPython.Runtime;
 
 namespace NumpyDotNet
 {
+    [PythonType]
     public class flagsobj
     {
         internal flagsobj(ndarray arr) {

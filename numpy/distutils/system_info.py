@@ -226,8 +226,7 @@ def get_standard_file(fname):
     except NameError:
         f = sys.argv[0]
     else:
-        sysfile = os.path.join(os.path.split(os.path.abspath(f))[0],
-                               fname)
+        sysfile = os.path.join(os.path.split(os.path.abspath(f))[0], fname)
         if os.path.isfile(sysfile):
             filenames.append(sysfile)
 
@@ -819,18 +818,24 @@ class ndarray_info(system_info):
     section = 'ndarray'
 
     def __init__(self):
+        if sys.version_info[0] >= 3:
+            src_root = os.path.abspath('../..')
+        else:
+            src_root = os.getcwd()
+
         if sys.platform == 'win32':
             if platform_bits == 32:
-                lib_dir = 'libndarray/windows/Release'
+                lib_dir = os.path.join(
+                    src_root, 'libndarray', 'windows', 'Release')
             elif platform_bits == 64:
-                lib_dir = 'libndarray/windows/x64/Release'
-            else:
-                raise ValueError("Invalid platform_bits: %r" % platform_bits)
+                lib_dir = os.path.join(
+                    src_root, 'libndarray', 'windows', 'x64', 'Release')
         else:
-            lib_dir = 'libndarray/.libs'
+            lib_dir = os.path.join(src_root, 'libndarray', '.libs')
 
+        inc_dir = os.path.join(src_root, 'libndarray', 'src')
         system_info.__init__(self, default_lib_dirs=[lib_dir],
-                             default_include_dirs=['libndarray/src'])
+                             default_include_dirs=[inc_dir])
 
     def calc_info(self):
         lib_dirs = self.get_lib_dirs()

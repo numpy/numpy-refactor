@@ -2,7 +2,7 @@
 #include "npy_api.h"
 #include "numpy/ndarrayobject.h"
 
-#include "numpy_3kcompat.h"
+#include "numpy/npy_3kcompat.h"
 
 /* We need a single-word token for the type corresponding to NPY_LONGLONG. */
 typedef long long longlong;

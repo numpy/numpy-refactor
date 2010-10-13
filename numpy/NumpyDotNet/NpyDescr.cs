@@ -16,21 +16,30 @@ namespace NumpyDotNet {
     /// </summary>
     internal class NpyDescr {
 
-        internal static dtype DescrConverter(PythonContext cntx, Object obj) {
+        private static bool IsScalarType(CodeContext cntx, PythonType t) {
+            dynamic issubclass = cntx.LanguageContext.BuiltinModuleDict["issubclass"];
+            return issubclass(t, PyGenericArrType_Type);
+        }
+
+        internal static dtype DescrConverter(CodeContext cntx, Object obj) {
             dtype result;
+            PythonType pt;
 
             if (obj == null) {
                 result = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
-            } else if (obj is generic) {
-                return ((generic)obj).dtype;
             } else if (obj is dtype) {
                 result = (dtype)obj;
-            } else if (obj is IronPython.Runtime.Types.PythonType) {
-                result = ConvertFromPythonType((IronPython.Runtime.Types.PythonType)obj);
+            } else if ((pt = obj as PythonType) != null) {
+                if (IsScalarType(cntx, pt)) {
+                    dynamic scalar = pt.__call__(cntx);
+                    result = (dtype)scalar.dtype;
+                } else {
+                    result = ConvertFromPythonType(pt);
+                }
             } else if (obj is string) {
                 string s = (string)obj;
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
-                    result = ConvertFromDatetime(cntx, s);
+                    result = ConvertFromDatetime(cntx.LanguageContext, s);
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(s);
                 } else {
@@ -53,9 +62,6 @@ namespace NumpyDotNet {
         /// <param name="t">Python type object</param>
         /// <returns>Corresponding descriptor object</returns>
         private static dtype ConvertFromPythonType(IronPython.Runtime.Types.PythonType t) {
-            Console.WriteLine("Type name = {0}", 
-                IronPython.Runtime.Types.PythonType.Get__name__(t));
-
             NpyDefs.NPY_TYPES type;
             if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_INT;
             else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
@@ -258,5 +264,7 @@ namespace NumpyDotNet {
         private static readonly PythonType PyBool_Type = DynamicHelpers.GetPythonTypeFromType(typeof(bool));
         private static readonly PythonType PyUnicode_Type = DynamicHelpers.GetPythonTypeFromType(typeof(string));
         private static readonly PythonType PyComplex_Type = DynamicHelpers.GetPythonTypeFromType(typeof(System.Numerics.Complex));
+
+        private static readonly PythonType PyGenericArrType_Type = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarGeneric));
     }
 }

@@ -148,12 +148,12 @@ namespace NumpyDotNet {
 
             if (src is ndarray) {
                 result = FromArray((ndarray)src, descr, flags);
-            } else if (src is generic) {
+            } else if (src is ScalarGeneric) {
                 if (descr == null && flags == 0) {
-                    return ((generic)src).ToArray();
+                    return ((ScalarGeneric)src).ToArray();
                 } else {
                     // TODO: Figure out how to avoid the double conversion.
-                    return FromArray(((generic)src).ToArray(), descr, flags);
+                    return FromArray(((ScalarGeneric)src).ToArray(), descr, flags);
                 }
             } else {
                 dtype type = FindScalarType(src);
@@ -164,7 +164,6 @@ namespace NumpyDotNet {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
 
                     if (src is IEnumerable<Object>) {
-                        Console.WriteLine("Enumerable type = {0}", src.GetType().ToString());
                         result = FromIEnumerable((IEnumerable<Object>)src, descr,
                             (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
                     } else {

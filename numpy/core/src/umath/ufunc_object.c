@@ -45,7 +45,7 @@
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/ndarraytypes.h"
-#include "numpy_3kcompat.h"
+#include "numpy/npy_3kcompat.h"
 
 #include "ufunc_object.h"
 
