@@ -282,6 +282,8 @@ namespace NumpyDotNet {
                 info = ScalarInfo.Make<ScalarString>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_BOOL) {
                 info = ScalarInfo.Make<ScalarBool>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
+                info = ScalarInfo.Make<ScalarVoid>();
             }
 
             if (info == null) {

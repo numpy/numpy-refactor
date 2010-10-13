@@ -326,7 +326,7 @@ namespace NumpyDotNet
                 NpyArray.SetField(this, descr, offset, value);
             }
             get {
-                return NpyCoreApi.GetField(this, field);
+                return ArrayReturn(NpyCoreApi.GetField(this, field));
             }
         }
 
@@ -1387,6 +1387,14 @@ namespace NumpyDotNet
                     Marshal.WriteIntPtr(core, NpyCoreApi.ArrayOffsets.off_base_array, value.core);
                 }
             }
+        }
+
+        internal unsafe void CopySwapIn(long offset, void* data, bool swap) {
+            NpyCoreApi.NpyArrayAccess_CopySwapIn(core, offset, data, swap ? 1 : 0);
+        }
+
+        internal unsafe void CopySwapOut(long offset, void* data, bool swap) {
+            NpyCoreApi.NpyArrayAccess_CopySwapOut(core, offset, data, swap ? 1 : 0);
         }
 
         #endregion

@@ -932,6 +932,12 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_Fill(IntPtr arr);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern void NpyArrayAccess_CopySwapIn(IntPtr arr, long offset, void* data, int swap);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
+
         #endregion
 
 

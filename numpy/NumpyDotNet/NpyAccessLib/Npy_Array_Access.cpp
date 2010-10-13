@@ -522,3 +522,15 @@ extern "C" __declspec(dllexport)
     }
     return 0;
 }
+
+extern "C" __declspec(dllexport)
+    void _cdecl NpyArrayAccess_CopySwapIn(NpyArray* arr, npy_int64 offset, void* data, int swap)
+{
+    arr->descr->f->copyswap(arr->data+offset, data, swap, arr);
+}
+
+extern "C" __declspec(dllexport)
+    void _cdecl NpyArrayAccess_CopySwapOut(NpyArray* arr, npy_int64 offset, void* data, int swap)
+{
+    arr->descr->f->copyswap(data, arr->data+offset, swap, arr);
+}

@@ -529,6 +529,7 @@ namespace NumpyDotNet {
             }
             if (swap) {
                 NpyCoreApi.Byteswap(result, true);
+                result.dtype = d;
             }
             return result;
         }
