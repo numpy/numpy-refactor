@@ -30,6 +30,7 @@
 #include "npy_api.h"
 #include "numpy/ndarraytypes.h"
 #include "numpy/noprefix.h"
+#include "numpy/npy_3kcompat.h"
 #include "npy_math.h"
 #include "npy_config.h"
 
