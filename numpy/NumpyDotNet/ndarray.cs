@@ -360,20 +360,50 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
-        public static explicit operator int(ndarray a) {
-            return ConvertTo<int>(a);
+        public object __int__(CodeContext cntx) {
+            if (Size != 1) {
+                throw new ArgumentException("only length 1 arrays can be converted to scalars");
+            }
+            dynamic f = cntx.LanguageContext.BuiltinModuleDict["int"];
+            return f(GetItem(0));
         }
 
-        public static explicit operator BigInteger(ndarray a) {
-            return ConvertTo<BigInteger>(a);
+        public object __long__(CodeContext cntx) {
+            if (Size != 1) {
+                throw new ArgumentException("only length 1 arrays can be converted to scalars");
+            }
+            dynamic f = cntx.LanguageContext.BuiltinModuleDict["long"];
+            return f(GetItem(0));
         }
 
-        public static explicit operator double(ndarray a) {
-            return ConvertTo<double>(a);
+        public object __float__(CodeContext cntx) {
+            if (Size != 1) {
+                throw new ArgumentException("only length 1 arrays can be converted to scalars");
+            }
+            dynamic f = cntx.LanguageContext.BuiltinModuleDict["float"];
+            return f(GetItem(0));
         }
 
-        public static explicit operator Complex(ndarray a) {
-            return ConvertTo<Complex>(a);
+        public object __complex__(CodeContext cntx) {
+            if (Size != 1) {
+                throw new ArgumentException("only length 1 arrays can be converted to scalars");
+            }
+            dynamic f = cntx.LanguageContext.BuiltinModuleDict["complex"];
+            return f(GetItem(0));
+        }
+
+        public bool __nonzero__() {
+            return (bool)this;
+        }
+
+        public static explicit operator bool(ndarray arr) {
+            int val = NpyCoreApi.NpyArray_Bool(arr.core);
+            if (val < 0) {
+                NpyCoreApi.CheckError();
+                return false;
+            } else {
+                return val != 0;
+            }
         }
 
         // TODO: Temporary test function
@@ -1450,14 +1480,6 @@ namespace NumpyDotNet
                 return false;
             }
             return PythonOps.IsSubClass(pt, DynamicHelpers.GetPythonTypeFromType(typeof(ndarray)));
-        }
-
-        private static T ConvertTo<T>(ndarray a) {
-            if (a.Size != 1) {
-                throw new ArgumentException("only length 1 arrays can be converted to scalars.");
-            }
-            dynamic item = a.GetItem(0);
-            return item;
         }
 
         /// <summary>

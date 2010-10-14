@@ -157,6 +157,7 @@ NDARRAY_API int NpyArray_GetEndianness(void);
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
         PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
+NDARRAY_API int NpyArray_Bool(NpyArray* arr);
 
 
 /* refcount.c */

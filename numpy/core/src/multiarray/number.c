@@ -571,23 +571,7 @@ array_inplace_true_divide(PyArrayObject *m1, PyObject *m2)
 static int
 _array_nonzero(PyArrayObject *mp)
 {
-    intp n;
-
-    n = PyArray_SIZE(mp);
-    if (n == 1) {
-        return PyArray_DESCR(mp)->f->nonzero(PyArray_BYTES(mp),
-                                             PyArray_ARRAY(mp));
-    }
-    else if (n == 0) {
-        return 0;
-    }
-    else {
-        PyErr_SetString(PyExc_ValueError,
-                        "The truth value of an array "
-                        "with more than one element is ambiguous. "
-                        "Use a.any() or a.all()");
-        return -1;
-    }
+    return NpyArray_Bool(PyArray_ARRAY(mp));
 }
 
 

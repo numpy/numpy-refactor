@@ -349,7 +349,6 @@ namespace NumpyDotNet {
             }
         }
 
-
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
                 NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
@@ -623,6 +622,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_ArgSort(IntPtr arr, int axis, int sortkind);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_Bool(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
