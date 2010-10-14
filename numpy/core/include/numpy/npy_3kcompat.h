@@ -1,12 +1,31 @@
-#ifndef _NUMPY_3KCOMPAT_H_
-#define _NUMPY_3KCOMPAT_H_
+/*
+ * This is a convenience header file providing compatibility utilities
+ * for supporting Python 2 and Python 3 in the same code base.
+ *
+ * If you want to use this for your own projects, it's recommended to make a
+ * copy of it. Although the stuff below is unlikely to change, we don't provide
+ * strong backwards compatibility guarantees at the moment.
+ */
+
+#ifndef _NPY_3KCOMPAT_H_
+#define _NPY_3KCOMPAT_H_
 
 #include <Python.h>
 #include <stdio.h>
 
+#if PY_VERSION_HEX >= 0x03000000
+#ifndef NPY_PY3K
+#define NPY_PY3K
+#endif
+#endif
+
 #include "npy_config.h"
 #include "npy_common.h"
 #include "numpy/ndarrayobject.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*
  * PyInt -> PyLong
@@ -259,11 +278,12 @@ PyCapsule_Check(PyObject *ptr)
     return PyCapsule_CheckExact(ptr);
 }
 
+/* Not called anywhere in numpy.
 static void
 simple_capsule_dtor(PyObject *cap)
 {
     PyArray_free(PyCapsule_GetPointer(cap, NULL));
-}
+} */
 
 #else
 
@@ -292,15 +312,17 @@ PyCapsule_Check(PyObject *ptr)
     return PyCObject_Check(ptr);
 }
 
-#if 0
-/* Not called anywhere in numpy. */
+/* Not called anywhere in numpy.
 static void
 simple_capsule_dtor(void *ptr)
 {
     PyArray_free(ptr);
+} */
+
+#endif
+
+#ifdef __cplusplus
 }
 #endif
 
-#endif
-
-#endif /* _NUMPY_3KCOMPAT_H_ */
+#endif /* _NPY_3KCOMPAT_H_ */

@@ -652,10 +652,13 @@ finish:
         dims[0] = itemsize;
         strides[0] = 1;
         descr = NpyArray_DescrNewFromType(PyArray_BYTE);
-        u = RETURN_PYARRAY( NpyArray_NewFromDescr(descr, 1, dims, strides,
-                                 ip,
-                                 NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
-                                 NPY_TRUE, NULL, NULL) );
+        ASSIGN_TO_PYARRAY(
+            u,
+            NpyArray_NewFromDescr(descr, 1, dims, strides,
+                                  ip,
+                                  NpyArray_ISWRITEABLE(ap) ? NPY_WRITEABLE : 0,
+                                  NPY_TRUE, NULL, NULL)
+            );
         PyArray_BASE_ARRAY(u) = ap;
         Npy_INCREF(ap);
         assert(NULL == PyArray_BASE_ARRAY(u) || NULL == PyArray_BASE(u));

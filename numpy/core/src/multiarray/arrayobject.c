@@ -191,7 +191,7 @@ array_dealloc(PyArrayObject *self) {
 #else
     NpyArray_dealloc(PyArray_ARRAY(self));
 #endif
-    (*self->ob_type->tp_free)(self);
+    Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static int

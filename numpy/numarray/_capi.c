@@ -2,6 +2,7 @@
 
 #define _libnumarray_MODULE
 #include "include/numpy/libnumarray.h"
+#include "numpy/npy_3kcompat.h"
 
 #include "npy_api.h"
 
