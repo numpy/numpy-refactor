@@ -75,7 +75,7 @@ namespace NumpyDotNet {
                 // Interpret the next item as a size
                 int itemsize;
                 try {
-                    itemsize = NpyUtil_Python.ConvertToInt(cntx, other);
+                    itemsize = NpyUtil_Python.ConvertToInt(other, cntx);
                 } catch {
                     throw new ArgumentException("invalid itemsize in generic type tuple");
                 }
