@@ -516,6 +516,10 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static dtype InheritDescriptor(dtype t1, dtype other) {
+            return DecrefToInterface<dtype>(NpyArrayAccess_InheritDescriptor(t1.Descr, other.Descr));
+        }
+
         #endregion
 
 
@@ -950,6 +954,9 @@ namespace NumpyDotNet {
         internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
             [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
 
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
         #endregion
 
 

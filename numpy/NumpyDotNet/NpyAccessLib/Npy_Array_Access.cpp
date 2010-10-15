@@ -548,3 +548,21 @@ extern "C" __declspec(dllexport)
     descr->dtinfo = info;
     return NULL;
 }
+
+extern "C" __declspec(dllexport)
+    NpyArray_Descr* _cdecl NpyArrayAccess_InheritDescriptor(NpyArray_Descr* type, NpyArray_Descr* conv)
+{
+    NpyArray_Descr* nw = NpyArray_DescrNew(type);
+    if (nw->elsize && nw->elsize != conv->elsize) {
+        NpyErr_SetString(NpyExc_ValueError, "mismatch in size of old and new data-descriptor");
+        Npy_DECREF(nw);
+        return NULL;
+    }
+    nw->elsize = conv->elsize;
+    if (conv->names != NULL) {
+        nw->names = NpyArray_DescrNamesCopy(conv->names);
+        nw->fields = NpyArray_DescrFieldsCopy(conv->fields);
+    }
+    nw->flags = conv->flags;
+    return nw;
+}

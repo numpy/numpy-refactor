@@ -104,6 +104,22 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static bool IsIntegerScalar(object o) {
+            return (o is int || o is BigInteger || o is ScalarInteger);
+        }
+
+        internal static bool IsTupleOfIntegers(object o) {
+            PythonTuple t = o as PythonTuple;
+            if (t == null) {
+                return false;
+            }
+            foreach (object item in t) {
+                if (!IsIntegerScalar(item)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
 

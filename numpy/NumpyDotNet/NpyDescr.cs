@@ -46,8 +46,13 @@ namespace NumpyDotNet {
                 } else {
                     result = ConvertSimpleString(s);
                 }
+            } else if (obj is PythonTuple) {
+                result = TryConvertFromTuple(cntx, (PythonTuple)obj);
+                if (result == null) {
+                    throw new ArgumentException("data type not understood.");
+                }
             } else if (obj is List) {
-                result = ConvertFromArrayDescr((List)obj, 0);
+                result = ConvertFromArrayDescr(cntx, (List)obj, 0);
             } else {
                 throw new NotImplementedException(
                     String.Format("Convertion of type '{0}' to type descriptor is not supported.",
@@ -56,6 +61,63 @@ namespace NumpyDotNet {
             return result;
         }
 
+        internal static dtype TryConvertFromTuple(CodeContext cntx, PythonTuple tup) {
+            if (tup.Count != 2) {
+                return null;
+            }
+            dtype t1 = DescrConverter(cntx, tup[0]);
+            object other = tup[1];
+            dtype result = UseInherit(cntx, t1, other);
+            if (result != null) {
+                return result;
+            }
+            if (t1.ElementSize == 0) {
+                // Interpret the next item as a size
+                int itemsize;
+                try {
+                    itemsize = NpyUtil_Python.ConvertToInt(cntx, other);
+                } catch {
+                    throw new ArgumentException("invalid itemsize in generic type tuple");
+                }
+                if (t1.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    itemsize *= 4;
+                }
+                result = new dtype(t1);
+                result.ElementSize = itemsize;
+                return result;
+            }
+            if (other is PythonDictionary) {
+                // This is a metadata dictionary.  Just ignore it.
+                return t1;
+            }
+            // Assume other is a shape
+            long[] shape = NpyUtil_ArgProcessing.IntArrConverter(other);
+            if (shape == null) {
+                throw new ArgumentException("invalid shape in fixed-type tuple");
+            }
+            // (type, 1) or (type, ()) should be treated as type
+            if (shape.Length == 0 && other is PythonTuple ||
+                shape.Length == 1 && shape[0] == 1 && !(other is IEnumerable<object>)) {
+                return t1;
+            }
+            throw new NotImplementedException("subarrays not yet implemented");
+        }
+
+        private static dtype UseInherit(CodeContext cntx, dtype t1, object other) {
+            dtype conv;
+            // Check to see if other is a type
+            if (other is ScalarInteger ||
+                NpyUtil_Python.IsTupleOfIntegers(other)) {
+                return null;
+            }
+            try {
+                conv = DescrConverter(cntx, other);
+            } catch {
+                return null;
+            }
+
+            return NpyCoreApi.InheritDescriptor(t1, conv);
+        }
 
         /// <summary>
         /// Converts a Python type into a descriptor object
@@ -260,7 +322,7 @@ namespace NumpyDotNet {
             return result;
         }
 
-        private static dtype ConvertFromArrayDescr(List l, int align) {
+        private static dtype ConvertFromArrayDescr(CodeContext cntx, List l, int align) {
             // TODO: Need to be completed.  Right now only handles pairs
             // of (name, type) as items.
             int n = l.Count;
@@ -284,7 +346,7 @@ namespace NumpyDotNet {
                     if (name.Length == 0) {
                         name = String.Format("f{0}", i);
                     }
-                    dtype field_type = DescrConverter(null, type_descr);
+                    dtype field_type = DescrConverter(cntx, type_descr);
 
                     dtypeflags |= field_type.Flags & NpyDefs.NPY_FROM_FIELDS;
 
