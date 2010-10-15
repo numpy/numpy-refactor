@@ -42,7 +42,7 @@ namespace NumpyDotNet {
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
                     result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
-                    result = ConvertFromCommaString(s);
+                    result = ConvertFromCommaString(cntx, s);
                 } else {
                     result = ConvertSimpleString(s);
                 }
@@ -171,8 +171,23 @@ namespace NumpyDotNet {
             return s.Contains(',');
         }
 
-        private static dtype ConvertFromCommaString(String s) {
+        private static dtype ConvertFromCommaString(CodeContext cntx, String s) {
+            List val = NpyUtil_Python.CallInternal(cntx, "_commastring", s) as List;
+            if (val == null || val.Count < 1) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException(
+                    "_commastring not returning a list with len >= 1");
+            }
+
+            if (val.Count == 1) {
+                return DescrConverter(cntx, val[0]);
+            } else {
+                return ConvertFromCommaStringList(cntx, val);
+            }
             // TODO: Calls Python function, needs integration of numpy + .net interface
+            throw new NotImplementedException();
+        }
+
+        private static dtype ConvertFromCommaStringList(CodeContext cntx, List l) {
             throw new NotImplementedException();
         }
 
