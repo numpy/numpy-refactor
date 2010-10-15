@@ -34,6 +34,8 @@ namespace NumpyDotNet
 
 
         public static void __init__(CodeContext cntx) {
+            NpyUtil_Python.DefaultContext = cntx;
+
             // Initialize the ufunc instances.
             NumericOps.InitUFuncOps(cntx);
 

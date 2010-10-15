@@ -194,7 +194,6 @@ namespace NumpyDotNet {
 
 
         #region Internal data
-        private static PythonContext pyContext = null;
 
         /// <summary>
         /// Type-specific functions
