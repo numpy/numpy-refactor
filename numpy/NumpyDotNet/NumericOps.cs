@@ -556,12 +556,12 @@ namespace NumpyDotNet {
             bool f;
 
             if (o is Boolean) f = (bool)o;
+            else if (o is ScalarBool) f = (bool)(ScalarBool)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToBoolean(null);
-            else if (o is BigInteger) {
-                int fTmp;
-                ((BigInteger)o).AsInt32(out fTmp);
+            else {
+                int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (fTmp != 0);
-            }  else throw new NotImplementedException("Elvis has just left Wichita.");
+            }
 
             unsafe {
                 bool* p = (bool*)ptr.ToPointer();
@@ -576,11 +576,10 @@ namespace NumpyDotNet {
 
             if (o is sbyte) f = (sbyte)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToSByte(null);
-            else if (o is BigInteger) {
-                int fTmp;
-                ((BigInteger)o).AsInt32(out fTmp);
+            else {
+                int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (sbyte)fTmp;
-            } else throw new NotImplementedException("Elvis has just left Wichita.");
+            }
 
             unsafe {
                 sbyte* p = (sbyte*)ptr.ToPointer();
@@ -595,11 +594,10 @@ namespace NumpyDotNet {
 
             if (o is byte) f = (byte)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToByte(null);
-            else if (o is BigInteger) {
-                int fTmp;
-                ((BigInteger)o).AsInt32(out fTmp);
+            else {
+                int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (byte)fTmp;
-            } else throw new NotImplementedException("Elvis has just left Wichita.");
+            }
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -614,11 +612,10 @@ namespace NumpyDotNet {
 
             if (o is Int16) f = (short)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt16(null);
-            else if (o is BigInteger) {
-                int fTmp;
-                ((BigInteger)o).AsInt32(out fTmp);
+            else {
+                int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (short)fTmp;
-            }  else throw new NotImplementedException("Elvis has just left Wichita.");
+            }
 
             unsafe {
                 byte* p = (byte *)ptr.ToPointer();
@@ -637,11 +634,10 @@ namespace NumpyDotNet {
 
             if (o is UInt16) f = (ushort)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt16(null);
-            else if (o is BigInteger) {
-                int fTmp;
-                ((BigInteger)o).AsInt32(out fTmp);
+            else {
+                int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (ushort)fTmp;
-            } else throw new NotImplementedException("Elvis has just left Wichita.");
+            }
 
             unsafe {
                 byte* p = (byte *)ptr.ToPointer();
@@ -656,12 +652,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemUShort, value, ptr, arrPtr);
 
         internal static void setitemInt32(Object o, IntPtr ptr, ndarray arr) {
-            int f;
-
-            if (o is Int32) f = (int)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToInt32(null);
-            else if (o is BigInteger) ((BigInteger)o).AsInt32(out f);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            int f = NpyUtil_Python.ConvertToInt(o);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -680,8 +671,7 @@ namespace NumpyDotNet {
 
             if (o is UInt32) f = (uint)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt32(null);
-            else if (o is BigInteger) ((BigInteger)o).AsUInt32(out f);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else f = (uint)NpyUtil_Python.ConvertToLong(o);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -700,8 +690,7 @@ namespace NumpyDotNet {
 
             if (o is Int64) f = (long)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToInt64(null);
-            else if (o is BigInteger) ((BigInteger)o).AsInt64(out f);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else f = NpyUtil_Python.ConvertToLong(o);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -721,7 +710,7 @@ namespace NumpyDotNet {
             if (o is UInt64) f = (ulong)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToUInt64(null);
             else if (o is BigInteger) ((BigInteger)o).AsUInt64(out f);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            else f = (UInt64)NpyUtil_Python.ConvertToLong(o);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -736,11 +725,11 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemUInt64, value, ptr, arrPtr);
 
         internal static void setitemFloat(Object o, IntPtr ptr, ndarray arr) {
-            float f;
-
-            if (o is Single) f = (float)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToSingle(null);
-            else throw new NotImplementedException("Elvis has just left Wichita.");
+            double fTmp = NpyUtil_Python.ConvertToDouble(o);
+            float f = (float)fTmp;
+            if (f != fTmp) {
+                throw new OverflowException("floating-point overflow when casting from double to float");
+            }
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -758,13 +747,13 @@ namespace NumpyDotNet {
             Complex f;
 
             if (o is Complex) f = (Complex)o;
-            else if (o is IConvertible) {
-                double d = ((IConvertible)o).ToDouble(null);
+            else {
+                double d = NpyUtil_Python.ConvertToDouble(o);
                 f = new Complex(d, 0.0);
-            } else throw new NotImplementedException(
-                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
+            }
 
             unsafe {
+                // TODO: Do we need to be checking for floating-point overflow here?
                 float* p = (float*)ptr.ToPointer();
                 if (arr.IsBehaved) {
                     *p++ = (float)f.Real;
@@ -781,12 +770,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemCFloat, value, ptr, arrPtr);
 
         internal static void setitemDouble(Object o, IntPtr ptr, ndarray arr) {
-            double f;
-
-            if (o is Double) f = (double)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToDouble(null);
-            else throw new NotImplementedException(
-                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
+            double f = NpyUtil_Python.ConvertToDouble(o);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -805,11 +789,7 @@ namespace NumpyDotNet {
             Complex f;
 
             if (o is Complex) f = (Complex)o;
-            else if (o is IConvertible) {
-                double d = ((IConvertible)o).ToDouble(null);
-                f = new Complex(d, 0.0);
-            } else throw new NotImplementedException(
-                String.Format("Elvis has just left Wichita (type {0}).", o.GetType().Name));
+            else f = new Complex(NpyUtil_Python.ConvertToDouble(o), 0.0);
 
             unsafe {
                 double* p = (double*)ptr.ToPointer();

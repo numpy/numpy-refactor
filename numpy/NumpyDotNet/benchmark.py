@@ -12,7 +12,7 @@ if sys.subversion[0] == 'IronPython':
 
 
 #import numbers
-from random import random
+#from random import random
 
 class Complex(object):
     def __init__(self, r, i):
@@ -45,6 +45,9 @@ sizes = (10, 100, 1000, 10000, 100000, 1000000)
 print "sizes,", ",".join([str(s) for s in sizes])
 
 
+def random():
+    # Resulting distribution isn't very random, could be better.
+    return 0.25
 
 def creationTest(iters):
     for size in sizes:
@@ -233,17 +236,17 @@ for k in range(3):
 
     #time.sleep(10);
     #print "Starting creation test."
-    #creationTest(longIter)
+    creationTest(longIter)
     collect()
-    #viewCreationTest(10000)
+    viewCreationTest(10000)
     collect()
 
     #print "Multiply test"
-    #multiplyTest(longIter)
+    multiplyTest(longIter)
     collect()
         
     #print "Add test"
-    #addTest(5)
+    addTest(5)
     collect()
         
     #print "Derivative test"

@@ -200,10 +200,10 @@ namespace NumpyDotNet {
             }
 
             NpyCoreApi.SetDateTimeInfo(result,
-                NpyUtil_Python.ConvertToString(cntx, dt_tuple[0]),
-                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[1]),
-                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[2]),
-                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[3]));
+                NpyUtil_Python.ConvertToString(dt_tuple[0], cntx),
+                NpyUtil_Python.ConvertToInt(dt_tuple[1], cntx),
+                NpyUtil_Python.ConvertToInt(dt_tuple[2], cntx),
+                NpyUtil_Python.ConvertToInt(dt_tuple[3], cntx));
 
             return result;
         }
