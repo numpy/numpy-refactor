@@ -62,6 +62,48 @@ namespace NumpyDotNet {
             }
             return PythonCalls.Call(cntx, f, args: args);
         }
+
+        internal static int ConvertToInt(CodeContext cntx, object obj) {
+            if (obj is int) {
+                return (int)obj;
+            } else {
+                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+                if (result is int) {
+                    return (int)result;
+                } else {
+                    throw new OverflowException();
+                }
+            }
+        }
+
+        internal static long ConvertToLong(CodeContext cntx, object obj) {
+            object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+            if (result is int) {
+                return (long) result;
+            } else if (result is BigInteger) {
+                BigInteger i = (BigInteger)result;
+                if (i > long.MaxValue || i < long.MinValue) {
+                    throw new OverflowException();
+                }
+                return (long)i;
+            } else {
+                throw new ArgumentException("__int__ did not return an int or a long");
+            }
+        }
+
+        internal static string ConvertToString(CodeContext cntx, object obj) {
+            if (obj is string) {
+                return (string)obj;
+            } else {
+                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["str"], obj);
+                if (result is string) {
+                    return (string)result;
+                } else {
+                    throw new ArgumentException("__str__ did not return a string");
+                }
+            }
+        }
+
     }
 
 

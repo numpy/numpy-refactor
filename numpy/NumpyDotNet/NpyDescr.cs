@@ -138,10 +138,10 @@ namespace NumpyDotNet {
             }
 
             NpyCoreApi.SetDateTimeInfo(result,
-                (string)PythonOps.ThrowingConvertToString(dt_tuple[0]),
-                (int)PythonOps.ThrowingConvertToInt(dt_tuple[1]),
-                (int)PythonOps.ThrowingConvertToInt(dt_tuple[2]),
-                (int)PythonOps.ThrowingConvertToInt(dt_tuple[3]));
+                NpyUtil_Python.ConvertToString(cntx, dt_tuple[0]),
+                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[1]),
+                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[2]),
+                NpyUtil_Python.ConvertToInt(cntx, dt_tuple[3]));
 
             return result;
         }
