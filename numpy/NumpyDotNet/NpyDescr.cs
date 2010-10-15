@@ -6,6 +6,7 @@ using System.Text;
 using System.Numerics;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using IronPython.Modules;
 using Microsoft.Scripting;
 
@@ -34,12 +35,12 @@ namespace NumpyDotNet {
                     dynamic scalar = pt.__call__(cntx);
                     result = (dtype)scalar.dtype;
                 } else {
-                    result = ConvertFromPythonType(pt);
+                    result = ConvertFromPythonType(cntx, pt);
                 }
             } else if (obj is string) {
                 string s = (string)obj;
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
-                    result = ConvertFromDatetime(cntx.LanguageContext, s);
+                    result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(s);
                 } else {
@@ -61,18 +62,48 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="t">Python type object</param>
         /// <returns>Corresponding descriptor object</returns>
-        private static dtype ConvertFromPythonType(IronPython.Runtime.Types.PythonType t) {
-            NpyDefs.NPY_TYPES type;
-            if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_INT;
-            else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
-            else if (t == PyFloat_Type) type = NpyDefs.NPY_TYPES.NPY_FLOAT;
-            else if (t == PyDouble_Type) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
+        private static dtype ConvertFromPythonType(CodeContext cntx, IronPython.Runtime.Types.PythonType t) {
+            NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_OBJECT;
+            if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
+            else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONGLONG;
+            else if (t == PyFloat_Type) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
             else if (t == PyBool_Type) type = NpyDefs.NPY_TYPES.NPY_BOOL;
             else if (t == PyComplex_Type) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
+            else if (t == PyBytes_Type) type = NpyDefs.NPY_TYPES.NPY_STRING;
             else if (t == PyUnicode_Type) type = NpyDefs.NPY_TYPES.NPY_UNICODE;
-            else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
+            else if (t == PyBuffer_Type) type = NpyDefs.NPY_TYPES.NPY_VOID;
+            else if (t == PyMemoryView_Type) type = NpyDefs.NPY_TYPES.NPY_VOID;
+            else {
+                dtype result = DescrFromObject(cntx, t);
+                if (result != null) {
+                    return result;
+                }
+            }
 
-            return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ? NpyCoreApi.DescrFromType(type) : null;
+            return NpyCoreApi.DescrFromType(type);
+        }
+
+        private static dtype DescrFromObject(CodeContext cntx, dynamic obj) {
+            // Try a dtype attribute
+            try {
+                return DescrConverter(cntx, obj.dtype);
+            } catch { }
+            // Try a ctype type, possibly with a length
+            try {
+                dtype d = DescrConverter(cntx, obj._type_);
+                try {
+                    object length = obj._length_;
+                    PythonTuple tup = new PythonTuple(new object[] { d, length });
+                    return DescrConverter(cntx, tup);
+                } catch { }
+                return d;
+            } catch { }
+            // Try a ctype fields
+            try {
+                return DescrConverter(cntx, obj._fields_);
+            } catch { }
+ 
+            return null;
         }
 
 
@@ -87,11 +118,32 @@ namespace NumpyDotNet {
             return s.StartsWith("datetime64") || s.StartsWith("timedelta64");
         }
 
-        private static dtype ConvertFromDatetime(PythonContext cntx, String s) {
-            IEnumerable<Object> arf = ParseDatetimeString(cntx, s);
-            Console.WriteLine("Result is {0}, {1}", arf.First(), arf.Skip(1).First());
+        private static dtype ConvertFromDatetime(CodeContext cntx, String s) {
+            PythonTuple val = NpyUtil_Python.CallInternal(cntx, "_datetimestring", s) as PythonTuple;
+            if (val == null || val.Count != 2) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException("_datetimestring did not return a pair");
+            }
+            PythonTuple dt_tuple = val[0] as PythonTuple;
 
-            throw new NotImplementedException();
+            if (dt_tuple == null || dt_tuple.Count != 4 || !(val[1] is bool)) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException("_datetimestring is not returning a length 4 tuple and a boolean.");
+            }
+            bool datetime = (bool)val[1];
+
+            dtype result;
+            if (datetime) {
+                result = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DATETIME);
+            } else {
+                result = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_TIMEDELTA);
+            }
+
+            NpyCoreApi.SetDateTimeInfo(result,
+                (string)PythonOps.ThrowingConvertToString(dt_tuple[0]),
+                (int)PythonOps.ThrowingConvertToInt(dt_tuple[1]),
+                (int)PythonOps.ThrowingConvertToInt(dt_tuple[2]),
+                (int)PythonOps.ThrowingConvertToInt(dt_tuple[3]));
+
+            return result;
         }
 
 
@@ -244,26 +296,16 @@ namespace NumpyDotNet {
             return NpyCoreApi.DescrNewVoid(fields, names, totalSize, dtypeflags, alignment);
         }
 
-        private static IEnumerable<Object> ParseDatetimeString(PythonContext cntx, String s) {
-            CallSite<Func<CallSite, String, Object>> site;
-
-            // Perform the operation based on the type of object we are looking at.
-            string[] argNames = {"astr"};
-            System.Dynamic.CallInfo call = new System.Dynamic.CallInfo(1, argNames);
-            var binder = cntx.CreateCallBinder("numpy._internal._datetimestring", true, call);
-            site = CallSite<Func<CallSite, String, Object>>.Create(binder);
-            
-            return site.Target(site, s) as IEnumerable<Object>;
-        }
-
 
         private static readonly PythonType PyInt_Type = DynamicHelpers.GetPythonTypeFromType(typeof(int));
         private static readonly PythonType PyLong_Type = DynamicHelpers.GetPythonTypeFromType(typeof(BigInteger));
-        private static readonly PythonType PyFloat_Type = DynamicHelpers.GetPythonTypeFromType(typeof(float));
-        private static readonly PythonType PyDouble_Type = DynamicHelpers.GetPythonTypeFromType(typeof(double));
+        private static readonly PythonType PyFloat_Type = DynamicHelpers.GetPythonTypeFromType(typeof(double));
         private static readonly PythonType PyBool_Type = DynamicHelpers.GetPythonTypeFromType(typeof(bool));
+        private static readonly PythonType PyBytes_Type = DynamicHelpers.GetPythonTypeFromType(typeof(Bytes));
         private static readonly PythonType PyUnicode_Type = DynamicHelpers.GetPythonTypeFromType(typeof(string));
         private static readonly PythonType PyComplex_Type = DynamicHelpers.GetPythonTypeFromType(typeof(System.Numerics.Complex));
+        private static readonly PythonType PyBuffer_Type = DynamicHelpers.GetPythonTypeFromType(typeof(PythonBuffer));
+        private static readonly PythonType PyMemoryView_Type = DynamicHelpers.GetPythonTypeFromType(typeof(MemoryView));
 
         private static readonly PythonType PyGenericArrType_Type = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarGeneric));
     }

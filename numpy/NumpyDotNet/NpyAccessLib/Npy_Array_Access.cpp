@@ -534,3 +534,17 @@ extern "C" __declspec(dllexport)
 {
     arr->descr->f->copyswap(data, arr->data+offset, swap, arr);
 }
+
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_SetDateTimeInfo(NpyArray_Descr* descr, const char* units, int num, int den, int events)
+{
+    NpyArray_DateTimeInfo* info = NpyArray_DateTimeInfoNew(units, num, den, events);
+    if (info == NULL) {
+        return -1;
+    }
+    if (descr->dtinfo != NULL) {
+        NpyArray_free(descr->dtinfo);
+    }
+    descr->dtinfo = info;
+    return NULL;
+}

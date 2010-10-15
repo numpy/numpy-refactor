@@ -510,6 +510,12 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void SetDateTimeInfo(dtype d, string units, int num, int den, int events) {
+            if (NpyArrayAccess_SetDateTimeInfo(d.Descr, units, num, den, events) < 0) {
+                CheckError();
+            }
+        }
+
         #endregion
 
 
@@ -939,6 +945,10 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
+            [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
 
         #endregion
 

@@ -6,12 +6,13 @@ using System.Numerics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet {
     /// <summary>
     /// Package of extension methods.
     /// </summary>
-    public static class NpyUtils_Extensions {
+    internal static class NpyUtils_Extensions {
 
         /// <summary>
         /// Applies function f to all elements in 'input'. Same as Select() but
@@ -39,6 +40,27 @@ namespace NumpyDotNet {
                 f(x, i);
                 i++;
             }
+        }
+    }
+
+    /// <summary>
+    /// A package of utilities for dealing with Python
+    /// </summary>
+    internal static class NpyUtil_Python
+    {
+        /// <summary>
+        /// Call a Python function in numpy.core._internal
+        /// </summary>
+        /// <param name="func_name"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        internal static object CallInternal(CodeContext cntx, string func_name, params object[] args) {
+            object f;
+            PythonModule module = (PythonModule)PythonOps.ImportBottom(cntx, "numpy.core._internal", 0);
+            if (!PythonOps.ModuleTryGetMember(cntx, module, func_name, out f)) {
+                throw new ArgumentException(String.Format("'{0}' is not a function in numpy.core._internal.", func_name));
+            }
+            return PythonCalls.Call(cntx, f, args: args);
         }
     }
 
