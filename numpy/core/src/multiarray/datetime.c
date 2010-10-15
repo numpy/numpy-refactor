@@ -10,7 +10,6 @@
 #include <npy_api.h>
 
 
-
 /*
  * NOTE: Datetime implementation moved to libnumpy/npy_datetime.c
  */
@@ -57,7 +56,7 @@ PyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
  */
 NPY_NO_EXPORT void
 PyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
-                                 npy_timedeltastruct *result)
+                                   npy_timedeltastruct *result)
 {
     NpyArray_TimedeltaToTimedeltaStruct(val, fr, result);
 }

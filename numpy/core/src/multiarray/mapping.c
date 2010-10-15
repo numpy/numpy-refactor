@@ -5,6 +5,7 @@
 /*#include <stdio.h>*/
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include "numpy/npy_3kcompat.h"
 #include "numpy/arrayobject.h"
 #include "npy_api.h"
 #include "npy_iterators.h"
