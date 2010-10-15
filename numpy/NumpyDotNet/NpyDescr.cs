@@ -42,7 +42,7 @@ namespace NumpyDotNet {
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
                     result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
-                    result = ConvertFromCommaString(cntx, s);
+                    result = ConvertFromCommaString(cntx, s, 0);
                 } else {
                     result = ConvertSimpleString(s);
                 }
@@ -233,7 +233,7 @@ namespace NumpyDotNet {
             return s.Contains(',');
         }
 
-        private static dtype ConvertFromCommaString(CodeContext cntx, String s) {
+        private static dtype ConvertFromCommaString(CodeContext cntx, String s, int align) {
             List val = NpyUtil_Python.CallInternal(cntx, "_commastring", s) as List;
             if (val == null || val.Count < 1) {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
@@ -243,14 +243,25 @@ namespace NumpyDotNet {
             if (val.Count == 1) {
                 return DescrConverter(cntx, val[0]);
             } else {
-                return ConvertFromCommaStringList(cntx, val);
+                return ConvertFromCommaStringList(cntx, val, align);
             }
             // TODO: Calls Python function, needs integration of numpy + .net interface
             throw new NotImplementedException();
         }
 
-        private static dtype ConvertFromCommaStringList(CodeContext cntx, List l) {
-            throw new NotImplementedException();
+        private static dtype ConvertFromCommaStringList(CodeContext cntx, List l, int align) {
+            // We simply convert this to a list in array descr format
+            List conv = new List();
+            int j = 0;
+            for (int i = 0; i < l.Count; i++) {
+                object item = l[i];
+                if (item is string && (string)item == "") {
+                    continue;
+                }
+                string key = String.Format("f{0}", j++);
+                conv.Add(new PythonTuple(new object[] { key, item }));
+            }
+            return ConvertFromArrayDescr(cntx, conv, align);
         }
 
 
