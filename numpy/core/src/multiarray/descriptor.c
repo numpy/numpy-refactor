@@ -26,6 +26,64 @@ static PyArray_Descr *
 _use_inherit(PyArray_Descr *type, PyObject *newobj, int *errflag);
 
 
+/** Returns the descriptor field names as a Python tuple. */
+NPY_NO_EXPORT PyObject *
+PyArrayDescr_GetNames(PyArray_Descr *self)
+{
+    PyObject *names;
+    int i, n;
+    
+    if (NULL == self->descr->names) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    for (n = 0; NULL != self->descr->names[n]; n++) ;
+    
+    names = PyTuple_New(n);
+    for (i = 0; i < n; i++) {
+        PyTuple_SET_ITEM(names, i, PyString_FromString(self->descr->names[i]));
+    }
+    return names;
+}
+
+
+/** Returns the descriptor fields as a Python dictionary. */
+NPY_NO_EXPORT PyObject *
+PyArrayDescr_GetFields(PyArray_Descr *self)
+{
+    PyObject *dict = NULL;
+    NpyDict_Iter pos;
+    const char *key;
+    NpyArray_DescrField *value;
+    
+    if (NULL == self->descr->names) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    dict = PyDict_New();
+    NpyDict_IterInit(&pos);
+    while (NpyDict_IterNext(self->descr->fields, &pos, (void **)&key,
+                            (void **)&value)) {
+        PyObject *tup = PyTuple_New( (NULL == value->title) ? 2 : 3 );
+        PyArray_Descr *valueDescr = PyArray_Descr_WRAP(value->descr);
+        
+        PyTuple_SET_ITEM(tup, 0, (PyObject *)valueDescr);
+        Py_INCREF(valueDescr);
+        PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(value->offset));
+        if (NULL != value->title) {
+            PyTuple_SET_ITEM(tup, 2, PyString_FromString(value->title));
+        }
+        
+        PyDict_SetItemString(dict, key, tup);
+        Py_DECREF(tup);
+    }
+    return dict;
+}
+
+
+
 /* Returns new reference */
 NPY_NO_EXPORT PyArray_Descr *
 _arraydescr_fromobj(PyObject *obj)
@@ -1823,34 +1881,7 @@ arraydescr_isnative_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_fields_get(PyArray_Descr *self)
 {
-    PyObject *dict = NULL;
-    NpyDict_Iter pos;
-    const char *key;
-    NpyArray_DescrField *value;
-
-    if (NULL == self->descr->names) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-
-    dict = PyDict_New();
-    NpyDict_IterInit(&pos);
-    while (NpyDict_IterNext(self->descr->fields, &pos, (void **)&key,
-                            (void **)&value)) {
-        PyObject *tup = PyTuple_New( (NULL == value->title) ? 2 : 3 );
-        PyArray_Descr *valueDescr = PyArray_Descr_WRAP(value->descr);
-
-        PyTuple_SET_ITEM(tup, 0, (PyObject *)valueDescr);
-        Py_INCREF(valueDescr);
-        PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(value->offset));
-        if (NULL != value->title) {
-            PyTuple_SET_ITEM(tup, 2, PyString_FromString(value->title));
-        }
-
-        PyDict_SetItemString(dict, key, tup);
-        Py_DECREF(tup);
-    }
-    return dict;
+    return PyArrayDescr_GetFields(self);
 }
 
 static PyObject *
@@ -1888,21 +1919,7 @@ arraydescr_hasobject_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_names_get(PyArray_Descr *self)
 {
-    PyObject *names;
-    int i, n;
-
-    if (NULL == self->descr->names) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-
-    for (n = 0; NULL != self->descr->names[n]; n++) ;
-
-    names = PyTuple_New(n);
-    for (i = 0; i < n; i++) {
-        PyTuple_SET_ITEM(names, i, PyString_FromString(self->descr->names[i]));
-    }
-    return names;
+    return PyArrayDescr_GetNames(self);
 }
 
 

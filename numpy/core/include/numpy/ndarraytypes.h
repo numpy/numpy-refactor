@@ -188,6 +188,11 @@ struct _PyArray_Descr {
         struct NpyArray_Descr *descr;   /* Core object */
 };
 
+NPY_NO_EXPORT PyObject *
+PyArrayDescr_GetNames(PyArray_Descr *self);
+NPY_NO_EXPORT PyObject *
+PyArrayDescr_GetFields(PyArray_Descr *self);
+
 
 /*
  * The main array object structure. It is recommended to use the macros
@@ -412,6 +417,13 @@ typedef struct {
                                   (char *)(itemptr),                \
                                   (PAA(obj)))
 
+#define PyDataType_BYTEORDER(obj) ((obj)->descr->byteorder)
+#define PyDataType_ELSIZE(obj) ((obj)->descr->elsize)
+#define PyDataType_TYPE_NUM(obj) ((obj)->descr->type_num)
+#define PyDataType_FIELDS(obj) PyArrayDescr_GetFields(obj)
+#define PyDataType_NAMES(obj) PyArrayDescr_GetNames(obj)
+
+
 #define _PyADT(obj) (assert(NULL != obj && \
       PyArray_DescrCheck(obj)),((PyArray_Descr *)(obj))->descr->type_num)
 #define PyDataType_ISBOOL(obj) NpyTypeNum_ISBOOL(_PyADT(obj))
@@ -444,7 +456,7 @@ typedef struct {
 #define PyArray_ISUSERDEF(obj) NpyTypeNum_ISUSERDEF(PyArray_TYPE(obj))
 #define PyArray_ISEXTENDED(obj) NpyTypeNum_ISEXTENDED(PyArray_TYPE(obj))
 #define PyArray_ISOBJECT(obj) NpyTypeNum_ISOBJECT(PyArray_TYPE(obj))
-#define PyArray_HASFIELDS(obj) PyDataType_HASFIELDS(PyArray_DESCR(obj))
+#define PyArray_HASFIELDS(obj) NpyDataType_HASFIELDS(PyArray_DESCR(obj))
 
     /*
      * FIXME: This should check for a flag on the data-type that
