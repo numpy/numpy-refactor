@@ -258,9 +258,6 @@ _buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
                 ++p;
             }
             _append_char(str, ':');
-#if defined(NPY_PY3K)
-            Py_DECREF(tmp);
-#endif
         }
         _append_char(str, '}');
     }

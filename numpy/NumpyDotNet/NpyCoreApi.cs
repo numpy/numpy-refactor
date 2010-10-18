@@ -349,7 +349,6 @@ namespace NumpyDotNet {
             }
         }
 
-
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
             return DecrefToInterface<ndarray>(
                 NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
@@ -511,6 +510,16 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void SetDateTimeInfo(dtype d, string units, int num, int den, int events) {
+            if (NpyArrayAccess_SetDateTimeInfo(d.Descr, units, num, den, events) < 0) {
+                CheckError();
+            }
+        }
+
+        internal static dtype InheritDescriptor(dtype t1, dtype other) {
+            return DecrefToInterface<dtype>(NpyArrayAccess_InheritDescriptor(t1.Descr, other.Descr));
+        }
+
         #endregion
 
 
@@ -623,6 +632,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_ArgSort(IntPtr arr, int axis, int sortkind);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_Bool(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
@@ -938,6 +950,13 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
+            [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
+
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
         #endregion
 
 

@@ -6,12 +6,13 @@ using System.Numerics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet {
     /// <summary>
     /// Package of extension methods.
     /// </summary>
-    public static class NpyUtils_Extensions {
+    internal static class NpyUtils_Extensions {
 
         /// <summary>
         /// Applies function f to all elements in 'input'. Same as Select() but
@@ -39,6 +40,173 @@ namespace NumpyDotNet {
                 f(x, i);
                 i++;
             }
+        }
+    }
+
+    /// <summary>
+    /// A package of utilities for dealing with Python
+    /// </summary>
+    internal static class NpyUtil_Python
+    {
+        private static CodeContext defaultContext = null;
+
+        /// <summary>
+        /// The default code context is initialized at startup and is used when no code context
+        /// is otherwise available.
+        /// </summary>
+        internal static CodeContext DefaultContext {
+            get { return defaultContext; }
+            set {
+                if (defaultContext != null) {
+                    // Disallowed only because there doesn't appear to be a reason to do this
+                    // except in an error condition.
+                    throw new InvalidOperationException("Attempt to re-initialize default code context.");
+                }
+                defaultContext = value;
+            }
+        }
+
+        /// <summary>
+        /// Call a Python function in numpy.core._internal
+        /// </summary>
+        /// <param name="cntx">Code context to use, or DefaultContext is used if null</param>
+        /// <param name="func_name">Name of the function to call</param>
+        /// <param name="args">Calling arguments</param>
+        /// <returns>Result of Python function</returns>
+        internal static object CallInternal(CodeContext cntx, string func_name, params object[] args) {
+            object f;
+            if (cntx == null) cntx = DefaultContext;
+
+            PythonModule module = (PythonModule)PythonOps.ImportBottom(cntx, "numpy.core._internal", 0);
+            if (!PythonOps.ModuleTryGetMember(cntx, module, func_name, out f)) {
+                throw new ArgumentException(String.Format("'{0}' is not a function in numpy.core._internal.", func_name));
+            }
+            return PythonCalls.Call(cntx, f, args: args);
+        }
+
+
+        /// <summary>
+        /// Triggers Python integer conversion using __int__ function on Python objects. int
+        /// objects are handled intelligently.
+        /// </summary>
+        /// <param name="obj">Object to convert</param>
+        /// <param name="cntx">Current code context or null to use default</param>
+        /// <returns>Integer value or throws an exception if no conversion is possible</returns>
+        internal static int ConvertToInt(object obj, CodeContext cntx=null) {
+            if (cntx == null) cntx = DefaultContext;
+
+            if (obj is int) {
+                return (int)obj;
+            } else if (obj is ScalarInt32) {
+                return (int)(ScalarInt32)obj;
+            } else {
+                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+                if (result is int) {
+                    return (int)result;
+                } else {
+                    throw new OverflowException();
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Triggers Python conversion to long using __int__ function on Py objects. int
+        /// types are handled efficiently.
+        /// </summary>
+        /// <param name="obj">Object to convert</param>
+        /// <param name="cntx">Current code context or null to use default</param>
+        /// <returns>long value or throws exception is conversion fails</returns>
+        internal static long ConvertToLong(object obj, CodeContext cntx = null) {
+            if (cntx == null) cntx = DefaultContext;
+
+            if (obj is long) {
+                return (long)obj;
+            } else if (obj is int) {
+                return (long)(int)obj;
+            } else if (obj is ScalarInt64) {
+                return (long)(ScalarInt64)obj;
+            }
+
+            object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+            if (result is int) {
+                return (long)result;
+            } else if (result is BigInteger) {
+                BigInteger i = (BigInteger)result;
+                if (i > long.MaxValue || i < long.MinValue) {
+                    throw new OverflowException();
+                }
+                return (long)i;
+            } else {
+                throw new ArgumentException("__int__ did not return an int or a long");
+            }
+        }
+
+
+        /// <summary>
+        /// Triggers Python conversion to float using __float__ function on Py objects. float
+        /// types are handled efficiently.
+        /// </summary>
+        /// <param name="obj">Object to convert</param>
+        /// <param name="cntx">Current code context or null to use default</param>
+        /// <returns>float value or throws exception is conversion fails</returns>
+        internal static double ConvertToDouble(object obj, CodeContext cntx = null) {
+            if (cntx == null) cntx = DefaultContext;
+
+            if (obj is double) {
+                return (double)obj;
+            } else if (obj is ScalarFloat32) {
+                return (double)(ScalarFloat32)obj;
+            } else if (obj is ScalarFloat64) {
+                return (double)(ScalarFloat64)obj;
+            }
+
+            object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["float"], obj);
+            if (result is double) {
+                return (double)result;
+            } else {
+                throw new ArgumentException("__float__ did not return a floating-point value");
+            }
+        }
+
+
+        /// <summary>
+        /// Triggers Python conversion to string using __str__ method.  String instances
+        /// are handled efficiently.
+        /// </summary>
+        /// <param name="obj">Object to convert</param>
+        /// <param name="cntx">Current code context or null to use default</param>
+        /// <returns>String result or throws an exception if no conversion is possible</returns>
+        internal static string ConvertToString(object obj, CodeContext cntx = null) {
+            if (cntx == null) cntx = DefaultContext;
+
+            if (obj is string) {
+                return (string)obj;
+            } else {
+                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["str"], obj);
+                if (result is string) {
+                    return (string)result;
+                } else {
+                    throw new ArgumentException("__str__ did not return a string");
+                }
+            }
+        }
+
+        internal static bool IsIntegerScalar(object o) {
+            return (o is int || o is BigInteger || o is ScalarInteger);
+        }
+
+        internal static bool IsTupleOfIntegers(object o) {
+            PythonTuple t = o as PythonTuple;
+            if (t == null) {
+                return false;
+            }
+            foreach (object item in t) {
+                if (!IsIntegerScalar(item)) {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 

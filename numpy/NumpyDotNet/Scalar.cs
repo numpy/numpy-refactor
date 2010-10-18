@@ -570,20 +570,28 @@ namespace NumpyDotNet
             return ToArray().__rge__(o);
         }
 
-        public static explicit operator int(ScalarGeneric a) {
-            return (int)a.ToArray();
+        public object __int__(CodeContext cntx) {
+            return ToArray().__int__(cntx);
         }
 
-        public static explicit operator BigInteger(ScalarGeneric a) {
-            return (BigInteger)a.ToArray();
+        public object __long__(CodeContext cntx) {
+            return ToArray().__long__(cntx);
         }
 
-        public static explicit operator double(ScalarGeneric a) {
-            return (double)a.ToArray();
+        public object __float__(CodeContext cntx) {
+            return ToArray().__float__(cntx);
         }
 
-        public static explicit operator Complex(ScalarGeneric a) {
-            return (Complex)a.ToArray();
+        public object __complex__(CodeContext cntx) {
+            return ToArray().__complex__(cntx);
+        }
+
+        public bool __nonzero__() {
+            return (bool)ToArray();
+        }
+
+        public static explicit operator bool(ScalarGeneric s) {
+            return (bool)s.ToArray();
         }
 
         #endregion
@@ -663,6 +671,14 @@ namespace NumpyDotNet
             value = (Marshal.ReadByte(p) != 0);
         }
 
+        public new bool __nonzero__() {
+            return value;
+        }
+
+        public static implicit operator bool(ScalarBool s) {
+            return s.value;
+        }
+
         private bool value;
         static private dtype dtype_;
     }
@@ -729,6 +745,26 @@ namespace NumpyDotNet
             value = (sbyte)Marshal.ReadByte(p);
         }
 
+        public static implicit operator int(ScalarInt8 i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarInt8 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarInt8 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarInt8 s) {
+            return s.value != 0;
+        }
+
         private sbyte value;
         static private dtype dtype_;
 
@@ -776,6 +812,26 @@ namespace NumpyDotNet
                     arr.CopySwapOut(offset, data, !arr.IsNotSwapped);
                 }
             }
+        }
+
+        public static implicit operator int(ScalarInt16 i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarInt16 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarInt16 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarInt16 s) {
+            return s.value != 0;
         }
 
         private Int16 value;
@@ -827,6 +883,26 @@ namespace NumpyDotNet
             }
         }
 
+        public static implicit operator int(ScalarInt32 i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarInt32 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarInt32 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarInt32 s) {
+            return s.value != 0;
+        }
+
         private Int32 value;
         static private dtype dtype_;
 
@@ -874,6 +950,29 @@ namespace NumpyDotNet
                     arr.CopySwapOut(offset, data, !arr.IsNotSwapped);
                 }
             }
+        }
+
+        public static explicit operator int(ScalarInt64 i) {
+            if (i < int.MinValue || i > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarInt64 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarInt64 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarInt64 s) {
+            return s.value != 0;
         }
 
         private Int64 value;
@@ -932,6 +1031,26 @@ namespace NumpyDotNet
             value = Marshal.ReadByte(p);
         }
 
+        public static implicit operator int(ScalarUInt8 i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarUInt8 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarUInt8 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarUInt8 s) {
+            return s.value != 0;
+        }
+
         private byte value;
         static private dtype dtype_;
 
@@ -979,6 +1098,26 @@ namespace NumpyDotNet
                     arr.CopySwapOut(offset, data, !arr.IsNotSwapped);
                 }
             }
+        }
+
+        public static implicit operator int(ScalarUInt16 i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarUInt16 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarUInt16 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarUInt16 s) {
+            return s.value != 0;
         }
 
         private UInt16 value;
@@ -1030,6 +1169,29 @@ namespace NumpyDotNet
             }
         }
 
+        public static explicit operator int(ScalarUInt32 i) {
+            if (i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarUInt32 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarUInt32 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarUInt32 s) {
+            return s.value != 0;
+        }
+
         private UInt32 value;
         static private dtype dtype_;
 
@@ -1077,6 +1239,29 @@ namespace NumpyDotNet
                     arr.CopySwapOut(offset, data, !arr.IsNotSwapped);
                 }
             }
+        }
+
+        public static explicit operator int(ScalarUInt64 i) {
+            if (i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarUInt64 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarUInt64 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarUInt64 s) {
+            return s.value != 0;
         }
 
         private UInt64 value;
@@ -1137,6 +1322,29 @@ namespace NumpyDotNet
             }
         }
 
+        public static explicit operator int(ScalarFloat32 i) {
+            if (i.value < int.MinValue || i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarFloat32 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarFloat32 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarFloat32 s) {
+            return s.value != 0;
+        }
+
         private Single value;
         static private dtype dtype_;
     }
@@ -1184,6 +1392,29 @@ namespace NumpyDotNet
                     arr.CopySwapOut(offset, data, !arr.IsNotSwapped);
                 }
             }
+        }
+
+        public static explicit operator int(ScalarFloat64 i) {
+            if (i.value < int.MinValue || i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarFloat64 i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarFloat64 i) {
+            return i.value;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
+        }
+
+        public static explicit operator bool(ScalarFloat64 s) {
+            return s.value != 0;
         }
 
         private Double value;
@@ -1368,16 +1599,26 @@ namespace NumpyDotNet
             return new ScalarVoid((int)size);
         }
 
-        public static object __new__(PythonType cls, ndarray arr) {
+        public static object __new__(CodeContext cntx, PythonType cls, ndarray arr) {
             if (arr.ndim == 0 && arr.IsInteger) {
-                return new ScalarVoid((int)arr);
+                object iVal = arr.__int__(cntx);
+                if (iVal is int) {
+                    return new ScalarVoid((int)iVal);
+                } else {
+                    throw new ArgumentException("Size of void is too large");
+                }
             } else {
                 return FromObject(arr);
             }
         }
 
-        public static object __new__(PythonType cls, ScalarInteger size) {
-            return new ScalarVoid((int)size);
+        public static object __new__(CodeContext cntx, PythonType cls, ScalarInteger size) {
+            object ival = size.__int__(cntx);
+            if (ival is int) {
+                return new ScalarVoid((int)ival);
+            } else {
+                throw new ArgumentException("Size of void is too large");
+            }
         }
 
         public static object __new__(PythonType cls, object val) {
@@ -1511,6 +1752,10 @@ namespace NumpyDotNet
 
         public ScalarString(Bytes s) {
             value = s;
+        }
+
+        public ScalarString(CodeContext cntx, string s) {
+            value = new Bytes(cntx, s, "UTF-8");
         }
 
         public ScalarString(dynamic s) {

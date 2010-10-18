@@ -13,6 +13,7 @@
 #include "npy_arrayobject.h"
 #include "npy_dict.h"
 #include "npy_internal.h"
+#include "npy_os.h"
 
 
 #if !defined(MAX)
@@ -592,3 +593,143 @@ static void npy_dealloc_fields_value(void *value_tmp)
         free(value->title);
     free(value);
 }
+
+/* Exported as DATETIMEUNITS in multiarraymodule.c */
+NDARRAY_API char *_datetime_strings[] = {
+    NPY_STR_Y,
+    NPY_STR_M,
+    NPY_STR_W,
+    NPY_STR_B,
+    NPY_STR_D,
+    NPY_STR_h,
+    NPY_STR_m,
+    NPY_STR_s,
+    NPY_STR_ms,
+    NPY_STR_us,
+    NPY_STR_ns,
+    NPY_STR_ps,
+    NPY_STR_fs,
+    NPY_STR_as
+};
+
+static NPY_DATETIMEUNIT
+ _unit_from_str(const char *base)
+{
+    NPY_DATETIMEUNIT unit;
+
+    if (base == NULL) {
+        return NPY_DATETIME_DEFAULTUNIT;
+    }
+
+    unit = NPY_FR_Y;
+    while (unit < NPY_DATETIME_NUMUNITS) {
+        if (strcmp(base, _datetime_strings[unit]) == 0) {
+            break;
+        }
+        unit++;
+    }
+    if (unit == NPY_DATETIME_NUMUNITS) {
+        return NPY_DATETIME_DEFAULTUNIT;
+    }
+
+    return unit;
+}
+
+static int _multiples_table[16][4] = {
+    {12, 52, 365},                            /* NPY_FR_Y */
+    {NPY_FR_M, NPY_FR_W, NPY_FR_D},
+    {4,  30, 720},                            /* NPY_FR_M */
+    {NPY_FR_W, NPY_FR_D, NPY_FR_h},
+    {5,  7,  168, 10080},                     /* NPY_FR_W */
+    {NPY_FR_B, NPY_FR_D, NPY_FR_h, NPY_FR_m},
+    {24, 1440, 86400},                        /* NPY_FR_B */
+    {NPY_FR_h, NPY_FR_m, NPY_FR_s},
+    {24, 1440, 86400},                        /* NPY_FR_D */
+    {NPY_FR_h, NPY_FR_m, NPY_FR_s},
+    {60, 3600},                               /* NPY_FR_h */
+    {NPY_FR_m, NPY_FR_s},
+    {60, 60000},                              /* NPY_FR_m */
+    {NPY_FR_s, NPY_FR_ms},
+    {1000, 1000000},                          /* >=NPY_FR_s */
+    {0, 0}
+};
+
+
+/* Translate divisors into multiples of smaller units */
+static int
+_convert_divisor_to_multiple(NpyArray_DateTimeInfo *dtinfo)
+{
+    int i, num, ind;
+    int *totry;
+    NPY_DATETIMEUNIT *baseunit;
+    int q, r;
+
+    ind = ((int)dtinfo->base - (int)NPY_FR_Y)*2;
+    totry = _multiples_table[ind];
+    baseunit = (NPY_DATETIMEUNIT *)_multiples_table[ind + 1];
+
+    num = 3;
+    if (dtinfo->base == NPY_FR_W) {
+        num = 4;
+    }
+    else if (dtinfo->base > NPY_FR_D) {
+        num = 2;
+    }
+    if (dtinfo->base >= NPY_FR_s) {
+        ind = ((int)NPY_FR_s - (int)NPY_FR_Y)*2;
+        totry = _multiples_table[ind];
+        baseunit = (NPY_DATETIMEUNIT *)_multiples_table[ind + 1];
+        baseunit[0] = dtinfo->base + 1;
+        baseunit[1] = dtinfo->base + 2;
+        if (dtinfo->base == NPY_DATETIME_NUMUNITS - 2) {
+            num = 1;
+        }
+        if (dtinfo->base == NPY_DATETIME_NUMUNITS - 1) {
+            num = 0;
+        }
+    }
+
+    for (i = 0; i < num; i++) {
+        q = totry[i] / dtinfo->den;
+        r = totry[i] % dtinfo->den;
+        if (r == 0) {
+            break;
+        }
+    }
+    if (i == num) {
+        char buf[100];
+        NpyOS_snprintf(buf, sizeof(buf), "divisor (%d) is not a multiple of a lower-unit", dtinfo->den);
+        NpyErr_SetString(NpyExc_ValueError, buf);
+        return -1;
+    }
+    dtinfo->base = baseunit[i];
+    dtinfo->den = 1;
+    dtinfo->num *= q;
+
+    return 0;
+}
+
+
+NDARRAY_API NpyArray_DateTimeInfo*
+NpyArray_DateTimeInfoNew(const char* units, int num, int den, int events)
+{
+    NpyArray_DateTimeInfo *dt_data;
+
+    dt_data = NpyArray_malloc(sizeof(NpyArray_DateTimeInfo));
+    dt_data->base = _unit_from_str(units);
+
+    /* Assumes other objects are Python integers */
+    dt_data->num = num;
+    dt_data->den = den;
+    dt_data->events = events;
+
+    if (dt_data->den > 1) {
+        if (_convert_divisor_to_multiple(dt_data) < 0) {
+            NpyArray_free(dt_data);
+            return NULL;
+        }
+    }
+
+    return dt_data;
+}
+

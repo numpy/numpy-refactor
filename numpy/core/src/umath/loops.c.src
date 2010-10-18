@@ -1,6 +1,8 @@
 
 #include <Python.h>
 
+#include "numpy/npy_3kcompat.h"
+
 #include <npy_common.h>
 #include <npy_defs.h>
 #include <npy_loops.h>

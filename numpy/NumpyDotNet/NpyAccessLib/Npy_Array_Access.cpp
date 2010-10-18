@@ -534,3 +534,35 @@ extern "C" __declspec(dllexport)
 {
     arr->descr->f->copyswap(data, arr->data+offset, swap, arr);
 }
+
+extern "C" __declspec(dllexport)
+    int _cdecl NpyArrayAccess_SetDateTimeInfo(NpyArray_Descr* descr, const char* units, int num, int den, int events)
+{
+    NpyArray_DateTimeInfo* info = NpyArray_DateTimeInfoNew(units, num, den, events);
+    if (info == NULL) {
+        return -1;
+    }
+    if (descr->dtinfo != NULL) {
+        NpyArray_free(descr->dtinfo);
+    }
+    descr->dtinfo = info;
+    return NULL;
+}
+
+extern "C" __declspec(dllexport)
+    NpyArray_Descr* _cdecl NpyArrayAccess_InheritDescriptor(NpyArray_Descr* type, NpyArray_Descr* conv)
+{
+    NpyArray_Descr* nw = NpyArray_DescrNew(type);
+    if (nw->elsize && nw->elsize != conv->elsize) {
+        NpyErr_SetString(NpyExc_ValueError, "mismatch in size of old and new data-descriptor");
+        Npy_DECREF(nw);
+        return NULL;
+    }
+    nw->elsize = conv->elsize;
+    if (conv->names != NULL) {
+        nw->names = NpyArray_DescrNamesCopy(conv->names);
+        nw->fields = NpyArray_DescrFieldsCopy(conv->fields);
+    }
+    nw->flags = conv->flags;
+    return nw;
+}

@@ -159,6 +159,7 @@ NDARRAY_API int NpyArray_GetEndianness(void);
 /* number.c */
 #define NpyArray_GenericReduceFunction(m1, op, axis, rtype, out) \
         PyArray_GenericReduceFunction(m1, op, axis, rtype, out)
+NDARRAY_API int NpyArray_Bool(NpyArray* arr);
 
 
 /* refcount.c */
@@ -296,6 +297,11 @@ NpyArray_DatetimeToDatetimeStruct(npy_datetime val, NPY_DATETIMEUNIT fr,
 NDARRAY_API void
 NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
                                     npy_timedeltastruct *result);
+
+NDARRAY_API NpyArray_DateTimeInfo*
+NpyArray_DateTimeInfoNew(const char* units, int num, int den, int events);
+
+NDARRAY_API char *_datetime_strings[];
 
 NDARRAY_API int
 NpyArray_GetNumusertypes(void);

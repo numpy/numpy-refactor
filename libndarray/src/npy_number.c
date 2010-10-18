@@ -233,3 +233,24 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
     Npy_XDECREF(mps[1]);
     return result;
 }
+
+NDARRAY_API int 
+NpyArray_Bool(NpyArray* mp)
+{
+    npy_intp n;
+
+    n = NpyArray_SIZE(mp);
+    if (n == 1) {
+        return NpyArray_DESCR(mp)->f->nonzero(NpyArray_BYTES(mp), mp);
+    }
+    else if (n == 0) {
+        return 0;
+    }
+    else {
+        NpyErr_SetString(NpyExc_ValueError,
+                        "The truth value of an array "
+                        "with more than one element is ambiguous. "
+                        "Use a.any() or a.all()");
+        return -1;
+    }
+}

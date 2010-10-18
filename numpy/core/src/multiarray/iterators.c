@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "npy_api.h"
 #include "npy_iterators.h"
+#include "numpy/npy_3kcompat.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "conversion_utils.h"
