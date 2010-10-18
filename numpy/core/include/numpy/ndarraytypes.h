@@ -254,7 +254,7 @@ typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 #define PyArray_ARRAY(m) ((m) ? assert(PyArray_Check(m)),(((PyArrayObject *)(m))->array) : NULL)
 #define PyArray_LARRAY(m) (((PyArrayObject *)(m))->array)
 
-#define PAA(m) PyArray_ARRAY(m)
+#define PAA(m) PyArray_LARRAY(m)
 
 #define PyArray_CHKFLAGS(m, FLAGS) NpyArray_CHKFLAGS(PAA(m), FLAGS)
 
@@ -420,6 +420,10 @@ typedef struct {
 #define PyDataType_BYTEORDER(obj) ((obj)->descr->byteorder)
 #define PyDataType_ELSIZE(obj) ((obj)->descr->elsize)
 #define PyDataType_TYPE_NUM(obj) ((obj)->descr->type_num)
+
+/* WARNING: These two functions return an object with a new reference that
+   must be released by the caller.  This is because the core library stores
+   the data in a different format now so there is no refeference to borrow. */
 #define PyDataType_FIELDS(obj) PyArrayDescr_GetFields(obj)
 #define PyDataType_NAMES(obj) PyArrayDescr_GetNames(obj)
 
