@@ -6,6 +6,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using Microsoft.Scripting;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -132,6 +133,10 @@ namespace NumpyDotNet {
         }
 
 
+        private static Exception UpdateIfCopyError() {
+            return new ArgumentException("UPDATEIFCOPY used for non-array input.");
+        }
+
         /// <summary>
         /// Constructs a new array from multiple input types, like lists, arrays, etc.
         /// </summary>
@@ -146,34 +151,110 @@ namespace NumpyDotNet {
             int maxDepth=0, int flags=0, Object context=null) {
             ndarray result = null;
 
-            if (src is ndarray) {
-                result = FromArray((ndarray)src, descr, flags);
-            } else if (src is ScalarGeneric) {
-                if (descr == null && flags == 0) {
-                    return ((ScalarGeneric)src).ToArray();
-                } else {
-                    // TODO: Figure out how to avoid the double conversion.
-                    return FromArray(((ScalarGeneric)src).ToArray(), descr, flags);
-                }
-            } else {
-                dtype type = FindScalarType(src);
-                if (type != null) {
-                    result = FromScalar(src, (descr != null ? descr : type));
-                } else {
-                    if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0)
-                        throw new IronPython.Runtime.Exceptions.RuntimeException("UPDATEIFCOPY used for non-array input");
+            Type t = src.GetType();
 
-                    if (src is IEnumerable<Object>) {
-                        result = FromIEnumerable((IEnumerable<Object>)src, descr,
-                            (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
-                    } else {
-                        throw new NotImplementedException(
-                            String.Format("In FromArray, type {0} is not handled yet.", src.GetType().ToString()));
+            if (t != typeof(List) && t != typeof(PythonTuple)) { 
+                if (src is ndarray) {
+                    result = FromArray((ndarray)src, descr, flags);
+                } 
+            
+                if (src is ScalarGeneric) {
+                    if ((flags & NpyDefs.NPY_UPDATEIFCOPY)!=0) {
+                        throw UpdateIfCopyError();
+                    }
+                    return FromScalar((ScalarGeneric)src, descr);
+                }
+            
+                dtype newtype = (descr ?? FindScalarType(src));
+                if (newtype != null) {
+                    if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0) {
+                        throw UpdateIfCopyError();
+                    }
+                    return FromPythonScalar(src, newtype);
+                } 
+
+                // TODO: Handle buffer protocol
+                // TODO: Look at __array_struct__ and __array_interface__
+                result = FromArrayAttr(NpyUtil_Python.DefaultContext, src, descr, context);
+                if (result != null) {
+                    if (descr != null && !NpyCoreApi.EquivTypes(descr, result.dtype) || flags != 0) {
+                        return FromArray(result, descr, flags);
                     }
                 }
             }
 
-            return result;
+            bool is_object = false;
+
+            if ((flags&NpyDefs.NPY_UPDATEIFCOPY)!=0) {
+                throw UpdateIfCopyError();
+            }
+            if (descr == null) {
+                descr = FindArrayType(src, null);
+            } else if (descr.TypeNum == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                is_object = true;
+            }
+
+            if (src is IEnumerable<object>) {
+                try {
+                    return FromIEnumerable((IEnumerable<object>)src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
+                } catch (InsufficientMemoryException) {
+                    throw;
+                } catch {
+                    if (is_object) {
+                        return FromNestedList(src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0);
+                    } else {
+                        return FromPythonScalar(src, descr);
+                    }
+                }
+            } else {
+                return FromPythonScalar(src, descr);
+            }
+        }
+
+        internal static ndarray FromNestedList(object src, dtype descr, bool fortran) {
+            throw new NotImplementedException();
+        }
+
+        internal static ndarray FromArrayAttr(CodeContext cntx, object src, dtype descr, object context) {
+            object f = PythonOps.ObjectGetAttribute(cntx, src, "__array__");
+            if (f == null) {
+                return null;
+            }
+            object result;
+            if (context == null) {
+                if (descr == null) {
+                    result = PythonCalls.Call(cntx, f);
+                } else {
+                    result = PythonCalls.Call(cntx, f, descr);
+                }
+            } else {
+                if (descr == null) {
+                    try {
+                        result = PythonCalls.Call(cntx, f, null, context);
+                    } catch (ArgumentTypeException) {
+                        result = PythonCalls.Call(cntx, f);
+                    }
+                } else {
+                    try {
+                        result = PythonCalls.Call(cntx, f, descr, context);
+                    } catch (ArgumentTypeException) {
+                        result = PythonCalls.Call(cntx, f, context);
+                    }
+                }
+            }
+            if (!(result is ndarray)) {
+                throw new ArgumentException("object __array__ method not producing an array");
+            }
+            return (ndarray)result;
+        }
+
+        internal static ndarray FromScalar(ScalarGeneric scalar, dtype descr = null) {
+            if (descr == null || NpyCoreApi.EquivTypes(scalar.dtype, descr)) {
+                return scalar.ToArray();
+            } else {
+                ndarray arr = scalar.ToArray();
+                return FromArray(arr, descr, 0);
+            }
         }
 
         /// <summary>
@@ -193,18 +274,19 @@ namespace NumpyDotNet {
         }
 
 
-        internal static ndarray FromScalar(object src, dtype descr) {
+        internal static ndarray FromPythonScalar(object src, dtype descr) {
             int itemsize = descr.ElementSize;
             NpyDefs.NPY_TYPES type = descr.TypeNum;
 
             if (itemsize == 0 && NpyDefs.IsExtended(type)) {
-                if (src is string) itemsize = ((string)src).Length;
-                else if (src is Array) itemsize = ((Array)src).Length;
-                else itemsize = 1;
-
-                throw new NotImplementedException("Need to figure out storage/handling of strings.");
+                int n = PythonOps.Length(src);
+                if (type == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    n *= 4;
+                }
+                descr = new dtype(descr);
+                descr.ElementSize = n;
             }
-
+ 
             ndarray result = NpyCoreApi.AllocArray(descr, 0, null, false);
             if (result.ndim > 0) {
                 throw new ArgumentException("shape-mismatch on array construction");
@@ -231,10 +313,12 @@ namespace NumpyDotNet {
         internal static ndarray FromIEnumerable(IEnumerable<Object> src, dtype descr, 
             bool fortran, int minDepth, int maxDepth) {
             ndarray result = null;
-
+            
             if (descr == null) {
                 descr = FindArrayType(src, null, NpyDefs.NPY_MAXDIMS);
             }
+
+            int itemsize = descr.ElementSize;
 
             NpyDefs.NPY_TYPES type = descr.TypeNum;
             bool checkIt = (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR);
@@ -247,8 +331,7 @@ namespace NumpyDotNet {
 
             int numDim = DiscoverDepth(src, NpyDefs.NPY_MAXDIMS + 1, stopAtString, stopAtTuple);
             if (numDim == 0) {
-                // TODO: Handle scalar conversion
-                throw new NotImplementedException("Scalar-to-array conversion not implemented");
+                return FromPythonScalar(src, descr);
             } else {
                 if (maxDepth > 0 && type == NpyDefs.NPY_TYPES.NPY_OBJECT &&
                     numDim > maxDepth) {
@@ -256,21 +339,27 @@ namespace NumpyDotNet {
                 }   
                 if (maxDepth > 0 && numDim > maxDepth ||
                     minDepth > 0 && numDim < minDepth) {
-                    throw new IronPython.Runtime.Exceptions.RuntimeException("Invalid number of dimensions.");
+                    throw new ArgumentException("Invalid number of dimensions.");
                 }
 
                 long[] dims = new long[numDim];
-                if (DiscoverDimensions(src, numDim, dims, 0, checkIt)) {
-                    if (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
-                        numDim > 0 && dims[numDim - 1] == 1) {
-                        // TODO: Check this. Is this because it stores a string
-                        // pointer in each array entry?
-                        numDim--;
-                    }
-
-                    result = NpyCoreApi.AllocArray(descr, numDim, dims, fortran);
-                    AssignToArray(src, result);
+                DiscoverDimensions(src, numDim, dims, 0, checkIt);
+                if (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
+                    numDim > 0 && dims[numDim - 1] == 1) {
+                    numDim--;
                 }
+
+                if (itemsize == 0 && NpyDefs.IsExtended(descr.TypeNum)) {
+                    itemsize = DiscoverItemsize(src, numDim, 0);
+                    if (descr.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                        itemsize *= 4;
+                    }
+                    descr = new dtype(descr);
+                    descr.ElementSize = itemsize;
+                }
+
+                result = NpyCoreApi.AllocArray(descr, numDim, dims, fortran);
+                AssignToArray(src, result);
             }
             return result;
         }
@@ -374,6 +463,8 @@ namespace NumpyDotNet {
             else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
             else if (src is BigInteger) type = NpyDefs.NPY_TYPES.NPY_LONG;
             else if (src is Complex) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
+            else if (src is string) type = NpyDefs.NPY_TYPES.NPY_UNICODE;
+            else if (src is Bytes) type = NpyDefs.NPY_TYPES.NPY_STRING;
             else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
             return (type != NpyDefs.NPY_TYPES.NPY_NOTYPE) ?
@@ -393,7 +484,9 @@ namespace NumpyDotNet {
             bool stopAtString, bool stopAtTuple) {
             int d = 0;
 
-            if (max < 1) return -1;
+            if (max < 1) {
+                throw new ArgumentException("invalid input sequence");
+            }
 
             if (src is IEnumerable<Object>) {
                 IEnumerable<Object> seq = (IEnumerable<Object>)src;
@@ -425,10 +518,8 @@ namespace NumpyDotNet {
         /// <param name="dims">Uninitialized array of dimension sizes to be filled in</param>
         /// <param name="dimIdx">Current index into dims, incremented recursively</param>
         /// <param name="checkIt">Verify that src is consistent</param>
-        /// <returns>dims array is filled in; true on success, false on error</returns>
-        private static bool DiscoverDimensions(Object src, int numDim,
+        private static void DiscoverDimensions(Object src, int numDim,
             Int64[] dims, int dimIdx, bool checkIt) {
-            bool error = false;
 
             if (src is ndarray) {
                 ndarray arr = (ndarray)src;
@@ -446,12 +537,9 @@ namespace NumpyDotNet {
                 dims[dimIdx] = seq.Count();
                 if (numDim > 1 && dims[dimIdx] > 1) {
                     foreach (Object o in seq) {
-                        if (!DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt)) {
-                            error = true;
-                            break;
-                        }
+                        DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
                         if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {
-                            throw new IronPython.Runtime.Exceptions.RuntimeException("Inconsistent shape in sequence");
+                            throw new ArgumentException("Inconsistent shape in sequence");
                         }
                         if (dims[dimIdx + 1] > nLowest) nLowest = dims[dimIdx + 1];
                     }
@@ -461,7 +549,24 @@ namespace NumpyDotNet {
                 // Scalar condition.
                 dims[dimIdx] = 1;
             }
-            return !error;
+        }
+
+        private static int DiscoverItemsize(object s, int nd, int min) {
+            if (s is ndarray) {
+                ndarray a = (ndarray)s;
+                return Math.Max(min, a.dtype.ElementSize);
+            }
+            int n = (int)NpyUtil_Python.CallBuiltin(null, "len", s);
+            if (nd == 0 || s is string || s is Bytes || s is MemoryView || s is PythonBuffer) {
+                return Math.Max(min, n);
+            } else {
+                int result = min;
+                for (int i = 0; i < n; i++) {
+                    object item = PythonOps.GetIndex(NpyUtil_Python.DefaultContext, s, i);
+                    result = DiscoverItemsize(item, nd - 1, result);
+                }
+                return result;
+            }
         }
 
         internal static ndarray Empty(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {

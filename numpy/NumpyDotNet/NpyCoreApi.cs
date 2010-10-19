@@ -520,6 +520,10 @@ namespace NumpyDotNet {
             return DecrefToInterface<dtype>(NpyArrayAccess_InheritDescriptor(t1.Descr, other.Descr));
         }
 
+        internal static bool EquivTypes(dtype d1, dtype d2) {
+            return NpyArray_EquivTypes(d1.Descr, d2.Descr) != 0;
+        }
+
         #endregion
 
 
