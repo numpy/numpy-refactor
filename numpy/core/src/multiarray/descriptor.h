@@ -2,6 +2,7 @@
 #define _NPY_ARRAYDESCR_H_
 
 #include "npy_dict.h"
+#include "npy_api.h"
 
 
 NPY_NO_EXPORT PyObject *npy_arraydescr_protocol_typestr_get(NpyArray_Descr *);
@@ -21,6 +22,5 @@ arraydescr_seq_to_nameslist(PyObject *seq);
 NPY_NO_EXPORT NpyDict *
 arraydescr_fields_from_pydict(PyObject *dict);
 
-extern NPY_NO_EXPORT char *_datetime_strings[];
 
 #endif

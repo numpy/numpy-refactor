@@ -27,6 +27,8 @@
 
 #define NpyDataType_ISOBJECT(obj) NpyTypeNum_ISOBJECT(obj->type_num)
 #define NpyDataType_ISSTRING(obj) NpyTypeNum_ISSTRING(obj->type_num)
+#define NpyDataType_TYPE_NUM(obj) ((obj)->type_num)
+
 #define NpyArray_Check(op) (&NpyArray_Type == (op)->nob_type)
 
 
@@ -299,7 +301,7 @@ NpyArray_TimedeltaToTimedeltaStruct(npy_timedelta val, NPY_DATETIMEUNIT fr,
 NDARRAY_API NpyArray_DateTimeInfo*
 NpyArray_DateTimeInfoNew(const char* units, int num, int den, int events);
 
-NDARRAY_API char *_datetime_strings[];
+extern NDARRAY_API char *_datetime_strings[];
 
 NDARRAY_API int
 NpyArray_GetNumusertypes(void);
