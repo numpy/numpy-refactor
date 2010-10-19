@@ -282,8 +282,6 @@ namespace NumpyDotNet {
             } else {
                 return ConvertFromCommaStringList(cntx, val, align);
             }
-            // TODO: Calls Python function, needs integration of numpy + .net interface
-            throw new NotImplementedException();
         }
 
         private static dtype ConvertFromCommaStringList(CodeContext cntx, List l, bool align) {
