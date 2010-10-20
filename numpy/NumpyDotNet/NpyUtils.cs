@@ -139,7 +139,7 @@ namespace NumpyDotNet {
 
             object result = CallBuiltin(cntx, "int", obj);
             if (result is int) {
-                return (long)result;
+                return (long)(int)result;
             } else if (result is BigInteger) {
                 BigInteger i = (BigInteger)result;
                 if (i > long.MaxValue || i < long.MinValue) {
