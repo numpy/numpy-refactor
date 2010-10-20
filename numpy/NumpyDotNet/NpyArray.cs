@@ -532,7 +532,14 @@ namespace NumpyDotNet {
             else if (src is UInt16) type = NpyDefs.NPY_TYPES.NPY_USHORT;
             else if (src is UInt32) type = NpyCoreApi.TypeOf_UInt32;
             else if (src is UInt64) type = NpyCoreApi.TypeOf_UInt64;
-            else if (src is BigInteger) type = NpyDefs.NPY_TYPES.NPY_LONG;
+            else if (src is BigInteger) {
+                BigInteger bi = (BigInteger)src;
+                if (Int64.MinValue <= bi && bi <= Int64.MaxValue) {
+                    type = NpyCoreApi.TypeOf_Int64;
+                } else {
+                    type = NpyDefs.NPY_TYPES.NPY_OBJECT;
+                }
+            }
             else if (src is Complex) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
             else type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
 
