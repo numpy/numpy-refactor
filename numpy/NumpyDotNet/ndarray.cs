@@ -442,7 +442,7 @@ namespace NumpyDotNet
         public object this[string field] {
             set {
                 if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
-                    throw new ArgumentException("array is not writeable.");
+                    throw new RuntimeException("array is not writeable.");
                 } 
                 IntPtr descr;
                 int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
@@ -499,7 +499,7 @@ namespace NumpyDotNet
                 }
                 if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
                 {
-                    throw new ArgumentException("array is not writeable.");
+                    throw new RuntimeException("array is not writeable.");
                 }
 
                 using (NpyIndexes indexes = new NpyIndexes())
