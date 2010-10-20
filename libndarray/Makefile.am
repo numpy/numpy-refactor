@@ -6,6 +6,7 @@ INSTINCLUDES = \
         src/npy_neighbor_imp.h \
         src/npy_api.h \
         src/npy_arrayobject.h \
+        src/npy_buffer.h \
         src/npy_calculation.h \
         src/npy_common.h \
         src/npy_config.h \
@@ -34,6 +35,7 @@ OTHERINCLUDES = \
 LIBSOURCES = \
         src/npy_arrayobject.c \
         src/npy_arraytypes.c \
+        src/npy_buffer.c \
         src/npy_calculation.c \
         src/npy_common.c \
         src/npy_conversion_utils.c \

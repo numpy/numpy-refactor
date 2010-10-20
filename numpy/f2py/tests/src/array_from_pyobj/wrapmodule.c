@@ -88,22 +88,25 @@ static PyObject *f2py_rout_wrap_attrs(PyObject *capi_self,
 			&PyArray_Type,&arr_capi))
     return NULL;
   arr = (PyArrayObject *)arr_capi;
-  sprintf(s,"%p",arr->data);
-  dimensions = PyTuple_New(arr->nd);
-  strides = PyTuple_New(arr->nd);
-  for (i=0;i<arr->nd;++i) {
-    PyTuple_SetItem(dimensions,i,PyInt_FromLong(arr->dimensions[i]));
-    PyTuple_SetItem(strides,i,PyInt_FromLong(arr->strides[i]));
+  sprintf(s,"%p",PyArray_DATA(arr));
+  dimensions = PyTuple_New(PyArray_NDIM(arr));
+  strides = PyTuple_New(PyArray_NDIM(arr));
+  for (i=0;i < PyArray_NDIM(arr); ++i) {
+    PyTuple_SetItem(dimensions,i,PyInt_FromLong(PyArray_DIMS(arr)[i]));
+    PyTuple_SetItem(strides,i,PyInt_FromLong(PyArray_STRIDES(arr)[i]));
   }
-  return Py_BuildValue("siOOO(cciii)ii",s,arr->nd,
+  return Py_BuildValue("siOOO(cciii)ii",s, PyArray_NDIM(arr),
 		       dimensions,strides,
-		       (arr->base==NULL?Py_None:arr->base),
-		       arr->descr->kind,
-		       arr->descr->type,
-		       arr->descr->type_num,
-		       arr->descr->elsize,
-		       arr->descr->alignment,
-		       arr->flags,
+               (NULL != PyArray_BASE(arr) ? 
+                  (PyObject *)PyArray_BASE(arr) :
+                  (NULL != PyArray_BASE_ARRAY(arr) ? 
+                    (PyObject *)Npy_INTERFACE(PyArray_BASE_ARRAY(arr)) : Py_None)),
+		       PyArray_DESCR(arr)->kind,
+		       PyArray_DESCR(arr)->type,
+		       PyArray_DESCR(arr)->type_num,
+		       PyArray_DESCR(arr)->elsize,
+		       PyArray_DESCR(arr)->alignment,
+		       PyArray_FLAGS(arr),
 		       PyArray_ITEMSIZE(arr));
 }
 
