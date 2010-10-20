@@ -6,6 +6,7 @@
 #define NPY_NO_PREFIX
 #include "npy_api.h"
 #include "npy_dict.h"
+#include "npy_buffer.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 
@@ -16,64 +17,32 @@
 #include "buffer.h"
 #include "npy_os.h"
 
-/*************************************************************************
- ****************   Implement Buffer Protocol ****************************
- *************************************************************************/
 
-/* removed multiple segment interface */
-
-static Py_ssize_t
-array_getsegcount(PyArrayObject *self, Py_ssize_t *lenp)
+static size_t
+array_getsegcount(PyArrayObject *self, size_t *lenp)
 {
-    if (lenp) {
-        *lenp = PyArray_NBYTES(self);
-    }
-    if (PyArray_ISONESEGMENT(self)) {
-        return 1;
-    }
-    if (lenp) {
-        *lenp = 0;
-    }
-    return 0;
+    return npy_array_getsegcount(PyArray_ARRAY(self), lenp);
 }
 
-static Py_ssize_t
-array_getreadbuf(PyArrayObject *self, Py_ssize_t segment, void **ptrptr)
+static size_t
+array_getreadbuf(PyArrayObject *self, size_t segment, void **ptrptr)
 {
-    if (segment != 0) {
-        PyErr_SetString(PyExc_ValueError,
-                        "accessing non-existing array segment");
-        return -1;
-    }
-    if (PyArray_ISONESEGMENT(self)) {
-        *ptrptr = PyArray_BYTES(self);
-        return PyArray_NBYTES(self);
-    }
-    PyErr_SetString(PyExc_ValueError, "array is not a single segment");
-    *ptrptr = NULL;
-    return -1;
+    return npy_array_getreadbuf(PyArray_ARRAY(self), segment, ptrptr);
 }
 
 
-static Py_ssize_t
-array_getwritebuf(PyArrayObject *self, Py_ssize_t segment, void **ptrptr)
+static size_t
+array_getwritebuf(PyArrayObject *self, size_t segment, void **ptrptr)
 {
-    if (PyArray_CHKFLAGS(self, WRITEABLE)) {
-        return array_getreadbuf(self, segment, (void **) ptrptr);
-    }
-    else {
-        PyErr_SetString(PyExc_ValueError, "array cannot be "
-                        "accessed as a writeable buffer");
-        return -1;
-    }
+    return npy_array_getwritebuf(PyArray_ARRAY(self), segment, ptrptr);
 }
 
-static Py_ssize_t
-array_getcharbuf(PyArrayObject *self, Py_ssize_t segment, constchar **ptrptr)
-{
-    return array_getreadbuf(self, segment, (void **) ptrptr);
-}
 
+static size_t
+array_getcharbuf(PyArrayObject *self, size_t segment, char **ptrptr)
+{
+    return npy_array_getcharbuf(PyArray_ARRAY(self), segment, (void **) ptrptr);
+}
 
 /*************************************************************************
  * PEP 3118 buffer protocol
@@ -98,296 +67,6 @@ array_getcharbuf(PyArrayObject *self, Py_ssize_t segment, constchar **ptrptr)
 
 #if PY_VERSION_HEX >= 0x02060000
 
-/*
- * Format string translator
- *
- * Translate PyArray_Descr to a PEP 3118 format string.
- */
-
-/* Fast string 'class' */
-typedef struct {
-    char *s;
-    int allocated;
-    int pos;
-} _tmp_string_t;
-
-static int
-_append_char(_tmp_string_t *s, char c)
-{
-    char *p;
-    if (s->s == NULL) {
-        s->s = (char*)malloc(16);
-        s->pos = 0;
-        s->allocated = 16;
-    }
-    if (s->pos >= s->allocated) {
-        p = (char*)realloc(s->s, 2*s->allocated);
-        if (p == NULL) {
-            PyErr_SetString(PyExc_MemoryError, "memory allocation failed");
-            return -1;
-        }
-        s->s = p;
-        s->allocated *= 2;
-    }
-    s->s[s->pos] = c;
-    ++s->pos;
-    return 0;
-}
-
-static int
-_append_str(_tmp_string_t *s, char *c)
-{
-    while (*c != '\0') {
-        if (_append_char(s, *c)) return -1;
-        ++c;
-    }
-    return 0;
-}
-
-/*
- * Return non-zero if a type is aligned in each item in the given array,
- * AND, the descr element size is a multiple of the alignment,
- * AND, the array data is positioned to alignment granularity.
- */
-static int
-_is_natively_aligned_at(NpyArray_Descr *descr,
-                        PyArrayObject *arr, Py_ssize_t offset)
-{
-    int k;
-
-    if ((Py_ssize_t)(PyArray_BYTES(arr)) % descr->alignment != 0) {
-        return 0;
-    }
-
-    if (offset % descr->alignment != 0) {
-        return 0;
-    }
-
-    if (descr->elsize % descr->alignment) {
-        return 0;
-    }
-
-    for (k = 0; k < PyArray_NDIM(arr); ++k) {
-        if (PyArray_DIM(arr, k) > 1) {
-            if (PyArray_STRIDE(arr, k) % descr->alignment != 0) {
-                return 0;
-            }
-        }
-    }
-
-    return 1;
-}
-
-static int
-_buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
-                      PyArrayObject* arr, Py_ssize_t *offset,
-                      char *active_byteorder)
-{
-    int k;
-    char _active_byteorder = '@';
-    Py_ssize_t _offset = 0;
-
-    if (active_byteorder == NULL) {
-        active_byteorder = &_active_byteorder;
-    }
-    if (offset == NULL) {
-        offset = &_offset;
-    }
-
-    if (descr->subarray) {
-        Py_ssize_t total_count = 1;
-        char buf[128];
-        int old_offset;
-        int ret;
-
-        _append_char(str, '(');
-        for (k = 0; k < descr->subarray->shape_num_dims; ++k) {
-            if (k > 0) {
-                _append_char(str, ',');
-            }
-            PyOS_snprintf(buf, sizeof(buf), "%ld", (long)descr->subarray->shape_dims[k]);
-            _append_str(str, buf);
-            total_count *= descr->subarray->shape_dims[k];
-        }
-        _append_char(str, ')');
-        old_offset = *offset;
-        ret = _buffer_format_string(descr->subarray->base, str, arr, offset,
-                                    active_byteorder);
-        *offset = old_offset + (*offset - old_offset) * total_count;
-        return ret;
-    }
-    else if (NpyDataType_HASFIELDS(descr)) {
-        int n;
-        
-        _append_str(str, "T{");
-        for (n=0; NULL != descr->names[n]; n++) ;
-        for (k = 0; k < n; ++k) {
-            const char *name;
-            NpyArray_DescrField *item = NULL;
-            NpyArray_Descr *child;
-            const char *p;
-            int new_offset;
-
-            name = descr->names[k];
-            item = (NpyArray_DescrField *)NpyDict_Get(descr->fields, name);
-
-            child = item->descr;
-            new_offset = item->offset;
-
-            /* Insert padding manually */
-            while (*offset < new_offset) {
-                _append_char(str, 'x');
-                ++*offset;
-            }
-            *offset += child->elsize;
-
-            /* Insert child item */
-            _buffer_format_string(child, str, arr, offset,
-                                  active_byteorder);
-
-            _append_char(str, ':');
-            p = name;
-            while (*p) {
-                if (*p == ':') {
-                    PyErr_SetString(PyExc_ValueError,
-                                    "':' is not an allowed character in buffer "
-                                    "field names");
-                    return -1;
-                }
-                _append_char(str, *p);
-                ++p;
-            }
-            _append_char(str, ':');
-        }
-        _append_char(str, '}');
-    }
-    else {
-        int is_standard_size = 1;
-        int is_native_only_type = (descr->type_num == NPY_LONGDOUBLE ||
-                                   descr->type_num == NPY_CLONGDOUBLE);
-#if NPY_SIZEOF_LONGLONG != 8
-        is_native_only_type = is_native_only_type || (
-            descr->type_num == NPY_LONGLONG ||
-            descr->type_num == NPY_ULONGLONG);
-#endif
-
-        if (descr->byteorder == '=' &&
-                _is_natively_aligned_at(descr, arr, *offset)) {
-            /* Prefer native types, to cater for Cython */
-            is_standard_size = 0;
-            if (*active_byteorder != '@') {
-                _append_char(str, '@');
-                *active_byteorder = '@';
-            }
-        }
-        else if (descr->byteorder == '=' && is_native_only_type) {
-            /* Data types that have no standard size */
-            is_standard_size = 0;
-            if (*active_byteorder != '^') {
-                _append_char(str, '^');
-                *active_byteorder = '^';
-            }
-        }
-        else if (descr->byteorder == '<' || descr->byteorder == '>' ||
-                 descr->byteorder == '=') {
-            is_standard_size = 1;
-            if (*active_byteorder != descr->byteorder) {
-                _append_char(str, descr->byteorder);
-                *active_byteorder = descr->byteorder;
-            }
-
-            if (is_native_only_type) {
-                /* It's not possible to express native-only data types
-                   in non-native byte orders */
-                PyErr_Format(PyExc_ValueError,
-                             "cannot expose native-only dtype '%c' in "
-                             "non-native byte order '%c' via buffer interface",
-                             descr->type, descr->byteorder);
-            }
-        }
-
-        switch (descr->type_num) {
-        case NPY_BOOL:         if (_append_char(str, '?')) return -1; break;
-        case NPY_BYTE:         if (_append_char(str, 'b')) return -1; break;
-        case NPY_UBYTE:        if (_append_char(str, 'B')) return -1; break;
-        case NPY_SHORT:        if (_append_char(str, 'h')) return -1; break;
-        case NPY_USHORT:       if (_append_char(str, 'H')) return -1; break;
-        case NPY_INT:          if (_append_char(str, 'i')) return -1; break;
-        case NPY_UINT:         if (_append_char(str, 'I')) return -1; break;
-        case NPY_LONG:
-            if (is_standard_size && (NPY_SIZEOF_LONG == 8)) {
-                if (_append_char(str, 'q')) return -1;
-            }
-            else {
-                if (_append_char(str, 'l')) return -1;
-            }
-            break;
-        case NPY_ULONG:
-            if (is_standard_size && (NPY_SIZEOF_LONG == 8)) {
-                if (_append_char(str, 'Q')) return -1;
-            }
-            else {
-                if (_append_char(str, 'L')) return -1;
-            }
-            break;
-        case NPY_LONGLONG:     if (_append_char(str, 'q')) return -1; break;
-        case NPY_ULONGLONG:    if (_append_char(str, 'Q')) return -1; break;
-        case NPY_FLOAT:        if (_append_char(str, 'f')) return -1; break;
-        case NPY_DOUBLE:       if (_append_char(str, 'd')) return -1; break;
-        case NPY_LONGDOUBLE:   if (_append_char(str, 'g')) return -1; break;
-        case NPY_CFLOAT:       if (_append_str(str, "Zf")) return -1; break;
-        case NPY_CDOUBLE:      if (_append_str(str, "Zd")) return -1; break;
-        case NPY_CLONGDOUBLE:  if (_append_str(str, "Zg")) return -1; break;
-        /* XXX: datetime */
-        /* XXX: timedelta */
-        case NPY_OBJECT:       if (_append_char(str, 'O')) return -1; break;
-        case NPY_STRING: {
-            char buf[128];
-            PyOS_snprintf(buf, sizeof(buf), "%ds", descr->elsize);
-            if (_append_str(str, buf)) return -1;
-            break;
-        }
-        case NPY_UNICODE: {
-            /* Numpy Unicode is always 4-byte */
-            char buf[128];
-            assert(descr->elsize % 4 == 0);
-            PyOS_snprintf(buf, sizeof(buf), "%dw", descr->elsize / 4);
-            if (_append_str(str, buf)) return -1;
-            break;
-        }
-        case NPY_VOID: {
-            /* Insert padding bytes */
-            char buf[128];
-            PyOS_snprintf(buf, sizeof(buf), "%dx", descr->elsize);
-            if (_append_str(str, buf)) return -1;
-            break;
-        }
-        default:
-            PyErr_Format(PyExc_ValueError,
-                         "cannot include dtype '%c' in a buffer",
-                         descr->type);
-            return -1;
-        }
-    }
-
-    return 0;
-}
-
-
-/*
- * Global information about all active buffers
- *
- * Note: because for backward compatibility we cannot define bf_releasebuffer,
- * we must manually keep track of the additional data required by the buffers.
- */
-
-/* Additional per-array data required for providing the buffer interface */
-typedef struct {
-    char *format;
-    int ndim;
-    Py_ssize_t *strides;
-    Py_ssize_t *shape;
-} _buffer_info_t;
 
 /*
  * { id(array): [list of pointers to _buffer_info_t, the last one is latest] }
@@ -401,78 +80,6 @@ typedef struct {
  */
 static PyObject *_buffer_info_cache = NULL;
 
-/* Fill in the info structure */
-static _buffer_info_t*
-_buffer_info_new(PyArrayObject *arr)
-{
-    _buffer_info_t *info;
-    _tmp_string_t fmt = {0,0,0};
-    int k;
-
-    info = (_buffer_info_t*)malloc(sizeof(_buffer_info_t));
-
-    /* Fill in format */
-    if (_buffer_format_string(PyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
-        free(info);
-        return NULL;
-    }
-    _append_char(&fmt, '\0');
-    info->format = fmt.s;
-
-    /* Fill in shape and strides */
-    info->ndim = PyArray_NDIM(arr);
-
-    if (info->ndim == 0) {
-        info->shape = NULL;
-        info->strides = NULL;
-    }
-    else {
-        info->shape = (Py_ssize_t*)malloc(sizeof(Py_ssize_t)
-                                          * PyArray_NDIM(arr) * 2 + 1);
-        info->strides = info->shape + PyArray_NDIM(arr);
-        for (k = 0; k < PyArray_NDIM(arr); ++k) {
-            info->shape[k] = PyArray_DIM(arr, k);
-            info->strides[k] = PyArray_STRIDE(arr, k);
-        }
-    }
-
-    return info;
-}
-
-/* Compare two info structures */
-static Py_ssize_t
-_buffer_info_cmp(_buffer_info_t *a, _buffer_info_t *b)
-{
-    Py_ssize_t c;
-    int k;
-
-    c = strcmp(a->format, b->format);
-    if (c != 0) return c;
-
-    c = a->ndim - b->ndim;
-    if (c != 0) return c;
-
-    for (k = 0; k < a->ndim; ++k) {
-        c = a->shape[k] - b->shape[k];
-        if (c != 0) return c;
-        c = a->strides[k] - b->strides[k];
-        if (c != 0) return c;
-    }
-
-    return 0;
-}
-
-static void
-_buffer_info_free(_buffer_info_t *info)
-{
-    if (info->format) {
-        free(info->format);
-    }
-    if (info->shape) {
-        free(info->shape);
-    }
-    free(info);
-}
 
 /* Get buffer info from the global dictionary */
 static _buffer_info_t*
@@ -489,7 +96,7 @@ _buffer_get_info(PyObject *arr)
     }
 
     /* Compute information */
-    info = _buffer_info_new((PyArrayObject*)arr);
+    info = npy_buffer_info_new(PyArray_ARRAY((PyArrayObject*)arr));
     if (info == NULL) {
         return NULL;
     }
@@ -504,8 +111,8 @@ _buffer_get_info(PyObject *arr)
             item = PyList_GetItem(item_list, PyList_GET_SIZE(item_list) - 1);
             old_info = (_buffer_info_t*)PyLong_AsVoidPtr(item);
 
-            if (_buffer_info_cmp(info, old_info) == 0) {
-                _buffer_info_free(info);
+            if (npy_buffer_info_cmp(info, old_info) == 0) {
+                npy_buffer_info_free(info);
                 info = old_info;
             }
         }
@@ -545,7 +152,7 @@ _buffer_clear_info(PyObject *arr)
         for (k = 0; k < PyList_GET_SIZE(item_list); ++k) {
             item = PyList_GET_ITEM(item_list, k);
             info = (_buffer_info_t*)PyLong_AsVoidPtr(item);
-            _buffer_info_free(info);
+            npy_buffer_info_free(info);
         }
         PyDict_DelItem(_buffer_info_cache, key);
     }
