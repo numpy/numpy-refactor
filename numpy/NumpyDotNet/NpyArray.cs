@@ -429,7 +429,7 @@ namespace NumpyDotNet {
             }
             return result;
         }
-        
+
         internal static ndarray PrependOnes(ndarray arr, int nd, int ndmin) {
             IntPtr[] newdims = new IntPtr[ndmin];
             IntPtr[] newstrides = new IntPtr[ndmin];
@@ -525,7 +525,7 @@ namespace NumpyDotNet {
             }
             // TODO: PyInstance_Check?
             if (src is IEnumerable<object>) {
-                // TODO: Does this work for user-defined Python sequences?
+                // TODO: This does not work for user-defined Python sequences
                 int l;
                 try {
                     l = PythonOps.Length(src);
@@ -570,8 +570,6 @@ namespace NumpyDotNet {
         internal static dtype FindScalarType(Object src) {
             NpyDefs.NPY_TYPES type;
 
-            // TODO: Complex numbers not handled.  
-            // TODO: Are int32/64 -> long, longlong correct?
             if (src is Double) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
             else if (src is Single) type = NpyDefs.NPY_TYPES.NPY_FLOAT;
             else if (src is Boolean) type = NpyDefs.NPY_TYPES.NPY_BOOL;
@@ -614,25 +612,43 @@ namespace NumpyDotNet {
                 throw new ArgumentException("invalid input sequence");
             }
 
-            if (src is IEnumerable<Object>) {
-                IEnumerable<Object> seq = (IEnumerable<Object>)src;
-
-                if (stopAtTuple && seq is IronPython.Runtime.PythonTuple)
-                    d = 0;
-                else if (seq.Count() == 0) d = 1;
-                else {
-                    d = DiscoverDepth(seq.First(), max - 1, stopAtString, stopAtTuple);
-                    if (d >= 0) d++;
-                }
-            } else if (src is ndarray) {
-                d = ((ndarray)src).ndim;
-            } else if (src is String) {
-                d = stopAtString ? 0 : 1;
+            if (stopAtTuple && src is PythonTuple) {
+                return 0;
             }
+            if (src is string) {
+                return (stopAtString ? 0 : 1);
+            }
+
+            if (src is ndarray) {
+                return ((ndarray)src).ndim;
+            }
+
+            if (src is IList<object>) {
+                IList<object> list = (IList<object>)src;
+                if (list.Count == 0) {
+                    return 1;
+                } else {
+                    d = DiscoverDepth(list[0], max-1, stopAtString, stopAtTuple);
+                    return d+1;
+                }
+            }
+            
+            if (src is IEnumerable<object>) {
+                IEnumerable<object> seq = (IEnumerable<object>)src;
+                object first;
+                try {
+                    first = seq.First();
+                } catch (InvalidOperationException) {
+                    // Empty sequence
+                    return 1;
+                }
+                d = DiscoverDepth(first, max-1, stopAtString, stopAtTuple);
+                return d+1;
+            }
+
                 // TODO: Not handling __array_struct__ attribute
                 // TODO: Not handling __array_interface__ attribute
-            else d = 0;
-            return d;
+            return 0;
         }
 
 
@@ -646,6 +662,7 @@ namespace NumpyDotNet {
         /// <param name="checkIt">Verify that src is consistent</param>
         private static void DiscoverDimensions(Object src, int numDim,
             Int64[] dims, int dimIdx, bool checkIt) {
+            Int64 nLowest;
 
             if (src is ndarray) {
                 ndarray arr = (ndarray)src;
@@ -656,10 +673,26 @@ namespace NumpyDotNet {
                         dims[i + dimIdx] = d[i];
                     }
                 }
-            } else if (src is IEnumerable<Object>) {
+            } else if (src is IList<object>) {
+                IList<object> seq = (IList<object>)src;
+
+                nLowest = 0;
+                dims[dimIdx] = seq.Count();
+                if (numDim > 1 && dims[dimIdx] > 1) {
+                    foreach (Object o in seq) {
+                        DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
+                        if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {
+                            throw new ArgumentException("Inconsistent shape in sequence");
+                        }
+                        if (dims[dimIdx + 1] > nLowest) nLowest = dims[dimIdx + 1];
+                    }
+                    dims[dimIdx + 1] = nLowest;
+                }
+            }
+            else if (src is IEnumerable<Object>) {
                 IEnumerable<Object> seq = (IEnumerable<Object>)src;
 
-                Int64 nLowest = 0;
+                nLowest = 0;
                 dims[dimIdx] = seq.Count();
                 if (numDim > 1 && dims[dimIdx] > 1) {
                     foreach (Object o in seq) {
@@ -812,14 +845,14 @@ namespace NumpyDotNet {
         }
 
         internal static void AssignToArray(Object src, ndarray result) {
-            if (src is IEnumerable<Object>) {
-                AssignFromSeq((IEnumerable<Object>)src, result, 0, 0);
-            } else {
-                // TODO: Assign from array and other types is not implemented.
-                throw new NotImplementedException(
-                    String.Format("Assign to array from type '{0}' is not yet implemented.",
-                        src.GetType().Name));
+            IEnumerable<object> seq = src as IEnumerable<object>;
+            if (seq == null) {
+                throw new ArgumentException("assignment from non-sequence");
             }
+            if (result.ndim == 0) {
+                throw new ArgumentException("assignment to 0-d array");
+            }
+            AssignFromSeq(seq, result, 0, 0);
         }
 
         private static void AssignFromSeq(IEnumerable<Object> seq, ndarray result,
