@@ -228,55 +228,56 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray FromNestedList(object src, dtype descr, bool fortran) {
-            long[] dims = ObjectDepthAndDimension(src, NpyDefs.NPY_MAXDIMS);
-            if (dims.Length == 0) {
+            List<long> dims = ObjectDepthAndDimension(src, NpyDefs.NPY_MAXDIMS);
+            if (dims.Count == 0) {
                 return FromPythonScalar(src, descr);
             }
-            ndarray result = NpyCoreApi.AllocArray(descr, dims.Length, dims, fortran);
+            ndarray result = NpyCoreApi.AllocArray(descr, dims.Count, dims.ToArray(), fortran);
             AssignToArray(src, result);
             return result;
         }
 
-        internal static long[] ObjectDepthAndDimension(object src, int max)
+        internal static List<long> ObjectDepthAndDimension(object src, int max)
         {
             IList<object> list;
+            List<long> result;
 
             if (max < 1) {
-                return new long[0];
+                return new List<long>();
             }
             if (src is List || src is PythonTuple) {
                 list = (IList<object>)src;
             } else {
-                return new long[0];
+                return new List<long>();
             }
 
             int size = list.Count;
             if (size == 0) {
-                return new long[0];
+                return new List<long>();
             }
             if (max < 2) {
-                return new long[] { size };
+                result = new List<long>(1);
+                result[0] = size;
+                return result;
             }
             object item;
             item = list[0];
-            long[] dims = ObjectDepthAndDimension(item, max-1);
+            List<long> dims = ObjectDepthAndDimension(item, max-1);
             for (int i=1; i<size; i++) {
                 item = list[i];
-                long[] otherDims = ObjectDepthAndDimension(item, max-1);
-                if (dims.Length != otherDims.Length) {
-                    return new long[0];
+                List<long> otherDims = ObjectDepthAndDimension(item, max-1);
+                
+                if (dims.Count != otherDims.Count) {
+                    return new List<long>();
                 }
-                for (int j = 0; j < dims.Length; j++) {
-                    if (otherDims[j] != dims[j]) {
-                        return new long[0];
-                    }
+                bool eq = Enumerable.Zip(dims, otherDims, (a, b) => (a == b)).All(x => x);
+                if (!eq) {
+                    return new List<long>();
                 }
             }
-            long[] result = new long[dims.Length+1];
-            result[0] = size;
-            for (int i=0; i<dims.Length; i++) {
-                result[i+1] = dims[i];
-            }
+            result = new List<long>(dims.Count + 1);
+            result.Add(size);
+            result.AddRange(dims);
             return result;
         }
 
