@@ -251,5 +251,13 @@ namespace NumpyDotNet {
         public static ndarray concatenate(IEnumerable<object> seq, int axis = 0) {
             return NpyArray.Concatenate(seq, axis);
         }
+
+        public static object inner(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.InnerProduct(o1, o2));
+        }
+
+        public static object dot(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.MatrixProduct(o1, o2));
+        }
     }
 }

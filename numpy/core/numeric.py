@@ -29,8 +29,8 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 if sys.platform == 'cli':
     obj2sctype = isnan = zeros = None
     for n in '''fromstring fromfile frombuffer int_asbuffer
-where fastCopyAndTranspose set_numeric_ops can_cast inner
-dot vdot alterdot restoredot array2string get_printoptions set_printoptions
+where fastCopyAndTranspose set_numeric_ops can_cast
+array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
 Inf inf infty Infinity nan NaN
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
@@ -897,15 +897,14 @@ try:
     from _dotblas import dot, vdot, inner, alterdot, restoredot
 except ImportError:
     # docstrings are in add_newdocs.py
-    if sys.platform != 'cli':
-        inner = multiarray.inner
-        dot = multiarray.dot
-        def vdot(a, b):
-            return dot(asarray(a).ravel().conj(), asarray(b).ravel())
-        def alterdot():
-            pass
-        def restoredot():
-            pass
+    inner = multiarray.inner
+    dot = multiarray.dot
+    def vdot(a, b):
+        return dot(asarray(a).ravel().conj(), asarray(b).ravel())
+    def alterdot():
+        pass
+    def restoredot():
+        pass
 
 def tensordot(a, b, axes=2):
     """
