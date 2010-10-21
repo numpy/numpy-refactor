@@ -197,8 +197,8 @@ npy_buffer_format_string(NpyArray_Descr *descr, npy_tmp_string_t *str,
         }
         _append_char(str, ')');
         old_offset = *offset;
-        ret = _buffer_format_string(descr->subarray->base, str, arr, offset,
-                                    active_byteorder);
+        ret = npy_buffer_format_string(descr->subarray->base, str, arr, offset,
+                                       active_byteorder);
         *offset = old_offset + (*offset - old_offset) * total_count;
         return ret;
     }
@@ -228,8 +228,8 @@ npy_buffer_format_string(NpyArray_Descr *descr, npy_tmp_string_t *str,
             *offset += child->elsize;
             
             /* Insert child item */
-            _buffer_format_string(child, str, arr, offset,
-                                  active_byteorder);
+            npy_buffer_format_string(child, str, arr, offset,
+                                     active_byteorder);
             
             _append_char(str, ':');
             p = name;
