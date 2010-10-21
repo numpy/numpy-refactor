@@ -142,6 +142,14 @@ namespace NumpyDotNet
             set(NpyDefs.NpyArray_Ops.npy_op_minimum, "minimum");
             set(NpyDefs.NpyArray_Ops.npy_op_rint, "rint");
             set(NpyDefs.NpyArray_Ops.npy_op_conjugate, "conjugate");
+
+            object s;
+            if (funcDict.TryGetValue("conjugate", out s)) {
+                funcDict["conj"] = s;
+            }
+            if (funcDict.TryGetValue("remainder", out s)) {
+                funcDict["mod"] = s;
+            }
         }
 
 
