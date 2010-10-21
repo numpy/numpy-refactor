@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,22 +33,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronPython, Version=2.6.10920.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\IronPython_Main\bin\Debug\IronPython.dll</HintPath>
+    <Reference Include="IronPython">
+      <HintPath>..\..\..\IronPython_Main\bin\Release\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\IronPython_Main\bin\Debug\IronPython.Modules.dll</HintPath>
+      <HintPath>..\..\..\IronPython_Main\bin\Release\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\..\IronPython_Main\bin\Debug\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\IronPython_Main\bin\Debug\Microsoft.Scripting.dll</HintPath>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\..\IronPython_Main\bin\Debug\Microsoft.Scripting.Metadata.dll</HintPath>
+      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,6 +66,7 @@
     <Compile Include="flatiter.cs" />
     <Compile Include="IArray.cs" />
     <Compile Include="item_selection.cs" />
+    <Compile Include="NpyBuffer.cs" />
     <Compile Include="NpyIndexes.cs" />
     <Compile Include="ModuleMethods.cs" />
     <Compile Include="ndarray.cs" />
@@ -86,7 +86,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(ProjectDir)$(ConfigurationName)\ndarray.*" "$(TargetDir)"
-copy "$(ProjectDir)benchmark.py" "$(TargetDir)"</PostBuildEvent>
+copy "$(ProjectDir)benchmark.py" "$(TargetDir)"
+copy "$(ProjectDir)numpy.py" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

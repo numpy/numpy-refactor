@@ -97,15 +97,8 @@ npy_array_getcharbuf(NpyArray *self, size_t segment, char **ptrptr)
  * Translate PyArray_Descr to a PEP 3118 format string.
  */
 
-/* Fast string 'class' */
-typedef struct {
-    char *s;
-    int allocated;
-    int pos;
-} _tmp_string_t;
-
 static int
-_append_char(_tmp_string_t *s, char c)
+_append_char(npy_tmp_string_t *s, char c)
 {
     char *p;
     if (s->s == NULL) {
@@ -128,7 +121,7 @@ _append_char(_tmp_string_t *s, char c)
 }
 
 static int
-_append_str(_tmp_string_t *s, char *c)
+_append_str(npy_tmp_string_t *s, char *c)
 {
     while (*c != '\0') {
         if (_append_char(s, *c)) return -1;
@@ -171,10 +164,10 @@ _is_natively_aligned_at(NpyArray_Descr *descr,
     return 1;
 }
 
-static int
-_buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
-                      NpyArray *arr, size_t *offset,
-                      char *active_byteorder)
+NDARRAY_API int
+npy_buffer_format_string(NpyArray_Descr *descr, npy_tmp_string_t *str,
+                         NpyArray *arr, size_t *offset,
+                         char *active_byteorder)
 {
     int k;
     char _active_byteorder = '@';
@@ -204,8 +197,8 @@ _buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
         }
         _append_char(str, ')');
         old_offset = *offset;
-        ret = _buffer_format_string(descr->subarray->base, str, arr, offset,
-                                    active_byteorder);
+        ret = npy_buffer_format_string(descr->subarray->base, str, arr, offset,
+                                       active_byteorder);
         *offset = old_offset + (*offset - old_offset) * total_count;
         return ret;
     }
@@ -235,8 +228,8 @@ _buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
             *offset += child->elsize;
             
             /* Insert child item */
-            _buffer_format_string(child, str, arr, offset,
-                                  active_byteorder);
+            npy_buffer_format_string(child, str, arr, offset,
+                                     active_byteorder);
             
             _append_char(str, ':');
             p = name;
@@ -383,17 +376,17 @@ _buffer_format_string(NpyArray_Descr *descr, _tmp_string_t *str,
 
 
 /* Fill in the info structure */
-NDARRAY_API _buffer_info_t*
+NDARRAY_API npy_buffer_info_t*
 npy_buffer_info_new(NpyArray *arr)
 {
-    _buffer_info_t *info;
-    _tmp_string_t fmt = {0,0,0};
+    npy_buffer_info_t *info;
+    npy_tmp_string_t fmt = {0,0,0};
     int k;
     
-    info = (_buffer_info_t*)malloc(sizeof(_buffer_info_t));
+    info = (npy_buffer_info_t*)malloc(sizeof(npy_buffer_info_t));
     
     /* Fill in format */
-    if (_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
+    if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
         free(info);
         return NULL;
     }
@@ -422,7 +415,7 @@ npy_buffer_info_new(NpyArray *arr)
 
 /* Compare two info structures */
 NDARRAY_API size_t
-npy_buffer_info_cmp(_buffer_info_t *a, _buffer_info_t *b)
+npy_buffer_info_cmp(npy_buffer_info_t *a, npy_buffer_info_t *b)
 {
     size_t c;
     int k;
@@ -444,7 +437,7 @@ npy_buffer_info_cmp(_buffer_info_t *a, _buffer_info_t *b)
 }
 
 NDARRAY_API void
-npy_buffer_info_free(_buffer_info_t *info)
+npy_buffer_info_free(npy_buffer_info_t *info)
 {
     if (info->format) {
         free(info->format);

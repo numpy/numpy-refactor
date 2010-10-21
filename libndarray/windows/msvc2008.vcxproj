@@ -74,6 +74,7 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -157,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\npy_buffer.h" />
     <ClInclude Include="..\src\npy_neighbor_imp.h" />
     <ClInclude Include="..\src\npy_api.h" />
     <ClInclude Include="..\src\npy_arrayobject.h" />
@@ -183,6 +185,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\npy_arrayobject.c" />
     <ClCompile Include="..\src\npy_arraytypes.c" />
+    <ClCompile Include="..\src\npy_buffer.c" />
     <ClCompile Include="..\src\npy_calculation.c" />
     <ClCompile Include="..\src\npy_common.c" />
     <ClCompile Include="..\src\npy_conversion_utils.c" />
