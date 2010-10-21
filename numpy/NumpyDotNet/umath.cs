@@ -13,6 +13,12 @@ namespace NumpyDotNet
     public static class umath
     {
 
+        public static readonly double PINF = double.PositiveInfinity;
+        public static readonly double NINF = double.NegativeInfinity;
+        public static readonly double PZERO = 0.0;
+        public static readonly double NZERO = -0.0;
+        public static readonly double NAN = double.NaN;
+
         /// <summary>
         /// Map of function names to all defined ufunc objects.
         /// </summary>
@@ -94,8 +100,6 @@ namespace NumpyDotNet
                 NpyCoreApi.FreeGCHandle(dictHandle);
                 Marshal.FreeHGlobal(funcsHandle);
             }
-
-
 
         }
 

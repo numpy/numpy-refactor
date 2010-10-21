@@ -26,8 +26,22 @@ from numpy.core.fromnumeric import ravel, nonzero, choose, sort, mean
 from numpy.core.numerictypes import typecodes, number
 from numpy.core import atleast_1d, atleast_2d
 from numpy.lib.twodim_base import diag
-from _compiled_base import _insert, add_docstring
-from _compiled_base import digitize, bincount, interp as compiled_interp
+if sys.platform != 'cli':
+    from _compiled_base import _insert, add_docstring
+    from _compiled_base import digitize, bincount, interp as compiled_interp
+else:
+    # TODO: Implement these
+    def _insert(*args, **kw):
+        raise NotImplementedError()
+    def add_docstring(*args, **kw):
+        pass
+    def digitize(*args, **kw):
+        raise NotImplementedError()
+    def bincount(*args, **kw):
+        raise NotImplementedError()
+    def compiled_interp(*args, **kw):
+        raise NotImplementedError()
+
 from arraysetops import setdiff1d
 from utils import deprecate
 import numpy as np

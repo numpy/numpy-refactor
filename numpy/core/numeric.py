@@ -32,7 +32,6 @@ if sys.platform == 'cli':
 fastCopyAndTranspose set_numeric_ops can_cast
 array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
-Inf inf infty Infinity nan NaN
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
              '''.split():
         __all__.remove(n)
@@ -2444,8 +2443,8 @@ def _setdef():
 if sys.platform != 'cli':
     _setdef()
 
-    Inf = inf = infty = Infinity = PINF
-    nan = NaN = NAN
+Inf = inf = infty = Infinity = PINF
+nan = NaN = NAN
 
 False_ = bool_(False)
 True_ = bool_(True)
