@@ -3,6 +3,7 @@
 extern "C" {
 #include <npy_api.h>
 #include <npy_defs.h>
+#include <npy_buffer.h>
 #include <npy_arrayobject.h>
 #include <npy_descriptor.h>
 #include <npy_object.h>
@@ -565,4 +566,19 @@ extern "C" __declspec(dllexport)
     }
     nw->flags = conv->flags;
     return nw;
+}
+
+
+extern "C" __declspec(dllexport)
+    const char * _cdecl NpyArrayAccess_GetBufferFormatString(NpyArray *arr)
+{
+    assert(NULL != arr && NPY_VALID_MAGIC == arr->nob_magic_number);
+
+    npy_tmp_string_t fmt = {0, 0, 0};
+    if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
+        return null;
+    }
+
+    // Note: caller must release returned string. Done by Marshal.PtrToStringAnsi().
+    return fmt.s;
 }
