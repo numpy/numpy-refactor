@@ -271,5 +271,11 @@ namespace NumpyDotNet {
             ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
             return obj.choose(new object[] { y, x });
         }
+
+        public static object _fastCopyAndTranspose(object a) {
+            ndarray arr = NpyArray.FromAny(a, flags: NpyDefs.NPY_CARRAY);
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_CopyAndTranspose(arr.Array));
+        }
     }
 }
