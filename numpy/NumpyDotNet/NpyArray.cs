@@ -956,7 +956,6 @@ namespace NumpyDotNet {
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_MatrixProduct(a1.Array, a2.Array, (int)d.TypeNum));
         }
-
     }
 }
 

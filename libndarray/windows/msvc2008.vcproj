@@ -158,6 +158,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\npy_buffer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\npy_config.h"
 				>
 			</File>
@@ -251,6 +255,10 @@
 			</File>
 			<File
 				RelativePath="..\src\npy_common.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_buffer.c"
 				>
 			</File>
 			<File

@@ -75,6 +75,9 @@
     <ClInclude Include="..\src\npy_utils.h">
       <Filter>Include</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\npy_buffer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\npy_arrayobject.c">
@@ -165,6 +168,9 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="..\src\npy_usertypes.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_buffer.c">
       <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>

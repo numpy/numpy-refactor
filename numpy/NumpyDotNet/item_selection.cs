@@ -32,7 +32,7 @@ namespace NumpyDotNet
                 NpyCoreApi.NpyArray_Repeat(Array, repeats.Array, axis));
         }
 
-        internal ndarray Choose(IEnumerable<object> objs, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
+        internal ndarray Choose(IEnumerable<object> objs, ndarray ret = null, NpyDefs.NPY_CLIPMODE clipMode = NpyDefs.NPY_CLIPMODE.NPY_RAISE) {
             ndarray[] arrays = NpyUtil_ArgProcessing.ConvertToCommonType(objs);
             IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
             return NpyCoreApi.DecrefToInterface<ndarray>(
