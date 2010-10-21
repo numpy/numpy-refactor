@@ -998,3 +998,4 @@ NpyArray_GetEndianness(void)
         return NPY_CPU_UNKNOWN_ENDIAN;
     }
 }
+

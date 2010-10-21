@@ -248,5 +248,28 @@ namespace NumpyDotNet {
             }
         }
 
+        public static ndarray concatenate(IEnumerable<object> seq, int axis = 0) {
+            return NpyArray.Concatenate(seq, axis);
+        }
+
+        public static object inner(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.InnerProduct(o1, o2));
+        }
+
+        public static object dot(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.MatrixProduct(o1, o2));
+        }
+
+        public static object where(object o, object x, object y) {
+            ndarray arr = NpyArray.FromAny(o);
+            if (x == null && y == null) {
+                return arr.nonzero();
+            }
+            if (x == null || y == null) {
+                throw new ArgumentException("either both or neither of x and y should be given");
+            }
+            ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
+            return obj.choose(new object[] { y, x });
+        }
     }
 }

@@ -28,34 +28,30 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 
 if sys.platform == 'cli':
     obj2sctype = isnan = zeros = None
-    for n in '''ufunc fromstring fromfile frombuffer int_asbuffer
-where concatenate fastCopyAndTranspose set_numeric_ops can_cast inner
-dot vdot alterdot restoredot array2string get_printoptions set_printoptions
+    for n in '''fromstring fromfile frombuffer int_asbuffer
+fastCopyAndTranspose set_numeric_ops can_cast
+array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
-Inf inf infty Infinity nan NaN False_ True_
+Inf inf infty Infinity nan NaN
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
              '''.split():
         __all__.remove(n)
 
 
 if sys.platform == 'cli':
-    import clr
-    clr.AddReference('NumpyDotNet')
-    import NumpyDotNet as NDN
-    import NumpyDotNet.ModuleMethods as NDNMM
-    import numerictypes
-    from numerictypes import *
-    NDN.umath.__init__()
-
+    import multiarray_cli as multiarray
+    import umath_cli as umath
+    from umath_cli import *
 else:
     import multiarray
     import umath
     from umath import *
-    import numerictypes
-    from numerictypes import *
 
-    if sys.version_info[0] < 3:
-        __all__.extend(['getbuffer', 'newbuffer'])
+import numerictypes
+from numerictypes import *
+
+if sys.platform != 'cli' and sys.version_info[0] < 3:
+    __all__.extend(['getbuffer', 'newbuffer'])
 
 class ComplexWarning(RuntimeWarning):
     """
@@ -67,12 +63,14 @@ class ComplexWarning(RuntimeWarning):
     """
     pass
 
-if sys.platform == 'cli':
-    ndarray = NDN.ndarray
-    flatiter = NDN.flatiter
-    broadcast = NDN.broadcast
-    dtype = NDN.dtype
-else:
+ndarray = multiarray.ndarray
+flatiter = multiarray.flatiter
+broadcast = multiarray.broadcast
+dtype = multiarray.dtype
+
+ufunc = type(sin)
+
+if sys.platform != 'cli':
     bitwise_not = invert
 
     CLIP = multiarray.CLIP
@@ -82,11 +80,6 @@ else:
     ALLOW_THREADS = multiarray.ALLOW_THREADS
     BUFSIZE = multiarray.BUFSIZE
 
-    ndarray = multiarray.ndarray
-    flatiter = multiarray.flatiter
-    broadcast = multiarray.broadcast
-    dtype = multiarray.dtype
-    ufunc = type(sin)
 
 
 # originally from Fernando Perez's IPython
@@ -216,27 +209,21 @@ def extend_all(module):
         if a not in adict:
             __all__.append(a)
 
-if sys.platform != 'cli':
-    extend_all(umath)
-
+extend_all(umath)
 extend_all(numerictypes)
 
 newaxis = None
 
 
-if sys.platform == 'cli':
-    arange = NDNMM.arange
-    array = NDNMM.array
-    putmask = NDNMM.putmask
-    zeros = NDNMM.zeros
-    empty = NDNMM.empty
-    lexsort = NDNMM.lexsort
-    putmask = NDNMM.putmask
-else:
-    arange = multiarray.arange
-    array = multiarray.array
-    zeros = multiarray.zeros
-    empty = multiarray.empty
+arange = multiarray.arange
+array = multiarray.array
+zeros = multiarray.zeros
+empty = multiarray.empty
+lexsort = multiarray.lexsort
+putmask = multiarray.putmask
+concatenate = multiarray.concatenate
+where = multiarray.where
+if sys.platform != 'cli':
     fromstring = multiarray.fromstring
     fromiter = multiarray.fromiter
     fromfile = multiarray.fromfile
@@ -245,14 +232,11 @@ else:
         newbuffer = multiarray.newbuffer
         getbuffer = multiarray.getbuffer
     int_asbuffer = multiarray.int_asbuffer
-    where = multiarray.where
-    concatenate = multiarray.concatenate
     fastCopyAndTranspose = multiarray._fastCopyAndTranspose
     set_numeric_ops = multiarray.set_numeric_ops
     can_cast = multiarray.can_cast
     lexsort = multiarray.lexsort
     compare_chararrays = multiarray.compare_chararrays
-    putmask = multiarray.putmask
 
 def asarray(a, dtype=None, order=None):
     """
@@ -913,15 +897,14 @@ try:
     from _dotblas import dot, vdot, inner, alterdot, restoredot
 except ImportError:
     # docstrings are in add_newdocs.py
-    if sys.platform != 'cli':
-        inner = multiarray.inner
-        dot = multiarray.dot
-        def vdot(a, b):
-            return dot(asarray(a).ravel().conj(), asarray(b).ravel())
-        def alterdot():
-            pass
-        def restoredot():
-            pass
+    inner = multiarray.inner
+    dot = multiarray.dot
+    def vdot(a, b):
+        return dot(asarray(a).ravel().conj(), asarray(b).ravel())
+    def alterdot():
+        pass
+    def restoredot():
+        pass
 
 def tensordot(a, b, axes=2):
     """
@@ -2463,9 +2446,12 @@ if sys.platform != 'cli':
 
     Inf = inf = infty = Infinity = PINF
     nan = NaN = NAN
-    False_ = bool_(False)
-    True_ = bool_(True)
 
-    import fromnumeric
-    from fromnumeric import *
-    extend_all(fromnumeric)
+False_ = bool_(False)
+True_ = bool_(True)
+
+import fromnumeric
+from fromnumeric import *
+extend_all(fromnumeric)
+
+

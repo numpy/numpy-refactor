@@ -6,6 +6,9 @@ from numpy.version import version as __version__
 if sys.platform != 'cli':
     import multiarray
     import umath
+else:
+    import multiarray_cli as multiarray
+    import umath_cli as umath
 
 import _internal # for freeze programs
 
