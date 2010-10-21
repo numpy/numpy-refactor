@@ -524,6 +524,19 @@ namespace NumpyDotNet {
             return NpyArray_EquivTypes(d1.Descr, d2.Descr) != 0;
         }
 
+
+        /// <summary>
+        /// Returns the PEP 3118 format encoding for the type of an array.
+        /// </summary>
+        /// <param name="arr">Array to get the format string for</param>
+        /// <returns>Format string</returns>
+        internal static string GetBufferFormatString(ndarray arr) {
+            IntPtr ptr = NpyArrayAccess_GetBufferFormatString(arr.Array);
+            String s = Marshal.PtrToStringAnsi(ptr);
+            NpyArrayAccess_Free(ptr); // ptr was allocated with malloc, not SysStringAlloc - don't use automatic marshalling
+            return s;
+        }
+
         #endregion
 
 
@@ -967,6 +980,13 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_GetBufferFormatString(IntPtr arr);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_Free(IntPtr ptr);
+
         #endregion
 
 

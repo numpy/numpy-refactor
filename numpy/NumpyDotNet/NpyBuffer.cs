@@ -49,12 +49,12 @@ namespace NumpyDotNet
         }
 
         /// <summary>
-        /// Returns the size of each dimension in array elements.
+        /// Size of each dimension in array elements.
         /// </summary>
-        /// <param name="start">Starting dimension</param>
-        /// <param name="end">Optional ending dimension</param>
         /// <returns>List of each dimension size</returns>
-        IList<long> GetShape(int start, int? end);
+        IList<long> Shape {
+            get;
+        }
 
         /// <summary>
         /// Number of bytes to skip to get to the next element in each dimension.
@@ -92,7 +92,7 @@ namespace NumpyDotNet
     /// </summary>
     public interface IBufferProvider
     {
-        IExtBufferProtocol GetBuffer(int flags);
+        IExtBufferProtocol GetBuffer(NpyBuffer.PyBuf flags);
     }
 
 
@@ -116,7 +116,32 @@ namespace NumpyDotNet
     /// </summary>
     public static class NpyBuffer
     {
-        public static IExtBufferProtocol GetBufferForObject(Object o, int flags) {
+        [Flags]
+        public enum PyBuf
+        {
+            SIMPLE = 0x00,
+            WRITABLE = 0x01,
+            FORMAT = 0x02,
+            ND = 0x04,
+            STRIDES = 0x0C,         // Implies ND
+            C_CONTIGUOUS = 0x1C,    // Implies STRIDES
+            F_CONTIGUOUS = 0x2C,    // Implies STRIDES
+            ANY_CONTIGUOUS = 0x4C,  // Implies STRIDES
+            INDIRECT = 0x8C,        // Implies STRIDES
+
+            // Composite sets
+            CONTIG = 0x41,          // Multidimensional ( ND | WRITABLE )
+            CONTIG_RO = 0x40,       // ND
+            STRIDED = 0x0D,         // Multidimensional, aligned ( STRIDES | WRITABLE )
+            STRIDED_RO = 0x0C,      // STRIDES
+            RECORDS = 0x0F,         // Multidimensional, unaligned (STRIDEs | WRITABLE | FORMAT )
+            RECORDS_RO = 0x0E,      // STRIDES | FORMAT
+            FULL = 0x8F,            // Multidimensional using sub-offsets
+            FULL_RO = 0x8E          //
+        }
+
+
+        public static IExtBufferProtocol GetBufferForObject(Object o, PyBuf flags) {
             if (o is IBufferProvider) {
                 return ((IBufferProvider)o).GetBuffer(flags);
             } else if (o is IPythonBufferable) {
@@ -139,14 +164,39 @@ namespace NumpyDotNet
         /// </summary>
         internal class BufferProtocolAdapter : IExtBufferProtocol
         {
-            internal BufferProtocolAdapter(IBufferProtocol o, int flags) {
+            internal BufferProtocolAdapter(IBufferProtocol o, PyBuf flags) {
                 obj = o;
+
+                if (obj.NumberDimensions > 1) {
+                    // CTypes.Arrays supports multi-dimensional arrays, but only by nesting arrays as array elements.
+                    // Thus we aren't talking about a single memory block.  This might be supportable using the
+                    // subOffsets returns except that array always returns null.  So this is unsupported until we
+                    // have an example to test against.
+                    throw new ArgumentException("Multi-dimensional arrays are not yet supported.");
+                }
+
+                forceByteArray = (flags == PyBuf.SIMPLE);
+
+                if ((flags & PyBuf.FORMAT) != 0 && obj.Format == null) {
+                    throw new ArgumentException("Object does not provide format information.");
+                }
+                if ((flags & PyBuf.ND) != 0 && obj.GetShape(0, 0) == null) {
+                    throw new ArgumentException("Object does not provide shape information.");
+                }
+
+                if ((flags & PyBuf.STRIDES) == 0 && obj.Strides != null) {
+                    throw new ArgumentException("Object is not contiguous.");
+                }
+
+                if ((flags & PyBuf.WRITABLE) != 0 && obj.ReadOnly) {
+                    throw new ArgumentException("Object is read-only.");
+                }
             }
 
             #region IExtBufferProtocol
 
             long IExtBufferProtocol.ItemCount {
-                get { return obj.ItemCount; }
+                get { return forceByteArray ? Size : obj.ItemCount; }
             }
 
             string IExtBufferProtocol.Format {
@@ -154,7 +204,7 @@ namespace NumpyDotNet
             }
 
             int IExtBufferProtocol.ItemSize {
-                get { return (int)obj.ItemSize; }
+                get { return forceByteArray ? sizeof(Byte) : (int)obj.ItemSize; }
             }
 
             int IExtBufferProtocol.NumberDimensions {
@@ -165,8 +215,8 @@ namespace NumpyDotNet
                 get { return obj.ReadOnly; }
             }
 
-            IList<long> IExtBufferProtocol.GetShape(int start, int? end) {
-                return obj.GetShape(start, end).Select(x => (long)x).ToList();
+            IList<long> IExtBufferProtocol.Shape {
+                get { return obj.GetShape(0, 0).Select(x => (long)x).ToList(); }
             }
 
             long[] IExtBufferProtocol.Strides {
@@ -190,7 +240,8 @@ namespace NumpyDotNet
 
             #endregion
 
-            private IBufferProtocol obj;
+            private readonly IBufferProtocol obj;
+            private readonly bool forceByteArray;
         }
 
     }

@@ -578,7 +578,19 @@ extern "C" __declspec(dllexport)
     if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
         return NULL;
     }
+    npy_append_char(&fmt, '\0');
 
     // Note: caller must release returned string. Done by Marshal.PtrToStringAnsi().
     return fmt.s;
+}
+
+
+// Stupid hack for freeing the string returned by NpyArrayAccess_GetBufferFormatString
+// only because I can't find anything that definitively says where Marshal.FreeHGlobal
+// is compatible with free() or not.  I am assuming not and we know the string was 
+// allocated in the core using malloc.
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_Free(void *p)
+{
+    free(p);
 }
