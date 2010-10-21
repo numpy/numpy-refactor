@@ -21,6 +21,11 @@ typedef struct {
 
 
 /* Internal support routines, intended for use by various interface layers. */
+extern NDARRAY_API int
+npy_buffer_format_string(NpyArray_Descr *descr, npy_tmp_string_t *str,
+                         NpyArray *arr, size_t *offset,
+                         char *active_byteorder);
+
 extern NDARRAY_API size_t
 npy_array_getsegcount(NpyArray *self, size_t *lenp);
 
