@@ -23,7 +23,7 @@ namespace NumpyDotNet
     /// instance of this class.
     /// </summary>
     [PythonType]
-    public partial class ndarray : Wrapper, IronPython.Runtime.IBufferProtocol, IEnumerable<object>, IExtBufferProtocol, NumpyDotNet.IArray
+    public partial class ndarray : Wrapper, IEnumerable<object>, IBufferProvider, NumpyDotNet.IArray
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -1594,46 +1594,46 @@ namespace NumpyDotNet
 
             #region IExtBufferProtocol
 
-            public long IExtBufferProtocol.ItemCount {
+            long IExtBufferProtocol.ItemCount {
                 get { return arr.Dims[0]; }
             }
 
-            public string IExtBufferProtocol.Format {
-                get { return arr.Format; }
+            string IExtBufferProtocol.Format {
+                get { return ""; }
             }
 
-            public int IExtBufferProtocol.ItemSize {
+            int IExtBufferProtocol.ItemSize {
                 get { throw new NotImplementedException(); } // TODO: What does this mean for discontiguous arrays?
             }
 
-            public int IExtBufferProtocol.NumberDimensions {
+            int IExtBufferProtocol.NumberDimensions {
                 get { return arr.ndim; }
             }
 
-            public bool IExtBufferProtocol.ReadOnly {
+            bool IExtBufferProtocol.ReadOnly {
                 get { return readOnly; }
             }
 
-            public IList<long> IExtBufferProtocol.GetShape(int start, int? end) {
+            IList<long> IExtBufferProtocol.GetShape(int start, int? end) {
                 return arr.Dims;
             }
 
-            public PythonTuple IExtBufferProtocol.Strides {
-                get { return new PythonTuple( arr.strides ); }
+            long[] IExtBufferProtocol.Strides {
+                get { return arr.strides; }
             }
 
-            public long[] IExtBufferProtocol.SubOffsets {
+            long[] IExtBufferProtocol.SubOffsets {
                 get { return null; }
             }
 
-            public IntPtr IExtBufferProtocol.UnsafeAddress {
+            IntPtr IExtBufferProtocol.UnsafeAddress {
                 get { return ((IPythonBufferable)arr).UnsafeAddress; }
             }
 
             /// <summary>
             /// Total number of bytes in the array
             /// </summary>
-            public long Size {
+            long IExtBufferProtocol.Size {
                 get { return arr.Size; }
             }
 

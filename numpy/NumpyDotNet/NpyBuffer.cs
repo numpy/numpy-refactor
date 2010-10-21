@@ -116,7 +116,7 @@ namespace NumpyDotNet
     /// </summary>
     public static class NpyBuffer
     {
-        public IExtBufferProtocol GetBufferForObject(Object o, int flags) {
+        public static IExtBufferProtocol GetBufferForObject(Object o, int flags) {
             if (o is IBufferProvider) {
                 return ((IBufferProvider)o).GetBuffer(flags);
             } else if (o is IPythonBufferable) {
@@ -145,39 +145,39 @@ namespace NumpyDotNet
 
             #region IExtBufferProtocol
 
-            public long IExtBufferProtocol.ItemCount {
+            long IExtBufferProtocol.ItemCount {
                 get { return obj.ItemCount; }
             }
 
-            public string IExtBufferProtocol.Format {
+            string IExtBufferProtocol.Format {
                 get { return obj.Format; } 
             }
 
-            public int IExtBufferProtocol.ItemSize {
+            int IExtBufferProtocol.ItemSize {
                 get { return (int)obj.ItemSize; }
             }
 
-            public int IExtBufferProtocol.NumberDimensions {
+            int IExtBufferProtocol.NumberDimensions {
                 get { return (int)obj.NumberDimensions; }
             }
 
-            public bool IExtBufferProtocol.ReadOnly {
+            bool IExtBufferProtocol.ReadOnly {
                 get { return obj.ReadOnly; }
             }
 
-            public IList<long> IExtBufferProtocol.GetShape(int start, int? end) {
+            IList<long> IExtBufferProtocol.GetShape(int start, int? end) {
                 return obj.GetShape(start, end).Select(x => (long)x).ToList();
             }
 
-            public long[] IExtBufferProtocol.Strides {
+            long[] IExtBufferProtocol.Strides {
                 get { return PythonOps.ConvertTupleToArray<long>(obj.Strides); }
             }
 
-            public long[] IExtBufferProtocol.SubOffsets {
+            long[] IExtBufferProtocol.SubOffsets {
                 get { return null; }        // TODO: IBufferProtocol returns an object type, what is it?!
             }
 
-            public IntPtr IExtBufferProtocol.UnsafeAddress {
+            IntPtr IExtBufferProtocol.UnsafeAddress {
                 get { return ((IPythonBufferable)obj).UnsafeAddress; }
             }
 

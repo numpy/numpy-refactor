@@ -576,7 +576,7 @@ extern "C" __declspec(dllexport)
 
     npy_tmp_string_t fmt = {0, 0, 0};
     if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
-        return null;
+        return NULL;
     }
 
     // Note: caller must release returned string. Done by Marshal.PtrToStringAnsi().
