@@ -10,6 +10,7 @@ if sys.platform == 'cli':
     NumpyDotNet.umath.__init__()
     pi = math.pi
     e = math.e
+    from NumpyDotNet.umath import *
 
     def frompyfunc(*args):
         raise NotImplementedError()
