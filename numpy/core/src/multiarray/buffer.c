@@ -69,7 +69,7 @@ array_getcharbuf(PyArrayObject *self, size_t segment, char **ptrptr)
 
 
 /*
- * { id(array): [list of pointers to _buffer_info_t, the last one is latest] }
+ * { id(array): [list of pointers to npy_buffer_info_t, the last one is latest] }
  *
  * Because shape, strides, and format can be different for different buffers,
  * we may need to keep track of multiple buffer infos for each array.
@@ -82,11 +82,11 @@ static PyObject *_buffer_info_cache = NULL;
 
 
 /* Get buffer info from the global dictionary */
-static _buffer_info_t*
+static npy_buffer_info_t*
 _buffer_get_info(PyObject *arr)
 {
     PyObject *key, *item_list, *item;
-    _buffer_info_t *info = NULL, *old_info = NULL;
+    npy_buffer_info_t *info = NULL, *old_info = NULL;
 
     if (_buffer_info_cache == NULL) {
         _buffer_info_cache = PyDict_New();
@@ -109,7 +109,7 @@ _buffer_get_info(PyObject *arr)
         Py_INCREF(item_list);
         if (PyList_GET_SIZE(item_list) > 0) {
             item = PyList_GetItem(item_list, PyList_GET_SIZE(item_list) - 1);
-            old_info = (_buffer_info_t*)PyLong_AsVoidPtr(item);
+            old_info = (npy_buffer_info_t*)PyLong_AsVoidPtr(item);
 
             if (npy_buffer_info_cmp(info, old_info) == 0) {
                 npy_buffer_info_free(info);
@@ -139,7 +139,7 @@ static void
 _buffer_clear_info(PyObject *arr)
 {
     PyObject *key, *item_list, *item;
-    _buffer_info_t *info;
+    npy_buffer_info_t *info;
     int k;
 
     if (_buffer_info_cache == NULL) {
@@ -151,7 +151,7 @@ _buffer_clear_info(PyObject *arr)
     if (item_list != NULL) {
         for (k = 0; k < PyList_GET_SIZE(item_list); ++k) {
             item = PyList_GET_ITEM(item_list, k);
-            info = (_buffer_info_t*)PyLong_AsVoidPtr(item);
+            info = (npy_buffer_info_t*)PyLong_AsVoidPtr(item);
             npy_buffer_info_free(info);
         }
         PyDict_DelItem(_buffer_info_cache, key);
@@ -168,7 +168,7 @@ static int
 array_getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
     PyArrayObject *self;
-    _buffer_info_t *info = NULL;
+    npy_buffer_info_t *info = NULL;
 
     self = (PyArrayObject*)obj;
 
