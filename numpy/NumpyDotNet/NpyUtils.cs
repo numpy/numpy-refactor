@@ -86,6 +86,15 @@ namespace NumpyDotNet {
             return PythonCalls.Call(cntx, f, args: args);
         }
 
+        internal static object CallBuiltin(CodeContext cntx, string func_name, params object[] args) {
+            if (cntx == null) cntx = DefaultContext;
+
+            object f = cntx.LanguageContext.BuiltinModuleDict.get(func_name);
+            if (f == null) {
+                throw new ArgumentException(String.Format("'{0}' is not a built-in function."), func_name);
+            }
+            return PythonCalls.Call(cntx, f, args: args);
+        }
 
         /// <summary>
         /// Triggers Python integer conversion using __int__ function on Python objects. int
@@ -102,7 +111,7 @@ namespace NumpyDotNet {
             } else if (obj is ScalarInt32) {
                 return (int)(ScalarInt32)obj;
             } else {
-                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+                object result = CallBuiltin(cntx, "int", obj);
                 if (result is int) {
                     return (int)result;
                 } else {
@@ -130,9 +139,9 @@ namespace NumpyDotNet {
                 return (long)(ScalarInt64)obj;
             }
 
-            object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["int"], obj);
+            object result = CallBuiltin(cntx, "int", obj);
             if (result is int) {
-                return (long)result;
+                return (long)(int)result;
             } else if (result is BigInteger) {
                 BigInteger i = (BigInteger)result;
                 if (i > long.MaxValue || i < long.MinValue) {
@@ -163,7 +172,7 @@ namespace NumpyDotNet {
                 return (double)(ScalarFloat64)obj;
             }
 
-            object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["float"], obj);
+            object result = CallBuiltin(cntx, "float", obj);
             if (result is double) {
                 return (double)result;
             } else {
@@ -185,7 +194,7 @@ namespace NumpyDotNet {
             if (obj is string) {
                 return (string)obj;
             } else {
-                object result = PythonCalls.Call(cntx, cntx.LanguageContext.BuiltinModuleDict["str"], obj);
+                object result = CallBuiltin(cntx, "str", obj);
                 if (result is string) {
                     return (string)result;
                 } else {

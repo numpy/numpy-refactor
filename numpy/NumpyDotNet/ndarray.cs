@@ -364,32 +364,28 @@ namespace NumpyDotNet
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            dynamic f = cntx.LanguageContext.BuiltinModuleDict["int"];
-            return f(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "int", GetItem(0));
         }
 
         public object __long__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            dynamic f = cntx.LanguageContext.BuiltinModuleDict["long"];
-            return f(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "long", GetItem(0));
         }
 
         public object __float__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            dynamic f = cntx.LanguageContext.BuiltinModuleDict["float"];
-            return f(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "float", GetItem(0));
         }
 
         public object __complex__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            dynamic f = cntx.LanguageContext.BuiltinModuleDict["complex"];
-            return f(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "complex", GetItem(0));
         }
 
         public bool __nonzero__() {
@@ -1097,8 +1093,7 @@ namespace NumpyDotNet
         }
 
         public void tofile(CodeContext cntx, string filename, string sep = null, string format = null) {
-            BuiltinFunction open = (BuiltinFunction) cntx.LanguageContext.BuiltinModuleDict.get("open");
-            PythonFile f = (PythonFile)PythonOps.CallWithContext(cntx, open, filename, "wb");
+            PythonFile f = (PythonFile)NpyUtil_Python.CallBuiltin(cntx, "open", filename, "wb");
             try {
                 tofile(cntx, f, sep, format);
             } finally {

@@ -18,12 +18,11 @@ namespace NumpyDotNet {
     internal class NpyDescr {
 
         private static bool IsScalarType(CodeContext cntx, PythonType t) {
-            dynamic issubclass = cntx.LanguageContext.BuiltinModuleDict["issubclass"];
-            return issubclass(t, PyGenericArrType_Type);
+            return (bool)NpyUtil_Python.CallBuiltin(cntx, "issubclass", t, PyGenericArrType_Type);
         }
 
         internal static dtype DescrConverter(CodeContext cntx, Object obj) {
-            dtype result;
+            dtype result = null;
             PythonType pt;
 
             if (obj == null) {
@@ -32,8 +31,8 @@ namespace NumpyDotNet {
                 result = (dtype)obj;
             } else if ((pt = obj as PythonType) != null) {
                 if (IsScalarType(cntx, pt)) {
-                    dynamic scalar = pt.__call__(cntx);
-                    result = (dtype)scalar.dtype;
+                    object scalar = PythonCalls.Call(cntx, pt);
+                    result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
                 } else {
                     result = ConvertFromPythonType(cntx, pt);
                 }
@@ -42,7 +41,7 @@ namespace NumpyDotNet {
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
                     result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
-                    result = ConvertFromCommaString(cntx, s, 0);
+                    result = ConvertFromCommaString(cntx, s, false);
                 } else {
                     result = ConvertSimpleString(s);
                 }
@@ -52,13 +51,50 @@ namespace NumpyDotNet {
                     throw new ArgumentException("data type not understood.");
                 }
             } else if (obj is List) {
-                result = ConvertFromArrayDescr(cntx, (List)obj, 0);
-            } else {
-                throw new NotImplementedException(
-                    String.Format("Convertion of type '{0}' to type descriptor is not supported.",
-                    obj.GetType().Name));
+                result = ConvertFromArrayDescr(cntx, (List)obj, false);
+            } else if (obj is PythonDictionary) {
+                result = ConvertFromDictionary(cntx, (PythonDictionary)obj, false);
+            } else if (!(obj is ndarray)) {
+                result = DescrFromObject(cntx, obj);
+            }
+            if (result == null) {
+                throw new ArgumentException("data type not understood");
             }
             return result;
+        }
+
+        internal static dtype ConvertFromDictionary(CodeContext cntx, PythonDictionary dict, bool align) {
+            IList<object> names = dict.get("names") as IList<object>;
+            IList<Object> descrs = dict.get("formats") as IList<object>;
+            // If it doesn't name names and formats then try it as a fields dict
+            if (names == null || descrs == null) {
+                return (dtype)NpyUtil_Python.CallInternal(cntx, "_usefields", dict, align ? 1 : 0);
+            }
+            IList<object> offsets = dict.get("offsets") as IList<object>;
+            IList<object> titles = dict.get("titles") as IList<object>;
+
+            int n = names.Count;
+            if (descrs.Count != n || offsets != null && offsets.Count != n || titles != null && titles.Count != n) {
+                throw new ArgumentException("all items in the dictionary must have the same length");
+            }
+            List<FieldInfo> fields = new List<FieldInfo>(n);
+            try {
+                for (int i = 0; i < n; i++) {
+                    FieldInfo info = new FieldInfo();
+                    info.name = NpyUtil_Python.ConvertToString(names[i], cntx);
+                    info.dtype = descrs[i];
+                    if (offsets != null) {
+                        info.offset = NpyUtil_Python.ConvertToInt(offsets[i], cntx);
+                    }
+                    if (titles != null) {
+                        info.title = NpyUtil_Python.ConvertToString(titles[i], cntx);
+                    }
+                    fields.Add(info);
+                }
+            } catch {
+                throw new ArgumentException("data type not understood");
+            }
+            return ConvertFromFields(cntx, fields, align);
         }
 
         internal static dtype TryConvertFromTuple(CodeContext cntx, PythonTuple tup) {
@@ -145,16 +181,16 @@ namespace NumpyDotNet {
             return NpyCoreApi.DescrFromType(type);
         }
 
-        private static dtype DescrFromObject(CodeContext cntx, dynamic obj) {
+        private static dtype DescrFromObject(CodeContext cntx, object obj) {
             // Try a dtype attribute
             try {
-                return DescrConverter(cntx, obj.dtype);
+                return DescrConverter(cntx, PythonOps.ObjectGetAttribute(cntx, obj, "dtype"));
             } catch { }
             // Try a ctype type, possibly with a length
             try {
-                dtype d = DescrConverter(cntx, obj._type_);
+                dtype d = DescrConverter(cntx, PythonOps.ObjectGetAttribute(cntx, obj, "_type_"));
                 try {
-                    object length = obj._length_;
+                    object length = PythonOps.ObjectGetAttribute(cntx, obj, "_length_");
                     PythonTuple tup = new PythonTuple(new object[] { d, length });
                     return DescrConverter(cntx, tup);
                 } catch { }
@@ -162,7 +198,7 @@ namespace NumpyDotNet {
             } catch { }
             // Try a ctype fields
             try {
-                return DescrConverter(cntx, obj._fields_);
+                return DescrConverter(cntx, PythonOps.ObjectGetAttribute(cntx, obj, "_fields_"));
             } catch { }
  
             return null;
@@ -233,7 +269,7 @@ namespace NumpyDotNet {
             return s.Contains(',');
         }
 
-        private static dtype ConvertFromCommaString(CodeContext cntx, String s, int align) {
+        private static dtype ConvertFromCommaString(CodeContext cntx, String s, bool align) {
             List val = NpyUtil_Python.CallInternal(cntx, "_commastring", s) as List;
             if (val == null || val.Count < 1) {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
@@ -245,23 +281,12 @@ namespace NumpyDotNet {
             } else {
                 return ConvertFromCommaStringList(cntx, val, align);
             }
-            // TODO: Calls Python function, needs integration of numpy + .net interface
-            throw new NotImplementedException();
         }
 
-        private static dtype ConvertFromCommaStringList(CodeContext cntx, List l, int align) {
-            // We simply convert this to a list in array descr format
-            List conv = new List();
-            int j = 0;
-            for (int i = 0; i < l.Count; i++) {
-                object item = l[i];
-                if (item is string && (string)item == "") {
-                    continue;
-                }
-                string key = String.Format("f{0}", j++);
-                conv.Add(new PythonTuple(new object[] { key, item }));
-            }
-            return ConvertFromArrayDescr(cntx, conv, align);
+        private static dtype ConvertFromCommaStringList(CodeContext cntx, List l, bool align) {
+            // This is simply a list of formats
+            List<FieldInfo> fieldInfo = l.Where(x => !(x is string && (string)x == "")).Select(x => new FieldInfo { dtype = x }).ToList();
+            return ConvertFromFields(cntx, fieldInfo, align);
         }
 
 
@@ -333,43 +358,49 @@ namespace NumpyDotNet {
             return result;
         }
 
-        private static dtype ConvertFromArrayDescr(CodeContext cntx, List l, int align) {
-            // TODO: Need to be completed.  Right now only handles pairs
-            // of (name, type) as items.
+        private class FieldInfo
+        {
+            public string name;
+            public object dtype;
+            public string title;
+            public int? offset;
+        };
+
+        private static dtype ConvertFromFields(CodeContext cntx, IList<FieldInfo> l, bool align) {
             int n = l.Count;
             int totalSize = 0;
             int maxalign = 0;
             int dtypeflags = 0;
+            int offset;
             IntPtr names = NpyCoreApi.NpyArray_DescrAllocNames(n);
             IntPtr fields = NpyCoreApi.NpyArray_DescrAllocFields();
             try {
                 for (int i=0; i<n; i++) {
-                    object item = l[i];
-                    PythonTuple t = (item as PythonTuple);
-                    if (t == null || t.Count != 2) {
-                        throw new ArgumentTypeException("data type not understood");
+                    FieldInfo item = l[i];
+                    if (item.name == null) {
+                        item.name = String.Format("f{0}", i);
                     }
-                    string name = (t[0] as string);
-                    object type_descr = t[1];
-                    if (name == null) {
-                        throw new ArgumentTypeException("data type not understood");
-                    }
-                    if (name.Length == 0) {
-                        name = String.Format("f{0}", i);
-                    }
-                    dtype field_type = DescrConverter(cntx, type_descr);
-
+                    dtype field_type = DescrConverter(cntx, item.dtype);
                     dtypeflags |= field_type.Flags & NpyDefs.NPY_FROM_FIELDS;
 
-                    if (align != 0) {
+                    if (align) {
                         int field_align = field_type.Alignment;
                         if (field_align > 0) {
                             totalSize = ((totalSize + field_align - 1) / field_align) * field_align;
                         }
                         maxalign = Math.Max(maxalign, field_align);
                     }
-                    NpyCoreApi.AddField(fields, names, i, name, field_type, totalSize, null);
-                    totalSize += field_type.ElementSize;
+                    if (item.offset == null) {
+                        offset = totalSize;
+                        totalSize += field_type.ElementSize;
+                    } else {
+                        offset = (int)item.offset;
+                        if (offset < 0) {
+                            throw new ArgumentException("Field offsets can't be negative");
+                        }
+                        totalSize = Math.Max(totalSize, offset + field_type.ElementSize);
+                    }
+                    NpyCoreApi.AddField(fields, names, i, item.name, field_type, offset, item.title);
                 }
             } catch {
                 NpyCoreApi.DescrDestroyNames(names, n);
@@ -380,8 +411,40 @@ namespace NumpyDotNet {
             if (maxalign > 1) {
                 totalSize = ((totalSize + maxalign - 1) / maxalign) * maxalign;
             }
-            int alignment = (align != 0 ? maxalign : 1);
+            int alignment = (align ? maxalign : 1);
             return NpyCoreApi.DescrNewVoid(fields, names, totalSize, dtypeflags, alignment);
+        }
+
+
+        private static FieldInfo ItemToFieldInfo(object item) {
+            FieldInfo result = new FieldInfo();
+            PythonTuple tup = item as PythonTuple;
+            if (tup == null || tup.Count < 2) {
+                throw new ArgumentException("Data type not understood");
+            }
+            // Deal with the name and title
+            object val = tup[0];
+            if (val is string) {
+                result.name = (string)val;
+            } else if (val is PythonTuple) {
+                PythonTuple name_tuple = (PythonTuple)val;
+                if (name_tuple.Count != 2 || !(name_tuple[0] is string) || !(name_tuple[1] is string)) {
+                    throw new ArgumentException("Data type not understood: name and title must both be strings");
+                }
+                result.name = (string)name_tuple[0];
+                result.name = (string)name_tuple[1];
+            }
+            if (tup.Count == 2) {
+                result.dtype = tup[1];
+            } else {
+                result.dtype = tup[new Slice(1, 3)];
+            }
+            return result;
+        }
+
+        private static dtype ConvertFromArrayDescr(CodeContext cntx, List l, bool align) {
+            List<FieldInfo> fields = l.Select(ItemToFieldInfo).ToList();
+            return ConvertFromFields(cntx, fields, align);
         }
 
 
