@@ -248,5 +248,8 @@ namespace NumpyDotNet {
             }
         }
 
+        public static ndarray concatenate(IEnumerable<object> seq, int axis = 0) {
+            return NpyArray.Concatenate(seq, axis);
+        }
     }
 }

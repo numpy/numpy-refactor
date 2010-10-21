@@ -877,6 +877,65 @@ namespace NumpyDotNet {
                 seq.Iteri((o, i) => result.dtype.f.SetItem(o, offset + i*stride, result));
             }
         }
+
+        internal static ndarray Concatenate(IEnumerable<object> arrays, int axis) {
+            int i;
+
+            try {
+                arrays.First();
+            } catch (InvalidOperationException) {
+                throw new ArgumentException("concatenation of zero-length sequence is impossible");
+            }
+       
+            ndarray[] mps = NpyUtil_ArgProcessing.ConvertToCommonType(arrays);
+            int n = mps.Length;
+            // TODO: Deal with subtypes
+            if (axis >= NpyDefs.NPY_MAXDIMS) {
+                // Flatten the arrays
+                for (i = 0; i < n; i++) {
+                    mps[i] = mps[i].Ravel(NpyDefs.NPY_ORDER.NPY_CORDER);
+                }
+            } else if (axis != 0) {
+                // Swap to make the axis 0
+                for (i = 0; i < n; i++) {
+                    mps[i] = NpyArray.FromArray(mps[i].SwapAxes(axis, 0), null, NpyDefs.NPY_C_CONTIGUOUS);
+                }
+            }
+            long[] dims = mps[0].Dims;
+            if (dims.Length == 0) {
+                throw new ArgumentException("0-d arrays can't be concatenated");
+            }
+            long new_dim = dims[0];
+            for (i = 1; i < n; i++) {
+                long[] dims2 = mps[i].Dims;
+                if (dims.Length != dims2.Length) {
+                    throw new ArgumentException("arrays must have same number of dimensions");
+                }
+                bool eq = Enumerable.Zip(dims.Skip(1), dims2.Skip(1), (a, b) => (a == b)).All(x => x);
+                if (!eq) {
+                    throw new ArgumentException("array dimensions do not agree");
+                }
+                new_dim += dims2[0];
+            }
+            dims[0] = new_dim;
+            ndarray result = NpyCoreApi.AllocArray(mps[0].dtype, dims.Length, dims, false);
+            // TODO: We really should be doing a memcpy here.
+            unsafe {
+                byte* dest = (byte*)result.UnsafeAddress.ToPointer();
+                foreach (ndarray a in mps) {
+                    long s = a.Size*a.dtype.ElementSize;
+                    byte* src = (byte*)a.UnsafeAddress;
+                    while (s-- > 0) {
+                        *dest++ = *src++;
+                    }
+                }
+            }
+            if (0 < axis && axis < NpyDefs.NPY_MAXDIMS) {
+                return result.SwapAxes(axis, 0);
+            } else {
+                return result;
+            }
+        }
     }
 }
 
