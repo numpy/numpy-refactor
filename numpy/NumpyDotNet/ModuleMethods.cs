@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Reflection;
 using IronPython.Runtime;
@@ -176,6 +177,38 @@ namespace NumpyDotNet {
 
             arr.PutMask(aValues, aMask);
         }
+
+
+        /// <summary>
+        /// Reads the contents of a text or binary file and turns the contents into an array. If
+        /// 'sep' is specified the file is assumed to be text, other it is assumed binary.
+        /// </summary>
+        /// <param name="file">PythonFile, FileStream, or file name string</param>
+        /// <param name="dtype">Optional type for the resulting array, default is double</param>
+        /// <param name="count">Optional number of array elements to read, default reads all elements</param>
+        /// <param name="sep">Optional separator for text elements</param>
+        /// <returns></returns>
+        public static ndarray fromfile(CodeContext cntx, object file, object dtype = null, object count = null, object sep = null) {
+            string fileName;
+            dtype rtype;
+            int num;
+
+            // Annoying.  PythonFile is not convertable to Stream and neither convert to FILE* needed by the
+            // current implementation. We really need to implement a new file reader that take callbacks to
+            // the interface to really support multiple platforms.  
+            if (file is string) fileName = (string)file;
+            else if (file is PythonFile || file is Stream) {
+                throw new NotImplementedException("File and stream types are not supported pending implementation of a cross-platform reader.");
+            } else {
+                throw new NotImplementedException(String.Format("Unsupported file type '{0}'.", file.GetType().Name));
+            }
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
+
+            return NpyCoreApi.ArrayFromFile(fileName, rtype, num, (sep != null) ? sep.ToString() : null);
+        }
+
 
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;

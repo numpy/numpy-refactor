@@ -537,6 +537,21 @@ namespace NumpyDotNet {
             return s;
         }
 
+
+        /// <summary>
+        /// Reads the specified text or binary file and produces an array from the content.  Currently only
+        /// the file name is allowed and not a PythonFile or Stream type due to limitations in the core
+        /// (assumes FILE *).
+        /// </summary>
+        /// <param name="fileName">File to read</param>
+        /// <param name="type">Type descriptor for the resulting array</param>
+        /// <param name="count">Number of elements to read, less than zero reads all available</param>
+        /// <param name="sep">Element separator string for text files, null for binary files</param>
+        /// <returns>Array of file contents</returns>
+        internal static ndarray ArrayFromFile(string fileName, dtype type, int count, string sep) {
+            return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, type.Descr, count, sep));
+        }
+
         #endregion
 
 
@@ -983,6 +998,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyArrayAccess_Free(IntPtr ptr);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_FromFile(string fileName, IntPtr dtype, int count, string sep);
 
         #endregion
 
