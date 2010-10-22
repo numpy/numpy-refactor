@@ -210,6 +210,19 @@ namespace NumpyDotNet {
         }
 
 
+        public static ndarray fromstring(CodeContext cntx, string @string, object dtype=null, object count=null, object sep=null) {
+            dtype rtype;
+            int num;
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
+            if (sep == null) {
+                throw new ArgumentException("a separator must be specified");
+            }
+            return NpyCoreApi.ArrayFromString(@string, rtype, num, sep.ToString());
+        }
+
+
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;
             ndarray[] arrays = new ndarray[n];

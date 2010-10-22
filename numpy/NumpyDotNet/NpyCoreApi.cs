@@ -552,6 +552,11 @@ namespace NumpyDotNet {
             return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, type.Descr, count, sep));
         }
 
+
+        internal static ndarray ArrayFromString(string data, dtype type, int count, string sep) {
+            return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, type.Descr, count, sep));
+        }
+
         #endregion
 
 
@@ -807,6 +812,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,
             IntPtr arr, IntPtr indices, IntPtr arrOut, int axis, IntPtr descr,
             int operation);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
 
         #endregion
 
