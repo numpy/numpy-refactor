@@ -142,7 +142,10 @@ import sys
 from numpy.lib.utils import safe_eval
 from numpy.compat import asbytes, isfileobj
 
-MAGIC_PREFIX = asbytes('\x93NUMPY')
+if sys.platform == 'cli':
+    MAGIC_PREFIX = asbytes(b'\x93NUMPY')
+else:
+    MAGIC_PREFIX = asbytes('\x93NUMPY')
 MAGIC_LEN = len(MAGIC_PREFIX) + 2
 
 def magic(major, minor):
