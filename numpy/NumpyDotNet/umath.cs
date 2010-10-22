@@ -13,11 +13,56 @@ namespace NumpyDotNet
     public static class umath
     {
 
-        public static readonly double PINF = double.PositiveInfinity;
-        public static readonly double NINF = double.NegativeInfinity;
-        public static readonly double PZERO = 0.0;
-        public static readonly double NZERO = -0.0;
-        public static readonly double NAN = double.NaN;
+        public const double PINF = double.PositiveInfinity;
+        public const double NINF = double.NegativeInfinity;
+        public const double PZERO = 0.0;
+        public const double NZERO = -0.0;
+        public const double NAN = double.NaN;
+
+        public const int ERR_IGNORE = (int)NpyDefs.NPY_UFUNC_ERR.IGNORE;
+        public const int ERR_WARN = (int)NpyDefs.NPY_UFUNC_ERR.WARN;
+        public const int ERR_CALL = (int)NpyDefs.NPY_UFUNC_ERR.CALL;
+        public const int ERR_RAISE = (int)NpyDefs.NPY_UFUNC_ERR.RAISE;
+        public const int ERR_PRINT = (int)NpyDefs.NPY_UFUNC_ERR.PRINT;
+        public const int ERR_LOG = (int)NpyDefs.NPY_UFUNC_ERR.LOG;
+        public const int ERR_DEFAULT = NpyDefs.NPY_UFUNC_ERR_DEFAULT;
+        public const int ERR_DEFAULT2 = NpyDefs.NPY_UFUNC_ERR_DEFAULT2;
+
+        public const int SHIFT_DIVIDEBYZERO = (int)NpyDefs.NPY_UFUNC_SHIFT.DIVIDEBYZERO;
+        public const int SHIFT_OVERFLOW = (int)NpyDefs.NPY_UFUNC_SHIFT.OVERFLOW;
+        public const int SHIFT_UNDERFLOW = (int)NpyDefs.NPY_UFUNC_SHIFT.UNDERFLOW;
+        public const int SHIFT_INVALID = (int)NpyDefs.NPY_UFUNC_SHIFT.INVALID;
+
+        public const int FPE_DIVIDEBYZERO = (int)NpyDefs.NPY_UFUNC_FPE.DIVIDEBYZERO;
+        public const int FPE_OVERFLOW = (int)NpyDefs.NPY_UFUNC_FPE.OVERFLOW;
+        public const int FPE_UNDERFLOW = (int)NpyDefs.NPY_UFUNC_FPE.UNDERFLOW;
+        public const int FPE_INVALID = (int)NpyDefs.NPY_UFUNC_FPE.INVALID;
+
+        public const int UFUNC_BUFSIZE_DEFAULT = NpyDefs.NPY_BUFSIZE;
+
+        [ThreadStatic]
+        internal static List errobj;
+
+        public static List geterrobj() {
+            if (errobj == null) {
+                List result = new List();
+                result.append(NpyDefs.NPY_BUFSIZE);
+                result.append(NpyDefs.NPY_UFUNC_ERR_DEFAULT);
+                result.append(null);
+                return result;
+            } else {
+                return errobj;
+            }
+        }
+
+        public static void seterrobj(List obj) {
+            if (obj.Count != 3) {
+                throw new ArgumentException("Error object must be a list of length 3");
+            }
+            errobj = obj;
+        }
+
+                
 
         /// <summary>
         /// Map of function names to all defined ufunc objects.

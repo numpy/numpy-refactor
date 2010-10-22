@@ -27,7 +27,7 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'ComplexWarning']
 
 if sys.platform == 'cli':
-    obj2sctype = isnan = zeros = None
+    obj2sctype = isnan = None
     for n in '''fromstring fromfile frombuffer int_asbuffer
 set_numeric_ops can_cast
 array2string get_printoptions set_printoptions
@@ -2036,18 +2036,17 @@ def array_equiv(a1, a2):
         return False
 
 
-if sys.platform != 'cli':
-    _errdict = {"ignore":ERR_IGNORE,
-                "warn":ERR_WARN,
-                "raise":ERR_RAISE,
-                "call":ERR_CALL,
-                "print":ERR_PRINT,
-                "log":ERR_LOG}
+_errdict = {"ignore":ERR_IGNORE,
+            "warn":ERR_WARN,
+            "raise":ERR_RAISE,
+            "call":ERR_CALL,
+            "print":ERR_PRINT,
+            "log":ERR_LOG}
 
-    _errdict_rev = {}
-    for key in _errdict.keys():
-        _errdict_rev[_errdict[key]] = key
-    del key
+_errdict_rev = {}
+for key in _errdict.keys():
+    _errdict_rev[_errdict[key]] = key
+del key
 
 def seterr(all=None, divide=None, over=None, under=None, invalid=None):
     """
@@ -2440,8 +2439,7 @@ def _setdef():
     umath.seterrobj(defval)
 
 # set the default values
-if sys.platform != 'cli':
-    _setdef()
+_setdef()
 
 Inf = inf = infty = Infinity = PINF
 nan = NaN = NAN
