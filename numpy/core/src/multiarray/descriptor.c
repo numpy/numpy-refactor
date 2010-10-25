@@ -1704,11 +1704,6 @@ arraydescr_isbuiltin_get(PyArray_Descr *self)
     return PyInt_FromLong(val);
 }
 
-static int
-_arraydescr_isnative(NpyArray_Descr *self)
-{
-    return npy_arraydescr_isnative(self);
-}
 
 /*
  * return Py_True if this data-type descriptor
@@ -1722,7 +1717,7 @@ arraydescr_isnative_get(PyArray_Descr *self)
 {
     PyObject *ret;
     int retval;
-    retval = _arraydescr_isnative(self->descr);
+    retval = npy_arraydescr_isnative(self->descr);
     if (retval == -1) {
         return NULL;
     }
