@@ -154,6 +154,10 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static bool IsCallable(object obj) {
+            return PythonOps.IsCallable(DefaultContext, obj);
+        }
+
 
         /// <summary>
         /// Triggers Python conversion to float using __float__ function on Py objects. float
