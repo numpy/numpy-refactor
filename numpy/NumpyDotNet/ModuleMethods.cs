@@ -210,6 +210,17 @@ namespace NumpyDotNet {
         }
 
 
+        /// <summary>
+        /// Constructs an array from a text input string. Since strings are unicode in .NET, sep must be
+        /// specified in this case and only text strings are supported.  Use the version accepting bytes,
+        /// below, for binary strings.
+        /// </summary>
+        /// <param name="cntx">Python code context</param>
+        /// <param name="string">Input text string</param>
+        /// <param name="dtype">Desired array type or null</param>
+        /// <param name="count">Max number of array elements to convert</param>
+        /// <param name="sep">Element separator</param>
+        /// <returns>Array populated with elements from the string</returns>
         public static ndarray fromstring(CodeContext cntx, string @string, object dtype=null, object count=null, object sep=null) {
             dtype rtype;
             int num;
@@ -217,11 +228,14 @@ namespace NumpyDotNet {
             rtype = NpyDescr.DescrConverter(cntx, dtype);
             num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
             if (sep == null) {
-                throw new ArgumentException("a separator must be specified");
+                // TODO: Binary strings mean adding a second version of this method accepting
+                // a PythonBytes instance. However, this must then be converted to a byte[]
+                // and then passed differently into the native world and requires an extra
+                // copy.  This is left as a to-do item pending until there is a need.
+                throw new NotImplementedException("Only text strings are currently implemented");
             }
             return NpyCoreApi.ArrayFromString(@string, rtype, num, sep.ToString());
         }
-
 
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;
