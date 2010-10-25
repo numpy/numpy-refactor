@@ -237,6 +237,38 @@ namespace NumpyDotNet {
             return NpyCoreApi.ArrayFromString(@string, rtype, num, sep.ToString());
         }
 
+
+        /// <summary>
+        /// Constructs an array from from a iterable sequence. This function triggers iter.Count(), thus
+        /// requiring two iterations through the complete sequence. This is faster than dynamically
+        /// resizing the array for fast sequences but will be slower for complex generator expressions.
+        /// </summary>
+        /// <param name="cntx">Python code context</param>
+        /// <param name="iter">Sequence to build the array from</param>
+        /// <param name="dtype">Type of the resulting array</param>
+        /// <param name="count">Maximum number of elements to convert</param>
+        /// <returns>Array populated with elements from iter</returns>
+        public static ndarray fromiter(CodeContext cntx, IEnumerable<object> iter, object dtype = null, object count = null) {
+            dtype rtype;
+            int num;
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : int.MaxValue;
+            if (num == int.MaxValue && rtype.ElementSize == 0) {
+                throw new ArgumentException("A length must be specified when using variable-sized data type");
+            }
+            num = Math.Min(num, iter.Count());
+
+            if (rtype.ChkFlags(NpyDefs.NPY_ITEM_REFCOUNT)) {
+                throw new ArgumentException("cannot create object arrays from iterators");
+            }
+
+            ndarray ret = NpyCoreApi.AllocArray(rtype, 1, new long[] { num }, false);
+            NpyArray.AssignToArray(iter, ret);
+            return ret;
+        }
+
+
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;
             ndarray[] arrays = new ndarray[n];
