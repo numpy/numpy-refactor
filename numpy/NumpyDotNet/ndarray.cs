@@ -677,6 +677,12 @@ namespace NumpyDotNet
             }
         }
 
+        public int itemsize {
+            get {
+                return dtype.ElementSize;
+            }
+        }
+
         #endregion
 
         #region methods

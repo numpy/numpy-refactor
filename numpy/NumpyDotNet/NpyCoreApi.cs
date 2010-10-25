@@ -853,7 +853,7 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
         private static extern byte GetNativeTypeInfo(out int intSize, 
-            out int longsize, out int longLongSize);
+            out int longsize, out int longLongSize, out int longDoubleSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
@@ -1705,6 +1705,11 @@ namespace NumpyDotNet {
         /// </summary>
         internal static readonly int Native_SizeOfLongLong;
 
+        /// <summary>
+        /// Size fo element in long double arrays, in bytes.
+        /// </summary>
+        internal static readonly int Native_SizeOfLongDouble;
+
 
         /// <summary>
         /// Initializes the core library with necessary callbacks on load.
@@ -1713,12 +1718,14 @@ namespace NumpyDotNet {
             // Check the native byte ordering (make sure it matches what .NET uses) and
             // figure out the mapping between types that vary in size in the core and
             // fixed-size .NET types.
-            int intSize, longSize, longLongSize;
-            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+            int intSize, longSize, longLongSize, longDoubleSize;
+            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize,
+                                                  out longDoubleSize);
 
             Native_SizeOfInt = intSize;
             Native_SizeOfLong = longSize;
             Native_SizeOfLongLong = longLongSize;
+            Native_SizeOfLongDouble = longDoubleSize;
 
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
                 TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;

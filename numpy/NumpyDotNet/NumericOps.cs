@@ -130,14 +130,30 @@ namespace NumpyDotNet {
                         new ArrFuncs() { GetFunc = NumericOps.getitemFloat, SetFunc = NumericOps.setitemFloat };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = null;
+                    if (NpyCoreApi.Native_SizeOfLongDouble == 8) {
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = 
+                            new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
+                    } else {
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = 
+                            new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
+                    }
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] =
+
                         new ArrFuncs() { GetFunc = NumericOps.getitemCFloat, SetFunc = NumericOps.setitemCFloat };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CDOUBLE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, SetFunc = NumericOps.setitemCDouble };
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = null;
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] = null;
-                    arr[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] = null;
+                    if (NpyCoreApi.Native_SizeOfLongDouble == 8) {
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] =
+                            new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, 
+                                SetFunc = NumericOps.setitemCDouble };
+                    } else {
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = 
+                            new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
+                    }
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] =
+                        new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
+                    arr[(int)NpyDefs.NPY_TYPES.NPY_TIMEDELTA] =
+                        new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_OBJECT] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemObject, SetFunc = NumericOps.setitemObject };
                     arr[(int)NpyDefs.NPY_TYPES.NPY_STRING] =
@@ -181,6 +197,11 @@ namespace NumpyDotNet {
             return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         }
 
+
+        internal static Object getitemNotSupported(IntPtr ptr, ndarray arr) {
+            throw new NotImplementedException(String.Format("Array type {0} not supported",
+                                                            arr.dtype.str));
+        }
 
         internal static Object getitemBool(IntPtr ptr, ndarray arr) {
             bool f;
@@ -551,6 +572,12 @@ namespace NumpyDotNet {
             Object v = NpyCoreApi.GCHandleFromIntPtr(value);
             f(v, ptr, NpyCoreApi.ToInterface<ndarray>(arrPtr));
         }
+
+        internal static void setitemNotSupported(Object o, IntPtr ptr, ndarray arr) {
+            throw new NotImplementedException(String.Format("Array type {0} not supported",
+                                                            arr.dtype.str));
+        }
+
 
         internal static void setitemBool(Object o, IntPtr ptr, ndarray arr) {
             bool f;

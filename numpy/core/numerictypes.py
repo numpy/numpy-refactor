@@ -233,6 +233,8 @@ def bitname(obj):
     name = obj.__name__
     base = ''
     char = ''
+    if name[:6] == "numpy.":
+        name = name[6:]
     try:
         if name[-1] == '_':
             newname = name[:-1]
