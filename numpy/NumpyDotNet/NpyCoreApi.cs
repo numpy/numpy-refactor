@@ -817,6 +817,9 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_arraydescr_isnative")]
+        internal static extern int DescrIsNative(IntPtr descr);
+
         #endregion
 
         #region NpyAccessLib functions
