@@ -549,12 +549,14 @@ namespace NumpyDotNet {
         /// <param name="sep">Element separator string for text files, null for binary files</param>
         /// <returns>Array of file contents</returns>
         internal static ndarray ArrayFromFile(string fileName, dtype type, int count, string sep) {
-            return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, type.Descr, count, sep));
+            if (type != null) Incref(type.Descr);
+            return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
         }
 
 
         internal static ndarray ArrayFromString(string data, dtype type, int count, string sep) {
-            return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, type.Descr, count, sep));
+            if (type != null) Incref(type.Descr);
+            return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
         }
 
         #endregion
