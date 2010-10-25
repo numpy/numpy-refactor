@@ -222,6 +222,14 @@ namespace NumpyDotNet {
             get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_type); }
         }
 
+        public string @char {
+            get {
+                StringBuilder s = new StringBuilder(2);
+                s.Append((char)Type);
+                return s.ToString();
+            }
+        }
+
         public byte ByteOrder {
             get { return Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_byteorder); }
             set { Marshal.WriteByte(core, NpyCoreApi.DescrOffsets.off_byteorder, value); }

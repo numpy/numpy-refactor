@@ -402,6 +402,12 @@ namespace NumpyDotNet {
                 NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
         }
 
+        internal static void SetShape(ndarray arr, IntPtr[] dims) {
+            if (NpyArrayAccess_SetShape(arr.Array, dims.Length, dims) < 0) {
+                CheckError();
+            }
+        }
+
         internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
             ndarray arr, IntPtr offset, bool ensure_array) {
             Incref(d.Descr);
@@ -560,6 +566,7 @@ namespace NumpyDotNet {
 
         #endregion
 
+        
 
         #region C API Definitions
 
@@ -692,6 +699,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CopyAndTranspose(IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArray_CopyAnyInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -814,6 +824,15 @@ namespace NumpyDotNet {
             IntPtr arr, IntPtr indices, IntPtr arrOut, int axis, IntPtr descr,
             int operation);
 
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void del_GetErrorState(int* bufsizep, int* maskp, IntPtr* objp);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void del_ErrorHandler(sbyte* name, int errormask, IntPtr errobj, int retstatus, int* first);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyUFunc_SetFpErrFuncs(del_GetErrorState errorState, del_ErrorHandler handler);
+
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
 
@@ -843,7 +862,7 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
         private static extern byte GetNativeTypeInfo(out int intSize, 
-            out int longsize, out int longLongSize);
+            out int longsize, out int longLongSize, out int longDoubleSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
@@ -884,6 +903,10 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
             int order);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim, 
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,
@@ -1557,6 +1580,72 @@ namespace NumpyDotNet {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_ClearErrorCallback();
 
+        private static unsafe void GetErrorState(int* bufsizep, int* errmaskp, IntPtr* errobjp) {
+            // deref any existing obj
+            if (*errobjp != IntPtr.Zero) {
+                FreeGCHandle(GCHandleFromIntPtr(*errobjp));
+                *errobjp = IntPtr.Zero;
+            }
+            var info = umath.errorInfo;
+            if (info == null) {
+                *bufsizep = NpyDefs.NPY_BUFSIZE;
+                *errmaskp = NpyDefs.NPY_UFUNC_ERR_DEFAULT;
+                *errobjp = IntPtr.Zero;
+            } else {
+                umath.ErrorInfo vInfo = (umath.ErrorInfo)info;
+                *bufsizep = vInfo.bufsize;
+                *errmaskp = vInfo.errmask;
+                if (vInfo.errobj != null) {
+                    GCHandle h = AllocGCHandle(vInfo.errobj);
+                    *errobjp = GCHandle.ToIntPtr(h);
+                }
+            }
+        }
+
+        private static unsafe void ErrorHandler(sbyte* name, int errormask, IntPtr errobj, int retstatus, int* first) {
+            try {
+                object obj;
+                if (errobj != IntPtr.Zero) {
+                    obj = GCHandleFromIntPtr(errobj).Target;
+                } else {
+                    obj = null;
+                }
+                string sName = new string(name);
+                NpyDefs.NPY_UFUNC_ERR method;
+                if ((retstatus & (int)NpyDefs.NPY_UFUNC_FPE.DIVIDEBYZERO) != 0) {
+                    bool bfirst = (*first != 0);
+                    int handle = (errormask & (int)NpyDefs.NPY_UFUNC_MASK.DIVIDEBYZERO);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.DIVIDEBYZERO);
+                    umath.ErrorHandler(sName, method, obj, "divide by zero", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((retstatus & (int)NpyDefs.NPY_UFUNC_FPE.OVERFLOW) != 0) {
+                    bool bfirst = (*first != 0);
+                    int handle = (errormask & (int)NpyDefs.NPY_UFUNC_MASK.OVERFLOW);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.OVERFLOW);
+                    umath.ErrorHandler(sName, method, obj, "overflow", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((retstatus & (int)NpyDefs.NPY_UFUNC_FPE.UNDERFLOW) != 0) {
+                    bool bfirst = (*first != 0);
+                    int handle = (errormask & (int)NpyDefs.NPY_UFUNC_MASK.UNDERFLOW);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.UNDERFLOW);
+                    umath.ErrorHandler(sName, method, obj, "underflow", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((retstatus & (int)NpyDefs.NPY_UFUNC_FPE.INVALID) != 0) {
+                    bool bfirst = (*first != 0);
+                    int handle = (errormask & (int)NpyDefs.NPY_UFUNC_MASK.INVALID);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.INVALID);
+                    umath.ErrorHandler(sName, method, obj, "invalid", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+            } catch (Exception ex) {
+                ErrorCode = NpyExc_Type.RuntimeError;
+                ErrorMessage = ex.Message;
+            }
+        }
+
         #endregion
 
         //
@@ -1589,6 +1678,9 @@ namespace NumpyDotNet {
             new del_ErrorOccurredCallback(ErrorOccurredCallback);
         private static readonly del_ClearErrorCallback ClearErrorCallbackDelegate =
             new del_ClearErrorCallback(ClearErrorCallback);
+
+        private static unsafe readonly del_GetErrorState GetErrorStateDelegate = new del_GetErrorState(GetErrorState);
+        private static unsafe readonly del_ErrorHandler ErrorHandlerDelegate = new del_ErrorHandler(ErrorHandler);
 
 
         /// <summary>
@@ -1626,6 +1718,11 @@ namespace NumpyDotNet {
         /// </summary>
         internal static readonly int Native_SizeOfLongLong;
 
+        /// <summary>
+        /// Size fo element in long double arrays, in bytes.
+        /// </summary>
+        internal static readonly int Native_SizeOfLongDouble;
+
 
         /// <summary>
         /// Initializes the core library with necessary callbacks on load.
@@ -1634,12 +1731,14 @@ namespace NumpyDotNet {
             // Check the native byte ordering (make sure it matches what .NET uses) and
             // figure out the mapping between types that vary in size in the core and
             // fixed-size .NET types.
-            int intSize, longSize, longLongSize;
-            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize);
+            int intSize, longSize, longLongSize, longDoubleSize;
+            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize,
+                                                  out longDoubleSize);
 
             Native_SizeOfInt = intSize;
             Native_SizeOfLong = longSize;
             Native_SizeOfLongLong = longLongSize;
+            Native_SizeOfLongDouble = longDoubleSize;
 
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
                 TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
@@ -1738,6 +1837,8 @@ namespace NumpyDotNet {
                 out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
                 out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
                 out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
+
+            NpyUFunc_SetFpErrFuncs(GetErrorStateDelegate, ErrorHandlerDelegate);
         }
         #endregion
 

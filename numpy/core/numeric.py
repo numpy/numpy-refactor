@@ -27,9 +27,9 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'ComplexWarning']
 
 if sys.platform == 'cli':
-    obj2sctype = isnan = zeros = None
+    obj2sctype = isnan = None
     for n in '''fromstring fromfile frombuffer int_asbuffer
-fastCopyAndTranspose set_numeric_ops can_cast
+set_numeric_ops can_cast
 array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
 bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
@@ -222,6 +222,7 @@ lexsort = multiarray.lexsort
 putmask = multiarray.putmask
 concatenate = multiarray.concatenate
 where = multiarray.where
+fastCopyAndTranspose = multiarray._fastCopyAndTranspose
 if sys.platform != 'cli':
     fromstring = multiarray.fromstring
     fromiter = multiarray.fromiter
@@ -231,7 +232,6 @@ if sys.platform != 'cli':
         newbuffer = multiarray.newbuffer
         getbuffer = multiarray.getbuffer
     int_asbuffer = multiarray.int_asbuffer
-    fastCopyAndTranspose = multiarray._fastCopyAndTranspose
     set_numeric_ops = multiarray.set_numeric_ops
     can_cast = multiarray.can_cast
     lexsort = multiarray.lexsort
@@ -2036,18 +2036,17 @@ def array_equiv(a1, a2):
         return False
 
 
-if sys.platform != 'cli':
-    _errdict = {"ignore":ERR_IGNORE,
-                "warn":ERR_WARN,
-                "raise":ERR_RAISE,
-                "call":ERR_CALL,
-                "print":ERR_PRINT,
-                "log":ERR_LOG}
+_errdict = {"ignore":ERR_IGNORE,
+            "warn":ERR_WARN,
+            "raise":ERR_RAISE,
+            "call":ERR_CALL,
+            "print":ERR_PRINT,
+            "log":ERR_LOG}
 
-    _errdict_rev = {}
-    for key in _errdict.keys():
-        _errdict_rev[_errdict[key]] = key
-    del key
+_errdict_rev = {}
+for key in _errdict.keys():
+    _errdict_rev[_errdict[key]] = key
+del key
 
 def seterr(all=None, divide=None, over=None, under=None, invalid=None):
     """
@@ -2440,8 +2439,7 @@ def _setdef():
     umath.seterrobj(defval)
 
 # set the default values
-if sys.platform != 'cli':
-    _setdef()
+_setdef()
 
 Inf = inf = infty = Infinity = PINF
 nan = NaN = NAN

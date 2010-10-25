@@ -104,11 +104,12 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 // that vary platform-to-playform.
 extern "C" __declspec(dllexport)
     char _cdecl NpyArrayAccess_GetNativeTypeInfo(int *intSize, int *longSize, 
-        int *longlongSize)
+        int *longlongSize, int* longDoubleSize)
 {
     *intSize = sizeof(npy_int);
     *longSize = sizeof(npy_long);
     *longlongSize = sizeof(npy_longlong);
+    *longDoubleSize = sizeof(npy_longdouble);
     return NPY_OPPBYTE;
 }
 
@@ -367,6 +368,15 @@ extern "C" __declspec(dllexport)
     newdims.len = ndim;
     newdims.ptr = dims;
     return NpyArray_Newshape(self, &newdims, order);
+}
+
+extern "C" __declspec(dllexport)
+    int NpyArrayAccess_SetShape(NpyArray* self, int ndim, npy_intp* dims)
+{
+    NpyArray_Dims newdims;
+    newdims.len = ndim;
+    newdims.ptr = dims;
+    return NpyArray_SetShape(self, &newdims);
 }
 
 extern "C" __declspec(dllexport)

@@ -733,3 +733,30 @@ NpyArray_DateTimeInfoNew(const char* units, int num, int den, int events)
     return dt_data;
 }
 
+
+/* Determines whether all of the fields in a descriptor are native. Returns 1 if
+   all are native or 0 if not. */
+NDARRAY_API int npy_arraydescr_isnative(NpyArray_Descr *self)
+{
+    if (self->names == NULL) {
+        return NpyArray_ISNBO(self->byteorder);
+    }
+    else {
+        const char *key;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(self->fields, &pos, (void **)&key,
+                                (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
+                continue;
+            }
+            if (0 == npy_arraydescr_isnative(value->descr)) {
+                return 0;
+            }
+        }    
+    }
+    return 1;
+}
+
