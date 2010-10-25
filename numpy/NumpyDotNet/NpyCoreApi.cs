@@ -539,6 +539,7 @@ namespace NumpyDotNet {
 
         #endregion
 
+        
 
         #region C API Definitions
 
@@ -795,6 +796,15 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,
             IntPtr arr, IntPtr indices, IntPtr arrOut, int axis, IntPtr descr,
             int operation);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void del_GetErrorState(char* name, int* bufsizep, int* maskp, IntPtr* objp);
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal unsafe delegate void del_ErrorHandler(int errormask, IntPtr errobj, int retstatus, int* first);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyUFunc_SetFpErrFuncs(del_GetErrorState errorState, del_ErrorHandler handler);
 
         #endregion
 
@@ -1529,6 +1539,49 @@ namespace NumpyDotNet {
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate void del_ClearErrorCallback();
+
+        private static unsafe void GetErrorState(char* name, int* bufsizep, int* errmaskp, IntPtr* errobjp) {
+            // deref any existing obj
+            if (*errobjp == IntPtr.Zero) {
+                GCHandleFromIntPtr(*errobjp).Free();
+                *errobjp = IntPtr.Zero;
+            }
+        }
+
+        private static unsafe void ErrorHandler(int errormask, IntPtr errobj, int retstatus, int* first) {
+            try {
+                PythonTuple obj = (PythonTuple)GCHandleFromIntPtr(errobj).Target;
+                int handle;
+                NpyDefs.NPY_UFUNC_ERR method;
+                if ((handle = retstatus & (int)NpyDefs.NPY_UFUNC_FPE.DIVIDEBYZERO) != 0) {
+                    bool bfirst = (*first != 0);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.DIVIDEBYZERO);
+                    umath.ErrorHandler(method, obj, "divide by zero", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((handle = retstatus & (int)NpyDefs.NPY_UFUNC_FPE.OVERFLOW) != 0) {
+                    bool bfirst = (*first != 0);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.OVERFLOW);
+                    umath.ErrorHandler(method, obj, "overflow", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((handle = retstatus & (int)NpyDefs.NPY_UFUNC_FPE.UNDERFLOW) != 0) {
+                    bool bfirst = (*first != 0);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.UNDERFLOW);
+                    umath.ErrorHandler(method, obj, "underflow", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+                if ((handle = retstatus & (int)NpyDefs.NPY_UFUNC_FPE.INVALID) != 0) {
+                    bool bfirst = (*first != 0);
+                    method = (NpyDefs.NPY_UFUNC_ERR)(handle >> (int)NpyDefs.NPY_UFUNC_SHIFT.INVALID);
+                    umath.ErrorHandler(method, obj, "invalid", retstatus, ref bfirst);
+                    *first = bfirst ? 1 : 0;
+                }
+            } catch (Exception ex) {
+                ErrorCode = NpyExc_Type.RuntimeError;
+                ErrorMessage = ex.Message;
+            }
+        }
 
         #endregion
 

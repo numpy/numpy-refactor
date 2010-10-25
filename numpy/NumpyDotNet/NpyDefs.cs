@@ -288,6 +288,16 @@ namespace NumpyDotNet {
         #region umath errors
 
         public const int NPY_BUFSIZE = 10000;
+        public const int NPY_MIN_BUFSIZE = 2 * sizeof(double);
+        public const int NPY_MAX_BUFSIZE = NPY_MIN_BUFSIZE * 1000000;
+
+        public enum NPY_UFUNC_FPE
+        {
+            DIVIDEBYZERO = 1,
+            OVERFLOW = 2,
+            UNDERFLOW = 4,
+            INVALID = 8
+        }
 
         public enum NPY_UFUNC_ERR 
         {
@@ -315,13 +325,6 @@ namespace NumpyDotNet {
             INVALID = 9
         }
 
-        public enum NPY_UFUNC_FPE
-        {
-            DIVIDEBYZERO = 1,
-            OVERFLOW = 2,
-            UNDERFLOW = 4,
-            INVALID = 8
-        }
 
         public const int NPY_UFUNC_ERR_DEFAULT = 0;
         public const int NPY_UFUNC_ERR_DEFAULT2 =

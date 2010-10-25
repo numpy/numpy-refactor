@@ -8,6 +8,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -218,6 +219,10 @@ namespace NumpyDotNet {
                 }
             }
             return true;
+        }
+
+        internal static void Warn(PythonType category, string msg, params object[] args) {
+            PythonOps.Warn(defaultContext, category, msg, args);
         }
     }
 

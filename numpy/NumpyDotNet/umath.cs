@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using IronPython.Runtime;
 using IronPython.Modules;
+using IronPython.Runtime.Exceptions;
+using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using Microsoft.Scripting;
 
 namespace NumpyDotNet
@@ -40,18 +43,30 @@ namespace NumpyDotNet
 
         public const int UFUNC_BUFSIZE_DEFAULT = NpyDefs.NPY_BUFSIZE;
 
+        internal struct ErrorInfo
+        {
+            internal int bufsize;
+            internal int errmask;
+            internal PythonTuple errobj;
+        }
+
         [ThreadStatic]
-        internal static List errobj;
+        internal static ErrorInfo? errorInfo;
 
         public static List geterrobj() {
-            if (errobj == null) {
+            if (errorInfo == null) {
                 List result = new List();
                 result.append(NpyDefs.NPY_BUFSIZE);
                 result.append(NpyDefs.NPY_UFUNC_ERR_DEFAULT);
                 result.append(null);
                 return result;
             } else {
-                return errobj;
+                List result = new List();
+                ErrorInfo info = (ErrorInfo)errorInfo;
+                result.append(info.bufsize);
+                result.append(info.errmask);
+                result.append(info.errobj[1]);
+                return result;
             }
         }
 
@@ -59,7 +74,14 @@ namespace NumpyDotNet
             if (obj.Count != 3) {
                 throw new ArgumentException("Error object must be a list of length 3");
             }
-            errobj = obj;
+            int bufsize = NpyUtil_Python.ConvertToInt(obj[0]);
+            if (bufsize < NpyDefs.NPY_MIN_BUFSIZE ||
+                bufsize > NpyDefs.NPY_MAX_BUFSIZE ||
+                (bufsize % 16 != 0)) {
+                    throw new ArgumentException(String.Format("buffer size ({0}) is not in range ({1} - {2}) or not a multiple of 16",
+                        bufsize, NpyDefs.NPY_MIN_BUFSIZE, NpyDefs.NPY_MAX_BUFSIZE));
+            }
+            int errmask = NpyUtil_Python.ConvertToInt(obj[1]);
         }
 
                 
@@ -258,5 +280,47 @@ namespace NumpyDotNet
         private unsafe static readonly NumericOps.del_MethodCall MethodCallDelegate =
             new NumericOps.del_MethodCall(NumericOps.MethodCall);
 
+        #region error handling
+
+        private static PythonType PyExc_RuntimeWarning = DynamicHelpers.GetPythonTypeFromType(typeof(RuntimeWarningException));
+
+        internal static void ErrorHandler(NpyDefs.NPY_UFUNC_ERR method, PythonTuple errobj, string errtype, int retstatus, ref bool first) {
+            string msg;
+            object func;
+
+            switch (method) {
+                case NpyDefs.NPY_UFUNC_ERR.WARN:
+                    NpyUtil_Python.Warn(PyExc_RuntimeWarning, "%s encountered in %s", errtype, errobj[0]);
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.RAISE:
+                    msg = String.Format("{0} encountered in {1}", errtype, errobj[0]);
+                    throw new FloatingPointException(msg);
+                case NpyDefs.NPY_UFUNC_ERR.CALL:
+                    func = errobj[1];
+                    if (func == null) {
+                        msg = String.Format("python callback specified for {0} (in {1}) but no function found", errtype, errobj[0]);
+                        throw new ArgumentException(msg);
+                    }
+                    PythonCalls.Call(NpyUtil_Python.DefaultContext, func, errtype, retstatus);
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.PRINT:
+                    if (first) {
+                        Console.Error.WriteLine("Warning: {0} encountered in {1}", errtype, errobj[0]);
+                        first = false;
+                    }
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.LOG:
+                    func = errobj[1];
+                    if (func == null) {
+                        msg = String.Format("log specified for {0} (in {1}) but no function found", errtype, errobj[0]);
+                        throw new ArgumentException(msg);
+                    }
+                    msg = String.Format("Warning: {0} encountered in {1}\n", errtype, errobj[0]);
+                    PythonCalls.Call(NpyUtil_Python.DefaultContext, func, "write", "s", msg);
+                    break;
+            }
+        }
+
+        #endregion
     }
 }
