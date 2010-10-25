@@ -87,7 +87,7 @@ static void NpyErr_NoMemory()
 }
 
 
-static void default_fp_error_state(char *name, int *bufsizeRet, int *errormaskRet, void **errobjRet)
+static void default_fp_error_state(int *bufsizeRet, int *errormaskRet, void **errobjRet)
 {
     *bufsizeRet = NPY_BUFSIZE;
     *errormaskRet = NPY_UFUNC_ERR_DEFAULT;
@@ -97,7 +97,7 @@ static void default_fp_error_state(char *name, int *bufsizeRet, int *errormaskRe
 /* Global floating-point error handling.  This is set by the interface
    layer or, if NULL defaults to a trival internal one.
 */
-static void default_fp_error_handler(int errormask, void *errobj,
+static void default_fp_error_handler(char* name, int errormask, void *errobj,
                                      int retstatus, int *first)
 {
     const char *msg = "unknown";
@@ -115,10 +115,8 @@ static void default_fp_error_handler(int errormask, void *errobj,
     printf("libndarray floating point %s warning.", msg);
 }
 
-static void (*fp_error_state)(char *, int *, int *,
-                              void **) = &default_fp_error_state;
-static void (*fp_error_handler)(int, void *, int,
-                                int *) = &default_fp_error_handler;
+fpe_state_f fp_error_state = &default_fp_error_state;
+fpe_handler_f fp_error_handler = &default_fp_error_handler;
 
 
 int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
@@ -139,7 +137,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     if (loop == NULL) {
         return -1;
     }
-    fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
+    fp_error_state(&loop->bufsize, &loop->errormask, &loop->errobj);
 
     /* Setup the arrays */
     res = construct_arrays(loop, nargs, mps, ntypenums, rtypenums,
@@ -2188,7 +2186,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     loop->decref_arr = NULL;
     loop->N = NpyArray_DIM(*arr,axis);
     loop->instrides = NpyArray_STRIDE(*arr, axis);
-    fp_error_state(name, &loop->bufsize, &loop->errormask, &loop->errobj);
+    fp_error_state(&loop->bufsize, &loop->errormask, &loop->errobj);
     if (select_types(loop->ufunc, arg_types, &(loop->function),
                      &(loop->funcdata), scalars, 0, NULL) == -1) {
         goto fail;
@@ -3321,8 +3319,7 @@ _does_loop_use_arrays(void *data)
  * Floating point error handling.
  */
 void
-NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **),
-                       void (*handler)(int, void *, int, int *))
+NpyUFunc_SetFpErrFuncs(fpe_state_f state, fpe_handler_f handler)
 {
     fp_error_state = state;
     fp_error_handler = handler;
@@ -3339,13 +3336,16 @@ NpyUFunc_getfperr(void)
 
 
 int
-NpyUFunc_checkfperr(int errmask, void *errobj, int *first)
+NpyUFunc_checkfperr(char* name, int errmask, void *errobj, int *first)
 {
     int retstatus;
+    if (name == NULL) {
+        name = "";
+    }
 
     /* 1. check hardware flag --- this is platform dependent code */
     retstatus = NpyUFunc_getfperr();
-    fp_error_handler(errmask, errobj, retstatus, first);
+    fp_error_handler(name, errmask, errobj, retstatus, first);
     return 0;
 }
 

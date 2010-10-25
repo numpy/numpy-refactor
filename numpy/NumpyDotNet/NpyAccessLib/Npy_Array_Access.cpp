@@ -594,3 +594,24 @@ extern "C" __declspec(dllexport)
 {
     free(p);
 }
+
+
+extern "C" __declspec(dllexport)
+    NpyArray *NpyArrayAccess_FromFile(const char *fileName, NpyArray_Descr *dtype,
+        int count, const char *sep) 
+{
+    FILE *fp = NULL;
+
+    assert(NULL != dtype && NPY_VALID_MAGIC == dtype->nob_magic_number);
+    
+    fopen_s(&fp, fileName, "rb");
+    if (NULL == fp) {
+        NpyErr_SetString(NpyExc_IOError, "unable to open file");
+        return NULL;
+    }
+
+    Npy_INCREF(dtype);
+    return (NULL == sep) ?
+        NpyArray_FromBinaryFile(fp, dtype, count) :
+        NpyArray_FromTextFile(fp, dtype, count, const_cast<char *>(sep));
+}
