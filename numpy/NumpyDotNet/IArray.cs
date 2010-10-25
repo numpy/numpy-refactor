@@ -58,7 +58,7 @@ namespace NumpyDotNet
         object searchsorted(object keys, string side = null);
         void setfield(IronPython.Runtime.CodeContext cntx, object value, object dtype, int offset = 0);
         void setflags(object write = null, object align = null, object uic = null);
-        IronPython.Runtime.PythonTuple shape { get; }
+        object shape { get; }
         object size { get; }
         void sort(int axis = -1, string kind = null, object order = null);
         object squeeze();

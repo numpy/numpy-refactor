@@ -402,6 +402,12 @@ namespace NumpyDotNet {
                 NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
         }
 
+        internal static void SetShape(ndarray arr, IntPtr[] dims) {
+            if (NpyArrayAccess_SetShape(arr.Array, dims.Length, dims) < 0) {
+                CheckError();
+            }
+        }
+
         internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
             ndarray arr, IntPtr offset, bool ensure_array) {
             Incref(d.Descr);
@@ -894,6 +900,10 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
             int order);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim, 
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,

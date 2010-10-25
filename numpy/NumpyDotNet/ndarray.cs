@@ -579,8 +579,12 @@ namespace NumpyDotNet
         /// <summary>
         /// Returns the size of each dimension as a tuple.
         /// </summary>
-        public IronPython.Runtime.PythonTuple shape {
-            get { return new PythonTuple(this.Dims); }
+        public object shape {
+            get { return NpyUtil_Python.ToPythonTuple(this.Dims); }
+            set {
+                IntPtr[] shape = NpyUtil_ArgProcessing.IntpArrConverter(value);
+                NpyCoreApi.SetShape(this, shape);
+            }
         }
 
 

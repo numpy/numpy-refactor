@@ -267,7 +267,7 @@ namespace NumpyDotNet
             // CPython implementation simply does nothing, so we will too.
         }
 
-        public PythonTuple shape {
+        public object shape {
             get { return new PythonTuple(); }
         }
 

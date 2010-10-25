@@ -371,6 +371,15 @@ extern "C" __declspec(dllexport)
 }
 
 extern "C" __declspec(dllexport)
+    int NpyArrayAccess_SetShape(NpyArray* self, int ndim, npy_intp* dims)
+{
+    NpyArray_Dims newdims;
+    newdims.len = ndim;
+    newdims.ptr = dims;
+    return NpyArray_SetShape(self, &newdims);
+}
+
+extern "C" __declspec(dllexport)
     int NpyArrayAccess_Resize(NpyArray *self, int ndim, npy_intp* newshape, int refcheck, NPY_ORDER fortran)
 {
     NpyArray_Dims newdims;

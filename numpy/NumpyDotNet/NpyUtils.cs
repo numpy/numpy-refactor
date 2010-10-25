@@ -228,6 +228,23 @@ namespace NumpyDotNet {
         internal static void Warn(PythonType category, string msg, params object[] args) {
             PythonOps.Warn(defaultContext, category, msg, args);
         }
+
+        internal static PythonTuple ToPythonTuple(long[] array) {
+            int n = array.Length;
+            object[] vals = new object[n];
+            // Convert to Python types
+            for (int i = 0; i < n; i++) {
+                long v = array[i];
+                if (v < int.MinValue || v > int.MaxValue) {
+                    vals[i] = new BigInteger(v);
+                } else {
+                    vals[i] = (int)v;
+                }
+            }
+            // Make the tuple
+            return new PythonTuple(vals);
+        }
+            
     }
 
 
@@ -256,6 +273,19 @@ namespace NumpyDotNet {
                 return ((IEnumerable<Object>)o).Select(x => ((IConvertible)x).ToInt64(null)).ToArray();
             } else if (o is IConvertible) {
                 return new long[1] { ((IConvertible)o).ToInt64(null) };
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Type '{0}' is not supported for array dimensions.",
+                    o.GetType().Name));
+            }
+        }
+
+        internal static IntPtr[] IntpArrConverter(Object o) {
+            if (o == null) return null;
+            else if (o is IEnumerable<Object>) {
+                return ((IEnumerable<Object>)o).Select(x => IntpConverter(x)).ToArray();
+            } else if (o is IConvertible) {
+                return new IntPtr[] { IntpConverter(Convert.ToInt64((IConvertible)o)) };
             } else {
                 throw new NotImplementedException(
                     String.Format("Type '{0}' is not supported for array dimensions.",
