@@ -285,6 +285,56 @@ namespace NumpyDotNet {
 
         #endregion
 
+        #region umath errors
+
+        public const int NPY_BUFSIZE = 10000;
+        public const int NPY_MIN_BUFSIZE = 2 * sizeof(double);
+        public const int NPY_MAX_BUFSIZE = NPY_MIN_BUFSIZE * 1000000;
+
+        public enum NPY_UFUNC_FPE
+        {
+            DIVIDEBYZERO = 1,
+            OVERFLOW = 2,
+            UNDERFLOW = 4,
+            INVALID = 8
+        }
+
+        public enum NPY_UFUNC_ERR 
+        {
+            IGNORE = 0,
+            WARN = 1,
+            RAISE = 2,
+            CALL = 3,
+            PRINT = 4,
+            LOG = 5
+        }
+
+        public enum NPY_UFUNC_MASK
+        {
+            DIVIDEBYZERO = 0x07,
+            OVERFLOW = 0x3f,
+            UNDERFLOW = 0x1ff,
+            INVALID = 0xfff
+        }
+
+        public enum NPY_UFUNC_SHIFT
+        {
+            DIVIDEBYZERO = 0,
+            OVERFLOW = 3,
+            UNDERFLOW = 6,
+            INVALID = 9
+        }
+
+
+        public const int NPY_UFUNC_ERR_DEFAULT = 0;
+        public const int NPY_UFUNC_ERR_DEFAULT2 =
+            ((int)NPY_UFUNC_ERR.PRINT << (int)NPY_UFUNC_SHIFT.DIVIDEBYZERO) +
+            ((int)NPY_UFUNC_ERR.PRINT << (int)NPY_UFUNC_SHIFT.OVERFLOW) +
+            ((int)NPY_UFUNC_ERR.PRINT << (int)NPY_UFUNC_SHIFT.INVALID);
+
+        #endregion
+
+
         #region Type functions
 
         public static bool IsBool(NPY_TYPES type) {

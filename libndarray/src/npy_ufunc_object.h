@@ -68,7 +68,7 @@ typedef struct NpyUFuncObject NpyUFuncObject;
 
 
 
-extern struct NpyDict_struct *npy_create_userloops_table();
+extern struct NpyDict_struct *npy_create_userloops_table(void);
 
 
 /* A linked-list of function information for
@@ -311,15 +311,19 @@ npy_ufunc_dealloc(NpyUFuncObject *self);
  * Platform-dependent floating point error handling
  */
 
+typedef void (*fpe_state_f)(int* pbufsize, int* perrmask, 
+                            void** perrobj);
+typedef void (*fpe_handler_f)(char* name, int errmask, void* errobj, int retstatus , int* first);
+
 void
-NpyUFunc_SetFpErrFuncs(void (*state)(char *, int *, int *, void **),
-                       void (*handler)(int, void *, int, int *));
+NpyUFunc_SetFpErrFuncs(fpe_state_f state, fpe_handler_f handler);
+
 int
 NpyUFunc_getfperr(void);
 int
-NpyUFunc_checkfperr(int errmask, void *errobj, int *first);
+NpyUFunc_checkfperr(char* name, int errmask, void *errobj, int *first);
 void
-NpyUFunc_clearfperr();
+NpyUFunc_clearfperr(void);
 
 
 #define NpyUFunc_One 1
@@ -378,8 +382,9 @@ NpyUFunc_clearfperr();
 #define NPY_UFUNC_CHECK_ERROR(arg)                                           \
         do {if ((((arg)->obj & NPY_UFUNC_OBJ_NEEDS_API) && NpyErr_Occurred()) || \
             ((arg)->errormask &&                                             \
-             NpyUFunc_checkfperr((arg)->errormask,                           \
-                                (arg)->errobj,                               \
+             NpyUFunc_checkfperr((arg)->ufunc->name,                         \
+                                 (arg)->errormask,                           \
+                                 (arg)->errobj,                              \
                                 &(arg)->first)))                             \
                 goto fail;} while (0)
 

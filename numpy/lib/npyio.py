@@ -13,7 +13,13 @@ from operator import itemgetter
 
 from cPickle import load as _cload, loads
 from _datasource import DataSource
-from _compiled_base import packbits, unpackbits
+if sys.platform != 'cli':
+    from _compiled_base import packbits, unpackbits
+else:
+    def packbits(*args, **kw):
+        raise NotImplementedError()
+    def unpackbits(*args, **kw):
+        raise NotImplementedError()
 
 from _iotools import LineSplitter, NameValidator, StringConverter, \
                      ConverterError, ConverterLockError, ConversionWarning, \

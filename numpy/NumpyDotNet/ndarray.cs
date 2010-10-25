@@ -23,7 +23,7 @@ namespace NumpyDotNet
     /// instance of this class.
     /// </summary>
     [PythonType]
-    public partial class ndarray : Wrapper, IEnumerable<object>, NumpyDotNet.IArray
+    public partial class ndarray : Wrapper, IEnumerable<object>, IBufferProvider, NumpyDotNet.IArray
     {
         private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
                                                    "offset", "strides", "order" };
@@ -442,7 +442,7 @@ namespace NumpyDotNet
         public object this[string field] {
             set {
                 if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
-                    throw new ArgumentException("array is not writeable.");
+                    throw new RuntimeException("array is not writeable.");
                 } 
                 IntPtr descr;
                 int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
@@ -499,7 +499,7 @@ namespace NumpyDotNet
                 }
                 if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
                 {
-                    throw new ArgumentException("array is not writeable.");
+                    throw new RuntimeException("array is not writeable.");
                 }
 
                 using (NpyIndexes indexes = new NpyIndexes())
@@ -579,8 +579,12 @@ namespace NumpyDotNet
         /// <summary>
         /// Returns the size of each dimension as a tuple.
         /// </summary>
-        public IronPython.Runtime.PythonTuple shape {
-            get { return new PythonTuple(this.Dims); }
+        public object shape {
+            get { return NpyUtil_Python.ToPythonTuple(this.Dims); }
+            set {
+                IntPtr[] shape = NpyUtil_ArgProcessing.IntpArrConverter(value);
+                NpyCoreApi.SetShape(this, shape);
+            }
         }
 
 
@@ -674,6 +678,12 @@ namespace NumpyDotNet
             get {
                 // TODO: Handle non-array bases
                 return BaseArray;
+            }
+        }
+
+        public int itemsize {
+            get {
+                return dtype.ElementSize;
             }
         }
 
@@ -1228,6 +1238,14 @@ namespace NumpyDotNet
             get { return core; }
         }
 
+
+        /// <summary>
+        /// Base address of the array data memory. Use with caution.
+        /// </summary>
+        internal IntPtr DataAddress {
+            get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
+        }
+
         /// <summary>
         /// Returns an array of the sizes of each dimension. This property allocates
         /// a new array with each call and must make a managed-to-native call so it's
@@ -1254,6 +1272,10 @@ namespace NumpyDotNet
         /// </summary>
         public bool IsContiguous {
             get { return ChkFlags(NpyDefs.NPY_CONTIGUOUS); }
+        }
+
+        public bool IsOneSegment {
+            get { return ndim == 0 || ChkFlags(NpyDefs.NPY_FORTRAN) || ChkFlags(NpyDefs.NPY_CARRAY); }
         }
 
         /// <summary>
@@ -1572,6 +1594,124 @@ namespace NumpyDotNet
                 //Console.WriteLine("Removed {0} bytes of pressure, now {1}",
                 //    newBytes, TotalMemPressure);
             }
+        }
+
+        #endregion
+
+        #region Buffer protocol
+
+        public IExtBufferProtocol GetBuffer(NpyBuffer.PyBuf flags) {
+            return new ndarrayBufferAdapter(this, flags);
+        }
+
+        public IExtBufferProtocol GetPyBuffer(int flags) {
+            return GetBuffer((NpyBuffer.PyBuf)flags);
+        }
+
+        /// <summary>
+        /// Adapts an instance that implements IBufferProtocol and IPythonBufferable
+        /// to the IExtBufferProtocol.
+        /// </summary>
+        private class ndarrayBufferAdapter : IExtBufferProtocol
+        {
+            internal ndarrayBufferAdapter(ndarray a, NpyBuffer.PyBuf flags) {
+                arr = a;
+
+                if ((flags & NpyBuffer.PyBuf.C_CONTIGUOUS) == NpyBuffer.PyBuf.C_CONTIGUOUS &&
+                    !arr.ChkFlags(NpyDefs.NPY_C_CONTIGUOUS)) {
+                    throw new ArgumentException("ndarray is not C-continuous");
+                }
+                if ((flags & NpyBuffer.PyBuf.F_CONTIGUOUS) == NpyBuffer.PyBuf.F_CONTIGUOUS &&
+                    !arr.ChkFlags(NpyDefs.NPY_F_CONTIGUOUS)) {
+                    throw new ArgumentException("ndarray is not F-continuous");
+                }
+                if ((flags & NpyBuffer.PyBuf.ANY_CONTIGUOUS) == NpyBuffer.PyBuf.ANY_CONTIGUOUS &&
+                    !arr.IsOneSegment) {
+                    throw new ArgumentException("ndarray is not contiguous");
+                }
+                if ((flags & NpyBuffer.PyBuf.STRIDES) != NpyBuffer.PyBuf.STRIDES &&
+                    (flags & NpyBuffer.PyBuf.ND) == NpyBuffer.PyBuf.ND &&
+                    !arr.ChkFlags(NpyDefs.NPY_C_CONTIGUOUS)) {
+                    throw new ArgumentException("ndarray is not c-contiguous");
+                }
+                if ((flags & NpyBuffer.PyBuf.WRITABLE) == NpyBuffer.PyBuf.WRITABLE &&
+                    !arr.IsWriteable) {
+                    throw new ArgumentException("ndarray is not writable");
+                }
+
+                readOnly = ((flags & NpyBuffer.PyBuf.WRITABLE) == 0);
+                ndim = ((flags & NpyBuffer.PyBuf.ND) == 0) ? 0 : arr.ndim;
+                shape = ((flags & NpyBuffer.PyBuf.ND) == 0) ? null : arr.Dims;
+                strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.strides;
+                
+                if ((flags & NpyBuffer.PyBuf.FORMAT) == 0) {
+                    // Force an array of unsigned bytes.
+                    itemCount = arr.Size * arr.dtype.ElementSize;
+                    itemSize = sizeof(byte);
+                    format = null;
+                } else {
+                    itemCount = arr.Length;
+                    itemSize = arr.dtype.ElementSize;
+                    format = NpyCoreApi.GetBufferFormatString(arr);
+                }
+            }
+
+            #region IExtBufferProtocol
+
+            long IExtBufferProtocol.ItemCount {
+                get { return itemCount; }
+            }
+
+            string IExtBufferProtocol.Format {
+                get { return format; }
+            }
+
+            int IExtBufferProtocol.ItemSize {
+                get { return itemSize; }
+            }
+
+            int IExtBufferProtocol.NumberDimensions {
+                get { return ndim; }
+            }
+
+            bool IExtBufferProtocol.ReadOnly {
+                get { return readOnly; }
+            }
+
+            IList<long> IExtBufferProtocol.Shape {
+                get { return shape; }
+            }
+
+            long[] IExtBufferProtocol.Strides {
+                get { return strides; }
+            }
+
+            long[] IExtBufferProtocol.SubOffsets {
+                get { return null; }
+            }
+
+            IntPtr IExtBufferProtocol.UnsafeAddress {
+                get { return arr.DataAddress; }
+            }
+
+            /// <summary>
+            /// Total number of bytes in the array
+            /// </summary>
+            long IExtBufferProtocol.Size {
+                get { return arr.Size; }
+            }
+
+            #endregion
+
+            private readonly ndarray arr;
+            private readonly bool readOnly;
+            private readonly long itemCount;
+            private readonly string format;
+            private readonly int ndim;
+            private readonly int itemSize;
+            private readonly IList<long> shape;
+            private readonly long[] strides;
+
         }
 
         #endregion

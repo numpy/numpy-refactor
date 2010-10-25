@@ -3,6 +3,7 @@
 extern "C" {
 #include <npy_api.h>
 #include <npy_defs.h>
+#include <npy_buffer.h>
 #include <npy_arrayobject.h>
 #include <npy_descriptor.h>
 #include <npy_object.h>
@@ -103,11 +104,12 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 // that vary platform-to-playform.
 extern "C" __declspec(dllexport)
     char _cdecl NpyArrayAccess_GetNativeTypeInfo(int *intSize, int *longSize, 
-        int *longlongSize)
+        int *longlongSize, int* longDoubleSize)
 {
     *intSize = sizeof(npy_int);
     *longSize = sizeof(npy_long);
     *longlongSize = sizeof(npy_longlong);
+    *longDoubleSize = sizeof(npy_longdouble);
     return NPY_OPPBYTE;
 }
 
@@ -369,6 +371,15 @@ extern "C" __declspec(dllexport)
 }
 
 extern "C" __declspec(dllexport)
+    int NpyArrayAccess_SetShape(NpyArray* self, int ndim, npy_intp* dims)
+{
+    NpyArray_Dims newdims;
+    newdims.len = ndim;
+    newdims.ptr = dims;
+    return NpyArray_SetShape(self, &newdims);
+}
+
+extern "C" __declspec(dllexport)
     int NpyArrayAccess_Resize(NpyArray *self, int ndim, npy_intp* newshape, int refcheck, NPY_ORDER fortran)
 {
     NpyArray_Dims newdims;
@@ -565,4 +576,52 @@ extern "C" __declspec(dllexport)
     }
     nw->flags = conv->flags;
     return nw;
+}
+
+
+extern "C" __declspec(dllexport)
+    const char * _cdecl NpyArrayAccess_GetBufferFormatString(NpyArray *arr)
+{
+    assert(NULL != arr && NPY_VALID_MAGIC == arr->nob_magic_number);
+
+    npy_tmp_string_t fmt = {0, 0, 0};
+    if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
+        return NULL;
+    }
+    npy_append_char(&fmt, '\0');
+
+    // Note: caller must release returned string. Done by Marshal.PtrToStringAnsi().
+    return fmt.s;
+}
+
+
+// Stupid hack for freeing the string returned by NpyArrayAccess_GetBufferFormatString
+// only because I can't find anything that definitively says where Marshal.FreeHGlobal
+// is compatible with free() or not.  I am assuming not and we know the string was 
+// allocated in the core using malloc.
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_Free(void *p)
+{
+    free(p);
+}
+
+
+extern "C" __declspec(dllexport)
+    NpyArray *NpyArrayAccess_FromFile(const char *fileName, NpyArray_Descr *dtype,
+        int count, const char *sep) 
+{
+    FILE *fp = NULL;
+
+    assert(NULL != dtype && NPY_VALID_MAGIC == dtype->nob_magic_number);
+    
+    fopen_s(&fp, fileName, "rb");
+    if (NULL == fp) {
+        NpyErr_SetString(NpyExc_IOError, "unable to open file");
+        return NULL;
+    }
+
+    Npy_INCREF(dtype);
+    return (NULL == sep) ?
+        NpyArray_FromBinaryFile(fp, dtype, count) :
+        NpyArray_FromTextFile(fp, dtype, count, const_cast<char *>(sep));
 }

@@ -91,20 +91,8 @@ __all__ = ['sctypeDict', 'sctypeNA', 'typeDict', 'typeNA', 'sctypes',
            'ScalarType', 'obj2sctype', 'cast', 'nbytes', 'sctype2char',
            'maximum_sctype', 'issctype', 'typecodes', 'find_common_type',
            'issubdtype']
-import sys
 
-if sys.platform == 'cli':
-    import clr
-    clr.AddReference("NumpyDotNet")
-    import NumpyDotNet as NDN
-    import NumpyDotNet.ModuleMethods as NDNMM
-    ndarray = NDN.ndarray
-    dtype = NDN.dtype
-    typeinfo = NDNMM.typeinfo
-    array = NDNMM.array
-    empty = NDNMM.empty
-else:
-    from numpy.core.multiarray import typeinfo, ndarray, array, empty, dtype
+from numpy.core.multiarray import typeinfo, ndarray, array, empty, dtype
 import types as _types
 import sys
 
@@ -245,6 +233,8 @@ def bitname(obj):
     name = obj.__name__
     base = ''
     char = ''
+    if name[:6] == "numpy.":
+        name = name[6:]
     try:
         if name[-1] == '_':
             newname = name[:-1]

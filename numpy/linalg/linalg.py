@@ -14,13 +14,15 @@ __all__ = ['matrix_power', 'solve', 'tensorsolve', 'tensorinv', 'inv',
            'svd', 'eig', 'eigh','lstsq', 'norm', 'qr', 'cond', 'matrix_rank',
            'LinAlgError']
 
+import sys
 from numpy.core import array, asarray, zeros, empty, transpose, \
         intc, single, double, csingle, cdouble, inexact, complexfloating, \
         newaxis, ravel, all, Inf, dot, add, multiply, identity, sqrt, \
         maximum, flatnonzero, diagonal, arange, fastCopyAndTranspose, sum, \
         isfinite, size, finfo, absolute, log, exp
 from numpy.lib import triu
-from numpy.linalg import lapack_lite
+if sys.platform != 'cli':
+    from numpy.linalg import lapack_lite
 from numpy.matrixlib.defmatrix import matrix_power
 from numpy.compat import asbytes
 

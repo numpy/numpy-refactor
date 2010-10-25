@@ -6,12 +6,93 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using IronPython.Runtime;
 using IronPython.Modules;
+using IronPython.Runtime.Exceptions;
+using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
     public static class umath
     {
+
+        public const double PINF = double.PositiveInfinity;
+        public const double NINF = double.NegativeInfinity;
+        public const double PZERO = 0.0;
+        public const double NZERO = -0.0;
+        public const double NAN = double.NaN;
+
+        public const int ERR_IGNORE = (int)NpyDefs.NPY_UFUNC_ERR.IGNORE;
+        public const int ERR_WARN = (int)NpyDefs.NPY_UFUNC_ERR.WARN;
+        public const int ERR_CALL = (int)NpyDefs.NPY_UFUNC_ERR.CALL;
+        public const int ERR_RAISE = (int)NpyDefs.NPY_UFUNC_ERR.RAISE;
+        public const int ERR_PRINT = (int)NpyDefs.NPY_UFUNC_ERR.PRINT;
+        public const int ERR_LOG = (int)NpyDefs.NPY_UFUNC_ERR.LOG;
+        public const int ERR_DEFAULT = NpyDefs.NPY_UFUNC_ERR_DEFAULT;
+        public const int ERR_DEFAULT2 = NpyDefs.NPY_UFUNC_ERR_DEFAULT2;
+
+        public const int SHIFT_DIVIDEBYZERO = (int)NpyDefs.NPY_UFUNC_SHIFT.DIVIDEBYZERO;
+        public const int SHIFT_OVERFLOW = (int)NpyDefs.NPY_UFUNC_SHIFT.OVERFLOW;
+        public const int SHIFT_UNDERFLOW = (int)NpyDefs.NPY_UFUNC_SHIFT.UNDERFLOW;
+        public const int SHIFT_INVALID = (int)NpyDefs.NPY_UFUNC_SHIFT.INVALID;
+
+        public const int FPE_DIVIDEBYZERO = (int)NpyDefs.NPY_UFUNC_FPE.DIVIDEBYZERO;
+        public const int FPE_OVERFLOW = (int)NpyDefs.NPY_UFUNC_FPE.OVERFLOW;
+        public const int FPE_UNDERFLOW = (int)NpyDefs.NPY_UFUNC_FPE.UNDERFLOW;
+        public const int FPE_INVALID = (int)NpyDefs.NPY_UFUNC_FPE.INVALID;
+
+        public const int UFUNC_BUFSIZE_DEFAULT = NpyDefs.NPY_BUFSIZE;
+
+        internal struct ErrorInfo
+        {
+            internal int bufsize;
+            internal int errmask;
+            internal object errobj;
+        }
+
+        [ThreadStatic]
+        internal static ErrorInfo? errorInfo;
+
+        public static List geterrobj() {
+            if (errorInfo == null) {
+                List result = new List();
+                result.append(NpyDefs.NPY_BUFSIZE);
+                result.append(NpyDefs.NPY_UFUNC_ERR_DEFAULT);
+                result.append(null);
+                return result;
+            } else {
+                List result = new List();
+                ErrorInfo info = (ErrorInfo)errorInfo;
+                result.append(info.bufsize);
+                result.append(info.errmask);
+                result.append(info.errobj);
+                return result;
+            }
+        }
+
+        public static void seterrobj(List obj) {
+            if (obj.Count != 3) {
+                throw new ArgumentException("Error object must be a list of length 3");
+            }
+            int bufsize = NpyUtil_Python.ConvertToInt(obj[0]);
+            if (bufsize < NpyDefs.NPY_MIN_BUFSIZE ||
+                bufsize > NpyDefs.NPY_MAX_BUFSIZE ||
+                (bufsize % 16 != 0)) {
+                    throw new ArgumentException(String.Format("buffer size ({0}) is not in range ({1} - {2}) or not a multiple of 16",
+                        bufsize, NpyDefs.NPY_MIN_BUFSIZE, NpyDefs.NPY_MAX_BUFSIZE));
+            }
+            int errmask = NpyUtil_Python.ConvertToInt(obj[1]);
+            object errobj = obj[2];
+            if (errobj != null && !NpyUtil_Python.IsCallable(errobj)) {
+                object write = PythonOps.ObjectGetAttribute(NpyUtil_Python.DefaultContext, errobj, "write");
+                if (write == null || !NpyUtil_Python.IsCallable(write)) {
+                    throw new ArgumentException("python object must be callable or have a callable write method");
+                }
+            }
+            errorInfo = new ErrorInfo() { bufsize = bufsize, errmask = errmask, errobj = errobj };
+        }
+
+                
 
         /// <summary>
         /// Map of function names to all defined ufunc objects.
@@ -95,8 +176,6 @@ namespace NumpyDotNet
                 Marshal.FreeHGlobal(funcsHandle);
             }
 
-
-
         }
 
 
@@ -142,6 +221,14 @@ namespace NumpyDotNet
             set(NpyDefs.NpyArray_Ops.npy_op_minimum, "minimum");
             set(NpyDefs.NpyArray_Ops.npy_op_rint, "rint");
             set(NpyDefs.NpyArray_Ops.npy_op_conjugate, "conjugate");
+
+            object s;
+            if (funcDict.TryGetValue("conjugate", out s)) {
+                funcDict["conj"] = s;
+            }
+            if (funcDict.TryGetValue("remainder", out s)) {
+                funcDict["mod"] = s;
+            }
         }
 
 
@@ -201,5 +288,48 @@ namespace NumpyDotNet
         private unsafe static readonly NumericOps.del_MethodCall MethodCallDelegate =
             new NumericOps.del_MethodCall(NumericOps.MethodCall);
 
+        #region error handling
+
+        private static PythonType PyExc_RuntimeWarning = PythonExceptions.RuntimeWarning;
+
+        internal static void ErrorHandler(string name, NpyDefs.NPY_UFUNC_ERR method, object errobj, string errtype, int retstatus, ref bool first) {
+            string msg;
+            object func;
+
+            switch (method) {
+                case NpyDefs.NPY_UFUNC_ERR.WARN:
+                    msg = String.Format("{0} encountered in {1}", errtype, name);
+                    NpyUtil_Python.Warn(PyExc_RuntimeWarning, msg);
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.RAISE:
+                    msg = String.Format("{0} encountered in {1}", errtype, name);
+                    throw new FloatingPointException(msg);
+                case NpyDefs.NPY_UFUNC_ERR.CALL:
+                    func = errobj;
+                    if (func == null) {
+                        msg = String.Format("python callback specified for {0} (in {1}) but no function found", errtype, name);
+                        throw new ArgumentException(msg);
+                    }
+                    PythonCalls.Call(NpyUtil_Python.DefaultContext, func, errtype, retstatus);
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.PRINT:
+                    if (first) {
+                        Console.Error.WriteLine("Warning: {0} encountered in {1}", errtype, name);
+                        first = false;
+                    }
+                    break;
+                case NpyDefs.NPY_UFUNC_ERR.LOG:
+                    func = errobj;
+                    if (func == null) {
+                        msg = String.Format("log specified for {0} (in {1}) but no function found", errtype, name);
+                        throw new ArgumentException(msg);
+                    }
+                    msg = String.Format("Warning: {0} encountered in {1}\n", errtype, name);
+                    PythonCalls.Call(NpyUtil_Python.DefaultContext, func, "write", "s", msg);
+                    break;
+            }
+        }
+
+        #endregion
     }
 }

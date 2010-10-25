@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Reflection;
 using IronPython.Runtime;
@@ -177,6 +178,65 @@ namespace NumpyDotNet {
             arr.PutMask(aValues, aMask);
         }
 
+
+        /// <summary>
+        /// Reads the contents of a text or binary file and turns the contents into an array. If
+        /// 'sep' is specified the file is assumed to be text, other it is assumed binary.
+        /// </summary>
+        /// <param name="file">PythonFile, FileStream, or file name string</param>
+        /// <param name="dtype">Optional type for the resulting array, default is double</param>
+        /// <param name="count">Optional number of array elements to read, default reads all elements</param>
+        /// <param name="sep">Optional separator for text elements</param>
+        /// <returns></returns>
+        public static ndarray fromfile(CodeContext cntx, object file, object dtype = null, object count = null, object sep = null) {
+            string fileName;
+            dtype rtype;
+            int num;
+
+            // Annoying.  PythonFile is not convertable to Stream and neither convert to FILE* needed by the
+            // current implementation. We really need to implement a new file reader that take callbacks to
+            // the interface to really support multiple platforms.  
+            if (file is string) fileName = (string)file;
+            else if (file is PythonFile || file is Stream) {
+                throw new NotImplementedException("File and stream types are not supported pending implementation of a cross-platform reader.");
+            } else {
+                throw new NotImplementedException(String.Format("Unsupported file type '{0}'.", file.GetType().Name));
+            }
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
+
+            return NpyCoreApi.ArrayFromFile(fileName, rtype, num, (sep != null) ? sep.ToString() : null);
+        }
+
+
+        /// <summary>
+        /// Constructs an array from a text input string. Since strings are unicode in .NET, sep must be
+        /// specified in this case and only text strings are supported.  Use the version accepting bytes,
+        /// below, for binary strings.
+        /// </summary>
+        /// <param name="cntx">Python code context</param>
+        /// <param name="string">Input text string</param>
+        /// <param name="dtype">Desired array type or null</param>
+        /// <param name="count">Max number of array elements to convert</param>
+        /// <param name="sep">Element separator</param>
+        /// <returns>Array populated with elements from the string</returns>
+        public static ndarray fromstring(CodeContext cntx, string @string, object dtype=null, object count=null, object sep=null) {
+            dtype rtype;
+            int num;
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
+            if (sep == null) {
+                // TODO: Binary strings mean adding a second version of this method accepting
+                // a PythonBytes instance. However, this must then be converted to a byte[]
+                // and then passed differently into the native world and requires an extra
+                // copy.  This is left as a to-do item pending until there is a need.
+                throw new NotImplementedException("Only text strings are currently implemented");
+            }
+            return NpyCoreApi.ArrayFromString(@string, rtype, num, sep.ToString());
+        }
+
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;
             ndarray[] arrays = new ndarray[n];
@@ -248,5 +308,34 @@ namespace NumpyDotNet {
             }
         }
 
+        public static ndarray concatenate(IEnumerable<object> seq, int axis = 0) {
+            return NpyArray.Concatenate(seq, axis);
+        }
+
+        public static object inner(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.InnerProduct(o1, o2));
+        }
+
+        public static object dot(object o1, object o2) {
+            return ndarray.ArrayReturn(NpyArray.MatrixProduct(o1, o2));
+        }
+
+        public static object where(object o, object x, object y) {
+            ndarray arr = NpyArray.FromAny(o);
+            if (x == null && y == null) {
+                return arr.nonzero();
+            }
+            if (x == null || y == null) {
+                throw new ArgumentException("either both or neither of x and y should be given");
+            }
+            ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
+            return obj.choose(new object[] { y, x });
+        }
+
+        public static object _fastCopyAndTranspose(object a) {
+            ndarray arr = NpyArray.FromAny(a, flags: NpyDefs.NPY_CARRAY);
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_CopyAndTranspose(arr.Array));
+        }
     }
 }

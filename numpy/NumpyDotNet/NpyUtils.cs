@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Numerics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 
 namespace NumpyDotNet {
     /// <summary>
@@ -42,6 +44,7 @@ namespace NumpyDotNet {
             }
         }
     }
+
 
     /// <summary>
     /// A package of utilities for dealing with Python
@@ -151,6 +154,10 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static bool IsCallable(object obj) {
+            return PythonOps.IsCallable(DefaultContext, obj);
+        }
+
 
         /// <summary>
         /// Triggers Python conversion to float using __float__ function on Py objects. float
@@ -217,6 +224,27 @@ namespace NumpyDotNet {
             }
             return true;
         }
+
+        internal static void Warn(PythonType category, string msg, params object[] args) {
+            PythonOps.Warn(defaultContext, category, msg, args);
+        }
+
+        internal static PythonTuple ToPythonTuple(long[] array) {
+            int n = array.Length;
+            object[] vals = new object[n];
+            // Convert to Python types
+            for (int i = 0; i < n; i++) {
+                long v = array[i];
+                if (v < int.MinValue || v > int.MaxValue) {
+                    vals[i] = new BigInteger(v);
+                } else {
+                    vals[i] = (int)v;
+                }
+            }
+            // Make the tuple
+            return new PythonTuple(vals);
+        }
+            
     }
 
 
@@ -245,6 +273,19 @@ namespace NumpyDotNet {
                 return ((IEnumerable<Object>)o).Select(x => ((IConvertible)x).ToInt64(null)).ToArray();
             } else if (o is IConvertible) {
                 return new long[1] { ((IConvertible)o).ToInt64(null) };
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Type '{0}' is not supported for array dimensions.",
+                    o.GetType().Name));
+            }
+        }
+
+        internal static IntPtr[] IntpArrConverter(Object o) {
+            if (o == null) return null;
+            else if (o is IEnumerable<Object>) {
+                return ((IEnumerable<Object>)o).Select(x => IntpConverter(x)).ToArray();
+            } else if (o is IConvertible) {
+                return new IntPtr[] { IntpConverter(Convert.ToInt64((IConvertible)o)) };
             } else {
                 throw new NotImplementedException(
                     String.Format("Type '{0}' is not supported for array dimensions.",

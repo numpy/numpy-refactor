@@ -153,8 +153,16 @@
 				RelativePath="..\src\npy_arrayobject.h"
 				>
 			</File>
+                        <File
+                                RelativePath="..\src\npy_buffer.h"
+                                >
+                        </File>
 			<File
 				RelativePath="..\src\npy_common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_buffer.h"
 				>
 			</File>
 			<File
@@ -245,12 +253,20 @@
 				RelativePath="..\src\npy_arraytypes.c"
 				>
 			</File>
+                        <File
+                                RelativePath="..\src\npy_buffer.c"
+                                >
+                        </File>
 			<File
 				RelativePath="..\src\npy_calculation.c"
 				>
 			</File>
 			<File
 				RelativePath="..\src\npy_common.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\npy_buffer.c"
 				>
 			</File>
 			<File
