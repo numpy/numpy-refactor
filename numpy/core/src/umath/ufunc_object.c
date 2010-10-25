@@ -84,10 +84,9 @@
  */
 
 static int
-_error_handler(int method, PyObject *errobj, char *errtype, int retstatus, int *first)
+_error_handler(int method, char* name, PyObject *errobj, char *errtype, int retstatus, int *first)
 {
     PyObject *pyfunc, *ret, *args;
-    char *name = PyBytes_AS_STRING(PyTuple_GET_ITEM(errobj,0));
     char msg[100];
     ALLOW_C_API_DEF;
 
@@ -104,7 +103,7 @@ _error_handler(int method, PyObject *errobj, char *errtype, int retstatus, int *
                 errtype, name);
         goto fail;
     case NPY_UFUNC_ERR_CALL:
-        pyfunc = PyTuple_GET_ITEM(errobj, 1);
+        pyfunc = errobj;
         if (pyfunc == Py_None) {
             PyErr_Format(PyExc_NameError,
                     "python callback specified for %s (in " \
@@ -133,7 +132,7 @@ _error_handler(int method, PyObject *errobj, char *errtype, int retstatus, int *
     case NPY_UFUNC_ERR_LOG:
         if (first) {
             *first = 0;
-            pyfunc = PyTuple_GET_ITEM(errobj, 1);
+            pyfunc = errobj;
             if (pyfunc == Py_None) {
                 PyErr_Format(PyExc_NameError,
                         "log specified for %s (in %s) but no " \
@@ -171,13 +170,13 @@ PyUFunc_getfperr(void)
             handle = errmask & NPY_UFUNC_MASK_##NAME;                       \
             if (handle &&                                               \
                 _error_handler(handle >> NPY_UFUNC_SHIFT_##NAME,            \
-                               errobj, str, retstatus, first) < 0)      \
+                               name, errobj, str, retstatus, first) < 0) \
                 return -1;                                              \
         }}
 
 /*UFUNC_API*/
 NPY_NO_EXPORT int
-PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first)
+PyUFunc_handlefperr(char* name, int errmask, PyObject *errobj, int retstatus, int *first)
 {
     int handle;
     if (errmask && retstatus) {
@@ -194,9 +193,9 @@ PyUFunc_handlefperr(int errmask, PyObject *errobj, int retstatus, int *first)
 
 /*UFUNC_API*/
 NPY_NO_EXPORT int
-PyUFunc_checkfperr(int errmask, PyObject *errobj, int *first)
+PyUFunc_checkfperr(char* name, int errmask, PyObject *errobj, int *first)
 {
-    return NpyUFunc_checkfperr(errmask, errobj, first);
+    return NpyUFunc_checkfperr(name, errmask, errobj, first);
 }
 
 
@@ -434,7 +433,7 @@ static PyObject *PyUFunc_PYVALS_NAME = NULL;
 
 
 static int
-_extract_pyvals(PyObject *ref, char *name, int *bufsize,
+_extract_pyvals(PyObject *ref, int *bufsize,
                 int *errmask, PyObject **errobj)
 {
     PyObject *retval;
@@ -486,10 +485,8 @@ _extract_pyvals(PyObject *ref, char *name, int *bufsize,
         Py_DECREF(temp);
     }
 
-    *errobj = Py_BuildValue("NO", PyBytes_FromString(name), retval);
-    if (*errobj == NULL) {
-        return -1;
-    }
+    *errobj = retval;
+    Py_INCREF(retval);
     return 0;
 }
 
@@ -497,7 +494,7 @@ _extract_pyvals(PyObject *ref, char *name, int *bufsize,
 
 /*UFUNC_API*/
 NPY_NO_EXPORT int
-PyUFunc_GetPyValues(char *name, int *bufsize, int *errmask, PyObject **errobj)
+PyUFunc_GetPyValues(int *bufsize, int *errmask, PyObject **errobj)
 {
     PyObject *thedict;
     PyObject *ref = NULL;
@@ -518,11 +515,12 @@ PyUFunc_GetPyValues(char *name, int *bufsize, int *errmask, PyObject **errobj)
 #endif
     if (ref == NULL) {
         *errmask = NPY_UFUNC_ERR_DEFAULT;
-        *errobj = Py_BuildValue("NO", PyBytes_FromString(name), Py_None);
+        *errobj = Py_None;
+        Py_INCREF(Py_None);
         *bufsize = PyArray_BUFSIZE;
         return 0;
     }
-    return _extract_pyvals(ref, name, bufsize, errmask, errobj);
+    return _extract_pyvals(ref, bufsize, errmask, errobj);
 }
 
 
@@ -1309,7 +1307,7 @@ ufunc_update_use_defaults(void)
     int res;
 
     PyUFunc_NUM_NODEFAULTS += 1;
-    res = PyUFunc_GetPyValues("test", &bufsize, &errmask, &errobj);
+    res = PyUFunc_GetPyValues(&bufsize, &errmask, &errobj);
     PyUFunc_NUM_NODEFAULTS -= 1;
     if (res < 0) {
         Py_XDECREF(errobj);

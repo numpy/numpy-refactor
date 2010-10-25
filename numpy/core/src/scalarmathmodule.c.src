@@ -705,12 +705,12 @@ static PyObject *
         int bufsize, errmask;
         PyObject *errobj;
 
-        if (PyUFunc_GetPyValues("@name@_scalars", &bufsize, &errmask,
+        if (PyUFunc_GetPyValues(&bufsize, &errmask,
                                 &errobj) < 0) {
             return NULL;
         }
         first = 1;
-        if (PyUFunc_handlefperr(errmask, errobj, retstatus, &first)) {
+        if (PyUFunc_handlefperr("@name@_scalars", errmask, errobj, retstatus, &first)) {
             Py_XDECREF(errobj);
             return NULL;
         }
@@ -832,12 +832,12 @@ static PyObject *
         int bufsize, errmask;
         PyObject *errobj;
 
-        if (PyUFunc_GetPyValues("@name@_scalars", &bufsize, &errmask,
+        if (PyUFunc_GetPyValues(&bufsize, &errmask,
                                 &errobj) < 0) {
             return NULL;
         }
         first = 1;
-        if (PyUFunc_handlefperr(errmask, errobj, retstatus, &first)) {
+        if (PyUFunc_handlefperr("@name@_scalars", errmask, errobj, retstatus, &first)) {
             Py_XDECREF(errobj);
             return NULL;
         }
