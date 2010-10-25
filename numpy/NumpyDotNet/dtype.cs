@@ -161,9 +161,7 @@ namespace NumpyDotNet {
 
         public bool isnative {
             get {
-                if (HasNames) {
-                    return this.IsNativeByteOrder;
-                }
+                return NpyCoreApi.DescrIsNative(this.Descr) != 0;
             }
         }
 
@@ -188,7 +186,13 @@ namespace NumpyDotNet {
 
         public byte kind { get { return this.Kind; } }
 
-        public byte @char { get; set; }              // arraydescr_char_get
+        public string @char {
+            get {
+                StringBuilder s = new StringBuilder(2);
+                s.Append((char)Type);
+                return s.ToString();
+            }
+        }
 
         public int num { get; set; }                 // arraydescr_num_get
 
@@ -220,14 +224,6 @@ namespace NumpyDotNet {
 
         public NpyDefs.NPY_TYPECHAR Type {
             get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_type); }
-        }
-
-        public string @char {
-            get {
-                StringBuilder s = new StringBuilder(2);
-                s.Append((char)Type);
-                return s.ToString();
-            }
         }
 
         public byte ByteOrder {
