@@ -1533,6 +1533,8 @@ namespace NumpyDotNet {
                         throw new MissingMemberException(msgTmp);
                     case NpyExc_Type.ComplexWarning:
                         throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                    case NpyExc_Type.TypeError:
+                        throw new IronPython.Runtime.Exceptions.TypeErrorException(msgTmp);
                     default:
                         Console.WriteLine("Unhandled exception type {0} in CheckError.", errTmp);
                         throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
