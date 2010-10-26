@@ -1822,4 +1822,42 @@ namespace NumpyDotNet
         private string value;
         private dtype dtype_;
     }
+
+    [PythonType("numpy.object_")]
+    public class ScalarObject : ScalarGeneric
+    {
+        public ScalarObject() {
+            value = null;
+        }
+
+        public ScalarObject(object o) {
+            value = o;
+        }
+
+        public override dtype dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        internal override ndarray ToArray() {
+            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            result.SetItem(value, 0);
+            return result;
+        }
+
+        internal override void FillData(ndarray arr, long offset = 0) {
+            value = (string)arr.GetItem(offset);
+        }
+
+        private object value;
+        private static dtype dtype_;
+    }
 }

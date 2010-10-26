@@ -291,6 +291,8 @@ namespace NumpyDotNet {
                 info = ScalarInfo.Make<ScalarBool>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                 info = ScalarInfo.Make<ScalarVoid>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                info = ScalarInfo.Make<ScalarObject>();
             }
 
             if (info == null) {
@@ -302,7 +304,11 @@ namespace NumpyDotNet {
 
         public PythonType type {
             get {
-                return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+                if (ScalarType != null) {
+                    return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+                } else {
+                    return null;
+                }
             }
         }
 
