@@ -1438,9 +1438,7 @@ namespace NumpyDotNet
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();
             if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, this.Strides, 0, 0)) {
-                return null;
-            }
+            DumpData(sb, this.Dims, this.Strides, 0, 0);
 
             if (repr) {
                 if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
@@ -1461,32 +1459,31 @@ namespace NumpyDotNet
         /// <param name="strides">Offset in bytes to reach next element in each dimension</param>
         /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
         /// <param name="offset">Byte offset into data array, starts at 0</param>
-        /// <returns>True on success, false on failure</returns>
-        private bool DumpData(StringBuilder sb, long[] dimensions, long[] strides,
+        private void DumpData(StringBuilder sb, long[] dimensions, long[] strides,
             int dimIdx, long offset) {
 
             if (dimIdx == ndim) {
                 Object value = dtype.f.GetItem(offset, this);
-                if (value == null) return false;
+                if (value == null) {
+                    sb.Append("None");
+                } else {
 
-                // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
-                //MethodInfo repr = value.GetType().GetMethod("__repr__");
-                //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
-                sb.Append(value.ToString());
+                    // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
+                    //MethodInfo repr = value.GetType().GetMethod("__repr__");
+                    //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+                    sb.Append(value.ToString());
+                }
             } else {
                 sb.Append('[');
                 for (int i = 0; i < dimensions[dimIdx]; i++) {
-                    if (!DumpData(sb, dimensions, strides, dimIdx + 1,
-                                  offset + strides[dimIdx] * i)) {
-                        return false;
-                    }
+                    DumpData(sb, dimensions, strides, dimIdx + 1,
+                                  offset + strides[dimIdx] * i);
                     if (i < dimensions[dimIdx] - 1) {
                         sb.Append(", ");
                     }
                 }
                 sb.Append(']');
             }
-            return true;
         }
 
         /// <summary>

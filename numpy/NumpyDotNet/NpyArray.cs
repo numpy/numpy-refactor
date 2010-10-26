@@ -161,6 +161,10 @@ namespace NumpyDotNet {
             int maxDepth=0, int flags=0, Object context=null) {
             ndarray result = null;
 
+            if (src == null) {
+                return Empty(new long[0], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT));
+            }
+
             Type t = src.GetType();
 
             if (t != typeof(List) && t != typeof(PythonTuple)) { 
@@ -739,7 +743,10 @@ namespace NumpyDotNet {
             ndarray result = Empty(shape, type, order);
             NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
             if (type.IsObject) {
+                // Object arrays are zero filled when created
                 FillObjects(result, 0);
+            } else {
+                NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
             }
             return result;
         }

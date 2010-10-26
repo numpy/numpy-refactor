@@ -62,11 +62,6 @@ namespace NumpyDotNet {
             NumericOps.InitUFuncOps(cntx);
 
             try {
-                if (src == null) {
-                    throw new IronPython.Runtime.Exceptions.RuntimeException(
-                        "Object can not be null/none.");
-                }
-
                 if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
@@ -87,7 +82,7 @@ namespace NumpyDotNet {
                 // TODO: Check that the first is equiv to PyArray_Check() and the
                 // second is equiv to PyArray_CheckExact().
                 if (subok && src is ndarray ||
-                    !subok && src.GetType() == typeof(ndarray)) {
+                    !subok && src != null && src.GetType() == typeof(ndarray)) {
                     ndarray arr = (ndarray)src;
                     if (type == null) {
                         if (!copy && arr.StridingOk(order)) {

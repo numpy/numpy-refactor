@@ -437,7 +437,11 @@ namespace NumpyDotNet {
                         String.Format("IntPtr of size {0} is not implemented.", IntPtr.Size));
                 }
             }
-            return NpyCoreApi.GCHandleFromIntPtr(f).Target;
+            if (f != IntPtr.Zero) {
+                return NpyCoreApi.GCHandleFromIntPtr(f).Target;
+            } else {
+                return null;
+            }
         }
         internal static GetitemDelegate getitemObjectDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
