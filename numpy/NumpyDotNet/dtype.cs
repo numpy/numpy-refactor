@@ -458,8 +458,7 @@ namespace NumpyDotNet {
                 return arr.GetItem(offset);
             } else {
                 ScalarGeneric result = scalarInfo.ScalarConstructor();
-                result.FillData(arr, offset);
-                return result;
+                return result.FillData(arr, offset);
             }
         }
 
