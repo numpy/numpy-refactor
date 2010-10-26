@@ -210,6 +210,7 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
 {
     NpyArray *mps[NPY_MAXARGS];
     NpyArray *result;
+    int val;
 
     assert(NULL != op && NPY_VALID_MAGIC == op->nob_magic_number);
     assert(NULL != m1 && NPY_VALID_MAGIC == m1->nob_magic_number);

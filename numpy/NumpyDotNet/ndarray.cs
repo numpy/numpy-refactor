@@ -12,6 +12,7 @@ using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
 using IronPython.Runtime.Exceptions;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Runtime;
 using NumpyDotNet;
 using System.Collections;
 
@@ -273,7 +274,7 @@ namespace NumpyDotNet
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
 
-        public object __eq__(ndarray a) {
+        public object __eq__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
@@ -281,7 +282,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __req__(ndarray a) {
+        public object __req__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
@@ -289,7 +290,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __ne__(ndarray a) {
+        public object __ne__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
@@ -297,7 +298,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __rne__(ndarray a) {
+        public object __rne__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
@@ -305,7 +306,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __lt__(ndarray a) {
+        public object __lt__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
@@ -313,7 +314,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __rlt__(ndarray a) {
+        public object __rlt__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
@@ -321,7 +322,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __le__(ndarray a) {
+        public object __le__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
@@ -329,7 +330,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __rle__(ndarray a) {
+        public object __rle__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
@@ -337,7 +338,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __gt__(ndarray a) {
+        public object __gt__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
@@ -345,7 +346,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __rgt__(ndarray a) {
+        public object __rgt__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
@@ -353,7 +354,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __ge__(ndarray a) {
+        public object __ge__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
@@ -361,7 +362,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
-        public object __rge__(ndarray a) {
+        public object __rge__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 

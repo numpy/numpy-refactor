@@ -158,11 +158,13 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
         NpyArray_TYPE(mps[1]) == NPY_OBJECT && originalArgWasObjArray) {
         /* Return -2 for notimplemented. */
         ufuncloop_dealloc(loop);
+        NpyErr_SetString(NpyExc_NotImplementedError, "UFunc not implemented for object");
         return -2;
     }
 
     if (loop->notimplemented) {
         ufuncloop_dealloc(loop);
+        NpyErr_SetString(NpyExc_NotImplementedError, "UFunc not implemented for object");
         return -2;
     }
     if (self->core_enabled && loop->meth != SIGNATURE_NOBUFFER_UFUNCLOOP) {
