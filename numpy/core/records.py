@@ -41,15 +41,11 @@ import os
 import sys
 
 import numeric as sb
-import numerictypes as nt
 from defchararray import chararray
 
-if sys.platform == 'cli':
-    __all__ = []
-else:
-    import numerictypes as nt
-    # All of the functions allow formats to be a dtype
-    __all__ = ['record', 'recarray', 'format_parser']
+import numerictypes as nt
+# All of the functions allow formats to be a dtype
+__all__ = ['record', 'recarray', 'format_parser']
 
 from numpy.compat import isfileobj, bytes
 
@@ -219,8 +215,7 @@ class format_parser:
         self._descr = descr
 
 
-if sys.platform != 'cli':
-  class record(nt.void):
+class record(nt.void):
     """A data-type scalar that allows field access as attribute lookup.
     """
     def __repr__(self):
