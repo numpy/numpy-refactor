@@ -963,7 +963,9 @@ namespace NumpyDotNet {
         private static extern void DescrGetOffsets(out int magicNumOffset,
             out int kindOffset, out int typeOffset, out int byteorderOffset,
             out int flagsOffset, out int typenumOffset, out int elsizeOffset,
-            out int alignmentOffset, out int namesOFfset, out int subarrayOffset);
+            out int alignmentOffset, out int namesOFfset, out int subarrayOffset,
+            out int fieldsOffset, out int fieldsOffsetOffset,
+            out int fieldsDescrOffset, out int fieldsTitleOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterGetOffsets")]
@@ -1037,6 +1039,15 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_FromFile(string fileName, IntPtr dtype, int count, string sep);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictAllocIter")]
+        internal static extern IntPtr NpyDict_AllocIter();
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictFreeIter")]
+        internal static extern void NpyDict_FreeIter(IntPtr iter);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictNext")]
+        internal static extern bool NpyDict_Next(IntPtr dict, IntPtr iter, out IntPtr key, out IntPtr value);
+
         #endregion
 
 
@@ -1087,6 +1098,22 @@ namespace NumpyDotNet {
             internal int off_alignment;
             internal int off_names;
             internal int off_subarray;
+            internal int off_fields;
+
+            /// <summary>
+            /// Offset to the 'offset' field of the NpyArray_DescrField structure.
+            /// </summary>
+            internal int off_fields_offset;
+
+            /// <summary>
+            /// Offset to the 'descr' field of the NpyArray_DescrField structure.
+            /// </summary>
+            internal int off_fields_descr;
+
+            /// <summary>
+            /// Offset to the 'title' field of the NpyArray_DescrField structure.
+            /// </summary>
+            internal int off_fields_title;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1818,7 +1845,11 @@ namespace NumpyDotNet {
                             out DescrOffsets.off_elsize,
                             out DescrOffsets.off_alignment,
                             out DescrOffsets.off_names,
-                            out DescrOffsets.off_subarray);
+                            out DescrOffsets.off_subarray,
+                            out DescrOffsets.off_fields,
+                            out DescrOffsets.off_fields_offset,
+                            out DescrOffsets.off_fields_descr,
+                            out DescrOffsets.off_fields_title);
 
             IterGetOffsets(out IterOffsets.off_size,
                            out IterOffsets.off_index);

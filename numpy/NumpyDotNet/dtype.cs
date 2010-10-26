@@ -166,7 +166,7 @@ namespace NumpyDotNet {
         }
 
 
-        public object fields { get; set; }           // arraydescr_fields_get
+        public object fields { get { return this.GetFieldsDict(); } }
 
         public object dtinfo { get; set; }           // arraydescr_dtinfo_get
 
@@ -340,6 +340,41 @@ namespace NumpyDotNet {
         private string AppendDateTimeTypestr(string str) {
             // TODO: Fix date time type string. See descriptor.c: _append_to_datetime_typestr
             throw new NotImplementedException("to do ");
+        }
+
+
+        private Dictionary<string, PythonTuple> GetFieldsDict() {
+            Dictionary<string, PythonTuple> ret;
+
+            if (!HasNames) {
+                ret = null;
+            } else {
+                IntPtr iter = IntPtr.Zero;
+                IntPtr dict = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_fields);
+                ret = new Dictionary<string, PythonTuple>();
+                try {
+                    IntPtr keyPtr;
+                    IntPtr value;
+                    iter = NpyCoreApi.NpyDict_AllocIter();
+                    while (NpyCoreApi.NpyDict_Next(dict, iter, out keyPtr, out value)) {
+                        PythonTuple t;
+                        string key = Marshal.PtrToStringAnsi(keyPtr);
+
+                        IntPtr title = Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_title);
+                        dtype d = NpyCoreApi.ToInterface<dtype>(Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_descr));
+                        int offset = Marshal.ReadInt32(value, NpyCoreApi.DescrOffsets.off_fields_offset);
+                        if (title == IntPtr.Zero) {
+                            t = new PythonTuple(new Object[] { d, offset });
+                        } else {
+                            t = new PythonTuple(new Object[] { d, offset, Marshal.PtrToStringAnsi(title) });
+                        }
+                        ret.Add(key, t);
+                    }
+                } finally {
+                    NpyCoreApi.NpyDict_FreeIter(iter);
+                }
+            }
+            return ret;
         }
 
 
