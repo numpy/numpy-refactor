@@ -103,6 +103,10 @@ namespace NumpyDotNet {
             internal set { Marshal.WriteInt32(core, NpyCoreApi.DescrOffsets.off_elsize, value); }
         }
 
+        public int itemsize {
+            get { return ElementSize; }
+        }
+
         public int Alignment {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_alignment); }
         }
@@ -156,7 +160,7 @@ namespace NumpyDotNet {
                 }
                 StringBuilder result = new StringBuilder();
                 result.Append((char)endian);
-                result.Append((char)Type);
+                result.Append((char)Kind);
                 result.Append(size);
                 return result.ToString();
             }

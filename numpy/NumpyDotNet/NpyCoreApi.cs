@@ -307,9 +307,14 @@ namespace NumpyDotNet {
                 PrepareArgs pargs = new PrepareArgs { cntx = cntx, prepare = prepare_outputs, args = args, ex = null };
                 GCHandle h = AllocGCHandle(pargs);
                 try {
+                    int val;
                     Incref(f.UFunc);
-                    if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
-                            PrepareCallback, GCHandle.ToIntPtr(h)) < 0) {
+                    if ((val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
+                        PrepareCallback, GCHandle.ToIntPtr(h))) < 0) {
+                        if (val == -2) {
+                            // TODO: Check if this is correct.
+                            throw new NotImplementedException(String.Format("Ufunc {0} not implemented for type", f.__name__()));
+                        }
                         CheckError();
                         if (pargs.ex != null) {
                             throw pargs.ex;

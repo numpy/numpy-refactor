@@ -466,7 +466,7 @@ namespace NumpyDotNet
                         // Optimization for single item index.
                         long offset = 0;
                         Int64[] dims = Dims;
-                        Int64[] s = strides;
+                        Int64[] s = Strides;
                         for (int i = 0; i < ndim; i++)
                         {
                             long d = dims[i];
@@ -628,8 +628,12 @@ namespace NumpyDotNet
         /// <summary>
         /// Returns an array of the stride of each dimension.
         /// </summary>
-        public Int64[] strides {
+        public Int64[] Strides {
             get { return NpyCoreApi.GetArrayDimsOrStrides(this, false); }
+        }
+
+        public PythonTuple strides {
+            get { return NpyUtil_Python.ToPythonTuple(Strides); }
         }
 
         public object real {
@@ -684,6 +688,12 @@ namespace NumpyDotNet
         public int itemsize {
             get {
                 return dtype.ElementSize;
+            }
+        }
+
+        public object nbytes {
+            get {
+                return NpyUtil_Python.ToPython(itemsize*Size);
             }
         }
 
@@ -1385,7 +1395,7 @@ namespace NumpyDotNet
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();
             if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, this.strides, 0, 0)) {
+            if (!DumpData(sb, this.Dims, this.Strides, 0, 0)) {
                 return null;
             }
 
@@ -1449,7 +1459,7 @@ namespace NumpyDotNet
                 if (index < 0 || index >= dim0) {
                     throw new IndexOutOfRangeException("Index out of range");
                 }
-                long offset = index * strides[0];
+                long offset = index * Strides[0];
                 return dtype.ToScalar(this, offset);
             } else {
                 return ArrayBigItem(index);
@@ -1642,7 +1652,7 @@ namespace NumpyDotNet
                 readOnly = ((flags & NpyBuffer.PyBuf.WRITABLE) == 0);
                 ndim = ((flags & NpyBuffer.PyBuf.ND) == 0) ? 0 : arr.ndim;
                 shape = ((flags & NpyBuffer.PyBuf.ND) == 0) ? null : arr.Dims;
-                strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.strides;
+                strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.Strides;
                 
                 if ((flags & NpyBuffer.PyBuf.FORMAT) == 0) {
                     // Force an array of unsigned bytes.

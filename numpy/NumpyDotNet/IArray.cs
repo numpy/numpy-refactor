@@ -63,7 +63,8 @@ namespace NumpyDotNet
         void sort(int axis = -1, string kind = null, object order = null);
         object squeeze();
         object std(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0);
-        long[] strides { get; }
+        long[] Strides { get; }
+        PythonTuple strides { get; }
         object sum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         ndarray swapaxes(int a1, int a2);
         ndarray swapaxes(object a1, object a2);

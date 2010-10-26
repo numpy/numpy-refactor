@@ -288,8 +288,12 @@ namespace NumpyDotNet
             return ToArray().std(cntx, axis, dtype, @out, ddof);
         }
 
-        public long[] strides {
+        public long[] Strides {
             get { return new long[0]; }
+        }
+
+        public PythonTuple strides {
+            get { return NpyUtil_Python.ToPythonTuple(Strides); }
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
