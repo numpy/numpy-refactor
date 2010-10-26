@@ -345,15 +345,6 @@ namespace NumpyDotNet
             }
         }
 
-        public virtual object this[string field] {
-            get {
-                return ToArray()[field];
-            }
-            set {
-                throw new ArgumentException("array-scalars are immutable");
-            }
-        }
-
         public void tofile(CodeContext cntx, PythonFile file, string sep = null, string format = null) {
             ToArray().tofile(cntx, file, sep, format);
         }
@@ -1714,7 +1705,7 @@ namespace NumpyDotNet
             }
         }
 
-        public override object this[string index] {
+        public object this[string index] {
             get {
                 return Index(index);
             }

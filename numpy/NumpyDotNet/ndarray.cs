@@ -439,25 +439,21 @@ namespace NumpyDotNet
             }
         }
 
-        public object this[string field] {
-            set {
-                if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
-                    throw new RuntimeException("array is not writeable.");
-                } 
-                IntPtr descr;
-                int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
-                if (offset < 0) {
-                    throw new ArgumentException(String.Format("field name '{0}' not found.", field));
-                }
-                NpyArray.SetField(this, descr, offset, value);
-            }
-            get {
-                return ArrayReturn(NpyCoreApi.GetField(this, field));
-            }
-        }
-
         public Object this[params object[] args] {
             get {
+                if (args == null) {
+                    args = new object[] { null };
+                } else {
+                    if (args.Length == 1 && args[0] is PythonTuple) {
+                        PythonTuple pt = (PythonTuple)args[0];
+                        args = pt.ToArray();
+                    }
+
+                    if (args.Length == 1 && args[0] is string) {
+                        string field = (string)args[0];
+                        return ArrayReturn(NpyCoreApi.GetField(this, field));
+                    }
+                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
@@ -481,7 +477,7 @@ namespace NumpyDotNet
                             }
                             offset += val * s[i];
                         }
-                        return GetItem(offset);
+                        return dtype.ToScalar(this, offset);
                     }
 
                     // General subscript case.
@@ -489,18 +485,55 @@ namespace NumpyDotNet
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
                     NpyCoreApi.Decref(Array);
-                    return ArrayReturn(result);
+
+                    if (result.ndim == 0) {
+                        // We only want to return a scalar if there are not elipses
+                        bool noelipses = true;
+                        int n = indexes.NumIndexes;
+                        for (int i = 0; i < n; i++) {
+                            NpyIndexes.NpyIndexTypes t = indexes.IndexType(i);
+                            if (t == NpyIndexes.NpyIndexTypes.ELLIPSIS ||
+                                t == NpyIndexes.NpyIndexTypes.STRING ||
+                                t == NpyIndexes.NpyIndexTypes.BOOL) {
+                                noelipses = false;
+                                break;
+                            }
+                        }
+                        if (noelipses) {
+                            return result.dtype.ToScalar(this);
+                        }
+                    }
+                    return result;
                 }
             }
             set {
-                if (args.Length == 1 && args[0] == null)
-                {
-                    throw new ArgumentException("cannot delete array elements.");
-                }
-                if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
-                {
+                if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
                     throw new RuntimeException("array is not writeable.");
                 }
+
+                if (args == null) {
+                    args = new object[] { null };
+                } else {
+                    if (args.Length == 1 && args[0] is PythonTuple) {
+                        PythonTuple pt = (PythonTuple)args[0];
+                        args = pt.ToArray();
+                    }
+
+                    if (args.Length == 1 && args[0] is string) {
+                        string field = (string)args[0];
+                        if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
+                            throw new RuntimeException("array is not writeable.");
+                        }
+                        IntPtr descr;
+                        int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
+                        if (offset < 0) {
+                            throw new ArgumentException(String.Format("field name '{0}' not found.", field));
+                        }
+                        NpyArray.SetField(this, descr, offset, value);
+                        return;
+                    }
+                }
+
 
                 using (NpyIndexes indexes = new NpyIndexes())
                 {

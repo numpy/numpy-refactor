@@ -74,7 +74,6 @@ namespace NumpyDotNet
         object this[long index] { get; }
         object this[IntPtr index] { get; }
         object this[System.Numerics.BigInteger index] { get; }
-        object this[string field] { get; set; }
         void tofile(IronPython.Runtime.CodeContext cntx, IronPython.Runtime.PythonFile file, string sep = null, string format = null);
         void tofile(IronPython.Runtime.CodeContext cntx, string filename, string sep = null, string format = null);
         object tolist();

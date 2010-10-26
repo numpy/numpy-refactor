@@ -103,7 +103,7 @@ namespace NumpyDotNet {
                     size >>= 2;
                 }
 
-                string ret = String.Format("{0}{1}{2}", endian, this.Kind, size);
+                string ret = String.Format("{0}{1}{2}", (char)endian, (char)this.Kind, size);
                 if (this.Type == NpyDefs.NPY_TYPECHAR.NPY_DATETIMELTR) {
                     ret = AppendDateTimeTypestr(ret);
                 }
@@ -453,7 +453,8 @@ namespace NumpyDotNet {
         /// <param name="arr"></param>
         /// <returns></returns>
         internal object ToScalar(ndarray arr, long offset = 0) {
-            if (ScalarType == null) {
+            if (ScalarType == null ||
+                ChkFlags(NpyDefs.NPY_USE_GETITEM)) {
                 return arr.GetItem(offset);
             } else {
                 ScalarGeneric result = scalarInfo.ScalarConstructor();
