@@ -167,9 +167,17 @@ namespace NumpyDotNet {
         }
 
 
-        public object fields { get; set; }           // arraydescr_fields_get
+        public object fields { get { return this.GetFieldsDict(); } }
 
-        public object dtinfo { get; set; }           // arraydescr_dtinfo_get
+        public object dtinfo {
+            get {
+                NpyCoreApi.DateTimeInfo dtinfo = new NpyCoreApi.DateTimeInfo();
+                Marshal.PtrToStructure(Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo), dtinfo);
+
+                return new PythonTuple(new object[] {
+                    dtinfo.@base.ToString(), dtinfo.num, dtinfo.den, dtinfo.events });
+            }
+        }
 
         public int itemsize {
             get { return ElementSize; }
@@ -177,7 +185,16 @@ namespace NumpyDotNet {
 
         public PythonTuple names {
             get { return new PythonTuple(Names); }
-            set { /* TODO */ }                  // arraydescr_names_set
+            set {
+                int n = this.Names.Count();
+                if (!(value is IEnumerable<Object>)) {
+                    throw new ArgumentException(String.Format("Value must be a sequence of {0} strings.", n));
+                }
+                if (value.Any(x => !(x is string))) {
+                    throw new ArgumentException("All items must be strings.");
+                }
+                NpyCoreApi.NpyArrayAccess_SetNamesList(core, value.Cast<String>().ToArray(), n);
+            }
         }
 
         public bool hasobject { get; set; }          // arraydescr_hasobject_get
@@ -346,6 +363,41 @@ namespace NumpyDotNet {
         private string AppendDateTimeTypestr(string str) {
             // TODO: Fix date time type string. See descriptor.c: _append_to_datetime_typestr
             throw new NotImplementedException("to do ");
+        }
+
+
+        private Dictionary<string, PythonTuple> GetFieldsDict() {
+            Dictionary<string, PythonTuple> ret;
+
+            if (!HasNames) {
+                ret = null;
+            } else {
+                IntPtr iter = IntPtr.Zero;
+                IntPtr dict = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_fields);
+                ret = new Dictionary<string, PythonTuple>();
+                try {
+                    IntPtr keyPtr;
+                    IntPtr value;
+                    iter = NpyCoreApi.NpyDict_AllocIter();
+                    while (NpyCoreApi.NpyDict_Next(dict, iter, out keyPtr, out value)) {
+                        PythonTuple t;
+                        string key = Marshal.PtrToStringAnsi(keyPtr);
+
+                        IntPtr title = Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_title);
+                        dtype d = NpyCoreApi.ToInterface<dtype>(Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_descr));
+                        int offset = Marshal.ReadInt32(value, NpyCoreApi.DescrOffsets.off_fields_offset);
+                        if (title == IntPtr.Zero) {
+                            t = new PythonTuple(new Object[] { d, offset });
+                        } else {
+                            t = new PythonTuple(new Object[] { d, offset, Marshal.PtrToStringAnsi(title) });
+                        }
+                        ret.Add(key, t);
+                    }
+                } finally {
+                    NpyCoreApi.NpyDict_FreeIter(iter);
+                }
+            }
+            return ret;
         }
 
 

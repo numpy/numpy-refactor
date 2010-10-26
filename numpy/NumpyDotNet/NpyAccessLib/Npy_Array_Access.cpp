@@ -68,7 +68,10 @@ extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
             int* kindOffset, int* typeOffset, int* byteorderOffset,
             int* flagsOffset, int* typenumOffset, int* elsizeOffset, 
-            int* alignmentOffset, int* namesOffset, int* subarrayOffset)
+            int* alignmentOffset, int* namesOffset, int* subarrayOffset,
+            int* fieldsOffset, int* dtinfoOffset, int* fieldsOffsetOffset, 
+            int *fieldsDescrOffset,
+            int* fieldsTitleOffset)
 {
     NpyArray *ptr = NULL;
 
@@ -82,6 +85,11 @@ void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
     *alignmentOffset = offsetof(NpyArray_Descr, alignment);
     *namesOffset = offsetof(NpyArray_Descr, names);
     *subarrayOffset = offsetof(NpyArray_Descr, subarray);
+    *fieldsOffset = offsetof(NpyArray_Descr, fields);
+    *dtinfoOffset = offsetof(NpyArray_Descr, dtinfo);
+    *fieldsOffsetOffset = offsetof(NpyArray_DescrField, offset);
+    *fieldsDescrOffset = offsetof(NpyArray_DescrField, descr);
+    *fieldsTitleOffset = offsetof(NpyArray_DescrField, title);
 }
 
 
@@ -625,3 +633,42 @@ extern "C" __declspec(dllexport)
         NpyArray_FromBinaryFile(fp, dtype, count) :
         NpyArray_FromTextFile(fp, dtype, count, const_cast<char *>(sep));
 }
+
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_SetNamesList(NpyArray_Descr *dtype, const char **nameslist, int len)
+{
+    char **nl2 = NpyArray_DescrAllocNames(len);
+
+    for (int i = 0; i < len; i++) {
+        nl2[i] = strdup(nameslist[i]);
+    }
+    NpyArray_DescrReplaceNames(dtype, nl2);
+}
+
+
+//
+// The following three routines are used to iterate over an NpyDict structure
+// from the managed world.
+//
+
+extern "C" __declspec(dllexport)
+    NpyDict_Iter *NpyArrayAccess_DictAllocIter()
+{
+    NpyDict_Iter *iter = (NpyDict_Iter *)malloc(sizeof(NpyDict_Iter));
+    NpyDict_IterInit(iter);
+    return iter;
+}
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_DictFreeIter(NpyDict_Iter *iter)
+{
+    free(iter);
+}
+
+extern "C" __declspec(dllexport)
+    bool NpyArrayAccess_DictNext(NpyDict *dict, NpyDict_Iter *iter, void **key, void **value)
+{
+    return (NpyDict_IterNext(dict, iter, key, value) != 0);
+}
+
