@@ -6,6 +6,8 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include "npy_descriptor.h"
+
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "npy_api.h"
@@ -1582,9 +1584,8 @@ arraydescr_typename_get(PyArray_Descr *self)
     PyTypeObject *typeobj = (PyTypeObject *)self->typeobj;
     PyObject *res;
     char *s;
-    /* fixme: not reentrant */
-    static int prefix_len = 0;
-
+    int prefix_len = 0;
+    
     if (NpyTypeNum_ISUSERDEF(self->descr->type_num)) {
         s = strrchr(typeobj->tp_name, '.');
         if (s == NULL) {
@@ -1703,31 +1704,6 @@ arraydescr_isbuiltin_get(PyArray_Descr *self)
     return PyInt_FromLong(val);
 }
 
-/* TODO: Refactor isnative & built-in into core. */
-static int
-_arraydescr_isnative(NpyArray_Descr *self)
-{
-    if (self->names == NULL) {
-        return NpyArray_ISNBO(self->byteorder);
-    }
-    else {
-        const char *key;
-        NpyArray_DescrField *value;
-        NpyDict_Iter pos;
-
-        NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(self->fields, &pos, (void **)&key,
-                                (void **)&value)) {
-            if (NULL != value->title && !strcmp(value->title, key)) {
-                continue;
-            }
-            if (0 == _arraydescr_isnative(value->descr)) {
-                return 0;
-            }
-        }
-    }
-    return 1;
-}
 
 /*
  * return Py_True if this data-type descriptor
@@ -1741,7 +1717,7 @@ arraydescr_isnative_get(PyArray_Descr *self)
 {
     PyObject *ret;
     int retval;
-    retval = _arraydescr_isnative(self->descr);
+    retval = npy_arraydescr_isnative(self->descr);
     if (retval == -1) {
         return NULL;
     }

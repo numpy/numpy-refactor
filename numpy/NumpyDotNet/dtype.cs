@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
@@ -49,7 +50,168 @@ namespace NumpyDotNet {
             funcs = NumericOps.FuncsForType((NpyDefs.NPY_TYPES)type);
         }
 
-        #region Properties
+        #region Python interface
+
+        public object subdtype {
+            get {
+                PythonTuple t = new PythonTuple(this.shape);
+                return new PythonTuple(new Object[] { @base, t });
+            }
+        }
+
+
+        /// <summary>
+        /// Returns the name of the underlying data type such as 'int32' or 'object'.
+        /// </summary>
+        public string name {
+            get {
+                string typeName = (string)this.type.__getattribute__(NpyUtil_Python.DefaultContext, "__name__");
+                if (NpyDefs.IsUserDefined(this.TypeNum)) {
+                    int i = typeName.LastIndexOf('.');
+                    if (i != -1) {
+                        typeName = typeName.Substring(i + 1);
+                    }
+                } else {
+                    int prefixLen = "numpy.".Length;
+                    int len = typeName.Length;
+                    if (typeName[len - 1] == '_') {
+                        len--;
+                    }
+                    len -= prefixLen;
+                    typeName = typeName.Substring(prefixLen, len);
+                }
+
+                if (NpyDefs.IsFlexible(this.TypeNum) && this.ElementSize != 0) {
+                    typeName += this.ElementSize.ToString();
+                }
+                if (NpyDefs.IsDatetime(this.TypeNum)) {
+                    typeName = AppendDateTimeTypestr(typeName);
+                }
+                return typeName;
+            }
+        }
+
+        public string str {
+            get {
+                byte endian = this.ByteOrder;
+                int size = this.ElementSize;
+
+                if (endian == '=') {
+                    endian = this.IsNativeByteOrder ? (byte)'<' : (byte)'>';
+                }
+                if (this.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    size >>= 2;
+                }
+
+                string ret = String.Format("{0}{1}{2}", endian, this.Kind, size);
+                if (this.Type == NpyDefs.NPY_TYPECHAR.NPY_DATETIMELTR) {
+                    ret = AppendDateTimeTypestr(ret);
+                }
+                return ret;
+            }
+        }
+
+        public object descr {
+            get {
+                if (!this.HasNames) {
+                    List<PythonTuple> res = new List<PythonTuple>();
+                    res.Add(new PythonTuple(new Object[] { "", this.str }));
+                    return res;
+                }
+
+                return NpyUtil_Python.CallInternal(NpyUtil_Python.DefaultContext, "_array_descr", this);
+            }
+        }
+
+        public object @base {
+            get {
+                if (!this.HasSubarray) {
+                    return this;
+                } else {
+                    return this.Subarray;
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// A tuple describing the size of each dimension of the array.
+        /// </summary>
+        public object shape {
+            get { return this.HasSubarray ? this.Subarray.shape : new PythonTuple(); }
+        }
+
+
+        /// <summary>
+        /// Returns 0 for built=-in types, 1 for a composite type, 2 for user-defined types.
+        /// </summary>
+        public int isbuiltin {
+            get {
+                int val = 0;
+
+                if (this.fields != null) {
+                    val = 1;
+                }
+                if (NpyDefs.IsUserDefined(this.TypeNum)) {
+                    val = 2;
+                }
+                return val;
+            }
+        }
+
+        public bool isnative {
+            get {
+                return NpyCoreApi.DescrIsNative(this.Descr) != 0;
+            }
+        }
+
+
+        public object fields { get; set; }           // arraydescr_fields_get
+
+        public object dtinfo { get; set; }           // arraydescr_dtinfo_get
+
+        public int itemsize {
+            get { return ElementSize; }
+        }
+
+        public PythonTuple names {
+            get { return new PythonTuple(Names); }
+            set { /* TODO */ }                  // arraydescr_names_set
+        }
+
+        public bool hasobject { get; set; }          // arraydescr_hasobject_get
+
+        public PythonType type {
+            get {
+                if (ScalarType != null) {
+                    return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+                } else {
+                    return null;
+                }
+            }
+        }
+
+        public byte kind { get { return this.Kind; } }
+
+        public string @char {
+            get {
+                StringBuilder s = new StringBuilder(2);
+                s.Append((char)Type);
+                return s.ToString();
+            }
+        }
+
+        public int num { get; set; }                 // arraydescr_num_get
+
+        public byte byteorder { get { return this.ByteOrder; } }
+
+        public int alignment { get; set; }           // arraydescr_alignment_get
+
+        public int flags { get; set; }               // arraydescr_flags_get
+
+        #endregion
+
+        #region .NET Properties
 
         public IntPtr Descr {
             get { return core; }
@@ -67,14 +229,6 @@ namespace NumpyDotNet {
 
         public NpyDefs.NPY_TYPECHAR Type {
             get { return (NpyDefs.NPY_TYPECHAR)Marshal.ReadByte(core, NpyCoreApi.DescrOffsets.off_type); }
-        }
-
-        public string @char {
-            get {
-                StringBuilder s = new StringBuilder(2);
-                s.Append((char)Type);
-                return s.ToString();
-            }
         }
 
         public byte ByteOrder {
@@ -101,10 +255,6 @@ namespace NumpyDotNet {
         public int ElementSize {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_elsize); }
             internal set { Marshal.WriteInt32(core, NpyCoreApi.DescrOffsets.off_elsize, value); }
-        }
-
-        public int itemsize {
-            get { return ElementSize; }
         }
 
         public int Alignment {
@@ -135,35 +285,20 @@ namespace NumpyDotNet {
             }
         }
 
-        public PythonTuple names {
-            get { return new PythonTuple(Names); }
-        }
-
 
         public bool HasSubarray {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) != IntPtr.Zero; }
         }
 
-        public ArrFuncs f {
-            get { return funcs; }
+        public ndarray Subarray {
+            get {
+                IntPtr arr = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray);
+                return (arr != IntPtr.Zero) ? NpyCoreApi.ToInterface<ndarray>(arr) : null;
+            }
         }
 
-        public string str {
-            get {
-                byte endian = ByteOrder;
-                int size = ElementSize;
-                if (endian == (byte)'=') {
-                    endian = NpyCoreApi.NativeByteOrder;
-                }
-                if (TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
-                    size /= 4;
-                }
-                StringBuilder result = new StringBuilder();
-                result.Append((char)endian);
-                result.Append((char)Kind);
-                result.Append(size);
-                return result.ToString();
-            }
+        public ArrFuncs f {
+            get { return funcs; }
         }
 
         #endregion
@@ -205,7 +340,13 @@ namespace NumpyDotNet {
         #endregion
 
 
-        #region Internal data
+        #region Internal data & methods
+
+        private string AppendDateTimeTypestr(string str) {
+            // TODO: Fix date time type string. See descriptor.c: _append_to_datetime_typestr
+            throw new NotImplementedException("to do ");
+        }
+
 
         /// <summary>
         /// Type-specific functions
@@ -304,16 +445,6 @@ namespace NumpyDotNet {
             }
 
             scalarInfo = info;
-        }
-
-        public PythonType type {
-            get {
-                if (ScalarType != null) {
-                    return DynamicHelpers.GetPythonTypeFromType(ScalarType);
-                } else {
-                    return null;
-                }
-            }
         }
 
         /// <summary>
