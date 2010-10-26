@@ -740,6 +740,12 @@ namespace NumpyDotNet
             }
         }
 
+        public ndarray T {
+            get {
+                return Transpose();
+            }
+        }
+
         #endregion
 
         #region methods
@@ -848,7 +854,8 @@ namespace NumpyDotNet
         }
 
         public ndarray flatten(object order = null) {
-            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            NpyDefs.NPY_ORDER eOrder =
+                NpyUtil_ArgProcessing.OrderConverter(order);
             return Flatten(eOrder);
         }
 
