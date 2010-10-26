@@ -765,7 +765,7 @@ namespace NumpyDotNet
         }
 
         public object argsort(object axis = null, string kind = null, object order = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis, -1);
             NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
 
             if (order != null) {

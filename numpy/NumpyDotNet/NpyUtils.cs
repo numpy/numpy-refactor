@@ -301,8 +301,8 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static int AxisConverter(object o) {
-            if (o == null) return NpyDefs.NPY_MAXDIMS;
+        internal static int AxisConverter(object o, int dflt = NpyDefs.NPY_MAXDIMS) {
+            if (o == null) return dflt;
             else if (o is int) {
                 return (int)o;
             } else if (o is IConvertible) {
