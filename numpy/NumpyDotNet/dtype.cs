@@ -197,7 +197,7 @@ namespace NumpyDotNet {
             }
         }
 
-        public bool hasobject { get; set; }          // arraydescr_hasobject_get
+        public bool hasobject { get { return this.ChkFlags(NpyDefs.NPY__ITEM_HASOBJECT); } }
 
         public PythonType type {
             get {
@@ -209,23 +209,21 @@ namespace NumpyDotNet {
             }
         }
 
-        public byte kind { get { return this.Kind; } }
+        public string kind { get { return new string((char)this.Kind, 1); } }
 
         public string @char {
             get {
-                StringBuilder s = new StringBuilder(2);
-                s.Append((char)Type);
-                return s.ToString();
+                return ((char)this.Type).ToString(); 
             }
         }
 
-        public int num { get; set; }                 // arraydescr_num_get
+        public int num { get { return (int)this.TypeNum; } }
 
-        public byte byteorder { get { return this.ByteOrder; } }
+        public string byteorder { get { return new string((char)this.ByteOrder, 1); } }
 
-        public int alignment { get; set; }           // arraydescr_alignment_get
+        public int alignment { get { return this.Alignment; } }
 
-        public int flags { get; set; }               // arraydescr_flags_get
+        public int flags { get { return this.Flags; } }
 
         #endregion
 
