@@ -1044,7 +1044,10 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_FromFile(string fileName, IntPtr dtype, int count, string sep);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictAllocIter")]
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_SetNamesList(IntPtr dtype, string[] nameslist, int len);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DictAllocIter")]
         internal static extern IntPtr NpyDict_AllocIter();
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictFreeIter")]

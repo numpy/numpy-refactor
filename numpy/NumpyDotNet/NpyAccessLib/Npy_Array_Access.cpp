@@ -635,6 +635,18 @@ extern "C" __declspec(dllexport)
 }
 
 
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_SetNamesList(NpyArray_Descr *dtype, const char **nameslist, int len)
+{
+    char **nl2 = NpyArray_DescrAllocNames(len);
+
+    for (int i = 0; i < len; i++) {
+        nl2[i] = strdup(nameslist[i]);
+    }
+    NpyArray_DescrReplaceNames(dtype, nl2);
+}
+
+
 //
 // The following three routines are used to iterate over an NpyDict structure
 // from the managed world.

@@ -184,7 +184,16 @@ namespace NumpyDotNet {
 
         public PythonTuple names {
             get { return new PythonTuple(Names); }
-            set { /* TODO */ }                  // arraydescr_names_set
+            set {
+                int n = this.Names.Count();
+                if (!(value is IEnumerable<Object>)) {
+                    throw new ArgumentException(String.Format("Value must be a sequence of {0} strings.", n));
+                }
+                if (value.Any(x => !(x is string))) {
+                    throw new ArgumentException("All items must be strings.");
+                }
+                NpyCoreApi.NpyArrayAccess_SetNamesList(core, value.Cast<String>().ToArray(), n);
+            }
         }
 
         public bool hasobject { get; set; }          // arraydescr_hasobject_get
