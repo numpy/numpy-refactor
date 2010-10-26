@@ -176,6 +176,11 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
+        internal static object UnaryOp(ndarray a, NpyDefs.NpyArray_Ops op) {
+            ufunc f = NpyCoreApi.GetNumericOp(op);
+            return NpyCoreApi.GenericUnaryOp(a, f);
+        }
+
         public static object operator +(ndarray a, Object b) {
             return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
         }
@@ -258,6 +263,10 @@ namespace NumpyDotNet
 
         public static object operator ^(ndarray a, ndarray b) {
             return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        public static object operator ~(ndarray a) {
+            return UnaryOp(a, NpyDefs.NpyArray_Ops.npy_op_invert);
         }
 
         // NOTE: For comparison operators we use the Python names

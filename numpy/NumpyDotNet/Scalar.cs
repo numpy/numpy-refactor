@@ -465,6 +465,10 @@ namespace NumpyDotNet
             return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        public static object operator ~(ScalarGeneric a) {
+            return ndarray.UnaryOp(a.ToArray(), NpyDefs.NpyArray_Ops.npy_op_invert);
+        }
+
         // NOTE: For comparison operators we use the Python names
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
