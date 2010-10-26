@@ -849,6 +849,10 @@ namespace NumpyDotNet
             return Diagonal(offset, axis1, axis2);
         }
 
+        public object dot(object other) {
+            return ModuleMethods.dot(this, other);
+        }
+
         public void fill(object scalar) {
             FillWithScalar(scalar);
         }
