@@ -244,6 +244,14 @@ namespace NumpyDotNet {
             // Make the tuple
             return new PythonTuple(vals);
         }
+
+        internal static object ToPython(long l) {
+            if (l < int.MinValue || l > int.MaxValue) {
+                return new BigInteger(l);
+            } else {
+                return (int)l;
+            }
+        }
             
     }
 

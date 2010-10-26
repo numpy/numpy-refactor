@@ -439,25 +439,21 @@ namespace NumpyDotNet
             }
         }
 
-        public object this[string field] {
-            set {
-                if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
-                    throw new RuntimeException("array is not writeable.");
-                } 
-                IntPtr descr;
-                int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
-                if (offset < 0) {
-                    throw new ArgumentException(String.Format("field name '{0}' not found.", field));
-                }
-                NpyArray.SetField(this, descr, offset, value);
-            }
-            get {
-                return ArrayReturn(NpyCoreApi.GetField(this, field));
-            }
-        }
-
         public Object this[params object[] args] {
             get {
+                if (args == null) {
+                    args = new object[] { null };
+                } else {
+                    if (args.Length == 1 && args[0] is PythonTuple) {
+                        PythonTuple pt = (PythonTuple)args[0];
+                        args = pt.ToArray();
+                    }
+
+                    if (args.Length == 1 && args[0] is string) {
+                        string field = (string)args[0];
+                        return ArrayReturn(NpyCoreApi.GetField(this, field));
+                    }
+                }
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
                     NpyUtil_IndexProcessing.IndexConverter(args, indexes);
@@ -466,7 +462,7 @@ namespace NumpyDotNet
                         // Optimization for single item index.
                         long offset = 0;
                         Int64[] dims = Dims;
-                        Int64[] s = strides;
+                        Int64[] s = Strides;
                         for (int i = 0; i < ndim; i++)
                         {
                             long d = dims[i];
@@ -481,7 +477,7 @@ namespace NumpyDotNet
                             }
                             offset += val * s[i];
                         }
-                        return GetItem(offset);
+                        return dtype.ToScalar(this, offset);
                     }
 
                     // General subscript case.
@@ -489,18 +485,55 @@ namespace NumpyDotNet
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
                             NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
                     NpyCoreApi.Decref(Array);
-                    return ArrayReturn(result);
+
+                    if (result.ndim == 0) {
+                        // We only want to return a scalar if there are not elipses
+                        bool noelipses = true;
+                        int n = indexes.NumIndexes;
+                        for (int i = 0; i < n; i++) {
+                            NpyIndexes.NpyIndexTypes t = indexes.IndexType(i);
+                            if (t == NpyIndexes.NpyIndexTypes.ELLIPSIS ||
+                                t == NpyIndexes.NpyIndexTypes.STRING ||
+                                t == NpyIndexes.NpyIndexTypes.BOOL) {
+                                noelipses = false;
+                                break;
+                            }
+                        }
+                        if (noelipses) {
+                            return result.dtype.ToScalar(this);
+                        }
+                    }
+                    return result;
                 }
             }
             set {
-                if (args.Length == 1 && args[0] == null)
-                {
-                    throw new ArgumentException("cannot delete array elements.");
-                }
-                if (!ChkFlags(NpyDefs.NPY_WRITEABLE))
-                {
+                if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
                     throw new RuntimeException("array is not writeable.");
                 }
+
+                if (args == null) {
+                    args = new object[] { null };
+                } else {
+                    if (args.Length == 1 && args[0] is PythonTuple) {
+                        PythonTuple pt = (PythonTuple)args[0];
+                        args = pt.ToArray();
+                    }
+
+                    if (args.Length == 1 && args[0] is string) {
+                        string field = (string)args[0];
+                        if (!ChkFlags(NpyDefs.NPY_WRITEABLE)) {
+                            throw new RuntimeException("array is not writeable.");
+                        }
+                        IntPtr descr;
+                        int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
+                        if (offset < 0) {
+                            throw new ArgumentException(String.Format("field name '{0}' not found.", field));
+                        }
+                        NpyArray.SetField(this, descr, offset, value);
+                        return;
+                    }
+                }
+
 
                 using (NpyIndexes indexes = new NpyIndexes())
                 {
@@ -628,8 +661,12 @@ namespace NumpyDotNet
         /// <summary>
         /// Returns an array of the stride of each dimension.
         /// </summary>
-        public Int64[] strides {
+        public Int64[] Strides {
             get { return NpyCoreApi.GetArrayDimsOrStrides(this, false); }
+        }
+
+        public PythonTuple strides {
+            get { return NpyUtil_Python.ToPythonTuple(Strides); }
         }
 
         public object real {
@@ -684,6 +721,12 @@ namespace NumpyDotNet
         public int itemsize {
             get {
                 return dtype.ElementSize;
+            }
+        }
+
+        public object nbytes {
+            get {
+                return NpyUtil_Python.ToPython(itemsize*Size);
             }
         }
 
@@ -1385,7 +1428,7 @@ namespace NumpyDotNet
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();
             if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, this.strides, 0, 0)) {
+            if (!DumpData(sb, this.Dims, this.Strides, 0, 0)) {
                 return null;
             }
 
@@ -1449,7 +1492,7 @@ namespace NumpyDotNet
                 if (index < 0 || index >= dim0) {
                     throw new IndexOutOfRangeException("Index out of range");
                 }
-                long offset = index * strides[0];
+                long offset = index * Strides[0];
                 return dtype.ToScalar(this, offset);
             } else {
                 return ArrayBigItem(index);
@@ -1642,7 +1685,7 @@ namespace NumpyDotNet
                 readOnly = ((flags & NpyBuffer.PyBuf.WRITABLE) == 0);
                 ndim = ((flags & NpyBuffer.PyBuf.ND) == 0) ? 0 : arr.ndim;
                 shape = ((flags & NpyBuffer.PyBuf.ND) == 0) ? null : arr.Dims;
-                strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.strides;
+                strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.Strides;
                 
                 if ((flags & NpyBuffer.PyBuf.FORMAT) == 0) {
                     // Force an array of unsigned bytes.

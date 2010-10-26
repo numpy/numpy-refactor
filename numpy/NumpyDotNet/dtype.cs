@@ -103,7 +103,7 @@ namespace NumpyDotNet {
                     size >>= 2;
                 }
 
-                string ret = String.Format("{0}{1}{2}", endian, this.Kind, size);
+                string ret = String.Format("{0}{1}{2}", (char)endian, (char)this.Kind, size);
                 if (this.Type == NpyDefs.NPY_TYPECHAR.NPY_DATETIMELTR) {
                     ret = AppendDateTimeTypestr(ret);
                 }
@@ -170,6 +170,10 @@ namespace NumpyDotNet {
 
         public object dtinfo { get; set; }           // arraydescr_dtinfo_get
 
+        public int itemsize {
+            get { return ElementSize; }
+        }
+
         public PythonTuple names {
             get { return new PythonTuple(Names); }
             set { /* TODO */ }                  // arraydescr_names_set
@@ -179,10 +183,13 @@ namespace NumpyDotNet {
 
         public PythonType type {
             get {
-                return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+                if (ScalarType != null) {
+                    return DynamicHelpers.GetPythonTypeFromType(ScalarType);
+                } else {
+                    return null;
+                }
             }
         }
-
 
         public byte kind { get { return this.Kind; } }
 
@@ -197,8 +204,6 @@ namespace NumpyDotNet {
         public int num { get; set; }                 // arraydescr_num_get
 
         public byte byteorder { get { return this.ByteOrder; } }
-
-        public int itemsize { get; set; }            // arraydescr_itemsize_get
 
         public int alignment { get; set; }           // arraydescr_alignment_get
 
@@ -466,6 +471,8 @@ namespace NumpyDotNet {
                 info = ScalarInfo.Make<ScalarBool>();
             } else if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                 info = ScalarInfo.Make<ScalarVoid>();
+            } else if (type == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                info = ScalarInfo.Make<ScalarObject>();
             }
 
             if (info == null) {
@@ -481,12 +488,12 @@ namespace NumpyDotNet {
         /// <param name="arr"></param>
         /// <returns></returns>
         internal object ToScalar(ndarray arr, long offset = 0) {
-            if (ScalarType == null) {
+            if (ScalarType == null ||
+                ChkFlags(NpyDefs.NPY_USE_GETITEM)) {
                 return arr.GetItem(offset);
             } else {
                 ScalarGeneric result = scalarInfo.ScalarConstructor();
-                result.FillData(arr, offset);
-                return result;
+                return result.FillData(arr, offset);
             }
         }
 

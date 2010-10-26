@@ -443,7 +443,7 @@ namespace NumpyDotNet {
             for (int i=num; i<ndmin; i++) {
                 int k = i-num;
                 newdims[i] = (IntPtr)arr.Dims[k];
-                newstrides[i] = (IntPtr)arr.strides[k];
+                newstrides[i] = (IntPtr)arr.Strides[k];
             }
 
             return NpyCoreApi.NewView(arr.dtype, ndmin, newdims, newstrides, arr, IntPtr.Zero, false);
