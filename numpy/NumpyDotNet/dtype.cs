@@ -168,7 +168,15 @@ namespace NumpyDotNet {
 
         public object fields { get { return this.GetFieldsDict(); } }
 
-        public object dtinfo { get; set; }           // arraydescr_dtinfo_get
+        public object dtinfo {
+            get {
+                NpyCoreApi.DateTimeInfo dtinfo = new NpyCoreApi.DateTimeInfo();
+                Marshal.PtrToStructure(Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo), dtinfo);
+
+                return new PythonTuple(new object[] {
+                    dtinfo.@base.ToString(), dtinfo.num, dtinfo.den, dtinfo.events });
+            }
+        }
 
         public int itemsize {
             get { return ElementSize; }

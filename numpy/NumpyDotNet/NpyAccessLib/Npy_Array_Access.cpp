@@ -69,7 +69,8 @@ void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
             int* kindOffset, int* typeOffset, int* byteorderOffset,
             int* flagsOffset, int* typenumOffset, int* elsizeOffset, 
             int* alignmentOffset, int* namesOffset, int* subarrayOffset,
-            int* fieldsOffset, int* fieldsOffsetOffset, int *fieldsDescrOffset,
+            int* fieldsOffset, int* dtinfoOffset, int* fieldsOffsetOffset, 
+            int *fieldsDescrOffset,
             int* fieldsTitleOffset)
 {
     NpyArray *ptr = NULL;
@@ -85,6 +86,7 @@ void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
     *namesOffset = offsetof(NpyArray_Descr, names);
     *subarrayOffset = offsetof(NpyArray_Descr, subarray);
     *fieldsOffset = offsetof(NpyArray_Descr, fields);
+    *dtinfoOffset = offsetof(NpyArray_Descr, dtinfo);
     *fieldsOffsetOffset = offsetof(NpyArray_DescrField, offset);
     *fieldsDescrOffset = offsetof(NpyArray_DescrField, descr);
     *fieldsTitleOffset = offsetof(NpyArray_DescrField, title);

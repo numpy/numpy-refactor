@@ -969,7 +969,7 @@ namespace NumpyDotNet {
             out int kindOffset, out int typeOffset, out int byteorderOffset,
             out int flagsOffset, out int typenumOffset, out int elsizeOffset,
             out int alignmentOffset, out int namesOFfset, out int subarrayOffset,
-            out int fieldsOffset, out int fieldsOffsetOffset,
+            out int fieldsOffset, out int dtinfoOffset, out int fieldsOffsetOffset,
             out int fieldsDescrOffset, out int fieldsTitleOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -1104,6 +1104,7 @@ namespace NumpyDotNet {
             internal int off_names;
             internal int off_subarray;
             internal int off_fields;
+            internal int off_dtinfo;
 
             /// <summary>
             /// Offset to the 'offset' field of the NpyArray_DescrField structure.
@@ -1159,6 +1160,15 @@ namespace NumpyDotNet {
             internal int off_types;
             internal int off_core_signature;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        internal class DateTimeInfo {
+            internal NpyDefs.NPY_DATETIMEUNIT @base;
+            internal int num;
+            internal int den;
+            internal int events;
+        }
+
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;
@@ -1854,6 +1864,7 @@ namespace NumpyDotNet {
                             out DescrOffsets.off_names,
                             out DescrOffsets.off_subarray,
                             out DescrOffsets.off_fields,
+                            out DescrOffsets.off_dtinfo,
                             out DescrOffsets.off_fields_offset,
                             out DescrOffsets.off_fields_descr,
                             out DescrOffsets.off_fields_title);
