@@ -41,6 +41,7 @@ import os
 import sys
 
 import numeric as sb
+import numerictypes as nt
 from defchararray import chararray
 
 if sys.platform == 'cli':
@@ -74,9 +75,8 @@ _byteorderconv = {'b':'>',
 # of the letter code '(2,3)f4' and ' (  2 ,  3  )  f4  '
 # are equally allowed
 
-if sys.platform != 'cli':
-    numfmt = nt.typeDict
-    _typestr = nt._typestr
+numfmt = nt.typeDict
+_typestr = nt._typestr
 
 def find_duplicate(list):
     """Find duplication in a list, return a list of duplicated elements"""

@@ -15,8 +15,9 @@ namespace NumpyDotNet {
     [PythonType]
     public class dtype : Wrapper {
 
-        public static object __new__(CodeContext cntx, PythonType cls, object dtype) {
-            return NpyDescr.DescrConverter(cntx, dtype);
+        public static object __new__(CodeContext cntx, PythonType cls, object dtype,
+                                     object align = null) {
+            return NpyDescr.DescrConverter(cntx, dtype, NpyUtil_ArgProcessing.BoolConverter(align));
         }
 
         /// <summary>

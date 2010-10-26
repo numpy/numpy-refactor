@@ -21,7 +21,7 @@ namespace NumpyDotNet {
             return (bool)NpyUtil_Python.CallBuiltin(cntx, "issubclass", t, PyGenericArrType_Type);
         }
 
-        internal static dtype DescrConverter(CodeContext cntx, Object obj) {
+        internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
 
@@ -41,7 +41,7 @@ namespace NumpyDotNet {
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
                     result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
-                    result = ConvertFromCommaString(cntx, s, false);
+                    result = ConvertFromCommaString(cntx, s, align);
                 } else {
                     result = ConvertSimpleString(s);
                 }
@@ -51,9 +51,9 @@ namespace NumpyDotNet {
                     throw new ArgumentException("data type not understood.");
                 }
             } else if (obj is List) {
-                result = ConvertFromArrayDescr(cntx, (List)obj, false);
+                result = ConvertFromArrayDescr(cntx, (List)obj, align);
             } else if (obj is PythonDictionary) {
-                result = ConvertFromDictionary(cntx, (PythonDictionary)obj, false);
+                result = ConvertFromDictionary(cntx, (PythonDictionary)obj, align);
             } else if (!(obj is ndarray)) {
                 result = DescrFromObject(cntx, obj);
             }
