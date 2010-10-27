@@ -223,17 +223,18 @@ namespace NumpyDotNet {
             get { return ElementSize; }
         }
 
-        public PythonTuple names {
+        public object names {
             get { return new PythonTuple(Names); }
             set {
                 int n = this.Names.Count();
-                if (!(value is IEnumerable<Object>)) {
+                IEnumerable<object> ival = value as IEnumerable<object>;
+                if (ival == null) {
                     throw new ArgumentException(String.Format("Value must be a sequence of {0} strings.", n));
                 }
-                if (value.Any(x => !(x is string))) {
+                if (ival.Any(x => !(x is string))) {
                     throw new ArgumentException("All items must be strings.");
                 }
-                NpyCoreApi.NpyArrayAccess_SetNamesList(core, value.Cast<String>().ToArray(), n);
+                NpyCoreApi.NpyArrayAccess_SetNamesList(core, ival.Cast<String>().ToArray(), n);
             }
         }
 
