@@ -51,12 +51,45 @@ namespace NumpyDotNet {
             funcs = NumericOps.FuncsForType((NpyDefs.NPY_TYPES)type);
         }
 
+        public override string ToString() {
+            return this.__str__();
+        }
+
+
         #region Python interface
+
+        public string __str__() {
+            string ret;
+
+            if (this.HasNames) {
+                Object lst = this.descr;
+                ret = (lst != null) ? PythonOps.ToString(lst) : "<err>";
+                if (TypeNum != NpyDefs.NPY_TYPES.NPY_VOID) {
+                    ret = String.Format("('{0}', {1})", this.str, this.descr);
+                }
+            } else if (this.HasSubarray) {
+                // TODO: Subarrays are not implemented yet.  See descriptor.c:255 for code.
+                throw new NotImplementedException("Subarrays are not yet implemented.");
+            } else if (NpyDefs.IsFlexible(this.TypeNum) || !this.IsNativeByteOrder) {
+                ret = this.str;
+            } else {
+                ret = this.name;
+            }
+            return ret;
+        }
+
+        public string __repr__() {
+            string ret = __str__();
+
+            if (ret != null) {
+                ret = String.Format((!HasNames && !HasSubarray) ? "dtype('{0}')" : "dtype({0})", ret);
+            }
+            return ret;
+        }
 
         public object subdtype {
             get {
-                PythonTuple t = new PythonTuple(this.shape);
-                return new PythonTuple(new Object[] { @base, t });
+                return HasSubarray ? new PythonTuple(new Object[] { @base, this.shape }) : null;
             }
         }
 
@@ -129,6 +162,8 @@ namespace NumpyDotNet {
                 if (!this.HasSubarray) {
                     return this;
                 } else {
+                    // TODO: This is wrong.
+                    throw new NotImplementedException("Subarrays are not yet implemented.");
                     return this.Subarray;
                 }
             }
@@ -171,8 +206,13 @@ namespace NumpyDotNet {
 
         public object dtinfo {
             get {
+                IntPtr dtinfoPtr = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo);
+                if (dtinfoPtr == IntPtr.Zero) {
+                    return null;
+                }
+
                 NpyCoreApi.DateTimeInfo dtinfo = new NpyCoreApi.DateTimeInfo();
-                Marshal.PtrToStructure(Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo), dtinfo);
+                Marshal.PtrToStructure(dtinfoPtr, dtinfo);
 
                 return new PythonTuple(new object[] {
                     dtinfo.@base.ToString(), dtinfo.num, dtinfo.den, dtinfo.events });
@@ -357,7 +397,8 @@ namespace NumpyDotNet {
         public ndarray Subarray {
             get {
                 IntPtr arr = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray);
-                return (arr != IntPtr.Zero) ? NpyCoreApi.ToInterface<ndarray>(arr) : null;
+                if (arr == IntPtr.Zero) return null;
+                throw new NotImplementedException("Subarrays are not implemented yet");
             }
         }
 

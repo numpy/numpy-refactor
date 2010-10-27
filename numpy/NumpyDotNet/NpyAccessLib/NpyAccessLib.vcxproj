@@ -39,10 +39,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <CustomBuildBeforeTargets>BuildCompile</CustomBuildBeforeTargets>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetExt>.dll</TargetExt>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <LinkIncremental>false</LinkIncremental>
+    <CustomBuildBeforeTargets>BuildCompile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -56,6 +60,18 @@
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>
+    <CustomBuildStep>
+      <Command>"$(SolutionDir)generate_code.bat" "$(SolutionDir)"</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Generating __umath_generated.c</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>$(SolutionDir)..\core\__umath_generated.c</Outputs>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Inputs>$(SolutionDir)..\core\code_generators\generate_umath.py</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -73,6 +89,12 @@
       <DelayLoadDLLs>
       </DelayLoadDLLs>
     </Link>
+    <CustomBuildStep>
+      <Command>"$(SolutionDir)generate_code.bat" "$(SolutionDir)"</Command>
+      <Message>Generating __umath_generated.c</Message>
+      <Outputs>$(SolutionDir)..\core\__umath_generated.c</Outputs>
+      <Inputs>$(SolutionDir)..\core\code_generators\generate_umath.py</Inputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Npy_Array_Access.cpp" />
