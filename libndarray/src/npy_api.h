@@ -50,6 +50,7 @@ extern struct NpyArray_Descr **npy_userdescrs;
 /* arraytypes.c.src */
 /* TODO: Needs to call back to interface layer */
 
+NDARRAY_API void NpyArray_ForceUpdate(NpyArray* self);
 NDARRAY_API int NpyArray_dealloc(NpyArray *self);
 
 

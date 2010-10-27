@@ -104,6 +104,32 @@ NpyArray_CheckStrides(int elsize, int nd, npy_intp numbytes, npy_intp offset,
     return NPY_TRUE;
 }
 
+NDARRAY_API void
+NpyArray_ForceUpdate(NpyArray* self)
+{
+    if ((self->flags&NPY_UPDATEIFCOPY) && self->base_arr != NULL) {
+        /*
+         * UPDATEIFCOPY means that base points to an
+         * array that should be updated with the contents
+         * of this array upon destruction.
+         * self->base->flags must have been WRITEABLE
+         * (checked previously) and it was locked here
+         * thus, unlock it.
+         */
+        if (self->flags & NPY_UPDATEIFCOPY) {
+            self->flags &= ~NPY_UPDATEIFCOPY;
+            self->base_arr->flags |= NPY_WRITEABLE;
+            Npy_INCREF(self); /* hold on to self in next call */
+            if (NpyArray_CopyAnyInto(self->base_arr, self) < 0) {
+                /* NpyErr_Print(); */
+                NpyErr_Clear();
+            }
+            Npy_DECREF(self);
+            Npy_DECREF(self->base_arr);
+            self->base_arr = NULL;
+        }
+    }
+}
 
 /* Deallocs & destroy's the array object.
  *  Returns whether or not we did an artificial incref

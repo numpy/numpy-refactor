@@ -225,6 +225,10 @@ namespace NumpyDotNet {
 
         public int flags { get { return this.Flags; } }
 
+        public dtype newbyteorder(string endian = null) {
+            return NpyCoreApi.DescrNewByteorder(this, NpyUtil_ArgProcessing.ByteorderConverter(endian));
+        }
+
         #endregion
 
         #region .NET Properties
