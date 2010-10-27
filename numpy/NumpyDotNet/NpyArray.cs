@@ -682,7 +682,7 @@ namespace NumpyDotNet {
 
                 nLowest = 0;
                 dims[dimIdx] = seq.Count();
-                if (numDim > 1 && dims[dimIdx] > 1) {
+                if (numDim > 1) {
                     foreach (Object o in seq) {
                         DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
                         if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {
@@ -698,7 +698,7 @@ namespace NumpyDotNet {
 
                 nLowest = 0;
                 dims[dimIdx] = seq.Count();
-                if (numDim > 1 && dims[dimIdx] > 1) {
+                if (numDim > 1) {
                     foreach (Object o in seq) {
                         DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
                         if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {

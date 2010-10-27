@@ -596,12 +596,14 @@ namespace NumpyDotNet
                     }
                     else
                     {
-                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
-                        {
-                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
-                            {
+                        ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null);
+                        try {
+                            NpyCoreApi.Incref(array_value.Array);
+                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0) {
                                 NpyCoreApi.CheckError();
                             }
+                        } finally {
+                            NpyCoreApi.Decref(array_value.Array);
                         }
                     }
                 }

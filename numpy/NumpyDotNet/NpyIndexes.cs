@@ -316,6 +316,7 @@ namespace NumpyDotNet
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.BOOL_ARRAY);
             // Write the array
             offset += NpyCoreApi.IndexInfo.off_union;
+            NpyCoreApi.Incref(arr.Array);
             Marshal.WriteIntPtr(indexes + offset, arr.Array);
 
             ++num_indexes;
@@ -330,6 +331,7 @@ namespace NumpyDotNet
             Marshal.WriteInt32(indexes + offset, (Int32)NpyIndexTypes.INTP_ARRAY);
             // Write the array
             offset += NpyCoreApi.IndexInfo.off_union;
+            NpyCoreApi.Incref(arr.Array);
             Marshal.WriteIntPtr(indexes + offset, arr.Array);
 
             ++num_indexes;
