@@ -437,7 +437,11 @@ namespace NumpyDotNet {
                         String.Format("IntPtr of size {0} is not implemented.", IntPtr.Size));
                 }
             }
-            return NpyCoreApi.GCHandleFromIntPtr(f).Target;
+            if (f != IntPtr.Zero) {
+                return NpyCoreApi.GCHandleFromIntPtr(f).Target;
+            } else {
+                return null;
+            }
         }
         internal static GetitemDelegate getitemObjectDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
@@ -1590,8 +1594,7 @@ namespace NumpyDotNet {
                 throw new NotImplementedException("ComparePriorityCallback called with null objects.");
             }
 
-            PythonType pyType = DynamicHelpers.GetPythonType(obj1Ptr);
-            CodeContext cntx = IronPython.Runtime.Operations.PythonOps.GetPythonTypeContext(pyType);
+            CodeContext cntx = NpyUtil_Python.DefaultContext;
 
             if (IronPython.Runtime.Operations.PythonOps.CompareTypesNotEqual(cntx, obj1, obj2) &&
                 GetPriority(cntx, obj1, 0.0) > GetPriority(cntx, obj2, 0.0)) {

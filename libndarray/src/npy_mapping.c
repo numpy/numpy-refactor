@@ -532,6 +532,7 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
     if (mit->ait == NULL) {
         return -1;
     }
+    Npy_INCREF(arr);
     if ((mit->subspace != NULL) && (mit->consec)) {
         if (mit->iteraxes[0] > 0) {  /* then we need to swap */
             _swap_axes(mit, &arr, 0);

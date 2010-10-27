@@ -12,6 +12,7 @@ using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
 using IronPython.Runtime.Exceptions;
 using Microsoft.Scripting;
+using Microsoft.Scripting.Runtime;
 using NumpyDotNet;
 using System.Collections;
 
@@ -176,6 +177,11 @@ namespace NumpyDotNet
             return NpyCoreApi.GenericBinaryOp(a, b, f);
         }
 
+        internal static object UnaryOp(ndarray a, NpyDefs.NpyArray_Ops op) {
+            ufunc f = NpyCoreApi.GetNumericOp(op);
+            return NpyCoreApi.GenericUnaryOp(a, f);
+        }
+
         public static object operator +(ndarray a, Object b) {
             return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
         }
@@ -260,11 +266,15 @@ namespace NumpyDotNet
             return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
+        public static object operator ~(ndarray a) {
+            return UnaryOp(a, NpyDefs.NpyArray_Ops.npy_op_invert);
+        }
+
         // NOTE: For comparison operators we use the Python names
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
 
-        public object __eq__(ndarray a) {
+        public object __eq__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
@@ -272,7 +282,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __req__(ndarray a) {
+        public object __req__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
@@ -280,7 +290,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __ne__(ndarray a) {
+        public object __ne__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
@@ -288,7 +298,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __rne__(ndarray a) {
+        public object __rne__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
@@ -296,7 +306,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __lt__(ndarray a) {
+        public object __lt__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
@@ -304,7 +314,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __rlt__(ndarray a) {
+        public object __rlt__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
@@ -312,7 +322,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __le__(ndarray a) {
+        public object __le__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
@@ -320,7 +330,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __rle__(ndarray a) {
+        public object __rle__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
@@ -328,7 +338,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __gt__(ndarray a) {
+        public object __gt__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
@@ -336,7 +346,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __rgt__(ndarray a) {
+        public object __rgt__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
@@ -344,7 +354,7 @@ namespace NumpyDotNet
             return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __ge__(ndarray a) {
+        public object __ge__([NotNull]ndarray a) {
             return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
@@ -352,7 +362,7 @@ namespace NumpyDotNet
             return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
-        public object __rge__(ndarray a) {
+        public object __rge__([NotNull]ndarray a) {
             return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
@@ -586,12 +596,14 @@ namespace NumpyDotNet
                     }
                     else
                     {
-                        using (ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null))
-                        {
-                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0)
-                            {
+                        ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null);
+                        try {
+                            NpyCoreApi.Incref(array_value.Array);
+                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0) {
                                 NpyCoreApi.CheckError();
                             }
+                        } finally {
+                            NpyCoreApi.Decref(array_value.Array);
                         }
                     }
                 }
@@ -730,6 +742,12 @@ namespace NumpyDotNet
             }
         }
 
+        public ndarray T {
+            get {
+                return Transpose();
+            }
+        }
+
         #endregion
 
         #region methods
@@ -755,7 +773,7 @@ namespace NumpyDotNet
         }
 
         public object argsort(object axis = null, string kind = null, object order = null) {
-            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
+            int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis, -1);
             NpyDefs.NPY_SORTKIND sortkind = NpyUtil_ArgProcessing.SortkindConverter(kind);
 
             if (order != null) {
@@ -833,12 +851,17 @@ namespace NumpyDotNet
             return Diagonal(offset, axis1, axis2);
         }
 
+        public object dot(object other) {
+            return ModuleMethods.dot(this, other);
+        }
+
         public void fill(object scalar) {
             FillWithScalar(scalar);
         }
 
         public ndarray flatten(object order = null) {
-            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
+            NpyDefs.NPY_ORDER eOrder =
+                NpyUtil_ArgProcessing.OrderConverter(order);
             return Flatten(eOrder);
         }
 
@@ -1428,9 +1451,7 @@ namespace NumpyDotNet
             // Equivalent to array_repr_builtin (arrayobject.c)
             StringBuilder sb = new StringBuilder();
             if (repr) sb.Append("array(");
-            if (!DumpData(sb, this.Dims, this.Strides, 0, 0)) {
-                return null;
-            }
+            DumpData(sb, this.Dims, this.Strides, 0, 0);
 
             if (repr) {
                 if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
@@ -1451,32 +1472,31 @@ namespace NumpyDotNet
         /// <param name="strides">Offset in bytes to reach next element in each dimension</param>
         /// <param name="dimIdx">Index of the current dimension (starts at 0, recursively counts up)</param>
         /// <param name="offset">Byte offset into data array, starts at 0</param>
-        /// <returns>True on success, false on failure</returns>
-        private bool DumpData(StringBuilder sb, long[] dimensions, long[] strides,
+        private void DumpData(StringBuilder sb, long[] dimensions, long[] strides,
             int dimIdx, long offset) {
 
             if (dimIdx == ndim) {
                 Object value = dtype.f.GetItem(offset, this);
-                if (value == null) return false;
+                if (value == null) {
+                    sb.Append("None");
+                } else {
 
-                // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
-                //MethodInfo repr = value.GetType().GetMethod("__repr__");
-                //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
-                sb.Append(value.ToString());
+                    // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
+                    //MethodInfo repr = value.GetType().GetMethod("__repr__");
+                    //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
+                    sb.Append(value.ToString());
+                }
             } else {
                 sb.Append('[');
                 for (int i = 0; i < dimensions[dimIdx]; i++) {
-                    if (!DumpData(sb, dimensions, strides, dimIdx + 1,
-                                  offset + strides[dimIdx] * i)) {
-                        return false;
-                    }
+                    DumpData(sb, dimensions, strides, dimIdx + 1,
+                                  offset + strides[dimIdx] * i);
                     if (i < dimensions[dimIdx] - 1) {
                         sb.Append(", ");
                     }
                 }
                 sb.Append(']');
             }
-            return true;
         }
 
         /// <summary>

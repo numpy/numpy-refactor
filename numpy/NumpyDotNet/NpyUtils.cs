@@ -301,8 +301,8 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static int AxisConverter(object o) {
-            if (o == null) return NpyDefs.NPY_MAXDIMS;
+        internal static int AxisConverter(object o, int dflt = NpyDefs.NPY_MAXDIMS) {
+            if (o == null) return dflt;
             else if (o is int) {
                 return (int)o;
             } else if (o is IConvertible) {
@@ -346,10 +346,11 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="o">Order specification</param>
         /// <returns>Npy order type</returns>
-        internal static NpyDefs.NPY_ORDER OrderConverter(Object o) {
+        internal static NpyDefs.NPY_ORDER OrderConverter(Object o, 
+            NpyDefs.NPY_ORDER dflt = NpyDefs.NPY_ORDER.NPY_CORDER) {
             NpyDefs.NPY_ORDER order;
 
-            if (o == null) order = NpyDefs.NPY_ORDER.NPY_ANYORDER;
+            if (o == null) order = dflt;
             else if (o is Boolean) order = ((bool)o) ?
                          NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER;
             else if (o is string) {

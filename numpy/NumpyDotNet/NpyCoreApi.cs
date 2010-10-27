@@ -311,10 +311,6 @@ namespace NumpyDotNet {
                     Incref(f.UFunc);
                     if ((val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
                         PrepareCallback, GCHandle.ToIntPtr(h))) < 0) {
-                        if (val == -2) {
-                            // TODO: Check if this is correct.
-                            throw new NotImplementedException(String.Format("Ufunc {0} not implemented for type", f.__name__()));
-                        }
                         CheckError();
                         if (pargs.ex != null) {
                             throw pargs.ex;
@@ -1542,6 +1538,7 @@ namespace NumpyDotNet {
             RuntimeError,
             AttributeError,
             ComplexWarning,
+            NotImplementedError,
             NoError
         }
 
@@ -1583,6 +1580,8 @@ namespace NumpyDotNet {
                         throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
                     case NpyExc_Type.TypeError:
                         throw new IronPython.Runtime.Exceptions.TypeErrorException(msgTmp);
+                    case NpyExc_Type.NotImplementedError:
+                        throw new NotImplementedException(msgTmp);
                     default:
                         Console.WriteLine("Unhandled exception type {0} in CheckError.", errTmp);
                         throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);

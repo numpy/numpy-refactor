@@ -5,6 +5,7 @@
 #include <Windows.h>
 #endif
 
+#include <assert.h>
 #include "npy_defs.h"
 
 /* Simple object model for numpy objects.
@@ -70,6 +71,7 @@ NDARRAY_API CRITICAL_SECTION Npy_RefCntLock;
 #define Npy_DECREF(a)                                                       \
     do {                                                                    \
         EnterCriticalSection(&Npy_RefCntLock);                              \
+        assert((a)->nob_refcnt > 0);                                        \
         if (0 == --(a)->nob_refcnt) {                                       \
             if (NULL != (a)->nob_interface)                                 \
                 _NpyInterface_Decref((a)->nob_interface, &((a)->nob_interface));  \

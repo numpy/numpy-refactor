@@ -43,12 +43,9 @@ import sys
 import numeric as sb
 from defchararray import chararray
 
-if sys.platform == 'cli':
-    __all__ = []
-else:
-    import numerictypes as nt
-    # All of the functions allow formats to be a dtype
-    __all__ = ['record', 'recarray', 'format_parser']
+import numerictypes as nt
+# All of the functions allow formats to be a dtype
+__all__ = ['record', 'recarray', 'format_parser']
 
 from numpy.compat import isfileobj, bytes
 
@@ -74,9 +71,8 @@ _byteorderconv = {'b':'>',
 # of the letter code '(2,3)f4' and ' (  2 ,  3  )  f4  '
 # are equally allowed
 
-if sys.platform != 'cli':
-    numfmt = nt.typeDict
-    _typestr = nt._typestr
+numfmt = nt.typeDict
+_typestr = nt._typestr
 
 def find_duplicate(list):
     """Find duplication in a list, return a list of duplicated elements"""
@@ -219,8 +215,7 @@ class format_parser:
         self._descr = descr
 
 
-if sys.platform != 'cli':
-  class record(nt.void):
+class record(nt.void):
     """A data-type scalar that allows field access as attribute lookup.
     """
     def __repr__(self):

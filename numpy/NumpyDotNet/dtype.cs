@@ -15,8 +15,9 @@ namespace NumpyDotNet {
     [PythonType]
     public class dtype : Wrapper {
 
-        public static object __new__(CodeContext cntx, PythonType cls, object dtype) {
-            return NpyDescr.DescrConverter(cntx, dtype);
+        public static object __new__(CodeContext cntx, PythonType cls, object dtype,
+                                     object align = null) {
+            return NpyDescr.DescrConverter(cntx, dtype, NpyUtil_ArgProcessing.BoolConverter(align));
         }
 
         /// <summary>
@@ -340,6 +341,50 @@ namespace NumpyDotNet {
             }
         }
 
+        /// <summary>
+        /// Returns the number of names.
+        /// </summary>
+        /// <returns></returns>
+        public int __len__() {
+            IntPtr names = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names);
+            int result = 0;
+            if (names != IntPtr.Zero) {
+                int offset = 0;
+                while (true) {
+                    IntPtr namePtr = Marshal.ReadIntPtr(names, offset);
+                    if (namePtr == IntPtr.Zero) {
+                        break;
+                    }
+                    offset += IntPtr.Size;
+                    result++;
+                }
+            }
+            return result;
+        }
+
+        public object this[string field] {
+            get {
+                var d = GetFieldsDict();
+                if (d == null) {
+                    throw new KeyNotFoundException("There are no fields in the dtype");
+                }
+                PythonTuple val;
+                if (!d.TryGetValue(field, out val)) {
+                    throw new KeyNotFoundException(String.Format("Field named '{0}' not found.", field));
+                }
+                return val[0];
+            }
+        }
+
+        public object this[int i] {
+            get {
+                var names = Names;
+                if (i < 0 || i >= names.Count) {
+                    throw new IndexOutOfRangeException("Field index out of range");
+                }
+                return this[names[i]];
+            }
+        }
 
         public bool HasSubarray {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) != IntPtr.Zero; }

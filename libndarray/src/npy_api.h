@@ -351,6 +351,7 @@ enum npyexc_type {
     NpyExc_RuntimeError,
     NpyExc_AttributeError,
     NpyExc_ComplexWarning,
+    NpyExc_NotImplementedError,
 };
 
 typedef void (*npy_tp_error_set)(enum npyexc_type, const char *);

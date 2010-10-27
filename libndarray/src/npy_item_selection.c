@@ -935,7 +935,7 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
 
     SWAPAXES2(op);
 
-    ap = NpyArray_FromArray(op, NULL, NPY_DEFAULT | NPY_UPDATEIFCOPY);
+    ap = NpyArray_FromArray(op, NULL, NPY_DEFAULT);
     if (ap == NULL) {
         goto fail;
     }
@@ -959,6 +959,12 @@ NpyArray_Sort(NpyArray *op, int axis, NPY_SORTKIND which)
     }
 
  finish:
+    if (ap != op) {
+        // Copy back
+        if (NpyArray_CopyAnyInto(op, ap) < 0) {
+            goto fail;
+        }
+    }
     Npy_DECREF(ap);  /* Should update op if needed */
     SWAPBACK2(op);
     return 0;

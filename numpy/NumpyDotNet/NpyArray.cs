@@ -161,6 +161,10 @@ namespace NumpyDotNet {
             int maxDepth=0, int flags=0, Object context=null) {
             ndarray result = null;
 
+            if (src == null) {
+                return Empty(new long[0], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT));
+            }
+
             Type t = src.GetType();
 
             if (t != typeof(List) && t != typeof(PythonTuple)) { 
@@ -678,7 +682,7 @@ namespace NumpyDotNet {
 
                 nLowest = 0;
                 dims[dimIdx] = seq.Count();
-                if (numDim > 1 && dims[dimIdx] > 1) {
+                if (numDim > 1) {
                     foreach (Object o in seq) {
                         DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
                         if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {
@@ -694,7 +698,7 @@ namespace NumpyDotNet {
 
                 nLowest = 0;
                 dims[dimIdx] = seq.Count();
-                if (numDim > 1 && dims[dimIdx] > 1) {
+                if (numDim > 1) {
                     foreach (Object o in seq) {
                         DiscoverDimensions(o, numDim - 1, dims, dimIdx + 1, checkIt);
                         if (checkIt && nLowest != 0 && nLowest != dims[dimIdx + 1]) {
@@ -739,7 +743,10 @@ namespace NumpyDotNet {
             ndarray result = Empty(shape, type, order);
             NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
             if (type.IsObject) {
+                // Object arrays are zero filled when created
                 FillObjects(result, 0);
+            } else {
+                NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
             }
             return result;
         }
