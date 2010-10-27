@@ -336,6 +336,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
     Npy_XDECREF(values);
     Npy_XDECREF(indices);
     if (copied) {
+        NpyArray_ForceUpdate(self);
         Npy_DECREF(self);
     }
     return 0;
@@ -432,6 +433,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
     Npy_XDECREF(values);
     Npy_XDECREF(mask);
     if (copied) {
+        NpyArray_ForceUpdate(self);
         Npy_DECREF(self);
     }
     return 0;
@@ -654,6 +656,7 @@ NpyArray_Choose(NpyArray *ip, NpyArray** mps, int n, NpyArray *ret,
         NpyArray *obj;
         obj = ret->base_arr;
         Npy_INCREF(obj);
+        NpyArray_ForceUpdate(ret);
         Npy_DECREF(ret);
         ret = obj;
     }
