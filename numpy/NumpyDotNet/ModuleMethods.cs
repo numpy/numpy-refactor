@@ -356,7 +356,7 @@ namespace NumpyDotNet {
                 throw new ArgumentException("either both or neither of x and y should be given");
             }
             ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
-            return obj.choose(new object[] { y, x });
+            return obj.Choose(new object[] { y, x });
         }
 
         public static object _fastCopyAndTranspose(object a) {

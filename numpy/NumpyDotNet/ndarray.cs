@@ -792,9 +792,20 @@ namespace NumpyDotNet
             return NpyCoreApi.Byteswap(this, inplace);
         }
 
-        public object choose(IEnumerable<object> choices, ndarray @out=null, object mode=null) {
-            NpyDefs.NPY_CLIPMODE clipMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
-            return ArrayReturn(Choose(choices, @out, clipMode));
+        private static string[] chooseArgNames = { "out", "mode" };
+
+        public object choose([ParamDictionary] IDictionary<object,object> kwargs, 
+                             params object[] args){
+            IEnumerable<object> choices;
+            if (args.Length == 1 && args[0] is IEnumerable<object>) {
+                choices = (IEnumerable<object>)args[0];
+            } else {
+                choices = args;
+            }
+            object[] kargs = NpyUtil_ArgProcessing.BuildArgsArray(new object[0], chooseArgNames, kwargs);
+            ndarray aout = kargs[0] as ndarray;
+            NpyDefs.NPY_CLIPMODE clipMode = NpyUtil_ArgProcessing.ClipmodeConverter(kargs[1]);
+            return ArrayReturn(Choose(choices, aout, clipMode));
         }
 
         public object clip(object min = null, object max = null, ndarray @out = null) {

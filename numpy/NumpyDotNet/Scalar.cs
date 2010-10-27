@@ -92,8 +92,8 @@ namespace NumpyDotNet
             }
         }
 
-        public object choose(IEnumerable<object> choices, ndarray @out = null, object mode = null) {
-            return ToArray().choose(choices, @out, mode);
+        public object choose([ParamDictionary] IDictionary<object,object> kwargs, params object[] args) {
+            return ToArray().choose(kwargs, args:args);
         }
 
         public object clip(object min = null, object max = null, ndarray @out = null) {
