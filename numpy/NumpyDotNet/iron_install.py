@@ -15,7 +15,7 @@ src_dir = os.getcwd()
 def install(bin_dir):
     print "INSTALLING ..."
     sp_dir = join(sys.prefix, r'Lib\site-packages')
-    numpy_dir = join(src_dir, '..')
+    numpy_dir = join(src_dir, '..', '..', '..')
     dll_dir = join(sys.prefix, 'DLLs')
     if not isdir(dll_dir):
         os.mkdir(dll_dir)
