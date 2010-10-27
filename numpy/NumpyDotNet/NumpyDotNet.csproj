@@ -107,8 +107,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"$(IRONPYTHON_HOME)\ipy.exe" "$(ProjectDir)iron_install.py" "$(TargetDir)"
-copy "$(ProjectDir)benchmark.py" "$(TargetDir)"
-copy "$(ProjectDir)numpy.py" "$(TargetDir)"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
