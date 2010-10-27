@@ -1050,7 +1050,7 @@ namespace NumpyDotNet
             bool refcheck = NpyUtil_ArgProcessing.BoolConverter(keywordArgs[0]);
             IntPtr[] newshape;
 
-            if (args.Length == 0) {
+            if (args.Length == 0 || args.Length == 1 && args[0] == null) {
                 return;
             }
             if (args.Length == 1 && args[0] is IList<object>) {
