@@ -224,7 +224,14 @@ namespace NumpyDotNet {
         }
 
         public object names {
-            get { return new PythonTuple(Names); }
+            get { 
+                var n = Names;
+                if (n != null) {
+                    return new PythonTuple(n);
+                } else {
+                    return null;
+                }
+            }
             set {
                 int n = this.Names.Count();
                 IEnumerable<object> ival = value as IEnumerable<object>;
