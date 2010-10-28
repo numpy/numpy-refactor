@@ -436,8 +436,8 @@ namespace NumpyDotNet {
         }
 
         public static bool operator !=(dtype t1, dtype t2) {
-            return !System.Object.ReferenceEquals(t1, t2) ||
-                (object)t1 != null && (object)t2 != null && !t1.Equals(t2);
+            return !System.Object.ReferenceEquals(t1, t2) &&
+                ((object)t1 == null || (object)t2 == null || !t1.Equals(t2));
         }
 
         public override int GetHashCode() {

@@ -12,7 +12,7 @@ else:
     _nbo = asbytes('>')
 
 def _makenames_list(adict):
-    from multiarray import dtype
+    from numpy.core import dtype
     allfields = []
     fnames = adict.keys()
     for fname in fnames:
@@ -46,7 +46,7 @@ def _makenames_list(adict):
 #  a dictionary without "names" and "formats"
 #  fields is used as a data-type descriptor.
 def _usefields(adict, align):
-    from multiarray import dtype
+    from numpy.core import dtype
     try:
         names = adict[-1]
     except KeyError:
@@ -236,7 +236,7 @@ def _commastring(astr):
     return result
 
 def _getintp_ctype():
-    from multiarray import dtype
+    from numpy.core import dtype
     val = _getintp_ctype.cache
     if val is not None:
         return val
@@ -399,7 +399,7 @@ _pep3118_standard_map = {
 _pep3118_standard_typechars = ''.join(_pep3118_standard_map.keys())
 
 def _dtype_from_pep3118(spec, byteorder='@', is_subdtype=False):
-    from numpy.core.multiarray import dtype
+    from numpy.core import dtype
 
     fields = {}
     offset = 0
@@ -566,7 +566,7 @@ def _dtype_from_pep3118(spec, byteorder='@', is_subdtype=False):
 
 def _add_trailing_padding(value, padding):
     """Inject the specified number of padding bytes at the end of a dtype"""
-    from numpy.core.multiarray import dtype
+    from numpy.core import dtype
 
     if value.fields is None:
         vfields = {'f0': (value, 0)}
