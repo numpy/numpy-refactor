@@ -84,10 +84,14 @@ namespace NumpyDotNet {
                     info.name = NpyUtil_Python.ConvertToString(names[i], cntx);
                     info.dtype = descrs[i];
                     if (offsets != null) {
-                        info.offset = NpyUtil_Python.ConvertToInt(offsets[i], cntx);
+                        if (offsets[i] != null) {
+                            info.offset = NpyUtil_Python.ConvertToInt(offsets[i], cntx);
+                        }
                     }
                     if (titles != null) {
-                        info.title = NpyUtil_Python.ConvertToString(titles[i], cntx);
+                        if (titles[i] != null) {
+                            info.title = NpyUtil_Python.ConvertToString(titles[i], cntx);
+                        }
                     }
                     fields.Add(info);
                 }
