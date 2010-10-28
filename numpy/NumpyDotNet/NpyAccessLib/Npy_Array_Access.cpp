@@ -458,6 +458,28 @@ extern "C" __declspec(dllexport)
     return result;
 }
 
+extern "C" __declspec(dllexport)
+    NpyArray_Descr* NpyArrayAccess_DescrNewSubarray(NpyArray_Descr* baseDescr, int ndim, npy_intp* dims)
+{
+    NpyArray_Descr* result = NpyArray_DescrNewFromType(NPY_VOID);
+    if (result == NULL) {
+        return result;
+    }
+    result->elsize = baseDescr->elsize;
+    result->elsize *= NpyArray_MultiplyList(dims, ndim);
+    result->subarray = (NpyArray_ArrayDescr*)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+    result->subarray->base = baseDescr;
+    Npy_INCREF(baseDescr);
+    result->subarray->shape_num_dims = ndim;
+    result->subarray->shape_dims = (npy_intp*) NpyArray_malloc(ndim*sizeof(npy_intp));
+    memcpy(result->subarray->shape_dims, dims, ndim*sizeof(npy_intp));
+    result->flags = baseDescr->flags;
+    /* I'm not sure why or if the next call is needed, but it is in the CPython code. */
+    NpyArray_DescrDeallocNamesAndFields(result);
+
+    return result;
+}
+
 //
 // UFunc access methods
 //

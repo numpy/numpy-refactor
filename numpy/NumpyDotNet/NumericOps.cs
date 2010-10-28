@@ -528,7 +528,7 @@ namespace NumpyDotNet {
                 }
             }
             if (d.HasSubarray) {
-                throw new NotImplementedException("VOID type not implemented for subarrays.");
+                return NpyCoreApi.Subarray(arr, ptr);
             }
 
             if (d.IsObject) {
@@ -964,7 +964,8 @@ namespace NumpyDotNet {
                     Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, d.Descr);
                 }
             } else if (d.HasSubarray) {
-                throw new NotImplementedException("VOID type not implemented for subarrays.");
+                ndarray subarray = NpyCoreApi.Subarray(arr, ptr);
+                NpyArray.CopyObject(subarray, value);
             } else if (value is ndarray) {
                 ndarray avalue = (ndarray)value;
                 if (!avalue.IsContiguous) {

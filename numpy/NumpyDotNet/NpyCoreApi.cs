@@ -452,6 +452,11 @@ namespace NumpyDotNet {
                 NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
         }
 
+        internal static dtype DescrNewSubarray(dtype basetype, IntPtr[] shape) {
+            return DecrefToInterface<dtype>(
+                NpyArrayAccess_DescrNewSubarray(basetype.Descr, shape.Length, shape));
+        }
+
         internal static dtype DescrNew(dtype d) {
             return DecrefToInterface<dtype>(
                 NpyArray_DescrNew(d.Descr));
@@ -498,6 +503,10 @@ namespace NumpyDotNet {
                 return DecrefToInterface<ndarray>(
                     NpyArray_View(arr.Array, descr, IntPtr.Zero));
             }
+        }
+
+        internal static ndarray Subarray(ndarray self, IntPtr dataptr) {
+            return DecrefToInterface<ndarray>(NpyArray_Subarray(self.Array, dataptr));
         }
 
         internal static dtype DescrNewByteorder(dtype d, char order) {
@@ -606,6 +615,9 @@ namespace NumpyDotNet {
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Subarray(IntPtr arr, IntPtr dataptr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
@@ -1006,6 +1018,10 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_DescrNewSubarray(IntPtr baseDescr,
+            int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 

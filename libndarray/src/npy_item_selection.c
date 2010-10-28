@@ -1502,3 +1502,30 @@ NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj)
     Npy_XDECREF(it);
     return -1;
 }
+
+NDARRAY_API NpyArray*
+NpyArray_Subarray(NpyArray* self, void* dataptr)
+{
+    NpyArray* result;
+    NpyArray_ArrayDescr* subarray = self->descr->subarray;
+
+    if (NpyArray_TYPE(self) != NPY_VOID || subarray == NULL) {
+        NpyErr_SetString(NpyExc_ValueError,
+                         "Array does not have subarrays");
+        return NULL;
+    }
+
+
+    Npy_INCREF(subarray->base);
+    result = NpyArray_NewFromDescr(subarray->base, 
+                                   subarray->shape_num_dims, subarray->shape_dims, NULL,
+                                   dataptr, self->flags, NPY_TRUE,
+                                   NULL, NULL);
+    if (result == NULL) {
+        return NULL;
+    }
+    result->base_arr = self;
+    Npy_INCREF(self);
+    NpyArray_UpdateFlags(result, NPY_UPDATE_ALL);
+    return result;
+}

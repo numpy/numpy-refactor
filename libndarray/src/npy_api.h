@@ -254,6 +254,8 @@ NDARRAY_API NpyArray * NpyArray_LexSort(NpyArray** mps, int n, int axis);
 NDARRAY_API NpyArray * NpyArray_SearchSorted(NpyArray *op1, NpyArray *op2,
                                              NPY_SEARCHSIDE side);
 NDARRAY_API int NpyArray_NonZero(NpyArray* self, NpyArray** index_arrays, void* obj);
+NDARRAY_API NpyArray* NpyArray_Subarray(NpyArray* self, void* dataptr);
+
 
 NDARRAY_API void NpyArray_InitArrFuncs(NpyArray_ArrFuncs *f);
 NDARRAY_API int NpyArray_RegisterDataType(NpyArray_Descr *descr);
