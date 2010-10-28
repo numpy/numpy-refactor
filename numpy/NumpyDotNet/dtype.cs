@@ -172,6 +172,7 @@ namespace NumpyDotNet {
             int dtypeFlags = 0;
             char endian = 'x';
             string[] names = null;
+            PythonTuple namesTup = null;
             PythonDictionary fields = null;
             object dtinfo = null;
             object subarray = null;
@@ -187,9 +188,9 @@ namespace NumpyDotNet {
                     alignment = (int)state[6];
                     elsize = (int)state[5];
                     fields = (PythonDictionary)state[4];
-                    names = (string[])state[3];
+                    namesTup = (PythonTuple)state[3];
                     subarray = state[2];
-                    endian = (char)state[1];
+                    endian = ((string)state[1])[0];
                     version = (int)state[0];
                     break;
 
@@ -198,13 +199,13 @@ namespace NumpyDotNet {
                     elsize = (int)state[4];
                     fields = (PythonDictionary)state[3];
                     subarray = state[2];
-                    endian = (char)state[1];
+                    endian = ((string)state[1])[0];
                     version = (int)state[0];
                     break;
 
                 case 5:
                     version = 0;
-                    endian = (char)state[0];
+                    endian = ((string)state[0])[0];
                     subarray = state[1];
                     fields = (PythonDictionary)state[2];
                     elsize = (int)state[3];
@@ -219,7 +220,10 @@ namespace NumpyDotNet {
             // Reconstruct the names array for earlier format versions.
             if (version == 0 || version == 1) {
                 names = (fields != null) ? ((PythonDictionary)fields).Keys.Cast<String>().ToArray() : null;
+            } else {
+                names = (namesTup != null) ? namesTup.Cast<String>().ToArray() : null;
             }
+
             if (fields == null && names != null || fields != null && names == null) {
                 throw new ArgumentException("inconsistent fields and names during set state");
             }
