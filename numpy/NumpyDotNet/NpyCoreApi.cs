@@ -481,19 +481,22 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray View(ndarray arr, dtype d, object subtype) {
+            IntPtr descr = (d == null ? IntPtr.Zero : d.Descr);
+            if (descr != IntPtr.Zero) {
+                Incref(descr);
+            }
             if (subtype != null) {
                 GCHandle h = AllocGCHandle(subtype);
                 try {
                     return DecrefToInterface<ndarray>(
-                        NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr),
-                            GCHandle.ToIntPtr(h)));
+                        NpyArray_View(arr.Array, descr, GCHandle.ToIntPtr(h)));
                 } finally {
                     FreeGCHandle(h);
                 }
             }
             else {
                 return DecrefToInterface<ndarray>(
-                    NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+                    NpyArray_View(arr.Array, descr, IntPtr.Zero));
             }
         }
 
