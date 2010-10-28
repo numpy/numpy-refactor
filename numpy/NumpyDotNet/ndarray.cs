@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,7 @@ using IronPython.Runtime.Types;
 using IronPython.Runtime.Exceptions;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
-using NumpyDotNet;
-using System.Collections;
+
 
 namespace NumpyDotNet
 {

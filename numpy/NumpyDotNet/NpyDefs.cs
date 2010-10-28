@@ -413,6 +413,10 @@ namespace NumpyDotNet {
             return IsFlexible(type) || IsUserDefined(type);
         }
 
+        public static bool IsNativeByteOrder(byte endian) {
+            return endian != NpyCoreApi.OppositeByteOrder;
+        }
+
         #endregion
 
     }
