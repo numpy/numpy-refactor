@@ -1580,7 +1580,8 @@ namespace NumpyDotNet {
                     case NpyExc_Type.AttributeError:
                         throw new MissingMemberException(msgTmp);
                     case NpyExc_Type.ComplexWarning:
-                        throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                        PythonOps.Warn(NpyUtil_Python.DefaultContext, ComplexWarning, msgTmp);
+                        break;
                     case NpyExc_Type.TypeError:
                         throw new IronPython.Runtime.Exceptions.TypeErrorException(msgTmp);
                     case NpyExc_Type.NotImplementedError:
@@ -1592,6 +1593,21 @@ namespace NumpyDotNet {
             }
         }
 
+        private static PythonType complexWarning;
+
+        internal static PythonType ComplexWarning {
+            get {
+                if (complexWarning == null) {
+                    CodeContext cntx = NpyUtil_Python.DefaultContext;
+                    PythonModule core = (PythonModule)PythonOps.ImportBottom(cntx, "numpy.core", 0);
+                    object tmp;
+                    if (PythonOps.ModuleTryGetMember(cntx, core, "ComplexWarning", out tmp)) {
+                        complexWarning = (PythonType)tmp;
+                    }
+                }
+                return complexWarning;
+            }
+        }
 
 
         /// <summary>
