@@ -199,7 +199,12 @@ NpyArray_GenericBinaryFunction(NpyArray *m1, NpyArray *m2, NpyUFuncObject *op,
 finish:
     Npy_XINCREF(result);
     for (i=0; i < 3; i++) {
-        Npy_XDECREF(mps[i]);
+        if (mps[i] != NULL) {
+            if (mps[i]->flags&NPY_UPDATEIFCOPY) {
+                NpyArray_ForceUpdate(mps[i]);
+            }
+            Npy_DECREF(mps[i]);
+        }
     }
     return result;
 }
@@ -231,6 +236,9 @@ NpyArray_GenericUnaryFunction(NpyArray *m1, NpyUFuncObject *op, NpyArray* out)
     }
   finish:
     Npy_XINCREF(result);
+    if (mps[1] && (mps[1]->flags&NPY_UPDATEIFCOPY)) {
+        NpyArray_ForceUpdate(mps[1]);
+    }
     Npy_XDECREF(mps[1]);
     return result;
 }

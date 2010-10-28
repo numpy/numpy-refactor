@@ -109,6 +109,7 @@ NpyArray_ArgMax(NpyArray *op, int axis, NpyArray *out)
         NpyArray *obj;
         obj = rp->base_arr;
         Npy_INCREF(obj);
+        NpyArray_ForceUpdate(rp);
         Npy_DECREF(rp);
         rp = obj;
     }

@@ -28,7 +28,7 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 
 if sys.platform == 'cli':
     obj2sctype = isnan = None
-    for n in '''fromstring fromfile frombuffer int_asbuffer
+    for n in '''frombuffer int_asbuffer
 set_numeric_ops can_cast
 array2string get_printoptions set_printoptions
 set_string_function fromiter compare_chararrays
@@ -223,10 +223,10 @@ putmask = multiarray.putmask
 concatenate = multiarray.concatenate
 where = multiarray.where
 fastCopyAndTranspose = multiarray._fastCopyAndTranspose
+fromstring = multiarray.fromstring
+fromfile = multiarray.fromfile
 if sys.platform != 'cli':
-    fromstring = multiarray.fromstring
     fromiter = multiarray.fromiter
-    fromfile = multiarray.fromfile
     frombuffer = multiarray.frombuffer
     if sys.version_info[0] < 3:
         newbuffer = multiarray.newbuffer

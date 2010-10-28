@@ -452,6 +452,11 @@ namespace NumpyDotNet {
                 NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
         }
 
+        internal static dtype DescrNewSubarray(dtype basetype, IntPtr[] shape) {
+            return DecrefToInterface<dtype>(
+                NpyArrayAccess_DescrNewSubarray(basetype.Descr, shape.Length, shape));
+        }
+
         internal static dtype DescrNew(dtype d) {
             return DecrefToInterface<dtype>(
                 NpyArray_DescrNew(d.Descr));
@@ -481,20 +486,27 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray View(ndarray arr, dtype d, object subtype) {
+            IntPtr descr = (d == null ? IntPtr.Zero : d.Descr);
+            if (descr != IntPtr.Zero) {
+                Incref(descr);
+            }
             if (subtype != null) {
                 GCHandle h = AllocGCHandle(subtype);
                 try {
                     return DecrefToInterface<ndarray>(
-                        NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr),
-                            GCHandle.ToIntPtr(h)));
+                        NpyArray_View(arr.Array, descr, GCHandle.ToIntPtr(h)));
                 } finally {
                     FreeGCHandle(h);
                 }
             }
             else {
                 return DecrefToInterface<ndarray>(
-                    NpyArray_View(arr.Array, (d == null ? IntPtr.Zero : d.Descr), IntPtr.Zero));
+                    NpyArray_View(arr.Array, descr, IntPtr.Zero));
             }
+        }
+
+        internal static ndarray Subarray(ndarray self, IntPtr dataptr) {
+            return DecrefToInterface<ndarray>(NpyArray_Subarray(self.Array, dataptr));
         }
 
         internal static dtype DescrNewByteorder(dtype d, char order) {
@@ -565,6 +577,11 @@ namespace NumpyDotNet {
             return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
         }
 
+        internal static ndarray ArrayFromBytes(byte[] data, dtype type, int count, string sep) {
+            if (type != null) Incref(type.Descr);
+            return DecrefToInterface<ndarray>(NpyArray_FromBytes(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+        }
+
         #endregion
 
         
@@ -603,6 +620,9 @@ namespace NumpyDotNet {
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Subarray(IntPtr arr, IntPtr dataptr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
@@ -837,6 +857,10 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl,
+         EntryPoint = "NpyArray_FromString")]
+        internal static extern IntPtr NpyArray_FromBytes(byte[] data, IntPtr len, IntPtr dtype, int num, string sep);
+
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_arraydescr_isnative")]
         internal static extern int DescrIsNative(IntPtr descr);
 
@@ -1003,6 +1027,10 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_DescrNewSubarray(IntPtr baseDescr,
+            int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
@@ -1577,7 +1605,8 @@ namespace NumpyDotNet {
                     case NpyExc_Type.AttributeError:
                         throw new MissingMemberException(msgTmp);
                     case NpyExc_Type.ComplexWarning:
-                        throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
+                        PythonOps.Warn(NpyUtil_Python.DefaultContext, ComplexWarning, msgTmp);
+                        break;
                     case NpyExc_Type.TypeError:
                         throw new IronPython.Runtime.Exceptions.TypeErrorException(msgTmp);
                     case NpyExc_Type.NotImplementedError:
@@ -1589,6 +1618,21 @@ namespace NumpyDotNet {
             }
         }
 
+        private static PythonType complexWarning;
+
+        internal static PythonType ComplexWarning {
+            get {
+                if (complexWarning == null) {
+                    CodeContext cntx = NpyUtil_Python.DefaultContext;
+                    PythonModule core = (PythonModule)PythonOps.ImportBottom(cntx, "numpy.core", 0);
+                    object tmp;
+                    if (PythonOps.ModuleTryGetMember(cntx, core, "ComplexWarning", out tmp)) {
+                        complexWarning = (PythonType)tmp;
+                    }
+                }
+                return complexWarning;
+            }
+        }
 
 
         /// <summary>

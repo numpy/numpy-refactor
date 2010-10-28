@@ -222,16 +222,32 @@ namespace NumpyDotNet {
 
             rtype = NpyDescr.DescrConverter(cntx, dtype);
             num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
-            if (sep == null) {
-                // TODO: Binary strings mean adding a second version of this method accepting
-                // a PythonBytes instance. However, this must then be converted to a byte[]
-                // and then passed differently into the native world and requires an extra
-                // copy.  This is left as a to-do item pending until there is a need.
-                throw new NotImplementedException("Only text strings are currently implemented");
-            }
-            return NpyCoreApi.ArrayFromString(@string, rtype, num, sep.ToString());
+            return NpyCoreApi.ArrayFromString(@string, rtype, num, (sep == null ? null : sep.ToString()));
         }
 
+        /// <summary>
+        /// Constructs an array from a text input string. Since strings are unicode in .NET, sep must be
+        /// specified in this case and only text strings are supported.  Use the version accepting bytes,
+        /// below, for binary strings.
+        /// </summary>
+        /// <param name="cntx">Python code context</param>
+        /// <param name="string">Input text string</param>
+        /// <param name="dtype">Desired array type or null</param>
+        /// <param name="count">Max number of array elements to convert</param>
+        /// <param name="sep">Element separator</param>
+        /// <returns>Array populated with elements from the string</returns>
+        public static ndarray fromstring(CodeContext cntx, Bytes @string, object dtype=null, object count=null, object sep=null) {
+            dtype rtype;
+            int num;
+
+            rtype = NpyDescr.DescrConverter(cntx, dtype);
+            num = (count != null) ? NpyUtil_ArgProcessing.IntConverter(count) : -1;
+            // Make a copy since there is no way to get
+            // at the byte[] in bytes.
+            byte[] copy = new byte[@string.Count];
+            @string.CopyTo(copy, 0);
+            return NpyCoreApi.ArrayFromBytes(copy, rtype, num, (sep == null ? null : sep.ToString()));
+        }
 
         /// <summary>
         /// Constructs an array from from a iterable sequence. This function triggers iter.Count(), thus
@@ -356,7 +372,7 @@ namespace NumpyDotNet {
                 throw new ArgumentException("either both or neither of x and y should be given");
             }
             ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
-            return obj.choose(new object[] { y, x });
+            return obj.Choose(new object[] { y, x });
         }
 
         public static object _fastCopyAndTranspose(object a) {

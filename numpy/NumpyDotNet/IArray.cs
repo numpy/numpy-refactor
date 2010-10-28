@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IronPython.Runtime;
+using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
@@ -21,7 +22,7 @@ namespace NumpyDotNet
         object argsort(object axis = null, string kind = null, object order = null);
         ndarray astype(IronPython.Runtime.CodeContext cntx, object dtype = null);
         ndarray byteswap(bool inplace = false);
-        object choose(System.Collections.Generic.IEnumerable<object> choices, ndarray @out = null, object mode = null);
+        object choose([ParamDictionary] IDictionary<object,object> kwargs, params object[] args);
         object clip(object min = null, object max = null, ndarray @out = null);
         ndarray compress(object condition, object axis = null, ndarray @out = null);
         ndarray conj(ndarray @out = null);

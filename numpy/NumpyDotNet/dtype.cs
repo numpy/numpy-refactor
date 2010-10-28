@@ -367,17 +367,25 @@ namespace NumpyDotNet {
             get { return ElementSize; }
         }
 
-        public PythonTuple names {
-            get { return new PythonTuple(Names); }
+        public object names {
+            get { 
+                var n = Names;
+                if (n != null) {
+                    return new PythonTuple(n);
+                } else {
+                    return null;
+                }
+            }
             set {
                 int n = this.Names.Count();
-                if (!(value is IEnumerable<Object>)) {
+                IEnumerable<object> ival = value as IEnumerable<object>;
+                if (ival == null) {
                     throw new ArgumentException(String.Format("Value must be a sequence of {0} strings.", n));
                 }
-                if (value.Any(x => !(x is string))) {
+                if (ival.Any(x => !(x is string))) {
                     throw new ArgumentException("All items must be strings.");
                 }
-                NpyCoreApi.NpyArrayAccess_SetNamesList(core, value.Cast<String>().ToArray(), n);
+                NpyCoreApi.NpyArrayAccess_SetNamesList(core, ival.Cast<String>().ToArray(), n);
             }
         }
 
@@ -408,6 +416,10 @@ namespace NumpyDotNet {
         public int alignment { get { return this.Alignment; } }
 
         public int flags { get { return this.Flags; } }
+
+        public dtype newbyteorder(string endian = null) {
+            return NpyCoreApi.DescrNewByteorder(this, NpyUtil_ArgProcessing.ByteorderConverter(endian));
+        }
 
         #endregion
 
@@ -575,8 +587,8 @@ namespace NumpyDotNet {
         }
 
         public static bool operator !=(dtype t1, dtype t2) {
-            return !System.Object.ReferenceEquals(t1, t2) ||
-                (object)t1 != null && (object)t2 != null && !t1.Equals(t2);
+            return !System.Object.ReferenceEquals(t1, t2) &&
+                ((object)t1 == null || (object)t2 == null || !t1.Equals(t2));
         }
 
         public override int GetHashCode() {
