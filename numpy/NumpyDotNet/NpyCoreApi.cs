@@ -577,6 +577,11 @@ namespace NumpyDotNet {
             return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
         }
 
+        internal static ndarray ArrayFromBytes(byte[] data, dtype type, int count, string sep) {
+            if (type != null) Incref(type.Descr);
+            return DecrefToInterface<ndarray>(NpyArray_FromBytes(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+        }
+
         #endregion
 
         
@@ -851,6 +856,10 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl,
+         EntryPoint = "NpyArray_FromString")]
+        internal static extern IntPtr NpyArray_FromBytes(byte[] data, IntPtr len, IntPtr dtype, int num, string sep);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_arraydescr_isnative")]
         internal static extern int DescrIsNative(IntPtr descr);

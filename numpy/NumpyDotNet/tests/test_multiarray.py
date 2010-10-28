@@ -820,7 +820,154 @@ class TestTake(TestCase):
 
 
 #TODO: Add TestLexsort (needs mergesort from _sortmodule.c
-#TODO: Add TestIO (needs fromstring and fromfile)
+
+class TestIO(TestCase):
+    """Test tofile, fromfile, tostring, and fromstring"""
+
+    def setUp(self):
+        shape = (2,4,3)
+        self.x = np.empty(shape, dtype=np.complex)
+        self.x.flat = [ random.random() + random.random()*1j for i in xrange(self.x.size)]
+        self.x[0,:,1] = [nan, inf, -inf, nan]
+        self.dtype = self.x.dtype
+        self.filename = tempfile.mktemp()
+
+    def tearDown(self):
+        if os.path.isfile(self.filename):
+            os.unlink(self.filename)
+            #tmp_file.close()
+
+    def test_empty_files_binary(self):
+        f = open(self.filename, 'w')
+        f.close()
+        y = fromfile(self.filename)
+        assert_(y.size == 0, "Array not empty")
+
+    def test_empty_files_text(self):
+        f = open(self.filename, 'w')
+        f.close()
+        y = fromfile(self.filename, sep=" ")
+        assert_(y.size == 0, "Array not empty")
+
+    # TODO: We can't take files as input.
+    def _test_roundtrip_file(self):
+        f = open(self.filename, 'wb')
+        self.x.tofile(f)
+        f.close()
+        # NB. doesn't work with flush+seek, due to use of C stdio
+        f = open(self.filename, 'rb')
+        y = np.fromfile(f, dtype=self.dtype)
+        f.close()
+        assert_array_equal(y, self.x.flat)
+        os.unlink(self.filename)
+
+    def test_roundtrip_filename(self):
+        self.x.tofile(self.filename)
+        y = np.fromfile(self.filename, dtype=self.dtype)
+        assert_array_equal(y, self.x.flat)
+
+    def test_roundtrip_binary_str(self):
+        s = self.x.tostring()
+        y = np.fromstring(s, dtype=self.dtype)
+        assert_array_equal(y, self.x.flat)
+
+        s = self.x.tostring('F')
+        y = np.fromstring(s, dtype=self.dtype)
+        assert_array_equal(y, self.x.flatten('F'))
+
+    def test_roundtrip_str(self):
+        x = self.x.real.ravel()
+        s = "@".join(map(str, x))
+        y = np.fromstring(s, sep="@")
+        # NB. str imbues less precision
+        nan_mask = ~np.isfinite(x)
+        assert_array_equal(x[nan_mask], y[nan_mask])
+        assert_array_almost_equal(x[~nan_mask], y[~nan_mask], decimal=5)
+
+    def test_roundtrip_repr(self):
+        x = self.x.real.ravel()
+        s = "@".join(map(repr, x))
+        y = np.fromstring(s, sep="@")
+        assert_array_equal(x, y)
+
+    def _check_from(self, s, value, **kw):
+        y = np.fromstring(asbytes(s), **kw)
+        assert_array_equal(y, value)
+
+        f = open(self.filename, 'wb')
+        f.write(asbytes(s))
+        f.close()
+        y = np.fromfile(self.filename, **kw)
+        assert_array_equal(y, value)
+
+    def test_nan(self):
+        self._check_from("nan +nan -nan NaN nan(foo) +NaN(BAR) -NAN(q_u_u_x_)",
+                         [nan, nan, nan, nan, nan, nan, nan],
+                         sep=' ')
+
+    def test_inf(self):
+        self._check_from("inf +inf -inf infinity -Infinity iNfInItY -inF",
+                         [inf, inf, -inf, inf, -inf, inf, -inf], sep=' ')
+
+    def test_numbers(self):
+        self._check_from("1.234 -1.234 .3 .3e55 -123133.1231e+133",
+                         [1.234, -1.234, .3, .3e55, -123133.1231e+133], sep=' ')
+
+    def test_binary(self):
+        self._check_from(b'\x00\x00\x80?\x00\x00\x00@\x00\x00@@\x00\x00\x80@',
+                         array([1,2,3,4]),
+                         dtype='<f4')
+
+    def test_string(self):
+        self._check_from('1,2,3,4', [1., 2., 3., 4.], sep=',')
+
+    def test_counted_string(self):
+        self._check_from('1,2,3,4', [1., 2., 3., 4.], count=4, sep=',')
+        self._check_from('1,2,3,4', [1., 2., 3.], count=3, sep=',')
+        self._check_from('1,2,3,4', [1., 2., 3., 4.], count=-1, sep=',')
+
+    def test_string_with_ws(self):
+        self._check_from('1 2  3     4   ', [1, 2, 3, 4], dtype=int, sep=' ')
+
+    def test_counted_string_with_ws(self):
+        self._check_from('1 2  3     4   ', [1,2,3], count=3, dtype=int,
+                         sep=' ')
+
+    def test_ascii(self):
+        self._check_from('1 , 2 , 3 , 4', [1.,2.,3.,4.], sep=',')
+        self._check_from('1,2,3,4', [1.,2.,3.,4.], dtype=float, sep=',')
+
+    def test_malformed(self):
+        self._check_from('1.234 1,234', [1.234, 1.], sep=' ')
+
+    def test_long_sep(self):
+        self._check_from('1_x_3_x_4_x_5', [1,3,4,5], sep='_x_')
+
+    def test_dtype(self):
+        v = np.array([1,2,3,4], dtype=np.int_)
+        self._check_from('1,2,3,4', v, sep=',', dtype=np.int_)
+
+    def test_tofile_sep(self):
+        x = np.array([1.51, 2, 3.51, 4], dtype=float)
+        f = open(self.filename, 'w')
+        x.tofile(f, sep=',')
+        f.close()
+        f = open(self.filename, 'r')
+        s = f.read()
+        f.close()
+        assert_equal(s, '1.51,2.0,3.51,4.0')
+        os.unlink(self.filename)
+
+    def test_tofile_format(self):
+        x = np.array([1.51, 2, 3.51, 4], dtype=float)
+        f = open(self.filename, 'w')
+        x.tofile(f, sep=',', format='%.2f')
+        f.close()
+        f = open(self.filename, 'r')
+        s = f.read()
+        f.close()
+        assert_equal(s, '1.51,2.00,3.51,4.00')
+
 #TODO: Add TestFromBuffer
 
 class TestResize(TestCase):

@@ -641,19 +641,23 @@ extern "C" __declspec(dllexport)
         int count, const char *sep) 
 {
     FILE *fp = NULL;
+    NpyArray* result;
+    errno_t errno;
 
     assert(NULL != dtype && NPY_VALID_MAGIC == dtype->nob_magic_number);
     
-    fopen_s(&fp, fileName, "rb");
-    if (NULL == fp) {
+    errno = fopen_s(&fp, fileName, "rb");
+    if (errno != 0) {
         NpyErr_SetString(NpyExc_IOError, "unable to open file");
         return NULL;
     }
 
     Npy_INCREF(dtype);
-    return (NULL == sep) ?
+    result = (NULL == sep) ?
         NpyArray_FromBinaryFile(fp, dtype, count) :
         NpyArray_FromTextFile(fp, dtype, count, const_cast<char *>(sep));
+    fclose(fp);
+    return result;
 }
 
 

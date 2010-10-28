@@ -1491,11 +1491,7 @@ namespace NumpyDotNet
                 if (value == null) {
                     sb.Append("None");
                 } else {
-
-                    // TODO: Calling repr method failed for Python objects. Is ToString() sufficient?
-                    //MethodInfo repr = value.GetType().GetMethod("__repr__");
-                    //sb.Append(repr != null ? repr.Invoke(repr, null) : value.ToString());
-                    sb.Append(value.ToString());
+                    sb.Append((string)PythonOps.Repr(NpyUtil_Python.DefaultContext, value));
                 }
             } else {
                 sb.Append('[');
