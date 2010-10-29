@@ -333,5 +333,8 @@ NDARRAY_API NpyArray_Descr *
 NpyArray_DescrFromArray(struct NpyArray *ap, struct NpyArray_Descr *mintype);
 
 NDARRAY_API int npy_arraydescr_isnative(NpyArray_Descr *self);
+NDARRAY_API int
+npy_descr_find_object_flag(NpyArray_Descr *self);
+
 
 #endif

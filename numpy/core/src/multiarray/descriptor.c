@@ -2139,37 +2139,6 @@ arraydescr_reduce(PyArray_Descr *self, PyObject *NPY_UNUSED(args))
     return ret;
 }
 
-/*
- * returns 1 if this data-type has an object portion
- * used when setting the state because hasobject is not stored.
- */
-static int
-_descr_find_object(NpyArray_Descr *self)
-{
-    if (self->flags ||
-            self->type_num == PyArray_OBJECT ||
-            self->kind == 'O') {
-        return NPY_OBJECT_DTYPE_FLAGS;
-    }
-    if (NpyDataType_HASFIELDS(self)) {
-        const char *key = NULL;
-        NpyArray_DescrField *value;
-        NpyDict_Iter pos;
-
-        NpyDict_IterInit(&pos);
-        while (NpyDict_IterNext(self->fields, &pos, (void **)&key,
-                                (void **)&value)) {
-            if (NULL != value->title && !strcmp(value->title, key)) {
-                continue;
-            }
-            if (_descr_find_object(value->descr)) {
-                value->descr->flags = NPY_OBJECT_DTYPE_FLAGS;
-                return NPY_OBJECT_DTYPE_FLAGS;
-            }
-        }
-    }
-    return 0;
-}
 
 
 /*
@@ -2367,7 +2336,7 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
 
     self->descr->flags = dtypeflags;
     if (version < 3) {
-        self->descr->flags = _descr_find_object(self->descr);
+        self->descr->flags = npy_descr_find_object_flag(self->descr);
     }
 
     if (PyDataType_ISDATETIME(self)
