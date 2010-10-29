@@ -1464,6 +1464,10 @@ namespace NumpyDotNet
             }
         }
 
+        public string __repr__(CodeContext context) {
+            return ToString();
+        }
+
         public override string ToString() {
             if (value.Real == 0.0) {
                 return String.Format("{0}j", value.Imag);

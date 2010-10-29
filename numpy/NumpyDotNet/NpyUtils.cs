@@ -252,7 +252,22 @@ namespace NumpyDotNet {
                 return (int)l;
             }
         }
-            
+
+        internal static object ToPython(UInt64 l) {
+            if (l > int.MaxValue) {
+                return new BigInteger(l);
+            } else {
+                return (int)l;
+            }
+        }
+
+        internal static object ToPython(UInt32 l) {
+            if (l > int.MaxValue) {
+                return new BigInteger(l);
+            } else {
+                return (int)l;
+            }
+        }
     }
 
 
