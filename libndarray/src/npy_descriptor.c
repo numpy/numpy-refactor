@@ -785,7 +785,7 @@ npy_descr_find_object_flag(NpyArray_Descr *self)
             if (NULL != value->title && !strcmp(value->title, key)) {
                 continue;
             }
-            if (_descr_find_object(value->descr)) {
+            if (npy_descr_find_object_flag(value->descr)) {
                 value->descr->flags = NPY_OBJECT_DTYPE_FLAGS;
                 return NPY_OBJECT_DTYPE_FLAGS;
             }
