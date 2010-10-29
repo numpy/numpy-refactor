@@ -617,6 +617,9 @@ namespace NumpyDotNet {
         internal static extern void NpyArray_DescrDestroy(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_DescrDeallocNamesAndFields(IntPtr dtype);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref);
@@ -739,6 +742,21 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrAllocFields();
+
+        /// <summary>
+        /// Deallocates a subarray block.  The pointer passed in is descr->subarray, not
+        /// a descriptor object itself.
+        /// </summary>
+        /// <param name="subarrayPtr">Subarray structure</param>
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArray_DestroySubarray(IntPtr subarrayPtr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl,
+            EntryPoint="npy_descr_find_object_flag")]
+        internal static extern int NpyArray_DescrFindObjectFlag(IntPtr subarrayPtr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_DateTimeInfoNew(string units, int num, int den, int events);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_DescrNewByteorder(IntPtr descr, byte order);
@@ -1028,10 +1046,33 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
 
+        /// <summary>
+        /// Allocates a new VOID descriptor and sets the subarray field as specified.
+        /// </summary>
+        /// <param name="baseDescr">Base descriptor for the subarray</param>
+        /// <param name="ndim">Number of dimensions</param>
+        /// <param name="dims">Array of size of each dimension</param>
+        /// <returns>New descriptor object</returns>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_DescrNewSubarray(IntPtr baseDescr,
             int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
+        /// <summary>
+        /// Replaces / sets the subarray field of an existing object.
+        /// </summary>
+        /// <param name="descr">Descriptor object to be modified</param>
+        /// <param name="baseDescr">Base descriptor for the subaray</param>
+        /// <param name="ndim">Number of dimensions</param>
+        /// <param name="dims">Array of size of each dimension</param>
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_DescrReplaceSubarray(IntPtr descr, IntPtr baseDescr,
+            int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+            EntryPoint="NpyArrayAccess_DescrReplaceFields")]
+        internal static extern void DescrReplaceFields(IntPtr descr, IntPtr namesArr, IntPtr fieldsDict);
+
+        
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
             [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);

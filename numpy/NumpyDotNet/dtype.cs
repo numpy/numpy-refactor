@@ -231,6 +231,44 @@ namespace NumpyDotNet {
             if (endian != '|' && NpyDefs.IsNativeByteOrder((byte)endian)) {
                 endian = '=';
             }
+
+            
+            // Setup the subarray data.
+            IntPtr subarrayPtr = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_subarray);
+            if (subarrayPtr != IntPtr.Zero) {
+                NpyCoreApi.NpyArray_DestroySubarray(subarrayPtr);
+            }
+            if (subarray != null) {
+                // subarray is tuple of descriptor, shape (tuple of ints).
+                dtype baseDescr = (dtype)((PythonTuple)subarray)[0];
+                PythonTuple shape = (PythonTuple)((PythonTuple)subarray)[1];
+                NpyCoreApi.NpyArrayAccess_DescrReplaceSubarray(this.Descr, baseDescr.Descr, shape.Count(), shape.Cast<long>().Cast<IntPtr>().ToArray());
+            }
+
+            // Copy in the fields & names.
+            IntPtr namesPtr = NpyCoreApi.NpyArray_DescrAllocNames(names.Length);
+            IntPtr fieldsPtr = NpyCoreApi.NpyArray_DescrAllocFields();
+
+            names.Iteri((n, i) => {
+                PythonTuple fieldInfo = (PythonTuple)fields[n];
+                NpyCoreApi.AddField(fieldsPtr, namesPtr, i, n, (dtype)fieldInfo[0], (int)fieldInfo[1], (string)fieldInfo[2]);
+            });
+            NpyCoreApi.DescrReplaceFields(this.Descr, namesPtr, fieldsPtr);
+
+            if (NpyDefs.IsExtended(this.TypeNum)) {
+                this.ElementSize = elsize;
+                this.Alignment = alignment;
+            }
+            this.Flags = dtypeFlags;
+            if (version < 3) {
+                this.Flags = NpyCoreApi.NpyArray_DescrFindObjectFlag(this.Descr);
+            }
+
+            // Reset the date/time info if present.
+            if (NpyDefs.IsDatetime(this.TypeNum) && dtinfo != null) {
+                this.dtinfo = dtinfo;
+            }
+
             return null;
         }
 
@@ -365,6 +403,12 @@ namespace NumpyDotNet {
                 return new PythonTuple(new object[] {
                     dtinfo.@base.ToString(), dtinfo.num, dtinfo.den, dtinfo.events });
             }
+
+            internal set {
+                PythonTuple dtTup = (PythonTuple)value;
+                Marshal.WriteIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo,
+                    NpyCoreApi.NpyArray_DateTimeInfoNew((string)dtTup[0], (int)dtTup[1], (int)dtTup[2], (int)dtTup[3]));
+            }
         }
 
         public int itemsize {
@@ -454,6 +498,7 @@ namespace NumpyDotNet {
 
         public int Flags {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_flags); }
+            internal set { Marshal.WriteInt32(core, NpyCoreApi.DescrOffsets.off_flags, value); }
         }
 
         internal bool ChkFlags(int flags) {
@@ -475,6 +520,7 @@ namespace NumpyDotNet {
 
         public int Alignment {
             get { return Marshal.ReadInt32(core, NpyCoreApi.DescrOffsets.off_alignment); }
+            internal set { Marshal.WriteInt32(core, NpyCoreApi.DescrOffsets.off_alignment, value); }
         }
 
         public bool HasNames {

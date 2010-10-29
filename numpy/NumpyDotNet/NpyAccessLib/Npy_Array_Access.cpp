@@ -458,6 +458,28 @@ extern "C" __declspec(dllexport)
     return result;
 }
 
+
+// Replaces/sets the subarray field of an existing descriptor object.
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_DescrReplaceSubarray(NpyArray_Descr* descr, NpyArray_Descr *baseDescr, int ndim, npy_intp* dims)
+{
+    assert(NULL != descr && NPY_VALID_MAGIC == descr->nob_magic_number);
+    assert(NULL != baseDescr && NPY_VALID_MAGIC == baseDescr->nob_magic_number);
+
+    if (NULL != descr->subarray) {
+        NpyArray_DestroySubarray(descr->subarray);
+    }
+
+    descr->subarray = (NpyArray_ArrayDescr*)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+    descr->subarray->base = baseDescr;
+    Npy_INCREF(baseDescr);
+    descr->subarray->shape_num_dims = ndim;
+    descr->subarray->shape_dims = (npy_intp*) NpyArray_malloc(ndim*sizeof(npy_intp));
+    memcpy(descr->subarray->shape_dims, dims, ndim*sizeof(npy_intp));
+}
+
+
+// Allocates a new VOID descriptor and sets the subarray data.
 extern "C" __declspec(dllexport)
     NpyArray_Descr* NpyArrayAccess_DescrNewSubarray(NpyArray_Descr* baseDescr, int ndim, npy_intp* dims)
 {
@@ -467,17 +489,25 @@ extern "C" __declspec(dllexport)
     }
     result->elsize = baseDescr->elsize;
     result->elsize *= NpyArray_MultiplyList(dims, ndim);
-    result->subarray = (NpyArray_ArrayDescr*)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
-    result->subarray->base = baseDescr;
-    Npy_INCREF(baseDescr);
-    result->subarray->shape_num_dims = ndim;
-    result->subarray->shape_dims = (npy_intp*) NpyArray_malloc(ndim*sizeof(npy_intp));
-    memcpy(result->subarray->shape_dims, dims, ndim*sizeof(npy_intp));
+    NpyArrayAccess_DescrReplaceSubarray(result, baseDescr, ndim, dims);
     result->flags = baseDescr->flags;
     /* I'm not sure why or if the next call is needed, but it is in the CPython code. */
     NpyArray_DescrDeallocNamesAndFields(result);
 
     return result;
+}
+
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_DescrReplaceFields(NpyArray_Descr *descr, char **nameslist, NpyDict *fields)
+{
+    assert(NULL != descr && NPY_VALID_MAGIC == descr->nob_magic_number);
+
+    if (NULL != descr->names) {
+        NpyArray_DescrDeallocNamesAndFields(descr);
+    }
+    descr->names = nameslist;
+    descr->fields = fields;
 }
 
 //
