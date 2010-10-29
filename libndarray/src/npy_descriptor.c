@@ -760,3 +760,37 @@ NDARRAY_API int npy_arraydescr_isnative(NpyArray_Descr *self)
     return 1;
 }
 
+
+
+/*
+ * returns 1 if this data-type has an object portion
+ * used when setting the state because hasobject is not stored.
+ */
+NDARRAY_API int
+npy_descr_find_object_flag(NpyArray_Descr *self)
+{
+    if (self->flags ||
+        self->type_num == NPY_OBJECT ||
+        self->kind == 'O') {
+        return NPY_OBJECT_DTYPE_FLAGS;
+    }
+    if (NpyDataType_HASFIELDS(self)) {
+        const char *key = NULL;
+        NpyArray_DescrField *value;
+        NpyDict_Iter pos;
+        
+        NpyDict_IterInit(&pos);
+        while (NpyDict_IterNext(self->fields, &pos, (void **)&key,
+                                (void **)&value)) {
+            if (NULL != value->title && !strcmp(value->title, key)) {
+                continue;
+            }
+            if (_descr_find_object(value->descr)) {
+                value->descr->flags = NPY_OBJECT_DTYPE_FLAGS;
+                return NPY_OBJECT_DTYPE_FLAGS;
+            }
+        }
+    }
+    return 0;
+}
+
