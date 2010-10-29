@@ -286,6 +286,6 @@ NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *f
         Npy_DECREF(f);                                                               \
     } while (0);
 
-#include "..\..\core\__umath_generated.c"
+#include "__umath_generated.c"
 
 #undef AddFunction
