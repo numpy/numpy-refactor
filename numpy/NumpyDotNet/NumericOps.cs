@@ -223,7 +223,7 @@ namespace NumpyDotNet {
                 sbyte* p = (sbyte*)ptr.ToPointer();
                 f = *p;
             }
-            return f;
+            return (int)f;
         }
         internal static GetitemDelegate getitemByteDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemByte, ptr, arrPtr);
@@ -236,7 +236,7 @@ namespace NumpyDotNet {
                 byte* p = (byte*)ptr.ToPointer();
                 f = *p;
             }
-            return f;
+            return (int)f;
         }
         internal static GetitemDelegate getitemUByteDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemUByte, ptr, arrPtr);
@@ -252,7 +252,7 @@ namespace NumpyDotNet {
                     CopySwap2((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return (int)f;
         }
         internal static GetitemDelegate getitemShortDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemShort, ptr, arrPtr);
@@ -268,7 +268,7 @@ namespace NumpyDotNet {
                     CopySwap2((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return (int)f;
         }
         internal static GetitemDelegate getitemUShortDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemUShort, ptr, arrPtr);
@@ -300,7 +300,7 @@ namespace NumpyDotNet {
                     CopySwap4((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return NpyUtil_Python.ToPython(f);
         }
         internal static GetitemDelegate getitemUInt32Delegate =
             (ptr, arrPtr) => GetItemWrapper(getitemUInt32, ptr, arrPtr);
@@ -316,7 +316,7 @@ namespace NumpyDotNet {
                     CopySwap8((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return NpyUtil_Python.ToPython(f);
         }
         internal static GetitemDelegate getitemInt64Delegate =
             (ptr, arrPtr) => GetItemWrapper(getitemInt64, ptr, arrPtr);
@@ -332,7 +332,7 @@ namespace NumpyDotNet {
                     CopySwap8((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return NpyUtil_Python.ToPython(f);
         }
         internal static GetitemDelegate getitemUInt64Delegate =
             (ptr, arrPtr) => GetItemWrapper(getitemUInt64, ptr, arrPtr);
