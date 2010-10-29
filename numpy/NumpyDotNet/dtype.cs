@@ -235,7 +235,7 @@ namespace NumpyDotNet {
             if (endian != '|' && NpyDefs.IsNativeByteOrder((byte)endian)) {
                 endian = '=';
             }
-
+            this.ByteOrder = (byte)endian;
             
             // Setup the subarray data.
             IntPtr subarrayPtr = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_subarray);
@@ -250,14 +250,19 @@ namespace NumpyDotNet {
             }
 
             // Copy in the fields & names.
-            IntPtr namesPtr = NpyCoreApi.NpyArray_DescrAllocNames(names.Length);
-            IntPtr fieldsPtr = NpyCoreApi.NpyArray_DescrAllocFields();
+            if (names != null) {
+                IntPtr namesPtr = NpyCoreApi.NpyArray_DescrAllocNames(names.Length);
+                IntPtr fieldsPtr = NpyCoreApi.NpyArray_DescrAllocFields();
 
-            names.Iteri((n, i) => {
-                PythonTuple fieldInfo = (PythonTuple)fields[n];
-                NpyCoreApi.AddField(fieldsPtr, namesPtr, i, n, (dtype)fieldInfo[0], (int)fieldInfo[1], (string)fieldInfo[2]);
-            });
-            NpyCoreApi.DescrReplaceFields(this.Descr, namesPtr, fieldsPtr);
+                names.Iteri((n, i) => {
+                    PythonTuple fieldInfo = (PythonTuple)fields[n];
+                    dtype descr = (dtype)fieldInfo[0];
+                    int offset = (int)fieldInfo[1];
+                    string title = (fieldInfo.__len__() == 3) ? (string)fieldInfo[2] : null;
+                    NpyCoreApi.AddField(fieldsPtr, namesPtr, i, n, descr, offset, title);
+                });
+                NpyCoreApi.DescrReplaceFields(this.Descr, namesPtr, fieldsPtr);
+            }
 
             if (NpyDefs.IsExtended(this.TypeNum)) {
                 this.ElementSize = elsize;
