@@ -1237,6 +1237,12 @@ namespace NumpyDotNet {
             internal int events;
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        internal unsafe struct NpyArray_ArrayDescr {
+            internal IntPtr @base;
+            internal IntPtr shape_num_dims;
+            internal IntPtr* shape_dims;
+        }
 
         internal static readonly NpyArrayOffsets ArrayOffsets;
         internal static readonly NpyArrayDescrOffsets DescrOffsets;

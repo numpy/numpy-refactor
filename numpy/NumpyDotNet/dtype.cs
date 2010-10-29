@@ -77,8 +77,12 @@ namespace NumpyDotNet {
                     ret = String.Format("('{0}', {1})", this.str, this.descr);
                 }
             } else if (this.HasSubarray) {
-                // TODO: Subarrays are not implemented yet.  See descriptor.c:255 for code.
-                throw new NotImplementedException("Subarrays are not yet implemented.");
+                dtype b = @base;
+                if (!b.HasNames && !b.HasSubarray) {
+                    ret = String.Format("('{0}',{1})", b.__str__(), shape);
+                } else {
+                    ret = String.Format("({0},{1})", b.__str__(), shape);
+                }
             } else if (NpyDefs.IsFlexible(this.TypeNum) || !this.IsNativeByteOrder) {
                 ret = this.str;
             } else {
@@ -343,14 +347,15 @@ namespace NumpyDotNet {
             }
         }
 
-        public object @base {
+        public dtype @base {
             get {
-                if (!this.HasSubarray) {
-                    return this;
-                } else {
-                    // TODO: This is wrong.
-                    throw new NotImplementedException("Subarrays are not yet implemented.");
-                    return this.Subarray;
+                unsafe {
+                    var subarray = Subarray;
+                    if (subarray == null) {
+                        return this;
+                    } else {
+                        return NpyCoreApi.ToInterface<dtype>(subarray->@base);
+                    }
                 }
             }
         }
@@ -360,7 +365,21 @@ namespace NumpyDotNet {
         /// A tuple describing the size of each dimension of the array.
         /// </summary>
         public object shape {
-            get { return this.HasSubarray ? this.Subarray.shape : new PythonTuple(); }
+            get { 
+                unsafe {
+                    var subarray = Subarray;
+                    if (subarray == null) {
+                        return new PythonTuple();
+                    } else {
+                        long n = subarray->shape_num_dims.ToInt64();
+                        object[] dims = new object[n];
+                        for (long i=0; i<n; i++) {
+                            dims[i] = subarray->shape_dims[i].ToPython();
+                        }
+                        return new PythonTuple(dims);
+                    }
+                }
+            }
         }
 
 
@@ -596,11 +615,10 @@ namespace NumpyDotNet {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray) != IntPtr.Zero; }
         }
 
-        public ndarray Subarray {
+        internal unsafe NpyCoreApi.NpyArray_ArrayDescr* Subarray {
             get {
                 IntPtr arr = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_subarray);
-                if (arr == IntPtr.Zero) return null;
-                throw new NotImplementedException("Subarrays are not implemented yet");
+                return (NpyCoreApi.NpyArray_ArrayDescr*)arr.ToPointer();
             }
         }
 
