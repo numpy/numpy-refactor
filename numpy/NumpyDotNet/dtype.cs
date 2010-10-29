@@ -326,7 +326,7 @@ namespace NumpyDotNet {
         /// <summary>
         /// A tuple describing the size of each dimension of the array.
         /// </summary>
-        public object shape {
+        public PythonTuple shape {
             get { 
                 unsafe {
                     var subarray = Subarray;
@@ -614,8 +614,72 @@ namespace NumpyDotNet {
         }
 
         public override int GetHashCode() {
-            return (int)core;
+            int hash = 17;
+            foreach (object item in HashItems()) {
+                hash = hash * 31 + item.GetHashCode();
+            }
+            return hash;
         }
+
+        private IEnumerable<object> HashItems() {
+            if (!HasNames && !HasSubarray) {
+                yield return Kind;
+                yield return ByteOrder;
+                yield return TypeNum;
+                yield return ElementSize;
+                yield return Alignment;
+            } else {
+                if (HasNames) {
+                    foreach (object item in FieldsHashItems()) {
+                        yield return item;
+                    }
+                }
+                if (HasSubarray) {
+                    foreach (object item in SubarrayHashItems()) {
+                        yield return item;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<object> FieldsHashItems() {
+            if (HasNames) {
+                IntPtr iter = IntPtr.Zero;
+                IntPtr dict = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_fields);
+                try {
+                    IntPtr keyPtr;
+                    IntPtr value;
+                    iter = NpyCoreApi.NpyDict_AllocIter();
+                    while (NpyCoreApi.NpyDict_Next(dict, iter, out keyPtr, out value)) {
+                        yield return Marshal.PtrToStringAnsi(keyPtr);
+                        IntPtr title = Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_title);
+                        dtype d = NpyCoreApi.ToInterface<dtype>(Marshal.ReadIntPtr(value, NpyCoreApi.DescrOffsets.off_fields_descr));
+                        int offset = Marshal.ReadInt32(value, NpyCoreApi.DescrOffsets.off_fields_offset);
+                        foreach (object item in d.HashItems()) {
+                            yield return item;
+                        }
+                        yield return offset;
+                        if (title != IntPtr.Zero) {
+                            yield return Marshal.PtrToStringAnsi(title);
+                        }
+                    }
+                } finally {
+                    NpyCoreApi.NpyDict_FreeIter(iter);
+                }
+            }
+        }
+
+        private IEnumerable<object> SubarrayHashItems() {
+            if (HasSubarray) {
+                foreach (object item in @base.HashItems()) {
+                    yield return item;
+                }
+                foreach (object item in shape) {
+                    yield return item;
+                }
+            }
+        }
+
         #endregion
 
 
@@ -660,7 +724,6 @@ namespace NumpyDotNet {
             }
             return ret;
         }
-
 
         /// <summary>
         /// Type-specific functions
