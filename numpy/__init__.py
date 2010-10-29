@@ -149,9 +149,9 @@ else:
     import core
     from core import *
     import compat
+    import lib
+    from lib import *
     if sys.platform != 'cli':
-        import lib
-        from lib import *
         import linalg
         import fft
         import polynomial
@@ -173,7 +173,7 @@ else:
     __all__.extend(['__version__', 'pkgload', 'PackageLoader',
                'show_config'])
     __all__.extend(core.__all__)
+    __all__.extend(lib.__all__)
     if sys.platform != 'cli':
         __all__.extend(_mat.__all__)
-        __all__.extend(lib.__all__)
         __all__.extend(['linalg', 'fft', 'random', 'ctypeslib', 'ma'])

@@ -9,7 +9,7 @@ __all__ = ['bytes', 'asbytes', 'isfileobj', 'getexception', 'strchar',
 
 import sys
 
-if sys.version_info[0] >= 3:
+if sys.version_info[0] >= 3 or sys.platform == 'cli':
     import io
     bytes = bytes
     unicode = str

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using IronPython.Runtime;
+using Microsoft.Scripting;
 
 namespace NumpyDotNet
 {
@@ -21,7 +22,7 @@ namespace NumpyDotNet
         object argsort(object axis = null, string kind = null, object order = null);
         ndarray astype(IronPython.Runtime.CodeContext cntx, object dtype = null);
         ndarray byteswap(bool inplace = false);
-        object choose(System.Collections.Generic.IEnumerable<object> choices, ndarray @out = null, object mode = null);
+        object choose([ParamDictionary] IDictionary<object,object> kwargs, params object[] args);
         object clip(object min = null, object max = null, ndarray @out = null);
         ndarray compress(object condition, object axis = null, ndarray @out = null);
         ndarray conj(ndarray @out = null);
@@ -63,7 +64,8 @@ namespace NumpyDotNet
         void sort(int axis = -1, string kind = null, object order = null);
         object squeeze();
         object std(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null, int ddof = 0);
-        long[] strides { get; }
+        long[] Strides { get; }
+        PythonTuple strides { get; }
         object sum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         ndarray swapaxes(int a1, int a2);
         ndarray swapaxes(object a1, object a2);
@@ -73,7 +75,6 @@ namespace NumpyDotNet
         object this[long index] { get; }
         object this[IntPtr index] { get; }
         object this[System.Numerics.BigInteger index] { get; }
-        object this[string field] { get; set; }
         void tofile(IronPython.Runtime.CodeContext cntx, IronPython.Runtime.PythonFile file, string sep = null, string format = null);
         void tofile(IronPython.Runtime.CodeContext cntx, string filename, string sep = null, string format = null);
         object tolist();

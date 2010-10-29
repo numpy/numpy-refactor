@@ -8,6 +8,7 @@ namespace NumpyDotNet
     /// <summary>
     /// Base class for wrapped core objects.
     /// </summary>
+    [Serializable]
     public class Wrapper : IDisposable
     {
         internal Wrapper() {

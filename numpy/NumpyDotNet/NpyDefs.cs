@@ -325,6 +325,23 @@ namespace NumpyDotNet {
             INVALID = 9
         }
 
+        public enum NPY_DATETIMEUNIT : int
+        {
+            NPY_FR_Y=0,
+            NPY_FR_M,
+            NPY_FR_W,
+            NPY_FR_B,
+            NPY_FR_D,
+            NPY_FR_h,
+            NPY_FR_m,
+            NPY_FR_s,
+            NPY_FR_ms,
+            NPY_FR_us,
+            NPY_FR_ns,
+            NPY_FR_ps,
+            NPY_FR_fs,
+            NPY_FR_as
+        }
 
         public const int NPY_UFUNC_ERR_DEFAULT = 0;
         public const int NPY_UFUNC_ERR_DEFAULT2 =
@@ -394,6 +411,10 @@ namespace NumpyDotNet {
 
         public static bool IsExtended(NPY_TYPES type) {
             return IsFlexible(type) || IsUserDefined(type);
+        }
+
+        public static bool IsNativeByteOrder(byte endian) {
+            return endian != NpyCoreApi.OppositeByteOrder;
         }
 
         #endregion

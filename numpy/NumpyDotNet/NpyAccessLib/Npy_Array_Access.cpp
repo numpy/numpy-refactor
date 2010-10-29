@@ -68,7 +68,10 @@ extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
             int* kindOffset, int* typeOffset, int* byteorderOffset,
             int* flagsOffset, int* typenumOffset, int* elsizeOffset, 
-            int* alignmentOffset, int* namesOffset, int* subarrayOffset)
+            int* alignmentOffset, int* namesOffset, int* subarrayOffset,
+            int* fieldsOffset, int* dtinfoOffset, int* fieldsOffsetOffset, 
+            int *fieldsDescrOffset,
+            int* fieldsTitleOffset)
 {
     NpyArray *ptr = NULL;
 
@@ -82,6 +85,11 @@ void _cdecl NpyArrayAccess_DescrGetOffsets(int* magicNumOffset,
     *alignmentOffset = offsetof(NpyArray_Descr, alignment);
     *namesOffset = offsetof(NpyArray_Descr, names);
     *subarrayOffset = offsetof(NpyArray_Descr, subarray);
+    *fieldsOffset = offsetof(NpyArray_Descr, fields);
+    *dtinfoOffset = offsetof(NpyArray_Descr, dtinfo);
+    *fieldsOffsetOffset = offsetof(NpyArray_DescrField, offset);
+    *fieldsDescrOffset = offsetof(NpyArray_DescrField, descr);
+    *fieldsTitleOffset = offsetof(NpyArray_DescrField, title);
 }
 
 
@@ -450,6 +458,28 @@ extern "C" __declspec(dllexport)
     return result;
 }
 
+extern "C" __declspec(dllexport)
+    NpyArray_Descr* NpyArrayAccess_DescrNewSubarray(NpyArray_Descr* baseDescr, int ndim, npy_intp* dims)
+{
+    NpyArray_Descr* result = NpyArray_DescrNewFromType(NPY_VOID);
+    if (result == NULL) {
+        return result;
+    }
+    result->elsize = baseDescr->elsize;
+    result->elsize *= NpyArray_MultiplyList(dims, ndim);
+    result->subarray = (NpyArray_ArrayDescr*)NpyArray_malloc(sizeof(NpyArray_ArrayDescr));
+    result->subarray->base = baseDescr;
+    Npy_INCREF(baseDescr);
+    result->subarray->shape_num_dims = ndim;
+    result->subarray->shape_dims = (npy_intp*) NpyArray_malloc(ndim*sizeof(npy_intp));
+    memcpy(result->subarray->shape_dims, dims, ndim*sizeof(npy_intp));
+    result->flags = baseDescr->flags;
+    /* I'm not sure why or if the next call is needed, but it is in the CPython code. */
+    NpyArray_DescrDeallocNamesAndFields(result);
+
+    return result;
+}
+
 //
 // UFunc access methods
 //
@@ -611,17 +641,60 @@ extern "C" __declspec(dllexport)
         int count, const char *sep) 
 {
     FILE *fp = NULL;
+    NpyArray* result;
+    errno_t errno;
 
     assert(NULL != dtype && NPY_VALID_MAGIC == dtype->nob_magic_number);
     
-    fopen_s(&fp, fileName, "rb");
-    if (NULL == fp) {
+    errno = fopen_s(&fp, fileName, "rb");
+    if (errno != 0) {
         NpyErr_SetString(NpyExc_IOError, "unable to open file");
         return NULL;
     }
 
     Npy_INCREF(dtype);
-    return (NULL == sep) ?
+    result = (NULL == sep) ?
         NpyArray_FromBinaryFile(fp, dtype, count) :
         NpyArray_FromTextFile(fp, dtype, count, const_cast<char *>(sep));
+    fclose(fp);
+    return result;
 }
+
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_SetNamesList(NpyArray_Descr *dtype, const char **nameslist, int len)
+{
+    char **nl2 = NpyArray_DescrAllocNames(len);
+
+    for (int i = 0; i < len; i++) {
+        nl2[i] = strdup(nameslist[i]);
+    }
+    NpyArray_DescrReplaceNames(dtype, nl2);
+}
+
+
+//
+// The following three routines are used to iterate over an NpyDict structure
+// from the managed world.
+//
+
+extern "C" __declspec(dllexport)
+    NpyDict_Iter *NpyArrayAccess_DictAllocIter()
+{
+    NpyDict_Iter *iter = (NpyDict_Iter *)malloc(sizeof(NpyDict_Iter));
+    NpyDict_IterInit(iter);
+    return iter;
+}
+
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_DictFreeIter(NpyDict_Iter *iter)
+{
+    free(iter);
+}
+
+extern "C" __declspec(dllexport)
+    bool NpyArrayAccess_DictNext(NpyDict *dict, NpyDict_Iter *iter, void **key, void **value)
+{
+    return (NpyDict_IterNext(dict, iter, key, value) != 0);
+}
+

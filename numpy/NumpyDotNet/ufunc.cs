@@ -20,14 +20,6 @@ namespace NumpyDotNet
 
         internal ufunc(IntPtr corePtr) {
             core = corePtr;
-
-            // The core object comes with a reference so we need to set the interface
-            // pointer and then discard the core reference, leaving just this instance
-            // as the sole reference to it.
-            IntPtr offset = Marshal.OffsetOf(typeof(NpyCoreApi.NpyObject_HEAD), "nob_interface");
-            Marshal.WriteIntPtr(corePtr, (int)offset,
-                GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(this, GCHandleType.Normal)));
-            NpyCoreApi.Decref(corePtr);
         }
 
 

@@ -244,6 +244,14 @@ namespace NumpyDotNet {
             // Make the tuple
             return new PythonTuple(vals);
         }
+
+        internal static object ToPython(long l) {
+            if (l < int.MinValue || l > int.MaxValue) {
+                return new BigInteger(l);
+            } else {
+                return (int)l;
+            }
+        }
             
     }
 
@@ -251,32 +259,27 @@ namespace NumpyDotNet {
     internal static class NpyUtil_ArgProcessing {
 
         internal static bool BoolConverter(Object o) {
-            if (o == null) return false;
-            else if (o is Boolean) return (bool)o;
-            else if (o is IConvertible) return Convert.ToBoolean(o);
-
-            throw new ArgumentException(String.Format("Unable to convert argument '{0}' to Boolean value.", o));
+            return IntConverter(o) != 0;
         }
 
 
         internal static int IntConverter(Object o) {
             if (o == null) return 0;
             else if (o is int) return (int)o;
-            else if (o is IConvertible) return Convert.ToInt32(o);
+            else return NpyUtil_Python.ConvertToInt(o);
+        }
 
-            throw new ArgumentException(String.Format("Unable to convert argument '{0}' to int value.", o));
+        internal static long LongConverter(Object o) {
+            if (o == null) return 0;
+            else return NpyUtil_Python.ConvertToLong(o);
         }
 
         internal static long[] IntArrConverter(Object o) {
             if (o == null) return null;
             else if (o is IEnumerable<Object>) {
-                return ((IEnumerable<Object>)o).Select(x => ((IConvertible)x).ToInt64(null)).ToArray();
-            } else if (o is IConvertible) {
-                return new long[1] { ((IConvertible)o).ToInt64(null) };
+                return ((IEnumerable<Object>)o).Select(x => LongConverter(x)).ToArray();
             } else {
-                throw new NotImplementedException(
-                    String.Format("Type '{0}' is not supported for array dimensions.",
-                    o.GetType().Name));
+                return new long[1] { LongConverter(o) };
             }
         }
 
@@ -293,8 +296,8 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static int AxisConverter(object o) {
-            if (o == null) return NpyDefs.NPY_MAXDIMS;
+        internal static int AxisConverter(object o, int dflt = NpyDefs.NPY_MAXDIMS) {
+            if (o == null) return dflt;
             else if (o is int) {
                 return (int)o;
             } else if (o is IConvertible) {
@@ -338,10 +341,11 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="o">Order specification</param>
         /// <returns>Npy order type</returns>
-        internal static NpyDefs.NPY_ORDER OrderConverter(Object o) {
+        internal static NpyDefs.NPY_ORDER OrderConverter(Object o, 
+            NpyDefs.NPY_ORDER dflt = NpyDefs.NPY_ORDER.NPY_CORDER) {
             NpyDefs.NPY_ORDER order;
 
-            if (o == null) order = NpyDefs.NPY_ORDER.NPY_ANYORDER;
+            if (o == null) order = dflt;
             else if (o is Boolean) order = ((bool)o) ?
                          NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER;
             else if (o is string) {
@@ -401,19 +405,10 @@ namespace NumpyDotNet {
 
         internal static IntPtr IntpConverter(object arg) {
             if (IntPtr.Size == 4) {
-                if (arg is int) {
-                    return (IntPtr)(int)arg;
-                } else if (arg is IConvertible) {
-                    return (IntPtr)Convert.ToInt32((IConvertible)arg);
-                }
+                return (IntPtr)NpyUtil_Python.ConvertToInt(arg);
             } else {
-                if (arg is long) {
-                    return (IntPtr)(long)arg;
-                } else if (arg is IConvertible) {
-                    return (IntPtr)Convert.ToInt64((IConvertible)arg);
-                }
+                return (IntPtr)NpyUtil_Python.ConvertToLong(arg);
             }
-            throw new ArgumentTypeException("Argument can't be converted to an integer.");
         }
 
         internal static IntPtr[] IntpListConverter(IList<object> args) {

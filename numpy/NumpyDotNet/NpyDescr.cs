@@ -21,7 +21,7 @@ namespace NumpyDotNet {
             return (bool)NpyUtil_Python.CallBuiltin(cntx, "issubclass", t, PyGenericArrType_Type);
         }
 
-        internal static dtype DescrConverter(CodeContext cntx, Object obj) {
+        internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
 
@@ -41,7 +41,7 @@ namespace NumpyDotNet {
                 if (!String.IsNullOrEmpty(s) && CheckForDatetime(s)) {
                     result = ConvertFromDatetime(cntx, s);
                 } else if (CheckForCommaString(s)) {
-                    result = ConvertFromCommaString(cntx, s, false);
+                    result = ConvertFromCommaString(cntx, s, align);
                 } else {
                     result = ConvertSimpleString(s);
                 }
@@ -51,9 +51,9 @@ namespace NumpyDotNet {
                     throw new ArgumentException("data type not understood.");
                 }
             } else if (obj is List) {
-                result = ConvertFromArrayDescr(cntx, (List)obj, false);
+                result = ConvertFromArrayDescr(cntx, (List)obj, align);
             } else if (obj is PythonDictionary) {
-                result = ConvertFromDictionary(cntx, (PythonDictionary)obj, false);
+                result = ConvertFromDictionary(cntx, (PythonDictionary)obj, align);
             } else if (!(obj is ndarray)) {
                 result = DescrFromObject(cntx, obj);
             }
@@ -84,10 +84,14 @@ namespace NumpyDotNet {
                     info.name = NpyUtil_Python.ConvertToString(names[i], cntx);
                     info.dtype = descrs[i];
                     if (offsets != null) {
-                        info.offset = NpyUtil_Python.ConvertToInt(offsets[i], cntx);
+                        if (offsets[i] != null) {
+                            info.offset = NpyUtil_Python.ConvertToInt(offsets[i], cntx);
+                        }
                     }
                     if (titles != null) {
-                        info.title = NpyUtil_Python.ConvertToString(titles[i], cntx);
+                        if (titles[i] != null) {
+                            info.title = NpyUtil_Python.ConvertToString(titles[i], cntx);
+                        }
                     }
                     fields.Add(info);
                 }
@@ -127,16 +131,18 @@ namespace NumpyDotNet {
                 return t1;
             }
             // Assume other is a shape
-            long[] shape = NpyUtil_ArgProcessing.IntArrConverter(other);
+            IntPtr[] shape = NpyUtil_ArgProcessing.IntpArrConverter(other);
             if (shape == null) {
                 throw new ArgumentException("invalid shape in fixed-type tuple");
             }
             // (type, 1) or (type, ()) should be treated as type
             if (shape.Length == 0 && other is PythonTuple ||
-                shape.Length == 1 && shape[0] == 1 && !(other is IEnumerable<object>)) {
+                shape.Length == 1 && shape[0].ToInt64() == 1 && 
+                !(other is IEnumerable<object>)) {
                 return t1;
             }
-            throw new NotImplementedException("subarrays not yet implemented");
+
+            return NpyCoreApi.DescrNewSubarray(t1, shape);
         }
 
         private static dtype UseInherit(CodeContext cntx, dtype t1, object other) {
