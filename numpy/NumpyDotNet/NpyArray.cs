@@ -147,6 +147,30 @@ namespace NumpyDotNet {
             return result;
         }
 
+        internal static ndarray EnsureArray(object o) {
+            if (o == null) {
+                return null;
+            }
+            if (o.GetType() == typeof(ndarray)) {
+                return (ndarray)o;
+            }
+            if (o is ndarray) {
+                return FromArray((ndarray)o, null, NpyDefs.NPY_ENSUREARRAY);
+            }
+            return FromAny(o, flags: NpyDefs.NPY_ENSUREARRAY);
+        }
+
+        internal static ndarray EnsureAnyArray(object o) {
+            if (o == null) {
+                return null;
+            }
+            if (o is ndarray) {
+                return (ndarray)o;
+            }
+            return FromAny(o, flags: NpyDefs.NPY_ENSUREARRAY);
+        }
+
+
         /// <summary>
         /// Constructs a new array from multiple input types, like lists, arrays, etc.
         /// </summary>

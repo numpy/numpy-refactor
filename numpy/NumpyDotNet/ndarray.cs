@@ -325,19 +325,111 @@ namespace NumpyDotNet
         // .NET seems to expect them to return bool
 
         public object __eq__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_equal);
+            if (o == null) {
+                return false;
+            }
+            NpyDefs.NPY_TYPES type = dtype.TypeNum;
+            ndarray arrayother = o as ndarray;
+            if (arrayother == null) {
+                // Try to convert to an array. Return not equal on failure
+                try {
+                    if (type == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                        type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
+                    }
+                    arrayother = NpyArray.FromAny(o, NpyCoreApi.DescrFromType(type), flags: NpyDefs.NPY_BEHAVED | NpyDefs.NPY_ENSUREARRAY);
+                    if (arrayother == null) {
+                        return false;
+                    }
+                } catch {
+                    return false;
+                }
+            }
+
+            object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
+            if (result == cntx.LanguageContext.BuiltinModuleDict["NotImplemented"]) {
+                if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
+                    if (dtype != arrayother.dtype) {
+                        return false;
+                    }
+                    if (dtype.HasNames) {
+                        object res = null;
+                        foreach (string name in dtype.Names) {
+                            ndarray a1 = NpyArray.EnsureAnyArray(this[name]);
+                            ndarray a2 = NpyArray.EnsureAnyArray(arrayother[name]);
+                            object eq = a1.__eq__(cntx, a2);
+                            if (res == null) {
+                                res = eq;
+                            } else {
+                                res = BinaryOp(cntx, res, eq, NpyDefs.NpyArray_Ops.npy_op_logical_and);
+                            }
+                        }
+                        if (res == null) {
+                            throw new ArgumentException("No fields found");
+                        }
+                        return res;
+                    }
+                    // TODO: Handle naked voids
+                }
+            }
+            return result;
         }
 
         public object __req__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+            return __eq__(cntx, o);
         }
 
         public object __ne__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+            if (o == null) {
+                return true;
+            }
+            NpyDefs.NPY_TYPES type = dtype.TypeNum;
+            ndarray arrayother = o as ndarray;
+            if (arrayother == null) {
+                // Try to convert to an array. Return not equal on failure
+                try {
+                    if (type == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                        type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
+                    }
+                    arrayother = NpyArray.FromAny(o, NpyCoreApi.DescrFromType(type), flags: NpyDefs.NPY_BEHAVED | NpyDefs.NPY_ENSUREARRAY);
+                    if (arrayother == null) {
+                        return true;
+                    }
+                } catch {
+                    return true;
+                }
+            }
+
+            object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+            if (result == cntx.LanguageContext.BuiltinModuleDict["NotImplemented"]) {
+                if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
+                    if (dtype != arrayother.dtype) {
+                        return false;
+                    }
+                    if (dtype.HasNames) {
+                        object res = null;
+                        foreach (string name in dtype.Names) {
+                            ndarray a1 = NpyArray.EnsureAnyArray(this[name]);
+                            ndarray a2 = NpyArray.EnsureAnyArray(arrayother[name]);
+                            object eq = a1.__ne__(cntx, a2);
+                            if (res == null) {
+                                res = eq;
+                            } else {
+                                res = BinaryOp(cntx, res, eq, NpyDefs.NpyArray_Ops.npy_op_logical_or);
+                            }
+                        }
+                        if (res == null) {
+                            throw new ArgumentException("No fields found");
+                        }
+                        return res;
+                    }
+                    // TODO: Handle naked voids
+                }
+            }
+            return result;
         }
 
         public object __rne__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+            return __ne__(cntx, o);
         }
 
         public object __lt__(CodeContext cntx, object o) {
