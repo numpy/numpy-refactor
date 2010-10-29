@@ -7,14 +7,6 @@ namespace NumpyDotNet
 {
     interface IArray
     {
-        object __abs__();
-        object __len__();
-        object __lshift__(object b);
-        object __mod__(object b);
-        string __repr__(IronPython.Runtime.CodeContext context);
-        object __rshift__(object b);
-        object __sqrt__();
-        string __str__(IronPython.Runtime.CodeContext context);
         object all(object axis = null, ndarray @out = null);
         object any(object axis = null, ndarray @out = null);
         object argmax(object axis = null, ndarray @out = null);

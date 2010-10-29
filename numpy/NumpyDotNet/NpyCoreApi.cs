@@ -204,6 +204,7 @@ namespace NumpyDotNet {
             return ToInterface<ufunc>(ufuncPtr);
         }
 
+#if NOTDEF
         internal static object GenericUnaryOp(ndarray a1, ufunc f, ndarray ret = null) {
             // TODO: We need to do the error handling and wrapping of outputs.
             Incref(a1.Array);
@@ -241,6 +242,8 @@ namespace NumpyDotNet {
                 return rval;
             }
         }
+
+#endif
 
         internal static object GenericReduction(ufunc f, ndarray arr, 
             ndarray indices, ndarray ret, int axis, dtype otype, ufunc.ReduceOp op) {

@@ -371,7 +371,7 @@ namespace NumpyDotNet {
             if (x == null || y == null) {
                 throw new ArgumentException("either both or neither of x and y should be given");
             }
-            ndarray obj = NpyArray.FromAny(arr.__ne__(0), flags: NpyDefs.NPY_ENSUREARRAY);
+            ndarray obj = NpyArray.FromAny(arr.__ne__(NpyUtil_Python.DefaultContext, 0), flags: NpyDefs.NPY_ENSUREARRAY);
             return obj.Choose(new object[] { y, x });
         }
 
