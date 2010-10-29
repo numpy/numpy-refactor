@@ -46,7 +46,7 @@ namespace NumpyDotNet
             ndarray a1 = arr.Max(axis, ret);
             ndarray a2 = arr.Min(axis, null);
             ufunc subtract = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_subtract);
-            return NpyCoreApi.GenericBinaryOp(a1, a2, subtract, ret);
+            return BinaryOp(null, a1, a2, NpyDefs.NpyArray_Ops.npy_op_subtract, ret);
         }
 
         internal object Std(int axis, dtype rtype, ndarray ret, bool variance, int ddof) {
@@ -79,7 +79,7 @@ namespace NumpyDotNet
             n = x.Dims[axis] - ddof;
             if (n == 0) n = 1;
             if (!variance) {
-                result = NpyArray.FromAny(tmp * (1.0 / n)).__sqrt__();
+                result = NpyArray.FromAny(tmp * (1.0 / n)).__sqrt__(null);
             } else {
                 result = tmp * (1.0 / n);
             }
@@ -140,8 +140,7 @@ namespace NumpyDotNet
             ndarray sum = newArray.Sum(axis, rtype, ret);
             ndarray denom = NpyArray.FromAny(newArray.Dims[axis], NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE),
                 0, 0, 0, null);
-            ufunc divide = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_divide);
-            return NpyCoreApi.GenericBinaryOp(sum, denom, divide, ret);
+            return BinaryOp(null, sum, denom, NpyDefs.NpyArray_Ops.npy_op_divide, ret);
         }
 
         private static readonly double[] p10 = new double[] { 1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9 };
@@ -181,10 +180,10 @@ namespace NumpyDotNet
                 }
             }
             
-            ufunc round_op = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_rint);
+
             if (decimals == 0) {
                 // This is just a ufunc
-                return NpyCoreApi.GenericUnaryOp(this, round_op, ret);
+                return UnaryOp(null, this, NpyDefs.NpyArray_Ops.npy_op_rint, ret);
             }
 
             // Set up to do a multiply, round, divide, or the other way around.
@@ -213,9 +212,9 @@ namespace NumpyDotNet
             }
 
             // Do the work
-            NpyCoreApi.GenericBinaryOp(this, factor, pre, tmp);
-            NpyCoreApi.GenericUnaryOp(tmp, round_op, tmp);
-            NpyCoreApi.GenericBinaryOp(tmp, factor, post, tmp);
+            BinaryOp(null, this, factor, pre, tmp);
+            UnaryOp(null, tmp, NpyDefs.NpyArray_Ops.npy_op_rint, tmp);
+            BinaryOp(null, tmp, factor, post, tmp);
 
             if (ret != null && tmp != ret) {
                 NpyCoreApi.CopyAnyInto(ret, tmp);
@@ -240,16 +239,12 @@ namespace NumpyDotNet
                 throw new ArgumentException("must set either max or min");
             }
             if (min == null) {
-                return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(max),
-                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_minimum), ret);
+                return BinaryOp(null, this, max, NpyDefs.NpyArray_Ops.npy_op_minimum, ret);
             } else if (max == null) {
-                return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(min),
-                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_maximum), ret);
+                return BinaryOp(null, this, min, NpyDefs.NpyArray_Ops.npy_op_maximum, ret);
             } else {
-                object tmp = NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(max),
-                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_minimum));
-                return NpyCoreApi.GenericBinaryOp(NpyArray.FromAny(tmp), NpyArray.FromAny(min),
-                    NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_maximum), ret);
+                object tmp = BinaryOp(null, this, max, NpyDefs.NpyArray_Ops.npy_op_minimum);
+                return BinaryOp(null, tmp, min, NpyDefs.NpyArray_Ops.npy_op_maximum, ret);
             }
         }
 

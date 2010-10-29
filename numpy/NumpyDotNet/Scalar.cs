@@ -27,32 +27,32 @@ namespace NumpyDotNet
 
         #region IArray interface
 
-        public object __abs__() {
-            return ToArray().__abs__();
+        public object __abs__(CodeContext cntx) {
+            return ToArray().__abs__(cntx);
         }
 
         public object __len__() {
             return ToArray().__len__();
         }
 
-        public object __lshift__(object b) {
-            return ToArray().__lshift__(b);
+        public object __lshift__(CodeContext cntx, object b) {
+            return ToArray().__lshift__(cntx, b);
         }
 
-        public object __mod__(object b) {
-            return ToArray().__mod__(b);
+        public object __mod__(CodeContext cntx, object b) {
+            return ToArray().__mod__(cntx, b);
         }
 
         public string __repr__(CodeContext context) {
             return ToArray().__str__(context);
         }
 
-        public object __rshift__(object b) {
-            return ToArray().__rshift__(b);
+        public object __rshift__(CodeContext cntx, object b) {
+            return ToArray().__rshift__(cntx, b);
         }
 
-        public object __sqrt__() {
-            return ToArray().__sqrt__();
+        public object __sqrt__(CodeContext cntx) {
+            return ToArray().__sqrt__(cntx);
         }
 
         public string __str__(CodeContext context) {
@@ -382,191 +382,143 @@ namespace NumpyDotNet
         #region operators
 
         public static object operator +(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator +(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator +(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_add);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator -(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator -(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator -(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator *(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator *(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator *(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator /(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_divide);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator /(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator /(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_divide);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator &(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator &(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator &(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator |(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator |(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator |(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator ^(ScalarGeneric a, object b) {
-            return ndarray.BinaryOp(a.ToArray(), NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ^(ScalarGeneric a, ScalarGeneric b) {
-            return ndarray.BinaryOp(a.ToArray(), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ^(object a, ScalarGeneric b) {
-            return ndarray.BinaryOp(NpyArray.FromAny(a), b.ToArray(), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ~(ScalarGeneric a) {
-            return ndarray.UnaryOp(a.ToArray(), NpyDefs.NpyArray_Ops.npy_op_invert);
+            return ndarray.UnaryOp(null, a, NpyDefs.NpyArray_Ops.npy_op_invert);
         }
 
         // NOTE: For comparison operators we use the Python names
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
 
-        public object __eq__(ndarray a) {
-            return ToArray().__eq__(a);
+        public object __eq__(CodeContext cntx, object o) {
+            return ToArray().__eq__(cntx, o);
         }
 
-        public object __eq__(object o) {
-            return ToArray().__eq__(o);
+        public object __req__(CodeContext cntx, object o) {
+            return ToArray().__req__(cntx, o);
         }
 
-        public object __req__(ndarray a) {
-            return ToArray().__req__(a);
+        public object __ne__(CodeContext cntx, object o) {
+            return ToArray().__ne__(cntx, o);
         }
 
-        public object __req__(object o) {
-            return ToArray().__req__(o);
+        public object __rne__(CodeContext cntx, object o) {
+            return ToArray().__rne__(cntx, o);
         }
 
-        public object __ne__(ndarray a) {
-            return ToArray().__ne__(a);
+        public object __lt__(CodeContext cntx, object o) {
+            return ToArray().__lt__(cntx, o);
         }
 
-        public object __ne__(object o) {
-            return ToArray().__ne__(o);
+        public object __rlt__(CodeContext cntx, object o) {
+            return ToArray().__rlt__(cntx, o);
         }
 
-        public object __rne__(ndarray a) {
-            return ToArray().__rne__(a);
+        public object __le__(CodeContext cntx, object o) {
+            return ToArray().__le__(cntx, o);
         }
 
-        public object __rne__(object o) {
-            return ToArray().__rne__(o);
+        public object __rle__(CodeContext cntx, object o) {
+            return ToArray().__rle__(cntx, o);
         }
 
-        public object __lt__(ndarray a) {
-            return ToArray().__lt__(a);
+        public object __gt__(CodeContext cntx, object o) {
+            return ToArray().__gt__(cntx, o);
         }
 
-        public object __lt__(object o) {
-            return ToArray().__lt__(o);
+        public object __rgt__(CodeContext cntx, object o) {
+            return ToArray().__rgt__(cntx, o);
         }
 
-        public object __rlt__(ndarray a) {
-            return ToArray().__rlt__(a);
+        public object __ge__(CodeContext cntx, object o) {
+            return ToArray().__ge__(cntx, o);
         }
 
-        public object __rlt__(object o) {
-            return ToArray().__rlt__(o);
-        }
-
-        public object __le__(ndarray a) {
-            return ToArray().__le__(a);
-        }
-
-        public object __le__(object o) {
-            return ToArray().__le__(o);
-        }
-
-        public object __rle__(ndarray a) {
-            return ToArray().__rle__(a);
-        }
-
-        public object __rle__(object o) {
-            return ToArray().__rle__(o);
-        }
-
-        public object __gt__(ndarray a) {
-            return ToArray().__gt__(a);
-        }
-
-        public object __gt__(object o) {
-            return ToArray().__gt__(o);
-        }
-
-        public object __rgt__(ndarray a) {
-            return ToArray().__rgt__(a);
-        }
-
-        public object __rgt__(object o) {
-            return ToArray().__rgt__(o);
-        }
-
-        public object __ge__(ndarray a) {
-            return ToArray().__ge__(a);
-        }
-
-        public object __ge__(object o) {
-            return ToArray().__ge__(o);
-        }
-
-        public object __rge__(ndarray a) {
-            return ToArray().__rge__(a);
-        }
-
-        public object __rge__(object o) {
-            return ToArray().__rge__(o);
+        public object __rge__(CodeContext cntx, object o) {
+            return ToArray().__rge__(cntx, o);
         }
 
         public object __int__(CodeContext cntx) {

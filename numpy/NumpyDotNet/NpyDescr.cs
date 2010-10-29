@@ -64,12 +64,14 @@ namespace NumpyDotNet {
         }
 
         internal static dtype ConvertFromDictionary(CodeContext cntx, PythonDictionary dict, bool align) {
-            IList<object> names = dict.get("names") as IList<object>;
-            IList<Object> descrs = dict.get("formats") as IList<object>;
+            object oNames = dict.get("names");
+            object oDescrs = dict.get("formats");
             // If it doesn't name names and formats then try it as a fields dict
-            if (names == null || descrs == null) {
+            if (oNames == null || oDescrs == null) {
                 return (dtype)NpyUtil_Python.CallInternal(cntx, "_usefields", dict, align ? 1 : 0);
             }
+            IList<object> names = (IList<object>)oNames;
+            IList<object> descrs = (IList<object>)oDescrs;
             IList<object> offsets = dict.get("offsets") as IList<object>;
             IList<object> titles = dict.get("titles") as IList<object>;
 

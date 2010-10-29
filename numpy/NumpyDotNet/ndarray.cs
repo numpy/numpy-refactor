@@ -143,231 +143,233 @@ namespace NumpyDotNet
             return PythonOps.ToPython((IntPtr)Dims[0]);
         }
 
-        public object __abs__() {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_absolute);
-            return NpyCoreApi.GenericUnaryOp(this, f);
+        public object __abs__(CodeContext cntx) {
+            return UnaryOp(cntx,  this, NpyDefs.NpyArray_Ops.npy_op_absolute);
         }
 
-        public object __lshift__(Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_left_shift);
-            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
+        public object __lshift__(CodeContext cntx, Object b) {
+            return BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_left_shift);
         }
 
-        public object __rshift__(Object b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_right_shift);
-            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b, null, 0, 0, 0, null), f);
+        public object __rlshift__(CodeContext cntx, Object a) {
+            return BinaryOp(cntx, a, this, NpyDefs.NpyArray_Ops.npy_op_left_shift);
         }
 
-        public object __sqrt__() {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_sqrt);
-            return NpyCoreApi.GenericUnaryOp(this, f);
+        public object __rshift__(CodeContext cntx, Object b) {
+            return BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_right_shift);
         }
 
-        public object __mod__(Object b) {
-            ufunc f = ufunc.GetFunction("fmod");
-            return NpyCoreApi.GenericBinaryOp(this, NpyArray.FromAny(b), f);
+        public object __rrshift__(CodeContext cntx, Object a) {
+            return BinaryOp(cntx, a, this, NpyDefs.NpyArray_Ops.npy_op_right_shift);
+        }
+
+        public object __sqrt__(CodeContext cntx) {
+            return UnaryOp(cntx,  this, NpyDefs.NpyArray_Ops.npy_op_sqrt);
+        }
+
+        public object __mod__(CodeContext cntx, Object b) {
+            return BinaryOp(cntx, this, b, "fmod");
+        }
+
+        public object __rmod__(CodeContext cntx, Object a) {
+            return BinaryOp(cntx, a, this, "fmod");
         }
 
         #endregion
 
         #region Operators
 
-        internal static object BinaryOp(ndarray a, ndarray b, NpyDefs.NpyArray_Ops op) {
-            ufunc f = NpyCoreApi.GetNumericOp(op);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
+        internal static object BinaryOp(CodeContext cntx, object a, object b, ufunc f, ndarray ret = null) {
+            if (cntx == null) {
+                cntx = NpyUtil_Python.DefaultContext;
+            }
+            try {
+                object result;
+                if (ret == null) {
+                    result = f.Call(cntx, null, a, b);
+                } else {
+                    result = f.Call(cntx, null, a, b, ret);
+                }
+                if (result is ndarray) {
+                    return ArrayReturn((ndarray)result);
+                } else {
+                    return result;
+                }
+            } catch (NotImplementedException) {
+                return cntx.LanguageContext.BuiltinModuleDict["NotImplemented"];
+            }
         }
 
-        internal static object UnaryOp(ndarray a, NpyDefs.NpyArray_Ops op) {
+        internal static object BinaryOp(CodeContext cntx, object a, object b, 
+                                        NpyDefs.NpyArray_Ops op, ndarray ret = null) {
             ufunc f = NpyCoreApi.GetNumericOp(op);
-            return NpyCoreApi.GenericUnaryOp(a, f);
+            return BinaryOp(cntx, a, b, f, ret);
+        }
+
+        internal static object BinaryOp(CodeContext cntx, object a, object b, 
+                                        string fname, ndarray ret = null) {
+            ufunc f = ufunc.GetFunction(fname);
+            return BinaryOp(cntx, a, b, f, ret);
+        }
+
+
+        internal static object UnaryOp(CodeContext cntx, object a, NpyDefs.NpyArray_Ops op,
+                                       ndarray ret = null) {
+            if (cntx == null) {
+                cntx = NpyUtil_Python.DefaultContext;
+            }
+            ufunc f = NpyCoreApi.GetNumericOp(op);
+            object result;
+            if (ret == null) {
+                result = f.Call(cntx, null, a);
+            } else {
+                result = f.Call(cntx, null, a, ret);
+            }
+            if (result is ndarray) {
+                return ArrayReturn((ndarray)result);
+            } else {
+                return result;
+            }
         }
 
         public static object operator +(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_add);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator +(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_add);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator +(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_add);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
         public static object operator -(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator -(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator -(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
         public static object operator *(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator *(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator *(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
         public static object operator /(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_divide);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator /(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_divide);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator /(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
         public static object operator &(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator &(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator &(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         public static object operator |(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator |(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator |(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         public static object operator ^(ndarray a, Object b) {
-            return BinaryOp(a, NpyArray.FromAny(b), NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ^(object a, ndarray b) {
-            return BinaryOp(NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ^(ndarray a, ndarray b) {
-            return BinaryOp(a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
 
         public static object operator ~(ndarray a) {
-            return UnaryOp(a, NpyDefs.NpyArray_Ops.npy_op_invert);
+            return UnaryOp(null, a, NpyDefs.NpyArray_Ops.npy_op_invert);
         }
 
         // NOTE: For comparison operators we use the Python names
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
 
-        public object __eq__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_equal);
+        public object __eq__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __eq__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_equal);
+        public object __req__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_equal);
         }
 
-        public object __req__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        public object __ne__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __req__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_equal);
+        public object __rne__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
         }
 
-        public object __ne__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        public object __lt__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __ne__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        public object __rlt__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_less);
         }
 
-        public object __rne__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        public object __le__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __rne__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_not_equal);
+        public object __rle__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
         }
 
-        public object __lt__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less);
+        public object __gt__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __lt__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less);
+        public object __rgt__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_greater);
         }
 
-        public object __rlt__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less);
+        public object __ge__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
-        public object __rlt__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less);
-        }
-
-        public object __le__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_less_equal);
-        }
-
-        public object __le__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_less_equal);
-        }
-
-        public object __rle__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
-        }
-
-        public object __rle__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
-        }
-
-        public object __gt__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater);
-        }
-
-        public object __gt__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater);
-        }
-
-        public object __rgt__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater);
-        }
-
-        public object __rgt__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater);
-        }
-
-        public object __ge__([NotNull]ndarray a) {
-            return BinaryOp(this, a, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
-        }
-
-        public object __ge__(object o) {
-            return BinaryOp(this, NpyArray.FromAny(o), NpyDefs.NpyArray_Ops.npy_op_greater_equal);
-        }
-
-        public object __rge__([NotNull]ndarray a) {
-            return BinaryOp(a, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
-        }
-
-        public object __rge__(object o) {
-            return BinaryOp(NpyArray.FromAny(o), this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+        public object __rge__(CodeContext cntx, object o) {
+            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
         }
 
         public object __int__(CodeContext cntx) {
@@ -411,14 +413,6 @@ namespace NumpyDotNet
                 return val != 0;
             }
         }
-
-        // TODO: Temporary test function
-        public static object Compare(ndarray a, ndarray b) {
-            ufunc f = NpyCoreApi.GetNumericOp(NpyDefs.NpyArray_Ops.npy_op_equal);
-            return NpyCoreApi.GenericBinaryOp(a, b, f);
-        }
-
-        // TODO: end of test functions
 
         #endregion
 

@@ -468,6 +468,12 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     }
 
     //    NPY_LOOP_END_THREADS;
+    for (i=0; i<nargs; i++) {
+        if (mps[i] && (mps[i]->flags&NPY_UPDATEIFCOPY)) {
+            NpyArray_ForceUpdate(mps[i]);
+        }
+    }
+
     ufuncloop_dealloc(loop);
     return 0;
 
@@ -776,6 +782,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = loop->ret->base_arr;
+        NpyArray_ForceUpdate(loop->ret);
     }
     else {
         ret = loop->ret;
@@ -946,6 +953,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = NpyArray_BASE_ARRAY(loop->ret);
+        NpyArray_ForceUpdate(loop->ret);
     }
     else {
         ret = loop->ret;
@@ -1127,6 +1135,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = NpyArray_BASE_ARRAY(loop->ret);
+        NpyArray_ForceUpdate(loop->ret);
     }
     else {
         ret = loop->ret;
