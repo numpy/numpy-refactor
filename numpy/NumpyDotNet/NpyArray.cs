@@ -743,7 +743,7 @@ namespace NumpyDotNet {
                 ndarray a = (ndarray)s;
                 return Math.Max(min, a.dtype.ElementSize);
             }
-            int n = (int)NpyUtil_Python.CallBuiltin(null, "len", s);
+            int n = PythonOps.Length(s);
             if (nd == 0 || s is string || s is Bytes || s is MemoryView || s is PythonBuffer) {
                 return Math.Max(min, n);
             } else {

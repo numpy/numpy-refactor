@@ -18,7 +18,7 @@ namespace NumpyDotNet {
     internal class NpyDescr {
 
         private static bool IsScalarType(CodeContext cntx, PythonType t) {
-            return (bool)NpyUtil_Python.CallBuiltin(cntx, "issubclass", t, PyGenericArrType_Type);
+            return PythonOps.IsSubClass(t, PyGenericArrType_Type);
         }
 
         internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
