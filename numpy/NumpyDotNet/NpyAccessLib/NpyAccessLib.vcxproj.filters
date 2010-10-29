@@ -22,4 +22,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="generate_code.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="__umath_generated.c">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
