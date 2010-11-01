@@ -1613,20 +1613,49 @@ namespace NumpyDotNet {
 
         #endregion
 
+        #region Conversion functions
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        internal delegate void del_CastFunc(IntPtr ip, IntPtr op, int n, IntPtr aip, IntPtr aop);
+
+        internal static void GenericConvert(IntPtr ip, IntPtr op, int n, IntPtr aip, IntPtr aop) {
+            ndarray ai = NpyCoreApi.ToInterface<ndarray>(aip);
+            ndarray ao = NpyCoreApi.ToInterface<ndarray>(aop);
+            int isize = ai.dtype.ElementSize;
+            int osize = ao.dtype.ElementSize;
+            long ioffset = ip.ToInt64() - ai.Array.ToInt64();
+            long ooffset = op.ToInt64() - ao.Array.ToInt64();
+            var getitem = ai.dtype.f.GetFunc;
+            var setitem = ao.dtype.f.SetFunc;
+            for (int i=0; i<n; i++) {
+                object item = getitem(ip, ai);
+                setitem(item, op, ao);
+                ip += isize;
+                op += osize;
+            }
+        }
+
+        internal static del_CastFunc GenericConvertDelegate = new del_CastFunc(GenericConvert);
+
+
+        #endregion
+
 
         #region Core registration
 
         static internal NpyArray_FunctionDefs GetFunctionDefs() {
             NpyArray_FunctionDefs defs = new NpyArray_FunctionDefs();
 
-            defs.cast_from_obj = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_from_string = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_from_unicode = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_from_void = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_to_obj = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_to_string = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_to_unicode = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
-            defs.cast_to_void = new IntPtr[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];
+            int n = (int)NpyDefs.NPY_TYPES.NPY_NTYPES;
+            IntPtr genericConvertPtr = Marshal.GetFunctionPointerForDelegate(GenericConvertDelegate);
+            defs.cast_from_obj = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_from_string = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_from_unicode = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_from_void = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_to_obj = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_to_string = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_to_unicode = Enumerable.Repeat(genericConvertPtr, n).ToArray();
+            defs.cast_to_void = Enumerable.Repeat(genericConvertPtr, n).ToArray();
 
             defs.BOOL_getitem = Marshal.GetFunctionPointerForDelegate(getitemBoolDelegate);
             defs.BOOL_setitem = Marshal.GetFunctionPointerForDelegate(setitemBoolDelegate);
