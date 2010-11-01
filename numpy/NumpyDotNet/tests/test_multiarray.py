@@ -128,7 +128,8 @@ class TestZeroRank(TestCase):
     def test_ellipsis_subscript(self):
         a,b = self.d
         self.assertEqual(a[...], 0)
-        self.assertEqual(b[...], 'x')
+        # TODO: We need string comparison for this
+        #self.assertEqual(b[...], 'x')
         self.assertTrue(a[...] is a)
         self.assertTrue(b[...] is b)
 
@@ -308,33 +309,31 @@ class TestMethods(TestCase):
             c.sort(kind=kind)
             assert_equal(c, ai, msg)
 
-        # TODO: String comparisons don't work
-        if False:
-            # test string sorts.
-            s = 'aaaaaaaa'
-            a = np.array([s + chr(i) for i in range(100)])
-            b = a[::-1].copy()
-            for kind in self.kinds :
-                msg = "string sort, kind=%s" % kind
-                c = a.copy();
-                c.sort(kind=kind)
-                assert_equal(c, a, msg)
-                c = b.copy();
-                c.sort(kind=kind)
-                assert_equal(c, a, msg)
+        # test string sorts.
+        s = b'aaaaaaaa'
+        a = np.array([s + bytes(chr(i)) for i in range(100)])
+        b = a[::-1].copy()
+        for kind in self.kinds :
+            msg = "string sort, kind=%s" % kind
+            c = a.copy();
+            c.sort(kind=kind)
+            assert_equal(c, a, msg)
+            c = b.copy();
+            c.sort(kind=kind)
+            assert_equal(c, a, msg)
 
-            # test unicode sort.
-            s = 'aaaaaaaa'
-            a = np.array([s + chr(i) for i in range(100)], dtype=np.unicode)
-            b = a[::-1].copy()
-            for kind in self.kinds :
-                msg = "unicode sort, kind=%s" % kind
-                c = a.copy();
-                c.sort(kind=kind)
-                assert_equal(c, a, msg)
-                c = b.copy();
-                c.sort(kind=kind)
-                assert_equal(c, a, msg)
+        # test unicode sort.
+        s = 'aaaaaaaa'
+        a = np.array([s + chr(i) for i in range(100)], dtype=np.unicode)
+        b = a[::-1].copy()
+        for kind in self.kinds :
+            msg = "unicode sort, kind=%s" % kind
+            c = a.copy();
+            c.sort(kind=kind)
+            assert_equal(c, a, msg)
+            c = b.copy();
+            c.sort(kind=kind)
+            assert_equal(c, a, msg)
 
         # todo, check object array sorts.
 
@@ -619,7 +618,38 @@ class TestFancyIndexing(TestCase):
         x[:,:,(0,)] = 2.0
         assert_array_equal(x, array([[[2.0]]]))
 
-# TODO: Add TestStringCompare
+class TestStringCompare(TestCase):
+    def test_string(self):
+        g1 = array(["This","is","example"])
+        g2 = array(["This","was","example"])
+        assert_array_equal(g1 == g2, [g1[i] == g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 != g2, [g1[i] != g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 <= g2, [g1[i] <= g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 >= g2, [g1[i] >= g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 < g2, [g1[i] < g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 > g2, [g1[i] > g2[i] for i in [0,1,2]])
+
+    def test_mixed(self):
+        g1 = array(["spam","spa","spammer","and eggs"])
+        g2 = "spam"
+        assert_array_equal(g1 == g2, [x == g2 for x in g1])
+        assert_array_equal(g1 != g2, [x != g2 for x in g1])
+        assert_array_equal(g1 < g2, [x < g2 for x in g1])
+        assert_array_equal(g1 > g2, [x > g2 for x in g1])
+        assert_array_equal(g1 <= g2, [x <= g2 for x in g1])
+        assert_array_equal(g1 >= g2, [x >= g2 for x in g1])
+
+
+    def test_unicode(self):
+        g1 = array([u"This",u"is",u"example"])
+        g2 = array([u"This",u"was",u"example"])
+        assert_array_equal(g1 == g2, [g1[i] == g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 != g2, [g1[i] != g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 <= g2, [g1[i] <= g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 >= g2, [g1[i] >= g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 < g2,  [g1[i] < g2[i] for i in [0,1,2]])
+        assert_array_equal(g1 > g2,  [g1[i] > g2[i] for i in [0,1,2]])
+
 
 class TestArgmax(TestCase):
     def test_all(self):

@@ -346,7 +346,7 @@ namespace NumpyDotNet
             }
 
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
-            if (result == cntx.LanguageContext.BuiltinModuleDict["NotImplemented"]) {
+            if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                     if (dtype != arrayother.dtype) {
                         return false;
@@ -368,7 +368,9 @@ namespace NumpyDotNet
                         }
                         return res;
                     }
-                    // TODO: Handle naked voids
+                    result = NpyCoreApi.CompareStringArrays(this, arrayother, NpyDefs.NPY_COMPARE_OP.NPY_EQ);
+                } else {
+                    result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_EQ);
                 }
             }
             return result;
@@ -400,7 +402,7 @@ namespace NumpyDotNet
             }
 
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_not_equal);
-            if (result == cntx.LanguageContext.BuiltinModuleDict["NotImplemented"]) {
+            if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                     if (dtype != arrayother.dtype) {
                         return false;
@@ -422,7 +424,9 @@ namespace NumpyDotNet
                         }
                         return res;
                     }
-                    // TODO: Handle naked voids
+                    result = NpyCoreApi.CompareStringArrays(this, arrayother, NpyDefs.NPY_COMPARE_OP.NPY_NE);
+                } else {
+                    result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_NE);
                 }
             }
             return result;
@@ -433,35 +437,71 @@ namespace NumpyDotNet
         }
 
         public object __lt__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less);
+            object result = BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less);
+            if (result == Builtin.NotImplemented) {
+                result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_LT);
+            }
+            return result;
         }
 
         public object __rlt__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_less);
+            return __ge__(cntx, o);
         }
 
         public object __le__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+            object result = BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+            if (result == Builtin.NotImplemented) {
+                result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_LE);
+            }
+            return result;
         }
 
         public object __rle__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_less_equal);
+            return __gt__(cntx, o);
         }
 
         public object __gt__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater);
+            object result = BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater);
+            if (result == Builtin.NotImplemented) {
+                result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_GT);
+            }
+            return result;
         }
 
         public object __rgt__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_greater);
+            return __le__(cntx, o);
         }
 
         public object __ge__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+            object result = BinaryOp(cntx, this, o, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+            if (result == Builtin.NotImplemented) {
+                result = strings_compare(o, NpyDefs.NPY_COMPARE_OP.NPY_GE);
+            }
+            return result;
         }
 
         public object __rge__(CodeContext cntx, object o) {
-            return BinaryOp(cntx, o, this, NpyDefs.NpyArray_Ops.npy_op_greater_equal);
+            return __lt__(cntx, o);
+        }
+
+        private object strings_compare(object o, NpyDefs.NPY_COMPARE_OP op) {
+            if (NpyDefs.IsString(dtype.TypeNum)) {
+                ndarray self = this;
+                ndarray array_other = NpyArray.FromAny(o, flags: NpyDefs.NPY_BEHAVED | NpyDefs.NPY_ENSUREARRAY);
+                if (self.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE &&
+                    array_other.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
+                    dtype dt = new dtype(self.dtype);
+                    dt.ElementSize = array_other.dtype.ElementSize*4;
+                    array_other = NpyArray.FromArray(array_other, dt, 0);
+                } else if (self.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
+                           array_other.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    dtype dt = new dtype(array_other.dtype);
+                    dt.ElementSize = self.dtype.ElementSize * 4;
+                    self = NpyArray.FromArray(self, dt, 0);
+                }
+                return ArrayReturn(NpyCoreApi.CompareStringArrays(self, array_other, op));
+            }
+            return Builtin.NotImplemented;
         }
 
         public object __int__(CodeContext cntx) {

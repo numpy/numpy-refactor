@@ -588,9 +588,14 @@ namespace NumpyDotNet {
             return DecrefToInterface<ndarray>(NpyArray_FromBytes(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
         }
 
+        internal static ndarray CompareStringArrays(ndarray a1, ndarray a2, NpyDefs.NPY_COMPARE_OP op,
+                                                    bool rstrip = false) {
+            return DecrefToInterface<ndarray>(
+                NpyArray_CompareStringArrays(a1.Array, a2.Array, (int)op, rstrip ? 1 : 0));
+        }
+
         #endregion
 
-        
 
         #region C API Definitions
 
@@ -728,6 +733,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_Choose(IntPtr array,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_CompareStringArrays(IntPtr a1, IntPtr a2,
+                                                                   int op, int rstrip);
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
 

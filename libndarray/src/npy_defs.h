@@ -535,6 +535,14 @@ typedef enum {
 #define NpyArray_CNE(p,q) (((p).real!=(q).real) || ((p).imag != (q).imag))
 
 
+/* Comparisions. These intentionally match the Python versions. */
+#define NPY_LT 0
+#define NPY_LE 1
+#define NPY_EQ 2
+#define NPY_NE 3
+#define NPY_GT 4
+#define NPY_GE 5
+
 
 typedef void (*npy_free_func)(void*);
 

@@ -879,8 +879,20 @@ namespace NumpyDotNet {
 
 
         internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
-            string s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
-            byte[] bytes = Encoding.UTF8.GetBytes(s);
+            byte[] bytes;
+            if (o is Bytes) {
+                Bytes b = (Bytes)o;
+                bytes = new byte[b.Count];
+                b.CopyTo(bytes, 0);
+            } else {
+                string s;
+                if (o is string) {
+                    s = (string)o;
+                } else {
+                    s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
+                }
+                bytes = Encoding.UTF8.GetBytes(s);
+            }
             int elsize = arr.dtype.ElementSize;
             int copySize = Math.Min(bytes.Length, elsize);
             int i;
@@ -897,7 +909,16 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
 
         internal static void setitemUnicode(Object o, IntPtr ptr, ndarray arr) {
-            string s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
+            string s;
+            if (o is Bytes) {
+                Bytes b = (Bytes)o;
+                s = b.decode(NpyUtil_Python.DefaultContext, "UTF8", "ignore");
+            } else if (o is string) {
+                s = (string)o;
+            } else {
+                s = PythonOps.Repr(NpyUtil_Python.DefaultContext, 0);
+            }
+            
             byte[] bytes = Encoding.UTF32.GetBytes(s);
             int elsize = arr.dtype.ElementSize/4;
             int copySize = Math.Min(bytes.Length/4, elsize);
@@ -1305,7 +1326,7 @@ namespace NumpyDotNet {
             IntPtr aPtr, IntPtr bPtr) {
             Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
-            return (bool)site.Target(Site_Equal, a, b) ? 1 : 0;
+            return (bool)site.Target(site, a, b) ? 1 : 0;
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int del_GenericCmp(IntPtr a, IntPtr b);
