@@ -1165,6 +1165,7 @@ ufunc_generic_call(PyUFuncObject *self, PyObject *args, PyObject *kwds)
         else if (PyUFunc_UFUNC(self)->nin == 2 && PyUFunc_UFUNC(self)->nout == 1) {
           /* To allow the other argument to be given a chance
            */
+            PyErr_Clear();
             Py_INCREF(Py_NotImplemented);
             return Py_NotImplemented;
         }

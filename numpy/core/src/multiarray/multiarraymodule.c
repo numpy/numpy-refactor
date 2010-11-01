@@ -2404,6 +2404,9 @@ error_set(enum npyexc_type tp, const char *msg)
         Py_XDECREF(obj);
         Py_XDECREF(cls);
         break;
+    case NpyExc_NotImplementedError:
+        PyErr_SetString(PyExc_NotImplementedError, msg);
+        break;
     default:
         PyErr_Format(PyExc_SystemError, "Hmm, didn't expect tp = %d", tp);
     }
