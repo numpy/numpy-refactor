@@ -208,6 +208,31 @@ namespace NumpyDotNet {
             }
         }
 
+        /// <summary>
+        /// Triggers Python conversion to string using __complex__ method.  Complex instances
+        /// are handled efficiently.
+        /// </summary>
+        /// <param name="obj">Object to convert</param>
+        /// <param name="cntx">Current code context or null to use default</param>
+        /// <returns>Complex result or throws an exception if no conversion is possible</returns>
+        internal static Complex ConvertToComplex(object obj, CodeContext cntx = null) {
+            if (cntx == null) cntx = DefaultContext;
+
+            if (obj is Complex) {
+                return (Complex)obj;
+            } else {
+                if (obj is Bytes) {
+                    obj = ConvertToString(obj, cntx);
+                }
+                object result = CallBuiltin(cntx, "complex", obj);
+                if (result is Complex) {
+                    return (Complex)result;
+                } else {
+                    throw new ArgumentException("__complex__ did not return a Complex");
+                }
+            }
+        }
+
         internal static bool IsIntegerScalar(object o) {
             return (o is int || o is BigInteger || o is ScalarInteger);
         }

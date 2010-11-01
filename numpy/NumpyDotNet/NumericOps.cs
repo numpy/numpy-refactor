@@ -775,13 +775,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemFloat, value, ptr, arrPtr);
 
         internal static void setitemCFloat(Object o, IntPtr ptr, ndarray arr) {
-            Complex f;
-
-            if (o is Complex) f = (Complex)o;
-            else {
-                double d = NpyUtil_Python.ConvertToDouble(o);
-                f = new Complex(d, 0.0);
-            }
+            Complex f = NpyUtil_Python.ConvertToComplex(o);
 
             unsafe {
                 // TODO: Do we need to be checking for floating-point overflow here?
@@ -817,10 +811,7 @@ namespace NumpyDotNet {
 
 
         internal static void setitemCDouble(Object o, IntPtr ptr, ndarray arr) {
-            Complex f;
-
-            if (o is Complex) f = (Complex)o;
-            else f = new Complex(NpyUtil_Python.ConvertToDouble(o), 0.0);
+            Complex f = NpyUtil_Python.ConvertToComplex(o);
 
             unsafe {
                 double* p = (double*)ptr.ToPointer();
@@ -888,7 +879,7 @@ namespace NumpyDotNet {
 
 
         internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
-            string s = o.ToString();
+            string s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
             byte[] bytes = Encoding.UTF8.GetBytes(s);
             int elsize = arr.dtype.ElementSize;
             int copySize = Math.Min(bytes.Length, elsize);
@@ -906,7 +897,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
 
         internal static void setitemUnicode(Object o, IntPtr ptr, ndarray arr) {
-            string s = o.ToString();
+            string s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
             byte[] bytes = Encoding.UTF32.GetBytes(s);
             int elsize = arr.dtype.ElementSize/4;
             int copySize = Math.Min(bytes.Length/4, elsize);

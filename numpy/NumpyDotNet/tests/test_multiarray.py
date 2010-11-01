@@ -128,8 +128,7 @@ class TestZeroRank(TestCase):
     def test_ellipsis_subscript(self):
         a,b = self.d
         self.assertEqual(a[...], 0)
-        # TODO: Remove after cast functions
-        #self.assertEqual(b[...], 'x')
+        self.assertEqual(b[...], 'x')
         self.assertTrue(a[...] is a)
         self.assertTrue(b[...] is b)
 
