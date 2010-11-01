@@ -51,22 +51,12 @@ namespace NumpyDotNet {
     /// </summary>
     internal static class NpyUtil_Python
     {
-        private static CodeContext defaultContext = null;
-
         /// <summary>
         /// The default code context is initialized at startup and is used when no code context
         /// is otherwise available.
         /// </summary>
         internal static CodeContext DefaultContext {
-            get { return defaultContext; }
-            set {
-                if (defaultContext != null) {
-                    // Disallowed only because there doesn't appear to be a reason to do this
-                    // except in an error condition.
-                    throw new InvalidOperationException("Attempt to re-initialize default code context.");
-                }
-                defaultContext = value;
-            }
+            get { return IronPython.Runtime.DefaultContext.Default; }
         }
 
         /// <summary>
@@ -138,6 +128,8 @@ namespace NumpyDotNet {
                 return (long)(int)obj;
             } else if (obj is ScalarInt64) {
                 return (long)(ScalarInt64)obj;
+            } else if (obj is ScalarInt32) {
+                return (long)(ScalarInt32)obj;
             }
 
             object result = CallBuiltin(cntx, "int", obj);
@@ -251,7 +243,7 @@ namespace NumpyDotNet {
         }
 
         internal static void Warn(PythonType category, string msg, params object[] args) {
-            PythonOps.Warn(defaultContext, category, msg, args);
+            PythonOps.Warn(DefaultContext, category, msg, args);
         }
 
         internal static PythonTuple ToPythonTuple(long[] array) {
