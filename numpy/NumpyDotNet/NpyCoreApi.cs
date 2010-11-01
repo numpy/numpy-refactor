@@ -546,6 +546,9 @@ namespace NumpyDotNet {
             return NpyArray_EquivTypes(d1.Descr, d2.Descr) != 0;
         }
 
+        internal static bool CanCastTo(dtype d1, dtype d2) {
+            return NpyArray_CanCastTo(d1.Descr, d2.Descr);
+        }
 
         /// <summary>
         /// Returns the PEP 3118 format encoding for the type of an array.
@@ -710,6 +713,9 @@ namespace NumpyDotNet {
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool NpyArray_CanCastTo(IntPtr fromDtype, IntPtr toDtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);

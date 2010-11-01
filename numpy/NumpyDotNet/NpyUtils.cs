@@ -169,12 +169,13 @@ namespace NumpyDotNet {
                 return (double)(ScalarFloat64)obj;
             }
 
-            object result = CallBuiltin(cntx, "float", obj);
-            if (result is double) {
-                return (double)result;
-            } else {
-                throw new ArgumentException("__float__ did not return a floating-point value");
-            }
+            try {
+                object result = CallBuiltin(cntx, "float", obj);
+                if (result is double) {
+                    return (double)result;
+                }
+            } catch { }
+            throw new ArgumentException("__float__ did not return a floating-point value");
         }
 
 

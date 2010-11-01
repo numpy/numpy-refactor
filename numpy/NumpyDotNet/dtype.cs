@@ -567,6 +567,12 @@ namespace NumpyDotNet {
                         throw new ArgumentException("Field key must be an integer, string, or unicode");
                     }
                 }
+
+                // If result is set, it is a PythonTuple of the dtype and offset. We just want to return
+                // the dtype itself.
+                if (result != null) {
+                    result = ((PythonTuple)result)[0];
+                }
                 return result;
             }
         }
@@ -699,8 +705,7 @@ namespace NumpyDotNet {
 
         public bool Equals(dtype other) {
             if (other == null) return false;
-            return (this.core == other.core ||
-                    NpyCoreApi.NpyArray_EquivTypes(core, other.core) != 0);
+            return (this.core == other.core || NpyCoreApi.EquivTypes(this, other));
         }
 
         /// <summary>
@@ -787,6 +792,41 @@ namespace NumpyDotNet {
                 }
             }
         }
+
+        #region Python richcompare operators
+
+        public object __lt__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return NpyCoreApi.EquivTypes(this, d) && NpyCoreApi.CanCastTo(this, d);
+        }
+
+        public object __le__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return NpyCoreApi.CanCastTo(this, d);
+        }
+
+        public object __eq__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return NpyCoreApi.EquivTypes(this, d);
+        }
+
+        public object __ne__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return !NpyCoreApi.EquivTypes(this, d);
+        }
+
+        public object __ge__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return NpyCoreApi.CanCastTo(d, this);
+        }
+
+        public object __gt__(CodeContext cntx, object other) {
+            dtype d = (other is dtype) ? (dtype)other : NpyDescr.DescrConverter(cntx, other);
+            return NpyCoreApi.EquivTypes(this, d) && NpyCoreApi.CanCastTo(d, this);
+        }
+
+
+        #endregion
 
         #endregion
 
