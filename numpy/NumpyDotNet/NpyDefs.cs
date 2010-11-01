@@ -105,6 +105,15 @@ namespace NumpyDotNet {
             NPY_RAISE = 2
         }
 
+        public enum NPY_COMPARE_OP {
+            NPY_LT = 0,
+            NPY_LE = 1,
+            NPY_EQ = 2,
+            NPY_NE = 3,
+            NPY_GT = 4,
+            NPY_GE = 5,
+        };
+
         internal const int NPY_MAXDIMS = 32;
         internal const int NPY_MAXARGS = 32;
 

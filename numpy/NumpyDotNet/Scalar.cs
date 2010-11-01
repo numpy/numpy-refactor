@@ -1464,7 +1464,7 @@ namespace NumpyDotNet
             }
         }
 
-        public string __repr__(CodeContext context) {
+        public new string __repr__(CodeContext context) {
             return ToString();
         }
 

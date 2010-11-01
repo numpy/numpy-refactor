@@ -50,8 +50,6 @@ extern struct NpyArray_Descr **npy_userdescrs;
 /* arraytypes.c.src */
 /* TODO: Needs to call back to interface layer */
 
-NDARRAY_API void NpyArray_ForceUpdate(NpyArray* self);
-NDARRAY_API int NpyArray_dealloc(NpyArray *self);
 
 
 /* common.c */
@@ -308,6 +306,10 @@ extern NDARRAY_API char *_datetime_strings[];
 
 NDARRAY_API int
 NpyArray_GetNumusertypes(void);
+NDARRAY_API void NpyArray_ForceUpdate(NpyArray* self);
+NDARRAY_API int NpyArray_dealloc(NpyArray *self);
+NDARRAY_API NpyArray* NpyArray_CompareStringArrays(NpyArray* a1, NpyArray* a2,
+                                                   int cmp_op, int rstrip);
 
 
 
