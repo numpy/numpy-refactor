@@ -112,7 +112,7 @@ namespace NumpyDotNet {
             } else if (obj is ScalarInt32) {
                 return (int)(ScalarInt32)obj;
             } else {
-                object result = PythonOps.ThrowingConvertToInt(obj);
+                object result = CallBuiltin(cntx, "int", obj);
                 if (result is int) {
                     return (int)result;
                 } else {
@@ -140,7 +140,7 @@ namespace NumpyDotNet {
                 return (long)(ScalarInt64)obj;
             }
 
-            object result = PythonOps.ThrowingConvertToInt(obj);
+            object result = CallBuiltin(cntx, "int", obj);
             if (result is int) {
                 return (long)(int)result;
             } else if (result is BigInteger) {
@@ -177,7 +177,7 @@ namespace NumpyDotNet {
                 return (double)(ScalarFloat64)obj;
             }
 
-            object result = PythonOps.ThrowingConvertToFloat(obj);
+            object result = CallBuiltin(cntx, "float", obj);
             if (result is double) {
                 return (double)result;
             } else {
@@ -199,7 +199,7 @@ namespace NumpyDotNet {
             if (obj is string) {
                 return (string)obj;
             } else {
-                object result = PythonOps.ThrowingConvertToString(obj);
+                object result = CallBuiltin(cntx, "str", obj);
                 if (result is string) {
                     return (string)result;
                 } else {

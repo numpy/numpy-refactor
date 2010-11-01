@@ -12,7 +12,6 @@ using IronPython.Runtime;
 using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
 using IronPython.Runtime.Exceptions;
-using IronPython.Modules;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Runtime;
 
@@ -197,7 +196,7 @@ namespace NumpyDotNet
                     return result;
                 }
             } catch (NotImplementedException) {
-                return Builtin.NotImplemented;
+                return cntx.LanguageContext.BuiltinModuleDict["NotImplemented"];
             }
         }
 
@@ -347,7 +346,7 @@ namespace NumpyDotNet
             }
 
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
-            if (result == Builtin.NotImplemented) {
+            if (result == cntx.LanguageContext.BuiltinModuleDict["NotImplemented"]) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                     if (dtype != arrayother.dtype) {
                         return false;
@@ -469,28 +468,28 @@ namespace NumpyDotNet
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            return PythonOps.ThrowingConvertToInt(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "int", GetItem(0));
         }
 
         public object __long__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            return PythonOps.ThrowingConvertToLong(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "long", GetItem(0));
         }
 
         public object __float__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            return PythonOps.ThrowingConvertToFloat(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "float", GetItem(0));
         }
 
         public object __complex__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");
             }
-            return PythonOps.ThrowingConvertToComplex(GetItem(0));
+            return NpyUtil_Python.CallBuiltin(cntx, "complex", GetItem(0));
         }
 
         public bool __nonzero__() {
@@ -1267,7 +1266,7 @@ namespace NumpyDotNet
         }
 
         public void tofile(CodeContext cntx, string filename, string sep = null, string format = null) {
-            PythonFile f = Builtin.open(cntx, filename, "wb", -1);
+            PythonFile f = (PythonFile)NpyUtil_Python.CallBuiltin(cntx, "open", filename, "wb");
             try {
                 tofile(cntx, f, sep, format);
             } finally {
