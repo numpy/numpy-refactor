@@ -14,7 +14,7 @@ namespace NumpyDotNet {
 
 
     [PythonType, Serializable]
-    public class dtype : Wrapper {
+    public class dtype : Wrapper, IEnumerable<Object> {
 
         public const string __module__ = "numpy";
 
@@ -64,6 +64,17 @@ namespace NumpyDotNet {
             return this.__str__();
         }
 
+        #region IEnumerable<object> interface
+
+        public IEnumerator<object> GetEnumerator() {
+            return new dtype_Enumerator(this);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            return new dtype_Enumerator(this);
+        }
+
+        #endregion
 
         #region Python interface
 
@@ -282,6 +293,50 @@ namespace NumpyDotNet {
         }
 
 
+        public object __repeat__(object length) {
+            if ((int)length < 0) {
+                throw new ArgumentException(
+                    String.Format("Array length must be >= 0, not {0}", length));
+            }
+
+            return NpyDescr.DescrConverter(IronPython.Runtime.DefaultContext.Default, new PythonTuple(new object[] { this, length }));
+        }
+
+
+        /// <summary>
+        /// IronPython doesn't appear to automatically trigger the repeat function so we do it manually here.
+        /// </summary>
+        /// <param name="a">Integer repeat index</param>
+        /// <param name="b">Input dtype</param>
+        /// <returns></returns>
+        public static object operator *(object a, dtype b) {
+            try {
+                long len = NpyUtil_ArgProcessing.IntConverter(a);
+                return b.__repeat__(a);
+            } catch {
+                throw new ArgumentTypeException(
+                    String.Format("can't multiply sequence by non-int of type '{0}'", a.GetType().Name));
+            }
+        }
+
+        /// <summary>
+        /// IronPython doesn't appear to automatically trigger the repeat function so we do it manually here.
+        /// </summary>
+        /// <param name="a">Input dtype</param>
+        /// <param name="b">Integer repeat index</param>
+        /// <returns></returns>
+        public static object operator *(dtype a, object b) {
+            try {
+                long len = NpyUtil_ArgProcessing.IntConverter(b);
+                return a.__repeat__(b);
+            } catch {
+                throw new ArgumentTypeException(
+                    String.Format("can't multiply sequence by non-int of type '{0}'", b.GetType().Name));
+            }
+        }
+
+
+
         public object subdtype {
             get {
                 return HasSubarray ? new PythonTuple(new Object[] { @base, this.shape }) : null;
@@ -493,6 +548,29 @@ namespace NumpyDotNet {
             return NpyCoreApi.DescrNewByteorder(this, NpyUtil_ArgProcessing.ByteorderConverter(endian));
         }
 
+        public object this[Object idx] {
+            get {
+                object result;
+
+                if (!this.HasNames) {
+                    result = null;
+                } else if (idx is string) {
+                    if (!GetFieldsDict().TryGetValue((string)idx, out result)) {
+                        throw new System.Collections.Generic.KeyNotFoundException(
+                            String.Format("Field named \"{0}\" not found.", (string)idx));
+                    }
+                } else {
+                    try {
+                        int i = (int)NpyUtil_Python.ConvertToLong(idx);
+                        result = GetFieldsDict()[Names[i]]; // Names list checks index out of range, throws correct exception.
+                    } catch {
+                        throw new ArgumentException("Field key must be an integer, string, or unicode");
+                    }
+                }
+                return result;
+            }
+        }
+
         #endregion
 
         #region .NET Properties
@@ -551,6 +629,22 @@ namespace NumpyDotNet {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names) != IntPtr.Zero; }
         }
 
+        public int Length {
+            get {
+                IntPtr names = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names);
+                int result = 0;
+                if (names != IntPtr.Zero) {
+                    int offset = 0;
+                    while (Marshal.ReadIntPtr(names, offset) != IntPtr.Zero) {
+                        offset += IntPtr.Size;
+                        result++;
+                    }
+                }
+                return result;
+            }
+        }
+
+
         public List<string> Names {
             get {
                 IntPtr names = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names);
@@ -576,44 +670,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <returns></returns>
         public int __len__() {
-            IntPtr names = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_names);
-            int result = 0;
-            if (names != IntPtr.Zero) {
-                int offset = 0;
-                while (true) {
-                    IntPtr namePtr = Marshal.ReadIntPtr(names, offset);
-                    if (namePtr == IntPtr.Zero) {
-                        break;
-                    }
-                    offset += IntPtr.Size;
-                    result++;
-                }
-            }
-            return result;
-        }
-
-        public object this[string field] {
-            get {
-                var d = GetFieldsDict();
-                if (d == null) {
-                    throw new KeyNotFoundException("There are no fields in the dtype");
-                }
-                object val;
-                if (!d.TryGetValue(field, out val)) {
-                    throw new KeyNotFoundException(String.Format("Field named '{0}' not found.", field));
-                }
-                return ((PythonTuple)val)[0];
-            }
-        }
-
-        public object this[int i] {
-            get {
-                var names = Names;
-                if (i < 0 || i >= names.Count) {
-                    throw new IndexOutOfRangeException("Field index out of range");
-                }
-                return this[names[i]];
-            }
+            return this.Length;
         }
 
         public bool HasSubarray {
@@ -895,4 +952,34 @@ namespace NumpyDotNet {
 
         #endregion
     }
+
+    internal class dtype_Enumerator : IEnumerator<object>
+    {
+        public dtype_Enumerator(dtype a) {
+            descr = a;
+            index = -1;
+        }
+
+        public object Current {
+            get { return descr[index]; }
+        }
+
+        public void Dispose() {
+            descr = null;
+        }
+
+
+        public bool MoveNext() {
+            index += 1;
+            return (index < descr.Length);
+        }
+
+        public void Reset() {
+            index = -1;
+        }
+
+        private dtype descr;
+        private int index;
+    }
+
 }
