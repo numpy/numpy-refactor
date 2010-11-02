@@ -125,7 +125,6 @@ namespace NumpyDotNet {
                     result = NpyArray.PrependOnes(result, result.ndim, ndmin);
                 }
             } catch (Exception e) {
-                Console.WriteLine("Stack trace: {0}\n{1}", e.Message, e.StackTrace);
                 throw e;
             }
             return result;
