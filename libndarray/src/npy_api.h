@@ -469,7 +469,8 @@ NDARRAY_API extern int _flat_copyinto(NpyArray *dst, NpyArray *src,
                                       NPY_ORDER order);
 extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides,
                                          char *src, npy_intp instrides,
-                                         npy_intp N, int elsize);
+                                         npy_intp N, int elsize, 
+                                         NpyArray_Descr* unused);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
 
 
