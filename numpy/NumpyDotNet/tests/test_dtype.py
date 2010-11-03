@@ -90,6 +90,56 @@ class TestMonsterType(TestCase):
             ('yi', np.dtype((a, (3, 2))))])
         self.assertTrue(hash(c) == hash(d))
 
+class TestBasicFunctions(TestCase):
+    def test_compare(self):
+        a = np.dtype('i')
+        b = np.dtype('i')
+        self.assertTrue(a == b)
+
+        a = np.dtype([('one', np.dtype('d')), ('two', np.dtype('i'))])
+        b = np.dtype([('one', np.dtype('d')), ('two', np.dtype('i'))])
+        c = np.dtype([('two', np.dtype('i')), ('one', np.dtype('d'))])
+        self.assertTrue(a == a)
+        self.assertTrue(a == b)
+        self.assertFalse(b == c)
+
+        self.assertFalse(a != a)
+        self.assertFalse(a != b)
+        self.assertTrue(b != c)
+        
+        # Try using the repeat operation and make sure the base is correct.
+        c = b * 3
+        self.assertFalse(c == b)
+        self.assertTrue(c.base == b)
+
+    def test_seq(self):
+        a = np.dtype([('one', np.dtype('d')), ('two', np.dtype('i'))])
+        self.assertTrue(a[0] == np.dtype('d'))
+        self.assertTrue(a['two'] == np.dtype('i'))
+        self.assertFalse(a['two'] == np.dtype('d'))
+        try:
+            x = a[2]
+            self.assertTrue(False, "Failed to catch index out of range exception.")
+        except:
+            pass
+
+        try:
+            x = a['foo']
+            self.assertTrue(False, 'Failed to catch incorrect field name exception.')
+        except:
+            pass
+
+        # Make sure scalar int values work as index values.
+        arr = np.arange(4)
+        self.assertTrue(a[arr[0]] == np.dtype('d'))
+        self.assertTrue(a[arr[1]] == np.dtype('i'))
+        try:
+            x = a[arr[2]]
+            self.assertTrue(False, 'Failed to catch index out of range exception using ScalarInt index value.')
+        except:
+            pass
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()

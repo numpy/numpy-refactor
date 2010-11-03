@@ -415,7 +415,7 @@ namespace NumpyDotNet {
             int itemsize = descr.ElementSize;
 
             NpyDefs.NPY_TYPES type = descr.TypeNum;
-            bool checkIt = (descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR);
+            bool checkIt = (descr.Type != NpyDefs.NPY_TYPECHAR.NPY_CHARLTR);
             bool stopAtString =
                 type != NpyDefs.NPY_TYPES.NPY_STRING ||
                 descr.Type == NpyDefs.NPY_TYPECHAR.NPY_STRINGLTR;

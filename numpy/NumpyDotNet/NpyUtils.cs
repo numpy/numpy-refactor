@@ -102,11 +102,16 @@ namespace NumpyDotNet {
             } else if (obj is ScalarInt32) {
                 return (int)(ScalarInt32)obj;
             } else {
-                object result = CallBuiltin(cntx, "int", obj);
-                if (result is int) {
-                    return (int)result;
-                } else {
-                    throw new OverflowException();
+                try {
+                    object result = CallBuiltin(cntx, "int", obj);
+                    if (result is int) {
+                        return (int)result;
+                    } else {
+                        throw new OverflowException();
+                    }
+                } catch {
+                    throw new ArgumentException(
+                        String.Format("Unable to convert type '{0}' to integer", obj.GetType().Name));
                 }
             }
         }
@@ -132,18 +137,20 @@ namespace NumpyDotNet {
                 return (long)(ScalarInt32)obj;
             }
 
-            object result = CallBuiltin(cntx, "int", obj);
-            if (result is int) {
-                return (long)(int)result;
-            } else if (result is BigInteger) {
-                BigInteger i = (BigInteger)result;
-                if (i > long.MaxValue || i < long.MinValue) {
-                    throw new OverflowException();
+            try {
+                object result = CallBuiltin(cntx, "int", obj);
+                if (result is int) {
+                    return (long)(int)result;
+                } else if (result is BigInteger) {
+                    BigInteger i = (BigInteger)result;
+                    if (i > long.MaxValue || i < long.MinValue) {
+                        throw new OverflowException();
+                    }
+                    return (long)i;
                 }
-                return (long)i;
-            } else {
-                throw new ArgumentException("__int__ did not return an int or a long");
-            }
+            } catch { }
+            throw new ArgumentException(
+                String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
         }
 
         internal static bool IsCallable(object obj) {
@@ -169,12 +176,14 @@ namespace NumpyDotNet {
                 return (double)(ScalarFloat64)obj;
             }
 
-            object result = CallBuiltin(cntx, "float", obj);
-            if (result is double) {
-                return (double)result;
-            } else {
-                throw new ArgumentException("__float__ did not return a floating-point value");
-            }
+            try {
+                object result = CallBuiltin(cntx, "float", obj);
+                if (result is double) {
+                    return (double)result;
+                }
+            } catch { }
+            throw new ArgumentException(
+                String.Format("Unable to convert type '{0}' to floating point value", obj.GetType().Name));
         }
 
 
@@ -195,7 +204,8 @@ namespace NumpyDotNet {
                 if (result is string) {
                     return (string)result;
                 } else {
-                    throw new ArgumentException("__str__ did not return a string");
+                    throw new ArgumentException(
+                        String.Format("Unable to convert type '{0}' to string", obj.GetType().Name));
                 }
             }
         }
@@ -220,7 +230,8 @@ namespace NumpyDotNet {
                 if (result is Complex) {
                     return (Complex)result;
                 } else {
-                    throw new ArgumentException("__complex__ did not return a Complex");
+                    throw new ArgumentException(
+                        String.Format("Unable to convert type '{0}' to complex", obj.GetType().Name));
                 }
             }
         }
