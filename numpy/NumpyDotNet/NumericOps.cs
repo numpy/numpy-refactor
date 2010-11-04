@@ -1362,7 +1362,7 @@ namespace NumpyDotNet {
             Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object b = NpyCoreApi.GCHandleFromIntPtr(bPtr).Target;
             Object r = site.Target(site, a, b);
-            return GCHandle.ToIntPtr(GCHandle.Alloc(r));
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(r));
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate IntPtr del_GenericBinOp(IntPtr a, IntPtr b);
