@@ -31,7 +31,8 @@ typedef int (*skip_separator)(void **, const char *, void *);
 
 static void
 _unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
-                             npy_intp instrides, npy_intp N, int elsize)
+                             npy_intp instrides, npy_intp N, int elsize, 
+                             NpyArray_Descr* NPY_UNUSED(ignore))
 {
     npy_intp i;
     char *tout = dst;
@@ -66,7 +67,8 @@ _unaligned_strided_byte_move(char *dst, npy_intp outstrides, char *src,
 
 void
 _unaligned_strided_byte_copy(char *dst, npy_intp outstrides, char *src,
-                             npy_intp instrides, npy_intp N, int elsize)
+                             npy_intp instrides, npy_intp N, int elsize,
+                             NpyArray_Descr* NPY_UNUSED(ignore))
 {
     npy_intp i;
     char *tout = dst;
@@ -101,7 +103,8 @@ return
 
 static void
 _strided_byte_copy(char *dst, npy_intp outstrides, char *src, npy_intp instrides,
-                   npy_intp N, int elsize)
+                   npy_intp N, int elsize,
+                   NpyArray_Descr* NPY_UNUSED(ignore))
 {
     npy_intp i, j;
     char *tout = dst;
@@ -145,7 +148,101 @@ _strided_byte_copy(char *dst, npy_intp outstrides, char *src, npy_intp instrides
 
 }
 
+/*
+ * This is a copy function for object arrays. It copies and manages the refcounts
+ * in one loop.
+ */
+static void
+_strided_object_copy(char* dst, npy_intp outstrides, char* src, npy_intp instrides,
+                     npy_intp N, int elsize,
+                     NpyArray_Descr* NPY_UNUSED(ignore))
+{
+    int i;
+    assert(elsize == sizeof(void*));
+    for (i=0; i<N; i++) {
+        void* newref = NpyInterface_INCREF(*(void**)src);
+        void* oldref = *(void**)dst;
+        if (oldref != NULL) {
+            NpyInterface_DECREF(oldref);
+        }
+        *(void**)dst = newref;
+        src += instrides;
+        dst += outstrides;
+    }
+}
 
+static void
+_unaligned_strided_object_copy(char* dst, npy_intp outstrides, char* src, npy_intp instrides,
+                               npy_intp N, int elsize,
+                               NpyArray_Descr* NPY_UNUSED(ignore))
+{
+    int i;
+    assert(elsize == sizeof(void*));
+    for (i=0; i<N; i++) {
+        void* tmp;
+        void* newref;
+        NPY_COPY_VOID_PTR(&tmp, src);
+        newref = NpyInterface_INCREF(tmp);
+        NPY_COPY_VOID_PTR(&tmp, dst);
+        if (tmp != NULL) {
+            NpyInterface_DECREF(tmp);
+        }
+        NPY_COPY_VOID_PTR(dst, &newref);
+        src += instrides;
+        dst += outstrides;
+    }
+}
+
+static void
+_strided_void_copy(char* dst, npy_intp outstrides, char* src, npy_intp instrides,
+                   npy_intp N, int elsize,
+                   NpyArray_Descr* descr)
+{
+    int i;
+    char* tmp = (char*)malloc(elsize);
+
+    for (i=0; i<N; i++) {
+        memcpy(tmp, src, elsize);
+        NpyArray_Item_INCREF(tmp, descr);
+        NpyArray_Item_XDECREF(dst, descr);
+        memcpy(dst, tmp, elsize);
+        src += instrides;
+        dst += outstrides;
+    }
+    free(tmp);
+}
+
+
+typedef void (*strided_copy_func_t)(char *, npy_intp, char *, npy_intp, npy_intp, int, NpyArray_Descr*);
+
+/*
+ * Returns the copy func for the arrays.  The arrays must be the same type.
+ * If src is NULL then it is assumed to be the same type and aligned.
+ */
+static strided_copy_func_t
+strided_copy_func(NpyArray* dest, NpyArray* src, int usecopy)
+{
+    if (NpyDataType_REFCHK(dest->descr)) {
+        if (NpyArray_ISOBJECT(dest)) {
+            if (NpyArray_SAFEALIGNEDCOPY(dest) && (src == NULL || NpyArray_SAFEALIGNEDCOPY(src))) {
+                return _strided_object_copy;
+            } else {
+                return _unaligned_strided_object_copy;
+            }
+        } else {
+            return _strided_void_copy;
+        }
+    }
+    else if (NpyArray_SAFEALIGNEDCOPY(dest) && (src == NULL || NpyArray_SAFEALIGNEDCOPY(src))) {
+        return _strided_byte_copy;
+    }
+    else if (usecopy) {
+        return _unaligned_strided_byte_copy;
+    }
+    else {
+        return _unaligned_strided_byte_move;
+    }
+}
 
 void
 _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size)
@@ -201,12 +298,12 @@ npy_byte_swap_vector(void *p, npy_intp n, int size)
 
 static int
 _copy_from_same_shape(NpyArray *dest, NpyArray *src,
-        void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int),
-        int swap)
+                      strided_copy_func_t myfunc, int swap)
 {
     int maxaxis = -1, elsize;
     npy_intp maxdim;
     NpyArrayIterObject *dit, *sit;
+    NpyArray_Descr* descr;
     NPY_BEGIN_THREADS_DEF
 
     dit = NpyArray_IterAllButAxis(dest, &maxaxis);
@@ -219,18 +316,16 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
         Npy_XDECREF(sit);
         return -1;
     }
-    elsize = NpyArray_ITEMSIZE(dest);
 
-    /* Refcount note: src and dst have the same size */
-    NpyArray_INCREF(src);
-    NpyArray_XDECREF(dest);
+    elsize = NpyArray_ITEMSIZE(dest);
+    descr = dest->descr;
 
     NPY_BEGIN_THREADS;
     while(dit->index < dit->size) {
         /* strided copy of elsize bytes */
         myfunc(dit->dataptr, dest->strides[maxaxis],
                sit->dataptr, src->strides[maxaxis],
-               maxdim, elsize);
+               maxdim, elsize, descr);
         if (swap) {
             _strided_byte_swap(dit->dataptr,
                                dest->strides[maxaxis],
@@ -250,16 +345,17 @@ _copy_from_same_shape(NpyArray *dest, NpyArray *src,
 
 static int
 _broadcast_copy(NpyArray *dest, NpyArray *src,
-           void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int),
-           int swap)
+                strided_copy_func_t myfunc, int swap)
 {
     int elsize;
     NpyArrayMultiIterObject *multi;
     int maxaxis;
     npy_intp maxdim;
+    NpyArray_Descr* descr;
     NPY_BEGIN_THREADS_DEF
 
-    elsize = NpyArray_ITEMSIZE(dest);
+    descr = dest->descr;
+    elsize = descr->elsize;
     multi = NpyArray_MultiIterFromArrays(NULL, 0, 2, dest, src);
     if (multi == NULL) {
         return -1;
@@ -274,13 +370,11 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
 
     maxaxis = NpyArray_RemoveSmallest(multi);
     if (maxaxis < 0) {
-        /*
-         * copy 1 0-d array to another
-         * Refcount note: src and dst have the same size
-         */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dest);
-        memcpy(dest->data, src->data, elsize);
+        if (NpyDataType_REFCHK(dest->descr)) {
+            myfunc(dest->data, 0, src->data, 0, 1, elsize, descr);
+        } else {
+            memcpy(dest->data, src->data, elsize);
+        }
         if (swap) {
             npy_byte_swap_vector(dest->data, 1, elsize);
         }
@@ -294,8 +388,6 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
      *
      * Refcount note: src and dest may have different sizes
      */
-    NpyArray_INCREF(src);
-    NpyArray_XDECREF(dest);
 
     NPY_BEGIN_THREADS;
     while(multi->index < multi->size) {
@@ -303,7 +395,7 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
                multi->iters[0]->strides[maxaxis],
                multi->iters[1]->dataptr,
                multi->iters[1]->strides[maxaxis],
-               maxdim, elsize);
+               maxdim, elsize, descr);
         if (swap) {
             _strided_byte_swap(multi->iters[0]->dataptr,
                                multi->iters[0]->strides[maxaxis],
@@ -312,9 +404,6 @@ _broadcast_copy(NpyArray *dest, NpyArray *src,
         NpyArray_MultiIter_NEXT(multi);
     }
     NPY_END_THREADS;
-
-    NpyArray_INCREF(dest);
-    NpyArray_XDECREF(src);
 
     Npy_DECREF(multi);
     return 0;
@@ -327,15 +416,17 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     char *aligned = NULL;
     char *sptr;
     npy_intp numcopies, nbytes;
-    void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
+    strided_copy_func_t myfunc;
     int retval = -1;
+    NpyArray_Descr* descr;
     NPY_BEGIN_THREADS_DEF
 
     numcopies = NpyArray_SIZE(dest);
     if (numcopies < 1) {
         return 0;
     }
-    nbytes = NpyArray_ITEMSIZE(src);
+    descr = src->descr;
+    nbytes = descr->elsize;
 
     if (!NpyArray_ISALIGNED(src)) {
         aligned = malloc((size_t)nbytes);
@@ -350,15 +441,8 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     else {
         sptr = src->data;
     }
-    if (NpyArray_SAFEALIGNEDCOPY(dest)) {
-        myfunc = _strided_byte_copy;
-    }
-    else if (usecopy) {
-        myfunc = _unaligned_strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_move;
-    }
+
+    myfunc = strided_copy_func(dest, NULL, usecopy);
 
     if ((dest->nd < 2) || NpyArray_ISONESEGMENT(dest)) {
         char *dptr;
@@ -372,17 +456,12 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
             dstride = nbytes;
         }
 
-        /* Refcount note: src and dest may have different sizes */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dest);
         NPY_BEGIN_THREADS;
-        myfunc(dptr, dstride, sptr, 0, numcopies, (int) nbytes);
+        myfunc(dptr, dstride, sptr, 0, numcopies, (int) nbytes, descr);
         if (swap) {
             _strided_byte_swap(dptr, dstride, numcopies, (int) nbytes);
         }
         NPY_END_THREADS;
-        NpyArray_INCREF(dest);
-        NpyArray_XDECREF(src);
     }
     else {
         NpyArrayIterObject *dit;
@@ -392,13 +471,10 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
         if (dit == NULL) {
             goto finish;
         }
-        /* Refcount note: src and dest may have different sizes */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dest);
         NPY_BEGIN_THREADS;
         while(dit->index < dit->size) {
             myfunc(dit->dataptr, NpyArray_STRIDE(dest, axis), sptr, 0,
-                   NpyArray_DIM(dest, axis), nbytes);
+                   NpyArray_DIM(dest, axis), nbytes, descr);
             if (swap) {
                 _strided_byte_swap(dit->dataptr, NpyArray_STRIDE(dest, axis),
                                    NpyArray_DIM(dest, axis), nbytes);
@@ -406,8 +482,6 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
             NpyArray_ITER_NEXT(dit);
         }
         NPY_END_THREADS;
-        NpyArray_INCREF(dest);
-        NpyArray_XDECREF(src);
         Npy_DECREF(dit);
     }
     retval = 0;
@@ -431,21 +505,25 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
 {
     NpyArrayIterObject *it;
     NpyArray *orig_src;
-    void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
+    strided_copy_func_t myfunc;
     char *dptr;
     int axis;
     int elsize;
     npy_intp nbytes;
+    NpyArray_Descr* descr;
     NPY_BEGIN_THREADS_DEF
 
     orig_src = src;
     if (NpyArray_NDIM(src) == 0) {
         /* Refcount note: src and dst have the same size */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dst);
         NPY_BEGIN_THREADS;
-        memcpy(NpyArray_BYTES(dst), NpyArray_BYTES(src),
-               NpyArray_ITEMSIZE(src));
+        if (NpyDataType_REFCHK(dst->descr)) {
+            myfunc = strided_copy_func(dst, src, NPY_TRUE);
+            myfunc(dst->data, 0, src->data, 0, 1, dst->descr->elsize, dst->descr);
+        }  else {
+            memcpy(NpyArray_BYTES(dst), NpyArray_BYTES(src),
+                   NpyArray_ITEMSIZE(src));
+        }
         NPY_END_THREADS;
         return 0;
     }
@@ -470,24 +548,17 @@ _flat_copyinto(NpyArray *dst, NpyArray *src, NPY_ORDER order)
         return -1;
     }
 
-    if (NpyArray_SAFEALIGNEDCOPY(src)) {
-        myfunc = _strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_copy;
-    }
+    myfunc = strided_copy_func(src, NULL, NPY_TRUE);
 
     dptr = NpyArray_BYTES(dst);
-    elsize = NpyArray_ITEMSIZE(dst);
+    descr = dst->descr;
+    elsize = descr->elsize;;
     nbytes = elsize * NpyArray_DIM(src, axis);
 
-    /* Refcount note: src and dst have the same size */
-    NpyArray_INCREF(src);
-    NpyArray_XDECREF(dst);
     NPY_BEGIN_THREADS;
     while(it->index < it->size) {
         myfunc(dptr, elsize, it->dataptr, NpyArray_STRIDE(src,axis),
-               NpyArray_DIM(src,axis), elsize);
+               NpyArray_DIM(src,axis), elsize, descr);
         dptr += nbytes;
         NpyArray_ITER_NEXT(it);
     }
@@ -632,7 +703,7 @@ static int
 _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
 {
     int swap;
-    void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
+    strided_copy_func_t myfunc;
     int simple;
     int same;
     NPY_BEGIN_THREADS_DEF
@@ -646,13 +717,11 @@ _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
         return -1;
     }
     same = NpyArray_SAMESHAPE(dest, src);
-    simple = same && ((NpyArray_ISCARRAY_RO(src) && NpyArray_ISCARRAY(dest)) ||
-                      (NpyArray_ISFARRAY_RO(src) && NpyArray_ISFARRAY(dest)));
+    simple = same && !NpyDataType_REFCHK(dest->descr) &&
+        ((NpyArray_ISCARRAY_RO(src) && NpyArray_ISCARRAY(dest)) ||
+         (NpyArray_ISFARRAY_RO(src) && NpyArray_ISFARRAY(dest)));
 
     if (simple) {
-        /* Refcount note: src and dest have the same size */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dest);
         NPY_BEGIN_THREADS;
         if (usecopy) {
             memcpy(dest->data, src->data, NpyArray_NBYTES(dest));
@@ -670,15 +739,8 @@ _array_copy_into(NpyArray *dest, NpyArray *src, int usecopy)
         return _copy_from0d(dest, src, usecopy, swap);
     }
 
-    if (NpyArray_SAFEALIGNEDCOPY(dest) && NpyArray_SAFEALIGNEDCOPY(src)) {
-        myfunc = _strided_byte_copy;
-    }
-    else if (usecopy) {
-        myfunc = _unaligned_strided_byte_copy;
-    }
-    else {
-        myfunc = _unaligned_strided_byte_move;
-    }
+    myfunc = strided_copy_func(dest, src, usecopy);
+
     /*
      * Could combine these because _broadcasted_copy would work as well.
      * But, same-shape copying is so common we want to speed it up.
@@ -1249,7 +1311,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
 {
     int elsize, simple;
     NpyArrayIterObject *idest, *isrc;
-    void (*myfunc)(char *, npy_intp, char *, npy_intp, npy_intp, int);
+    strided_copy_func_t myfunc;
     NPY_BEGIN_THREADS_DEF
 
     if (!NpyArray_EquivArrTypes(dest, src)) {
@@ -1267,12 +1329,10 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
         return -1;
     }
 
-    simple = ((NpyArray_ISCARRAY_RO(src) && NpyArray_ISCARRAY(dest)) ||
-              (NpyArray_ISFARRAY_RO(src) && NpyArray_ISFARRAY(dest)));
+    simple = !NpyDataType_REFCHK(dest->descr) &&
+        ((NpyArray_ISCARRAY_RO(src) && NpyArray_ISCARRAY(dest)) ||
+         (NpyArray_ISFARRAY_RO(src) && NpyArray_ISFARRAY(dest)));
     if (simple) {
-        /* Refcount note: src and dest have the same size */
-        NpyArray_INCREF(src);
-        NpyArray_XDECREF(dest);
         NPY_BEGIN_THREADS;
         memcpy(dest->data, src->data, NpyArray_NBYTES(dest));
         NPY_END_THREADS;
@@ -1282,12 +1342,7 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
     if (NpyArray_SAMESHAPE(dest, src)) {
         int swap;
 
-        if (NpyArray_SAFEALIGNEDCOPY(dest) && NpyArray_SAFEALIGNEDCOPY(src)) {
-            myfunc = _strided_byte_copy;
-        }
-        else {
-            myfunc = _unaligned_strided_byte_copy;
-        }
+        myfunc = strided_copy_func(dest, src, NPY_TRUE);
         swap = NpyArray_ISNOTSWAPPED(dest) != NpyArray_ISNOTSWAPPED(src);
         return _copy_from_same_shape(dest, src, myfunc, swap);
     }
@@ -1304,18 +1359,23 @@ NpyArray_CopyAnyInto(NpyArray *dest, NpyArray *src)
     }
     elsize = dest->descr->elsize;
 
-    /* Refcount note: src and dest have the same size */
-    NpyArray_INCREF(src);
-    NpyArray_XDECREF(dest);
-    NPY_BEGIN_THREADS;
-    while(idest->index < idest->size) {
-        memcpy(idest->dataptr, isrc->dataptr, elsize);
-        NpyArray_ITER_NEXT(idest);
-        NpyArray_ITER_NEXT(isrc);
+    if (!NpyDataType_REFCHK(dest->descr)) {
+        NPY_BEGIN_THREADS;
+        while(idest->index < idest->size) {
+            memcpy(idest->dataptr, isrc->dataptr, elsize);
+            NpyArray_ITER_NEXT(idest);
+            NpyArray_ITER_NEXT(isrc);
+        }
+        NPY_END_THREADS;
+    } else {
+        myfunc = strided_copy_func(dest, src, NPY_TRUE);
+        while(idest->index < idest->size) {
+            NpyArray_Descr *descr = dest->descr;
+            myfunc(idest->dataptr, 0, isrc->dataptr, 0, 1, elsize, descr);
+            NpyArray_ITER_NEXT(idest);
+            NpyArray_ITER_NEXT(isrc);
+        }
     }
-    NPY_END_THREADS;
-    Npy_DECREF(idest);
-    Npy_DECREF(isrc);
     return 0;
 }
 

@@ -709,7 +709,7 @@ _new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
 
         while (size--) {
             _unaligned_strided_byte_copy(buffer, (npy_intp) elsize, it->dataptr,
-                                         astride, N, elsize);
+                                         astride, N, elsize, NULL);
             if (swap) {
                 _strided_byte_swap(buffer, (npy_intp) elsize, N, elsize);
             }
@@ -721,7 +721,7 @@ _new_sort(NpyArray *op, int axis, NPY_SORTKIND which)
                 _strided_byte_swap(buffer, (npy_intp) elsize, N, elsize);
             }
             _unaligned_strided_byte_copy(it->dataptr, astride, buffer,
-                                         (npy_intp) elsize, N, elsize);
+                                         (npy_intp) elsize, N, elsize, NULL);
             NpyArray_ITER_NEXT(it);
         }
         NpyDataMem_FREE(buffer);
@@ -788,7 +788,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
         indbuffer = NpyDataMem_NEW(N*sizeof(npy_intp));
         while (size--) {
             _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize,
-                                         it->dataptr, astride, N, elsize);
+                                         it->dataptr, astride, N, elsize, NULL);
             if (swap) {
                 _strided_byte_swap(valbuffer, (npy_intp) elsize, N, elsize);
             }
@@ -802,7 +802,7 @@ _new_argsort(NpyArray *op, int axis, NPY_SORTKIND which)
                 goto fail;
             }
             _unaligned_strided_byte_copy(rit->dataptr, rstride, indbuffer,
-                                         sizeof(npy_intp), N, sizeof(npy_intp));
+                                         sizeof(npy_intp), N, sizeof(npy_intp), NULL);
             NpyArray_ITER_NEXT(it);
             NpyArray_ITER_NEXT(rit);
         }
@@ -1217,7 +1217,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
                 argsort = mps[j]->descr->f->argsort[NPY_MERGESORT];
                 _unaligned_strided_byte_copy(valbuffer, (npy_intp) elsize,
                                              its[j]->dataptr, astride,
-                                             N, elsize);
+                                             N, elsize, NULL);
                 if (swaps[j]) {
                     _strided_byte_swap(valbuffer, (npy_intp) elsize, N, elsize);
                 }
@@ -1230,7 +1230,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
                 NpyArray_ITER_NEXT(its[j]);
             }
             _unaligned_strided_byte_copy(rit->dataptr, rstride, indbuffer,
-                                         sizeof(npy_intp), N, sizeof(npy_intp));
+                                         sizeof(npy_intp), N, sizeof(npy_intp), NULL);
             NpyArray_ITER_NEXT(rit);
         }
         NpyDataMem_FREE(valbuffer);
