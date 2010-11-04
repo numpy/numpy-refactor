@@ -26,45 +26,27 @@ namespace NumpyDotNet
     [PythonType]
     public partial class ndarray : Wrapper, IEnumerable<object>, IBufferProvider, NumpyDotNet.IArray
     {
-        private static String[] ndarryArgNames = { "shape", "dtype", "buffer",
-                                                   "offset", "strides", "order" };
 
-
-        public static object __new__(CodeContext cntx, PythonType cls, object shape, object dtype,
-                             object buffer = null, object offset = null, object strides = null, object order = null) {
-            ndarray r = new ndarray(IntPtr.Zero);
-            r.Construct(cntx, new object[] { shape, dtype, buffer, offset, strides, order });
-            return r;
+        public ndarray() {
         }
 
-        
-
-        public ndarray(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params object[] posArgs) {
-            object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
-            Construct(cntx, args);
-        }
-
-
-        /// <summary>
-        /// Arguments are: object, dtype, copy, order, subok
-        /// </summary>
-        /// <param name="cntx"></param>
-        /// <param name="args"></param>
-        private void Construct(CodeContext cntx, Object[] args) {
+        public void __init__(CodeContext cntx, object shape, object dtype = null,
+                             object buffer = null, object offset = null, 
+                              object strides = null, object order = null) {
             dtype type = null;
 
             core = IntPtr.Zero;
 
-            long[] shape = NpyUtil_ArgProcessing.IntArrConverter(args[0]);
-            if (shape == null) 
-                throw new ArgumentException("Array constructor requires a shape to be specified.");
+            long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
+            if (dtype != null) {
+                type = NpyDescr.DescrConverter(cntx, dtype);
+            }
 
-            if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
-            if (args[2] != null)
+            if (buffer != null)
                 throw new NotImplementedException("Buffer support is not implemented.");
-            long offset = NpyUtil_ArgProcessing.IntConverter(args[3]);
-            long[] strides = NpyUtil_ArgProcessing.IntArrConverter(args[4]);
-            NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(args[5]);
+            long loffset = NpyUtil_ArgProcessing.IntConverter(offset);
+            long[] aStrides = NpyUtil_ArgProcessing.IntArrConverter(strides);
+            NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
 
             if (type == null)
                 type = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
@@ -74,19 +56,19 @@ namespace NumpyDotNet
                 throw new ArgumentException("data-type with unspecified variable length");
             }
 
-            if (strides != null) {
-                if (strides.Length != shape.Length) {
+            if (aStrides != null) {
+                if (aStrides.Length != aShape.Length) {
                     throw new ArgumentException("strides, if given, must be the same length as shape");
                 }
 
-                if (!NpyArray.CheckStrides(itemsize, shape, strides)) {
+                if (!NpyArray.CheckStrides(itemsize, aShape, aStrides)) {
                     throw new ArgumentException("strides is compatible with shape of requested array and size of buffer");
                 }
             }
 
             // Creates a new array object.  By passing 'this' in the current instance
             // becomes the wrapper object for the new array.
-            ndarray wrap = NpyCoreApi.NewFromDescr(type, shape, strides, 0, 
+            ndarray wrap = NpyCoreApi.NewFromDescr(type, aShape, aStrides, 0, 
                 new NpyCoreApi.UseExistingWrapper { Wrapper = this });
             if (wrap != this) {
                 throw new InvalidOperationException("Internal error: returned array wrapper is different than current instance.");
@@ -94,13 +76,6 @@ namespace NumpyDotNet
             if ((type.Flags & NpyDefs.NPY__ITEM_HASOBJECT) != 0) {
                 throw new NotImplementedException("PyArray_FillObject not implemented yet");
             }
-        }
-
-
-        // Creates a wrapper for an array created on the native side, such as the result of a slice operation.
-        public ndarray(IntPtr a)
-        {
-            core = a;
         }
 
         protected override void Dispose(bool disposing) {

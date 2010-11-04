@@ -1375,7 +1375,8 @@ namespace NumpyDotNet {
                         }
                     }
                 } else {
-                    wrapArray = new ndarray(coreArray);
+                    wrapArray = new ndarray();
+                    wrapArray.SetArray(coreArray);
                 }
 
                 IntPtr ret = GCHandle.ToIntPtr(AllocGCHandle(wrapArray));
