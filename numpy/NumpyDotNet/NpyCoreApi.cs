@@ -1353,7 +1353,7 @@ namespace NumpyDotNet {
                     }
                 }
   
-                ndarray wrapArray;
+                ndarray wrapArray=null;
                 if (useExisting != null) {
                     // The UseExistingWrapper struct is a hack to allow us to re-use
                     // the interfaceData pointer for multiple purposes.
@@ -1363,6 +1363,7 @@ namespace NumpyDotNet {
                 } else if (subtype != null) {
                     CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
                     wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
+
                     if (PythonOps.HasAttr(cntx, wrapArray, "__array_finalize__")) {
                         object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
                         if (func != null) {
@@ -1387,7 +1388,7 @@ namespace NumpyDotNet {
                 Console.WriteLine("Insufficient memory while allocating array wrapper.");
                 success = 0;
             } catch (Exception e) {
-                Console.WriteLine("Exception while allocating array wrapper: {0}", e);
+                Console.WriteLine("Exception while allocating array wrapper: {0}", e.Message);
                 success = 0;
             }
             return success;
@@ -1698,6 +1699,11 @@ namespace NumpyDotNet {
             }
         }
 
+        private static void SetError(NpyExc_Type exceptType, string msg) {
+            ErrorCode = exceptType;
+            ErrorMessage = msg;
+        }
+
 
         /// <summary>
         /// Called by NpyErr_SetMessage in the native world when something bad happens
@@ -1709,8 +1715,7 @@ namespace NumpyDotNet {
                 Console.WriteLine("Internal error: invalid exception type {0}, likely ErrorType and npyexc_type (npy_api.h) are out of sync.",
                     exceptType);
             }
-            ErrorCode = (NpyExc_Type)exceptType;
-            ErrorMessage = new string(bStr);
+            SetError((NpyExc_Type)exceptType, new string(bStr));
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe public delegate void del_SetErrorCallback(int exceptType, sbyte* msg);
@@ -2059,10 +2064,10 @@ namespace NumpyDotNet {
                     if (!AllocatedHandles.TryGetValue(p, out handleType)) {
                         throw new AccessViolationException(
                             String.Format("Internal error: attempt to access unknown GCHandle {0}.", p));
-                    } else if (false && handleType == GCHandleType.Weak && !weakOk) {
-                        throw new AccessViolationException(
-                            String.Format("Internal error: invalid attempt to access weak reference {0}.", p));
-                    }
+                    } // else if (handleType == GCHandleType.Weak && !weakOk) {
+                    //    throw new AccessViolationException(
+                    //        String.Format("Internal error: invalid attempt to access weak reference {0}.", p));
+                    //}
                 }
             }
             return GCHandle.FromIntPtr(p);

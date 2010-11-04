@@ -30,6 +30,15 @@ namespace NumpyDotNet
                                                    "offset", "strides", "order" };
 
 
+        public static object __new__(CodeContext cntx, PythonType cls, object shape, object dtype,
+                             object buffer = null, object offset = null, object strides = null, object order = null) {
+            ndarray r = new ndarray(IntPtr.Zero);
+            r.Construct(cntx, new object[] { shape, dtype, buffer, offset, strides, order });
+            return r;
+        }
+
+        
+
         public ndarray(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ndarryArgNames, kwargs);
             Construct(cntx, args);
