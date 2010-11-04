@@ -817,7 +817,9 @@ namespace NumpyDotNet {
             dims = new long[] { len.ToInt64() };
             ndarray result = NpyCoreApi.NewFromDescr(native, dims, null, 0, null);
             result.SetItem(start, 0);
-            result.SetItem(next, d.ElementSize);
+            if (len.ToInt64() > 1) {
+                result.SetItem(next, d.ElementSize);
+            }
 
             if (len.ToInt64() > 2) {
                 NpyCoreApi.Fill(result);
