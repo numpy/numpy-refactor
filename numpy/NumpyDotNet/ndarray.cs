@@ -30,8 +30,17 @@ namespace NumpyDotNet
         public ndarray() {
         }
 
-        public void __init__(CodeContext cntx, object shape, object dtype = null,
-                             object buffer = null, object offset = null, 
+        public static ndarray __new__(CodeContext cntx, PythonType cls,
+                              object shape, object dtype = null,
+                              object buffer = null, object offset = null,
+                              object strides = null, object order = null) {
+            ndarray result = (ndarray)ObjectOps.__new__(cntx, cls);
+            result.Construct(cntx, shape, dtype, buffer, offset, strides, order);
+            return result;
+        }
+
+        internal void Construct(CodeContext cntx, object shape, object dtype = null,
+                              object buffer = null, object offset = null, 
                               object strides = null, object order = null) {
             dtype type = null;
 

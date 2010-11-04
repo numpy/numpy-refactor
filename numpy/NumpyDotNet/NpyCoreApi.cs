@@ -1362,16 +1362,17 @@ namespace NumpyDotNet {
                     wrapArray.SetArray(coreArray);
                 } else if (subtype != null) {
                     CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
-                    wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
+                    wrapArray = (ndarray)ObjectOps.__new__(cntx, subtype);
+                    wrapArray.SetArray(coreArray);
 
                     if (PythonOps.HasAttr(cntx, wrapArray, "__array_finalize__")) {
-                        object func = PythonOps.PythonTypeGetMember(cntx, subtype, wrapArray, "__array_finalize__");
+                        object func = PythonOps.ObjectGetAttribute(cntx, wrapArray, "__array_finalize__");
                         if (func != null) {
                             if (customStrides != 0) {
                                 UpdateFlags(wrapArray, NpyDefs.NPY_UPDATE_ALL);
                             }
                             // TODO: Check for a Capsule
-                            PythonOps.CallWithContext(cntx, func, interfaceObj);
+                            PythonCalls.Call(cntx, func, interfaceObj);
                         }
                     }
                 } else {
