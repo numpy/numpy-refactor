@@ -1607,10 +1607,21 @@ namespace NumpyDotNet
         }
 
         internal ScalarVoid(int size) {
-            dataptr = Marshal.AllocCoTaskMem(size);
-            // TODO: clear the memory.
+            AllocData(size);
             dtype_ = new dtype(NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_VOID));
             dtype_.ElementSize = size;
+        }
+
+        private void AllocData(int size) {
+            dataptr = Marshal.AllocCoTaskMem(size);
+            unsafe {
+                // TODO: We should be using memset, or something like it.
+                byte* p = (byte*)dataptr.ToPointer();
+                byte* end = p + size;
+                while (p < end) {
+                    *p++ = 0;
+                }
+            }
         }
 
         ~ScalarVoid() {
@@ -1655,7 +1666,7 @@ namespace NumpyDotNet
                 if (dataptr != IntPtr.Zero) {
                     Marshal.FreeCoTaskMem(dataptr);
                 }
-                dataptr = Marshal.AllocCoTaskMem(elsize);
+                AllocData(elsize);
             }
             dtype_ = arr.dtype;
             unsafe {
