@@ -279,6 +279,11 @@ namespace NumpyDotNet {
             return ret;
         }
 
+        public static ndarray frombuffer(object buffer, object dtype = null,
+                                         object count = null, object offset = null) {
+            throw new NotImplementedException();
+        }
+
 
         public static ndarray lexsort(IList<object> keys, int axis = -1) {
             int n = keys.Count;

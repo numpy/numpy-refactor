@@ -1098,7 +1098,24 @@ class TestView(TestCase):
         assert_array_equal(y, [67305985, 134678021])
 
 
-# TODO: Add TestStats. Doesn't work because a.view(cls) doesn't work.
+class TestStats(TestCase):
+    def test_subclass(self):
+        class TestArray(np.ndarray):
+            def __new__(cls, data, info):
+                result = np.array(data)
+                result = result.view(cls)
+                result.info = info
+                return result
+            def __array_finalize__(self, obj):
+                self.info = getattr(obj, "info", '')
+        dat = TestArray([[1,2,3,4],[5,6,7,8]], 'jubba')
+        res = dat.mean(1)
+        assert res.info == dat.info
+        res = dat.std(1)
+        assert res.info == dat.info
+        res = dat.var(1)
+        assert res.info == dat.info
+
 # TODO: Add TestSummarization. Does string compares on reprs
 
 class TestChoose(TestCase):
