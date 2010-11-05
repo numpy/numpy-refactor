@@ -356,6 +356,25 @@ namespace NumpyDotNet {
             }
         }
 
+        public static PythonDictionary _flagdict {
+            get {
+                PythonDictionary result = new PythonDictionary();
+                result["OWNDATA"] = NpyDefs.NPY_OWNDATA;
+                result["O"] = NpyDefs.NPY_OWNDATA;
+                result["FORTRAN"] = NpyDefs.NPY_FORTRAN;
+                result["F"] = NpyDefs.NPY_FORTRAN;
+                result["CONTIGUOUS"] = NpyDefs.NPY_CONTIGUOUS;
+                result["C"] = NpyDefs.NPY_CONTIGUOUS;
+                result["UPDATEIFCOPY"] = NpyDefs.NPY_UPDATEIFCOPY;
+                result["U"] = NpyDefs.NPY_UPDATEIFCOPY;
+                result["WRITEABLE"] = NpyDefs.NPY_WRITEABLE;
+                result["W"] = NpyDefs.NPY_WRITEABLE;
+                result["C_CONTIGUOUS"] = NpyDefs.NPY_C_CONTIGUOUS;
+                result["F_CONTIGUOUS"] = NpyDefs.NPY_F_CONTIGUOUS;
+                return result;
+            }
+        }
+
         public static ndarray concatenate(IEnumerable<object> seq, int axis = 0) {
             return NpyArray.Concatenate(seq, axis);
         }
