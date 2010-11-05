@@ -1114,6 +1114,9 @@ namespace NumpyDotNet {
         internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static unsafe extern void NpyArrayAccess_CopySwapScalar(IntPtr dtype, void *dest, void* src, bool swap);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
             [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
 
