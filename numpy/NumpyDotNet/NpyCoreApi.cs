@@ -1374,15 +1374,15 @@ namespace NumpyDotNet {
                             subtype = DynamicHelpers.GetPythonType(interfaceObj);
                         }
                     }
-                }
-                // Create the wrapper
-                if (subtype != null) {
-                    CodeContext cntx = NpyUtil_Python.DefaultContext;
-                    wrapArray = (ndarray)ObjectOps.__new__(cntx, subtype);
-                    wrapArray.SetArray(coreArray);
-                } else {
-                    wrapArray = new ndarray();
-                    wrapArray.SetArray(coreArray);
+                    // Create the wrapper
+                    if (subtype != null) {
+                        CodeContext cntx = NpyUtil_Python.DefaultContext;
+                        wrapArray = (ndarray)ObjectOps.__new__(cntx, subtype);
+                        wrapArray.SetArray(coreArray);
+                    } else {
+                        wrapArray = new ndarray();
+                        wrapArray.SetArray(coreArray);
+                    }
                 }
 
                 // Call __array_finalize__ for subtypes
