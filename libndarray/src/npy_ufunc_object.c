@@ -651,9 +651,11 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             /* fprintf(stderr, "ZERO..%d\n", loop->size); */
             for (i = 0; i < loop->size; i++) {
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->idptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->idptr));
+                } else {
+                    memmove(loop->bufptr[0], loop->idptr, loop->outsize);
                 }
-                memmove(loop->bufptr[0], loop->idptr, loop->outsize);
                 loop->bufptr[0] += loop->outsize;
             }
             break;
@@ -661,9 +663,11 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             /*fprintf(stderr, "ONEDIM..%d\n", loop->size); */
             while (loop->index < loop->size) {
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                } else {
+                    memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 }
-                memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 NpyArray_ITER_NEXT(loop->it);
                 loop->bufptr[0] += loop->outsize;
                 loop->index++;
@@ -674,9 +678,11 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             while (loop->index < loop->size) {
                 /* Copy first element to output */
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                } else {
+                    memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 }
-                memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 /* Adjust input pointer */
                 loop->bufptr[1] = loop->it->dataptr+loop->steps[1];
                 loop->function((char **)loop->bufptr, &(loop->N),
@@ -716,9 +722,11 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
                          * an object reference so we need to incref
                          * it since we care copying it to bufptr[0].
                          */
-                        NpyInterface_INCREF(*((void **)loop->castbuf));
+                        void** pDest = (void**)loop->bufptr[0];
+                        *pDest = NpyInterface_INCREF(*((void **)loop->castbuf));
+                    } else {
+                        memcpy(loop->bufptr[0], loop->castbuf, loop->outsize);
                     }
-                    memcpy(loop->bufptr[0], loop->castbuf, loop->outsize);
                 }
                 else {
                     /* Simple copy */
@@ -827,9 +835,11 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             /* fprintf(stderr, "ZERO..%d\n", loop->size); */
             for (i = 0; i < loop->size; i++) {
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->idptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->idptr));
+                } else {
+                    memcpy(loop->bufptr[0], loop->idptr, loop->outsize);
                 }
-                memcpy(loop->bufptr[0], loop->idptr, loop->outsize);
                 loop->bufptr[0] += loop->outsize;
             }
             break;
@@ -838,9 +848,11 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             /* fprintf(stderr, "ONEDIM..%d\n", loop->size); */
             while (loop->index < loop->size) {
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                } else {
+                    memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 }
-                memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 NpyArray_ITER_NEXT(loop->it);
                 loop->bufptr[0] += loop->outsize;
                 loop->index++;
@@ -852,9 +864,11 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             while (loop->index < loop->size) {
                 /* Copy first element to output */
                 if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                    NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                    void** pDest = (void**)loop->bufptr[0];
+                    *pDest = NpyInterface_INCREF(*((void **)loop->it->dataptr));
+                } else {
+                    memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 }
-                memmove(loop->bufptr[0], loop->it->dataptr, loop->outsize);
                 /* Adjust input pointer */
                 loop->bufptr[1] = loop->it->dataptr + loop->steps[1];
                 loop->function((char **)loop->bufptr, &(loop->N),
@@ -891,9 +905,11 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
                                                      loop->swap, NULL);
                     loop->cast(loop->buffer, loop->castbuf, 1, NULL, NULL);
                     if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                        NpyInterface_INCREF(*((void **)loop->castbuf));
+                        void** pDest = (void**)loop->bufptr[0];
+                        *pDest = NpyInterface_INCREF(*((void **)loop->castbuf));
+                    } else {
+                        memcpy(loop->bufptr[0], loop->castbuf, loop->outsize);
                     }
-                    memcpy(loop->bufptr[0], loop->castbuf, loop->outsize);
                 }
                 else {
                     /* Simple copy */
@@ -1040,9 +1056,11 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
                 for (i = 0; i < nn; i++) {
                     loop->bufptr[1] = loop->it->dataptr + (*ptr)*loop->steps[1];
                     if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                        NpyInterface_INCREF(*((void **)loop->bufptr[1]));
+                        void** pDest = (void**)loop->bufptr[0];
+                        *pDest = NpyInterface_INCREF(*((void **)loop->bufptr[1]));
+                    } else {
+                        memcpy(loop->bufptr[0], loop->bufptr[1], loop->outsize);
                     }
-                    memcpy(loop->bufptr[0], loop->bufptr[1], loop->outsize);
                     mm = (i == nn - 1 ? NpyArray_DIM(arr, axis) - *ptr :
                           *(ptr + 1) - *ptr) - 1;
                     if (mm > 0) {
@@ -1071,9 +1089,11 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
                 ptr = (npy_intp *)NpyArray_BYTES(ind);
                 for (i = 0; i < nn; i++) {
                     if (loop->obj & NPY_UFUNC_OBJ_ISOBJECT) {
-                        NpyInterface_INCREF(*((void **)loop->idptr));
+                        void** pDest = (void**)loop->bufptr[0];
+                        *pDest = NpyInterface_INCREF(*((void **)loop->idptr));
+                    } else {
+                        memcpy(loop->bufptr[0], loop->idptr, loop->outsize);
                     }
-                    memcpy(loop->bufptr[0], loop->idptr, loop->outsize);
                     n = 0;
                     mm = (i == nn - 1 ? NpyArray_DIM(arr, axis) - *ptr :
                           *(ptr + 1) - *ptr);
