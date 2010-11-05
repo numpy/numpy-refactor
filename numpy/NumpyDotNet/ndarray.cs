@@ -140,6 +140,25 @@ namespace NumpyDotNet
             return UnaryOp(cntx,  this, NpyDefs.NpyArray_Ops.npy_op_absolute);
         }
 
+        public ndarray __array__(CodeContext cntx, object descr = null) {
+            dtype newtype = null;
+            ndarray result;
+
+            if (descr != null) {
+                newtype = NpyDescr.DescrConverter(cntx, descr);
+            }
+            if (GetType() != typeof(ndarray)) {
+                result = NpyArray.FromArray(this, dtype, NpyDefs.NPY_ENSUREARRAY);
+            } else {
+                result = this;
+            }
+            if (newtype == null || newtype == result.dtype) {
+                return result;
+            } else {
+                return NpyCoreApi.CastToType(result, newtype, false);
+            }
+        }
+
         public ndarray __array_prepare__(ndarray a, object tuple) {
             return NpyCoreApi.ViewLike(a, this);
         }
