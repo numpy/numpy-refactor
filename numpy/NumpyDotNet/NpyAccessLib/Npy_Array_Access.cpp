@@ -728,3 +728,12 @@ extern "C" __declspec(dllexport)
     return (NpyDict_IterNext(dict, iter, key, value) != 0);
 }
 
+//
+// Returns a view of a using prototype as the interfaceData when creating the wrapper.
+// This will return the same subtype as prototype and use prototype in the __array_finalize__ call.
+//
+extern "C" __declspec(dllexport)
+    NpyArray* NpyArrayAccess_ViewLike(NpyArray* a, NpyArray* prototype) 
+{
+    return NpyArray_NewFromDescr(a->descr, a->nd, a->dimensions, a->strides, a->data, a->flags, NPY_FALSE, NULL, Npy_INTERFACE(prototype));
+}

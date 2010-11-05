@@ -279,12 +279,13 @@ namespace NumpyDotNet {
             } catch (Exception ex) {
                 args.ex = ex;
                 return -1;
-            }
-            // Copy the arrays back
-            for (int i = 0; i < arrs.Length; i++) {
-                IntPtr coreArray = arrs[i].Array;
-                Incref(coreArray);
-                Marshal.WriteIntPtr(arrays, IntPtr.Size * i, arrs[i].Array);
+            } finally {
+                // Copy the arrays back
+                for (int i = 0; i < arrs.Length; i++) {
+                    IntPtr coreArray = arrs[i].Array;
+                    Incref(coreArray);
+                    Marshal.WriteIntPtr(arrays, IntPtr.Size * i, arrs[i].Array);
+                }
             }
             return 0;
         }
@@ -298,57 +299,64 @@ namespace NumpyDotNet {
                 rtypenums = sig.Cast<int>().ToArray();
                 ntypenums = rtypenums.Length;
             }
-            // Convert and INCREF the arrays
-            IntPtr[] mps = arrays.Select(x => x == null ? IntPtr.Zero : x.Array).ToArray();
-            foreach (IntPtr a in mps) {
-                if (a != IntPtr.Zero) {
-                    NpyCoreApi.Incref(a);
+            unsafe {
+                // Convert and INCREF the arrays
+                IntPtr* mps = stackalloc IntPtr[arrays.Length];
+                for (int i = 0; i < arrays.Length; i++) {
+                    ndarray a = arrays[i];
+                    if (a == null) {
+                        mps[i] = IntPtr.Zero;
+                    } else {
+                        IntPtr p = a.Array;
+                        NpyCoreApi.Incref(p);
+                        mps[i] = p;
+                    }
                 }
-            }
 
-            if (prepare_outputs != null) {
-                PrepareArgs pargs = new PrepareArgs { cntx = cntx, prepare = prepare_outputs, args = args, ex = null };
-                GCHandle h = AllocGCHandle(pargs);
-                try {
-                    int val;
-                    Incref(f.UFunc);
-                    if ((val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
-                        PrepareCallback, GCHandle.ToIntPtr(h))) < 0) {
-                        CheckError();
-                        if (pargs.ex != null) {
-                            throw pargs.ex;
+                if (prepare_outputs != null) {
+                    PrepareArgs pargs = new PrepareArgs { cntx = cntx, prepare = prepare_outputs, args = args, ex = null };
+                    GCHandle h = AllocGCHandle(pargs);
+                    try {
+                        int val;
+                        Incref(f.UFunc);
+                        if ((val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
+                            PrepareCallback, GCHandle.ToIntPtr(h))) < 0) {
+                            CheckError();
+                            if (pargs.ex != null) {
+                                throw pargs.ex;
+                            }
                         }
-                    }
-                } finally {
-                    // Release the handle
-                    FreeGCHandle(h);
-                    // Convert the args back.
-                    for (int i = 0; i < arrays.Length; i++) {
-                        if (mps[i] != IntPtr.Zero) {
-                            arrays[i] = DecrefToInterface<ndarray>(mps[i]);
-                        } else {
-                            arrays[i] = null;
+                    } finally {
+                        // Release the handle
+                        FreeGCHandle(h);
+                        // Convert the args back.
+                        for (int i = 0; i < arrays.Length; i++) {
+                            if (mps[i] != IntPtr.Zero) {
+                                arrays[i] = DecrefToInterface<ndarray>(mps[i]);
+                            } else {
+                                arrays[i] = null;
+                            }
                         }
+                        Decref(f.UFunc);
                     }
-                    Decref(f.UFunc);
-                }
-            } else {
-                try {
-                    Incref(f.UFunc);
-                    if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
-                            null, IntPtr.Zero) < 0) {
-                        CheckError();
-                    }
-                } finally {
-                    // Convert the args back.
-                    for (int i = 0; i < arrays.Length; i++) {
-                        if (mps[i] != IntPtr.Zero) {
-                            arrays[i] = DecrefToInterface<ndarray>(mps[i]);
-                        } else {
-                            arrays[i] = null;
+                } else {
+                    try {
+                        Incref(f.UFunc);
+                        if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
+                                null, IntPtr.Zero) < 0) {
+                            CheckError();
                         }
+                    } finally {
+                        // Convert the args back.
+                        for (int i = 0; i < arrays.Length; i++) {
+                            if (mps[i] != IntPtr.Zero) {
+                                arrays[i] = DecrefToInterface<ndarray>(mps[i]);
+                            } else {
+                                arrays[i] = null;
+                            }
+                        }
+                        Decref(f.UFunc);
                     }
-                    Decref(f.UFunc);
                 }
             }
         }
@@ -506,6 +514,11 @@ namespace NumpyDotNet {
                 return DecrefToInterface<ndarray>(
                     NpyArray_View(arr.Array, descr, IntPtr.Zero));
             }
+        }
+
+        internal static ndarray ViewLike(ndarray arr, ndarray proto) {
+            return DecrefToInterface<ndarray>(
+                NpyArrayAccess_ViewLike(arr.Array, proto.Array));
         }
 
         internal static ndarray Subarray(ndarray self, IntPtr dataptr) {
@@ -870,8 +883,7 @@ namespace NumpyDotNet {
         internal delegate int del_PrepareOutputs(IntPtr ufunc, IntPtr arrays, IntPtr args);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyUFunc_GenericFunction(IntPtr func, int nargs,
-            [MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] IntPtr[] mps, 
+        internal static unsafe extern int NpyUFunc_GenericFunction(IntPtr func, int nargs, IntPtr* mps,
             int ntypenums, [In][MarshalAs(UnmanagedType.LPArray)] int[] rtypenums,
             int originalObjectWasArray, del_PrepareOutputs npy_prepare_outputs_func, IntPtr prepare_out_args);
 
@@ -1105,6 +1117,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static unsafe extern void NpyArrayAccess_CopySwapIn(IntPtr arr, long offset, void* data, int swap);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArrayAccess_ViewLike(IntPtr arr, IntPtr proto);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);

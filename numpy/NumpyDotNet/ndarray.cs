@@ -140,6 +140,18 @@ namespace NumpyDotNet
             return UnaryOp(cntx,  this, NpyDefs.NpyArray_Ops.npy_op_absolute);
         }
 
+        public ndarray __array_prepare__(ndarray a, object tuple) {
+            return NpyCoreApi.ViewLike(a, this);
+        }
+
+        public ndarray __array_wrap__(ndarray a) {
+            if (GetType() == a.GetType()) {
+                return a;
+            } else {
+                return NpyCoreApi.ViewLike(a, this);
+            }
+        }
+
         public object __lshift__(CodeContext cntx, Object b) {
             return BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_left_shift);
         }
