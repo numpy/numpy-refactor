@@ -261,6 +261,10 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
+        public static object operator -(ndarray a) {
+            return UnaryOp(null, a, NpyDefs.NpyArray_Ops.npy_op_negative);
+        }
+
         public static object operator *(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
