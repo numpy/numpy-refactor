@@ -1352,34 +1352,42 @@ namespace NumpyDotNet {
 
             try {
                 PythonType subtype = null;
-                object useExisting = null;
                 object interfaceObj = null;
+                ndarray wrapArray = null;
 
-                if (ensureArray == 0 && subtypePtr != IntPtr.Zero) {
-                    subtype = (PythonType)GCHandleFromIntPtr(subtypePtr).Target;
-                } else if (ensureArray == 0 && interfaceData != IntPtr.Zero) {
+                if (interfaceData != IntPtr.Zero) {
                     interfaceObj = GCHandleFromIntPtr(interfaceData, true).Target;
-                    if (interfaceObj is UseExistingWrapper) {
-                        useExisting = interfaceObj;
-                        interfaceObj = null;
-                    }
-                    if (interfaceObj != null && interfaceObj.GetType() != typeof(ndarray)) {
-                        subtype = DynamicHelpers.GetPythonType(interfaceObj);
-                    }
                 }
-  
-                ndarray wrapArray=null;
-                if (useExisting != null) {
-                    // The UseExistingWrapper struct is a hack to allow us to re-use
-                    // the interfaceData pointer for multiple purposes.
-                    UseExistingWrapper w = (UseExistingWrapper)useExisting;
+
+                if (interfaceObj is UseExistingWrapper) {
+                    // Special case for UseExistingWrapper
+                    UseExistingWrapper w = (UseExistingWrapper)interfaceObj;
                     wrapArray = (ndarray)w.Wrapper;
                     wrapArray.SetArray(coreArray);
-                } else if (subtype != null) {
-                    CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
+                    subtype = DynamicHelpers.GetPythonType(wrapArray);
+                } else {
+                    // Determine the subtype. null means ndarray
+                    if (ensureArray == 0) {
+                        if (subtypePtr != IntPtr.Zero) {
+                            subtype = (PythonType)GCHandleFromIntPtr(subtypePtr).Target;
+                        } else if (interfaceObj != null) {
+                            subtype = DynamicHelpers.GetPythonType(interfaceObj);
+                        }
+                    }
+                }
+                // Create the wrapper
+                if (subtype != null) {
+                    CodeContext cntx = NpyUtil_Python.DefaultContext;
                     wrapArray = (ndarray)ObjectOps.__new__(cntx, subtype);
                     wrapArray.SetArray(coreArray);
+                } else {
+                    wrapArray = new ndarray();
+                    wrapArray.SetArray(coreArray);
+                }
 
+                // Call __array_finalize__ for subtypes
+                if (subtype != null) {
+                    CodeContext cntx = NpyUtil_Python.DefaultContext;
                     if (PythonOps.HasAttr(cntx, wrapArray, "__array_finalize__")) {
                         object func = PythonOps.ObjectGetAttribute(cntx, wrapArray, "__array_finalize__");
                         if (func != null) {
@@ -1390,11 +1398,9 @@ namespace NumpyDotNet {
                             PythonCalls.Call(cntx, func, interfaceObj);
                         }
                     }
-                } else {
-                    wrapArray = new ndarray();
-                    wrapArray.SetArray(coreArray);
                 }
 
+                // Write the result
                 IntPtr ret = GCHandle.ToIntPtr(AllocGCHandle(wrapArray));
                 lastArrayHandle = ret;
                 Marshal.WriteIntPtr(interfaceRet, ret);
