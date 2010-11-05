@@ -77,6 +77,17 @@ namespace NumpyDotNet {
             NPY_NOTYPELTR = 0
         }
 
+        public enum NPY_SCALARKIND
+        {
+            NPY_NOSCALAR = -1,
+            NPY_BOOL_SCALAR,
+            NPY_INTPOS_SCALAR,
+            NPY_INTNEG_SCALAR,
+            NPY_FLOAT_SCALAR,
+            NPY_COMPLEX_SCALAR,
+            NPY_OBJECT_SCALAR
+        };
+
         public enum NPY_SORTKIND
         {
             NPY_QUICKSORT = 0,

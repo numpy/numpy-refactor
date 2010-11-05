@@ -1442,7 +1442,7 @@ namespace NumpyDotNet {
 
         // Logical NOT - not reciprocal
         static internal del_GenericUnaryOp Op_Invert = aPtr => {
-            Object a = GCHandle.FromIntPtr(aPtr).Target;
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
             Object result = Site_Not.Target(Site_Not, a);
             return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };

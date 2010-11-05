@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Security;
 using System.Text;
@@ -717,6 +718,9 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_Bool(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int NpyArray_ScalarKind(int typenum, IntPtr arr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -1360,6 +1364,7 @@ namespace NumpyDotNet {
                     UseExistingWrapper w = (UseExistingWrapper)useExisting;
                     wrapArray = (ndarray)w.Wrapper;
                     wrapArray.SetArray(coreArray);
+                    Console.WriteLine("Using core array {0}", coreArray);
                 } else if (subtype != null) {
                     CodeContext cntx = PythonOps.GetPythonTypeContext(subtype);
                     wrapArray = (ndarray)PythonOps.CallWithContext(cntx, subtype, coreArray);
