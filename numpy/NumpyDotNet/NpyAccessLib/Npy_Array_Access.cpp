@@ -606,6 +606,17 @@ extern "C" __declspec(dllexport)
     arr->descr->f->copyswap(data, arr->data+offset, swap, arr);
 }
 
+
+// Similar to above, but does not handle string, void or other flexibly sized types because it can't pass
+// an array pointer in.  This is specifically used for fixed scalar types.
+extern "C" __declspec(dllexport)
+    void _cdecl NpyArrayAccess_CopySwapScalar(NpyArray_Descr* descr, void *dest, void* src, int swap)
+{
+    descr->f->copyswap(dest, src, swap, NULL);
+}
+
+
+
 extern "C" __declspec(dllexport)
     int _cdecl NpyArrayAccess_SetDateTimeInfo(NpyArray_Descr* descr, const char* units, int num, int den, int events)
 {

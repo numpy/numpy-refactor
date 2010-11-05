@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Reflection;
 using IronPython.Runtime;
@@ -383,6 +384,57 @@ namespace NumpyDotNet {
             ndarray arr = NpyArray.FromAny(a, flags: NpyDefs.NPY_CARRAY);
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_CopyAndTranspose(arr.Array));
+        }
+
+
+
+        /// <summary>
+        /// Creates a scalar instance representing the (scalar) type in typecode. 'obj' is used to
+        /// initialize the value as either an object or a sequence of bytes that are re-interpreted
+        /// as the value (not string, use b'foo bar').  That is, the byte string is interpreted as
+        /// just a memory buffer that is turned into whatever the desired type is.  This is used for
+        /// pickling/unpickling.
+        /// </summary>
+        /// <param name="typecode">Descriptor for the desired type</param>
+        /// <param name="obj">Optional object or Bytes initializer</param>
+        /// <returns>ScalarGeneric instance</returns>
+        public static object scalar(dtype typecode, object obj = null) {
+            if (typecode.ElementSize == 0) {
+                throw new ArgumentException("itermsize cannot be zero");
+            }
+
+            IntPtr dataPtr = IntPtr.Zero;
+            object ret = null;
+            try {
+                // What we are doing here is allocating a block of memory the same size as the typecode's
+                // element size to build a scalar from.  This is either zero filled (obj ==null) or, if an
+                // object a handle to the object or, as a last resort, using a byte array.  The byte array
+                // is mostly used for pickling/unpickling as a way to stuff arbitrary byte data into a type.
+                if (typecode.ChkFlags(NpyDefs.NPY_ITEM_IS_POINTER)) {
+                    ret = new ScalarObject(obj);
+                } else {
+                    if (obj == null) {
+                        dataPtr = Marshal.AllocHGlobal(typecode.ElementSize);
+                        for (int i = 0; i < typecode.ElementSize; i++) Marshal.WriteByte(dataPtr, i, 0);
+                    } else {
+                        Bytes str = obj as Bytes;
+                        if (obj == null) {
+                            throw new ArgumentTypeException("initializing object must be a string");
+                        }
+
+                        if (str.Count < typecode.ElementSize) {
+                            throw new ArgumentException("initialization string is too small");
+                        }
+                        dataPtr = Marshal.AllocHGlobal(str.Count);
+                        str.Iteri((b, i) => Marshal.WriteByte(dataPtr, i, b));
+                    }
+
+                    ret = ScalarGeneric.ScalarFromData(typecode, dataPtr);
+                }
+            } finally {
+                if (dataPtr != IntPtr.Zero) Marshal.FreeHGlobal(dataPtr);
+            }
+            return ret;
         }
     }
 }
