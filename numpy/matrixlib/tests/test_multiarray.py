@@ -14,3 +14,6 @@ class TestView(TestCase):
 
         assert(isinstance(y,np.matrix))
         assert_equal(y.dtype, np.dtype('<i2'))
+
+if __name__ == "__main__":
+    run_module_suite()

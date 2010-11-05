@@ -109,6 +109,8 @@ namespace NumpyDotNet {
                     } else {
                         throw new OverflowException();
                     }
+                } catch (OverflowException) {
+                    throw;
                 } catch {
                     throw new ArgumentException(
                         String.Format("Unable to convert type '{0}' to integer", obj.GetType().Name));
@@ -148,6 +150,8 @@ namespace NumpyDotNet {
                     }
                     return (long)i;
                 }
+            } catch (OverflowException) {
+                throw;
             } catch { }
             throw new ArgumentException(
                 String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
@@ -181,6 +185,8 @@ namespace NumpyDotNet {
                 if (result is double) {
                     return (double)result;
                 }
+            } catch (OverflowException) {
+                throw;
             } catch { }
             throw new ArgumentException(
                 String.Format("Unable to convert type '{0}' to floating point value", obj.GetType().Name));
