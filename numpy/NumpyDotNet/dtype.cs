@@ -990,13 +990,13 @@ namespace NumpyDotNet {
             }
         }
 
-        internal object ToScalar(IntPtr dataPtr) {
+        internal object ToScalar(IntPtr dataPtr, int size) {
             if (ScalarType == null) {
                 throw new ArgumentException("Attempt to construct scalar from non-scalar type");
             }
             
             ScalarGeneric result = scalarInfo.ScalarConstructor();
-            return result.FillData(dataPtr);
+            return result.FillData(dataPtr, size);
         }
 
         #endregion
