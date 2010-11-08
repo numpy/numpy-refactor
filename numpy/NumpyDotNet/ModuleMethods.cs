@@ -17,6 +17,8 @@ namespace NumpyDotNet {
     public static class ModuleMethods {
         private static String[] arrayKwds = { "object", "dtype", "copy", "order", "subok", "ndmin" };
 
+        public const string __module__ = "numpy.core.multiarray";
+
         /// <summary>
         /// Module method 'array': constructs a new array from an input object and
         /// optional type and other arguments.

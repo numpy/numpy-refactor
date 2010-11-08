@@ -17,6 +17,13 @@ namespace NumpyDotNet
             return null;
         }
 
+        internal virtual object Value {
+            get {
+                throw new NotImplementedException(
+                    String.Format("Internal error: Value has not been overridden for scalar type '{0}'", GetType().Name));
+            }
+        }
+
         /// <summary>
         /// Fill the value with the value from the 0-d array
         /// </summary>
@@ -30,8 +37,19 @@ namespace NumpyDotNet
         }
 
         public object __reduce__(CodeContext cntx) {
-            return null;
-        }
+            object[] tupleValues = new object[2];
+
+            PythonModule ma = (PythonModule)IronPython.Runtime.Operations.PythonOps.ImportBottom(cntx, "numpy.core.multiarray", 0);
+            tupleValues[0] = ma.__getattribute__(cntx, "scalar");
+
+            if (dtype.isbuiltin == 0) { // TODO: Should be is scalar
+                tupleValues[1] = new PythonTuple(new object[] { dtype, Value });
+            } else {
+                tupleValues[1] = null;
+            }
+
+            return new PythonTuple(tupleValues);
+         }
 
         #region IArray interface
 
@@ -610,6 +628,8 @@ namespace NumpyDotNet
             value = val;
         }
 
+        internal override object Value { get { return value; } }
+
         public override dtype dtype {
             get {
                 if (dtype_ == null) {
@@ -700,6 +720,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             Marshal.WriteByte(result.UnsafeAddress, (byte)value);
@@ -765,6 +787,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -836,6 +860,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             Marshal.WriteInt32(result.UnsafeAddress, value);
@@ -905,6 +931,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -989,6 +1017,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             Marshal.WriteByte(result.UnsafeAddress, value);
@@ -1061,6 +1091,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             Marshal.WriteInt16(result.UnsafeAddress, (Int16)value);
@@ -1130,6 +1162,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -1203,6 +1237,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -1283,6 +1319,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
@@ -1355,6 +1393,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -1448,6 +1488,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             unsafe {
@@ -1529,6 +1571,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
@@ -1667,6 +1711,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return this[0]; } }
+
         internal override ndarray ToArray() {
             ndarray a = NpyCoreApi.NewFromDescr(dtype_, new long[0], null, dataptr, 0, null);
             //a.BaseObj = this;
@@ -1774,6 +1820,8 @@ namespace NumpyDotNet
             }
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             result.SetItem(value, 0);
@@ -1821,6 +1869,8 @@ namespace NumpyDotNet
             return s.value;
         }
 
+        internal override object Value { get { return value; } }
+
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
             result.SetItem(value, 0);
@@ -1863,6 +1913,8 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
+
+        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);

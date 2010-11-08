@@ -38,6 +38,12 @@ def install(bin_dir):
             if not isdir(dst_dir):
                  os.makedirs(dst_dir)
             shutil.copy(abs_path, dst_dir)
+
+    # Rename multiarray_cli.py to multiarray.py ONLY on IronPython
+    # installs because it will conflict with multiarray.so on other
+    # systems.
+    os.rename(join(sp_dir, r'numpy\core\multiarray_cli.py'),
+              join(sp_dir, r'numpy\core\multiarray.py'))
     write_config(join(sp_dir, r'numpy\__config__.py'))
 
 def write_config(path):
