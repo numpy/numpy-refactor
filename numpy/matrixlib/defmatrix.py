@@ -257,13 +257,13 @@ class matrix(N.ndarray):
         # now convert data to an array
         arr = N.array(data, dtype=dtype, copy=copy)
         ndim = arr.ndim
-        shape = arr.shape
         if (ndim > 2):
             raise ValueError, "matrix must be 2-dimensional"
         elif ndim == 0:
-            shape = (1,1)
+            arr.shape = (1,1)
         elif ndim == 1:
-            shape = (1,shape[0])
+            arr.shape = (1,arr.shape[0])
+
 
         order = False
         if (ndim == 2) and arr.flags.fortran:
@@ -272,9 +272,7 @@ class matrix(N.ndarray):
         if not (order or arr.flags.contiguous):
             arr = arr.copy()
 
-        ret = N.ndarray.__new__(subtype, shape, arr.dtype,
-                                buffer=arr,
-                                order=order)
+        ret = arr.view(subtype)
         return ret
 
     def __array_finalize__(self, obj):

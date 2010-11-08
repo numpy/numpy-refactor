@@ -986,8 +986,14 @@ namespace NumpyDotNet {
 
             ndarray a1 = FromAny(o1, d, flags: NpyDefs.NPY_ALIGNED);
             ndarray a2 = FromAny(o2, d, flags: NpyDefs.NPY_ALIGNED);
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_MatrixProduct(a1.Array, a2.Array, (int)d.TypeNum));
+            if (a1.ndim == 0) {
+                return NpyArray.EnsureAnyArray(a1.item() * a2);
+            } else if (a2.ndim == 0) {
+                return NpyArray.EnsureAnyArray(a1 * a2.item());
+            } else {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_MatrixProduct(a1.Array, a2.Array, (int)d.TypeNum));
+            }
         }
     }
 }
