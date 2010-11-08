@@ -42,8 +42,15 @@ def install(bin_dir):
     # Rename multiarray_cli.py to multiarray.py ONLY on IronPython
     # installs because it will conflict with multiarray.so on other
     # systems.
-    os.rename(join(sp_dir, r'numpy\core\multiarray_cli.py'),
-              join(sp_dir, r'numpy\core\multiarray.py'))
+    for f in [r'numpy\core\multiarray', r'numpy\core\umath']:
+        newF = join(sp_dir, f + r'.py')
+        oldF = join(sp_dir, f + r'_cli.py');
+
+        if os.path.exists(newF):
+            print "remove %s" % newF
+            os.remove(newF)
+        print "rename %s to %s" % (oldF, newF)
+        os.rename(oldF, newF)
     write_config(join(sp_dir, r'numpy\__config__.py'))
 
 def write_config(path):

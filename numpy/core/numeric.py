@@ -37,14 +37,9 @@ bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
         __all__.remove(n)
 
 
-if sys.platform == 'cli':
-    import multiarray
-    import umath_cli as umath
-    from umath_cli import *
-else:
-    import multiarray
-    import umath
-    from umath import *
+import multiarray
+import umath
+from umath import *
 
 import numerictypes
 from numerictypes import *

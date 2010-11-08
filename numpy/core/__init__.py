@@ -3,12 +3,8 @@ import sys
 from info import __doc__
 from numpy.version import version as __version__
 
-if sys.platform != 'cli':
-    import multiarray
-    import umath
-else:
-    import multiarray
-    import umath_cli as umath
+import multiarray
+import umath
 
 import _internal # for freeze programs
 
