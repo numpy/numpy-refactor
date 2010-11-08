@@ -400,12 +400,13 @@ namespace NumpyDotNet {
         /// <param name="typecode">Descriptor for the desired type</param>
         /// <param name="obj">Optional object or Bytes initializer</param>
         /// <returns>ScalarGeneric instance</returns>
-        public static object scalar(dtype typecode, object obj = null) {
+        public static object scalar(CodeContext cntx, dtype typecode, object obj = null) {
             if (typecode.ElementSize == 0) {
                 throw new ArgumentException("itermsize cannot be zero");
             }
 
             IntPtr dataPtr = IntPtr.Zero;
+            int size;
             object ret = null;
             try {
                 // What we are doing here is allocating a block of memory the same size as the typecode's
@@ -418,10 +419,15 @@ namespace NumpyDotNet {
                     if (obj == null) {
                         dataPtr = Marshal.AllocHGlobal(typecode.ElementSize);
                         for (int i = 0; i < typecode.ElementSize; i++) Marshal.WriteByte(dataPtr, i, 0);
+                        size = typecode.ElementSize;
                     } else {
                         Bytes str = obj as Bytes;
-                        if (obj == null) {
-                            throw new ArgumentTypeException("initializing object must be a string");
+                        if (str == null) {
+                            if (obj is string) {
+                                str = new Bytes(cntx, (string)obj, "UTF32");
+                            } else {
+                                throw new ArgumentTypeException("initializing object must be a string");
+                            }
                         }
 
                         if (str.Count < typecode.ElementSize) {
@@ -429,9 +435,10 @@ namespace NumpyDotNet {
                         }
                         dataPtr = Marshal.AllocHGlobal(str.Count);
                         str.Iteri((b, i) => Marshal.WriteByte(dataPtr, i, b));
+                        size = str.Count;
                     }
 
-                    ret = ScalarGeneric.ScalarFromData(typecode, dataPtr);
+                    ret = ScalarGeneric.ScalarFromData(typecode, dataPtr, size);
                 }
             } finally {
                 if (dataPtr != IntPtr.Zero) Marshal.FreeHGlobal(dataPtr);
