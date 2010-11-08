@@ -8,4 +8,5 @@ if sys.platform == 'cli':
     from NumpyDotNet.ModuleMethods import *
     import NumpyDotNet.ModuleMethods as NDNMM
     typeinfo = NDNMM.typeinfo
+    _flagdict = NDNMM._flagdict
 

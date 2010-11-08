@@ -151,12 +151,12 @@ else:
     import compat
     import lib
     from lib import *
+    import linalg
+    import polynomial
     if sys.platform != 'cli':
-        import linalg
         import fft
-        import polynomial
         import random
-        import ctypeslib
+    import ctypeslib
     import ma
     import matrixlib as _mat
     from matrixlib import *
@@ -165,10 +165,7 @@ else:
     #  but not imported in from numpy import *
     from __builtin__ import bool, int, long, float, complex, \
          object, unicode, str
-    if sys.platform == 'cli':
-        from core import round, max, min
-    else:
-        from core import round, abs, max, min
+    from core import round, abs, max, min
 
     __all__.extend(['__version__', 'pkgload', 'PackageLoader',
                'show_config'])
