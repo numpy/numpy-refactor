@@ -896,6 +896,13 @@ namespace NumpyDotNet {
                     dim, result.ndim));
             }
 
+            if (seq is ndarray && seq.GetType() != typeof(ndarray)) {
+                // Convert to an array to ensure the dimensionality reduction 
+                // assumption works.
+                ndarray array = FromArray((ndarray)seq, null, NpyDefs.NPY_ENSUREARRAY);
+                seq = (IEnumerable<object>)array;
+            }
+
             if (seq.Count() != result.Dims[dim]) {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
                     "AssignFromSeq: sequence/array shape mismatch.");

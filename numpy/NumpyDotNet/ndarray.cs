@@ -159,7 +159,7 @@ namespace NumpyDotNet
             }
         }
 
-        public ndarray __array_prepare__(ndarray a, object tuple) {
+        public ndarray __array_prepare__(ndarray a, params object[] args) {
             return NpyCoreApi.ViewLike(a, this);
         }
 
