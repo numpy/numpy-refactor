@@ -135,7 +135,6 @@ namespace NumpyDotNet
             IntPtr[] coreArrays = new IntPtr[nd];
             GCHandle h = NpyCoreApi.AllocGCHandle(this);
             try {
-                // TODO: We should be passing the managed array as the last arg for subtypes.
                 if (NpyCoreApi.NpyArray_NonZero(Array, coreArrays, GCHandle.ToIntPtr(h)) < 0) {
                     NpyCoreApi.CheckError();
                 }
