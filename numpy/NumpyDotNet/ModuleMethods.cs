@@ -307,7 +307,7 @@ namespace NumpyDotNet {
                 return null;
             }
             object[] objs;
-            PythonType pt = DynamicHelpers.GetPythonTypeFromType(d.ScalarType);
+            PythonType pt = d.type;
             if (d.ScalarType.IsSubclassOf(typeof(ScalarInteger))) {
                 object maxValue = d.ScalarType.GetField("MaxValue", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
                 object minValue = d.ScalarType.GetField("MinValue", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);

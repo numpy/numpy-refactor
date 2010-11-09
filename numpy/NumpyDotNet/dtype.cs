@@ -884,7 +884,7 @@ namespace NumpyDotNet {
         #region Scalar type support
 
         [Serializable]
-        class ScalarInfo {
+        internal class ScalarInfo {
             internal Type ScalarType;
             [NonSerialized]
             internal Func<ScalarGeneric> ScalarConstructor;
@@ -894,7 +894,7 @@ namespace NumpyDotNet {
             }
         };
 
-        private ScalarInfo scalarInfo = null;
+        internal ScalarInfo scalarInfo = null;
 
         public Type ScalarType {
             get {
