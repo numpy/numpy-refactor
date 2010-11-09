@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
+using IronPython.Runtime.Operations;
 using System.Runtime.InteropServices;
 using System.Numerics;
 using Microsoft.Scripting;
@@ -1614,26 +1615,30 @@ namespace NumpyDotNet
     [PythonType("numpy.void")]
     public class ScalarVoid : ScalarFlexible, IDisposable
     {
-        public static object __new__(PythonType cls) {
-            return new ScalarVoid();
+        public static object __new__(CodeContext cntx, PythonType cls) {
+            ScalarVoid result = (ScalarVoid)ObjectOps.__new__(cntx, cls);
+            return result;
         }
 
-        public static object __new__(PythonType cls, int size) {
-            return new ScalarVoid(size);
+        public static object __new__(CodeContext cntx, PythonType cls, int size) {
+            ScalarVoid result = (ScalarVoid)ObjectOps.__new__(cntx, cls);
+            result.dtype_ = new dtype(result.dtype_);
+            result.dtype_.ElementSize = size;
+            return result;
         }
 
-        public static object __new__(PythonType cls, BigInteger size) {
+        public static object __new__(CodeContext cntx, PythonType cls, BigInteger size) {
             if (size > int.MaxValue) {
                 throw new OverflowException(String.Format("Size must be smaller than {0}", int.MaxValue));
             }
-            return new ScalarVoid((int)size);
+            return __new__(cntx, cls, (int)size);
         }
 
         public static object __new__(CodeContext cntx, PythonType cls, ndarray arr) {
             if (arr.ndim == 0 && arr.IsInteger) {
                 object iVal = arr.__int__(cntx);
                 if (iVal is int) {
-                    return new ScalarVoid((int)iVal);
+                    return __new__(cntx, cls, (int)iVal);
                 } else {
                     throw new ArgumentException("Size of void is too large");
                 }
@@ -1645,7 +1650,7 @@ namespace NumpyDotNet
         public static object __new__(CodeContext cntx, PythonType cls, ScalarInteger size) {
             object ival = size.__int__(cntx);
             if (ival is int) {
-                return new ScalarVoid((int)ival);
+                return __new__(cntx, cls, (int)ival);
             } else {
                 throw new ArgumentException("Size of void is too large");
             }

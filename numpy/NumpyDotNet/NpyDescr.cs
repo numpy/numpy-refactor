@@ -17,10 +17,6 @@ namespace NumpyDotNet {
     /// </summary>
     internal class NpyDescr {
 
-        private static bool IsScalarType(CodeContext cntx, PythonType t) {
-            return (bool)NpyUtil_Python.CallBuiltin(cntx, "issubclass", t, PyGenericArrType_Type);
-        }
-
         internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
@@ -30,9 +26,15 @@ namespace NumpyDotNet {
             } else if (obj is dtype) {
                 result = (dtype)obj;
             } else if ((pt = obj as PythonType) != null) {
-                if (IsScalarType(cntx, pt)) {
+                if (PythonOps.IsSubClass(pt, PyGenericArrType_Type)) {
                     object scalar = PythonCalls.Call(cntx, pt);
                     result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
+                    if (PythonOps.IsSubClass(pt, PyVoidArrType_Type) && pt != PyVoidArrType_Type) {
+                        // Make a copy and replace the scalar constructor
+                        result = new dtype(result);
+                        result.scalarInfo = dtype.ScalarInfo.Make<ScalarVoid>();
+                        result.scalarInfo.ScalarConstructor = (() => (ScalarGeneric)PythonCalls.Call(cntx, pt));
+                    }   
                 } else {
                     result = ConvertFromPythonType(cntx, pt);
                 }
@@ -160,7 +162,10 @@ namespace NumpyDotNet {
                 return null;
             }
 
-            return NpyCoreApi.InheritDescriptor(t1, conv);
+            dtype result = NpyCoreApi.InheritDescriptor(t1, conv);
+            // Also copy the scalarInfo, which isn't inherited at the core level
+            result.scalarInfo = t1.scalarInfo;
+            return result;
         }
 
         /// <summary>
@@ -472,5 +477,6 @@ namespace NumpyDotNet {
         private static readonly PythonType PyMemoryView_Type = DynamicHelpers.GetPythonTypeFromType(typeof(MemoryView));
 
         private static readonly PythonType PyGenericArrType_Type = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarGeneric));
+        private static readonly PythonType PyVoidArrType_Type = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarVoid));
     }
 }

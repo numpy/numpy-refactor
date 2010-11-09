@@ -348,7 +348,7 @@ namespace NumpyDotNet {
                     CopySwap4((byte*)&f, p, !arr.IsNotSwapped);
                 }
             }
-            return f;
+            return (double)f;
         }
         internal static GetitemDelegate getitemFloatDelegate =
             (ptr, arrPtr) => GetItemWrapper(getitemFloat, ptr, arrPtr);
