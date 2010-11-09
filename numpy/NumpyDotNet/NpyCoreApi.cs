@@ -63,13 +63,7 @@ namespace NumpyDotNet {
         }
 
         internal static byte NativeByteOrder {
-            get {
-                if (oppositeByteOrder == '<') {
-                    return (byte)'>';
-                } else {
-                    return (byte)'<';
-                }
-            }
+            get { return (oppositeByteOrder == '<') ? (byte)'>' : (byte)'<'; }
         }
 
         internal static dtype SmallType(dtype t1, dtype t2) {
