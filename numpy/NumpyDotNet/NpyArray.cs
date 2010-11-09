@@ -6,6 +6,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
+using IronPython.Runtime.Types;
 using Microsoft.Scripting;
 
 namespace NumpyDotNet {
@@ -310,10 +311,12 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray FromArrayAttr(CodeContext cntx, object src, dtype descr, object context) {
-            if (!PythonOps.HasAttr(cntx, src, "__array__")) {
+            object f;
+            if (src is PythonType ||
+                !PythonOps.TryGetBoundAttr(cntx, src, "__array__", out f)) {
                 return null;
             }
-            object f = PythonOps.ObjectGetAttribute(cntx, src, "__array__");
+
             object result;
             if (context == null) {
                 if (descr == null) {
@@ -538,18 +541,17 @@ namespace NumpyDotNet {
             // TODO: __array_interface__
             // TODO: __array_struct__
             CodeContext cntx = NpyUtil_Python.DefaultContext;
-            try {
-                object arrayAttr = 
-                    PythonOps.ObjectGetAttribute(cntx, src, "__array__");
-                if (arrayAttr != null) {
+            object arrayAttr;
+            if (PythonOps.TryGetBoundAttr(cntx, src, "__array__", out arrayAttr)) {
+                try {
                     object ip = PythonCalls.Call(cntx, arrayAttr);
                     if (ip is ndarray) {
                         chktype = ((ndarray)ip).dtype;
                         return FindArrayReturn(chktype, minitype);
                     }
+                } catch {
+                    // Ignore errors
                 }
-            } catch {
-                // Ignore exceptions
             }
             // TODO: PyInstance_Check?
             if (src is IEnumerable<object>) {
@@ -894,6 +896,13 @@ namespace NumpyDotNet {
                 throw new IronPython.Runtime.Exceptions.RuntimeException(
                     String.Format("Source dimensions ({0}) exceeded target array dimensions ({1}).",
                     dim, result.ndim));
+            }
+
+            if (seq is ndarray && seq.GetType() != typeof(ndarray)) {
+                // Convert to an array to ensure the dimensionality reduction 
+                // assumption works.
+                ndarray array = FromArray((ndarray)seq, null, NpyDefs.NPY_ENSUREARRAY);
+                seq = (IEnumerable<object>)array;
             }
 
             if (seq.Count() != result.Dims[dim]) {

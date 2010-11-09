@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 using IronPython.Runtime;
 using IronPython.Runtime.Operations;
 
@@ -132,9 +133,13 @@ namespace NumpyDotNet
         internal ndarray[] NonZero() {
             int nd = ndim;
             IntPtr[] coreArrays = new IntPtr[nd];
-            // TODO: We should be passing the managed array as the last arg for subtypes.
-            if (NpyCoreApi.NpyArray_NonZero(Array, coreArrays, IntPtr.Zero) < 0) {
-                NpyCoreApi.CheckError();
+            GCHandle h = NpyCoreApi.AllocGCHandle(this);
+            try {
+                if (NpyCoreApi.NpyArray_NonZero(Array, coreArrays, GCHandle.ToIntPtr(h)) < 0) {
+                    NpyCoreApi.CheckError();
+                }
+            } finally {
+                NpyCoreApi.FreeGCHandle(h);
             }
             ndarray[] result = new ndarray[nd];
             for (int i = 0; i < nd; i++) {

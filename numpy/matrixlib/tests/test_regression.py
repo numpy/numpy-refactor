@@ -31,3 +31,7 @@ class TestRegression(TestCase):
         self.assertEqual(x.std().shape, ())
         self.assertEqual(x.argmax().shape, ())
 
+if __name__ == "__main__":
+    run_module_suite()
+
+
