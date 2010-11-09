@@ -363,6 +363,11 @@ namespace NumpyDotNet {
                 result = NpyCoreApi.DescrNew(result);
                 result.ElementSize = elsize;
             }
+            
+            // Use native endian as opposed to big- or little- if it matches the system.
+            if (endian != '=' && NpyDefs.IsNativeByteOrder(endian)) {
+                endian = (byte)'=';
+            }
             if (endian != (byte)'=' && result.ByteOrder != (byte)'|' &&
                 result.ByteOrder != endian) {
                 result = NpyCoreApi.DescrNew(result);

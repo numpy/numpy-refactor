@@ -893,6 +893,8 @@ namespace NumpyDotNet {
                 Bytes b = (Bytes)o;
                 bytes = new byte[b.Count];
                 b.CopyTo(bytes, 0);
+            } else if (!(o is string) && o is IEnumerable<object>) {
+                throw new ArgumentException("setting an array element with a sequence");
             } else {
                 string s;
                 if (o is string) {
