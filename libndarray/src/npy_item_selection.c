@@ -168,6 +168,7 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
         NpyArray *obj;
         obj = ret->base_arr;
         Npy_INCREF(obj);
+        NpyArray_ForceUpdate(ret);
         Npy_DECREF(ret);
         ret = obj;
     }
