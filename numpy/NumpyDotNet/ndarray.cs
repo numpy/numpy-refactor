@@ -82,9 +82,8 @@ namespace NumpyDotNet
             if (wrap != this) {
                 throw new InvalidOperationException("Internal error: returned array wrapper is different than current instance.");
             }
-            if ((type.Flags & NpyDefs.NPY__ITEM_HASOBJECT) != 0) {
-                throw new NotImplementedException("PyArray_FillObject not implemented yet");
-            }
+            // NOTE: CPython fills object arrays with Py_None here.  We don't
+            // need to do this since None is null and the arrays are zero filled.
         }
 
         protected override void Dispose(bool disposing) {
