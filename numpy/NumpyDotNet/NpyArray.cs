@@ -350,7 +350,9 @@ namespace NumpyDotNet {
                 return scalar.ToArray();
             } else {
                 ndarray arr = scalar.ToArray();
-                return FromArray(arr, descr, 0);
+                // passing scalar.dtype instead of descr in because otherwise we loose information. Not
+                // sure if more processing is needed.  Relevant CPython code is PyArray_DescrFromScalarUnwrap
+                return FromArray(arr, scalar.dtype, 0);
             }
         }
 
