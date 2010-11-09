@@ -1889,7 +1889,11 @@ arraydescr_kind_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_char_get(PyArray_Descr *self)
 {
+#if defined(NPY_PY3K)
+    return PyUnicode_FromStringAndSize(&self->descr->type, 1);
+#else
     return PyString_FromStringAndSize(&self->descr->type, 1);
+#endif
 }
 
 
