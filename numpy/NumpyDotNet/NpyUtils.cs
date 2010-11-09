@@ -150,7 +150,7 @@ namespace NumpyDotNet {
                     }
                     return (long)i;
                 }
-            } catch (OverflowException) {
+            } catch (OverflowException e) {
                 throw;
             } catch { }
             throw new ArgumentException(
@@ -626,87 +626,61 @@ namespace NumpyDotNet {
 
         private static void ConvertSingleIndex(Object arg, NpyIndexes indexes)
         {
-            if (arg == null)
-            {
+            if (arg == null) {
                 indexes.AddNewAxis();
-            }
-            else if (arg is IronPython.Runtime.Types.Ellipsis)
-            {
+            } else if (arg is IronPython.Runtime.Types.Ellipsis) {
                 indexes.AddEllipsis();
-            }
-            else if (arg is bool)
-            {
+            } else if (arg is bool) {
                 indexes.AddIndex((bool)arg);
-            }
-            else if (arg is int)
-            {
+            } else if (arg is int) {
                 indexes.AddIndex((IntPtr)(int)arg);
-            }
-            else if (arg is BigInteger)
-            {
+            } else if (arg is ScalarInt16) {
+                indexes.AddIndex((IntPtr)(int)(ScalarInt16)arg);
+            } else if (arg is ScalarInt32) {
+                indexes.AddIndex((IntPtr)(int)(ScalarInt32)arg);
+            } else if (arg is ScalarInt64) {
+                indexes.AddIndex((IntPtr)(int)(ScalarInt64)arg);
+            } else if (arg is BigInteger) {
                 BigInteger bi = (BigInteger)arg;
                 long lval = (long)bi;
                 indexes.AddIndex((IntPtr)lval);
-            }
-            else if (arg is ISlice)
-            {
+            } else if (arg is ISlice) {
                 indexes.AddIndex((ISlice)arg);
-            }
-            else if (arg is string) {
+            } else if (arg is string) {
                 indexes.AddIndex((string)arg);
-            }
-            else
-            {
+            } else {
                 ndarray array_arg = arg as ndarray;
 
                 // Boolean scalars
                 if (array_arg != null &&
                     array_arg.ndim == 0 &&
-                    NpyDefs.IsBool(array_arg.dtype.TypeNum))
-                {
+                    NpyDefs.IsBool(array_arg.dtype.TypeNum)) {
                     indexes.AddIndex(Converter.ConvertToBoolean(array_arg));
                 }
-                // Integer scalars
+                    // Integer scalars
                 else if (array_arg != null &&
                     array_arg.ndim == 0 &&
-                    NpyDefs.IsInteger(array_arg.dtype.TypeNum))
-                {
+                    NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
                     indexes.AddIndex((IntPtr)Converter.ConvertToInt64(array_arg));
-                }
-                else if (array_arg != null)
-                {
+                } else if (array_arg != null) {
                     // Arrays must be either boolean or integer.
-                    if (NpyDefs.IsInteger(array_arg.dtype.TypeNum))
-                    {
+                    if (NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
                         indexes.AddIntpArray(array_arg);
-                    }
-                    else if (NpyDefs.IsBool(array_arg.dtype.TypeNum))
-                    {
+                    } else if (NpyDefs.IsBool(array_arg.dtype.TypeNum)) {
                         indexes.AddBoolArray(array_arg);
-                    }
-                    else
-                    {
+                    } else {
                         throw new IndexOutOfRangeException("arrays used as indices must be of integer (or boolean) type.");
                     }
-                }
-                else if (arg is IEnumerable<Object>)
-                {
+                } else if (arg is IEnumerable<Object>) {
                     // Other sequences we convert to an intp array
                     indexes.AddIntpArray(arg);
-                }
-                else if (arg is IConvertible)
-                {
-                    if (IntPtr.Size == 4)
-                    {
+                } else if (arg is IConvertible) {
+                    if (IntPtr.Size == 4) {
                         indexes.AddIndex((IntPtr)Convert.ToInt32(arg));
-                    }
-                    else
-                    {
+                    } else {
                         indexes.AddIndex((IntPtr)Convert.ToInt64(arg));
                     }
-                }
-                else
-                {
+                } else {
                     throw new ArgumentException(String.Format("Argument '{0}' is not a valid index.", arg));
                 }
             }
