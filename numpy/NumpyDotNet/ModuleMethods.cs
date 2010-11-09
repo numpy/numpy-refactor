@@ -144,7 +144,15 @@ namespace NumpyDotNet {
         }
 
         public static ndarray empty(CodeContext cntx, object shape, object dtype = null, object order = null) {
-            long[] aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
+            long[] aShape;
+
+            try {
+                aShape = NpyUtil_ArgProcessing.IntArrConverter(shape);
+            } catch (OverflowException) {
+                // Translate error message to match CPython, make regressions happy.
+                throw new ArgumentException("Maximum allowed dimension exceeded");
+            }
+
             dtype d = NpyDescr.DescrConverter(cntx, dtype);
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
 
