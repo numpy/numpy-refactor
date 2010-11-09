@@ -159,12 +159,13 @@ NDARRAY_API NpyArray *
 NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
 {
     NpyArray *ret;
-    if (fortran == NPY_ANYORDER)
-        fortran = NpyArray_ISFORTRAN(m1);
+    npy_bool doFortran;
+
+    doFortran = (fortran == NPY_ANYORDER) ? NpyArray_ISFORTRAN(m1) : NPY_FALSE;
 
     Npy_INCREF(m1->descr);
     ret = NpyArray_Alloc(m1->descr, m1->nd, m1->dimensions,
-                         fortran, Npy_INTERFACE(m1));
+                         doFortran, Npy_INTERFACE(m1));
     if (ret == NULL) {
         return NULL;
     }
