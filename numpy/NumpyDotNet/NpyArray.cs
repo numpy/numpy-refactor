@@ -963,7 +963,7 @@ namespace NumpyDotNet {
                     }
                 }
             }
-            if (0 < axis && axis < NpyDefs.NPY_MAXDIMS) {
+            if (0 < axis && axis < NpyDefs.NPY_MAXDIMS || axis < 0) {
                 return result.SwapAxes(axis, 0);
             } else {
                 return result;
