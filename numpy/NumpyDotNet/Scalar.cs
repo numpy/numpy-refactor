@@ -1839,10 +1839,7 @@ namespace NumpyDotNet
         }
 
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
-            value = new Bytes(size);
-            for (int i = 0; i < size; i++) {
-                value[NpyUtil_Python.DefaultContext, i] = Marshal.ReadByte(dataPtr, i);
-            }
+            value = NumericOps.getitemString(dataPtr, size);
             return this;
         }
 
@@ -1892,13 +1889,13 @@ namespace NumpyDotNet
         }
 
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
-            unsafe {
-                byte[] b = new byte[size];
-                for (int i = 0; i < size; i++) b[i] = Marshal.ReadByte(dataPtr, i);
-                b = Encoding.Convert(Encoding.UTF32, Encoding.Unicode, b);
-                value = Encoding.Unicode.GetString(b);
-            }
-            return this;
+            value = (string)NumericOps.getitemUnicode(dataPtr, size, false);
+            // TODO: Unpickling unicode strings requires a double-copy of the data. We really need a better implementation.
+/*            byte[] b = new byte[size];
+            for (int i = 0; i < size; i++) b[i] = Marshal.ReadByte(dataPtr, i);
+            b = Encoding.Convert(Encoding.UTF32, Encoding.Unicode, b);
+            value = Encoding.Unicode.GetString(b); */
+            return this; 
         }
 
         private string value;

@@ -94,13 +94,15 @@ namespace NumpyDotNet {
                             result = NpyCoreApi.NewCopy(arr, order);
                         }
                     } else {
-                        dtype oldType = arr.dtype;
-                        if (oldType == type) {
-                            result = arr;
-                        } else {
-                            result = NpyCoreApi.NewCopy(arr, order);
-                            if (oldType != type) {
-                                arr.dtype = oldType;
+                        dtype oldtype = arr.dtype;
+                        if (NpyCoreApi.EquivTypes(oldtype, type)) {
+                            if (!copy && arr.StridingOk(order)) {
+                                result = arr;
+                            } else {
+                                result = NpyCoreApi.NewCopy(arr, order);
+                                if (oldtype != type) {
+                                    result.dtype = oldtype;
+                                }
                             }
                         }
                     }
@@ -440,21 +442,9 @@ namespace NumpyDotNet {
                         for (int i = 0; i < typecode.ElementSize; i++) Marshal.WriteByte(dataPtr, i, 0);
                         size = typecode.ElementSize;
                     } else {
-                        Bytes str = obj as Bytes;
-                        if (str == null) {
-                            if (obj is string) {
-                                str = new Bytes(cntx, (string)obj, "UTF32");
-                            } else {
-                                throw new ArgumentTypeException("initializing object must be a string");
-                            }
-                        }
-
-                        if (str.Count < typecode.ElementSize) {
-                            throw new ArgumentException("initialization string is too small");
-                        }
-                        dataPtr = Marshal.AllocHGlobal(str.Count);
-                        str.Iteri((b, i) => Marshal.WriteByte(dataPtr, i, b));
-                        size = str.Count;
+                        dataPtr = Marshal.AllocHGlobal(typecode.ElementSize);
+                        NumericOps.setitemUnicode(obj, dataPtr, typecode);
+                        size = typecode.ElementSize;
                     }
 
                     ret = ScalarGeneric.ScalarFromData(typecode, dataPtr, size);

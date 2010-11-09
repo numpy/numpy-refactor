@@ -447,11 +447,14 @@ namespace NumpyDotNet {
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
 
         internal static Object getitemString(IntPtr ptr, ndarray arr) {
-            int max = arr.dtype.ElementSize;
+            return getitemString(ptr, arr.dtype.ElementSize);
+        }
+
+        internal static Bytes getitemString(IntPtr ptr, int max) {
             List<byte> bytes = new List<byte>();
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
-                for (int i=0; i<max; i++) {
+                for (int i = 0; i < max; i++) {
                     byte b = *p++;
                     if (b == 0) {
                         break;
@@ -469,29 +472,31 @@ namespace NumpyDotNet {
         private static unsafe string Decode(Decoder d, byte* ptr, int nb) {
             int n = d.GetCharCount(ptr, nb, true);
             char* buffer = stackalloc char[n];
+
+            // Strip off any 
             d.GetChars(ptr, nb, buffer, n, true);
             return new string(buffer, 0, n);
         }
 
         internal static Object getitemUnicode(IntPtr ptr, ndarray arr) {
-            if (!arr.IsNotSwapped) {
-                unsafe {
-                    int elsize = arr.dtype.ElementSize;
-                    byte* buffer = stackalloc byte[elsize];
-                    byte* pSrc = (byte*)ptr.ToPointer();
-                    byte* pDest = buffer;
-                    int n = elsize / 4;
-                    for (int i=0; i<n; i++) {
-                        CopySwap4(pDest, pSrc, true);
-                        pSrc += 4;
-                        pDest += 4;
-                    }
-                    return Decode(Encoding.UTF32.GetDecoder(), buffer, elsize);
+            return getitemUnicode(ptr, arr.dtype.ElementSize, !arr.IsNotSwapped);
+        }
+
+        internal static string getitemUnicode(IntPtr ptr, int elsize, bool swap) {
+            unsafe {
+                byte* buffer = stackalloc byte[elsize];
+                byte* pSrc = (byte*)ptr.ToPointer();
+                byte* pDest = buffer;
+                int n = elsize / 4;
+                for (int i = 0; i < n; i++) {
+                    CopySwap4(pDest, pSrc, swap);
+                    pSrc += 4;
+                    pDest += 4;
                 }
-            } else {
-                unsafe {
-                    return Decode(Encoding.UTF32.GetDecoder(), (byte*)ptr.ToPointer(), arr.dtype.ElementSize);
-                }
+
+                // Trim any null chars (32-bit) off the end.
+                for (pDest -= 4; pDest > buffer && *(int*)pDest == 0; pDest -= 4) elsize -= 4;
+                return Decode(Encoding.UTF32.GetDecoder(), buffer, elsize);
             }
         }
 
@@ -879,6 +884,10 @@ namespace NumpyDotNet {
 
 
         internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
+            setitemString(o, ptr, arr.dtype);
+        }
+
+        internal static void setitemString(Object o, IntPtr ptr, dtype descr) {
             byte[] bytes;
             if (o is Bytes) {
                 Bytes b = (Bytes)o;
@@ -891,9 +900,9 @@ namespace NumpyDotNet {
                 } else {
                     s = PythonOps.Repr(NpyUtil_Python.DefaultContext, o);
                 }
-                bytes = Encoding.UTF8.GetBytes(s);
+                bytes = Encoding.GetEncoding("ascii", new EncoderExceptionFallback(), new DecoderExceptionFallback()).GetBytes(s);
             }
-            int elsize = arr.dtype.ElementSize;
+            int elsize = descr.ElementSize;
             int copySize = Math.Min(bytes.Length, elsize);
             int i;
             for (i = 0; i < copySize; i++) {
@@ -909,6 +918,10 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
 
         internal static void setitemUnicode(Object o, IntPtr ptr, ndarray arr) {
+            setitemUnicode(o, ptr, arr.dtype);
+        }
+
+        internal static void setitemUnicode(Object o, IntPtr ptr, dtype descr) {
             string s;
             if (o is Bytes) {
                 Bytes b = (Bytes)o;
@@ -920,14 +933,15 @@ namespace NumpyDotNet {
             }
             
             byte[] bytes = Encoding.UTF32.GetBytes(s);
-            int elsize = arr.dtype.ElementSize/4;
+            int elsize = descr.ElementSize/4;
             int copySize = Math.Min(bytes.Length/4, elsize);
             int i;
+
             unsafe {
                 fixed (byte* src = &bytes[0]) {
                     byte* pSrc = src;
                     byte* pDest = (byte*)ptr.ToPointer();
-                    bool swap = !arr.IsNotSwapped;
+                    bool swap = !descr.IsNativeByteOrder;
                     for (i=0; i<copySize; i++) {
                         CopySwap4(pDest, pSrc, swap);
                         pDest += 4;
