@@ -50,7 +50,7 @@ namespace NumpyDotNet {
             } else if (obj is PythonTuple) {
                 result = TryConvertFromTuple(cntx, (PythonTuple)obj);
                 if (result == null) {
-                    throw new ArgumentException("data type not understood.");
+                    throw new ArgumentTypeException("data type not understood.");
                 }
             } else if (obj is List) {
                 result = ConvertFromArrayDescr(cntx, (List)obj, align);
@@ -60,7 +60,7 @@ namespace NumpyDotNet {
                 result = DescrFromObject(cntx, obj);
             }
             if (result == null) {
-                throw new ArgumentException("data type not understood");
+                throw new ArgumentTypeException("data type not understood");
             }
             return result;
         }
@@ -100,7 +100,7 @@ namespace NumpyDotNet {
                     fields.Add(info);
                 }
             } catch {
-                throw new ArgumentException("data type not understood");
+                throw new ArgumentTypeException("data type not understood");
             }
             return ConvertFromFields(cntx, fields, align);
         }
@@ -438,7 +438,7 @@ namespace NumpyDotNet {
             FieldInfo result = new FieldInfo();
             PythonTuple tup = item as PythonTuple;
             if (tup == null || tup.Count < 2) {
-                throw new ArgumentException("Data type not understood");
+                throw new ArgumentTypeException("Data type not understood");
             }
             // Deal with the name and title
             object val = tup[0];
@@ -447,7 +447,7 @@ namespace NumpyDotNet {
             } else if (val is PythonTuple) {
                 PythonTuple name_tuple = (PythonTuple)val;
                 if (name_tuple.Count != 2 || !(name_tuple[0] is string) || !(name_tuple[1] is string)) {
-                    throw new ArgumentException("Data type not understood: name and title must both be strings");
+                    throw new ArgumentException("name and title must both be strings");
                 }
                 result.name = (string)name_tuple[0];
                 result.name = (string)name_tuple[1];
