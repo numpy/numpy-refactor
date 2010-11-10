@@ -146,10 +146,63 @@ namespace NumpyDotNet
         /// the data will be copied back when the returned array is freed.
         /// </summary>
         /// <returns></returns>
-        public ndarray __array__()
+        public ndarray __array__(object ignored=null)
         {
             return NpyCoreApi.FlatView(arr);
         }
+
+        #region Rich compare operators
+
+        public object __lt__(CodeContext cntx, object o) {
+            return this.__array__().__lt__(cntx, o);
+        }
+
+        public object __rlt__(CodeContext cntx, object o) {
+            return this.__array__().__rlt__(cntx, o);
+        }
+
+        public object __le__(CodeContext cntx, object o) {
+            return this.__array__().__le__(cntx, o);
+        }
+
+        public object __rle__(CodeContext cntx, object o) {
+            return this.__array__().__rle__(cntx, o);
+        }
+
+        public object __eq__(CodeContext cntx, object o) {
+            return this.__array__().__eq__(cntx, o);
+        }
+
+        public object __req__(CodeContext cntx, object o) {
+            return this.__array__().__req__(cntx, o);
+        }
+
+        public object __ne__(CodeContext cntx, object o) {
+            return this.__array__().__ne__(cntx, o);
+        }
+
+        public object __rne__(CodeContext cntx, object o) {
+            return this.__array__().__rne__(cntx, o);
+        }
+
+        public object __ge__(CodeContext cntx, object o) {
+            return this.__array__().__ge__(cntx, o);
+        }
+
+        public object __rge__(CodeContext cntx, object o) {
+            return this.__array__().__rge__(cntx, o);
+        }
+
+        public object __gt__(CodeContext cntx, object o) {
+            return this.__array__().__gt__(cntx, o);
+        }
+
+        public object __rgt__(CodeContext cntx, object o) {
+            return this.__array__().__rgt__(cntx, o);
+        }
+
+        #endregion
+
 
         #region IEnumerator<object>
 
