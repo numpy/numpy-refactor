@@ -1235,7 +1235,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = GetDtype(8, 'i');
+                            dtype_ = GetDtype(8, 'u');
                         }
                     }
                 }
