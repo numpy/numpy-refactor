@@ -367,7 +367,7 @@ namespace NumpyDotNet
             if (arrayother == null) {
                 // Try to convert to an array. Return not equal on failure
                 try {
-                    if (type == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                    if (type != NpyDefs.NPY_TYPES.NPY_OBJECT) {
                         type = NpyDefs.NPY_TYPES.NPY_NOTYPE;
                     }
                     arrayother = NpyArray.FromAny(o, NpyCoreApi.DescrFromType(type), flags: NpyDefs.NPY_BEHAVED | NpyDefs.NPY_ENSUREARRAY);

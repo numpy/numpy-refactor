@@ -208,7 +208,7 @@ namespace NumpyDotNet {
                 }
 
                 dtype newtype = (descr ?? FindScalarType(src));
-                if (newtype != null) {
+                if (descr == null && newtype != null) {
                     if ((flags & NpyDefs.NPY_UPDATEIFCOPY) != 0) {
                         throw UpdateIfCopyError();
                     }
