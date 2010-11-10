@@ -76,9 +76,11 @@ namespace NumpyDotNet {
             }
             else
             {
-                srcArray = FromAny(src, dest.dtype, 0, dest.ndim,
+                dtype src_dtype = NpyCoreApi.ToInterface<dtype>(descr);
+                srcArray = FromAny(src, src_dtype, 0, dest.ndim,
                                    dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
             }
+            NpyCoreApi.Incref(descr);
             if (NpyCoreApi.NpyArray_SetField(dest.Array, descr, offset, srcArray.Array) < 0)
             {
                 NpyCoreApi.CheckError();

@@ -22,6 +22,13 @@
 #define _chk_byteorder(arg) (arg == '>' || arg == '<' ||        \
                              arg == '|' || arg == '=')
 
+#if defined(NPY_PY3K)
+#define TO_CSTRING(x)  PyBytes_AsString(PyUnicode_AsASCIIString(x))
+#else
+#define TO_CSTRING(x)  PyString_AsString(x)
+#endif
+
+
 static PyObject *typeDict = NULL;   /* Must be explicitly loaded */
 
 static PyArray_Descr *
@@ -34,14 +41,14 @@ PyArrayDescr_GetNames(PyArray_Descr *self)
 {
     PyObject *names;
     int i, n;
-    
+
     if (NULL == self->descr->names) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
+
     for (n = 0; NULL != self->descr->names[n]; n++) ;
-    
+
     names = PyTuple_New(n);
     for (i = 0; i < n; i++) {
         PyTuple_SET_ITEM(names, i, PyString_FromString(self->descr->names[i]));
@@ -58,26 +65,26 @@ PyArrayDescr_GetFields(PyArray_Descr *self)
     NpyDict_Iter pos;
     const char *key;
     NpyArray_DescrField *value;
-    
+
     if (NULL == self->descr->names) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
+
     dict = PyDict_New();
     NpyDict_IterInit(&pos);
     while (NpyDict_IterNext(self->descr->fields, &pos, (void **)&key,
                             (void **)&value)) {
         PyObject *tup = PyTuple_New( (NULL == value->title) ? 2 : 3 );
         PyArray_Descr *valueDescr = PyArray_Descr_WRAP(value->descr);
-        
+
         PyTuple_SET_ITEM(tup, 0, (PyObject *)valueDescr);
         Py_INCREF(valueDescr);
         PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(value->offset));
         if (NULL != value->title) {
             PyTuple_SET_ITEM(tup, 2, PyString_FromString(value->title));
         }
-        
+
         PyDict_SetItemString(dict, key, tup);
         Py_DECREF(tup);
     }
@@ -428,7 +435,7 @@ _convert_from_array_descr(PyObject *obj, int align)
             }
 #endif
         }
-        nameslist[i] = strdup(PyString_AsString(name));
+        nameslist[i] = strdup(TO_CSTRING(name));
         Py_DECREF(name);
 
         /* Process rest */
@@ -459,7 +466,7 @@ _convert_from_array_descr(PyObject *obj, int align)
                  && (PyUString_Check(title) || PyUnicode_Check(title))
 #endif
                  && NpyDict_ContainsKey(fields,
-                                        (void *)PyString_AsString(title)))) {
+                                        (void *)TO_CSTRING(title)))) {
             PyErr_SetString(PyExc_ValueError, "two fields with the same name");
             Py_DECREF(conv);
             goto fail;
@@ -491,7 +498,7 @@ _convert_from_array_descr(PyObject *obj, int align)
 #endif
             {
                 NpyArray_Descr *descr;
-                char *titleStr = PyString_AsString(title);
+                char *titleStr = TO_CSTRING(title);
                 if (!strcmp(nameslist[i], titleStr) ||
                         NpyDict_ContainsKey(fields, titleStr)) {
                     PyErr_SetString(PyExc_ValueError,
@@ -612,9 +619,9 @@ _convert_from_list(PyObject *obj, int align)
             maxalign = MAX(maxalign, _align);
         }
         PyArray_Descr_REF_TO_CORE(conv, descr);
-        NpyArray_DescrSetField(fields, PyString_AsString(key), descr,
+        NpyArray_DescrSetField(fields, TO_CSTRING(key), descr,
                                totalsize, NULL);
-        nameslist[i] = strdup(PyString_AsString(key));
+        nameslist[i] = strdup(TO_CSTRING(key));
         totalsize += conv->descr->elsize;
         Py_DECREF(key);
     }
@@ -702,7 +709,7 @@ _convert_from_datetime_tuple(PyObject *obj)
           || PyTuple_GET_SIZE(dt_tuple) != 4
           || !PyInt_Check(datetime)) {
       PyErr_SetString(PyExc_RuntimeError,
-                      "_datetimestring is not returning a length 4 tuple" \
+                      "_datetimestring is not returning a length 4 tuple"
                       " and an integer");
       return NULL;
     }
@@ -760,8 +767,7 @@ _convert_from_datetime(PyObject *obj)
     res = _convert_from_datetime_tuple(tupleobj);
     Py_DECREF(tupleobj);
     if (!res && !PyErr_Occurred()) {
-        PyErr_SetString(PyExc_ValueError,
-                "invalid data-type");
+        PyErr_SetString(PyExc_ValueError, "invalid data-type");
         return NULL;
     }
     return res;
@@ -812,8 +818,7 @@ _convert_from_commastring(PyObject *obj, int align)
     }
     Py_DECREF(listobj);
     if (!res && !PyErr_Occurred()) {
-        PyErr_SetString(PyExc_ValueError,
-                "invalid data-type");
+        PyErr_SetString(PyExc_ValueError, "invalid data-type");
         return NULL;
     }
     return res;
@@ -869,7 +874,7 @@ _use_inherit(PyArray_Descr *type, PyObject *newobj, int *errflag)
     }
     if (new->descr->elsize && new->descr->elsize != conv->descr->elsize) {
         PyErr_SetString(PyExc_ValueError,
-                "mismatch in size of old and new data-descriptor");
+                        "mismatch in size of old and new data-descriptor");
         Py_DECREF(new);
         goto fail;
     }
@@ -1033,7 +1038,7 @@ _convert_from_dict(PyObject *obj, int align)
             Py_DECREF(off);
             if (offset < totalsize) {
                 PyErr_SetString(PyExc_ValueError,
-                        "invalid offset (must be ordered)");
+                                "invalid offset (must be ordered)");
                 ret = PY_FAIL;
             }
             if (offset > totalsize) {
@@ -1046,6 +1051,7 @@ _convert_from_dict(PyObject *obj, int align)
             }
             offset = totalsize;
         }
+
         name = PyObject_GetItem(names, index);
         if (name == NULL) {
             Py_DECREF(index);
@@ -1059,23 +1065,28 @@ _convert_from_dict(PyObject *obj, int align)
         if (!(PyUString_Check(name) || PyUnicode_Check(name)))
 #endif
         {
-            PyErr_SetString(PyExc_ValueError,
-                    "field names must be strings");
+            PyErr_SetString(PyExc_ValueError, "field names must be strings");
             ret = PY_FAIL;
-        } else {
-            nameslist[i] = strdup(PyString_AsString(name));
+        }
+        else {
+#if defined(NPY_PY3K)
+            nameslist[i] = strdup(PyBytes_AsString(
+                                      PyUnicode_AsASCIIString(name)));
+#else
+            nameslist[i] = strdup(TO_CSTRING(name));
+#endif
         }
 
         /* Insert into dictionary */
-        if (NpyDict_ContainsKey(fields, PyString_AsString(name))) {
+        if (NpyDict_ContainsKey(fields, TO_CSTRING(name))) {
             PyErr_SetString(PyExc_ValueError,
                     "name already used as a name or title");
             ret = PY_FAIL;
         }
         PyArray_Descr_REF_TO_CORE(newdescr, coredescr);
-        NpyArray_DescrSetField(fields, PyString_AsString(name),
+        NpyArray_DescrSetField(fields, TO_CSTRING(name),
                                coredescr, offset,
-                               (3 == len) ? PyString_AsString(item) : NULL);
+                               (3 == len) ? TO_CSTRING(item) : NULL);
         Py_DECREF(name);
         if (len == 3) {
 #if defined(NPY_PY3K)
@@ -1084,16 +1095,16 @@ _convert_from_dict(PyObject *obj, int align)
             if (PyUString_Check(item) || PyUnicode_Check(item))
 #endif
             {
-                if (NpyDict_ContainsKey(fields, PyString_AsString(item))) {
+                if (NpyDict_ContainsKey(fields, TO_CSTRING(item))) {
                     PyErr_SetString(PyExc_ValueError,
                             "title already used as a name or title.");
                     ret=PY_FAIL;
                 }
                 /* First DescrSetField stole the ref, need a second */
                 Npy_INCREF(coredescr);
-                NpyArray_DescrSetField(fields, PyString_AsString(item),
+                NpyArray_DescrSetField(fields, TO_CSTRING(item),
                                        coredescr, offset,
-                                       PyString_AsString(item));
+                                       TO_CSTRING(item));
             }
             Py_DECREF(item);
         }
@@ -1585,7 +1596,7 @@ arraydescr_typename_get(PyArray_Descr *self)
     PyObject *res;
     char *s;
     int prefix_len = 0;
-    
+
     if (NpyTypeNum_ISUSERDEF(self->descr->type_num)) {
         s = strrchr(typeobj->tp_name, '.');
         if (s == NULL) {
@@ -1764,12 +1775,12 @@ arraydescr_hasobject_get(PyArray_Descr *self)
     return res;
 }
 
+
 static PyObject *
 arraydescr_names_get(PyArray_Descr *self)
 {
     return PyArrayDescr_GetNames(self);
 }
-
 
 
 static int
@@ -1779,8 +1790,7 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
     int i;
     char **nameslist = NULL;
     if (self->descr->names == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                "there are no fields defined");
+        PyErr_SetString(PyExc_ValueError, "there are no fields defined");
         return -1;
     }
 
@@ -1813,7 +1823,6 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
 }
 
 
-
 /* Takes a sequence of strings and returns an array of char**.
    Each string is allocated and must be free'd eventually. */
 NPY_NO_EXPORT char **
@@ -1827,14 +1836,17 @@ arraydescr_seq_to_nameslist(PyObject *seq)
     if (NULL != nameslist) {
         for (i = 0; i < n; i++) {
             PyObject *key = PySequence_GetItem(seq, i);
+#if defined(NPY_PY3K)
+            nameslist[i] = strdup(PyBytes_AsString(key));
+#else
             nameslist[i] = strdup(PyString_AsString(key));
+#endif
             Py_DECREF(key);
         }
         nameslist[i] = NULL;
     }
     return nameslist;
 }
-
 
 
 /* Converts a PyDict structure defining a set of PyArray_Descr fields into a
@@ -1860,11 +1872,11 @@ arraydescr_fields_from_pydict(PyObject *dict)
         descr = ((PyArray_Descr *) PyTuple_GetItem(value, 0))->descr;
         offset = PyInt_AsLong(PyTuple_GetItem(value, 1));
         title = (2 < PyTuple_Size(value)) ?
-                PyString_AsString(PyTuple_GetItem(value, 2)) : NULL;
+                  TO_CSTRING(PyTuple_GetItem(value, 2)) : NULL;
 
         /* DescrSetField will incref subDescr, copy strings */
         Npy_INCREF(descr);
-        NpyArray_DescrSetField(fields, PyString_AsString(key), descr,
+        NpyArray_DescrSetField(fields, TO_CSTRING(key), descr,
                                offset, title);
     }
     return fields;
@@ -2286,11 +2298,9 @@ arraydescr_setstate(PyArray_Descr *self, PyObject *args)
         }
     }
 
-
     if ((fields == Py_None && names != Py_None) ||
         (names == Py_None && fields != Py_None)) {
-        PyErr_Format(PyExc_ValueError,
-                "inconsistent fields and names");
+        PyErr_Format(PyExc_ValueError, "inconsistent fields and names");
         return NULL;
     }
 
@@ -2708,7 +2718,7 @@ descr_subscript(PyArray_Descr *self, PyObject *op)
     if (PyUString_Check(op) || PyUnicode_Check(op)) {
 #endif
         NpyArray_DescrField *value = NpyDict_Get(self->descr->fields,
-                                                 PyString_AsString(op));
+                                                 TO_CSTRING(op));
         PyObject *s;
 
         if (NULL == value) {
@@ -2743,8 +2753,7 @@ descr_subscript(PyArray_Descr *self, PyObject *op)
             value += size;
         }
         if (value < 0 || value >= size) {
-            PyErr_Format(PyExc_IndexError,
-                    "Field index out of range.");
+            PyErr_Format(PyExc_IndexError, "Field index out of range.");
             return NULL;
         }
 
