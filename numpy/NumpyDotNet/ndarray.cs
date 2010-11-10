@@ -573,6 +573,27 @@ namespace NumpyDotNet
             }
         }
 
+        public static explicit operator int(ndarray arr) {
+            object val = arr.__int__(null);
+            if (val is int) {
+                return (int)val;
+            } else {
+                throw new OverflowException();
+            }
+        }
+
+        public static explicit operator BigInteger(ndarray arr) {
+            return (BigInteger)arr.__long__(null);
+        }
+
+        public static explicit operator double(ndarray arr) {
+            return (double)arr.__float__(null);
+        }
+
+        public static explicit operator Complex(ndarray arr) {
+            return (Complex)arr.__complex__(null);
+        }
+
         #endregion
 
         #region indexing
