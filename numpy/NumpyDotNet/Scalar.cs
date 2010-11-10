@@ -456,6 +456,10 @@ namespace NumpyDotNet
             return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
+        public object __pow__(object a) {
+            return ndarray.BinaryOp(null, this, a, NpyDefs.NpyArray_Ops.npy_op_power);
+        }
+
         public static object operator &(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
