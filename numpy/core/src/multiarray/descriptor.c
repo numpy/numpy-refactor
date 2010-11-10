@@ -1836,11 +1836,7 @@ arraydescr_seq_to_nameslist(PyObject *seq)
     if (NULL != nameslist) {
         for (i = 0; i < n; i++) {
             PyObject *key = PySequence_GetItem(seq, i);
-#if defined(NPY_PY3K)
-            nameslist[i] = strdup(PyBytes_AsString(key));
-#else
-            nameslist[i] = strdup(PyString_AsString(key));
-#endif
+            nameslist[i] = strdup(TO_CSTRING(key));
             Py_DECREF(key);
         }
         nameslist[i] = NULL;
