@@ -1823,7 +1823,6 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
 }
 
 
-
 /* Takes a sequence of strings and returns an array of char**.
    Each string is allocated and must be free'd eventually. */
 NPY_NO_EXPORT char **
@@ -1837,14 +1836,17 @@ arraydescr_seq_to_nameslist(PyObject *seq)
     if (NULL != nameslist) {
         for (i = 0; i < n; i++) {
             PyObject *key = PySequence_GetItem(seq, i);
-            nameslist[i] = strdup(TO_CSTRING(key));
+#if defined(NPY_PY3K)
+            nameslist[i] = strdup(PyBytes_AsString(key));
+#else
+            nameslist[i] = strdup(PyString_AsString(key));
+#endif
             Py_DECREF(key);
         }
         nameslist[i] = NULL;
     }
     return nameslist;
 }
-
 
 
 /* Converts a PyDict structure defining a set of PyArray_Descr fields into a
