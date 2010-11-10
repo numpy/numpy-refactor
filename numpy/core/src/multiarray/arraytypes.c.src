@@ -713,6 +713,10 @@ VOID_setitem(PyObject *op, char *ip, NpyArray *ap)
         savedflags = NpyArray_FLAGS(ap);
         for (i = 0; i < n; i++) {
             value = (NpyArray_DescrField *)NpyDict_Get(descr->fields, names[i]);
+            if (value == NULL) {
+                PyErr_Format(PyExc_IndexError, "no key '%s'", names[i]);
+                return -1;
+            }
             NpyArray_DESCR(ap) = value->descr;
             /* remember to update alignment flags */
             if ((value->descr->alignment > 1)
