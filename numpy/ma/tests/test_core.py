@@ -822,7 +822,7 @@ class TestMaskedArrayArithmetic(TestCase):
     def test_count_func (self):
         "Tests count"
         ott = array([0., 1., 2., 3.], mask=[1, 0, 0, 0])
-        if sys.version_info[0] >= 3:
+        if sys.version_info[0] >= 3 or sys.platform == 'cli':
             self.assertTrue(isinstance(count(ott), np.integer))
         else:
             self.assertTrue(isinstance(count(ott), int))
@@ -831,7 +831,7 @@ class TestMaskedArrayArithmetic(TestCase):
         assert_equal(0, array(1, mask=[1]))
         ott = ott.reshape((2, 2))
         assert isinstance(count(ott, 0), ndarray)
-        if sys.version_info[0] >= 3:
+        if sys.version_info[0] >= 3 or sys.platform == 'cli':
             assert isinstance(count(ott), np.integer)
         else:
             assert isinstance(count(ott), types.IntType)
