@@ -974,15 +974,26 @@ namespace NumpyDotNet {
             }
             dims[0] = new_dim;
             ndarray result = NpyCoreApi.AllocArray(mps[0].dtype, dims.Length, dims, false);
-            // TODO: We really should be doing a memcpy here.
-            unsafe {
-                byte* dest = (byte*)result.UnsafeAddress.ToPointer();
-                foreach (ndarray a in mps) {
-                    long s = a.Size*a.dtype.ElementSize;
-                    byte* src = (byte*)a.UnsafeAddress;
-                    while (s-- > 0) {
-                        *dest++ = *src++;
+            if (!result.dtype.IsObject) {
+                // TODO: We really should be doing a memcpy here.
+                unsafe {
+                    byte* dest = (byte*)result.UnsafeAddress.ToPointer();
+                    foreach (ndarray a in mps) {
+                        long s = a.Size*a.dtype.ElementSize;
+                        byte* src = (byte*)a.UnsafeAddress;
+                        while (s-- > 0) {
+                            *dest++ = *src++;
+                        }
                     }
+                }
+            } else {
+                // Do a high-level copy to get the references right.
+                long j = 0;
+                flatiter flat = result.Flat;
+                foreach (ndarray a in mps) {
+                    long size = a.Size;
+                    flat[new Slice(j, j+size)] = a.flat;
+                    j += size;
                 }
             }
             if (0 < axis && axis < NpyDefs.NPY_MAXDIMS || axis < 0) {

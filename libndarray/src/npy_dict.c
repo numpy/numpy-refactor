@@ -338,7 +338,7 @@ NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
  *  RETURNS:
  *      void *       - the value of the specified key, or NULL if the key
  *                     doesn't exist in the HashTable
- \*--------------------------------------------------------------------------*/
+\*--------------------------------------------------------------------------*/
 
 void *
 NpyDict_Get(const NpyDict *hashTable, const void *key)
@@ -349,7 +349,7 @@ NpyDict_Get(const NpyDict *hashTable, const void *key)
     while (pair != NULL && hashTable->keycmp(key, pair->key) != 0)
         pair = pair->next;
 
-    return (pair == NULL)? NULL : pair->value;
+    return (pair == NULL) ? NULL : pair->value;
 }
 
 

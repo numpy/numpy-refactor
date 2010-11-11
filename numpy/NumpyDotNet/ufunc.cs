@@ -335,9 +335,9 @@ namespace NumpyDotNet
                     }
                     object res;
                     try {
-                        res = PythonOps.CallWithContext(cntx, wrap, mps[j], new PythonTuple(wrapargs), null);
+                        res = PythonCalls.Call(cntx, wrap, mps[j], new PythonTuple(wrapargs));
                     } catch (ArgumentTypeException) {
-                        res = PythonOps.CallWithContext(cntx, wrap, mps[j]);
+                        res = PythonCalls.Call(cntx, wrap, mps[j]);
                     }
                     if (res != null) {
                         result[i] = res;

@@ -14,14 +14,11 @@ __all__ = ['take', 'reshape', 'choose', 'repeat', 'put',
            'amax', 'amin',
           ]
 
-if sys.platform == 'cli':
-    from numeric import asarray, array, asanyarray
-else:
-    import multiarray as mu
-    import umath as um
-    import numerictypes as nt
-    from numeric import asarray, array, asanyarray, concatenate
-    _dt_ = nt.sctype2char
+import multiarray as mu
+import umath as um
+import numerictypes as nt
+from numeric import asarray, array, asanyarray, concatenate
+_dt_ = nt.sctype2char
 
 import types
 

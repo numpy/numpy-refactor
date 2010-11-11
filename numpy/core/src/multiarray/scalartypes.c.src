@@ -24,6 +24,12 @@
 #include "common.h"
 #include "scalartypes.h"
 
+#if defined(NPY_PY3K)
+#define TO_CSTRING(x)  PyBytes_AsString(PyUnicode_AsASCIIString(x))
+#else
+#define TO_CSTRING(x)  PyString_AsString(x)
+#endif
+
 
 NPY_NO_EXPORT NpyArray_Descr *
 PyArray_DescrFromScalarUnwrap(PyObject *sc);
@@ -1777,7 +1783,8 @@ voidtype_subscript(PyVoidScalarObject *self, PyObject *ind)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        value = (NpyArray_DescrField *)NpyDict_Get(self->descr->descr->fields, PyString_AsString(ind));
+        value = (NpyArray_DescrField *)NpyDict_Get(self->descr->descr->fields,
+                                                   TO_CSTRING(ind));
         if (NULL == value) {
             goto fail;
         }
@@ -1857,7 +1864,7 @@ voidtype_ass_subscript(PyVoidScalarObject *self, PyObject *ind, PyObject *val)
     if (PyBytes_Check(ind) || PyUnicode_Check(ind)) {
 #endif
         /* look up in fields */
-        value = NpyDict_Get(self->descr->descr->fields, PyString_AsString(ind));
+        value = NpyDict_Get(self->descr->descr->fields, TO_CSTRING(ind));
         if (NULL == value) {
             goto fail;
         }

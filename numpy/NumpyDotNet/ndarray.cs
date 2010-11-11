@@ -336,6 +336,16 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }
 
+        [SpecialName]
+        public object InPlaceAdd(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_add, this);
+        }
+
+        [SpecialName]
+        public object InPlaceAdd(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_add, this);
+        }
+
         public static object operator -(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
@@ -346,6 +356,16 @@ namespace NumpyDotNet
 
         public static object operator -(ndarray a, ndarray b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
+        }
+
+        [SpecialName]
+        public object InPlaceSubtract(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_subtract, this);
+        }
+
+        [SpecialName]
+        public object InPlaceSubtract(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_subtract, this);
         }
 
         public static object operator -(ndarray a) {
@@ -364,6 +384,16 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
 
+        [SpecialName]
+        public object InPlaceMultiply(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_multiply, this);
+        }
+
+        [SpecialName]
+        public object InPlaceMultiply(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_multiply, this);
+        }
+
         public static object operator /(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
@@ -376,6 +406,23 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_divide);
         }
 
+        [SpecialName]
+        public object InPlaceDivide(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_divide, this);
+        }
+
+        [SpecialName]
+        public object InPlaceDivide(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_divide, this);
+        }
+
+        public object __pow__(object a) {
+            // TODO: Add optimizations for scalar powers
+            return BinaryOp(null, this, a, NpyDefs.NpyArray_Ops.npy_op_power);
+        }
+
+        // TODO: Add inplace operators.
+
         public static object operator &(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
@@ -386,6 +433,16 @@ namespace NumpyDotNet
 
         public static object operator &(ndarray a, ndarray b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+        }
+
+        [SpecialName]
+        public object InPlaceBitwiseAnd(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and, this);
+        }
+
+        [SpecialName]
+        public object InPlaceBitwiseAnd(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and, this);
         }
 
         public static object operator |(ndarray a, Object b) {
@@ -400,6 +457,16 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
+        [SpecialName]
+        public object InPlaceBitwiseOr(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or, this);
+        }
+
+        [SpecialName]
+        public object InPlaceBitwiseOr(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or, this);
+        }
+
         public static object operator ^(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
@@ -410,6 +477,16 @@ namespace NumpyDotNet
 
         public static object operator ^(ndarray a, ndarray b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
+        }
+
+        [SpecialName]
+        public object InPlaceExclusiveOr(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor, this);
+        }
+
+        [SpecialName]
+        public object InPlaceExclusiveOr(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor, this);
         }
 
         public static object operator ~(ndarray a) {
@@ -640,6 +717,27 @@ namespace NumpyDotNet
             } else {
                 return val != 0;
             }
+        }
+
+        public static explicit operator int(ndarray arr) {
+            object val = arr.__int__(null);
+            if (val is int) {
+                return (int)val;
+            } else {
+                throw new OverflowException();
+            }
+        }
+
+        public static explicit operator BigInteger(ndarray arr) {
+            return (BigInteger)arr.__long__(null);
+        }
+
+        public static explicit operator double(ndarray arr) {
+            return (double)arr.__float__(null);
+        }
+
+        public static explicit operator Complex(ndarray arr) {
+            return (Complex)arr.__complex__(null);
         }
 
         #endregion
