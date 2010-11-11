@@ -1118,6 +1118,18 @@ namespace NumpyDotNet
 
         public ndarray astype(CodeContext cntx, object dtype = null) {
             dtype d = NpyDescr.DescrConverter(cntx, dtype);
+            if (d == this.dtype) {
+                return this;
+            }
+            if (this.dtype.HasNames) {
+                // CastToType doesn't work properly for
+                // record arrays, so we use FromArray.
+                int flags = NpyDefs.NPY_FORCECAST;
+                if (IsFortran) {
+                    flags |= NpyDefs.NPY_FORTRAN;
+                }
+                return NpyArray.FromArray(this, d, flags);
+            }
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
         }
 
