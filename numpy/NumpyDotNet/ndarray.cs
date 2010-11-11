@@ -26,6 +26,7 @@ namespace NumpyDotNet
     [PythonType]
     public partial class ndarray : Wrapper, IEnumerable<object>, IBufferProvider, NumpyDotNet.IArray
     {
+        public const string __module__ = "numpy";
 
         public ndarray() {
         }
@@ -123,6 +124,74 @@ namespace NumpyDotNet
             // TODO: No support for user-set string function
             return BuildStringRepr(false);
         }
+
+        public virtual object __reduce__(CodeContext cntx, object notused=null) {
+            const int version = 1;
+
+            // Result is a tuple of (callable object, arguments, object's state).
+            object[] ret = new object[3];
+            ret[0] = NpyUtil_Python.GetModuleAttr(cntx, "numpy.core.multiarray", "_reconstruct");
+            if (ret[0] == null) return null;
+
+            ret[1] = PythonOps.MakeTuple(DynamicHelpers.GetPythonType(this), PythonOps.MakeTuple(0), 'b');
+
+            // Fill in the object's state.  This is a tuple with 5 argumentS:
+            //    1) an integer with the pickle version
+            //    2) a Tuple giving the shape
+            //    3) a dtype object with the correct byteorder set
+            //    4) a Bool stating if Fortran or not
+            //    5) a Python object representing the data (a string or list or something)
+            object[] state = new object[5];
+            state[0] = version;
+            state[1] = this.shape;
+            state[2] = this.dtype;
+            state[3] = this.IsFortran;
+            state[4] = this.ChkFlags(NpyDefs.NPY_LIST_PICKLE) ? GetPickleList() : this.ToString();
+
+            ret[2] = state;
+            return new PythonTuple(ret);
+        }
+
+        private object GetPickleList() {
+            List list = new List();
+            for (flatiter iter = this.Flat; iter.MoveNext(); list.append(iter.Current)) ;
+            return list;
+        }
+
+        public virtual object __setstate__(PythonTuple shape, dtype typecode, object fortran, object rawdata) {
+            return __setstate__(0, shape, typecode, fortran, rawdata);
+        }
+
+        public virtual object __setstate__(int version, PythonTuple shape, dtype typecode, object fortran, object rawData) {
+            bool fortranFlag = NpyUtil_ArgProcessing.BoolConverter(fortran);
+
+            if (version != 1 && version != 0) {
+                throw new ArgumentException(
+                    String.Format("can't handle version {0} of numpy.ndarray pickle.", version));
+            }
+
+            // Set the state of this array using the passed in data.  Everything in this array goes away.
+            this.dtype = typecode;
+            this.shape = shape;
+            if (this.itemsize == 0) {
+                throw new ArgumentException("Invalid data-type size.");
+            }
+
+            if (this.ChkFlags(NpyDefs.NPY_LIST_PICKLE)) {
+                if (!(rawData is List)) {
+                    throw new ArgumentTypeException("object pickle not returning list");
+                }
+            } else {
+                if (!(rawData is string)) {
+                    throw new ArgumentTypeException("pickle not returning string");
+                }
+                if (((string)rawData).Length != this.itemsize * this.Size) {
+                    throw new ArgumentException("buffer size does not match array size");
+                }
+            }
+            return null;
+        }
+
 
         /// <summary>
         /// Returns the length of dimension zero of the array
@@ -904,6 +973,19 @@ namespace NumpyDotNet
         #endregion
 
         #region methods
+
+        public int dump(CodeContext cntx, object file, int protocol) {
+            if (file is string) {
+                file = NpyUtil_Python.CallBuiltin(cntx, "open", file, "wb");
+            }
+            NpyUtil_Python.CallFunction(cntx, "cPickle", "dump", this, file, protocol);
+            return 0;
+        }
+
+        public int dump(CodeContext cntx, int protocol) {
+            NpyUtil_Python.CallFunction(cntx, "cPickle", "dumps", this, protocol);
+            return 0;
+        }
 
         public object all(object axis = null, ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
