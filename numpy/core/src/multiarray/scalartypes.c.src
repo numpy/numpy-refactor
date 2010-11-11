@@ -24,12 +24,6 @@
 #include "common.h"
 #include "scalartypes.h"
 
-#if defined(NPY_PY3K)
-#define TO_CSTRING(x)  PyBytes_AsString(PyUnicode_AsASCIIString(x))
-#else
-#define TO_CSTRING(x)  PyString_AsString(x)
-#endif
-
 
 NPY_NO_EXPORT NpyArray_Descr *
 PyArray_DescrFromScalarUnwrap(PyObject *sc);

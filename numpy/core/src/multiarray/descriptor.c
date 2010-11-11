@@ -22,12 +22,6 @@
 #define _chk_byteorder(arg) (arg == '>' || arg == '<' ||        \
                              arg == '|' || arg == '=')
 
-#if defined(NPY_PY3K)
-#define TO_CSTRING(x)  PyBytes_AsString(PyUnicode_AsASCIIString(x))
-#else
-#define TO_CSTRING(x)  PyString_AsString(x)
-#endif
-
 
 static PyObject *typeDict = NULL;   /* Must be explicitly loaded */
 
