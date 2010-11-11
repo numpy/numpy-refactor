@@ -25,6 +25,23 @@ import sys
 if sys.version_info[0] >= 3:
     from functools import reduce
 
+if sys.platform == 'cli':
+    def arand(shape):
+        import random
+        result = np.empty(shape, 'd')
+        result.flat = [ random.random() for i in range(result.size) ]
+        return result
+
+    def uniform(low=0.0, high=1.0, aize=1):
+        import random
+        result = np.empty(size, 'd')
+        d = high-low
+        result.flat = [ random.random()*d+low for i in range(result.size) ]
+        return result
+else:
+    arand = np.random.rand
+    uniform = np.random.uniform
+
 #..............................................................................
 class TestMaskedArray(TestCase):
     "Base test class for MaskedArrays."
@@ -139,7 +156,7 @@ class TestMaskedArray(TestCase):
 
     def test_concatenate_flexible(self):
         "Tests the concatenation on flexible arrays."
-        data = masked_array(zip(np.random.rand(10),
+        data = masked_array(zip(arand(10),
                                 np.arange(10)),
                             dtype=[('a', float), ('b', int)])
         #
@@ -891,8 +908,8 @@ class TestMaskedArrayArithmetic(TestCase):
 
     def test_minmax_funcs_with_output(self):
         "Tests the min/max functions with explicit outputs"
-        mask = np.random.rand(12).round()
-        xm = array(np.random.uniform(0, 10, 12), mask=mask)
+        mask = arand(12).round()
+        xm = array(uniform(0, 10, 12), mask=mask)
         xm.shape = (3, 4)
         for funcname in ('min', 'max'):
             # Initialize
@@ -1093,7 +1110,7 @@ class TestMaskedArrayArithmetic(TestCase):
 
 
     def test_methods_with_output(self):
-        xm = array(np.random.uniform(0, 10, 12)).reshape(3, 4)
+        xm = array(uniform(0, 10, 12)).reshape(3, 4)
         xm[:, 0] = xm[0] = xm[-1, -1] = masked
         #
         funclist = ('sum', 'prod', 'var', 'std', 'max', 'min', 'ptp', 'mean',)
@@ -1944,8 +1961,8 @@ class TestMaskedArrayMethods(TestCase):
 
     def test_allclose(self):
         "Tests allclose on arrays"
-        a = np.random.rand(10)
-        b = a + np.random.rand(10) * 1e-8
+        a = arand(10)
+        b = a + arand(10) * 1e-8
         self.assertTrue(allclose(a, b))
         # Test allclose w/ infs
         a[0] = np.inf
@@ -2500,7 +2517,7 @@ class TestMaskedArrayMethods(TestCase):
         ndtype = [('i', int), ('s', '|S3'), ('f', float)]
         data = array([(i, s, f) for (i, s, f) in zip(np.arange(10),
                                                  'ABCDEFGHIJKLM',
-                                                 np.random.rand(10))],
+                                                 arand(10))],
                      dtype=ndtype)
         data[[0, 1, 2, -1]] = masked
         record = data.toflex()
@@ -2509,8 +2526,8 @@ class TestMaskedArrayMethods(TestCase):
         #
         ndtype = np.dtype("int, (2,3)float, float")
         data = array([(i, f, ff) for (i, f, ff) in zip(np.arange(10),
-                                                   np.random.rand(10),
-                                                   np.random.rand(10))],
+                                                   arand(10),
+                                                   arand(10))],
                      dtype=ndtype)
         data[[0, 1, 2, -1]] = masked
         record = data.toflex()
@@ -2602,7 +2619,7 @@ class TestMaskedArrayMathMethods(TestCase):
 
     def test_cumsumprod_with_output(self):
         "Tests cumsum/cumprod w/ output"
-        xm = array(np.random.uniform(0, 10, 12)).reshape(3, 4)
+        xm = array(uniform(0, 10, 12)).reshape(3, 4)
         xm[:, 0] = xm[0] = xm[-1, -1] = masked
         #
         for funcname in ('cumsum', 'cumprod'):
@@ -2932,7 +2949,7 @@ class TestMaskedArrayFunctions(TestCase):
     def test_round_with_output(self):
         "Testing round with an explicit output"
 
-        xm = array(np.random.uniform(0, 10, 12)).reshape(3, 4)
+        xm = array(uniform(0, 10, 12)).reshape(3, 4)
         xm[:, 0] = xm[0] = xm[-1, -1] = masked
 
         # A ndarray as explicit input
@@ -3356,7 +3373,7 @@ class TestMaskedFields(TestCase):
     #
     def test_view(self):
         "Test view w/ flexible dtype"
-        iterator = zip(np.arange(10), np.random.rand(10))
+        iterator = zip(np.arange(10), arand(10))
         data = np.array(iterator)
         a = array(iterator, dtype=[('a', float), ('b', float)])
         a.mask[0] = (1, 0)
@@ -3376,7 +3393,7 @@ class TestMaskedFields(TestCase):
     #
     def test_getitem(self):
         ndtype = [('a', float), ('b', float)]
-        a = array(zip(np.random.rand(10), np.arange(10)), dtype=ndtype)
+        a = array(zip(arand(10), np.arange(10)), dtype=ndtype)
         a.mask = np.array(zip([0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
                               [1, 0, 0, 0, 0, 0, 0, 0, 1, 0]),
                           dtype=[('a', bool), ('b', bool)])
@@ -3396,7 +3413,7 @@ class TestMaskedFields(TestCase):
 class TestMaskedView(TestCase):
     #
     def setUp(self):
-        iterator = zip(np.arange(10), np.random.rand(10))
+        iterator = zip(np.arange(10), arand(10))
         data = np.array(iterator)
         a = array(iterator, dtype=[('a', float), ('b', float)])
         a.mask[0] = (1, 0)
