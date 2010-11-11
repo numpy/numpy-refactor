@@ -1378,8 +1378,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
 #endif
 
         if (!PyBytes_Check(rawdata)) {
-            PyErr_SetString(PyExc_TypeError,
-                            "pickle not returning string");
+            PyErr_SetString(PyExc_TypeError, "pickle not returning string");
             return NULL;
         }
 
@@ -1388,8 +1387,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
 
         if ((len != (PyArray_ITEMSIZE(self) * size))) {
             PyErr_SetString(PyExc_ValueError,
-                            "buffer size does not"  \
-                            " match array size");
+                            "buffer size does not match array size");
             return NULL;
         }
     }
@@ -1439,11 +1437,13 @@ array_setstate(PyArrayObject *self, PyObject *args)
             }
             if (swap) { /* byte-swap on pickle-read */
                 intp numels = num / PyArray_ITEMSIZE(self);
-                PyArray_DESCR(self)->f->copyswapn(PyArray_BYTES(self), PyArray_ITEMSIZE(self),
-                                          datastr, PyArray_ITEMSIZE(self),
-                                          numels, 1, PyArray_ARRAY(self));
+                PyArray_DESCR(self)->f->copyswapn(
+                    PyArray_BYTES(self), PyArray_ITEMSIZE(self),
+                    datastr, PyArray_ITEMSIZE(self),
+                    numels, 1, PyArray_ARRAY(self));
                 if (!PyArray_ISEXTENDED(self)) {
-                    PyArray_DESCR(self) = NpyArray_DescrFromType(PyArray_TYPE(self));
+                    PyArray_DESCR(self) = NpyArray_DescrFromType(
+                        PyArray_TYPE(self));
                 }
                 else {
                     PyArray_DESCR(self) = NpyArray_DescrNew(typecode->descr);

@@ -51,7 +51,13 @@ PyArrayDescr_GetNames(PyArray_Descr *self)
 
     names = PyTuple_New(n);
     for (i = 0; i < n; i++) {
-        PyTuple_SET_ITEM(names, i, PyString_FromString(self->descr->names[i]));
+        PyTuple_SET_ITEM(names, i,
+#if defined(NPY_PY3K)
+                         PyUnicode_FromString(self->descr->names[i])
+#else
+                         PyString_FromString(self->descr->names[i])
+#endif
+            );
     }
     return names;
 }
@@ -1069,12 +1075,7 @@ _convert_from_dict(PyObject *obj, int align)
             ret = PY_FAIL;
         }
         else {
-#if defined(NPY_PY3K)
-            nameslist[i] = strdup(PyBytes_AsString(
-                                      PyUnicode_AsASCIIString(name)));
-#else
             nameslist[i] = strdup(TO_CSTRING(name));
-#endif
         }
 
         /* Insert into dictionary */
@@ -1810,8 +1811,8 @@ arraydescr_names_set(PyArray_Descr *self, PyObject *val)
         Py_DECREF(item);
         if (!valid) {
             PyErr_Format(PyExc_ValueError,
-                    "item #%d of names is of type %s and not string",
-                    i, Py_TYPE(item)->tp_name);
+                         "item #%d of names is of type %s and not string",
+                         i, Py_TYPE(item)->tp_name);
             return -1;
         }
     }
