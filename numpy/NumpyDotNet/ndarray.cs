@@ -1048,7 +1048,10 @@ namespace NumpyDotNet
         public object choose([ParamDictionary] IDictionary<object,object> kwargs, 
                              params object[] args){
             IEnumerable<object> choices;
-            if (args.Length == 1 && args[0] is IEnumerable<object>) {
+            if (args == null) {
+                choices = new object[0];
+            }
+            else if (args.Length == 1 && args[0] is IEnumerable<object>) {
                 choices = (IEnumerable<object>)args[0];
             } else {
                 choices = args;
@@ -1133,11 +1136,11 @@ namespace NumpyDotNet
         }
 
         public object item(params object[] args) {
-            if (args.Length == 1 && args[0] is PythonTuple) {
+            if (args != null && args.Length == 1 && args[0] is PythonTuple) {
                 PythonTuple t = (PythonTuple)args[0];
                 args = t.ToArray();
             }
-            if (args.Length == 0) {
+            if (args == null || args.Length == 0) {
                 if (ndim == 0 || Size == 1) {
                     return GetItem(0);
                 } else {
@@ -1166,7 +1169,7 @@ namespace NumpyDotNet
 
         public void itemset(params object[] args) {
             // Convert args to value and args
-            if (args.Length == 0) {
+            if (args == null || args.Length == 0) {
                 throw new ArgumentException("itemset must have at least one argument");
             }
             object value = args.Last();
@@ -1286,7 +1289,9 @@ namespace NumpyDotNet
             NpyDefs.NPY_ORDER order = NpyUtil_ArgProcessing.OrderConverter(keywordArgs[0]);
             IntPtr[] newshape;
             // TODO: Add NpyArray_View call for (None) case. (Why?)
-            if (args.Length == 1 && args[0] is IList<object>) {
+            if (args == null) {
+                newshape = new IntPtr[0];
+            } else if (args.Length == 1 && args[0] is IList<object>) {
                 newshape = NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]);
             } else {
                 newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
@@ -1301,7 +1306,7 @@ namespace NumpyDotNet
             bool refcheck = NpyUtil_ArgProcessing.BoolConverter(keywordArgs[0]);
             IntPtr[] newshape;
 
-            if (args.Length == 0 || args.Length == 1 && args[0] == null) {
+            if (args == null || args.Length == 0 || args.Length == 1 && args[0] == null) {
                 return;
             }
             if (args.Length == 1 && args[0] is IList<object>) {
@@ -1464,7 +1469,7 @@ namespace NumpyDotNet
         }
 
         public ndarray transpose(params object[] args) {
-            if (args.Length == 0 || args.Length == 1 && args[0] == null) {
+            if (args == null || args.Length == 0 || args.Length == 1 && args[0] == null) {
                 return Transpose();
             } else if (args.Length == 1 && args[0] is IList<object>) {
                 return Transpose(NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]));
