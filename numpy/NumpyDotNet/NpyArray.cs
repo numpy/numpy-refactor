@@ -259,57 +259,66 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray FromNestedList(object src, dtype descr, bool fortran) {
-            List<long> dims = ObjectDepthAndDimension(src, NpyDefs.NPY_MAXDIMS);
-            if (dims.Count == 0) {
+            long[] dims = new long[NpyDefs.NPY_MAXDIMS];
+            int nd = ObjectDepthAndDimension(src, dims, 0, NpyDefs.NPY_MAXDIMS);
+            if (nd == 0) {
                 return FromPythonScalar(src, descr);
             }
-            ndarray result = NpyCoreApi.AllocArray(descr, dims.Count, dims.ToArray(), fortran);
+            ndarray result = NpyCoreApi.AllocArray(descr, nd, dims, fortran);
             AssignToArray(src, result);
             return result;
         }
 
-        internal static List<long> ObjectDepthAndDimension(object src, int max)
+        /// <summary>
+        /// Walks a set of nested lists (or tuples) to get the dimensions.  The dimensionality must
+        /// be consistent for each nesting level. Thus, if one level is a mix of lsits and scalars,
+        /// it is truncated and all are assumed to be scalar objects.
+        /// 
+        /// That is, [[1, 2], 3, 4] is a 1-d array of 3 elements.  It just happens that element 0 is
+        /// an object that is a list of [1, 2].
+        /// </summary>
+        /// <param name="src">Input object to talk</param>
+        /// <param name="dims">Array of dimensions of size 'max' filled in up to the return value</param>
+        /// <param name="idx">Current iteration depth, always start with 0</param>
+        /// <param name="max">Size of dims array at the start, then becomes depth so far when !firstElem</param>
+        /// <param name="firstElem">True if processing the first element of the list (populates dims), false for subsequent (checks dims)</param>
+        /// <returns>Number of dimensions (depth of nesting)</returns>
+        internal static int ObjectDepthAndDimension(object src, long[] dims, int idx, int max, bool firstElem=true)
         {
-            IList<object> list;
-            List<long> result;
+            int nd = -1;
 
-            if (max < 1) {
-                return new List<long>();
-            }
-            if (src is List || src is PythonTuple) {
-                list = (IList<object>)src;
+            // Recursively walk the tree and get the sizes of each dimension. When processing the
+            // first element in each sequence, firstElem is true and we populate dims[]. After that,
+            // we just verify that dims[] matches for subsequent elements.
+            IList<object> list = src as IList<object>;  // List and PythonTuple both implement IList
+            if (max < 1 || list == null) {
+                nd = 0;
+            } else if (list.Count == 0) {
+                nd = 0;
+            } else if (max < 2) {
+                // On the first pass, populate the dimensions array. One subsequent passes verify
+                // that the size is the same or, if not, 
+                if (firstElem) {
+                    dims[idx] = list.Count;
+                    nd = 1;
+                } else {
+                    nd = (dims[idx] == list.Count) ? 1 : 0;
+                }
+            } else if (!firstElem && dims[idx] != list.Count) {
+                nd = 0;
             } else {
-                return new List<long>();
-            }
+                // First element we traverse up to max depth and fill in the dims array.
+                nd = ObjectDepthAndDimension(list.First(), dims, idx + 1, max - 1, firstElem);
 
-            int size = list.Count;
-            if (size == 0) {
-                return new List<long>();
+                // Subsequent elements we just check that the size of each dimension is the
+                // same as clip the max depth to shallowest depth we have seen thus far.
+                nd = list.Skip(1).Aggregate(nd, (ndAcc, elem) =>
+                    Math.Min(ndAcc, ObjectDepthAndDimension(elem, dims, idx + 1, ndAcc, false))
+                );
+                nd += 1;
+                dims[idx] = list.Count;
             }
-            if (max < 2) {
-                result = new List<long>(1);
-                result[0] = size;
-                return result;
-            }
-            object item;
-            item = list[0];
-            List<long> dims = ObjectDepthAndDimension(item, max-1);
-            for (int i=1; i<size; i++) {
-                item = list[i];
-                List<long> otherDims = ObjectDepthAndDimension(item, max-1);
-                
-                if (dims.Count != otherDims.Count) {
-                    return new List<long>();
-                }
-                bool eq = Enumerable.Zip(dims, otherDims, (a, b) => (a == b)).All(x => x);
-                if (!eq) {
-                    return new List<long>();
-                }
-            }
-            result = new List<long>(dims.Count + 1);
-            result.Add(size);
-            result.AddRange(dims);
-            return result;
+            return nd;
         }
 
         internal static ndarray FromArrayAttr(CodeContext cntx, object src, dtype descr, object context) {

@@ -63,20 +63,80 @@ namespace NumpyDotNet {
         /// Call a Python function in numpy.core._internal
         /// </summary>
         /// <param name="cntx">Code context to use, or DefaultContext is used if null</param>
-        /// <param name="func_name">Name of the function to call</param>
+        /// <param name="funcName">Name of the function to call</param>
         /// <param name="args">Calling arguments</param>
         /// <returns>Result of Python function</returns>
-        internal static object CallInternal(CodeContext cntx, string func_name, params object[] args) {
-            object f;
-            if (cntx == null) cntx = DefaultContext;
+        internal static object CallInternal(CodeContext cntx, string funcName, params object[] args) {
+            return CallFunction(cntx, "numpy.core._internal", funcName, args: args);
+        }
 
-            PythonModule module = (PythonModule)PythonOps.ImportBottom(cntx, "numpy.core._internal", 0);
-            if (!PythonOps.ModuleTryGetMember(cntx, module, func_name, out f)) {
-                throw new ArgumentException(String.Format("'{0}' is not a function in numpy.core._internal.", func_name));
+        /// <summary>
+        /// Calls a Python function in some named module.  The module is imported it if hasn't already been loaded.
+        /// </summary>
+        /// <param name="cntx">Code context to use or default if null</param>
+        /// <param name="moduleName">Full module name (ie, numpy.core.multiarray, etc)</param>
+        /// <param name="funcName">Name of the function to call</param>
+        /// <param name="args">Calling arguments</param>
+        /// <returns>Result of the call</returns>
+        internal static object CallFunction(CodeContext cntx, string moduleName, string funcName, params object[] args) {
+            object f;
+            cntx = cntx ?? DefaultContext;
+
+            PythonModule module = GetModule(cntx, moduleName);
+            if (!PythonOps.ModuleTryGetMember(cntx, module, funcName, out f)) {
+                throw new ArgumentException(String.Format("'{0}' is not a function in numpy.core._internal.", funcName));
             }
             return PythonCalls.Call(cntx, f, args: args);
         }
 
+        /// <summary>
+        /// Returns an attribute of a named module.  The module is loaded if not already loaded.
+        /// </summary>
+        /// <param name="cntx">Current code context or default is null</param>
+        /// <param name="moduleName">Name of the module</param>
+        /// <param name="attrName">Attribute name</param>
+        /// <returns>Attribute from the module or null if not found.</returns>
+        internal static object GetModuleAttr(CodeContext cntx, string moduleName, string attrName) {
+            cntx = cntx ?? DefaultContext;
+            PythonModule mod = GetModule(cntx, moduleName);
+            return (mod != null) ? PythonOps.GetBoundAttr(cntx, mod, attrName) : null;
+        }
+
+
+        /// <summary>
+        /// Returns the named module.  Modules are cached and only imported if not already loaded.
+        /// </summary>
+        /// <param name="cntx">Current code context</param>
+        /// <param name="moduleName"></param>
+        /// <returns></returns>
+        private static PythonModule GetModule(CodeContext cntx, string moduleName) {
+            PythonModule module;
+
+            if (!loadedModules.TryGetValue(moduleName, out module)) {
+                lock (loadedModules) {
+                    if (!loadedModules.TryGetValue(moduleName, out module)) {
+                        module = (PythonModule)PythonOps.ImportBottom(cntx, moduleName, 0);
+                        loadedModules.Add(moduleName, module);
+                    }
+                }
+            }
+            return module;
+        }
+
+        /// <summary>
+        /// Set of modules already imported.
+        /// </summary>
+        static private Dictionary<String, PythonModule> loadedModules = new Dictionary<string, PythonModule>();
+
+
+
+        /// <summary>
+        /// Call a builtin Python function.
+        /// </summary>
+        /// <param name="cntx">code context to use, or DefaultContext is used if null</param>
+        /// <param name="func_name">Name of the function to trigger</param>
+        /// <param name="args">Calling arguments</param>
+        /// <returns>Result of Python call</returns>
         internal static object CallBuiltin(CodeContext cntx, string func_name, params object[] args) {
             if (cntx == null) cntx = DefaultContext;
 

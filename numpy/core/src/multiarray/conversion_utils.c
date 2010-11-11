@@ -17,6 +17,8 @@
 
 #include "conversion_utils.h"
 
+
+
 /****************************************************************
 * Useful function for conversion when used with PyArg_ParseTuple
 ****************************************************************/
@@ -109,7 +111,7 @@ PyArray_IntpConverter(PyObject *obj, PyArray_Dims *seq)
         return PY_FAIL;
     }
     if (len > MAX_DIMS) {
-        PyErr_Format(PyExc_ValueError, "sequence too large; "   \
+        PyErr_Format(PyExc_ValueError, "sequence too large; "
                      "must be smaller than %d", MAX_DIMS);
         return PY_FAIL;
     }
@@ -858,7 +860,13 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     /* Strings and unicode. */
     else if (PyString_Check(obj) || PyUnicode_Check(obj)) {
         index->type = NPY_INDEX_STRING;
-        index->index.string = PyString_AsString(obj);
+        PRINT(obj);
+#if defined(NPY_PY3K)
+        index->index.string = PyBytes_AsString(PyUnicode_Check(obj) ?
+                                          PyUnicode_AsASCIIString(obj) : obj);
+#else
+        index->index.string = PyString_AsString(x);
+#endif
         if (index->index.string == NULL) {
             return -1;
         }
@@ -962,8 +970,7 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
     if (PyTuple_Check(index)) {
         n = PyTuple_GET_SIZE(index);
         if (n >= NPY_MAXDIMS) {
-            PyErr_SetString(PyExc_IndexError,
-                            "too many indices");
+            PyErr_SetString(PyExc_IndexError, "too many indices");
             return -1;
         }
         else {
@@ -1014,5 +1021,3 @@ PyArray_IndexConverter(PyObject *index, NpyIndex* indexes)
 
     return 1;
 }
-
-

@@ -13,7 +13,7 @@ using NumpyDotNet;
 namespace NumpyDotNet {
 
 
-    [PythonType, Serializable]
+    [PythonType]
     public class dtype : Wrapper, IEnumerable<Object> {
 
         public const string __module__ = "numpy";
@@ -118,7 +118,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="cntx"></param>
         /// <returns>Encoding of the object's state (Python tuple)</returns>
-        public object __reduce__(CodeContext cntx) {
+        public object __reduce__(CodeContext cntx, object notused=null) {
             const int version = 4;
 
             object[] ret = new object[3];
