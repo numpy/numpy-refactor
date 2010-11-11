@@ -2,7 +2,6 @@
 #include <Python.h>
 #include "structmember.h"
 
-/*#include <stdio.h>*/
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
 #include "numpy/npy_3kcompat.h"
@@ -58,7 +57,8 @@ array_item_nice(PyArrayObject *self, Py_ssize_t i)
         if ((item = index2ptr(self, i)) == NULL) {
             return NULL;
         }
-        return PyArray_Scalar(item, PyArray_Descr_WRAP( PyArray_DESCR(self) ), (PyObject *)self);
+        return PyArray_Scalar(item, PyArray_Descr_WRAP(PyArray_DESCR(self)),
+                              (PyObject *) self);
     }
     else {
         return PyArray_Return(
@@ -74,21 +74,17 @@ array_ass_big_item(PyArrayObject *self, intp i, PyObject *v)
     int ret;
 
     if (v == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "can't delete array elements");
+        PyErr_SetString(PyExc_ValueError, "can't delete array elements");
         return -1;
     }
     if (!PyArray_ISWRITEABLE(self)) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "array is not writeable");
+        PyErr_SetString(PyExc_RuntimeError, "array is not writeable");
         return -1;
     }
     if (PyArray_NDIM(self) == 0) {
-        PyErr_SetString(PyExc_IndexError,
-                        "0-d arrays can't be indexed.");
+        PyErr_SetString(PyExc_IndexError, "0-d arrays can't be indexed.");
         return -1;
     }
-
 
     if (PyArray_NDIM(self) > 1) {
         if((tmp = (PyArrayObject *)array_big_item(self, i)) == NULL) {
@@ -357,13 +353,11 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
     NpyArray *view = NULL;
 
     if (op == NULL) {
-        PyErr_SetString(PyExc_ValueError,
-                        "cannot delete array elements");
+        PyErr_SetString(PyExc_ValueError, "cannot delete array elements");
         return -1;
     }
     if (!PyArray_ISWRITEABLE(self)) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "array is not writeable");
+        PyErr_SetString(PyExc_RuntimeError, "array is not writeable");
         return -1;
     }
 
@@ -482,13 +476,12 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
     return result;
 }
 
+
 /*
  * There are places that require that array_subscript return a PyArrayObject
  * and not possibly a scalar.  Thus, this is the function exposed to
  * Python so that 0-dim arrays are passed as scalars
  */
-
-
 static PyObject *
 array_subscript_nice(PyArrayObject *self, PyObject *op)
 {
@@ -497,8 +490,7 @@ array_subscript_nice(PyArrayObject *self, PyObject *op)
     int n;
 
     if (PyInt_Check(op) || PyArray_IsScalar(op, Integer) ||
-        PyLong_Check(op) || (PyIndex_Check(op) &&
-                             !PySequence_Check(op))) {
+        PyLong_Check(op) || (PyIndex_Check(op) && !PySequence_Check(op))) {
         intp value;
         value = PyArray_PyIntAsIntp(op);
         if (PyErr_Occurred()) {
@@ -533,7 +525,7 @@ array_subscript_nice(PyArrayObject *self, PyObject *op)
             }
             if ((val < 0) || (val >= dims[i])) {
                 PyErr_Format(PyExc_IndexError,
-                             "index (%"INTP_FMT") out of range "\
+                             "index (%"INTP_FMT") out of range "
                              "(0<=index<%"INTP_FMT") in dimension %d",
                              val, dims[i], i);
                 return NULL;
@@ -609,10 +601,6 @@ NPY_NO_EXPORT PyMappingMethods array_as_mapping = {
 #else
     (inquiry)array_length,              /*mp_length*/
 #endif
-    (binaryfunc)array_subscript_nice,       /*mp_subscript*/
+    (binaryfunc)array_subscript_nice,   /*mp_subscript*/
     (objobjargproc)array_ass_sub,       /*mp_ass_subscript*/
 };
-
-/****************** End of Mapping Protocol ******************************/
-
-
