@@ -46,12 +46,7 @@ PyArrayDescr_GetNames(PyArray_Descr *self)
     names = PyTuple_New(n);
     for (i = 0; i < n; i++) {
         PyTuple_SET_ITEM(names, i,
-#if defined(NPY_PY3K)
-                         PyUnicode_FromString(self->descr->names[i])
-#else
-                         PyString_FromString(self->descr->names[i])
-#endif
-            );
+                         PyUString_FromString(self->descr->names[i]));
     }
     return names;
 }
@@ -82,7 +77,8 @@ PyArrayDescr_GetFields(PyArray_Descr *self)
         Py_INCREF(valueDescr);
         PyTuple_SET_ITEM(tup, 1, PyInt_FromLong(value->offset));
         if (NULL != value->title) {
-            PyTuple_SET_ITEM(tup, 2, PyString_FromString(value->title));
+            PyTuple_SET_ITEM(tup, 2,
+                             PyUString_FromString(value->title));
         }
 
         PyDict_SetItemString(dict, key, tup);
@@ -1885,22 +1881,14 @@ arraydescr_type_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_kind_get(PyArray_Descr *self)
 {
-#if defined(NPY_PY3K)
-    return PyUnicode_FromStringAndSize(&self->descr->kind, 1);
-#else
-    return PyString_FromStringAndSize(&self->descr->kind, 1);
-#endif
+    return PyUString_FromStringAndSize(&self->descr->kind, 1);
 }
 
 
 static PyObject *
 arraydescr_char_get(PyArray_Descr *self)
 {
-#if defined(NPY_PY3K)
-    return PyUnicode_FromStringAndSize(&self->descr->type, 1);
-#else
-    return PyString_FromStringAndSize(&self->descr->type, 1);
-#endif
+    return PyUString_FromStringAndSize(&self->descr->type, 1);
 }
 
 
@@ -1914,11 +1902,7 @@ arraydescr_num_get(PyArray_Descr *self)
 static PyObject *
 arraydescr_byteorder_get(PyArray_Descr *self)
 {
-#if defined(NPY_PY3K)
-    return PyUnicode_FromStringAndSize(&self->descr->byteorder, 1);
-#else
-    return PyString_FromStringAndSize(&self->descr->byteorder, 1);
-#endif
+    return PyUString_FromStringAndSize(&self->descr->byteorder, 1);
 }
 
 
