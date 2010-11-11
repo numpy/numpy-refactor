@@ -865,7 +865,7 @@ convert_single_index(PyObject* obj, NpyIndex* index)
         index->index.string = PyBytes_AsString(PyUnicode_Check(obj) ?
                                           PyUnicode_AsASCIIString(obj) : obj);
 #else
-        index->index.string = PyString_AsString(x);
+        index->index.string = PyString_AsString(obj);
 #endif
         if (index->index.string == NULL) {
             return -1;
