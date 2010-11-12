@@ -27,7 +27,7 @@ namespace NumpyDotNet {
                 result = (dtype)obj;
             } else if ((pt = obj as PythonType) != null) {
                 if (PythonOps.IsSubClass(pt, PyGenericArrType_Type)) {
-                    result = ConvertFromPythonType(cntx, pt);
+                    result = DescrFromTypeObject(cntx, pt);
                 } else {
                     result = ConvertFromPythonType(cntx, pt);
                 }
@@ -58,22 +58,25 @@ namespace NumpyDotNet {
             return result;
         }
 
-/*        internal static dtype DescrFromTypeObject(CodeContext cntx, PythonType pt) {
+        internal static dtype DescrFromTypeObject(CodeContext cntx, PythonType pt) {
             dtype result;
 
-            if (pt == PyVoidArrType_Type) {
+            if (pt == DynamicHelpers.GetPythonTypeFromType(typeof(ScalarObject))) {
+                result = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT);
+            } else {
+                object scalar = PythonCalls.Call(cntx, pt);
+                result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
             }
 
-            object scalar = PythonCalls.Call(cntx, pt);
-            result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
             if (PythonOps.IsSubClass(pt, PyVoidArrType_Type) && pt != PyVoidArrType_Type) {
                 // Make a copy and replace the scalar constructor
                 result = new dtype(result);
                 result.scalarInfo = dtype.ScalarInfo.Make<ScalarVoid>();
                 result.scalarInfo.ScalarConstructor = (() => (ScalarGeneric)PythonCalls.Call(cntx, pt));
             }
+            return result;
         }
-*/
+
 
 
         internal static dtype ConvertFromDictionary(CodeContext cntx, PythonDictionary dict, bool align) {
