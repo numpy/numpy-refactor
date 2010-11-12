@@ -20,6 +20,14 @@ namespace NumpyDotNet {
         public const string __module__ = "numpy.core.multiarray";
 
         /// <summary>
+        /// Ick. See ScalarGeneric.Initialized.
+        /// </summary>
+        public static void InitializeScalars() {
+            ScalarGeneric.Initialized = true;
+        }
+
+
+        /// <summary>
         /// Module method 'array': constructs a new array from an input object and
         /// optional type and other arguments.
         /// </summary>
@@ -133,6 +141,10 @@ namespace NumpyDotNet {
                 throw e;
             }
             return result;
+        }
+
+        public static ndarray _reconstruct(CodeContext cntx, PythonType subtype, object shape, object dtype) {
+            return ndarray.__new__(cntx, subtype, shape, dtype);
         }
 
         public static ndarray arange(CodeContext cntx, object start, object stop = null, object step = null, object dtype = null) {

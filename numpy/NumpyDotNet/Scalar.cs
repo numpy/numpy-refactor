@@ -26,6 +26,14 @@ namespace NumpyDotNet
         }
 
         /// <summary>
+        /// Indicates whether the scalars have been "initialized" or not.  This is an
+        /// unpleasant hack that mimicks that CPython behavior whereby the tp_new field for
+        /// the scalar types is modified in the middle of initialization.
+        /// </summary>
+        static internal bool Initialized { get; set; }
+
+
+        /// <summary>
         /// Fill the value with the value from the 0-d array
         /// </summary>
         /// <param name="arr"></param>
@@ -1913,6 +1921,39 @@ namespace NumpyDotNet
     [PythonType("numpy.object_")]
     public class ScalarObject : ScalarGeneric
     {
+        /// <summary>
+        /// Constructs a new instance of whatever the type of value is or returns null.  That is,
+        /// numpy.object_(arg) behaves like a function returning the argument itself instead of an
+        /// instance of this class.
+        /// </summary>
+        /// <param name="cntx">Code context</param>
+        /// <param name="value">Default value or null</param>
+        /// <returns>Instance of default value or null</returns>
+        public static object __new__(CodeContext cntx, PythonType type, object value=null) {
+            object result;
+
+            // This is unpleasant. In CPython the tp_new field of some scalar types is changed during
+            // initialization, so some code constructs instances of object_ and other code gets whatever
+            // this function creates.
+            if (!ScalarGeneric.Initialized) {
+                return new ScalarObject(value);
+            }
+
+            if (value == null) {
+                result = null;
+            } else {
+                dtype typecode = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_OBJECT);
+                ndarray arr = NpyArray.FromAny(value, typecode, 0, 0, NpyDefs.NPY_FORCECAST);
+                if (arr == null || arr.ndim > 0) {
+                    result = arr;
+                } else {
+                    result = typecode.ToScalar(arr);
+                }
+            }
+            return result;
+        }
+
+
         public ScalarObject() {
             value = null;
         }
@@ -1943,7 +1984,7 @@ namespace NumpyDotNet
         }
 
         internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
-            value = (string)arr.GetItem(offset);
+            value = arr.GetItem(offset);
             return this;
         }
 

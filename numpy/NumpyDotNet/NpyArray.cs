@@ -813,7 +813,14 @@ namespace NumpyDotNet {
             }
 
             object next;
-            IntPtr len = CalcLength(cntx, start, stop, step, out next, NpyDefs.IsComplex(d.TypeNum));
+            IntPtr len = IntPtr.Zero;
+            try {
+                len = CalcLength(cntx, start, stop, step, out next, NpyDefs.IsComplex(d.TypeNum));
+            } catch (OverflowException) {
+                // Translate the error to make test_regression.py happy.
+                throw new ArgumentException("Maximum allowed size exceeded");
+            }
+
             if (len.ToInt64() < 0) {
                 dims = new long[] { 0 };
                 return NpyCoreApi.NewFromDescr(d, dims, null, 0, null);

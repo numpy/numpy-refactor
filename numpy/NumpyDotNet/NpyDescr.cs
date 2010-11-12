@@ -27,14 +27,7 @@ namespace NumpyDotNet {
                 result = (dtype)obj;
             } else if ((pt = obj as PythonType) != null) {
                 if (PythonOps.IsSubClass(pt, PyGenericArrType_Type)) {
-                    object scalar = PythonCalls.Call(cntx, pt);
-                    result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
-                    if (PythonOps.IsSubClass(pt, PyVoidArrType_Type) && pt != PyVoidArrType_Type) {
-                        // Make a copy and replace the scalar constructor
-                        result = new dtype(result);
-                        result.scalarInfo = dtype.ScalarInfo.Make<ScalarVoid>();
-                        result.scalarInfo.ScalarConstructor = (() => (ScalarGeneric)PythonCalls.Call(cntx, pt));
-                    }   
+                    result = ConvertFromPythonType(cntx, pt);
                 } else {
                     result = ConvertFromPythonType(cntx, pt);
                 }
@@ -64,6 +57,24 @@ namespace NumpyDotNet {
             }
             return result;
         }
+
+/*        internal static dtype DescrFromTypeObject(CodeContext cntx, PythonType pt) {
+            dtype result;
+
+            if (pt == PyVoidArrType_Type) {
+            }
+
+            object scalar = PythonCalls.Call(cntx, pt);
+            result = (dtype)PythonOps.ObjectGetAttribute(cntx, scalar, "dtype");
+            if (PythonOps.IsSubClass(pt, PyVoidArrType_Type) && pt != PyVoidArrType_Type) {
+                // Make a copy and replace the scalar constructor
+                result = new dtype(result);
+                result.scalarInfo = dtype.ScalarInfo.Make<ScalarVoid>();
+                result.scalarInfo.ScalarConstructor = (() => (ScalarGeneric)PythonCalls.Call(cntx, pt));
+            }
+        }
+*/
+
 
         internal static dtype ConvertFromDictionary(CodeContext cntx, PythonDictionary dict, bool align) {
             object oNames = dict.get("names");

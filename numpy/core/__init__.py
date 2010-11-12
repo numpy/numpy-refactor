@@ -9,7 +9,9 @@ import umath
 import _internal # for freeze programs
 
 import numerictypes as nt
-if sys.platform != 'cli':
+if sys.platform == 'cli':
+    multiarray.InitializeScalars()
+else:
     multiarray.set_typeDict(nt.sctypeDict)
     import _sort
 
