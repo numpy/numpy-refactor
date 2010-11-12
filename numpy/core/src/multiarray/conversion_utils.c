@@ -860,7 +860,12 @@ convert_single_index(PyObject* obj, NpyIndex* index)
     /* Strings and unicode. */
     else if (PyString_Check(obj) || PyUnicode_Check(obj)) {
         index->type = NPY_INDEX_STRING;
-        index->index.string = TO_CSTRING(obj);
+#if defined(NPY_PY3K)
+        index->index.string = PyBytes_AsString(PyUnicode_Check(obj) ?
+                                          PyUnicode_AsASCIIString(obj) : obj);
+#else
+        index->index.string = PyString_AsString(obj);
+#endif
         if (index->index.string == NULL) {
             return -1;
         }

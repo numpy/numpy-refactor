@@ -210,7 +210,7 @@ namespace NumpyDotNet {
                     }
                     return (long)i;
                 }
-            } catch (OverflowException e) {
+            } catch (OverflowException) {
                 throw;
             } catch { }
             throw new ArgumentException(
