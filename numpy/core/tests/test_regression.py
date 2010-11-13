@@ -1021,7 +1021,7 @@ class TestRegression(TestCase):
             msg = 'unicode offset: %d chars'%i
             t = np.dtype([('a','S%d'%i),('b','U2')])
             x = np.array([(asbytes('a'),u'b')], dtype=t)
-            if sys.version_info[0] >= 3:
+            if sys.version_info[0] >= 3 or sys.platform == 'cli':
                 assert_equal(str(x), "[(b'a', 'b')]", err_msg=msg)
             else:
                 assert_equal(str(x), "[('a', u'b')]", err_msg=msg)

@@ -404,6 +404,7 @@ namespace NumpyDotNet {
             int maxalign = 0;
             int dtypeflags = 0;
             int offset;
+            HashSet<string> fieldNames = new HashSet<string>();
             IntPtr names = NpyCoreApi.NpyArray_DescrAllocNames(n);
             IntPtr fields = NpyCoreApi.NpyArray_DescrAllocFields();
             try {
@@ -414,6 +415,15 @@ namespace NumpyDotNet {
                     }
                     dtype field_type = DescrConverter(cntx, item.dtype);
                     dtypeflags |= field_type.Flags & NpyDefs.NPY_FROM_FIELDS;
+
+                    if (fieldNames.Contains(item.name) || item.title != null && fieldNames.Contains(item.title)) {
+                        throw new ArgumentException("two fields with the same name");
+                    }
+                    if (item.title != null && item.title == item.name) {
+                        // Error message is confusing because it mimicks the version in descritor.c:_convert_from_array_descr,
+                        // and the logic is slightly wrong there for the message.
+                        throw new ArgumentException("title already used as a name or title");
+                    }
 
                     if (align) {
                         int field_align = field_type.Alignment;
@@ -432,7 +442,12 @@ namespace NumpyDotNet {
                         }
                         totalSize = Math.Max(totalSize, offset + field_type.ElementSize);
                     }
+
                     NpyCoreApi.AddField(fields, names, i, item.name, field_type, offset, item.title);
+                    if (item.title != null) {
+                        // If title is set, we add title only to the fields dictionary, not names array.
+                        NpyCoreApi.AddField(fields, names, i, item.title, field_type, offset, item.title);
+                    }
                 }
             } catch {
                 NpyCoreApi.DescrDestroyNames(names, n);
@@ -463,7 +478,7 @@ namespace NumpyDotNet {
                 if (name_tuple.Count != 2 || !(name_tuple[0] is string) || !(name_tuple[1] is string)) {
                     throw new ArgumentException("name and title must both be strings");
                 }
-                result.name = (string)name_tuple[0];
+                result.title = (string)name_tuple[0];
                 result.name = (string)name_tuple[1];
             }
             if (tup.Count == 2) {
