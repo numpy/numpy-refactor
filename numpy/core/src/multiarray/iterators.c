@@ -9,6 +9,7 @@
 #include "numpy/npy_3kcompat.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "npy_config.h"
 #include "conversion_utils.h"
 
 #include "arrayobject.h"
