@@ -1,27 +1,24 @@
 __docformat__ = "restructuredtext en"
-__all__ = ['select', 'piecewise', 'trim_zeros',
-           'copy', 'iterable', 'percentile',
-           'diff', 'gradient', 'angle', 'unwrap', 'sort_complex', 'disp',
-           'extract', 'place', 'nansum', 'nanmax', 'nanargmax',
-           'nanargmin', 'nanmin', 'vectorize', 'asarray_chkfinite', 'average',
-           'histogram', 'histogramdd', 'bincount', 'digitize', 'cov',
-           'corrcoef', 'msort', 'median', 'sinc', 'hamming', 'hanning',
-           'bartlett', 'blackman', 'kaiser', 'trapz', 'i0', 'add_newdoc',
-           'add_docstring', 'meshgrid', 'delete', 'insert', 'append',
-           'interp'
-           ]
-import warnings
+__all__ = ['select', 'piecewise', 'trim_zeros', 'copy', 'iterable',
+        'percentile', 'diff', 'gradient', 'angle', 'unwrap', 'sort_complex',
+        'disp', 'extract', 'place', 'nansum', 'nanmax', 'nanargmax',
+        'nanargmin', 'nanmin', 'vectorize', 'asarray_chkfinite', 'average',
+        'histogram', 'histogramdd', 'bincount', 'digitize', 'cov', 'corrcoef',
+        'msort', 'median', 'sinc', 'hamming', 'hanning', 'bartlett',
+        'blackman', 'kaiser', 'trapz', 'i0', 'add_newdoc', 'add_docstring',
+        'meshgrid', 'delete', 'insert', 'append', 'interp']
 
+import warnings
 import types
 import sys
 import numpy.core.numeric as _nx
 from numpy.core import linspace
 from numpy.core.numeric import ones, zeros, arange, concatenate, array, \
-     asarray, asanyarray, empty, empty_like, ndarray, around
+        asarray, asanyarray, empty, empty_like, ndarray, around
 from numpy.core.numeric import ScalarType, dot, where, newaxis, intp, \
-     integer, isscalar
+        integer, isscalar
 from numpy.core.umath import pi, multiply, add, arctan2,  \
-     frompyfunc, isnan, cos, less_equal, sqrt, sin, mod, exp, log10
+        frompyfunc, isnan, cos, less_equal, sqrt, sin, mod, exp, log10
 from numpy.core.fromnumeric import ravel, nonzero, choose, sort, mean
 from numpy.core.numerictypes import typecodes, number
 from numpy.core import atleast_1d, atleast_2d
@@ -1831,7 +1828,7 @@ class vectorize(object):
                           for x, c in zip(self.ufunc(*newargs), self.otypes)])
         return _res
 
-def cov(m, y=None, rowvar=1, bias=0):
+def cov(m, y=None, rowvar=1, bias=0, ddof=None):
     """
     Estimate a covariance matrix, given data.
 
@@ -1856,9 +1853,15 @@ def cov(m, y=None, rowvar=1, bias=0):
         is transposed: each column represents a variable, while the rows
         contain observations.
     bias : int, optional
-        Default normalization is by ``(N-1)``, where ``N`` is the number of
+        Default normalization is by ``(N - 1)``, where ``N`` is the number of
         observations given (unbiased estimate). If `bias` is 1, then
-        normalization is by ``N``.
+        normalization is by ``N``. These values can be overridden by using
+        the keyword ``ddof`` in numpy versions >= 1.5.
+    ddof : int, optional
+        .. versionadded:: 1.5
+        If not ``None`` normalization is by ``(N - ddof)``, where ``N`` is
+        the number of observations; this overrides the value implied by
+        ``bias``. The default value is ``None``.
 
     Returns
     -------
@@ -1904,6 +1907,9 @@ def cov(m, y=None, rowvar=1, bias=0):
     11.71
 
     """
+    # Check inputs
+    if ddof is not None and ddof != int(ddof):
+        raise ValueError("ddof must be integer")
 
     X = array(m, ndmin=2, dtype=float)
     if X.shape[0] == 1:
@@ -1918,7 +1924,7 @@ def cov(m, y=None, rowvar=1, bias=0):
 
     if y is not None:
         y = array(y, copy=False, ndmin=2, dtype=float)
-        X = concatenate((X,y),axis)
+        X = concatenate((X,y), axis)
 
     X -= X.mean(axis=1-axis)[tup]
     if rowvar:
@@ -1926,17 +1932,20 @@ def cov(m, y=None, rowvar=1, bias=0):
     else:
         N = X.shape[0]
 
-    if bias:
-        fact = N*1.0
-    else:
-        fact = N-1.0
+    if ddof is None:
+        if bias == 0:
+            ddof = 1
+        else:
+            ddof = 0
+    fact = float(N - ddof)
 
     if not rowvar:
         return (dot(X.T, X.conj()) / fact).squeeze()
     else:
         return (dot(X, X.T.conj()) / fact).squeeze()
 
-def corrcoef(x, y=None, rowvar=1, bias=0):
+
+def corrcoef(x, y=None, rowvar=1, bias=0, ddof=None):
     """
     Return correlation coefficients.
 
@@ -1963,9 +1972,15 @@ def corrcoef(x, y=None, rowvar=1, bias=0):
         is transposed: each column represents a variable, while the rows
         contain observations.
     bias : int, optional
-        Default normalization is by ``(N-1)``, where ``N`` is the number of
-        observations given (unbiased estimate). If `bias` is 1, then
-        normalization is by ``N``.
+        Default normalization is by ``(N - 1)``, where ``N`` is the number of
+        observations (unbiased estimate). If `bias` is 1, then
+        normalization is by ``N``. These values can be overridden by using
+        the keyword ``ddof`` in numpy versions >= 1.5.
+    ddof : {None, int}, optional
+        .. versionadded:: 1.5
+        If not ``None`` normalization is by ``(N - ddof)``, where ``N`` is
+        the number of observations; this overrides the value implied by
+        ``bias``. The default value is ``None``.
 
     Returns
     -------
@@ -1977,7 +1992,7 @@ def corrcoef(x, y=None, rowvar=1, bias=0):
     cov : Covariance matrix
 
     """
-    c = cov(x, y, rowvar, bias)
+    c = cov(x, y, rowvar, bias, ddof)
     try:
         d = diag(c)
     except ValueError: # scalar covariance
