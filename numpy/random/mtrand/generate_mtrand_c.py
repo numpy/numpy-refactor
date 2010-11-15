@@ -11,7 +11,7 @@ def remove_long_path():
 
 
 def main():
-    assert subprocess.call(['cython', 'mtrand.pyx']) == 0
+    subprocess.check_call(['cython', 'mtrand.pyx'])
     remove_long_path()
 
 
