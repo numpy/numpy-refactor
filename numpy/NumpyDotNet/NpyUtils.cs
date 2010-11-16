@@ -723,6 +723,8 @@ namespace NumpyDotNet {
                     NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
                     try {
                         indexes.AddIndex((IntPtr)Converter.ConvertToInt64(array_arg));
+                    } catch (IronPython.Runtime.Exceptions.TypeErrorException) {
+                        indexes.AddIndex((IntPtr)(int)array_arg.__int__(NpyUtil_Python.DefaultContext));
                     } catch (Exception e) {
                         throw new IndexOutOfRangeException(e.Message);
                     }
