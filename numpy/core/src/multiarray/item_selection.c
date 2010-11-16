@@ -40,8 +40,11 @@ PyArray_TakeFrom(PyArrayObject *self0, PyObject *indices0, int axis,
         indices = (PyArrayObject*) indices0;
         Py_INCREF(indices);
     } else {
-        indices = (PyArrayObject*) PyArray_ContiguousFromAny(indices0, PyArray_INTP, 1, 0);
+        indices = (PyArrayObject*) PyArray_ContiguousFromAny(indices0,
+                                                             PyArray_INTP,
+                                                             1, 0);
         if (indices == NULL) {
+            Py_XINCREF(ret);
             return NULL;
         }
     }
