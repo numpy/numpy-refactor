@@ -4,6 +4,7 @@ optimized\nmatrix multiply, inner product and dot for numpy arrays";
 #include "Python.h"
 #include "npy_api.h"
 #include "npy_descriptor.h"
+
 #include "numpy/ndarrayobject.h"
 #include "numpy/ndarraytypes.h"
 
@@ -1179,13 +1180,38 @@ static struct PyMethodDef dotblas_module_methods[] = {
     {NULL, NULL, 0, NULL}               /* sentinel */
 };
 
+#if defined(NPY_PY3K)
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "_dotblas",
+        NULL,
+        -1,
+        dotblas_module_methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+#endif
+
 /* Initialization function for the module */
-PyMODINIT_FUNC init_dotblas(void) {
+#if defined(NPY_PY3K)
+#define RETVAL m
+PyObject *PyInit__dotblas(void)
+#else
+#define RETVAL
+PyMODINIT_FUNC init_dotblas(void)
+#endif
+{
     int i;
-    PyObject *d, *s;
+    PyObject *d, *s, *m;
 
     /* Create the module and add the functions */
-    Py_InitModule3("_dotblas", dotblas_module_methods, module_doc);
+#if defined(NPY_PY3K)
+    m = PyModule_Create(&moduledef);
+#else
+    m = Py_InitModule3("_dotblas", dotblas_module_methods, module_doc);
+#endif
 
     /* Import the array object */
     import_array();
@@ -1200,4 +1226,5 @@ PyMODINIT_FUNC init_dotblas(void) {
     Py_DECREF(d);
     Py_DECREF(s);
 
+    return RETVAL;
 }
