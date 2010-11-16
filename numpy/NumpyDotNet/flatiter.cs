@@ -32,8 +32,7 @@ namespace NumpyDotNet
                 }
                 if (result.ndim == 0)
                 {
-                    // TODO: Should return a numpy scalar
-                    return result.GetItem(0);
+                    return result.dtype.ToScalar(result, 0);
                 }
                 else
                 {
