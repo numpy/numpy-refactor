@@ -5,8 +5,8 @@
 #include "numpy/npy_3kcompat.h"
 
 #include "npy_api.h"
-
 #include "npy_config.h"
+
 #include <float.h>
 
 #if (defined(__unix__) || defined(unix)) && !defined(USG)
@@ -973,12 +973,16 @@ cfunc_repr(PyObject *self)
             me->descr.name, (unsigned long ) me->descr.fptr,
             me->descr.chkself, me->descr.align,
             me->descr.wantIn, me->descr.wantOut);
-    return PyString_FromString(buf);
+    return PyUString_FromString(buf);
 }
 
 static PyTypeObject CfuncType = {
-    PyObject_HEAD_INIT(NULL)
-    0,
+#if defined(NPY_PY3K)
+    PyVarObject_HEAD_INIT(0,0)
+#else
+    PyObject_HEAD_INIT(0)
+    0,                                          /* ob_size */
+#endif
     "Cfunc",
     sizeof(CfuncObject),
     0,
@@ -2082,8 +2086,7 @@ static int
 getShape(PyObject *a, maybelong *shape, int dims)
 {
     long slen;
-
-    if (PyString_Check(a)) {
+    if (PyBytes_Check(a)) {
         PyErr_Format(PyExc_TypeError,
                 "getShape: numerical sequences can't contain strings.");
         return -1;
@@ -2158,12 +2161,13 @@ setArrayFromSequence(PyArrayObject *a, PyObject *s, int dim, long offset)
             if (NA_setFromPythonScalar(a, offset, o) < 0)
                 return -2;
             mustbe = NUMBER;
-        } else if (PyString_Check(o)) {
+        } else if (PyBytes_Check(o)) {
             PyErr_SetString( PyExc_ValueError,
                              "setArrayFromSequence: strings can't "
                              "define numeric numarray.");
             return -3;
         } else if (PySequence_Check(o)) {
+
             if ((mustbe == NOTHING) || (mustbe == SEQUENCE)) {
                 if (mustbe == NOTHING) {
                     mustbe = SEQUENCE;
@@ -2254,7 +2258,7 @@ _NA_maxType(PyObject *seq, int limit)
                     "Expecting a python numeric type, got something else.");
             return -1;
         }
-    } else if (PySequence_Check(seq) && !PyString_Check(seq)) {
+    } else if (PySequence_Check(seq) && !PyBytes_Check(seq)) {
         long i, maxtype=BOOL_SCALAR, slen;
 
         slen = PySequence_Length(seq);
@@ -2281,9 +2285,13 @@ _NA_maxType(PyObject *seq, int limit)
             return BOOL_SCALAR;
         else
 #endif
+#if defined(NPY_PY3K)
             if (PyInt_Check(seq))
                 return INT_SCALAR;
             else if (PyLong_Check(seq))
+#else
+            if (PyLong_Check(seq))
+#endif
                 return LONG_SCALAR;
             else if (PyFloat_Check(seq))
                 return FLOAT_SCALAR;
@@ -2313,7 +2321,7 @@ NA_isPythonScalar(PyObject *o)
         PyLong_Check(o) ||
         PyFloat_Check(o) ||
         PyComplex_Check(o) ||
-        (PyString_Check(o) && (PyString_Size(o) == 1));
+        (PyBytes_Check(o) && (PyBytes_Size(o) == 1));
     return rval;
 }
 
@@ -2493,18 +2501,14 @@ _setFromPythonScalarCore(PyArrayObject *a, long offset, PyObject*value,
         rval = _setFromPythonScalarCore(a, offset, value, entries+1);
         Py_DECREF(value);
         return rval;
-    } else if (PyString_Check(value)) {
-        long size = PyString_Size(value);
+    } else if (PyBytes_Check(value)) {
+        long size = PyBytes_Size(value);
         if ((size <= 0) || (size > 1)) {
             PyErr_Format( PyExc_ValueError,
                     "NA_setFromPythonScalar: len(string) must be 1.");
             return -1;
         }
-#if defined(NPY_PY3K)
         NA_set_Int64(a, offset, *PyBytes_AsString(value));
-#else
-        NA_set_Int64(a, offset, *PyString_AsString(value));
-#endif
     } else {
         PyErr_Format(PyExc_TypeError,
                 "NA_setFromPythonScalar: bad value type.");
@@ -3418,7 +3422,7 @@ static PyMethodDef _libnumarrayMethods[] = {
 #endif
 
 /* boiler plate API init */
-#if PY_VERSION_HEX >= 0x03010000
+#if defined(NPY_PY3K)
 
 #define RETVAL m
 
@@ -3434,7 +3438,7 @@ static struct PyModuleDef moduledef = {
         NULL
 };
 
-PyObject *PyInit___capi(void)
+PyObject *PyInit__capi(void)
 #else
 
 #define RETVAL
@@ -3448,13 +3452,13 @@ PyMODINIT_FUNC init_capi(void)
     _Error = PyErr_NewException("numpy.numarray._capi.error", NULL, NULL);
 
     /* Create a CObject containing the API pointer array's address */
-#if PY_VERSION_HEX >= 0x03010000
+#if defined(NPY_PY3K)
     m = PyModule_Create(&moduledef);
 #else
     m = Py_InitModule("_capi", _libnumarrayMethods);
 #endif
 
-#if PY_VERSION_HEX >= 0x03000000
+#if defined(NPY_PY3K)
     c_api_object = PyCapsule_New((void *)libnumarray_API, NULL, NULL);
     if (c_api_object == NULL) {
         PyErr_Clear();
@@ -3474,7 +3478,7 @@ PyMODINIT_FUNC init_capi(void)
     else {
         return RETVAL;
     }
-    if (PyModule_AddObject(m, "__version__", PyString_FromString("0.9")) < 0) {
+    if (PyModule_AddObject(m, "__version__", PyUString_FromString("0.9")) < 0) {
         return RETVAL;
     }
     if (_import_array() < 0) {
