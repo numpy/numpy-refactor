@@ -19,7 +19,7 @@ def install(bin_dir):
     dll_dir = join(sys.prefix, 'DLLs')
     if not isdir(dll_dir):
         os.mkdir(dll_dir)
-    for fn in ['ndarray.dll', 'NpyAccessLib.dll', 'NumpyDotNet.dll']:
+    for fn in ['ndarray.dll', 'NpyAccessLib.dll', 'NumpyDotNet.dll', 'mtrand.dll']:
         src = join(bin_dir, fn)
         dst = join(dll_dir, fn)
         if isfile(dst):

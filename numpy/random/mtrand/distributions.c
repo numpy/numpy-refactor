@@ -216,11 +216,11 @@ double rk_chisquare(rk_state *state, double df)
 
 double rk_noncentral_chisquare(rk_state *state, double df, double nonc)
 {
-    double Chi2, N;
+    double Chi2X, NX;
 
-    Chi2 = rk_chisquare(state, df-1);
-    N = rk_gauss(state) + sqrt(nonc);
-    return Chi2 + N*N;
+    Chi2X = rk_chisquare(state, df-1);
+    NX = rk_gauss(state) + sqrt(nonc);
+    return Chi2X + NX*NX;
 }
 
 double rk_f(rk_state *state, double dfnum, double dfden)
@@ -314,7 +314,7 @@ long rk_binomial_btpe(rk_state *state, long n, double p)
     v = v*(u-p3)*lamr;
 
   Step50:
-    k = fabs(y - m);
+    k = (long)fabs((double)(y - m));
     if ((k > 20) && (k < ((nrq)/2.0 - 1))) goto Step52;
 
     s = r/q;
@@ -390,7 +390,7 @@ long rk_binomial_inversion(rk_state *state, long n, double p)
         state->q = q = 1.0 - p;
         state->r = qn = exp(n * log(q));
         state->c = np = n*p;
-        state->m = bound = min(n, np + 10.0*sqrt(np*q + 1));
+        state->m = bound = (long)min(n, np + 10.0*sqrt(np*q + 1));
     } else
     {
         q = state->q;
@@ -542,11 +542,11 @@ double rk_standard_cauchy(rk_state *state)
 
 double rk_standard_t(rk_state *state, double df)
 {
-    double N, G, X;
+    double NX, G, X;
 
-    N = rk_gauss(state);
+    NX = rk_gauss(state);
     G = rk_standard_gamma(state, df/2);
-    X = sqrt(df/2)*N/sqrt(G);
+    X = sqrt(df/2)*NX/sqrt(G);
     return X;
 }
 

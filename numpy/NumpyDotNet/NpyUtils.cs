@@ -721,7 +721,11 @@ namespace NumpyDotNet {
                 else if (array_arg != null &&
                     array_arg.ndim == 0 &&
                     NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
-                    indexes.AddIndex((IntPtr)Converter.ConvertToInt64(array_arg));
+                    try {
+                        indexes.AddIndex((IntPtr)Converter.ConvertToInt64(array_arg));
+                    } catch (Exception e) {
+                        throw new IndexOutOfRangeException(e.Message);
+                    }
                 } else if (array_arg != null) {
                     // Arrays must be either boolean or integer.
                     if (NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {

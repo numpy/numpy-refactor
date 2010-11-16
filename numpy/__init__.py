@@ -155,7 +155,7 @@ else:
     import polynomial
     if sys.platform != 'cli':
         import fft
-        import random
+    import random
     import ctypeslib
     import ma
     import matrixlib as _mat

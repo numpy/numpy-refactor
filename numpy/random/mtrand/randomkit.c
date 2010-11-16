@@ -212,10 +212,9 @@ unsigned long
 rk_random(rk_state *state)
 {
     unsigned long y;
+    int i;
 
     if (state->pos == RK_STATE_LEN) {
-        int i;
-
         for (i = 0; i < N - M; i++) {
             y = (state->key[i] & UPPER_MASK) | (state->key[i+1] & LOWER_MASK);
             state->key[i] = state->key[i+M] ^ (y>>1) ^ (-(y & 1) & MATRIX_A);
@@ -300,7 +299,7 @@ void
 rk_fill(void *buffer, size_t size, rk_state *state)
 {
     unsigned long r;
-    unsigned char *buf = buffer;
+    unsigned char *buf = (unsigned char*)buffer;
 
     for (; size >= 4; size -= 4) {
         r = rk_random(state);
