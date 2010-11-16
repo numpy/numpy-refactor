@@ -814,6 +814,12 @@ array_preparearray(PyArrayObject *self, PyObject *args)
         return NULL;
     }
 
+    if (Py_TYPE(self) == Py_TYPE(arr)) {
+        /* No need to create a new view */
+        Py_INCREF(arr);
+        return arr;
+    }
+
     Npy_INCREF(PyArray_DESCR(arr));
     ASSIGN_TO_PYARRAY(ret,
         NpyArray_NewFromDescr(PyArray_DESCR(arr),
@@ -822,6 +828,7 @@ array_preparearray(PyArrayObject *self, PyObject *args)
                               PyArray_STRIDES(arr), PyArray_DATA(arr),
                               PyArray_FLAGS(arr), NPY_FALSE,
                               Py_TYPE(self), self));
+
     if (ret == NULL) {
         return NULL;
     }
