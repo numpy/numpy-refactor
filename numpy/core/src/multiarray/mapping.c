@@ -6,10 +6,13 @@
 #define NPY_NO_PREFIX
 #include "numpy/npy_3kcompat.h"
 #include "numpy/arrayobject.h"
+
 #include "npy_api.h"
 #include "npy_iterators.h"
 #include "npy_dict.h"
 #include "npy_index.h"
+#include "npy_config.h"
+
 
 #include "common.h"
 #include "ctors.h"

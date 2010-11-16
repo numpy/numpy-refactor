@@ -126,20 +126,20 @@ static NPY_INLINE int PyInt_Check(PyObject *op) {
 static NPY_INLINE void
 PyUnicode_ConcatAndDel(PyObject **left, PyObject *right)
 {
-    PyObject *new;
-    new = PyUnicode_Concat(*left, right);
+    PyObject *newobj;
+    newobj = PyUnicode_Concat(*left, right);
     Py_DECREF(*left);
     Py_DECREF(right);
-    *left = new;
+    *left = newobj;
 }
 
 static NPY_INLINE void
 PyUnicode_Concat2(PyObject **left, PyObject *right)
 {
-    PyObject *new;
-    new = PyUnicode_Concat(*left, right);
+    PyObject *newobj;
+    newobj = PyUnicode_Concat(*left, right);
     Py_DECREF(*left);
-    *left = new;
+    *left = newobj;
 }
 
 

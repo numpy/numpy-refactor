@@ -335,10 +335,15 @@ _descriptor_from_pep3118_format(char *s)
     /* Convert */
     _numpy_internal = PyImport_ImportModule("numpy.core._internal");
     if (_numpy_internal == NULL) {
+        Py_DECREF(str);
         return NULL;
     }
+
     str = PyUString_FromStringAndSize(buf, strlen(buf));
     free(buf);
+    if (str == NULL) {
+        return NULL;
+    }
     descr = PyObject_CallMethod(
         _numpy_internal, "_dtype_from_pep3118", "O", str);
     Py_DECREF(_numpy_internal);

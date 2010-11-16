@@ -19,7 +19,6 @@ void
 NpyUFunc_OO_O_method(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
 
 
-
 /*
  * API Functions.  These are only here for the automatic API generator and 
  * backwards compatibility.
