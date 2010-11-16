@@ -398,7 +398,8 @@ do {                                                            \
     typedef npy_uint64 ldouble_man_t;
     typedef npy_uint64 ldouble_exp_t;
     typedef npy_uint32 ldouble_sign_t;
-#elif defined(HAVE_LDOUBLE_IEEE_QUAD_LE)
+
+#elif defined(NPY_HAVE_LDOUBLE_IEEE_QUAD_LE)
     /*
      * IEEE quad precision, Little Endian. Bit representation is
      *          |  s  |eeeeeeeeeee|mmmmmmmm................mmmmmmm|
