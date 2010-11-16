@@ -384,7 +384,7 @@ class TestMaximum(TestCase):
 
     def test_complex_nans(self):
         nan = np.nan
-        for cnan in [nan, nan*1j, nan + nan*1j] :
+        for cnan in [complex(nan, 0), complex(0, nan), complex(nan, nan)] :
             arg1 = np.array([0, cnan, cnan], dtype=np.complex)
             arg2 = np.array([cnan, 0, cnan], dtype=np.complex)
             out  = np.array([nan, nan, nan], dtype=np.complex)
@@ -405,7 +405,7 @@ class TestMinimum(TestCase):
 
     def test_complex_nans(self):
         nan = np.nan
-        for cnan in [nan, nan*1j, nan + nan*1j] :
+        for cnan in [complex(nan, 0), complex(0, nan), complex(nan, nan)] :
             arg1 = np.array([0, cnan, cnan], dtype=np.complex)
             arg2 = np.array([cnan, 0, cnan], dtype=np.complex)
             out  = np.array([nan, nan, nan], dtype=np.complex)
@@ -426,7 +426,7 @@ class TestFmax(TestCase):
 
     def test_complex_nans(self):
         nan = np.nan
-        for cnan in [nan, nan*1j, nan + nan*1j] :
+        for cnan in [complex(nan, 0), complex(0, nan), complex(nan, nan)] :
             arg1 = np.array([0, cnan, cnan], dtype=np.complex)
             arg2 = np.array([cnan, 0, cnan], dtype=np.complex)
             out  = np.array([0,    0, nan], dtype=np.complex)
@@ -447,7 +447,7 @@ class TestFmin(TestCase):
 
     def test_complex_nans(self):
         nan = np.nan
-        for cnan in [nan, nan*1j, nan + nan*1j] :
+        for cnan in [complex(nan, 0), complex(0, nan), complex(nan, nan)] :
             arg1 = np.array([0, cnan, cnan], dtype=np.complex)
             arg2 = np.array([cnan, 0, cnan], dtype=np.complex)
             out  = np.array([0,    0, nan], dtype=np.complex)
@@ -1050,6 +1050,25 @@ def test_reduceat():
     np.setbufsize(np.UFUNC_BUFSIZE_DEFAULT)    
     assert_array_almost_equal(h1, h2)
         
+
+def test_complex_nan_comparisons():
+    nans = [complex(np.nan, 0), complex(0, np.nan), complex(np.nan, np.nan)]
+    fins = [complex(1, 0), complex(-1, 0), complex(0, 1), complex(0, -1),
+            complex(1, 1), complex(-1, -1), complex(0, 0)]
+
+    for x in nans + fins:
+        x = np.array([x])
+        for y in nans + fins:
+            y = np.array([y])
+
+            if np.isfinite(x) and np.isfinite(y):
+                continue
+
+            assert_equal(x < y, False, err_msg="%r < %r" % (x, y))
+            assert_equal(x > y, False, err_msg="%r > %r" % (x, y))
+            assert_equal(x <= y, False, err_msg="%r <= %r" % (x, y))
+            assert_equal(x >= y, False, err_msg="%r >= %r" % (x, y))
+            assert_equal(x == y, False, err_msg="%r == %r" % (x, y))
 
 if __name__ == "__main__":
     run_module_suite()

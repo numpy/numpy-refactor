@@ -1326,7 +1326,7 @@ class TestRegression(TestCase):
         # Ticket #1345: the following should not cause a crash
         np.fromstring(asbytes('aa, aa, 1.0'), sep=',')
 
-    def test_issue1539(self):
+    def test_ticket_1539(self):
         dtypes = [x for x in np.typeDict.values()
                   if (issubclass(x, np.number)
                       and not issubclass(x, np.timeinteger))]
@@ -1343,6 +1343,28 @@ class TestRegression(TestCase):
         if failures:
             raise AssertionError("Failures: %r" % failures)
 
+    def test_ticket_1538(self):
+        x = np.finfo(np.float32)
+        for name in 'eps epsneg max min resolution tiny'.split():
+            assert_equal(type(getattr(x, name)), np.float32,
+                         err_msg=name)
+
+    def test_ticket_1434(self):
+        # Check that the out= argument in var and std has an effect
+        data = np.array(((1,2,3),(4,5,6),(7,8,9)))
+        out = np.zeros((3,))
+
+        ret = data.var(axis=1, out=out)
+        assert_(ret is out)
+        assert_array_equal(ret, data.var(axis=1))
+
+        ret = data.std(axis=1, out=out)
+        assert_(ret is out)
+        assert_array_equal(ret, data.std(axis=1))
+
+    def test_complex_nan_maximum(self):
+        cnan = complex(0, np.nan)
+        assert_equal(np.maximum(1, cnan), cnan)
 
 if __name__ == "__main__":
     run_module_suite()

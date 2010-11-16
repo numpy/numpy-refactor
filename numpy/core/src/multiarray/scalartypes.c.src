@@ -418,7 +418,7 @@ format_c@name@(char *buf, size_t buflen, c@name@ val, unsigned int prec)
     /*
      * Ideally, we should handle this nan/inf stuff in NumpyOS_ascii_format*
      */
-#if PY_VERSION_HEX >= 0x03000000
+#if PY_VERSION_HEX >= 0x02070000
     if (val.real == 0.0 && npy_signbit(val.real) == 0) {
 #else
     if (val.real == 0.0) {
@@ -818,7 +818,7 @@ gentype_size_get(PyObject *NPY_UNUSED(self))
     return PyInt_FromLong(1);
 }
 
-#if PY_VERSION_HEX >= 0x02070000
+#if PY_VERSION_HEX >= 0x03000000
 NPY_NO_EXPORT void
 gentype_struct_free(PyObject *ptr)
 {

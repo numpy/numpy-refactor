@@ -242,7 +242,7 @@ PyObject_Cmp(PyObject *i1, PyObject *i2, int *cmp)
  * The main job here is to get rid of the improved error handling
  * of PyCapsules. It's a shame...
  */
-#if PY_VERSION_HEX >= 0x02070000
+#if PY_VERSION_HEX >= 0x03000000
 
 static NPY_INLINE PyObject *
 PyCapsule_FromVoidPtr(void *ptr, void (*dtor)(PyObject *))
@@ -274,6 +274,12 @@ PyCapsule_AsVoidPtr(PyObject *obj)
         PyErr_Clear();
     }
     return ret;
+}
+
+static NPY_INLINE void *
+NpyCapsule_GetDesc(PyObject *obj)
+{
+    return PyCapsule_GetContext(obj);
 }
 
 static NPY_INLINE int
@@ -308,6 +314,12 @@ static NPY_INLINE void *
 PyCapsule_AsVoidPtr(PyObject *ptr)
 {
     return PyCObject_AsVoidPtr(ptr);
+}
+
+static NPY_INLINE void *
+NpyCapsule_GetDesc(PyObject *obj)
+{
+    return PyCObject_GetDesc(obj);
 }
 
 static NPY_INLINE int

@@ -229,6 +229,30 @@ typedef struct {
 } PyArray_Chunk;
 
 
+typedef struct {
+        NPY_DATETIMEUNIT base;
+        int num;
+        int den;      /*
+                       * Converted to 1 on input for now -- an
+                       * input-only mechanism
+                       */
+        int events;
+} PyArray_DatetimeMetaData;
+
+
+#if PY_VERSION_HEX >= 0x03000000
+#define PyDataType_GetDatetimeMetaData(descr)                                 \
+    ((descr->metadata == NULL) ? NULL :                                       \
+        ((PyArray_DatetimeMetaData *)(PyCapsule_GetPointer(                   \
+                PyDict_GetItemString(                                         \
+                    descr->metadata, NPY_METADATA_DTSTR), NULL))))
+#else
+#define PyDataType_GetDatetimeMetaData(descr)                                 \
+    ((descr->metadata == NULL) ? NULL :                                       \
+        ((PyArray_DatetimeMetaData *)(PyCObject_AsVoidPtr(                    \
+                PyDict_GetItemString(descr->metadata, NPY_METADATA_DTSTR)))))
+#endif
+
 
 typedef int (PyArray_FinalizeFunc)(PyArrayObject *, PyObject *);
 
