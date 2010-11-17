@@ -88,6 +88,20 @@ class TestGeneric(TestCase):
         control = [slice(3, 6), slice(7, 8), ]
         assert_equal(test, control)
 
+    def test_flatnotmasked_contiguous(self):
+        "Test flatnotmasked_contiguous"
+        a = arange(10)
+        # No mask
+        test = flatnotmasked_contiguous(a)
+        assert_equal(test, slice(0, a.size))
+        # Some mask
+        a[(a < 3) | (a > 8) | (a == 5)] = masked
+        test = flatnotmasked_contiguous(a)
+        assert_equal(test, [slice(3, 5), slice(6, 9)])
+        #
+        a[:] = masked
+        test = flatnotmasked_contiguous(a)
+        assert_equal(test, None)
 
 
 class TestAverage(TestCase):
@@ -237,7 +251,7 @@ class TestNotMasked(TestCase):
         assert_equal(test[1], [(0, 1, 2, 3, 4), (4, 2, 4, 4, 4)])
         #
         test = notmasked_edges(data.data, None)
-        assert_equal(test, [0, -1])
+        assert_equal(test, [0, 24])
         test = notmasked_edges(data.data, 0)
         assert_equal(test[0], [(0, 0, 0, 0, 0), (0, 1, 2, 3, 4)])
         assert_equal(test[1], [(4, 4, 4, 4, 4), (0, 1, 2, 3, 4)])
@@ -261,9 +275,9 @@ class TestNotMasked(TestCase):
                                [1, 1, 1, 1, 1, 1, 1, 1],
                                [0, 0, 0, 0, 0, 0, 1, 0], ])
         tmp = notmasked_contiguous(a, None)
-        assert_equal(tmp[-1], slice(23, 23, None))
-        assert_equal(tmp[-2], slice(16, 21, None))
-        assert_equal(tmp[-3], slice(0, 3, None))
+        assert_equal(tmp[-1], slice(23, 24, None))
+        assert_equal(tmp[-2], slice(16, 22, None))
+        assert_equal(tmp[-3], slice(0, 4, None))
         #
         tmp = notmasked_contiguous(a, 0)
         self.assertTrue(len(tmp[-1]) == 1)
@@ -272,10 +286,10 @@ class TestNotMasked(TestCase):
         self.assertTrue(len(tmp[0]) == 2)
         #
         tmp = notmasked_contiguous(a, 1)
-        assert_equal(tmp[0][-1], slice(0, 3, None))
+        assert_equal(tmp[0][-1], slice(0, 4, None))
         self.assertTrue(tmp[1] is None)
-        assert_equal(tmp[2][-1], slice(7, 7, None))
-        assert_equal(tmp[2][-2], slice(0, 5, None))
+        assert_equal(tmp[2][-1], slice(7, 8, None))
+        assert_equal(tmp[2][-2], slice(0, 6, None))
 
 
 
@@ -813,10 +827,19 @@ class TestArraySetOps(TestCase):
         assert_array_equal(setdiff1d(a, b), np.array(['c']))
 
 
+
+
+
 class TestShapeBase(TestCase):
     #
-    def test_atleast1d(self):
-        pass
+    def test_atleast2d(self):
+        "Test atleast_2d"
+        a = masked_array([0, 1, 2], mask=[0, 1, 0])
+        b = atleast_2d(a)
+        assert_equal(b.shape, (1, 3))
+        assert_equal(b.mask.shape, b.data.shape)
+        assert_equal(a.shape, (3,))
+        assert_equal(a.mask.shape, a.data.shape)
 
 
 ###############################################################################
