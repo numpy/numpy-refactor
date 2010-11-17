@@ -11,8 +11,6 @@
 #include "npy_utils.h"
 #include "npy_arrayobject.h"
 
-
-
 #define NPY_NO_EXPORT NPY_VISIBILITY_HIDDEN
 
 

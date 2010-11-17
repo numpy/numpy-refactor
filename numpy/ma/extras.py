@@ -22,14 +22,14 @@ __all__ = ['apply_along_axis', 'apply_over_axes', 'atleast_1d', 'atleast_2d',
            'ediff1d',
            'flatnotmasked_contiguous', 'flatnotmasked_edges',
            'hsplit', 'hstack',
-           'in1d', 'intersect1d', 'intersect1d_nu',
+           'in1d', 'intersect1d',
            'mask_cols', 'mask_rowcols', 'mask_rows', 'masked_all',
            'masked_all_like', 'median', 'mr_',
            'notmasked_contiguous', 'notmasked_edges',
            'polyfit',
            'row_stack',
-           'setdiff1d', 'setmember1d', 'setxor1d',
-           'unique', 'unique1d', 'union1d',
+           'setdiff1d', 'setxor1d',
+           'unique', 'union1d',
            'vander', 'vstack',
            ]
 
@@ -48,7 +48,6 @@ import numpy.core.umath as umath
 from numpy.lib.index_tricks import AxisConcatenator
 from numpy.linalg import lstsq
 
-from numpy.lib.utils import deprecate
 
 #...............................................................................
 def issequence(seq):
@@ -274,7 +273,7 @@ class _fromnxfunction:
         if len(args) == 1:
             x = args[0]
             if isinstance(x, ndarray):
-                _d = func(np.asarray(x), **params)
+                _d = func(x.__array__(), **params)
                 _m = func(getmaskarray(x), **params)
                 return masked_array(_d, mask=_m)
             elif isinstance(x, tuple) or isinstance(x, list):
@@ -293,12 +292,12 @@ class _fromnxfunction:
                 res.append(masked_array(_d, mask=_m))
             return res
 
-#atleast_1d = _fromnxfunction('atleast_1d')
-#atleast_2d = _fromnxfunction('atleast_2d')
-#atleast_3d = _fromnxfunction('atleast_3d')
-atleast_1d = np.atleast_1d
-atleast_2d = np.atleast_2d
-atleast_3d = np.atleast_3d
+atleast_1d = _fromnxfunction('atleast_1d')
+atleast_2d = _fromnxfunction('atleast_2d')
+atleast_3d = _fromnxfunction('atleast_3d')
+#atleast_1d = np.atleast_1d
+#atleast_2d = np.atleast_2d
+#atleast_3d = np.atleast_3d
 
 vstack = row_stack = _fromnxfunction('vstack')
 hstack = _fromnxfunction('hstack')
@@ -1199,55 +1198,6 @@ def setdiff1d(ar1, ar2, assume_unique=False):
     else:
         return ma.asarray(ar1)[aux == 0]
 
-@deprecate
-def unique1d(ar1, return_index=False, return_inverse=False):
-    """ This function is deprecated. Use ma.unique() instead. """
-    output = np.unique1d(ar1,
-                         return_index=return_index,
-                         return_inverse=return_inverse)
-    if isinstance(output, tuple):
-        output = list(output)
-        output[0] = output[0].view(MaskedArray)
-        output = tuple(output)
-    else:
-        output = output.view(MaskedArray)
-    return output
-
-@deprecate
-def intersect1d_nu(ar1, ar2):
-    """ This function is deprecated. Use ma.intersect1d() instead."""
-    # Might be faster than unique1d( intersect1d( ar1, ar2 ) )?
-    aux = ma.concatenate((unique1d(ar1), unique1d(ar2)))
-    aux.sort()
-    return aux[aux[1:] == aux[:-1]]
-
-@deprecate
-def setmember1d(ar1, ar2):
-    """ This function is deprecated. Use ma.in1d() instead."""
-    ar1 = ma.asanyarray(ar1)
-    ar2 = ma.asanyarray(ar2)
-    ar = ma.concatenate((ar1, ar2))
-    b1 = ma.zeros(ar1.shape, dtype=np.int8)
-    b2 = ma.ones(ar2.shape, dtype=np.int8)
-    tt = ma.concatenate((b1, b2))
-
-    # We need this to be a stable sort, so always use 'mergesort' here. The
-    # values from the first array should always come before the values from the
-    # second array.
-    perm = ar.argsort(kind='mergesort')
-    aux = ar[perm]
-    aux2 = tt[perm]
-#    flag = ediff1d( aux, 1 ) == 0
-    flag = ma.concatenate((aux[1:] == aux[:-1], [False]))
-    ii = ma.where(flag * aux2)[0]
-    aux = perm[ii + 1]
-    perm[ii + 1] = perm[ii]
-    perm[ii] = aux
-    #
-    indx = perm.argsort(kind='mergesort')[:len(ar1)]
-    #
-    return flag[indx]
-
 
 #####--------------------------------------------------------------------------
 #---- --- Covariance ---
@@ -1572,7 +1522,8 @@ def flatnotmasked_edges(a):
 
     See Also
     --------
-    flatnotmasked_contiguous, notmasked_contiguous, notmasked_edges
+    flatnotmasked_contiguous, notmasked_contiguous, notmasked_edges, 
+    clump_masked, clump_unmasked
 
     Notes
     -----
@@ -1580,24 +1531,26 @@ def flatnotmasked_edges(a):
 
     Examples
     --------
-    >>> a = np.arange(10)
-    >>> mask = (a < 3) | (a > 8) | (a == 5)
+    >>> a = np.ma.arange(10)
+    >>> flatnotmasked_edges(a)
+    [0,-1]
 
-    >>> ma = np.ma.array(a, mask=m)
-    >>> np.array(ma[~ma.mask])
+    >>> mask = (a < 3) | (a > 8) | (a == 5)
+    >>> a[mask] = np.ma.masked
+    >>> np.array(a[~a.mask])
     array([3, 4, 6, 7, 8])
 
-    >>> flatnotmasked_edges(ma)
+    >>> flatnotmasked_edges(a)
     array([3, 8])
 
-    >>> ma = np.ma.array(a, mask=np.ones_like(a))
+    >>> a[:] = np.ma.masked
     >>> print flatnotmasked_edges(ma)
     None
 
     """
     m = getmask(a)
     if m is nomask or not np.any(m):
-        return [0, -1]
+        return np.array([0, a.size - 1])
     unmasked = np.flatnonzero(~m)
     if len(unmasked) > 0:
         return unmasked[[0, -1]]
@@ -1630,7 +1583,8 @@ def notmasked_edges(a, axis=None):
 
     See Also
     --------
-    flatnotmasked_contiguous, flatnotmasked_edges, notmasked_contiguous
+    flatnotmasked_contiguous, flatnotmasked_edges, notmasked_contiguous,
+    clump_masked, clump_unmasked
 
     Examples
     --------
@@ -1638,8 +1592,8 @@ def notmasked_edges(a, axis=None):
     >>> m = np.zeros_like(a)
     >>> m[1:, 1:] = 1
 
-    >>> ma = np.ma.array(a, mask=m)
-    >>> np.array(ma[~ma.mask])
+    >>> am = np.ma.array(a, mask=m)
+    >>> np.array(am[~am.mask])
     array([0, 1, 2, 3, 6])
 
     >>> np.ma.extras.notmasked_edges(ma)
@@ -1671,7 +1625,8 @@ def flatnotmasked_contiguous(a):
 
     See Also
     --------
-    flatnotmasked_edges, notmasked_contiguous, notmasked_edges
+    flatnotmasked_edges, notmasked_contiguous, notmasked_edges,
+    clump_masked, clump_unmasked
 
     Notes
     -----
@@ -1679,32 +1634,33 @@ def flatnotmasked_contiguous(a):
 
     Examples
     --------
-    >>> a = np.arange(10)
+    >>> a = np.ma.arange(10)
+    >>> np.ma.extras.flatnotmasked_contiguous(a)
+    slice(0, 10, None)
+    
     >>> mask = (a < 3) | (a > 8) | (a == 5)
-    >>> ma = np.ma.array(a, mask=mask)
-    >>> np.array(ma[~ma.mask])
+    >>> a[mask] = np.ma.masked
+    >>> np.array(a[~a.mask])
     array([3, 4, 6, 7, 8])
 
-    >>> np.ma.extras.flatnotmasked_contiguous(ma)
-    [slice(3, 4, None), slice(6, 8, None)]
-    >>> ma = np.ma.array(a, mask=np.ones_like(a))
-    >>> print np.ma.extras.flatnotmasked_edges(ma)
+    >>> np.ma.extras.flatnotmasked_contiguous(a)
+    [slice(3, 5, None), slice(6, 9, None)]
+    >>> a[:] = np.ma.masked
+    >>> print np.ma.extras.flatnotmasked_edges(a)
     None
 
     """
     m = getmask(a)
     if m is nomask:
-        return (a.size, [0, -1])
-    unmasked = np.flatnonzero(~m)
-    if len(unmasked) == 0:
-        return None
+        return slice(0, a.size, None)
+    i = 0
     result = []
-    for (k, group) in itertools.groupby(enumerate(unmasked), lambda (i, x):i - x):
-        tmp = np.array([g[1] for g in group], int)
-#        result.append((tmp.size, tuple(tmp[[0,-1]])))
-        result.append(slice(tmp[0], tmp[-1]))
-    result.sort()
-    return result
+    for (k, g) in itertools.groupby(m.ravel()):
+        n = len(list(g))
+        if not k:
+            result.append(slice(i, i + n))
+        i += n
+    return result or None
 
 def notmasked_contiguous(a, axis=None):
     """
@@ -1726,7 +1682,8 @@ def notmasked_contiguous(a, axis=None):
 
     See Also
     --------
-    flatnotmasked_edges, flatnotmasked_contiguous, notmasked_edges
+    flatnotmasked_edges, flatnotmasked_contiguous, notmasked_edges,
+    clump_masked, clump_unmasked
 
     Notes
     -----
@@ -1743,7 +1700,7 @@ def notmasked_contiguous(a, axis=None):
     array([0, 1, 2, 3, 6])
 
     >>> np.ma.extras.notmasked_contiguous(ma)
-    [slice(0, 3, None), slice(6, 6, None)]
+    [slice(0, 4, None), slice(6, 7, None)]
 
     """
     a = asarray(a)
@@ -1761,7 +1718,7 @@ def notmasked_contiguous(a, axis=None):
     #
     for i in range(a.shape[other]):
         idx[other] = i
-        result.append(flatnotmasked_contiguous(a[idx]))
+        result.append(flatnotmasked_contiguous(a[idx]) or None)
     return result
 
 
@@ -1785,6 +1742,7 @@ def _ezclump(mask):
 def clump_unmasked(a):
     """
     Return list of slices corresponding to the unmasked clumps of a 1-D array.
+    (A "clump" is defined as a contiguous region of the array).
 
     Parameters
     ----------
@@ -1800,6 +1758,11 @@ def clump_unmasked(a):
     Notes
     -----
     .. versionadded:: 1.4.0
+
+    See Also
+    --------
+    flatnotmasked_edges, flatnotmasked_contiguous, notmasked_edges, 
+    notmasked_contiguous, clump_masked
 
     Examples
     --------
@@ -1823,6 +1786,7 @@ def clump_unmasked(a):
 def clump_masked(a):
     """
     Returns a list of slices corresponding to the masked clumps of a 1-D array.
+    (A "clump" is defined as a contiguous region of the array).
 
     Parameters
     ----------
@@ -1839,12 +1803,17 @@ def clump_masked(a):
     -----
     .. versionadded:: 1.4.0
 
+    See Also
+    --------
+    flatnotmasked_edges, flatnotmasked_contiguous, notmasked_edges, 
+    notmasked_contiguous, clump_unmasked
+
     Examples
     --------
     >>> a = np.ma.masked_array(np.arange(10))
     >>> a[[0, 1, 2, 6, 8, 9]] = np.ma.masked
     >>> np.ma.extras.clump_masked(a)
-    [slice(0, 3, None), slice(6, 7, None), slice(8, None, None)]
+    [slice(0, 3, None), slice(6, 7, None), slice(8, 10, None)]
 
     """
     mask = ma.getmask(a)

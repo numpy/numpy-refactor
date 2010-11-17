@@ -5,8 +5,10 @@ import gc
 import copy
 from os import path
 from numpy.testing import *
-from numpy.testing.utils import _assert_valid_refcount
+from numpy.testing.utils import _assert_valid_refcount, WarningManager
 from numpy.compat import asbytes, asunicode, asbytes_nested
+import warnings
+import tempfile
 import numpy as np
 
 if sys.version_info[0] >= 3:
@@ -1158,7 +1160,7 @@ class TestRegression(TestCase):
         t = ((1,), np.array(1))
         assert_raises(ValueError, lambda: np.array(t))
 
-    @dec.knownfailureif(True, "Fix this for 1.5.0.")
+    @dec.knownfailureif(True, "This is a corner case, see ticket #1081.")
     def test_array_from_sequence_scalar_array2(self):
         """Ticket #1081: weird array with strange input..."""
         t = np.array([np.array([]), np.array(0, object)])
@@ -1365,6 +1367,78 @@ class TestRegression(TestCase):
     def test_complex_nan_maximum(self):
         cnan = complex(0, np.nan)
         assert_equal(np.maximum(1, cnan), cnan)
+
+    def test_subclass_int_tuple_assignment(self):
+        # ticket #1563
+        class Subclass(np.ndarray):
+            def __new__(cls,i):
+                return np.ones((i,)).view(cls)
+        x = Subclass(5)
+        x[(0,)] = 2 # shouldn't raise an exception
+        assert_equal(x[0], 2)
+
+    def test_ufunc_no_unnecessary_views(self):
+        # ticket #1548
+        class Subclass(np.ndarray):
+            pass
+        x = np.array([1,2,3]).view(Subclass)
+        y = np.add(x, x, x)
+        assert_equal(id(x), id(y))
+
+    def test_take_refcount(self):
+        # ticket #939
+        a = np.arange(16, dtype=np.float)
+        a.shape = (4,4)
+        lut = np.ones((5 + 3, 4), np.float)
+        rgba = np.empty(shape=a.shape + (4,), dtype=lut.dtype)
+        c1 = sys.getrefcount(rgba)
+        try:
+            lut.take(a, axis=0, mode='clip', out=rgba)
+        except TypeError:
+            pass
+        c2 = sys.getrefcount(rgba)
+        assert_equal(c1, c2)
+
+    def test_fromfile_tofile_seeks(self):
+        # On Python 3, tofile/fromfile used to get (#1610) the Python
+        # file handle out of sync
+        f = tempfile.TemporaryFile()
+        f.write(np.arange(255, dtype='u1').tostring())
+
+        f.seek(20)
+        ret = np.fromfile(f, count=4, dtype='u1')
+        assert_equal(ret, np.array([20, 21, 22, 23], dtype='u1'))
+        assert_equal(f.tell(), 24)
+
+        f.seek(40)
+        np.array([1, 2, 3], dtype='u1').tofile(f)
+        assert_equal(f.tell(), 43)
+
+        f.seek(40)
+        data = f.read(3)
+        assert_equal(data, asbytes("\x01\x02\x03"))
+
+        f.seek(80)
+        f.read(4)
+        data = np.fromfile(f, dtype='u1', count=4)
+        assert_equal(data, np.array([84, 85, 86, 87], dtype='u1'))
+
+        f.close()
+
+    def test_complex_scalar_warning(self):
+        for tp in [np.csingle, np.cdouble, np.clongdouble]:
+            x = tp(1+2j)
+            assert_warns(np.ComplexWarning, float, x)
+            ctx = WarningManager()
+            ctx.__enter__()
+            warnings.simplefilter('ignore')
+            assert_equal(float(x), float(x.real))
+            ctx.__exit__()
+
+    def test_complex_scalar_complex_cast(self):
+        for tp in [np.csingle, np.cdouble, np.clongdouble]:
+            x = tp(1+2j)
+            assert_equal(complex(x), 1+2j)
 
 if __name__ == "__main__":
     run_module_suite()

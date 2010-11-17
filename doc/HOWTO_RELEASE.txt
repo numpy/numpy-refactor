@@ -105,7 +105,7 @@ needs to be installed:
 * MinGW
 * ATLAS, 3x ([No SSE, SSE2, SSE3] for superpack installer) : ATLAS does not
   compile under wine or on Windows out of the box. Binaries for ATLAS can be
-  found in svn under vendor/.
+  found in the vendor repository on GitHub (http://github.com/numpy/vendor).
 
 To install Wine on OS X Snow Leopard the current options are to compile a
 current unstable version ,`<http://wiki.winehq.org/MacOSX/Building>`_, or to use
@@ -194,6 +194,21 @@ best to read the pavement.py script.
 .. note:: The following steps are repeated for the beta(s), release
    candidates(s) and the final release.
 
+Merge doc wiki edits
+--------------------
+The edits in the documentation wiki suitable for merging should be merged,
+ideally just before making the release branch. How to do this is described in
+detail in doc/HOWTO_MERGE_WIKI_DOCS.txt.
+
+Check that docs can be built
+----------------------------
+Do::
+
+    cd doc/
+    make dist
+
+to check that the documentation is in a buildable state.
+
 Check deprecations
 ------------------
 Before the release branch is made, it should be checked that all deprecated
@@ -211,24 +226,28 @@ following:
 - for SciPy, supported NumPy version(s)
 - outlook for the near future
 
-Create the release "tag"
-------------------------
+Also make sure that as soon as the branch is made, there is a new release notes
+file in trunk for the next release.
+
+Update the release status and create a release "tag"
+----------------------------------------------------
+Identify the commit hash of the release, e.g. 1b2e1d63ff.
+
+::
+    git co 1b2e1d63ff # gives warning about detached head
+
+Now, set ``release=True`` in setup.py, then
+
 ::
 
-    svn cp http://svn.scipy.org/svn/numpy/trunk http://svn.scipy.org/svn/numpy/tags/<version>
+    git commit -m "REL: Release." setup.py
+    git tag <version>
+    git push origin <version>
 
 Update the version of the trunk
 -------------------------------
 Increment the release number in setup.py. Release candidates should have "rc1"
 (or "rc2", "rcN") appended to the X.Y.Z format.
-
-Update the version of the tag
------------------------------
-Switch to the tag::
-
-  svn switch http://svn.scipy.org/svn/numpy/tags/<version>
-
-Set ``release=True`` in setup.py. 
 
 Make the release
 ----------------
@@ -243,6 +262,7 @@ For example::
 
 Update PyPi
 -----------
+The final release (not betas or release candidates) should be uploaded to PyPi.
 There are two ways to update PyPi, the first one is::
 
   $ python setup.py sdist upload
@@ -253,6 +273,35 @@ interface. A simple binary installer for windows, created with
 ``bdist_wininst``, should also be uploaded to PyPi so ``easy_install numpy``
 works.
 
+Update docs.scipy.org
+---------------------
+Do the following (or ask the doc people to take care of it):
+
+Rebuild and upload documentation:
+
+- ``cd numpy/doc``
+- ``make dist``
+- Check that the built documentation is OK.
+- ``touch output-is-fine``
+- ``make upload UPLOAD_TARGET=USERNAME@docs.scipy.org:/home/docserver/www-root/doc/numpy-1.5.x/``
+
+where USERNAME should be replaced by your account on
+``docs.scipy.org``, and ``numpy-1.5.x`` by the version number of the
+*release series*. For instance, for Numpy 1.5.1, it should be
+``numpy-1.5.x`` and for Numpy 2.0.0 ``numpy-2.0.x``.
+
+Rebuild and upload ``docs.scipy.org`` front page, if the release
+series is a new one. The front page sources are located in the Scipy
+repository:
+
+- ``cd scipy/doc/frontpage``
+- Edit ``_templates/indexcontent.html`` to add links to the new release series.
+- ``make dist``
+- Check that the built documentation is OK.
+- ``touch output-is-fine``
+- ``make upload USER=USERNAME``
+
+
 Update scipy.org
 ----------------
 A release announcement with a link to the download site should be placed in the
@@ -261,8 +310,18 @@ sidebar of the front page of scipy.org.
 Announce to the lists 
 ---------------------
 The release should be announced on the mailing lists of
-NumPy and SciPy, and possibly also those of Matplotlib,IPython and/or Pygame.
+NumPy and SciPy, to python-announce, and possibly also those of
+Matplotlib,IPython and/or Pygame.
 
 During the beta/RC phase an explicit request for testing the binaries with
 several other libraries (SciPy/Matplotlib/Pygame) should be posted on the
 mailing list.
+
+After the final release
+-----------------------
+After the final release is announced, a few administrative tasks are left to be
+done:
+
+  - Forward port changes in the release branch to release notes and release
+    scripts, if any, to trunk.
+  - Update the Milestones in Trac.

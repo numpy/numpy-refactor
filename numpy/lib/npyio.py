@@ -373,7 +373,7 @@ def save(file, arr):
 
 def savez(file, *args, **kwds):
     """
-    Save several arrays into a single, compressed file in ``.npz`` format.
+    Save several arrays into a single, archive file in ``.npz`` format.
 
     If arguments are passed in with no keywords, the corresponding variable
     names, in the .npz file, are 'arr_0', 'arr_1', etc. If keyword arguments
@@ -407,8 +407,9 @@ def savez(file, *args, **kwds):
     Notes
     -----
     The ``.npz`` file format is a zipped archive of files named after the
-    variables they contain.  Each file contains one variable in ``.npy``
-    format. For a description of the ``.npy`` format, see `format`.
+    variables they contain.  The archive is not compressed and each file
+    in the archive contains one variable in ``.npy`` format. For a
+    description of the ``.npy`` format, see `format`.
 
     When opening the saved ``.npz`` file with `load` a `NpzFile` object is
     returned. This is a dictionary-like object which can be queried for
@@ -515,30 +516,32 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
     fname : file or str
         File or filename to read.  If the filename extension is ``.gz`` or
         ``.bz2``, the file is first decompressed.
-    dtype : dtype, optional
-        Data type of the resulting array.  If this is a record data-type,
-        the resulting array will be 1-dimensional, and each row will be
-        interpreted as an element of the array.   In this case, the number
-        of columns used must match the number of fields in the data-type.
+    dtype : data-type, optional
+        Data-type of the resulting array; default: float.  If this is a record
+        data-type, the resulting array will be 1-dimensional, and each row
+        will be interpreted as an element of the array.  In this case, the
+        number of columns used must match the number of fields in the
+        data-type.
     comments : str, optional
-        The character used to indicate the start of a comment.
+        The character used to indicate the start of a comment; default: '#'.
     delimiter : str, optional
         The string used to separate values.  By default, this is any
         whitespace.
     converters : dict, optional
         A dictionary mapping column number to a function that will convert
         that column to a float.  E.g., if column 0 is a date string:
-        ``converters = {0: datestr2num}``. Converters can also be used to
+        ``converters = {0: datestr2num}``.  Converters can also be used to
         provide a default value for missing data:
-        ``converters = {3: lambda s: float(s or 0)}``.
+        ``converters = {3: lambda s: float(s or 0)}``.  Default: None.
     skiprows : int, optional
-        Skip the first `skiprows` lines.
+        Skip the first `skiprows` lines; default: 0.
     usecols : sequence, optional
         Which columns to read, with 0 being the first.  For example,
         ``usecols = (1,4,5)`` will extract the 2nd, 5th and 6th columns.
+        The default, None, results in all columns being read.
     unpack : bool, optional
         If True, the returned array is transposed, so that arguments may be
-        unpacked using ``x, y, z = loadtxt(...)``. Default is False.
+        unpacked using ``x, y, z = loadtxt(...)``.  The default is False.
 
     Returns
     -------
@@ -549,11 +552,11 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
     --------
     load, fromstring, fromregex
     genfromtxt : Load data with missing values handled as specified.
-    scipy.io.loadmat : reads Matlab(R) data files
+    scipy.io.loadmat : reads MATLAB data files
 
     Notes
     -----
-    This function aims to be a fast reader for simply formatted files. The
+    This function aims to be a fast reader for simply formatted files.  The
     `genfromtxt` function provides more sophisticated handling of, e.g.,
     lines with missing values.
 
@@ -725,7 +728,7 @@ def savetxt(fname, X, fmt='%.18e', delimiter=' ', newline='\n'):
     delimiter : str
         Character separating columns.
     newline : str
-        .. versionadded:: 2.0
+        .. versionadded:: 1.5.0
 
         Character separating lines.
 
@@ -1346,10 +1349,10 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             try:
                 values = [values[_] for _ in usecols]
             except IndexError:
-                append_to_invalid((i, nbvalues))
+                append_to_invalid((i + skip_header + 1, nbvalues))
                 continue
         elif nbvalues != nbcols:
-            append_to_invalid((i, nbvalues))
+            append_to_invalid((i + skip_header + 1, nbvalues))
             continue
         # Store the values
         append_to_rows(tuple(values))
@@ -1357,11 +1360,6 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             append_to_masks(tuple([v.strip() in m
                                    for (v, m) in zip(values, missing_values)]))
 
-    # Strip the last skip_footer data
-    if skip_footer > 0:
-        rows = rows[:-skip_footer]
-        if usemask:
-            masks = masks[:-skip_footer]
 
     # Upgrade the converters (if needed)
     if dtype is None:
@@ -1381,17 +1379,23 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
                         raise ConverterError(errmsg)
 
     # Check that we don't have invalid values
-    if len(invalid) > 0:
-        nbrows = len(rows)
+    nbinvalid = len(invalid)
+    if nbinvalid > 0:
+        nbrows = len(rows) + nbinvalid - skip_footer
         # Construct the error message
         template = "    Line #%%i (got %%i columns instead of %i)" % nbcols
         if skip_footer > 0:
-            nbrows -= skip_footer
-            errmsg = [template % (i + skip_header + 1, nb)
-                      for (i, nb) in invalid if i < nbrows]
-        else:
-            errmsg = [template % (i + skip_header + 1, nb)
-                      for (i, nb) in invalid]
+            nbinvalid_skipped = len([_ for _ in invalid
+                                     if _[0] > nbrows + skip_header])
+            invalid = invalid[:nbinvalid - nbinvalid_skipped]
+            skip_footer -= nbinvalid_skipped
+#            
+#            nbrows -= skip_footer
+#            errmsg = [template % (i, nb)
+#                      for (i, nb) in invalid if i < nbrows]
+#        else:
+        errmsg = [template % (i, nb)
+                  for (i, nb) in invalid]
         if len(errmsg):
             errmsg.insert(0, "Some errors were detected !")
             errmsg = "\n".join(errmsg)
@@ -1401,6 +1405,13 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             # Issue a warning ?
             else:
                 warnings.warn(errmsg, ConversionWarning)
+
+    # Strip the last skip_footer data
+    if skip_footer > 0:
+        rows = rows[:-skip_footer]
+        if usemask:
+            masks = masks[:-skip_footer]
+
 
     # Convert each value according to the converter:
     # We want to modify the list in place to avoid creating a new one...

@@ -86,13 +86,13 @@ def zeros_like(a):
     Parameters
     ----------
     a : array_like
-        The shape and data-type of `a` define the parameters of
+        The shape and data-type of `a` define these same attributes of
         the returned array.
 
     Returns
     -------
     out : ndarray
-        Array of zeros with same shape and type as `a`.
+        Array of zeros with the same shape and type as `a`.
 
     See Also
     --------
@@ -141,7 +141,7 @@ def empty_like(a):
     Parameters
     ----------
     a : array_like
-        The shape and data-type of `a` define the parameters of the
+        The shape and data-type of `a` define these same attributes of the
         returned array.
 
     Returns
@@ -160,8 +160,8 @@ def empty_like(a):
     Notes
     -----
     This function does *not* initialize the returned array; to do that use
-    `zeros_like` or `ones_like` instead. It may be marginally faster than the
-    functions that do set the array values.
+    `zeros_like` or `ones_like` instead.  It may be marginally faster than
+    the functions that do set the array values.
 
     Examples
     --------
@@ -171,7 +171,7 @@ def empty_like(a):
            [          0,           0, -1073741821]])
     >>> a = np.array([[1., 2., 3.],[4.,5.,6.]])
     >>> np.empty_like(a)
-    array([[ -2.00000715e+000,   1.48219694e-323,  -2.00000572e+000], #random
+    array([[ -2.00000715e+000,   1.48219694e-323,  -2.00000572e+000],#random
            [  4.38791518e-305,  -2.00000715e+000,   4.17269252e-309]])
 
     """
@@ -304,14 +304,14 @@ def asarray(a, dtype=None, order=None):
 
 def asanyarray(a, dtype=None, order=None):
     """
-    Convert the input to a ndarray, but pass ndarray subclasses through.
+    Convert the input to an ndarray, but pass ndarray subclasses through.
 
     Parameters
     ----------
     a : array_like
         Input data, in any form that can be converted to an array.  This
         includes scalars, lists, lists of tuples, tuples, tuples of tuples,
-        tuples of lists and ndarrays.
+        tuples of lists, and ndarrays.
     dtype : data-type, optional
         By default, the data-type is inferred from the input data.
     order : {'C', 'F'}, optional
@@ -331,7 +331,8 @@ def asanyarray(a, dtype=None, order=None):
     asfarray : Convert input to a floating point ndarray.
     asfortranarray : Convert input to an ndarray with column-major
                      memory order.
-    asarray_chkfinite : Similar function which checks input for NaNs and Infs.
+    asarray_chkfinite : Similar function which checks input for NaNs and
+                        Infs.
     fromiter : Create an array from an iterator.
     fromfunction : Construct an array by executing a function on grid
                    positions.
@@ -658,16 +659,17 @@ def _mode_from_name(mode):
         return _mode_from_name_dict[mode.lower()[0]]
     return mode
 
-def correlate(a,v,mode='valid',old_behavior=True):
+def correlate(a, v, mode='valid', old_behavior=False):
     """
-    Discrete, linear correlation of two 1-dimensional sequences.
+    Cross-correlation of two 1-dimensional sequences.
 
-    This function is equivalent to
+    This function computes the correlation as generally defined in signal
+    processing texts::
 
-    >>> np.convolve(a, v[::-1], mode=mode)
-    ... #doctest: +SKIP
+        z[k] = sum_n a[n] * conj(v[n+k])
 
-    where ``v[::-1]`` is the reverse of `v`.
+    with a and v sequences being zero-padded where necessary and conj being
+    the conjugate.
 
     Parameters
     ----------
@@ -677,27 +679,13 @@ def correlate(a,v,mode='valid',old_behavior=True):
         Refer to the `convolve` docstring.  Note that the default
         is `valid`, unlike `convolve`, which uses `full`.
     old_behavior : bool
-        If True, uses the old, numeric behavior (correlate(a,v) == correlate(v,
+        If True, uses the old behavior from Numeric, (correlate(a,v) == correlate(v,
         a), and the conjugate is not taken for complex arrays). If False, uses
         the conventional signal processing definition (see note).
 
     See Also
     --------
-    convolve : Discrete, linear convolution of two
-               one-dimensional sequences.
-    acorrelate : Discrete correlation following the usual signal processing
-               definition for complex arrays, and without assuming that
-               ``correlate(a, b) == correlate(b, a)``.
-
-    Notes
-    -----
-    If `old_behavior` is False, this function computes the correlation as
-    generally defined in signal processing texts::
-
-        z[k] = sum_n a[n] * conj(v[n+k])
-
-    with a and v sequences being zero-padded where necessary and conj being
-    the conjugate.
+    convolve : Discrete, linear convolution of two one-dimensional sequences.
 
     Examples
     --------
@@ -710,11 +698,13 @@ def correlate(a,v,mode='valid',old_behavior=True):
 
     """
     mode = _mode_from_name(mode)
+# the old behavior should be made available under a different name, see thread
+# http://thread.gmane.org/gmane.comp.python.numeric.general/12609/focus=12630
     if old_behavior:
         warnings.warn("""
-The current behavior of correlate is deprecated for 1.4.0, and will be removed
-for NumPy 1.5.0.
-    
+The old behavior of correlate was deprecated for 1.4.0, and will be completely removed
+for NumPy 2.0.
+
 The new behavior fits the conventional definition of correlation: inputs are
 never swapped, and the second argument is conjugated for complex arrays.""",
             DeprecationWarning)
@@ -1152,7 +1142,8 @@ def rollaxis(a, axis, start=0):
         The axis to roll backwards.  The positions of the other axes do not
         change relative to one another.
     start : int, optional
-        The axis is rolled until it lies before this position.
+        The axis is rolled until it lies before this position.  The default,
+        0, results in a "complete" roll.
 
     Returns
     -------
@@ -1162,7 +1153,7 @@ def rollaxis(a, axis, start=0):
     See Also
     --------
     roll : Roll the elements of an array by a number of positions along a
-           given axis.
+        given axis.
 
     Examples
     --------
@@ -1420,23 +1411,25 @@ def array_str(a, max_line_width=None, precision=None, suppress_small=None):
     """
     Return a string representation of the data in an array.
 
-    The data in the array is returned as a single string. This function
-    is similar to `array_repr`, the difference is that `array_repr` also
-    returns information on the type of array and data type.
+    The data in the array is returned as a single string.  This function is
+    similar to `array_repr`, the difference being that `array_repr` also
+    returns information on the kind of array and its data type.
 
     Parameters
     ----------
     a : ndarray
         Input array.
     max_line_width : int, optional
-        Inserts newlines if text is longer than `max_line_width`.
+        Inserts newlines if text is longer than `max_line_width`.  The
+        default is, indirectly, 75.
     precision : int, optional
-        Floating point precision. Default is the current printing precision
-        (usually 8), which can be altered using set_printoptions.
+        Floating point precision.  Default is the current printing precision
+        (usually 8), which can be altered using `set_printoptions`.
     suppress_small : bool, optional
-        Represent very small numbers as zero, default is False. Very small is
-        defined by precision, if the precision is 8 then numbers smaller than
-        5e-9 are represented as zero.
+        Represent numbers "very close" to zero as zero; default is False.
+        Very close is defined by precision: if the precision is 8, e.g.,
+        numbers smaller (in absolute value) than 5e-9 are represented as
+        zero.
 
     See Also
     --------
@@ -1776,13 +1769,13 @@ def binary_repr(num, width=None):
         bin = bin.zfill(width)
     return sign + bin
 
-def base_repr (number, base=2, padding=0):
+def base_repr(number, base=2, padding=0):
     """
     Return a string representation of a number in the given base system.
 
     Parameters
     ----------
-    number : scalar
+    number : int
         The value to convert. Only positive values are handled.
     base : int, optional
         Convert `number` to the `base` number system. The valid range is 2-36,
@@ -1797,8 +1790,7 @@ def base_repr (number, base=2, padding=0):
 
     See Also
     --------
-    binary_repr : Faster version of `base_repr` for base 2 that also handles
-        negative numbers.
+    binary_repr : Faster version of `base_repr` for base 2.
 
     Examples
     --------
@@ -1815,25 +1807,20 @@ def base_repr (number, base=2, padding=0):
     '20'
 
     """
-    if number < 0:
-        raise ValueError("negative numbers not handled in base_repr")
-    if base > 36:
-        raise ValueError("bases greater than 36 not handled in base_repr")
+    digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    if base > len(digits):
+        raise ValueError("Bases greater than 36 not handled in base_repr.")
 
-    chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    import math
-    lnb = math.log(base)
-    res = padding*chars[0]
-    if number == 0:
-        return res + chars[0]
-    exponent = int (math.log (number)/lnb)
-    while(exponent >= 0):
-        term = long(base)**exponent
-        lead_digit = int(number / term)
-        res += chars[lead_digit]
-        number -= term*lead_digit
-        exponent -= 1
-    return res
+    num = abs(number)
+    res = []
+    while num:
+        res.append(digits[num % base])
+        num //= base
+    if padding:
+        res.append('0' * padding)
+    if number < 0:
+        res.append('-')
+    return ''.join(reversed(res or '0'))
 
 from cPickle import load, loads
 _cload = load
@@ -1874,11 +1861,11 @@ def ones(shape, dtype=None, order='C'):
     """
     Return a new array of given shape and type, filled with ones.
 
-    Please refer to the documentation for `zeros`.
+    Please refer to the documentation for `zeros` for further details.
 
     See Also
     --------
-    zeros
+    zeros, ones_like
 
     Examples
     --------

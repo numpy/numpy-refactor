@@ -43,9 +43,31 @@ from arraysetops import setdiff1d
 from utils import deprecate
 import numpy as np
 
-#end Fernando's utilities
 
 def iterable(y):
+    """
+    Check whether or not an object can be iterated over.
+
+    Parameters
+    ----------
+    y : object
+      Input object.
+
+    Returns
+    -------
+    b : {0, 1}
+      Return 1 if the object has an iterator method or is a sequence,
+      and 0 otherwise.
+
+
+    Examples
+    --------
+    >>> np.iterable([1, 2, 3])
+    1
+    >>> np.iterable(2)
+    0
+
+    """
     try: iter(y)
     except: return 0
     return 1
@@ -147,8 +169,10 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
             mn -= 0.5
             mx += 0.5
         bins = linspace(mn, mx, bins+1, endpoint=True)
+        uniform = True
     else:
         bins = asarray(bins)
+        uniform = False
         if (np.diff(bins) < 0).any():
             raise AttributeError(
                     'bins must increase monotonically.')
@@ -183,7 +207,16 @@ def histogram(a, bins=10, range=None, normed=False, weights=None):
 
     if normed:
         db = array(np.diff(bins), float)
-        return n/(n*db).sum(), bins
+        if not uniform:
+            warnings.warn("""
+            This release of NumPy fixes a normalization bug in histogram
+            function occuring with non-uniform bin widths. The returned 
+            value is now a density: n / (N * bin width), where n is the 
+            bin count and N the total number of points. 
+            """)
+        return n/db/n.sum(), bins
+        
+        
     else:
         return n, bins
 
@@ -1251,7 +1284,7 @@ def place(arr, mask, vals):
     """
     Change elements of an array based on conditional and input values.
 
-    Similar to ``np.putmask(a, mask, vals)``, the difference is that `place`
+    Similar to ``np.putmask(arr, mask, vals)``, the difference is that `place`
     uses the first N elements of `vals`, where N is the number of True values
     in `mask`, while `putmask` uses the elements where `mask` is True.
 
@@ -1259,7 +1292,7 @@ def place(arr, mask, vals):
 
     Parameters
     ----------
-    a : array_like
+    arr : array_like
         Array to put data into.
     mask : array_like
         Boolean mask array. Must have the same size as `a`.
@@ -1274,9 +1307,9 @@ def place(arr, mask, vals):
 
     Examples
     --------
-    >>> x = np.arange(6).reshape(2, 3)
-    >>> np.place(x, x>2, [44, 55])
-    >>> x
+    >>> arr = np.arange(6).reshape(2, 3)
+    >>> np.place(arr, arr>2, [44, 55])
+    >>> arr
     array([[ 0,  1,  2],
            [44, 55, 44]])
 
@@ -1950,12 +1983,12 @@ def corrcoef(x, y=None, rowvar=1, bias=0, ddof=None):
     Return correlation coefficients.
 
     Please refer to the documentation for `cov` for more detail.  The
-    relationship between the correlation coefficient matrix, P, and the
-    covariance matrix, C, is
+    relationship between the correlation coefficient matrix, `P`, and the
+    covariance matrix, `C`, is
 
     .. math:: P_{ij} = \\frac{ C_{ij} } { \\sqrt{ C_{ii} * C_{jj} } }
 
-    The values of P are between -1 and 1.
+    The values of `P` are between -1 and 1, inclusive.
 
     Parameters
     ----------
@@ -2003,22 +2036,22 @@ def blackman(M):
     """
     Return the Blackman window.
 
-    The Blackman window is a taper formed by using the the first
-    three terms of a summation of cosines. It was designed to have close
-    to the minimal leakage possible.
-    It is close to optimal, only slightly worse than a Kaiser window.
+    The Blackman window is a taper formed by using the the first three
+    terms of a summation of cosines. It was designed to have close to the
+    minimal leakage possible.  It is close to optimal, only slightly worse
+    than a Kaiser window.
 
     Parameters
     ----------
     M : int
-        Number of points in the output window. If zero or less, an
-        empty array is returned.
+        Number of points in the output window. If zero or less, an empty
+        array is returned.
 
     Returns
     -------
-    out : array
-        The window, normalized to one (the value one
-        appears only if the number of samples is odd).
+    out : ndarray
+        The window, normalized to one (the value one appears only if the
+        number of samples is odd).
 
     See Also
     --------
@@ -2030,7 +2063,6 @@ def blackman(M):
 
     .. math::  w(n) = 0.42 - 0.5 \\cos(2\\pi n/M) + 0.08 \\cos(4\\pi n/M)
 
-
     Most references to the Blackman window come from the signal processing
     literature, where it is used as one of many windowing functions for
     smoothing values.  It is also known as an apodization (which means
@@ -2041,12 +2073,11 @@ def blackman(M):
 
     References
     ----------
-    .. [1] Blackman, R.B. and Tukey, J.W., (1958) The measurement of power
-           spectra, Dover Publications, New York.
-    .. [2] Wikipedia, "Window function",
-           http://en.wikipedia.org/wiki/Window_function
-    .. [3] Oppenheim, A.V., and R.W. Schafer. Discrete-Time Signal Processing.
-           Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.
+    Blackman, R.B. and Tukey, J.W., (1958) The measurement of power spectra,
+    Dover Publications, New York.
+
+    Oppenheim, A.V., and R.W. Schafer. Discrete-Time Signal Processing.
+    Upper Saddle River, NJ: Prentice-Hall, 1999, pp. 468-471.
 
     Examples
     --------
@@ -2938,7 +2969,7 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False):
     -----
     Given a vector V of length N, the qth percentile of V is the qth ranked
     value in a sorted copy of V.  A weighted average of the two nearest neighbors
-    is used if the normalized ranking does not match q exactly. 
+    is used if the normalized ranking does not match q exactly.
     The same as the median if q is 0.5; the same as the min if q is 0;
     and the same as the max if q is 1
 
@@ -2976,7 +3007,7 @@ def percentile(a, q, axis=None, out=None, overwrite_input=False):
         return a.min(axis=axis, out=out)
     elif q == 100:
         return a.max(axis=axis, out=out)
-        
+
     if overwrite_input:
         if axis is None:
             sorted = a.ravel()
@@ -3086,11 +3117,11 @@ def trapz(y, x=None, dx=1.0, axis=-1):
     array([ 2.,  8.])
 
     """
-    y = asarray(y)
+    y = asanyarray(y)
     if x is None:
         d = dx
     else:
-        x = asarray(x)
+        x = asanyarray(x)
         if x.ndim == 1:
             d = diff(x)
             # reshape to correct shape
@@ -3104,7 +3135,13 @@ def trapz(y, x=None, dx=1.0, axis=-1):
     slice2 = [slice(None)]*nd
     slice1[axis] = slice(1,None)
     slice2[axis] = slice(None,-1)
-    return add.reduce(d * (y[slice1]+y[slice2])/2.0,axis)
+    try:
+        ret = (d * (y[slice1] +y [slice2]) / 2.0).sum(axis)
+    except ValueError: # Operations didn't work, cast to ndarray
+        d = np.asarray(d)
+        y = np.asarray(y)
+        ret = add.reduce(d * (y[slice1]+y[slice2])/2.0, axis)
+    return ret
 
 #always succeed
 def add_newdoc(place, obj, doc):

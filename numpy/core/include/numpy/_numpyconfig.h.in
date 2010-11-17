@@ -9,6 +9,8 @@
 
 @DEFINE_NPY_USE_C99_FORMATS@
 
+@DEFINE_NPY_HAVE_ENDIAN_H@
+
 /* Ugly, but we can't test this in a proper manner without requiring a C++
  * compiler at the configuration stage of numpy ? */
 #ifndef __STDC_FORMAT_MACROS

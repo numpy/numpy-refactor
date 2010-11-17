@@ -421,7 +421,6 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
         goto finish;
     }
 
-
     if (is_simple(indexes, n)) {
         if (PyArray_CheckExact(self)) {
             /* Do a PyArray_CopyObject onto a view into the array */
@@ -433,8 +432,13 @@ array_ass_sub(PyArrayObject *self, PyObject *index, PyObject *op)
             }
         } else {
             PyObject *tmp0;
-            /* TODO: Why only in this case to get call PyObject_GetItem?
-               It seems inconsistent. */
+            /* 
+               Note: this code path should never be reached with an index that
+               produces scalars -- those are handled earlier in array_ass_sub
+
+               TODO: Why only in this case to get call PyObject_GetItem?
+               It seems inconsistent.
+            */
             tmp0 = PyObject_GetItem((PyObject *)self, index);
             if (tmp0 == NULL) {
                 result = -1;

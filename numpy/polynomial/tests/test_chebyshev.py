@@ -78,6 +78,14 @@ class TestArithmetic(TestCase) :
                 res = ch.chebsub([0]*i + [1], [0]*j + [1])
                 assert_equal(trim(res), trim(tgt), err_msg=msg)
 
+    def test_chebmulx(self):
+        assert_equal(ch.chebmulx([0]), [0])
+        assert_equal(ch.chebmulx([1]), [0,1])
+        for i in range(1, 5):
+            ser = [0]*i + [1]
+            tgt = [0]*(i - 1) + [.5, 0, .5]
+            assert_equal(ch.chebmulx(ser), tgt)
+
     def test_chebmul(self) :
         for i in range(5) :
             for j in range(5) :
@@ -139,8 +147,12 @@ class TestCalculus(TestCase) :
         assert_raises(ValueError, ch.chebint, [0], .5)
         assert_raises(ValueError, ch.chebint, [0], -1)
         assert_raises(ValueError, ch.chebint, [0], 1, [0,0])
-        assert_raises(ValueError, ch.chebint, [0], 1, lbnd=[0,0])
-        assert_raises(ValueError, ch.chebint, [0], 1, scl=[0,0])
+
+        # test integration of zero polynomial
+        for i in range(2, 5):
+            k = [0]*(i - 2) + [1]
+            res = ch.chebint([0], m=i, k=k)
+            assert_almost_equal(res, [0, 1])
 
         # check single integration with integration constant
         for i in range(5) :
@@ -327,11 +339,44 @@ class TestMisc(TestCase) :
 
     def test_cheb2poly(self) :
         for i in range(10) :
-            assert_equal(ch.cheb2poly([0]*i + [1]), Tlist[i])
+            assert_almost_equal(ch.cheb2poly([0]*i + [1]), Tlist[i])
 
     def test_poly2cheb(self) :
         for i in range(10) :
-            assert_equal(ch.poly2cheb(Tlist[i]), [0]*i + [1])
+            assert_almost_equal(ch.poly2cheb(Tlist[i]), [0]*i + [1])
+
+    def test_chebpts1(self):
+        #test exceptions
+        assert_raises(ValueError, ch.chebpts1, 1.5)
+        assert_raises(ValueError, ch.chebpts1, 0)
+
+        #test points
+        tgt = [0]
+        assert_almost_equal(ch.chebpts1(1), tgt)
+        tgt = [-0.70710678118654746, 0.70710678118654746]
+        assert_almost_equal(ch.chebpts1(2), tgt)
+        tgt = [-0.86602540378443871, 0, 0.86602540378443871]
+        assert_almost_equal(ch.chebpts1(3), tgt)
+        tgt = [-0.9238795325, -0.3826834323,  0.3826834323,  0.9238795325]
+        assert_almost_equal(ch.chebpts1(4), tgt)
+
+
+    def test_chebpts2(self):
+        #test exceptions
+        assert_raises(ValueError, ch.chebpts2, 1.5)
+        assert_raises(ValueError, ch.chebpts2, 1)
+
+        #test points
+        tgt = [-1, 1]
+        assert_almost_equal(ch.chebpts2(2), tgt)
+        tgt = [-1, 0, 1]
+        assert_almost_equal(ch.chebpts2(3), tgt)
+        tgt = [-1, -0.5, .5, 1]
+        assert_almost_equal(ch.chebpts2(4), tgt)
+        tgt = [-1.0, -0.707106781187, 0, 0.707106781187, 1.0]
+        assert_almost_equal(ch.chebpts2(5), tgt)
+
+
 
 
 class TestChebyshevClass(TestCase) :
