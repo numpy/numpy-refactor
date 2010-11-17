@@ -5,8 +5,9 @@ import gc
 import copy
 from os import path
 from numpy.testing import *
-from numpy.testing.utils import _assert_valid_refcount
+from numpy.testing.utils import _assert_valid_refcount, WarningManager
 from numpy.compat import asbytes, asunicode, asbytes_nested
+import warnings
 import tempfile
 import numpy as np
 
@@ -1423,6 +1424,21 @@ class TestRegression(TestCase):
         assert_equal(data, np.array([84, 85, 86, 87], dtype='u1'))
 
         f.close()
+
+    def test_complex_scalar_warning(self):
+        for tp in [np.csingle, np.cdouble, np.clongdouble]:
+            x = tp(1+2j)
+            assert_warns(np.ComplexWarning, float, x)
+            ctx = WarningManager()
+            ctx.__enter__()
+            warnings.simplefilter('ignore')
+            assert_equal(float(x), float(x.real))
+            ctx.__exit__()
+
+    def test_complex_scalar_complex_cast(self):
+        for tp in [np.csingle, np.cdouble, np.clongdouble]:
+            x = tp(1+2j)
+            assert_equal(complex(x), 1+2j)
 
 if __name__ == "__main__":
     run_module_suite()

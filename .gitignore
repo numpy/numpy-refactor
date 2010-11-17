@@ -1,23 +1,33 @@
 *.pyc
+*.pyo
+*.pyd
 *.so
 *.o
 *.lo
 *.la
+*.a
 *~
 \#*
 __*
+*.swp
 *.sdf
 *.suo
 *.obj
+.gdb_history
 
-build
+dist
+/build
 /dist
-/numpy.egg-info
-/numpy/version.py
+/doc/build
+/doc/cdoc/build
+.\#*
+*.log
+*.egg-info
+/numpy/core/__svn_version__.py
+/doc/numpy.scipy.org/_build
 
 /tools/win32build/misc/msvcrt90/msvcr90.def
 /doc/source/reference/generated
-experiment/interface.c
 
 libndarray/.libs
 libndarray/Makefile
@@ -45,6 +55,7 @@ libndarray/windows/Debug
 libndarray/windows/Release
 libndarray/windows/x64
 
+numpy/version.py
 numpy/NumpyDotNet/bin
 numpy/NumpyDotNet/obj
 numpy/NumpyDotNet/Debug
