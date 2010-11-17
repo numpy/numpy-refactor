@@ -1349,10 +1349,10 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             try:
                 values = [values[_] for _ in usecols]
             except IndexError:
-                append_to_invalid((i, nbvalues))
+                append_to_invalid((i + skip_header + 1, nbvalues))
                 continue
         elif nbvalues != nbcols:
-            append_to_invalid((i, nbvalues))
+            append_to_invalid((i + skip_header + 1, nbvalues))
             continue
         # Store the values
         append_to_rows(tuple(values))
@@ -1360,11 +1360,6 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             append_to_masks(tuple([v.strip() in m
                                    for (v, m) in zip(values, missing_values)]))
 
-    # Strip the last skip_footer data
-    if skip_footer > 0:
-        rows = rows[:-skip_footer]
-        if usemask:
-            masks = masks[:-skip_footer]
 
     # Upgrade the converters (if needed)
     if dtype is None:
@@ -1384,17 +1379,23 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
                         raise ConverterError(errmsg)
 
     # Check that we don't have invalid values
-    if len(invalid) > 0:
-        nbrows = len(rows)
+    nbinvalid = len(invalid)
+    if nbinvalid > 0:
+        nbrows = len(rows) + nbinvalid - skip_footer
         # Construct the error message
         template = "    Line #%%i (got %%i columns instead of %i)" % nbcols
         if skip_footer > 0:
-            nbrows -= skip_footer
-            errmsg = [template % (i + skip_header + 1, nb)
-                      for (i, nb) in invalid if i < nbrows]
-        else:
-            errmsg = [template % (i + skip_header + 1, nb)
-                      for (i, nb) in invalid]
+            nbinvalid_skipped = len([_ for _ in invalid
+                                     if _[0] > nbrows + skip_header])
+            invalid = invalid[:nbinvalid - nbinvalid_skipped]
+            skip_footer -= nbinvalid_skipped
+#            
+#            nbrows -= skip_footer
+#            errmsg = [template % (i, nb)
+#                      for (i, nb) in invalid if i < nbrows]
+#        else:
+        errmsg = [template % (i, nb)
+                  for (i, nb) in invalid]
         if len(errmsg):
             errmsg.insert(0, "Some errors were detected !")
             errmsg = "\n".join(errmsg)
@@ -1404,6 +1405,13 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             # Issue a warning ?
             else:
                 warnings.warn(errmsg, ConversionWarning)
+
+    # Strip the last skip_footer data
+    if skip_footer > 0:
+        rows = rows[:-skip_footer]
+        if usemask:
+            masks = masks[:-skip_footer]
+
 
     # Convert each value according to the converter:
     # We want to modify the list in place to avoid creating a new one...
