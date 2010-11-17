@@ -530,6 +530,11 @@ namespace NumpyDotNet {
         }
 
 
+        public static int _get_ndrray_c_version() {
+            return (int)NpyCoreApi.NpyArrayAccess_GetAbiVersion();
+        }
+
+
 
         /// <summary>
         /// Creates a scalar instance representing the (scalar) type in typecode. 'obj' is used to

@@ -1018,6 +1018,9 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] permute);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float NpyArrayAccess_GetAbiVersion();
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_ClearUPDATEIFCOPY")]
         internal static extern void ClearUPDATEIFCOPY(IntPtr arr);
 

@@ -111,6 +111,13 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 }
 
 
+extern "C" __declspec(dllexport)
+    float _cdecl NpyArrayAccess_GetAbiVersion()
+{
+    return NPY_ABI_VERSION;
+}
+
+
 // Returns the native byte order code for this platform and size of types
 // that vary platform-to-playform.
 extern "C" __declspec(dllexport)
