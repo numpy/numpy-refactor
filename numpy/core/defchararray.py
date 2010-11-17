@@ -20,10 +20,11 @@ import sys
 
 if sys.platform == 'cli':
     from numeric import ndarray
+    from numerictypes import string_, unicode_, integer, object_, bool_, character
 else:
     from numerictypes import string_, unicode_, integer, object_, bool_, character
     from numeric import ndarray, compare_chararrays
-    from numpy.core.multiarray import _vec_string
+from numpy.core.multiarray import _vec_string
 from numeric import array as narray
 from numpy.compat import asbytes
 import numpy

@@ -49,6 +49,7 @@ void * _cdecl NpyArrayAccess_ToInterface(NpyObject *obj)
 
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *nd, 
+                                           int *dimensions, int *strides,
                                            int *flags, int *data, int* base_obj, 
                                            int* base_array)
 {
@@ -57,6 +58,8 @@ void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *n
     *magic_number = offsetof(NpyArray, nob_magic_number);
     *descr = offsetof(NpyArray, descr);
     *nd = offsetof(NpyArray, nd);
+    *dimensions = offsetof(NpyArray, dimensions);
+    *strides = offsetof(NpyArray, strides);
     *flags = offsetof(NpyArray, flags);
     *data = offsetof(NpyArray, data);
     *base_obj = offsetof(NpyArray, base_obj);
@@ -124,21 +127,14 @@ extern "C" __declspec(dllexport)
 
 // Fills in an int64 array with the dimensions of the array.
 extern "C" __declspec(dllexport)
-    bool _cdecl NpyArrayAccess_GetArrayDimsOrStrides(void *arrTmp, int ndims, bool dims, 
-        npy_int64 *retPtr)
+    bool _cdecl NpyArrayAccess_GetIntpArray(npy_intp *srcPtr, int len, npy_int64 *retPtr)
 {
-    NpyArray *arr = (NpyArray *)arrTmp;
-    assert(NPY_VALID_MAGIC == arr->nob_magic_number);
-
-    npy_intp *srcPtr = dims ? arr->dimensions : arr->strides;
-
-    if (ndims != arr->nd) return false;
     if (sizeof(npy_int64) == sizeof(npy_intp)) {
         // Fast if sizes are the same.
-        memcpy(retPtr, srcPtr, sizeof(npy_intp) * arr->nd);
+        memcpy(retPtr, srcPtr, sizeof(npy_intp) * len);
     } else {
         // Slower, but converts between sizes.
-        for (int i = 0; i < arr->nd; i++) { 
+        for (int i = 0; i < len; i++) { 
             retPtr[i] = srcPtr[i];
         }
     }

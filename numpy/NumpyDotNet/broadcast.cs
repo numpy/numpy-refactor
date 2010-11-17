@@ -14,14 +14,9 @@ namespace NumpyDotNet
     public class broadcast : Wrapper, IEnumerator<PythonTuple>
     {
         public broadcast(params object[] args) {
-            // Convert args to arrays.
-            ndarray[] arrays = new ndarray[args.Length];
-            for (int i = 0; i < args.Length; i++) {
-                arrays[i] = NpyArray.FromAny(args[i], null, 0, 0, 0, null);
-            }
             try {
                 BeingCreated = this;
-                core = NpyCoreApi.MultiIterFromArrays(arrays);
+                core = NpyCoreApi.MultiIterFromObjects(args);
             } finally {
                 BeingCreated = null;
             }
@@ -39,6 +34,12 @@ namespace NumpyDotNet
         public int numiter {
             get {
                 return Marshal.ReadInt32(core + NpyCoreApi.MultiIterOffsets.off_numiter);
+            }
+        }
+
+        public long[] dims {
+            get {
+                return NpyCoreApi.GetArrayDims(this, true);
             }
         }
 

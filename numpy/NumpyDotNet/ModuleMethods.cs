@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Reflection;
 using IronPython.Runtime;
+using IronPython.Runtime.Operations;
 using IronPython.Runtime.Types;
 using IronPython.Modules;
 using Microsoft.Scripting;
@@ -407,6 +408,44 @@ namespace NumpyDotNet {
             return ndarray.ArrayReturn(NpyArray.InnerProduct(o1, o2));
         }
 
+        public static object correlate(object o1, object o2, object mode) {
+            return correlateInternal(o1, o2, mode, NpyCoreApi.NpyArray_Correlate);
+        }
+
+        public static object correlate2(object o1, object o2, object mode) {
+            return correlateInternal(o1, o2, mode, NpyCoreApi.NpyArray_Correlate2);
+        }
+
+        private static object correlateInternal(object o1, object o2, object mode, Func<IntPtr, IntPtr, int, int, IntPtr> f) {
+            // Find a type that works for both inputs. (ie, one is int, the other is float, 
+            // we want float for the result).
+            dtype type = NpyArray.FindArrayType(o1, null);
+            type = NpyArray.FindArrayType(o2, type);
+
+            int modeNum = ModeToInt(mode);
+
+            ndarray arr1 = NpyArray.FromAny(o1, type, 1, 1, NpyDefs.NPY_DEFAULT);
+            ndarray arr2 = NpyArray.FromAny(o2, type, 1, 1, NpyDefs.NPY_DEFAULT);
+
+            return NpyCoreApi.DecrefToInterface<ndarray>(f(arr1.Array, arr2.Array, (int)type.TypeNum, modeNum));
+        }
+
+        private static int ModeToInt(object o) {
+            if (o is string) {
+                switch (((string)o).ToLower()[0]) {
+                    case 'v': return 0;
+                    case 's': return 1;
+                    case 'f': return 2;
+                    default:
+                        throw new NotImplementedException(String.Format("Unknown mode '{0}'", o));
+                }
+            } else if (o is int) {
+                return (int)o;
+            }
+            throw new NotImplementedException(String.Format("Unhandled mode type '{0}'", o.GetType().Name));
+        }
+
+
         public static object dot(object o1, object o2) {
             return ndarray.ArrayReturn(NpyArray.MatrixProduct(o1, o2));
         }
@@ -427,6 +466,67 @@ namespace NumpyDotNet {
             ndarray arr = NpyArray.FromAny(a, flags: NpyDefs.NPY_CARRAY);
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_CopyAndTranspose(arr.Array));
+        }
+
+        public static object _vec_string(CodeContext cntx, object charArrObj, object typeObj, string methodName, object argsSeq = null) {
+            ndarray charArray = NpyArray.FromAny(charArrObj, null, 0, 0, NpyDefs.NPY_CARRAY);
+            dtype type = NpyDescr.DescrConverter(cntx, typeObj);
+
+            object method;
+            if (charArray.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
+                method = PythonOps.GetBoundAttr(cntx, DynamicHelpers.GetPythonTypeFromType(typeof(Bytes)), methodName);
+            } else if (charArray.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                method = PythonOps.GetBoundAttr(cntx, DynamicHelpers.GetPythonTypeFromType(typeof(string)), methodName);
+            } else {
+                throw new ArgumentTypeException("string operation on non-string array");
+            }
+
+            object result = null;
+            if (method != null) {
+                IEnumerable<object> seq = (argsSeq != null) ? (IEnumerable<object>)argsSeq : null;
+                if (seq != null && seq.Count() > 0) {
+                    result = VecStringWithArgs(cntx, charArray, type, method, seq);
+                } else if (argsSeq == null || seq != null) {
+                    result = VecStringNoArgs(cntx, charArray, type, method);
+                } else {    // Occurs when argsSeq is some different type
+                    throw new ArgumentTypeException("'args' must be a sequence of arguments");
+                }
+            }
+            return result;
+        }
+
+        private static object VecStringNoArgs(CodeContext cntx, ndarray arr, dtype type, object method) {
+            ndarray result = NpyCoreApi.NewFromDescr(type, arr.Dims, arr.Strides, 0, null);
+            flatiter inIter = NpyCoreApi.IterNew(arr);
+            flatiter outIter = NpyCoreApi.IterNew(result);
+
+            while (inIter.MoveNext()) {
+                outIter.MoveNext();
+
+                outIter.Current = PythonOps.CallWithContext(cntx, method, inIter.Current);
+            }
+            return result;
+        }
+
+        private static object VecStringWithArgs(CodeContext cntx, ndarray arr, dtype type, object method, IEnumerable<object> argsSeq) {
+
+            if (argsSeq.Count() >= NpyDefs.NPY_MAXARGS) {
+                throw new ArgumentException(
+                    String.Format("len(args) must be < {0}", NpyDefs.NPY_MAXARGS));
+            }
+
+            // Build an iterator over the array itself plus all arguments.
+            object[] a = (new object[] { arr }).Concat(argsSeq).ToArray();
+            broadcast inIter = new broadcast(args: a);
+            ndarray result = NpyCoreApi.NewFromDescr(type, inIter.dims, null, 0, null);
+            flatiter outIter = NpyCoreApi.IterNew(result);
+
+            List<flatiter> iters = inIter.iters.Cast<flatiter>().ToList();
+            while (inIter.MoveNext()) {
+                outIter.MoveNext();
+                outIter.Current = PythonOps.CallWithContext(cntx, method, args: iters.Select(i => i.Current).ToArray());
+            }
+            return result;
         }
 
 

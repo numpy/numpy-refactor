@@ -210,6 +210,13 @@ namespace NumpyDotNet
             get {
                 return arr.GetItem(current.ToInt64()-arr.UnsafeAddress.ToInt64());
             }
+            set {
+                arr.SetItem(value, current.ToInt64() - arr.UnsafeAddress.ToInt64());
+            }
+        }
+
+        public object AsScalar() {
+            return arr.dtype.ToScalar(current, arr.dtype.ElementSize);
         }
 
 
