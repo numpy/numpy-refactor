@@ -1594,6 +1594,7 @@ class TestWarnings(object):
 
         warnings.simplefilter("error", np.ComplexWarning)
         assert_raises(np.ComplexWarning, x.__setitem__, slice(None), y)
+        assert_equal(x, [1,2])
         warnings.simplefilter("default", np.ComplexWarning)
 
 if sys.version_info >= (2, 6):
