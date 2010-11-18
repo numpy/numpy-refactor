@@ -441,6 +441,12 @@ namespace NumpyDotNet {
             }
         }
 
+        internal static void SetState(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order, string rawdata) {
+            NpyArrayAccess_SetState(arr.Array, dims.Length, dims, (int)order, rawdata, (rawdata != null) ? rawdata.Length : 0);
+            CheckError();
+        }
+
+
         internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
             ndarray arr, IntPtr offset, bool ensure_array) {
             Incref(d.Descr);
@@ -1009,6 +1015,12 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim, 
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_SetState(IntPtr arr, int ndim,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, int order,
+            // Note string is marshalled as LPWStr (16-bit unicode) to avoid making a copy of it
+            [MarshalAsAttribute(UnmanagedType.LPWStr)]string rawdata, int rawLength);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,

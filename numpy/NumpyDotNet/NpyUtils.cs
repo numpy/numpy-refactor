@@ -383,6 +383,12 @@ namespace NumpyDotNet {
             else return NpyUtil_Python.ConvertToLong(o);
         }
 
+        /// <summary>
+        /// Converts an input sequence or scalar to a long[].  Equivalent to
+        /// PyArray_IntpFromSequence.
+        /// </summary>
+        /// <param name="o">Sequence or scalar integer value</param>
+        /// <returns>Array of long values</returns>
         internal static long[] IntArrConverter(Object o) {
             if (o == null) return null;
             else if (o is IEnumerable<Object>) {

@@ -115,12 +115,12 @@ namespace NumpyDotNet
 
         #region Python methods
 
-        public virtual string __repr__(CodeContext context) {
+        public virtual string __repr__(CodeContext cntx) {
             // TODO: No support for user-set repr function.
             return BuildStringRepr(true);
         }
 
-        public virtual string __str__(CodeContext context) {
+        public virtual string __str__(CodeContext cntx) {
             // TODO: No support for user-set string function
             return BuildStringRepr(false);
         }
@@ -133,7 +133,7 @@ namespace NumpyDotNet
             ret[0] = NpyUtil_Python.GetModuleAttr(cntx, "numpy.core.multiarray", "_reconstruct");
             if (ret[0] == null) return null;
 
-            ret[1] = PythonOps.MakeTuple(DynamicHelpers.GetPythonType(this), PythonOps.MakeTuple(0), 'b');
+            ret[1] = PythonOps.MakeTuple(DynamicHelpers.GetPythonType(this), PythonOps.MakeTuple(0), "b");
 
             // Fill in the object's state.  This is a tuple with 5 argumentS:
             //    1) an integer with the pickle version
@@ -146,16 +146,61 @@ namespace NumpyDotNet
             state[1] = this.shape;
             state[2] = this.dtype;
             state[3] = this.IsFortran;
-            state[4] = this.ChkFlags(NpyDefs.NPY_LIST_PICKLE) ? GetPickleList() : this.ToString();
+            state[4] = dtype.ChkFlags(NpyDefs.NPY_LIST_PICKLE) ? GetPickleList() : ToBytes();
 
-            ret[2] = state;
+            ret[2] = new PythonTuple(state);
             return new PythonTuple(ret);
+        }
+
+
+        /// <summary>
+        /// Generates a string containing the byte representation of the array.  This is quite
+        /// inefficient as the string (being 16-bit unicode) is twice the size needed, but this
+        /// is what the pickler uses. Ugh.
+        /// </summary>
+        /// <param name="order">Desired output order, default is array's current order</param>
+        /// <returns>String containing data bytes</returns>
+        private String ToBytes(NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_ANYORDER) {
+            if (order == NpyDefs.NPY_ORDER.NPY_ANYORDER) {
+                order = IsFortran ? NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER;
+            }
+
+            long size = itemsize * Size;
+            if (size >= Int32.MaxValue) {
+                throw new NotImplementedException("Total array size exceeds 2GB limit imposed by .NET string size, unable to pickle array.");
+            }
+
+            string result;
+            if (IsContiguous && order == NpyDefs.NPY_ORDER.NPY_CORDER ||
+                IsFortran && order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER) {
+                unsafe {
+                    result = new string((sbyte*)UnsafeAddress, 0, (int)size);
+                }
+            } else {
+                // TODO: Implementation requires some thought to implement to try to avoid making multiple copies of
+                // the data.  The issue is that we have to return a string.  We can allocate a string of the appropriate
+                // size, but it is immutable.  StringBuilder works, but we end up copying. Can do it in C, but end up
+                // copying in C, then copy into String. Ugh.
+                throw new NotImplementedException("Pickling of non-contiguous arrays or transposing arrays is not supported");
+            }
+            return result;
         }
 
         private object GetPickleList() {
             List list = new List();
             for (flatiter iter = this.Flat; iter.MoveNext(); list.append(iter.Current)) ;
             return list;
+        }
+
+        public virtual object __setstate__(PythonTuple t) {
+            if (t.Count == 4) {
+                return __setstate__(0, (PythonTuple)t[0], (dtype)t[1], t[2], t[3]);
+            } else if (t.Count == 5) {
+                return __setstate__((int)t[0], (PythonTuple)t[1], (dtype)t[2], t[3], t[4]);
+            } else {
+                throw new NotImplementedException(
+                    String.Format("Unhandled pickle format with {0} arguments.", t.Count));
+            }
         }
 
         public virtual object __setstate__(PythonTuple shape, dtype typecode, object fortran, object rawdata) {
@@ -170,14 +215,21 @@ namespace NumpyDotNet
                     String.Format("can't handle version {0} of numpy.ndarray pickle.", version));
             }
 
-            // Set the state of this array using the passed in data.  Everything in this array goes away.
-            this.dtype = typecode;
-            this.shape = shape;
-            if (this.itemsize == 0) {
-                throw new ArgumentException("Invalid data-type size.");
+            IntPtr[] dimensions = NpyUtil_ArgProcessing.IntpArrConverter(shape);
+            int nd = dimensions.Length;
+            long size = dimensions.Aggregate(1L, (x, y) => x * (long)y);
+
+            if (nd < 1) {
+                return null;
+            }
+            if (typecode.ElementSize == 0) {
+                throw new ArgumentException("Invalid data-type size");
+            }
+            if (size < 0 || size > Int64.MaxValue / typecode.ElementSize) {
+                throw new InsufficientMemoryException();
             }
 
-            if (this.ChkFlags(NpyDefs.NPY_LIST_PICKLE)) {
+            if (typecode.ChkFlags(NpyDefs.NPY_LIST_PICKLE)) {
                 if (!(rawData is List)) {
                     throw new ArgumentTypeException("object pickle not returning list");
                 }
@@ -185,8 +237,24 @@ namespace NumpyDotNet
                 if (!(rawData is string)) {
                     throw new ArgumentTypeException("pickle not returning string");
                 }
-                if (((string)rawData).Length != this.itemsize * this.Size) {
+                if (((string)rawData).Length != typecode.itemsize * size) {
                     throw new ArgumentException("buffer size does not match array size");
+                }
+            }
+
+            // Set the state of this array using the passed in data.  Everything in this array goes away.
+            // The .SetState method resizes/reallocated the data memory.
+            this.dtype = typecode;
+            NpyCoreApi.SetState(this, dimensions, fortranFlag ? NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER,
+                rawData as string);
+
+            if (rawData is List) {
+                flatiter iter = NpyCoreApi.IterNew(this);
+                foreach (object o in (List)rawData) {
+                    if (!iter.MoveNext()) {
+                        break;
+                    }
+                    iter.Current = o;
                 }
             }
             return null;
