@@ -594,6 +594,7 @@ namespace NumpyDotNet {
             if (o is Boolean) f = (bool)o;
             else if (o is ScalarBool) f = (bool)(ScalarBool)o;
             else if (o is IConvertible) f = ((IConvertible)o).ToBoolean(null);
+            else if (o == null) f = false;  // In Python "not None == True"
             else {
                 int fTmp = NpyUtil_Python.ConvertToInt(o);
                 f = (fTmp != 0);

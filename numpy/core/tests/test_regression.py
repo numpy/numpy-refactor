@@ -516,7 +516,8 @@ class TestRegression(TestCase):
 
     def test_refcount_vdot(self, level=rlevel):
         """Changeset #3443"""
-        _assert_valid_refcount(np.vdot)
+        if sys.platform != 'cli':
+            _assert_valid_refcount(np.vdot)
 
     def test_startswith(self, level=rlevel):
         ca = np.char.array(['Hi','There'])
@@ -717,7 +718,7 @@ class TestRegression(TestCase):
 
     def test_object_array_refcounting(self, level=rlevel):
         """Ticket #633"""
-        if not hasattr(sys, 'getrefcount'):
+        if not hasattr(sys, 'getrefcount') or sys.platform == 'cli':
             return
 
         # NB. this is probably CPython-specific
@@ -827,6 +828,9 @@ class TestRegression(TestCase):
 
     def test_object_array_refcount_self_assign(self, level=rlevel):
         """Ticket #711"""
+        if sys.platform == 'cli':
+            return
+
         class VictimObject(object):
             deleted = False
             def __del__(self):
@@ -1267,6 +1271,10 @@ class TestRegression(TestCase):
 
     def test_structured_arrays_with_objects2(self):
         """Ticket #1299 second test"""
+        # Only makes sense for reference counted platforms like CPython
+        if not hasattr(sys, 'getrefcount') or sys.platform == 'cli':
+            return
+
         stra = 'aaaa'
         strb = 'bbbb'
         numb = sys.getrefcount(strb)
@@ -1387,23 +1395,30 @@ class TestRegression(TestCase):
 
     def test_take_refcount(self):
         # ticket #939
+        if sys.platform == 'cli':
+            import System.GC
+            def cnt(a): 
+                System.GC.Collect()
+                return a.__coreRefCount__
+        else:
+            def cnt(a): (sys.getrefcount(a), a__coreRefCount__)
+
         a = np.arange(16, dtype=np.float)
         a.shape = (4,4)
         lut = np.ones((5 + 3, 4), np.float)
         rgba = np.empty(shape=a.shape + (4,), dtype=lut.dtype)
-        c1 = sys.getrefcount(rgba)
+        c1 = cnt(rgba)
         try:
             lut.take(a, axis=0, mode='clip', out=rgba)
         except TypeError:
             pass
-        c2 = sys.getrefcount(rgba)
+        c2 = cnt(rgba)
         assert_equal(c1, c2)
 
     def test_fromfile_tofile_seeks(self):
         # On Python 3, tofile/fromfile used to get (#1610) the Python
         # file handle out of sync
-        f0 = tempfile.NamedTemporaryFile()
-        f = f0.file
+        f = tempfile.TemporaryFile()
         f.write(np.arange(255, dtype='u1').tostring())
 
         f.seek(20)
@@ -1440,24 +1455,6 @@ class TestRegression(TestCase):
         for tp in [np.csingle, np.cdouble, np.clongdouble]:
             x = tp(1+2j)
             assert_equal(complex(x), 1+2j)
-
-    def test_uint_int_conversion(self):
-        x = 2**64 - 1
-        assert_equal(int(np.uint64(x)), x)
-
-    def test_duplicate_field_names_assign(self):
-        ra = np.fromiter(((i*3, i*2) for i in xrange(10)), dtype='i8,f8')
-        ra.dtype.names = ('f1', 'f2')
-        rep = repr(ra) # should not cause a segmentation fault
-        assert_raises(ValueError, setattr, ra.dtype, 'names', ('f1', 'f1'))
-
-    def test_eq_string_and_object_array(self):
-        # From e-mail thread "__eq__ with str and object" (Keith Goodman)
-        a1 = np.array(['a', 'b'], dtype=object)
-        a2 = np.array(['a', 'c'])
-        assert_array_equal(a1 == a2, [True, False])
-        assert_array_equal(a2 == a1, [True, False])
-
 
 if __name__ == "__main__":
     run_module_suite()
