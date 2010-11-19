@@ -202,8 +202,18 @@ class GnuFCompiler(FCompiler):
         opt.append('-funroll-loops')
         return opt
 
+    def _c_arch_flags(self):
+        """ Return detected arch flags from CFLAGS """
+        from distutils import sysconfig
+        cflags = sysconfig.get_config_vars()['CFLAGS']
+        arch_re = re.compile(r"-arch\s+(\w+)")
+        arch_flags = []
+        for arch in arch_re.findall(cflags):
+            arch_flags += ['-arch', arch]
+        return arch_flags
+
     def get_flags_arch(self):
-        return []
+        return self._c_arch_flags()
 
 class Gnu95FCompiler(GnuFCompiler):
     compiler_type = 'gnu95'
@@ -214,7 +224,17 @@ class Gnu95FCompiler(GnuFCompiler):
         v = self.gnu_version_match(version_string)
         if not v or v[0] != 'gfortran':
             return None
-        return v[1]
+        v = v[1]
+        if v>='4.':
+            # gcc-4 series releases do not support -mno-cygwin option
+            pass
+        else:
+            # use -mno-cygwin flag for gfortran when Python is not Cygwin-Python
+            if sys.platform == 'win32':
+                for key in ['version_cmd', 'compiler_f77', 'compiler_f90',
+                            'compiler_fix', 'linker_so', 'linker_exe']:
+                    self.executables[key].append('-mno-cygwin')
+        return v
 
     # 'gfortran --version' results:
     # XXX is the below right?
@@ -238,40 +258,10 @@ class Gnu95FCompiler(GnuFCompiler):
         'linker_exe'   : [None, "-Wall"]
         }
 
-    # use -mno-cygwin flag for g77 when Python is not Cygwin-Python
-    if sys.platform == 'win32':
-        for key in ['version_cmd', 'compiler_f77', 'compiler_f90',
-                    'compiler_fix', 'linker_so', 'linker_exe']:
-            executables[key].append('-mno-cygwin')
-
     module_dir_switch = '-J'
     module_include_switch = '-I'
 
     g2c = 'gfortran'
-
-    def _universal_flags(self, cmd):
-        """Return a list of -arch flags for every supported architecture."""
-        if not sys.platform == 'darwin':
-            return []
-        arch_flags = []
-        for arch in ["ppc", "i686", "x86_64", "ppc64"]:
-            if _can_target(cmd, arch):
-                arch_flags.extend(["-arch", arch])
-        return arch_flags
-
-    def get_flags(self):
-        flags = GnuFCompiler.get_flags(self)
-        arch_flags = self._universal_flags(self.compiler_f90)
-        if arch_flags:
-            flags[:0] = arch_flags
-        return flags
-
-    def get_flags_linker_so(self):
-        flags = GnuFCompiler.get_flags_linker_so(self)
-        arch_flags = self._universal_flags(self.linker_so)
-        if arch_flags:
-            flags[:0] = arch_flags
-        return flags
 
     def get_library_dirs(self):
         opt = GnuFCompiler.get_library_dirs(self)
