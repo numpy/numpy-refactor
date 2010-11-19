@@ -1091,6 +1091,10 @@ namespace NumpyDotNet
             this.value = value;
         }
 
+        public ScalarUInt16(int value) {
+            this.value = (ushort)(short)value;
+        }
+
         public ScalarUInt16(IConvertible value) {
             this.value = Convert.ToUInt16(value);
         }
@@ -1161,6 +1165,10 @@ namespace NumpyDotNet
 
         public ScalarUInt32(UInt32 value) {
             this.value = value;
+        }
+
+        public ScalarUInt32(int value) {
+            this.value = (uint)value;
         }
 
         public ScalarUInt32(IConvertible value) {
@@ -1236,6 +1244,18 @@ namespace NumpyDotNet
 
         public ScalarUInt64(UInt64 value) {
             this.value = value;
+        }
+
+        public ScalarUInt64(int value) {
+            this.value = (ulong)(long)value;    // Cast to signed long then reinterpret bits into ulong so -2 converts to correct (big) value.
+        }
+
+        public ScalarUInt64(long value) {
+            this.value = (ulong)value;
+        }
+
+        public ScalarUInt64(BigInteger value) {
+            this.value = (ulong)value;
         }
 
         public ScalarUInt64(IConvertible value) {

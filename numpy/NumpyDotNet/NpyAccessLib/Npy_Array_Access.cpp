@@ -49,6 +49,7 @@ void * _cdecl NpyArrayAccess_ToInterface(NpyObject *obj)
 
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *nd, 
+                                           int *dimensions, int *strides,
                                            int *flags, int *data, int* base_obj, 
                                            int* base_array)
 {
@@ -57,6 +58,8 @@ void _cdecl NpyArrayAccess_ArrayGetOffsets(int *magic_number, int *descr, int *n
     *magic_number = offsetof(NpyArray, nob_magic_number);
     *descr = offsetof(NpyArray, descr);
     *nd = offsetof(NpyArray, nd);
+    *dimensions = offsetof(NpyArray, dimensions);
+    *strides = offsetof(NpyArray, strides);
     *flags = offsetof(NpyArray, flags);
     *data = offsetof(NpyArray, data);
     *base_obj = offsetof(NpyArray, base_obj);
@@ -108,6 +111,13 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
 }
 
 
+extern "C" __declspec(dllexport)
+    float _cdecl NpyArrayAccess_GetAbiVersion()
+{
+    return NPY_ABI_VERSION;
+}
+
+
 // Returns the native byte order code for this platform and size of types
 // that vary platform-to-playform.
 extern "C" __declspec(dllexport)
@@ -124,21 +134,14 @@ extern "C" __declspec(dllexport)
 
 // Fills in an int64 array with the dimensions of the array.
 extern "C" __declspec(dllexport)
-    bool _cdecl NpyArrayAccess_GetArrayDimsOrStrides(void *arrTmp, int ndims, bool dims, 
-        npy_int64 *retPtr)
+    bool _cdecl NpyArrayAccess_GetIntpArray(npy_intp *srcPtr, int len, npy_int64 *retPtr)
 {
-    NpyArray *arr = (NpyArray *)arrTmp;
-    assert(NPY_VALID_MAGIC == arr->nob_magic_number);
-
-    npy_intp *srcPtr = dims ? arr->dimensions : arr->strides;
-
-    if (ndims != arr->nd) return false;
     if (sizeof(npy_int64) == sizeof(npy_intp)) {
         // Fast if sizes are the same.
-        memcpy(retPtr, srcPtr, sizeof(npy_intp) * arr->nd);
+        memcpy(retPtr, srcPtr, sizeof(npy_intp) * len);
     } else {
         // Slower, but converts between sizes.
-        for (int i = 0; i < arr->nd; i++) { 
+        for (int i = 0; i < len; i++) { 
             retPtr[i] = srcPtr[i];
         }
     }
@@ -368,6 +371,62 @@ extern "C" __declspec(dllexport)
     *off_dimensions = offsetof(NpyArrayMultiIterObject, dimensions);
     *off_iters = offsetof(NpyArrayMultiIterObject, iters);
 }
+
+
+// Sets the dimensions and strides of the array and reallocates/resizes the array memory
+// in preparation for being loaded with new data.  Typically used after unpickling.
+// If srcPtr is set, it points to 16-bit unicode memory of which only the low-order 8-bits
+// in each wide char is a byte of data in the array.
+extern "C" __declspec(dllexport)
+    void NpyArrayAccess_SetState(NpyArray *self, int ndim, npy_intp *dims, NPY_ORDER order, const wchar_t *srcPtr, int srcLen)
+{
+    assert(NPY_VALID_MAGIC == self->nob_magic_number);
+    assert(NULL != dims);
+    assert(0 <= ndim);
+
+    // Clear existing data and references.  Typically these will be empty.
+    if (NpyArray_FLAGS(self) & NPY_OWNDATA) {
+        if (NULL != NpyArray_BYTES(self)) {
+            NpyArray_free(NpyArray_BYTES(self));
+        }
+        NpyArray_FLAGS(self) &= ~NPY_OWNDATA;
+    }
+    Npy_XDECREF(NpyArray_BASE_ARRAY(self));
+    NpyInterface_DECREF(NpyArray_BASE(self));
+    NpyArray_BASE_ARRAY(self) = NULL;
+    NpyArray_BASE(self) = NULL;
+
+    if (NULL != NpyArray_DIMS(self)) {
+        NpyDimMem_FREE(NpyArray_DIMS(self));
+        NpyArray_DIMS(self) = NULL;
+    }
+
+    self->flags = NPY_DEFAULT;
+    self->nd = ndim;
+    if (0 < ndim) {
+        NpyArray_DIMS(self) = NpyDimMem_NEW(ndim*2);
+        NpyArray_STRIDES(self) = NpyArray_DIMS(self) + ndim;
+        memcpy(NpyArray_DIMS(self), dims, sizeof(npy_int64)*ndim);
+        npy_array_fill_strides(NpyArray_STRIDES(self), dims, ndim,
+            NpyArray_ITEMSIZE(self), order, &(NpyArray_FLAGS(self)));
+    }
+
+    npy_intp bytes = NpyArray_ITEMSIZE(self) * NpyArray_SIZE(self);
+    NpyArray_BYTES(self) = (char *)NpyArray_malloc(bytes);
+    NpyArray_FLAGS(self) |= NPY_OWNDATA;
+
+    if (NULL != srcPtr) {
+        // This is unpleasantly inefficent.  The input is a .NET string, which is 16-bit
+        // unicode. Thus the data is encoded into alternating bytes so we can't use memcpy.
+        char *destPtr = NpyArray_BYTES(self);
+        char *destEnd = destPtr + bytes;
+        const wchar_t *srcEnd = srcPtr + srcLen;
+        while (destPtr < destEnd && srcPtr < srcEnd) *(destPtr++) = (char)*(srcPtr++);
+    } else {
+        memset(NpyArray_BYTES(self), 0, bytes);
+    }
+}
+
 
 extern "C" __declspec(dllexport)
     NpyArray* NpyArrayAccess_Newshape(NpyArray* self, int ndim, npy_intp* dims, NPY_ORDER order)

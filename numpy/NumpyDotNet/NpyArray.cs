@@ -502,6 +502,14 @@ namespace NumpyDotNet {
             return result;
         }
 
+        /// <summary>
+        /// Given some object and an optional minimum type, returns the appropriate type descriptor.
+        /// Equivalent to _array_find_type in common.c of CPython interface.
+        /// </summary>
+        /// <param name="src">Source object</param>
+        /// <param name="minitype">Minimum type, or null if any</param>
+        /// <param name="max">Maximum dimensions</param>
+        /// <returns>Type descriptor fitting requirements</returns>
         internal static dtype FindArrayType(Object src, dtype minitype, int max = NpyDefs.NPY_MAXDIMS) {
             dtype chktype = null;
 

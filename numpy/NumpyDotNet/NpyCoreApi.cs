@@ -116,11 +116,28 @@ namespace NumpyDotNet {
         internal static Int64[] GetArrayDimsOrStrides(ndarray arr, bool getDims) {
             Int64[] retArr;
 
+            IntPtr srcPtr = Marshal.ReadIntPtr(arr.Array, getDims ? ArrayOffsets.off_dimensions : ArrayOffsets.off_strides);
             retArr = new Int64[arr.ndim];
             unsafe {
                 fixed (Int64* dimMem = retArr) {
-                    if (!GetArrayDimsOrStrides(arr.Array, arr.ndim, getDims, dimMem)) {
+                    if (!GetIntpArray(srcPtr, arr.ndim, dimMem)) {
                         throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
+                    }
+                }
+            }
+            return retArr;
+        }
+
+        internal static Int64[] GetArrayDims(broadcast iter, bool getDims) {
+            Int64[] retArr;
+
+            // off_dimensions is to start of array, not pointer to array!
+            IntPtr srcPtr = iter.Iter + MultiIterOffsets.off_dimensions;
+            retArr = new Int64[iter.nd];
+            unsafe {
+                fixed (Int64* dimMem = retArr) {
+                    if (!GetIntpArray(srcPtr, iter.nd, dimMem)) {
+                        throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting iterator dimensions.");
                     }
                 }
             }
@@ -186,12 +203,21 @@ namespace NumpyDotNet {
                 );
         }
 
-        internal static IntPtr MultiIterFromArrays(ndarray[] arrays) {
-            IntPtr[] coreArrays = new IntPtr[arrays.Length];
-            for (int i = 0; i < arrays.Length; i++) {
-                coreArrays[i] = arrays[i].Array;
-            }
-            return NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+        
+        /// <summary>
+        /// Creates a multiterator 
+        /// </summary>
+        /// <param name="objs">Sequence of objects to iterate over</param>
+        /// <returns>Pointer to core multi-iterator structure</returns>
+        internal static IntPtr MultiIterFromObjects(IEnumerable<object> objs) {
+            return MultiIterFromArrays(objs.Select(x => NpyArray.FromAny(x)));
+        }
+
+        internal static IntPtr MultiIterFromArrays(IEnumerable<ndarray> arrays) {
+            IntPtr[] coreArrays = arrays.Select(x => { Incref(x.Array); return x.Array; }).ToArray();
+            IntPtr result = NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+            CheckError();
+            return result;
         }
 
         internal static ufunc GetNumericOp(NpyDefs.NpyArray_Ops op) {
@@ -414,6 +440,12 @@ namespace NumpyDotNet {
                 CheckError();
             }
         }
+
+        internal static void SetState(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order, string rawdata) {
+            NpyArrayAccess_SetState(arr.Array, dims.Length, dims, (int)order, rawdata, (rawdata != null) ? rawdata.Length : 0);
+            CheckError();
+        }
+
 
         internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
             ndarray arr, IntPtr offset, bool ensure_array) {
@@ -751,6 +783,12 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Correlate(IntPtr arr1, IntPtr arr2, int typenum, int mode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr NpyArray_Correlate2(IntPtr arr1, IntPtr arr2, int typenum, int mode);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_CopyAndTranspose(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -935,8 +973,8 @@ namespace NumpyDotNet {
             out int longsize, out int longLongSize, out int longDoubleSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_GetArrayDimsOrStrides")]
-        unsafe private static extern bool GetArrayDimsOrStrides(IntPtr arr, int numDims, bool getDims, Int64 *dimMem);
+            EntryPoint = "NpyArrayAccess_GetIntpArray")]
+        unsafe private static extern bool GetIntpArray(IntPtr srcPtr, int len, Int64 *dimMem);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
@@ -979,12 +1017,21 @@ namespace NumpyDotNet {
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void NpyArrayAccess_SetState(IntPtr arr, int ndim,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, int order,
+            // Note string is marshalled as LPWStr (16-bit unicode) to avoid making a copy of it
+            [MarshalAsAttribute(UnmanagedType.LPWStr)]string rawdata, int rawLength);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] newshape, int resize, int fortran);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] permute);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern float NpyArrayAccess_GetAbiVersion();
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_ClearUPDATEIFCOPY")]
         internal static extern void ClearUPDATEIFCOPY(IntPtr arr);
@@ -1025,7 +1072,8 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_ArrayGetOffsets")]
         private static extern void ArrayGetOffsets(out int magicNumOffset,
-            out int descrOffset, out int ndOffset, out int flagsOffset, out int dataOffset,
+            out int descrOffset, out int ndOffset, out int dimensionsOffset,
+            out int stridesOffset, out int flagsOffset, out int dataOffset,
             out int baseObjOffset, out int baseArrayOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -1185,6 +1233,8 @@ namespace NumpyDotNet {
             internal int off_magic_number;
             internal int off_descr;
             internal int off_nd;
+            internal int off_dimensions;
+            internal int off_strides;
             internal int off_flags;
             internal int off_data;
             internal int off_base_obj;
@@ -1987,6 +2037,8 @@ namespace NumpyDotNet {
             ArrayGetOffsets(out ArrayOffsets.off_magic_number,
                             out ArrayOffsets.off_descr,
                             out ArrayOffsets.off_nd,
+                            out ArrayOffsets.off_dimensions,
+                            out ArrayOffsets.off_strides,
                             out ArrayOffsets.off_flags,
                             out ArrayOffsets.off_data,
                             out ArrayOffsets.off_base_obj,
