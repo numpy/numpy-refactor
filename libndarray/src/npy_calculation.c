@@ -270,16 +270,16 @@ NpyArray_CumProd(NpyArray *self, int axis, int rtype, NpyArray *out)
 NDARRAY_API NpyArray *
 NpyArray_Any(NpyArray *self, int axis, NpyArray *out)
 {
-    NpyArray *new, *ret;
+    NpyArray *newPtr, *ret;
     
-    if (NULL == (new = NpyArray_CheckAxis(self, &axis, 0))) {
+    if (NULL == (newPtr = NpyArray_CheckAxis(self, &axis, 0))) {
         return NULL;
     }
     ret = NpyUFunc_GenericReduction(NpyArray_GetNumericOp(npy_op_logical_or), 
-                                    new, NULL, out, axis, 
+                                    newPtr, NULL, out, axis, 
                                     NpyArray_DescrFromType(NPY_BOOL), 
                                     NPY_UFUNC_REDUCE);
-    Npy_DECREF(new);
+    Npy_DECREF(newPtr);
     return ret;
 }
 
