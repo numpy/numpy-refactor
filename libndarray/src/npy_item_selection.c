@@ -28,7 +28,8 @@ NpyArray_TakeFrom(NpyArray *self0, NpyArray *indices0, int axis,
     }
     indices = NpyArray_ContiguousFromArray(indices0, NPY_INTP);
     if (indices == NULL) {
-        goto fail;
+        Npy_XDECREF(self);
+        return NULL;
     }
     n = m = chunk = 1;
     nd = self->nd + indices->nd - 1;
