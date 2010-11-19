@@ -1058,6 +1058,10 @@ namespace NumpyDotNet
             }
         }
 
+        /// <summary>
+        /// Returns the reference count of the core array object.  Used for debugging only.
+        /// </summary>
+        public int __coreRefCount { get { return Marshal.ReadInt32(Array, NpyCoreApi.Offset_RefCount); } }
 
         /// <summary>
         /// The type descriptor object for this array

@@ -1346,6 +1346,11 @@ namespace NumpyDotNet {
         /// </summary>
         private static int Offset_InterfacePtr = (int)Marshal.OffsetOf(typeof(NpyObject_HEAD), "nob_interface");
 
+        /// <summary>
+        /// Offset to the reference count in the header structure.
+        /// </summary>
+        internal static int Offset_RefCount = (int)Marshal.OffsetOf(typeof(NpyObject_HEAD), "nob_refcnt");
+
         private static IntPtr lastArrayHandle = IntPtr.Zero;
 
         /// <summary>
