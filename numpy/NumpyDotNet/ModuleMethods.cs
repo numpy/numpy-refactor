@@ -371,6 +371,7 @@ namespace NumpyDotNet {
                 result["Number"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarNumber));
                 result["Integer"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarInteger));
                 result["SignedInteger"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarSignedInteger));
+                result["TimeInteger"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarTimeInteger));
                 result["UnsignedInteger"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarUnsignedInteger));
                 result["Inexact"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarInexact));
                 result["Floating"] = DynamicHelpers.GetPythonTypeFromType(typeof(ScalarFloating));
@@ -534,6 +535,30 @@ namespace NumpyDotNet {
             return (int)NpyCoreApi.NpyArrayAccess_GetAbiVersion();
         }
 
+
+        /// <summary>
+        /// Allows callers to replace the to-string function for ndarray class.
+        /// </summary>
+        /// <param name="f">Function to call</param>
+        /// <param name="repr">Set the repr function (true) or the string function (false)</param>
+        public static void set_string_function(CodeContext cntx, object f = null, int repr = 1) {
+            if (f != null && !PythonOps.IsCallable(cntx, f)) {
+                throw new ArgumentTypeException("Argument must be callable");
+            }
+            Func<ndarray, string> ff = null;
+            if (f != null) ff = x => (string)PythonOps.CallWithContext(cntx, f, x);
+
+            if (repr != 0) {
+                ndarray.ReprFunction = ff;
+            } else {
+                ndarray.StrFunction = ff;
+            }
+        }
+
+
+        public static string format_longfloat(object x, int precision) {
+            throw new NotImplementedException("Long double types are not yet supported in the .NET implementation as they are the same as double.");
+        }
 
 
         /// <summary>

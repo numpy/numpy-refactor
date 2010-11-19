@@ -1322,6 +1322,11 @@ namespace NumpyDotNet
         internal static readonly BigInteger MaxValue = new BigInteger(UInt64.MaxValue);
     }
 
+
+    [PythonType("numpy.timeinteger")]
+    public class ScalarTimeInteger : ScalarInt64 { }
+
+
     [PythonType("numpy.inexact")]
     public class ScalarInexact : ScalarNumber { }
 

@@ -1331,15 +1331,14 @@ def cross(a, b, axisa=-1, axisb=-1, axisc=-1, axis=None):
 
 
 #Use numarray's printing function
-if sys.platform != 'cli':
-    from arrayprint import array2string, get_printoptions, set_printoptions
+from arrayprint import array2string, get_printoptions, set_printoptions
 
-    _typelessdata = [int_, float_, complex_]
-    if issubclass(intc, int):
-        _typelessdata.append(intc)
+_typelessdata = [int_, float_, complex_]
+if issubclass(intc, int):
+    _typelessdata.append(intc)
 
-    if issubclass(longlong, int):
-        _typelessdata.append(longlong)
+if issubclass(longlong, int):
+    _typelessdata.append(longlong)
 
 def array_repr(arr, max_line_width=None, precision=None, suppress_small=None):
     """
@@ -1503,10 +1502,9 @@ def set_string_function(f, repr=True):
     else:
         return multiarray.set_string_function(f, repr)
 
-if sys.platform != 'cli':
-    set_string_function = multiarray.set_string_function
-    set_string_function(array_str, 0)
-    set_string_function(array_repr, 1)
+set_string_function = multiarray.set_string_function
+set_string_function(array_str, 0)
+set_string_function(array_repr, 1)
 
 
 little_endian = (sys.byteorder == 'little')

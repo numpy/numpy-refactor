@@ -113,16 +113,40 @@ namespace NumpyDotNet
 
         #region Public interfaces (must match CPython)
 
+        private static Func<ndarray, string> reprFunction;
+        private static Func<ndarray, string> strFunction;
+
+        /// <summary>
+        /// Sets a function to be triggered for the repr() operator or null to default to the
+        /// built-in version.
+        /// </summary>
+        public static Func<ndarray, string> ReprFunction {
+            get { return reprFunction; }
+            internal set { reprFunction = (value != null) ? value : x => x.BuildStringRepr(true); }
+        }
+
+        /// <summary>
+        /// Sets a function to be triggered on the str() operator or ToString() method. Null defaults to
+        /// the built-in version.
+        /// </summary>
+        public static Func<ndarray, string> StrFunction {
+            get { return strFunction; }
+            internal set { strFunction = (value != null) ? value : x => x.BuildStringRepr(false); }
+        }
+
+        static ndarray() {
+            ReprFunction = null;
+            StrFunction = null;
+        }
+
         #region Python methods
 
         public virtual string __repr__(CodeContext cntx) {
-            // TODO: No support for user-set repr function.
-            return BuildStringRepr(true);
+            return ReprFunction(this);
         }
 
         public virtual string __str__(CodeContext cntx) {
-            // TODO: No support for user-set string function
-            return BuildStringRepr(false);
+            return StrFunction(this);
         }
 
         public virtual object __reduce__(CodeContext cntx, object notused=null) {
@@ -1686,7 +1710,7 @@ namespace NumpyDotNet
         }
 
         public override string ToString() {
-            return BuildStringRepr(false);
+            return StrFunction(this);
         }
 
         internal flatiter Flat {
