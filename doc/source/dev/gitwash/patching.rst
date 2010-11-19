@@ -2,7 +2,8 @@
  Making a patch
 ================
 
-You've discovered a bug or something else you want to change in NumPy_ - excellent!
+You've discovered a bug or something else you want to change in
+NumPy_ - excellent!
 
 You've worked out a way to fix it - even better!
 
@@ -42,7 +43,9 @@ Overview
    # make the patch files
    git format-patch -M -C master
 
-Then, send the generated patch files to the `NumPy mailing list`_ - where we will thank you warmly.
+Then, create a ticket in the `Numpy Trac <http://projects.scipy.org/numpy/>`__,
+attach the generated patch files there, and notify the `NumPy mailing list`_
+about your contribution.
 
 In detail
 ---------
@@ -92,7 +95,12 @@ In detail
       0001-BF-added-tests-for-Funny-bug.patch
       0002-BF-added-fix-for-Funny-bug.patch
 
-   Send these files to the `NumPy mailing list`_.
+   The recommended way to proceed is either to attach these files to 
+   an enhancement ticket in the `Numpy Trac <http://projects.scipy.org/numpy/>`__
+   and send a mail about the enhancement to the `NumPy mailing list`_.
+
+   You can also consider sending your changes via Github, see below and in
+   :ref:`asking-for-merging`.
 
 When you are done, to switch back to the main copy of the code, just
 return to the ``master`` branch::
@@ -110,7 +118,8 @@ Fork the NumPy_ repository on github_ - :ref:`forking`.  Then::
 
    # checkout and refresh master branch from main repo
    git checkout master
-   git pull origin master
+   git fetch origin
+   git merge --ff-only origin/master
    # rename pointer to main repository to 'upstream'
    git remote rename origin upstream
    # point your repo to default read / write to your fork on github

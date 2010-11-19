@@ -1,34 +1,84 @@
-*.pyc
-*.pyo
-*.pyd
-*.so
-*.o
-*.lo
-*.la
-*.a
+# Editor temporary/working/backup files #
+#########################################
+.#*
+[#]*#
 *~
-\#*
-__*
-*.swp
+*$
+*.bak
+*.diff
+*.org
+.project
+*.rej
+.settings/
+.*.sw[nop]
+.sw[nop]
 *.sdf
 *.suo
 *.obj
-.gdb_history
+*.tmp
 
-dist
+# Compiled source #
+###################
+*.a
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.lo
+*.la
+*.py[ocd]
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.bz2
+*.bzip2
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tbz2
+*.tgz
+*.zip
+
+# Python files #
+################
+build            # setup.py working directory
 /build
+dist
 /dist
-/doc/build
-/doc/cdoc/build
-.\#*
+_build           # sphinx build directory
+dist             # setup.py dist directory
+doc/build
+doc/cdoc/build
+*.egg-info       # Egg metadata
+./.shelf         # The shelf plugin uses this dir
+
+# Logs and databases #
+######################
 *.log
-*.egg-info
-/numpy/core/__svn_version__.py
-/doc/numpy.scipy.org/_build
+*.sql
+*.sqlite
 
-/tools/win32build/misc/msvcrt90/msvcr90.def
-/doc/source/reference/generated
+# OS generated files #
+######################
+.gdb_history
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
 
+# Things specific to this project #
+###################################
+numpy/core/__svn_version__.py
+numpy/version.py
+doc/numpy.scipy.org/_build
 libndarray/.libs
 libndarray/Makefile
 libndarray/autom4te.cache
@@ -50,13 +100,11 @@ libndarray/src/npy_funcs.h
 libndarray/src/npy_loops.c
 libndarray/src/npy_loops.h
 libndarray/stamp-h1
-
 libndarray/windows/Debug
 libndarray/windows/Release
 libndarray/windows/x64
-
-numpy/version.py
 numpy/NumpyDotNet/bin
 numpy/NumpyDotNet/obj
 numpy/NumpyDotNet/Debug
 numpy/NumpyDotNet/NpyAccessLib/Debug
+tools/win32build/misc/msvcrt90/msvcr90.def

@@ -875,11 +875,13 @@ array_getarray(PyArrayObject *self, PyObject *args)
 
 
 static PyObject *
-array_copy(PyArrayObject *self, PyObject *args)
+array_copy(PyArrayObject *self, PyObject *args, PyObject *kwds)
 {
     PyArray_ORDER fortran=PyArray_CORDER;
-    if (!PyArg_ParseTuple(args, "|O&", PyArray_OrderConverter,
-                          &fortran)) {
+    static char *kwlist[] = {"order", NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
+                            PyArray_OrderConverter, &fortran)) {
         return NULL;
     }
 
@@ -1974,11 +1976,13 @@ array_diagonal(PyArrayObject *self, PyObject *args, PyObject *kwds)
 
 
 static PyObject *
-array_flatten(PyArrayObject *self, PyObject *args)
+array_flatten(PyArrayObject *self, PyObject *args, PyObject *kwds)
 {
     PyArray_ORDER fortran = PyArray_CORDER;
+    static char *kwlist[] = {"order", NULL};
 
-    if (!PyArg_ParseTuple(args, "|O&", PyArray_OrderConverter, &fortran)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
+                            PyArray_OrderConverter, &fortran)) {
         return NULL;
     }
     return PyArray_Flatten(self, fortran);
@@ -1986,12 +1990,13 @@ array_flatten(PyArrayObject *self, PyObject *args)
 
 
 static PyObject *
-array_ravel(PyArrayObject *self, PyObject *args)
+array_ravel(PyArrayObject *self, PyObject *args, PyObject *kwds)
 {
     PyArray_ORDER fortran = PyArray_CORDER;
+    static char *kwlist[] = {"order", NULL};
 
-    if (!PyArg_ParseTuple(args, "|O&", PyArray_OrderConverter,
-                          &fortran)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|O&", kwlist,
+                            PyArray_OrderConverter, &fortran)) {
         return NULL;
     }
     return PyArray_Ravel(self, fortran);
@@ -2116,7 +2121,7 @@ NPY_NO_EXPORT PyMethodDef array_methods[] = {
     /* for the copy module */
     {"__copy__",
         (PyCFunction)array_copy,
-        METH_VARARGS, NULL},
+        METH_VARARGS | METH_KEYWORDS, NULL},
     {"__deepcopy__",
         (PyCFunction)array_deepcopy,
         METH_VARARGS, NULL},
@@ -2174,7 +2179,7 @@ NPY_NO_EXPORT PyMethodDef array_methods[] = {
         METH_VARARGS, NULL},
     {"copy",
         (PyCFunction)array_copy,
-        METH_VARARGS, NULL},
+        METH_VARARGS | METH_KEYWORDS, NULL},
     {"cumprod",
         (PyCFunction)array_cumprod,
         METH_VARARGS | METH_KEYWORDS, NULL},
@@ -2192,7 +2197,7 @@ NPY_NO_EXPORT PyMethodDef array_methods[] = {
         METH_VARARGS, NULL},
     {"flatten",
         (PyCFunction)array_flatten,
-        METH_VARARGS, NULL},
+        METH_VARARGS | METH_KEYWORDS, NULL},
     {"getfield",
         (PyCFunction)array_getfield,
         METH_VARARGS | METH_KEYWORDS, NULL},
@@ -2228,7 +2233,7 @@ NPY_NO_EXPORT PyMethodDef array_methods[] = {
         METH_VARARGS | METH_KEYWORDS, NULL},
     {"ravel",
         (PyCFunction)array_ravel,
-        METH_VARARGS, NULL},
+        METH_VARARGS | METH_KEYWORDS, NULL},
     {"repeat",
         (PyCFunction)array_repeat,
         METH_VARARGS | METH_KEYWORDS, NULL},
