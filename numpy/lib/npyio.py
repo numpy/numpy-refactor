@@ -42,36 +42,37 @@ def seek_gzip_factory(f):
     """
     import gzip
 
-    def seek(self, offset, whence=0):
-        # figure out new position (we can only seek forwards)
-        if whence == 1:
-            offset = self.offset + offset
+    class GzipFile(gzip.GzipFile):
 
-        if whence not in [0, 1]:
-            raise IOError, "Illegal argument"
+        def seek(self, offset, whence=0):
+            # figure out new position (we can only seek forwards)
+            if whence == 1:
+                offset = self.offset + offset
 
-        if offset < self.offset:
-            # for negative seek, rewind and do positive seek
-            self.rewind()
-            count = offset - self.offset
-            for i in range(count // 1024):
-                self.read(1024)
-            self.read(count % 1024)
+            if whence not in [0, 1]:
+                raise IOError, "Illegal argument"
 
-    def tell(self):
-        return self.offset
+            if offset < self.offset:
+                # for negative seek, rewind and do positive seek
+                self.rewind()
+                count = offset - self.offset
+                for i in range(count // 1024):
+                    self.read(1024)
+                self.read(count % 1024)
+
+        def tell(self):
+            return self.offset
+
 
     if isinstance(f, str):
-        f = gzip.GzipFile(f)
+        f = GzipFile(f)
+    elif isinstance(f, gzip.GzipFile):
+        # cast to our GzipFile if its already a gzip.GzipFile
+        g = GzipFile(fileobj=f.fileobj)
+        g.name = f.name
+        g.mode = f.mode
 
-    if sys.version_info[0] >= 3:
-        import types
-        f.seek = types.MethodType(seek, f)
-        f.tell = types.MethodType(tell, f)
-    else:
-        import new
-        f.seek = new.instancemethod(seek, f)
-        f.tell = new.instancemethod(tell, f)
+        f = g
 
     return f
 
@@ -670,7 +671,6 @@ def loadtxt(fname, dtype=float, comments='#', delimiter=None,
     if _is_string_like(fname):
         own_fh = True
         if fname.endswith('.gz'):
-            import gzip
             fh = seek_gzip_factory(fname)
         elif fname.endswith('.bz2'):
             import bz2
@@ -1226,7 +1226,7 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
         if fval in comments:
             del first_values[0]
 
-    # Check the columns to use
+    # Check the columns to use: make sure `usecols` is a list
     if usecols is not None:
         try:
             usecols = [_.strip() for _ in usecols.split(",")]
@@ -1249,7 +1249,6 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
     # Get the dtype
     if dtype is not None:
         dtype = easy_dtype(dtype, defaultfmt=defaultfmt, names=names)
-        names = dtype.names
     # Make sure the names is a list (for 2.5)
     if names is not None:
         names = list(names)
@@ -1270,6 +1269,8 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
         # If `names` is not None, update the names
         elif (names is not None) and (len(names) > nbcols):
             names = [names[_] for _ in usecols]
+    elif (names is not None) and (dtype is not None):
+        names = dtype.names
 
 
     # Process the missing values ...............................
@@ -1404,7 +1405,13 @@ def genfromtxt(fname, dtype=float, comments='#', delimiter=None,
             except ValueError:
                 # Unused converter specified
                 continue
+        # Find the value to test:
+        if len(first_line):
+            testing_value = first_values[i]
+        else:
+            testing_value = None
         converters[i].update(conv, locked=True,
+                             testing_value=testing_value,
                              default=filling_values[i],
                              missing_values=missing_values[i],)
         uc_update.append((i, conv))

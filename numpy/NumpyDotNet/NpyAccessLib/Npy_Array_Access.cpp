@@ -3,6 +3,7 @@
 extern "C" {
 #include <npy_api.h>
 #include <npy_defs.h>
+#include <npy_os.h>
 #include <npy_buffer.h>
 #include <npy_arrayobject.h>
 #include <npy_descriptor.h>
@@ -808,3 +809,29 @@ extern "C" __declspec(dllexport)
     Npy_INCREF(a->descr);
     return NpyArray_NewFromDescr(a->descr, a->nd, a->dimensions, a->strides, a->data, a->flags, NPY_FALSE, NULL, Npy_INTERFACE(prototype));
 }
+
+
+extern "C" __declspec(dllexport)
+    char *NpyArrayAccess_FormatLongFloat(double val, int precision)
+{
+    const int buflen = 64;
+    char *buf = (char *)CoTaskMemAlloc(buflen);
+    char format[12];
+
+    NpyOS_snprintf(format, sizeof(format), "%%.%i%c", precision, NPY_LONGDOUBLE_FMT);
+    NpyOS_ascii_formatl(buf, buflen, format, val, 0);
+
+    // If nothing but digits after sign, append ".0"
+    int cnt = strlen(buf);
+    int i;
+    for (i = (val < 0) ? 1 : 0; i < cnt; i++) {
+        if (!isdigit(Npy_CHARMASK(buf[i]))) {
+            break;
+        }
+    }
+    if (i == cnt && buflen >= cnt + 3) {
+        strcpy_s(&buf[cnt], buflen-cnt, ".0");
+    }
+    return buf;
+}
+

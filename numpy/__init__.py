@@ -126,7 +126,13 @@ else:
         its source directory; please exit the numpy source tree, and relaunch
         your python intepreter from there."""
         raise ImportError(msg)
-    from version import version as __version__
+    try:
+        from version import git_revision as __git_revision__
+        from version import version as __version__
+    except:
+        print "Warning: version.py is missing, installation may be wrong."
+        __git_revision__ = "Unknown"
+        __version__ = "Unknown"
 
     from _import_tools import PackageLoader
 

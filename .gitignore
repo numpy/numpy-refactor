@@ -49,16 +49,21 @@
 
 # Python files #
 ################
-build            # setup.py working directory
+# setup.py working directory
+build
 /build
 dist
 /dist
-_build           # sphinx build directory
-dist             # setup.py dist directory
+# sphinx build directory
+_build
+# setup.py dist directory
+dist
 doc/build
 doc/cdoc/build
-*.egg-info       # Egg metadata
-./.shelf         # The shelf plugin uses this dir
+# Egg metadata
+*.egg-info
+# The shelf plugin uses this dir
+./.shelf
 
 # Logs and databases #
 ######################

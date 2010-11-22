@@ -714,6 +714,15 @@ M   33  21.99
                       dtype=None)
         assert_raises(ConverterError, np.genfromtxt, s, **kwargs)
 
+    def test_tricky_converter_bug1666(self):
+        "Test some corner case"
+        s = StringIO('q1,2\nq3,4')
+        cnv = lambda s:float(s[1:])
+        test = np.genfromtxt(s, delimiter=',', converters={0:cnv})
+        control = np.array([[1., 2.], [3., 4.]])
+        assert_equal(test, control)
+
+
 
     def test_dtype_with_converters(self):
         dstr = "2009; 23; 46"
@@ -772,6 +781,13 @@ M   33  21.99
         test = np.ndfromtxt(data)
         control = np.array([[ 1., 2., 3., 4., 5.],
                             [ 6., 7., 8., 9., 10.]])
+        assert_equal(test, control)
+
+    def test_integer_delimiter(self):
+        "Test using an integer for delimiter"
+        data = "  1  2  3\n  4  5 67\n890123  4"
+        test = np.genfromtxt(StringIO(data), delimiter=3)
+        control = np.array([[1, 2, 3], [4, 5, 67], [890, 123, 4]])
         assert_equal(test, control)
 
 
@@ -1137,6 +1153,27 @@ M   33  21.99
         ctrl = np.array([(1, 2, 3), (4, 5, 6)],
                         dtype=[('a', int), ('f0', float), ('f1', int)])
         assert_equal(test, ctrl)
+
+    def test_names_with_usecols_bug1636(self):
+        "Make sure we pick up the right names w/ usecols"
+        data = "A,B,C,D,E\n0,1,2,3,4\n0,1,2,3,4\n0,1,2,3,4"
+        ctrl_names = ("A", "C", "E")
+        test = np.genfromtxt(StringIO(data),
+                             dtype=(int, int, int), delimiter=",",
+                             usecols=(0, 2, 4), names=True)
+        assert_equal(test.dtype.names, ctrl_names)
+        #
+        test = np.genfromtxt(StringIO(data),
+                             dtype=(int, int, int), delimiter=",",
+                             usecols=("A", "C", "E"), names=True)
+        assert_equal(test.dtype.names, ctrl_names)
+        #
+        test = np.genfromtxt(StringIO(data),
+                             dtype=int, delimiter=",",
+                             usecols=("A", "C", "E"), names=True)
+        assert_equal(test.dtype.names, ctrl_names)
+
+
 
     def test_fixed_width_names(self):
         "Test fix-width w/ names"

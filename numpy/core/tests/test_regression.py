@@ -1456,5 +1456,29 @@ class TestRegression(TestCase):
             x = tp(1+2j)
             assert_equal(complex(x), 1+2j)
 
+    def test_uint_int_conversion(self):
+        x = 2**64 - 1
+        assert_equal(int(np.uint64(x)), x)
+
+    def test_duplicate_field_names_assign(self):
+        ra = np.fromiter(((i*3, i*2) for i in xrange(10)), dtype='i8,f8')
+        ra.dtype.names = ('f1', 'f2')
+        rep = repr(ra) # should not cause a segmentation fault
+        assert_raises(ValueError, setattr, ra.dtype, 'names', ('f1', 'f1'))
+
+    def test_eq_string_and_object_array(self):
+        # From e-mail thread "__eq__ with str and object" (Keith Goodman)
+        a1 = np.array(['a', 'b'], dtype=object)
+        a2 = np.array(['a', 'c'])
+        assert_array_equal(a1 == a2, [True, False])
+        assert_array_equal(a2 == a1, [True, False])
+
+    def test_nonzero_byteswap(self):
+        a = np.array([0x80000000, 0x00000080, 0], dtype=np.uint32)
+        a.dtype = np.float32
+        assert_equal(a.nonzero()[0], [1])
+        a = a.byteswap().newbyteorder()
+        assert_equal(a.nonzero()[0], [1]) # [0] if nonzero() ignores swap
+
 if __name__ == "__main__":
     run_module_suite()

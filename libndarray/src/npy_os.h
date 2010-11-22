@@ -48,6 +48,8 @@ int _npy_signbit_d(double x);
 #define NpyOS_strtol strtol
 #define NpyOS_strtoul strtoul
 
+#define Npy_CHARMASK(c)  ((c) & 0xff)
+
 
 char *
 NpyOS_ascii_formatd(char *buffer, size_t buf_size,

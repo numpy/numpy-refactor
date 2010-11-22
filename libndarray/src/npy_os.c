@@ -16,8 +16,6 @@
  */
 #define MIN_EXPONENT_DIGITS 2
 
-#define Npy_CHARMASK(c)  ((c) & 0xff)
-
 /*
  * Ensure that any exponent, if present, is at least MIN_EXPONENT_DIGITS
  * in length.

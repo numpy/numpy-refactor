@@ -557,7 +557,13 @@ namespace NumpyDotNet {
 
 
         public static string format_longfloat(object x, int precision) {
-            throw new NotImplementedException("Long double types are not yet supported in the .NET implementation as they are the same as double.");
+            if (x is ScalarFloat64) {
+                return NpyCoreApi.FormatLongFloat((double)(ScalarFloat64)x, precision);
+            } else if (x is double) {
+                return NpyCoreApi.FormatLongFloat((double)x, precision);
+            }
+            throw new NotImplementedException(
+                String.Format("Unhandled long float type '{0}'", x.GetType().Name));
         }
 
 

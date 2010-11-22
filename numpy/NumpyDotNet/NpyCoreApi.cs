@@ -1202,6 +1202,9 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictNext")]
         internal static extern bool NpyDict_Next(IntPtr dict, IntPtr iter, out IntPtr key, out IntPtr value);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_FormatLongFloat")]
+        internal static extern string FormatLongFloat(double v, int precision);
+
         #endregion
 
 
