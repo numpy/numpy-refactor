@@ -155,7 +155,7 @@ namespace NumpyDotNet {
             }
             // (type, 1) or (type, ()) should be treated as type
             if (shape.Length == 0 && other is PythonTuple ||
-                shape.Length == 1 && shape[0].ToInt64() == 1 && 
+                shape.Length == 1 && shape[0].ToInt64() == 1 &&
                 !(other is IEnumerable<object>)) {
                 return t1;
             }
@@ -227,7 +227,7 @@ namespace NumpyDotNet {
             try {
                 return DescrConverter(cntx, PythonOps.ObjectGetAttribute(cntx, obj, "_fields_"));
             } catch { }
- 
+
             return null;
         }
 
@@ -274,12 +274,12 @@ namespace NumpyDotNet {
 
         /// <summary>
         /// Comma strings are ones that start with an integer, are empty tuples,
-        /// or contain commas.  
+        /// or contain commas.
         /// </summary>
         /// <param name="s">Datetime format string</param>
         /// <returns>True if a comma string</returns>
         private static bool CheckForCommaString(String s) {
-            Func<char, bool> checkByteOrder = 
+            Func<char, bool> checkByteOrder =
                 b => b == '>' || b == '<' || b == '|' || b == '=';
 
             // Check for ints at the start of a string.
@@ -377,7 +377,7 @@ namespace NumpyDotNet {
                 result = NpyCoreApi.DescrNew(result);
                 result.ElementSize = elsize;
             }
-            
+
             // Use native endian as opposed to big- or little- if it matches the system.
             if (endian != '=' && NpyDefs.IsNativeByteOrder(endian)) {
                 endian = (byte)'=';

@@ -12,7 +12,7 @@ using Microsoft.Scripting;
 namespace NumpyDotNet {
     /// <summary>
     /// Implements array manipulation and construction functionality.  This
-    /// class has functionality corresponding to functions in arrayobject.c, 
+    /// class has functionality corresponding to functions in arrayobject.c,
     /// ctors.c, and multiarraymodule.c
     /// </summary>
     internal static class NpyArray {
@@ -44,7 +44,7 @@ namespace NumpyDotNet {
             } else if (false) {
                 // TODO: Not handling scalars.  See arrayobject.c:111
             } else {
-                srcArray = FromAny(src, dest.dtype, 0, dest.ndim, 
+                srcArray = FromAny(src, dest.dtype, 0, dest.ndim,
                                    dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
             }
             NpyCoreApi.MoveInto(dest, srcArray);
@@ -88,10 +88,10 @@ namespace NumpyDotNet {
         }
 
 
-        
+
 
         /// <summary>
-        /// Checks the strides against the shape of the array.  This duplicates 
+        /// Checks the strides against the shape of the array.  This duplicates
         /// NpyArray_CheckStrides and is only here because we don't currently support
         /// buffers and can simplify this function plus it's much faster to do here
         /// than to pass the arrays into the native world.
@@ -194,7 +194,7 @@ namespace NumpyDotNet {
 
             Type t = src.GetType();
 
-            if (t != typeof(List) && t != typeof(PythonTuple)) { 
+            if (t != typeof(List) && t != typeof(PythonTuple)) {
                 if (src is ndarray) {
                     result = FromArray((ndarray)src, descr, flags);
                     return FromAnyReturn(result, minDepth, maxDepth);
@@ -214,7 +214,7 @@ namespace NumpyDotNet {
                     }
                     result = FromPythonScalar(src, newtype);
                     return FromAnyReturn(result, minDepth, maxDepth);
-                } 
+                }
 
                 // TODO: Handle buffer protocol
                 // TODO: Look at __array_struct__ and __array_interface__
@@ -249,7 +249,7 @@ namespace NumpyDotNet {
                     if (is_object) {
                         result = FromNestedList(src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0);
                         seq = true;
-                    } 
+                    }
                 }
             }
             if (!seq) {
@@ -273,7 +273,7 @@ namespace NumpyDotNet {
         /// Walks a set of nested lists (or tuples) to get the dimensions.  The dimensionality must
         /// be consistent for each nesting level. Thus, if one level is a mix of lsits and scalars,
         /// it is truncated and all are assumed to be scalar objects.
-        /// 
+        ///
         /// That is, [[1, 2], 3, 4] is a 1-d array of 3 elements.  It just happens that element 0 is
         /// an object that is a list of [1, 2].
         /// </summary>
@@ -297,7 +297,7 @@ namespace NumpyDotNet {
                 nd = 0;
             } else if (max < 2) {
                 // On the first pass, populate the dimensions array. One subsequent passes verify
-                // that the size is the same or, if not, 
+                // that the size is the same or, if not,
                 if (firstElem) {
                     dims[idx] = list.Count;
                     nd = 1;
@@ -396,7 +396,7 @@ namespace NumpyDotNet {
                 descr = new dtype(descr);
                 descr.ElementSize = n;
             }
- 
+
             ndarray result = NpyCoreApi.AllocArray(descr, 0, null, false);
             if (result.ndim > 0) {
                 throw new ArgumentException("shape-mismatch on array construction");
@@ -411,7 +411,7 @@ namespace NumpyDotNet {
         /// Builds an array from a sequence of objects.  The elements of the sequence
         /// can also be sequences in which case this function recursively walks the
         /// nested sequences and builds an n dimentional array.
-        /// 
+        ///
         /// IronPython tuples and lists work as sequences.
         /// </summary>
         /// <param name="src">Input sequence</param>
@@ -420,10 +420,10 @@ namespace NumpyDotNet {
         /// <param name="minDepth"></param>
         /// <param name="maxDepth"></param>
         /// <returns>New array instance</returns>
-        internal static ndarray FromIEnumerable(IEnumerable<Object> src, dtype descr, 
+        internal static ndarray FromIEnumerable(IEnumerable<Object> src, dtype descr,
             bool fortran, int minDepth, int maxDepth) {
             ndarray result = null;
-            
+
             if (descr == null) {
                 descr = FindArrayType(src, null, NpyDefs.NPY_MAXDIMS);
             }
@@ -446,7 +446,7 @@ namespace NumpyDotNet {
                 if (maxDepth > 0 && type == NpyDefs.NPY_TYPES.NPY_OBJECT &&
                     numDim > maxDepth) {
                     numDim = maxDepth;
-                }   
+                }
                 if (maxDepth > 0 && numDim > maxDepth ||
                     minDepth > 0 && numDim < minDepth) {
                     throw new ArgumentException("Invalid number of dimensions.");
@@ -648,7 +648,7 @@ namespace NumpyDotNet {
 
 
         /// <summary>
-        /// Recursively discovers the nesting depth of a source object.  
+        /// Recursively discovers the nesting depth of a source object.
         /// </summary>
         /// <param name="src">Input object</param>
         /// <param name="max">Max recursive depth</param>
@@ -683,7 +683,7 @@ namespace NumpyDotNet {
                     return d+1;
                 }
             }
-            
+
             if (src is IEnumerable<object>) {
                 IEnumerable<object> seq = (IEnumerable<object>)src;
                 object first;
@@ -927,7 +927,7 @@ namespace NumpyDotNet {
             }
 
             if (seq is ndarray && seq.GetType() != typeof(ndarray)) {
-                // Convert to an array to ensure the dimensionality reduction 
+                // Convert to an array to ensure the dimensionality reduction
                 // assumption works.
                 ndarray array = FromArray((ndarray)seq, null, NpyDefs.NPY_ENSUREARRAY);
                 seq = (IEnumerable<object>)array;
@@ -956,7 +956,7 @@ namespace NumpyDotNet {
             } catch (InvalidOperationException) {
                 throw new ArgumentException("concatenation of zero-length sequence is impossible");
             }
-       
+
             ndarray[] mps = NpyUtil_ArgProcessing.ConvertToCommonType(arrays);
             int n = mps.Length;
             // TODO: Deal with subtypes

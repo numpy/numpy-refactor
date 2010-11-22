@@ -456,7 +456,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="o">Order specification</param>
         /// <returns>Npy order type</returns>
-        internal static NpyDefs.NPY_ORDER OrderConverter(Object o, 
+        internal static NpyDefs.NPY_ORDER OrderConverter(Object o,
             NpyDefs.NPY_ORDER dflt = NpyDefs.NPY_ORDER.NPY_CORDER) {
             NpyDefs.NPY_ORDER order;
 

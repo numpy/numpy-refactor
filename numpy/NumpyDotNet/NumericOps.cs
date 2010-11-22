@@ -57,7 +57,7 @@ namespace NumpyDotNet {
             return ArrFuncs[(int)t];
         }
 
-        private static void GetGetSetItems(int numBytes, 
+        private static void GetGetSetItems(int numBytes,
             out Func<IntPtr, ndarray, Object> getter,
             out Action<Object, IntPtr, ndarray> setter,
             out Func<IntPtr, ndarray, Object> ugetter,
@@ -76,7 +76,7 @@ namespace NumpyDotNet {
                     ugetter = NumericOps.getitemUInt64;
                     usetter = NumericOps.setitemUInt64;
                     break;
-                    
+
                 default:
                     throw new NotImplementedException(
                         String.Format("Numeric size of {0} is not yet implemented.", numBytes));
@@ -131,10 +131,10 @@ namespace NumpyDotNet {
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DOUBLE] =
                         new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
                     if (NpyCoreApi.Native_SizeOfLongDouble == 8) {
-                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = 
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] =
                             new ArrFuncs() { GetFunc = NumericOps.getitemDouble, SetFunc = NumericOps.setitemDouble };
                     } else {
-                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] = 
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_LONGDOUBLE] =
                             new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
                     }
                     arr[(int)NpyDefs.NPY_TYPES.NPY_CFLOAT] =
@@ -144,10 +144,10 @@ namespace NumpyDotNet {
                         new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, SetFunc = NumericOps.setitemCDouble };
                     if (NpyCoreApi.Native_SizeOfLongDouble == 8) {
                         arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] =
-                            new ArrFuncs() { GetFunc = NumericOps.getitemCDouble, 
+                            new ArrFuncs() { GetFunc = NumericOps.getitemCDouble,
                                 SetFunc = NumericOps.setitemCDouble };
                     } else {
-                        arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] = 
+                        arr[(int)NpyDefs.NPY_TYPES.NPY_CLONGDOUBLE] =
                             new ArrFuncs() { GetFunc = NumericOps.getitemNotSupported, SetFunc = NumericOps.setitemNotSupported };
                     }
                     arr[(int)NpyDefs.NPY_TYPES.NPY_DATETIME] =
@@ -473,7 +473,7 @@ namespace NumpyDotNet {
             int n = d.GetCharCount(ptr, nb, true);
             char* buffer = stackalloc char[n];
 
-            // Strip off any 
+            // Strip off any
             d.GetChars(ptr, nb, buffer, n, true);
             return new string(buffer, 0, n);
         }
@@ -558,7 +558,7 @@ namespace NumpyDotNet {
 
         /// <summary>
         /// Delegate type for setitem* functions given to the core.  These take an
-        /// IntPtr to a value (GCHandle), a pointer to the raw memory location and 
+        /// IntPtr to a value (GCHandle), a pointer to the raw memory location and
         /// a pointer to the core NpyArray structure. The value is written into the
         /// array in the appropriate native type.
         /// </summary>
@@ -872,7 +872,7 @@ namespace NumpyDotNet {
                 } else {
                     throw new NotImplementedException(
                         String.Format("IntPtr size of {0} is not supported.", IntPtr.Size));
-                }                    
+                }
             }
 
             // Release our handle to any previous object.
@@ -934,7 +934,7 @@ namespace NumpyDotNet {
             } else {
                 s = PythonOps.Repr(NpyUtil_Python.DefaultContext, 0);
             }
-            
+
             byte[] bytes = Encoding.UTF32.GetBytes(s);
             int elsize = descr.ElementSize/4;
             int copySize = Math.Min(bytes.Length/4, elsize);
@@ -1125,7 +1125,7 @@ namespace NumpyDotNet {
 
 
 
-        private unsafe static void CopySwapNObject(byte* dest, IntPtr dstride, 
+        private unsafe static void CopySwapNObject(byte* dest, IntPtr dstride,
             byte* src, IntPtr sstride, IntPtr n, bool notused) {
             if ((IntPtr)src == IntPtr.Zero) return;
 
@@ -1230,7 +1230,7 @@ namespace NumpyDotNet {
                     Site_Abs = CallSite<Func<CallSite, Object, Object>>.Create(
                         Binder.InvokeMember(CSharpBinderFlags.None, "__abs__",
                         null, typeof(NumericOps),
-                        new CSharpArgumentInfo[] { 
+                        new CSharpArgumentInfo[] {
                             CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
                         }));
 
@@ -1251,8 +1251,8 @@ namespace NumpyDotNet {
                     Site_RShift = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                         pyCntx.CreateBinaryOperationBinder(System.Linq.Expressions.ExpressionType.RightShift));
 
-                    
-                    
+
+
                     // Set this last so any other accesses will block while we create
                     // the sites.
                     Sites_Initialized = true;
@@ -1277,7 +1277,7 @@ namespace NumpyDotNet {
         /// Executes a specified method taking one argument on an object. In order to
         /// be efficient, each method name is cached with the call site instance so
         /// future calls (this will likely be called in a loop) execute faster.
-        /// 
+        ///
         /// Passing IntPtr.Zero for argPtr causes it to execute a zero-argument method,
         /// otherwise it executes a one-argument method.  No facility is in place for
         /// passing null to a one-argument method.
@@ -1301,7 +1301,7 @@ namespace NumpyDotNet {
                         site = CallSite<Func<CallSite, Object, Object, Object>>.Create(
                             Binder.InvokeMember(CSharpBinderFlags.None, method,
                             null, typeof(NumericOps),
-                            new CSharpArgumentInfo[] { 
+                            new CSharpArgumentInfo[] {
                                 CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
                                 CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                             }));
@@ -1317,8 +1317,8 @@ namespace NumpyDotNet {
                         site = CallSite<Func<CallSite, Object, Object>>.Create(
                             Binder.InvokeMember(CSharpBinderFlags.None, method,
                             null, typeof(NumericOps),
-                            new CSharpArgumentInfo[] { 
-                                CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null) 
+                            new CSharpArgumentInfo[] {
+                                CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                             }));
                         ZeroArgMethodSites.Add(method, site);
                     }
@@ -1329,7 +1329,7 @@ namespace NumpyDotNet {
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         unsafe internal delegate IntPtr del_MethodCall(IntPtr a, sbyte *b, IntPtr arg);
-        
+
 
         /// <summary>
         /// Generic comparison function.  First argument should be bound to one of
@@ -1398,7 +1398,7 @@ namespace NumpyDotNet {
             (a, b) => GenericCmp(Site_Less, a, b);
         static internal del_GenericCmp Compare_LessEqual =
             (a, b) => GenericCmp(Site_LessEqual, a, b);
-        
+
         static internal del_GenericBinOp Op_Add =
             (a, b) => GenericBinOp(Site_Add, a, b);
         static internal del_GenericBinOp Op_Subtract =
@@ -1407,7 +1407,7 @@ namespace NumpyDotNet {
             (a, b) => GenericBinOp(Site_Multiply, a, b);
         static internal del_GenericBinOp Op_Divide =
             (a, b) => GenericBinOp(Site_Divide, a, b);
-        static internal del_GenericUnaryOp Op_Negate = 
+        static internal del_GenericUnaryOp Op_Negate =
             a => GenericUnaryOp(Site_Negative, a);
         static internal del_GenericUnaryOp Op_Sign = aPtr => {
             Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
@@ -1636,7 +1636,7 @@ namespace NumpyDotNet {
         }
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int del_ComparePriorityCallback(IntPtr objPtr1, IntPtr objPtr2);
-        static internal del_ComparePriorityCallback ComparePriorityDelegate = 
+        static internal del_ComparePriorityCallback ComparePriorityDelegate =
             new del_ComparePriorityCallback(ComparePriorityCallback);
 
 
@@ -1771,7 +1771,7 @@ namespace NumpyDotNet {
         [StructLayout(LayoutKind.Sequential), Serializable]
         internal struct NpyArray_FunctionDefs
         {
-            // Get-set methods per type. 
+            // Get-set methods per type.
             internal IntPtr BOOL_getitem;
             internal IntPtr BYTE_getitem;
             internal IntPtr UBYTE_getitem;
@@ -1836,13 +1836,13 @@ namespace NumpyDotNet {
             internal IntPtr OBJECT_fastputmask;
             internal IntPtr OBJECT_fasttake;
 
-            // Unboxing (object-to-type) 
+            // Unboxing (object-to-type)
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_from_obj;
-            // String-to-type 
+            // String-to-type
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_from_string;
-            // Unicode-to-type 
+            // Unicode-to-type
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_from_unicode;
             // Void-to-type
@@ -1852,10 +1852,10 @@ namespace NumpyDotNet {
             // Boxing (type-to-object)
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_to_obj;
-            // Type-to-string 
+            // Type-to-string
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_to_string;
-            // Type-to-unicode 
+            // Type-to-unicode
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 23)]
             internal IntPtr[] cast_to_unicode;
             // Type-to-void

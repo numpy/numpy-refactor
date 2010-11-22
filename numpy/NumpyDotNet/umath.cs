@@ -92,14 +92,14 @@ namespace NumpyDotNet
             errorInfo = new ErrorInfo() { bufsize = bufsize, errmask = errmask, errobj = errobj };
         }
 
-                
+
 
         /// <summary>
         /// Map of function names to all defined ufunc objects.
         /// </summary>
         private static PythonDictionary ModuleDict;
 
- 
+
         /// <summary>
         /// Returns the ufunc matching a named function or null if not defined.
         /// </summary>

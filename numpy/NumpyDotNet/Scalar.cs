@@ -744,7 +744,7 @@ namespace NumpyDotNet
             Marshal.WriteByte(result.UnsafeAddress, (byte)value);
             return result;
         }
-  
+
         internal override ScalarGeneric FillData(IntPtr p, int size) {
             value = (sbyte)Marshal.ReadByte(p);
             return this;
@@ -1798,7 +1798,7 @@ namespace NumpyDotNet
                 return Index((int)index);
             }
         }
- 
+
         public override object this[BigInteger index] {
             get {
                 return Index((int)index);
@@ -1825,7 +1825,7 @@ namespace NumpyDotNet
         private dtype dtype_;
         private IntPtr dataptr;
 
- 
+
     }
 
     [PythonType("numpy.character")]
@@ -1936,7 +1936,7 @@ namespace NumpyDotNet
             for (int i = 0; i < size; i++) b[i] = Marshal.ReadByte(dataPtr, i);
             b = Encoding.Convert(Encoding.UTF32, Encoding.Unicode, b);
             value = Encoding.Unicode.GetString(b); */
-            return this; 
+            return this;
         }
 
         private string value;

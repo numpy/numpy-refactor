@@ -65,7 +65,7 @@ namespace NumpyDotNet
         /// <summary>
         /// Named arguments for reduce & accumulate.
         /// </summary>
-        private static string[] ReduceArgNames = new String[] { 
+        private static string[] ReduceArgNames = new String[] {
             "array", "axis", "dtype", "out" };
 
 
@@ -103,7 +103,7 @@ namespace NumpyDotNet
 
 
 
-        private static string[] ReduceAtArgNames = new String[] { 
+        private static string[] ReduceAtArgNames = new String[] {
             "array", "indices", "axis", "dtype", "out" };
 
         public object reduceat(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {

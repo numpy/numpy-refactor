@@ -8,7 +8,7 @@ using IronPython.Runtime.Operations;
 
 namespace NumpyDotNet
 {
-    public partial class ndarray : IEnumerable<object> 
+    public partial class ndarray : IEnumerable<object>
     {
         internal ndarray TakeFrom(ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
