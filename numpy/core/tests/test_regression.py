@@ -697,6 +697,9 @@ class TestRegression(TestCase):
     def test_uint64_from_negative(self, level=rlevel) :
         assert_equal(np.uint64(-2), np.uint64(18446744073709551614))
 
+    """ TODO: Fails on IronPython because 'double' and 'longdouble' are the
+        same size and formatting of the two is different in numpy.  Not sure
+        how 32-bit versions are supposed to work. """
     def test_sign_bit(self, level=rlevel):
         x = np.array([0,-0.0,0])
         assert_equal(str(np.abs(x)),'[ 0.  0.  0.]')
