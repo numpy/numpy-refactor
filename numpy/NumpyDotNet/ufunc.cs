@@ -79,7 +79,7 @@ namespace NumpyDotNet
             // TODO: Not passing context to FromAny - see ufunc_object.c:960
             ndarray arr = NpyArray.FromAny(args[0]);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
-            dtype type = NpyDescr.DescrConverter(cntx, args[2]);
+            dtype type = NpyDescr.DescrConverter2(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCE);
@@ -95,7 +95,7 @@ namespace NumpyDotNet
             // TODO: Not passing context to FromAny - see ufunc_object.c:960
             ndarray arr = NpyArray.FromAny(args[0]);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
-            dtype type = NpyDescr.DescrConverter(cntx, args[2]);
+            dtype type = NpyDescr.DescrConverter2(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_ACCUMULATE);
@@ -119,7 +119,7 @@ namespace NumpyDotNet
                 NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
                 1, 1, NpyDefs.NPY_CARRAY, null);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[2]);
-            dtype type = NpyDescr.DescrConverter(cntx, args[3]);
+            dtype type = NpyDescr.DescrConverter2(cntx, args[3]);
             ndarray arrOut = (args[4] != null) ? NpyArray.FromAny(args[4]) : null;
 
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);

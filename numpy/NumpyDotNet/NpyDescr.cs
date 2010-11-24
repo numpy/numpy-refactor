@@ -17,6 +17,26 @@ namespace NumpyDotNet {
     /// </summary>
     internal class NpyDescr {
 
+        /// <summary>
+        /// Same as DescrConverter but null input objects translates to null dtype instead
+        /// of the default type.
+        /// </summary>
+        /// <param name="cntx">Current code context</param>
+        /// <param name="obj">Object to convert, null results in null</param>
+        /// <returns>dtype for object or null</returns>
+        internal static dtype DescrConverter2(CodeContext cntx, Object obj) {
+            return (obj == null) ? null : DescrConverter(cntx, obj);
+        }
+
+        /// <summary>
+        /// Returns a type descriptor for an object, which could be another dtype, an array,
+        /// or a whole bunch of other possibilities.
+        /// TODO: Document all of the handled input options.
+        /// </summary>
+        /// <param name="cntx">Current code context</param>
+        /// <param name="obj">Object to convert, null results in default type (double)</param>
+        /// <param name="align">If true, fields must be aligned</param>
+        /// <returns>Type descriptor (never null)</returns>
         internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
