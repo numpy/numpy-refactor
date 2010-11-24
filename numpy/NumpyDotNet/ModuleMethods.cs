@@ -91,8 +91,6 @@ namespace NumpyDotNet {
                         ndmin, NpyDefs.NPY_MAXDIMS - 1));
                 }
 
-                // TODO: Check that the first is equiv to PyArray_Check() and the
-                // second is equiv to PyArray_CheckExact().
                 if (subok && src is ndarray ||
                     !subok && src != null && src.GetType() == typeof(ndarray)) {
                     ndarray arr = (ndarray)src;

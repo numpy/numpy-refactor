@@ -1652,8 +1652,8 @@ namespace NumpyDotNet {
             ndarray ai = aip != null ? NpyCoreApi.ToInterface<ndarray>(aip) : null;
             ndarray ao = aop != null ? NpyCoreApi.ToInterface<ndarray>(aop) : null;
 
-            dtype inType = NpyCoreApi.DescrFromType(inTypeCode);
-            dtype outType = NpyCoreApi.DescrFromType(outTypeCode);
+            dtype inType = (ai != null) ? ai.dtype : NpyCoreApi.DescrFromType(inTypeCode);
+            dtype outType = (ao != null) ? ao.dtype : NpyCoreApi.DescrFromType(outTypeCode);
 
             int isize = inType.ElementSize;
             int osize = outType.ElementSize;
