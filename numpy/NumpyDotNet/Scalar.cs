@@ -1929,6 +1929,10 @@ namespace NumpyDotNet
             return this;
         }
 
+        public string rstrip() {
+            return value.rstrip();
+        }
+
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             value = (string)NumericOps.getitemUnicode(dataPtr, size, false);
             // TODO: Unpickling unicode strings requires a double-copy of the data. We really need a better implementation.
