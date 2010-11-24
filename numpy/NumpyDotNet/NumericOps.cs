@@ -937,6 +937,10 @@ namespace NumpyDotNet {
                 s = b.decode(NpyUtil_Python.DefaultContext, "UTF8", "ignore");
             } else if (o is string) {
                 s = (string)o;
+            } else if (o is char) {
+                s = new string((char)o, 1);
+            } else if (o is byte) {
+                s = new string((char)(byte)o, 1);
             } else {
                 s = PythonOps.Repr(NpyUtil_Python.DefaultContext, 0);
             }
