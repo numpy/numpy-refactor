@@ -818,7 +818,7 @@ extern "C" __declspec(dllexport)
     char *buf = (char *)CoTaskMemAlloc(buflen);
     char format[12];
 
-    NpyOS_snprintf(format, sizeof(format), "%%.%i%c", precision, NPY_LONGDOUBLE_FMT);
+    NpyOS_snprintf(format, sizeof(format), "%%0.%i%s", precision, NPY_LONGDOUBLE_FMT);
     NpyOS_ascii_formatl(buf, buflen, format, val, 0);
 
     // If nothing but digits after sign, append ".0"

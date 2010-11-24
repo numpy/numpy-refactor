@@ -894,6 +894,12 @@ namespace NumpyDotNet {
                 Bytes b = (Bytes)o;
                 bytes = new byte[b.Count];
                 b.CopyTo(bytes, 0);
+            } else if (o is char) {
+                bytes = new byte[1];
+                bytes[0] = (byte)(char)o;
+            } else if (o is byte) {
+                bytes = new byte[1];
+                bytes[0] = (byte)o;
             } else if (!(o is string) && o is IEnumerable<object>) {
                 throw new ArgumentException("setting an array element with a sequence");
             } else {

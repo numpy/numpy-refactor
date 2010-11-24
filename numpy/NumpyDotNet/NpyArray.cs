@@ -239,6 +239,9 @@ namespace NumpyDotNet {
             }
 
             bool seq = false;
+            if (src is string) {
+                src = ((string)src).AsEnumerable().Cast<object>();
+            }
             if (src is IEnumerable<object>) {
                 try {
                     result = FromIEnumerable((IEnumerable<object>)src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
