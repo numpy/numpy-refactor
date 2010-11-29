@@ -147,7 +147,7 @@ namespace NumpyDotNet
         }
 
         public override string ToString() {
-            return ValueLine("C_CONTIGUOUS") + 
+            return ValueLine("C_CONTIGUOUS") +
                 ValueLine("F_CONTIGUOUS") +
                 ValueLine("OWNDATA") +
                 ValueLine("WRITEABLE") +

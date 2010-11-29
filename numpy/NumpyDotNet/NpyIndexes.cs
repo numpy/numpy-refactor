@@ -155,7 +155,7 @@ namespace NumpyDotNet
                             offset += arr.Stride(nd++) * bound.GetIntPtr(i).ToInt64();
                             break;
                         case NpyIndexTypes.SLICE:
-                            // An ellipsis became a slice on binding. 
+                            // An ellipsis became a slice on binding.
                             // This is not a single item assignment.
                             return -1;
                         default:
@@ -201,7 +201,7 @@ namespace NumpyDotNet
 
             ++num_indexes;
         }
-       
+
         public void AddIndex(IntPtr value)
         {
             // Write the type

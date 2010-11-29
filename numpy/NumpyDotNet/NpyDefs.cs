@@ -319,7 +319,7 @@ namespace NumpyDotNet {
             INVALID = 8
         }
 
-        public enum NPY_UFUNC_ERR 
+        public enum NPY_UFUNC_ERR
         {
             IGNORE = 0,
             WARN = 1,
@@ -425,7 +425,7 @@ namespace NumpyDotNet {
         }
 
         public static bool IsUserDefined(NPY_TYPES type) {
-            return NPY_TYPES.NPY_USERDEF <= type && 
+            return NPY_TYPES.NPY_USERDEF <= type &&
                 (int)type <= (int)NPY_TYPES.NPY_USERDEF + 0; // TODO: Need GetNumUserTypes
         }
 

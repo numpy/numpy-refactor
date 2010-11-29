@@ -147,7 +147,7 @@ namespace NumpyDotNet
             } else if (o is IPythonBufferable) {
                 if (o is IBufferProvider) {
                     return new BufferProtocolAdapter(o as IBufferProtocol, flags);
-                } 
+                }
                 // TODO: Support for objects only implementing IPythonBufferable is
                 // not supported because no examples exist and it's unclear whether
                 // the Size property is the total number of bytes in the array or
@@ -200,7 +200,7 @@ namespace NumpyDotNet
             }
 
             string IExtBufferProtocol.Format {
-                get { return obj.Format; } 
+                get { return obj.Format; }
             }
 
             int IExtBufferProtocol.ItemSize {

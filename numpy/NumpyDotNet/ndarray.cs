@@ -20,7 +20,7 @@ namespace NumpyDotNet
 {
     /// <summary>
     /// Implements the Numpy python 'ndarray' object and acts as an interface to
-    /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an 
+    /// the core NpyArray data structure.  Npy_INTERFACE(NpyArray *) points an
     /// instance of this class.
     /// </summary>
     [PythonType]
@@ -41,7 +41,7 @@ namespace NumpyDotNet
         }
 
         internal void Construct(CodeContext cntx, object shape, object dtype = null,
-                              object buffer = null, object offset = null, 
+                              object buffer = null, object offset = null,
                               object strides = null, object order = null) {
             dtype type = null;
 
@@ -78,7 +78,7 @@ namespace NumpyDotNet
 
             // Creates a new array object.  By passing 'this' in the current instance
             // becomes the wrapper object for the new array.
-            ndarray wrap = NpyCoreApi.NewFromDescr(type, aShape, aStrides, 0, 
+            ndarray wrap = NpyCoreApi.NewFromDescr(type, aShape, aStrides, 0,
                 new NpyCoreApi.UseExistingWrapper { Wrapper = this });
             if (wrap != this) {
                 throw new InvalidOperationException("Internal error: returned array wrapper is different than current instance.");
@@ -384,13 +384,13 @@ namespace NumpyDotNet
             }
         }
 
-        internal static object BinaryOp(CodeContext cntx, object a, object b, 
+        internal static object BinaryOp(CodeContext cntx, object a, object b,
                                         NpyDefs.NpyArray_Ops op, ndarray ret = null) {
             ufunc f = NpyCoreApi.GetNumericOp(op);
             return BinaryOp(cntx, a, b, f, ret);
         }
 
-        internal static object BinaryOp(CodeContext cntx, object a, object b, 
+        internal static object BinaryOp(CodeContext cntx, object a, object b,
                                         string fname, ndarray ret = null) {
             ufunc f = ufunc.GetFunction(fname);
             return BinaryOp(cntx, a, b, f, ret);
@@ -1235,7 +1235,7 @@ namespace NumpyDotNet
 
         private static string[] chooseArgNames = { "out", "mode" };
 
-        public object choose([ParamDictionary] IDictionary<object,object> kwargs, 
+        public object choose([ParamDictionary] IDictionary<object,object> kwargs,
                              params object[] args){
             IEnumerable<object> choices;
             if (args == null) {
@@ -1281,7 +1281,7 @@ namespace NumpyDotNet
             return NpyCoreApi.NewCopy(this, eOrder);
         }
 
-        public object cumprod(CodeContext cntx, object axis = null, object dtype = null, 
+        public object cumprod(CodeContext cntx, object axis = null, object dtype = null,
                               ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
@@ -1291,7 +1291,7 @@ namespace NumpyDotNet
             return CumProd(iAxis, rtype, @out);
         }
 
-        public object cumsum(CodeContext cntx, object axis = null, object dtype = null, 
+        public object cumsum(CodeContext cntx, object axis = null, object dtype = null,
                              ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
@@ -1401,7 +1401,7 @@ namespace NumpyDotNet
             return ArrayReturn(Max(iAxis, @out));
         }
 
-        public object mean(CodeContext cntx, object axis = null, object dtype = null, 
+        public object mean(CodeContext cntx, object axis = null, object dtype = null,
                            ndarray @out = null) {
             int iAxis = NpyUtil_ArgProcessing.AxisConverter(axis);
             dtype rtype = null;
@@ -1601,7 +1601,7 @@ namespace NumpyDotNet
             int iA2 = NpyUtil_ArgProcessing.IntConverter(a2);
             return SwapAxes(iA1, iA2);
         }
-                
+
 
         public object take(object indices,
                            object axis = null,
@@ -2159,7 +2159,7 @@ namespace NumpyDotNet
                 ndim = ((flags & NpyBuffer.PyBuf.ND) == 0) ? 0 : arr.ndim;
                 shape = ((flags & NpyBuffer.PyBuf.ND) == 0) ? null : arr.Dims;
                 strides = ((flags & NpyBuffer.PyBuf.STRIDES) == 0) ? null : arr.Strides;
-                
+
                 if ((flags & NpyBuffer.PyBuf.FORMAT) == 0) {
                     // Force an array of unsigned bytes.
                     itemCount = arr.Size * arr.dtype.ElementSize;

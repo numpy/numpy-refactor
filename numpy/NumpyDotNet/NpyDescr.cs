@@ -17,6 +17,26 @@ namespace NumpyDotNet {
     /// </summary>
     internal class NpyDescr {
 
+        /// <summary>
+        /// Same as DescrConverter but null input objects translates to null dtype instead
+        /// of the default type.
+        /// </summary>
+        /// <param name="cntx">Current code context</param>
+        /// <param name="obj">Object to convert, null results in null</param>
+        /// <returns>dtype for object or null</returns>
+        internal static dtype DescrConverter2(CodeContext cntx, Object obj) {
+            return (obj == null) ? null : DescrConverter(cntx, obj);
+        }
+
+        /// <summary>
+        /// Returns a type descriptor for an object, which could be another dtype, an array,
+        /// or a whole bunch of other possibilities.
+        /// TODO: Document all of the handled input options.
+        /// </summary>
+        /// <param name="cntx">Current code context</param>
+        /// <param name="obj">Object to convert, null results in default type (double)</param>
+        /// <param name="align">If true, fields must be aligned</param>
+        /// <returns>Type descriptor (never null)</returns>
         internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
@@ -155,7 +175,7 @@ namespace NumpyDotNet {
             }
             // (type, 1) or (type, ()) should be treated as type
             if (shape.Length == 0 && other is PythonTuple ||
-                shape.Length == 1 && shape[0].ToInt64() == 1 && 
+                shape.Length == 1 && shape[0].ToInt64() == 1 &&
                 !(other is IEnumerable<object>)) {
                 return t1;
             }
@@ -227,7 +247,7 @@ namespace NumpyDotNet {
             try {
                 return DescrConverter(cntx, PythonOps.ObjectGetAttribute(cntx, obj, "_fields_"));
             } catch { }
- 
+
             return null;
         }
 
@@ -274,12 +294,12 @@ namespace NumpyDotNet {
 
         /// <summary>
         /// Comma strings are ones that start with an integer, are empty tuples,
-        /// or contain commas.  
+        /// or contain commas.
         /// </summary>
         /// <param name="s">Datetime format string</param>
         /// <returns>True if a comma string</returns>
         private static bool CheckForCommaString(String s) {
-            Func<char, bool> checkByteOrder = 
+            Func<char, bool> checkByteOrder =
                 b => b == '>' || b == '<' || b == '|' || b == '=';
 
             // Check for ints at the start of a string.
@@ -377,7 +397,7 @@ namespace NumpyDotNet {
                 result = NpyCoreApi.DescrNew(result);
                 result.ElementSize = elsize;
             }
-            
+
             // Use native endian as opposed to big- or little- if it matches the system.
             if (endian != '=' && NpyDefs.IsNativeByteOrder(endian)) {
                 endian = (byte)'=';

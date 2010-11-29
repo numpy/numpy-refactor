@@ -51,7 +51,7 @@ namespace NumpyDotNet {
         /// <param name="descr">The type descriptor object</param>
         /// <param name="kwargs">Optional named args</param>
         /// <returns>New array object</returns>
-        public static ndarray array(CodeContext cntx, Object o, Object descr, 
+        public static ndarray array(CodeContext cntx, Object o, Object descr,
             [ParamDictionary] IDictionary<object,object> kwargs) {
             Object[] args = { o, descr };
             return arrayFromObject(cntx,
@@ -91,8 +91,6 @@ namespace NumpyDotNet {
                         ndmin, NpyDefs.NPY_MAXDIMS - 1));
                 }
 
-                // TODO: Check that the first is equiv to PyArray_Check() and the
-                // second is equiv to PyArray_CheckExact().
                 if (subok && src is ndarray ||
                     !subok && src != null && src.GetType() == typeof(ndarray)) {
                     ndarray arr = (ndarray)src;
@@ -215,7 +213,7 @@ namespace NumpyDotNet {
 
             // Annoying.  PythonFile is not convertable to Stream and neither convert to FILE* needed by the
             // current implementation. We really need to implement a new file reader that take callbacks to
-            // the interface to really support multiple platforms.  
+            // the interface to really support multiple platforms.
             if (file is string) fileName = (string)file;
             else if (file is PythonFile || file is Stream) {
                 throw new NotImplementedException("File and stream types are not supported pending implementation of a cross-platform reader.");
@@ -418,7 +416,7 @@ namespace NumpyDotNet {
         }
 
         private static object correlateInternal(object o1, object o2, object mode, Func<IntPtr, IntPtr, int, int, IntPtr> f) {
-            // Find a type that works for both inputs. (ie, one is int, the other is float, 
+            // Find a type that works for both inputs. (ie, one is int, the other is float,
             // we want float for the result).
             dtype type = NpyArray.FindArrayType(o1, null);
             type = NpyArray.FindArrayType(o2, type);

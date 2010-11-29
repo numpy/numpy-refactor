@@ -28,7 +28,7 @@ namespace NumpyDotNet {
             return ret;
         }
 
-        
+
         /// <summary>
         /// Constructs a new NpyArray_Descr objet matching the passed one.
         /// Equivalent to NpyAray_DescrNew.
@@ -38,9 +38,9 @@ namespace NumpyDotNet {
             core = NpyCoreApi.NpyArray_DescrNew(d.core);
             funcs = NumericOps.FuncsForType(this.TypeNum);
         }
-        
+
         /// <summary>
-        /// Creates a wrapper for an array created on the native side, such as 
+        /// Creates a wrapper for an array created on the native side, such as
         /// the result of a slice operation.
         /// </summary>
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
@@ -51,7 +51,7 @@ namespace NumpyDotNet {
 
 
         /// <summary>
-        /// Creates a wrapper for an array created on the native side, such as 
+        /// Creates a wrapper for an array created on the native side, such as
         /// the result of a slice operation.
         /// </summary>
         /// <param name="d">Pointer to core NpyArray_Descr structure</param>
@@ -247,7 +247,7 @@ namespace NumpyDotNet {
                 endian = '=';
             }
             this.ByteOrder = (byte)endian;
-            
+
             // Setup the subarray data.
             IntPtr subarrayPtr = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_subarray);
             if (subarrayPtr != IntPtr.Zero) {
@@ -425,7 +425,7 @@ namespace NumpyDotNet {
         /// A tuple describing the size of each dimension of the array.
         /// </summary>
         public PythonTuple shape {
-            get { 
+            get {
                 unsafe {
                     var subarray = Subarray;
                     if (subarray == null) {
@@ -495,7 +495,7 @@ namespace NumpyDotNet {
         }
 
         public object names {
-            get { 
+            get {
                 var n = Names;
                 if (n != null) {
                     return new PythonTuple(n);
@@ -532,7 +532,7 @@ namespace NumpyDotNet {
 
         public string @char {
             get {
-                return ((char)this.Type).ToString(); 
+                return ((char)this.Type).ToString();
             }
         }
 
@@ -994,7 +994,7 @@ namespace NumpyDotNet {
             if (ScalarType == null) {
                 throw new ArgumentException("Attempt to construct scalar from non-scalar type");
             }
-            
+
             ScalarGeneric result = scalarInfo.ScalarConstructor();
             return result.FillData(dataPtr, size);
         }

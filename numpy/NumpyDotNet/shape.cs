@@ -46,7 +46,7 @@ namespace NumpyDotNet
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_SwapAxes(Array, a1, a2));
         }
-        
+
         internal ndarray Transpose(IntPtr[] permute = null) {
             if (permute == null) {
                 return NpyCoreApi.DecrefToInterface<ndarray>(

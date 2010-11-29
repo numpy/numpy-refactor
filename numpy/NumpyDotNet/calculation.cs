@@ -8,7 +8,7 @@ using IronPython.Runtime.Types;
 
 namespace NumpyDotNet
 {
-    public partial class ndarray 
+    public partial class ndarray
     {
         internal ndarray ArgMax(int axis, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
@@ -109,29 +109,29 @@ namespace NumpyDotNet
 
         internal ndarray Sum(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Sum(Array, axis, 
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                NpyCoreApi.NpyArray_Sum(Array, axis,
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
         internal ndarray Prod(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Prod(Array, axis, 
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                NpyCoreApi.NpyArray_Prod(Array, axis,
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
         internal ndarray CumSum(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_CumSum(Array, axis, 
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                NpyCoreApi.NpyArray_CumSum(Array, axis,
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
         internal ndarray CumProd(int axis, dtype rtype, ndarray ret = null) {
             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_CumProd(Array, axis, 
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum), 
+                NpyCoreApi.NpyArray_CumProd(Array, axis,
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
                     (ret == null ? IntPtr.Zero : ret.Array)));
         }
 
@@ -179,7 +179,7 @@ namespace NumpyDotNet
                     return this;
                 }
             }
-            
+
 
             if (decimals == 0) {
                 // This is just a ufunc

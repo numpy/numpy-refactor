@@ -67,7 +67,7 @@ namespace NumpyDotNet
             get {
                 return Marshal.ReadInt32(core + NpyCoreApi.MultiIterOffsets.off_nd);
             }
-        }       
+        }
 
         public PythonTuple shape {
             get {
@@ -93,7 +93,7 @@ namespace NumpyDotNet
                 }
                 return new PythonTuple(result);
             }
-        }   
+        }
 
 
 
@@ -114,7 +114,7 @@ namespace NumpyDotNet
                     result[i] = iter(i).Current;
                 }
                 return new PythonTuple(result);
-            }   
+            }
         }
 
         object System.Collections.IEnumerator.Current {

@@ -18,9 +18,9 @@ namespace NumpyDotNet {
     /// NpyCoreApi class wraps the interactions with the libndarray core library. It
     /// also makes use of NpyAccessLib.dll for a few functions that must be
     /// implemented in native code.
-    /// 
+    ///
     /// TODO: This class is going to get very large.  Not sure if it's better to
-    /// try to break it up or just use partial classes and split it across 
+    /// try to break it up or just use partial classes and split it across
     /// multiple files.
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
@@ -203,9 +203,9 @@ namespace NumpyDotNet {
                 );
         }
 
-        
+
         /// <summary>
-        /// Creates a multiterator 
+        /// Creates a multiterator
         /// </summary>
         /// <param name="objs">Sequence of objects to iterate over</param>
         /// <returns>Pointer to core multi-iterator structure</returns>
@@ -266,7 +266,7 @@ namespace NumpyDotNet {
 
 #endif
 
-        internal static object GenericReduction(ufunc f, ndarray arr, 
+        internal static object GenericReduction(ufunc f, ndarray arr,
             ndarray indices, ndarray ret, int axis, dtype otype, ufunc.ReduceOp op) {
             ndarray rval = DecrefToInterface<ndarray>(
                 NpyUFunc_GenericReduction(f.UFunc, arr.Array,
@@ -311,7 +311,7 @@ namespace NumpyDotNet {
             return 0;
         }
 
-        internal static void GenericFunction(CodeContext cntx, ufunc f, ndarray[] arrays, NpyDefs.NPY_TYPES[] sig, 
+        internal static void GenericFunction(CodeContext cntx, ufunc f, ndarray[] arrays, NpyDefs.NPY_TYPES[] sig,
             Action<CodeContext, ufunc, ndarray[],object[]> prepare_outputs, object[] args) {
             // Convert the typenums
             int[] rtypenums = null;
@@ -562,7 +562,7 @@ namespace NumpyDotNet {
         }
 
         /// <summary>
-        /// Calls the fill function on the array dtype.  This takes the first 2 values in the array and fills the array 
+        /// Calls the fill function on the array dtype.  This takes the first 2 values in the array and fills the array
         /// so the difference between each pair of elements is the same.
         /// </summary>
         /// <param name="arr"></param>
@@ -658,7 +658,7 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, 
+        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr,
             int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -769,7 +769,7 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis, 
+        internal static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis,
                                                          int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -795,12 +795,12 @@ namespace NumpyDotNet {
         internal static extern int NpyArray_CopyAnyInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int 
+        internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int
                                                        rtype, IntPtr ret);
 
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int 
+        internal static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int
                                                       rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -864,12 +864,12 @@ namespace NumpyDotNet {
             IntPtr arr, IntPtr offset, int ensureArray);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_NonZero(IntPtr self, 
-            [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays, 
+        internal static extern int NpyArray_NonZero(IntPtr self,
+            [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays,
             IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int 
+        internal static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int
                                                     rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -894,7 +894,7 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int 
+        internal static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int
                                                    rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
@@ -969,7 +969,7 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetNativeTypeInfo")]
-        private static extern byte GetNativeTypeInfo(out int intSize, 
+        private static extern byte GetNativeTypeInfo(out int intSize,
             out int longsize, out int longLongSize, out int longDoubleSize);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -997,7 +997,7 @@ namespace NumpyDotNet {
         }
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_GetDescrField(IntPtr descr, 
+        internal static extern int NpyArrayAccess_GetDescrField(IntPtr descr,
             [In][MarshalAs(UnmanagedType.LPStr)]string name, out NpyArray_DescrField field);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -1008,12 +1008,12 @@ namespace NumpyDotNet {
         internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim, 
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, 
+        internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim,
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims,
             int order);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim, 
+        internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
@@ -1060,7 +1060,7 @@ namespace NumpyDotNet {
             EntryPoint = "NpyArrayAccess_IterArray")]
         internal static extern IntPtr IterArray(IntPtr iter);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterCoords")]
         internal static extern IntPtr IterCoords(IntPtr iter);
 
@@ -1095,9 +1095,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_UFuncGetOffsets")]
-        private static extern void UFuncGetOffsets(out int ninOffset, 
+        private static extern void UFuncGetOffsets(out int ninOffset,
             out int noutOffset, out int nargsOffset,
-            out int identifyOffset, out int ntypesOffset, out int checkRetOffset, 
+            out int identifyOffset, out int ntypesOffset, out int checkRetOffset,
             out int nameOffset, out int typesOffset, out int coreSigOffset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -1106,8 +1106,8 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
-        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd, int flags, 
-            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims, 
+        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd, int flags,
+            [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims,
             [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] strides, IntPtr data, IntPtr interfaceData);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DescrDestroyNames")]
@@ -1143,13 +1143,13 @@ namespace NumpyDotNet {
         internal static extern void NpyArrayAccess_DescrReplaceSubarray(IntPtr descr, IntPtr baseDescr,
             int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_DescrReplaceFields")]
         internal static extern void DescrReplaceFields(IntPtr descr, IntPtr namesArr, IntPtr fieldsDict);
 
-        
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_GetBytes(IntPtr arr, 
+        internal static extern int NpyArrayAccess_GetBytes(IntPtr arr,
             [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
@@ -1379,7 +1379,7 @@ namespace NumpyDotNet {
         }
 
         /// <summary>
-        /// Same as ToInterface but releases the core reference. 
+        /// Same as ToInterface but releases the core reference.
         /// </summary>
         /// <typeparam name="TResult">Type of the expected object</typeparam>
         /// <param name="ptr">Pointer to the core object</param>
@@ -1634,7 +1634,7 @@ namespace NumpyDotNet {
         /// an additional GCHandle to the same object.  This effectively
         /// does an "incref" on the object.  Used in cases where an array
         /// of objects is being copied.
-        /// 
+        ///
         /// Usually wrapPtr is NULL meaning that we just allocate a new
         /// handle and return it.  If wrapPtr != NULL then we assign the
         /// new handle to it as well.  Must be done atomically.
@@ -1701,7 +1701,7 @@ namespace NumpyDotNet {
         #region Error handling
 
         /// <summary>
-        /// Error type, determines which type of exception to throw.  
+        /// Error type, determines which type of exception to throw.
         /// DANGER! Must be kept in sync with npy_api.h
         /// </summary>
         private enum NpyExc_Type {
@@ -1997,7 +1997,7 @@ namespace NumpyDotNet {
                                   intSize, longSize, longLongSize));
             }
 
-            
+
             wrapFuncs = new NpyInterface_WrapperFuncs();
 
             wrapFuncs.array_new_wrapper =
