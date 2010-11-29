@@ -643,6 +643,13 @@ array_flat_set(PyArrayObject *self, PyObject *val)
     return retval;
 }
 
+static PyObject *array_corerefcount(PyArrayObject *self)
+{
+    return PyInt_FromLong(self->array->nob_refcnt);
+}
+
+
+
 static PyObject *
 array_transpose_get(PyArrayObject *self)
 {
@@ -734,6 +741,10 @@ NPY_NO_EXPORT PyGetSetDef array_getsetlist[] = {
         NULL, NULL},
     {"__array_finalize__",
         (getter)array_finalize_get,
+        NULL,
+        NULL, NULL},
+    {"__coreRefCount__",
+        (getter)array_corerefcount,
         NULL,
         NULL, NULL},
     {NULL, NULL, NULL, NULL, NULL},  /* Sentinel */
