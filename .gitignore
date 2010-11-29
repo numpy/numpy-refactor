@@ -104,6 +104,8 @@ libndarray/src/npy_funcs.c
 libndarray/src/npy_funcs.h
 libndarray/src/npy_loops.c
 libndarray/src/npy_loops.h
+libndarray/src/npy_scalarmath.c
+libndarray/src/npy_scalarmath.h
 libndarray/stamp-h1
 libndarray/windows/Debug
 libndarray/windows/Release
