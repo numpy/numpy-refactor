@@ -285,6 +285,7 @@ umathmodule = env.DistutilsPythonExtension(
 # Build scalarmath module
 #------------------------
 scalarmathmodule = env.DistutilsPythonExtension('scalarmath',
+                                            LIBS=['ndarray'],
                                             source = scalarmathmodule_src)
 
 #------------------------

@@ -22,6 +22,7 @@ INSTINCLUDES = \
         src/npy_math.h \
         src/npy_object.h \
         src/npy_os.h \
+        src/npy_scalarmath.h \
         src/npy_ufunc_object.h \
         src/npy_utils.h
 
@@ -61,6 +62,7 @@ LIBSOURCES = \
         src/npy_number.c \
         src/npy_os.c \
         src/npy_refcount.c \
+        src/npy_scalarmath.c \
         src/npy_shape.c \
         src/npy_ufunc_object.c \
         src/npy_usertypes.c \
@@ -97,6 +99,7 @@ CLEANFILES = \
         src/npy_loops.h \
         src/npy_math.c \
         src/npy_math_complex.c \
+        src/npy_scalarmath.c \
         src/npy_config.c \
         tools/long_double.o
 
@@ -137,4 +140,10 @@ src/npy_loops.c: src/npy_loops.c.src src/npy_loops.h
 	$(CONV_TMPL) $<
 
 src/npy_loops.h: src/npy_loops.h.src
+	$(CONV_TMPL) $<
+
+src/npy_scalarmath.c: src/npy_scalarmath.c.src src/npy_scalarmath.h
+	$(CONV_TMPL) $<
+
+src/npy_scalarmath.h: src/npy_scalarmath.h.src
 	$(CONV_TMPL) $<

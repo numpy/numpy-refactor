@@ -1,0 +1,250 @@
+/* -*- c -*- */
+
+/* These functions support the scalar math module which adds faster math 
+   for array scalars that does not go through the ufunc machinery
+   but still supports error-modes.
+*/
+
+#include "npy_api.h"
+#include "npy_ufunc_object.h"
+
+
+//static int ulonglong_overflow(ulonglong a, ulonglNUong b);
+//static int slonglong_overflow(longlong a0, longlong b0);
+
+
+/**begin repeat
+ *  #name = npy_byte, npy_short, npy_int, npy_long, npy_longlong#
+ */
+extern void
+@name@_ctype_add(@name@ a, @name@ b, @name@ *out);
+extern void
+@name@_ctype_subtract(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+/**begin repeat
+ *  #name = npy_ubyte, npy_ushort, npy_uint, npy_ulong, npy_ulonglong#
+ */
+extern void
+@name@_ctype_add(@name@ a, @name@ b, @name@ *out);
+extern void
+@name@_ctype_subtract(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+
+/**begin repeat
+ *
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, npy_ulong#
+ * #SIZENAME = BYTE*2, SHORT*2, INT*2, LONG*2#
+ * #SIZE = INT*4,LONGLONG*4#
+ */
+#if NPY_SIZEOF_@SIZE@ > NPY_SIZEOF_@SIZENAME@
+extern void
+@name@_ctype_multiply(@name@ a, @name@ b, @name@ *out);
+#endif
+/**end repeat**/
+
+/**begin repeat
+ *
+ * #name = npy_int, npy_uint, npy_long, npy_ulong, npy_longlong, npy_ulonglong#
+ * #SIZE = INT*2, LONG*2, LONGLONG*2#
+ */
+#if NPY_SIZEOF_LONGLONG == NPY_SIZEOF_@SIZE@
+extern void
+@name@_ctype_multiply(@name@ a, @name@ b, @name@ *out);
+#endif
+/**end repeat**/
+
+/**begin repeat
+ *
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long,
+ *         npy_ulong, npy_longlong, npy_ulonglong#
+ */
+extern void
+@name@_ctype_divide(@name@ a, @name@ b, @name@ *out);
+
+#define @name@_ctype_floor_divide @name@_ctype_divide
+
+extern void
+@name@_ctype_remainder(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+/**begin repeat
+ *
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long,
+ *         npy_ulong, npy_longlong, npy_ulonglong#
+ * #otyp = float*4, double*6#
+ */
+#define @name@_ctype_true_divide(a, b, out) \
+    *(out) = ((@otyp@) (a)) / ((@otyp@) (b));
+/**end repeat*/
+
+
+/**begin repeat
+ *
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, 
+ *         npy_long, npy_ulong, npy_longlong, npy_ulonglong#
+ */
+extern void
+@name@_ctype_power(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+
+
+/* QUESTION:  Should we check for overflow / underflow in (l,r)shift? */
+
+/**begin repeat
+ * #name = (npy_byte,npy_ubyte,npy_short,npy_ushort,npy_int,npy_uint,npy_long,npy_ulong,npy_longlong,npy_ulonglong)*5#
+ * #oper = and*10, xor*10, or*10, lshift*10, rshift*10#
+ * #op = &*10, ^*10, |*10, <<*10, >>*10#
+ */
+#define @name@_ctype_@oper@(arg1, arg2, out) *(out) = (arg1) @op@ (arg2)
+/**end repeat**/
+
+/**begin repeat
+ * #name = float, double, longdouble#
+ */
+extern npy_@name@ (*npy_basic_@name@_floor)(npy_@name@);
+extern npy_@name@ (*npy_basic_@name@_sqrt)(npy_@name@);
+extern npy_@name@ (*npy_basic_@name@_fmod)(npy_@name@, npy_@name@);
+#define npy_@name@_ctype_add(a, b, outp) *(outp) = a + b
+#define npy_@name@_ctype_subtract(a, b, outp) *(outp) = a - b
+#define npy_@name@_ctype_multiply(a, b, outp) *(outp) = a * b
+#define npy_@name@_ctype_divide(a, b, outp) *(outp) = a / b
+#define npy_@name@_ctype_true_divide npy_@name@_ctype_divide
+#define npy_@name@_ctype_floor_divide(a, b, outp)   \
+    *(outp) = npy_basic_@name@_floor((a) / (b))
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_cfloat, npy_cdouble, npy_clongdouble#
+ * #rtype = float, double, longdouble#
+ * #c = f,,l#
+ */
+#define @name@_ctype_add(a, b, outp) do{        \
+    (outp)->real = (a).real + (b).real;         \
+    (outp)->imag = (a).imag + (b).imag;         \
+    } while(0)
+#define @name@_ctype_subtract(a, b, outp) do{   \
+    (outp)->real = (a).real - (b).real;         \
+    (outp)->imag = (a).imag - (b).imag;         \
+    } while(0)
+#define @name@_ctype_multiply(a, b, outp) do{                   \
+    (outp)->real = (a).real * (b).real - (a).imag * (b).imag;   \
+    (outp)->imag = (a).real * (b).imag + (a).imag * (b).real;   \
+    } while(0)
+#define @name@_ctype_divide(a, b, outp) do{                     \
+    npy_@rtype@ d = (b).real*(b).real + (b).imag*(b).imag;          \
+    (outp)->real = ((a).real*(b).real + (a).imag*(b).imag)/d;   \
+    (outp)->imag = ((a).imag*(b).real - (a).real*(b).imag)/d;   \
+    } while(0)
+#define @name@_ctype_true_divide @name@_ctype_divide
+#define @name@_ctype_floor_divide(a, b, outp) do {      \
+    (outp)->real = npy_basic_@rtype@_floor                 \
+    (((a).real*(b).real + (a).imag*(b).imag) /          \
+     ((b).real*(b).real + (b).imag*(b).imag));          \
+    (outp)->imag = 0;                                   \
+    } while(0)
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_float, npy_double, npy_longdouble#
+ */
+extern void
+@name@_ctype_remainder(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+
+
+/**begin repeat
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, 
+ *         npy_ulong, npy_longlong, npy_ulonglong, npy_float, npy_double, npy_longdouble, 
+ *         npy_cfloat, npy_cdouble, npy_clongdouble#
+ */
+#define @name@_ctype_divmod(a, b, out, out2) {  \
+    @name@_ctype_floor_divide(a, b, out);       \
+    @name@_ctype_remainder(a, b, out2);         \
+    }
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_float, npy_double, npy_longdouble#
+ * #noprefix = float, double, longdouble#
+ */
+extern @name@ (*npy_basic_@noprefix@_pow)(@name@ a, @name@ b);
+extern void
+@name@_ctype_power(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, 
+ *         npy_ulong, npy_longlong, npy_ulonglong, npy_float, npy_double, npy_longdouble#
+ * #uns = (0,1)*5,0*3#
+ */
+extern void
+@name@_ctype_negative(@name@ a, @name@ *out);
+/**end repeat**/
+
+
+/**begin repeat
+ * #name = npy_cfloat, npy_cdouble, npy_clongdouble#
+ */
+extern void
+@name@_ctype_negative(@name@ a, @name@ *out);
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, 
+ *         npy_ulong, npy_longlong, npy_ulonglong, npy_float, npy_double, npy_longdouble#
+ */
+extern void
+@name@_ctype_positive(@name@ a, @name@ *out);
+/**end repeat**/
+
+/*
+ * Get the nc_powf, nc_pow, and nc_powl functions from
+ * the data area of the power ufunc in umathmodule.
+ */
+
+/**begin repeat
+ * #name = npy_cfloat, npy_cdouble, npy_clongdouble#
+ * #noprefix = cfloat, cdouble, clongdouble#
+ */
+extern void
+@name@_ctype_positive(@name@ a, @name@ *out);
+extern void (*npy_basic_@noprefix@_pow)(@name@ *, @name@ *, @name@ *);
+extern void
+@name@_ctype_power(@name@ a, @name@ b, @name@ *out);
+/**end repeat**/
+
+
+/**begin repeat
+ * #name = npy_ubyte, npy_ushort, npy_uint, npy_ulong, npy_ulonglong#
+ */
+#define @name@_ctype_absolute @name@_ctype_positive
+/**end repeat**/
+
+
+/**begin repeat
+ * #name = npy_byte, npy_short, npy_int, npy_long, npy_longlong, npy_float, npy_double, npy_longdouble#
+ */
+extern void
+@name@_ctype_absolute(@name@ a, @name@ *out);
+/**end repeat**/
+
+/**begin repeat
+ * #name = npy_cfloat, npy_cdouble, npy_clongdouble#
+ * #rname = float, double, npy_longdouble#
+ */
+extern void
+@name@_ctype_absolute(@name@ a, @rname@ *out);
+/**end repeat**/
+
+/**begin repeat
+ * #name = byte, ubyte, short, ushort, int, uint, long,
+ *         ulong, longlong, ulonglong#
+ */
+#define npy_@name@_ctype_invert(a, out) *(out) = ~a;
+/**end repeat**/
+
+

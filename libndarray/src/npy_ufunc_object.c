@@ -132,6 +132,8 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
 
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
+    NpyUFunc_clearfperr();
+
     /* Build the loop. */
     loop = construct_loop(self);
     if (loop == NULL) {
@@ -1587,6 +1589,7 @@ construct_loop(NpyUFuncObject *self)
         loop->iter->iters[i] = NULL;
         loop->cast[i] = NULL;
     }
+    loop->errormask = 0;
     loop->errobj = NULL;
     loop->notimplemented = 0;
     loop->first = 1;

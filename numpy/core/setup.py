@@ -486,6 +486,8 @@ def configuration(parent_package='', top_path=None):
                                   generate_numpyconfig_h,
                                   generate_numpy_api,
                                   generate_ufunc_api],
+                         library_dirs=[ndarray_lib_dir()],
+                         libraries=['ndarray'],
                          )
 
     # Configure blasdot
