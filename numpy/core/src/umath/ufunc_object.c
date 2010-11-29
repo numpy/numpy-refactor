@@ -824,8 +824,8 @@ PyUFunc_GenericFunction(PyUFuncObject *pySelf, PyObject *args, PyObject *kwds,
         if (res < 0) {
             return -1;
         }
-    }
-    PyUFunc_clearfperr(); */
+    } */
+    PyUFunc_clearfperr(); 
     
     self = PyUFunc_UFUNC(pySelf);
     

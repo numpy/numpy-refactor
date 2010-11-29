@@ -1407,7 +1407,7 @@ class TestRegression(TestCase):
                 System.GC.Collect()
                 return a.__coreRefCount__
         else:
-            def cnt(a): (sys.getrefcount(a), a__coreRefCount__)
+            def cnt(a): (sys.getrefcount(a), a.__coreRefCount__)
 
         a = np.arange(16, dtype=np.float)
         a.shape = (4,4)
