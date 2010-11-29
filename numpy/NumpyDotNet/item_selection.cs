@@ -118,7 +118,7 @@ namespace NumpyDotNet
                 // for i in range(s[0]):
                 // my_diagonal.append(diagonal(a[i], offset))
                 // return array(my_diagonal);
-                dtype typecode = newarray.dtype;
+                dtype typecode = newarray.Dtype;
                 List my_diagonal = new List();
                 long n1 = newarray.Dims[0];
                 for (long i=0; i<n1; i++) {

@@ -32,7 +32,7 @@ namespace NumpyDotNet
                 }
                 if (result.ndim == 0)
                 {
-                    return result.dtype.ToScalar(result, 0);
+                    return result.Dtype.ToScalar(result, 0);
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace NumpyDotNet
                         }
                     }
 
-                    ndarray array_val = NpyArray.FromAny(value, arr.dtype, 0, 0, 0, null);
+                    ndarray array_val = NpyArray.FromAny(value, arr.Dtype, 0, 0, 0, null);
                     NpyCoreApi.IterSubscriptAssign(this, indexes, array_val);
                 }
             }
@@ -216,7 +216,7 @@ namespace NumpyDotNet
         }
 
         public object AsScalar() {
-            return arr.dtype.ToScalar(current, arr.dtype.ElementSize);
+            return arr.Dtype.ToScalar(current, arr.Dtype.ElementSize);
         }
 
 

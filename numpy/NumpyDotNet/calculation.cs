@@ -17,16 +17,16 @@ namespace NumpyDotNet
 
         internal ndarray ArgMin(int axis, ndarray ret = null) {
             object obj;
-            if (NpyDefs.IsFlexible(dtype.TypeNum)) {
+            if (NpyDefs.IsFlexible(Dtype.TypeNum)) {
                 throw new ArgumentTypeException("argmin is unuspporeted for this type.");
-            } else if (NpyDefs.IsUnsigned(dtype.TypeNum)) {
+            } else if (NpyDefs.IsUnsigned(Dtype.TypeNum)) {
                 obj = -1;
-            } else if (NpyDefs.IsBool(dtype.TypeNum)) {
+            } else if (NpyDefs.IsBool(Dtype.TypeNum)) {
                 obj = 1;
             } else {
                 obj = 0;
             }
-            ndarray tmp = NpyArray.FromAny(obj, dtype, 0, 0, 0, null);
+            ndarray tmp = NpyArray.FromAny(obj, Dtype, 0, 0, 0, null);
             tmp = NpyArray.FromAny(tmp - this, null, 0, 0, 0, null);
             return tmp.ArgMax(axis, ret);
         }
@@ -202,10 +202,10 @@ namespace NumpyDotNet
             // Make a temporary array, if we need it.
             NpyDefs.NPY_TYPES tmpType = NpyDefs.NPY_TYPES.NPY_DOUBLE;
             if (!IsInteger) {
-                tmpType = dtype.TypeNum;
+                tmpType = Dtype.TypeNum;
             }
             ndarray tmp;
-            if (ret != null && ret.dtype.TypeNum == tmpType) {
+            if (ret != null && ret.Dtype.TypeNum == tmpType) {
                 tmp = ret;
             } else {
                 tmp = NpyCoreApi.NewFromDescr(NpyCoreApi.DescrFromType(tmpType), Dims, null, 0, null);

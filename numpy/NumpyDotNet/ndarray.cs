@@ -168,9 +168,9 @@ namespace NumpyDotNet
             object[] state = new object[5];
             state[0] = version;
             state[1] = this.shape;
-            state[2] = this.dtype;
+            state[2] = this.Dtype;
             state[3] = this.IsFortran;
-            state[4] = dtype.ChkFlags(NpyDefs.NPY_LIST_PICKLE) ? GetPickleList() : ToBytes();
+            state[4] = Dtype.ChkFlags(NpyDefs.NPY_LIST_PICKLE) ? GetPickleList() : ToBytes();
 
             ret[2] = new PythonTuple(state);
             return new PythonTuple(ret);
@@ -268,7 +268,7 @@ namespace NumpyDotNet
 
             // Set the state of this array using the passed in data.  Everything in this array goes away.
             // The .SetState method resizes/reallocated the data memory.
-            this.dtype = typecode;
+            this.Dtype = typecode;
             NpyCoreApi.SetState(this, dimensions, fortranFlag ? NpyDefs.NPY_ORDER.NPY_FORTRANORDER : NpyDefs.NPY_ORDER.NPY_CORDER,
                 rawData as string);
 
@@ -308,11 +308,11 @@ namespace NumpyDotNet
                 newtype = NpyDescr.DescrConverter(cntx, descr);
             }
             if (GetType() != typeof(ndarray)) {
-                result = NpyArray.FromArray(this, dtype, NpyDefs.NPY_ENSUREARRAY);
+                result = NpyArray.FromArray(this, Dtype, NpyDefs.NPY_ENSUREARRAY);
             } else {
                 result = this;
             }
-            if (newtype == null || newtype == result.dtype) {
+            if (newtype == null || newtype == result.Dtype) {
                 return result;
             } else {
                 return NpyCoreApi.CastToType(result, newtype, false);
@@ -593,7 +593,7 @@ namespace NumpyDotNet
             if (o == null) {
                 return false;
             }
-            NpyDefs.NPY_TYPES type = dtype.TypeNum;
+            NpyDefs.NPY_TYPES type = Dtype.TypeNum;
             ndarray arrayother = o as ndarray;
             if (arrayother == null) {
                 // Try to convert to an array. Return not equal on failure
@@ -613,12 +613,12 @@ namespace NumpyDotNet
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
             if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
-                    if (dtype != arrayother.dtype) {
+                    if (Dtype != arrayother.Dtype) {
                         return false;
                     }
-                    if (dtype.HasNames) {
+                    if (Dtype.HasNames) {
                         object res = null;
-                        foreach (string name in dtype.Names) {
+                        foreach (string name in Dtype.Names) {
                             ndarray a1 = NpyArray.EnsureAnyArray(this[name]);
                             ndarray a2 = NpyArray.EnsureAnyArray(arrayother[name]);
                             object eq = a1.__eq__(cntx, a2);
@@ -649,7 +649,7 @@ namespace NumpyDotNet
             if (o == null) {
                 return true;
             }
-            NpyDefs.NPY_TYPES type = dtype.TypeNum;
+            NpyDefs.NPY_TYPES type = Dtype.TypeNum;
             ndarray arrayother = o as ndarray;
             if (arrayother == null) {
                 // Try to convert to an array. Return not equal on failure
@@ -669,12 +669,12 @@ namespace NumpyDotNet
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_not_equal);
             if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
-                    if (dtype != arrayother.dtype) {
+                    if (Dtype != arrayother.Dtype) {
                         return false;
                     }
-                    if (dtype.HasNames) {
+                    if (Dtype.HasNames) {
                         object res = null;
-                        foreach (string name in dtype.Names) {
+                        foreach (string name in Dtype.Names) {
                             ndarray a1 = NpyArray.EnsureAnyArray(this[name]);
                             ndarray a2 = NpyArray.EnsureAnyArray(arrayother[name]);
                             object eq = a1.__ne__(cntx, a2);
@@ -750,18 +750,18 @@ namespace NumpyDotNet
         }
 
         private object strings_compare(object o, NpyDefs.NPY_COMPARE_OP op) {
-            if (NpyDefs.IsString(dtype.TypeNum)) {
+            if (NpyDefs.IsString(Dtype.TypeNum)) {
                 ndarray self = this;
                 ndarray array_other = NpyArray.FromAny(o, flags: NpyDefs.NPY_BEHAVED | NpyDefs.NPY_ENSUREARRAY);
-                if (self.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE &&
-                    array_other.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
-                    dtype dt = new dtype(self.dtype);
-                    dt.ElementSize = array_other.dtype.ElementSize*4;
+                if (self.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE &&
+                    array_other.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
+                    dtype dt = new dtype(self.Dtype);
+                    dt.ElementSize = array_other.Dtype.ElementSize*4;
                     array_other = NpyArray.FromArray(array_other, dt, 0);
-                } else if (self.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
-                           array_other.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
-                    dtype dt = new dtype(array_other.dtype);
-                    dt.ElementSize = self.dtype.ElementSize * 4;
+                } else if (self.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
+                           array_other.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    dtype dt = new dtype(array_other.Dtype);
+                    dt.ElementSize = self.Dtype.ElementSize * 4;
                     self = NpyArray.FromArray(self, dt, 0);
                 }
                 return ArrayReturn(NpyCoreApi.CompareStringArrays(self, array_other, op));
@@ -899,7 +899,7 @@ namespace NumpyDotNet
                             }
                             offset += val * s[i];
                         }
-                        return dtype.ToScalar(this, offset);
+                        return Dtype.ToScalar(this, offset);
                     }
 
                     // General subscript case.
@@ -922,7 +922,7 @@ namespace NumpyDotNet
                             }
                         }
                         if (noelipses) {
-                            return result.dtype.ToScalar(this);
+                            return result.Dtype.ToScalar(this);
                         }
                     }
                     return result;
@@ -947,7 +947,7 @@ namespace NumpyDotNet
                             throw new RuntimeException("array is not writeable.");
                         }
                         IntPtr descr;
-                        int offset = NpyCoreApi.GetFieldOffset(dtype.Descr, field, out descr);
+                        int offset = NpyCoreApi.GetFieldOffset(Dtype.Descr, field, out descr);
                         if (offset < 0) {
                             throw new ArgumentException(String.Format("field name '{0}' not found.", field));
                         }
@@ -1008,7 +1008,7 @@ namespace NumpyDotNet
                     }
                     else
                     {
-                        ndarray array_value = NpyArray.FromAny(value, dtype, 0, 0, NpyDefs.NPY_FORCECAST, null);
+                        ndarray array_value = NpyArray.FromAny(value, Dtype, 0, 0, NpyDefs.NPY_FORCECAST, null);
                         try {
                             NpyCoreApi.Incref(array_value.Array);
                             if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0) {
@@ -1063,10 +1063,11 @@ namespace NumpyDotNet
         /// </summary>
         public int __coreRefCount__ { get { return Marshal.ReadInt32(Array, NpyCoreApi.Offset_RefCount); } }
 
+
         /// <summary>
         /// The type descriptor object for this array
         /// </summary>
-        public dtype dtype {
+        public dtype Dtype {
             get {
                 if (core == IntPtr.Zero) return null;
                 IntPtr descr = Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_descr);
@@ -1074,6 +1075,23 @@ namespace NumpyDotNet
             }
             set {
                 NpyCoreApi.ArraySetDescr(core, value.Descr);
+            }
+        }
+
+
+        /// <summary>
+        /// The type descriptor object for this array
+        /// </summary>
+        public object dtype {
+            get {
+                return this.Dtype;
+            }
+            set {
+                dtype descr = value as dtype;
+                if (descr == null) {
+                    descr = NpyDescr.DescrConverter(NpyUtil_Python.DefaultContext, value);
+                }
+                this.Dtype = descr;
             }
         }
 
@@ -1148,7 +1166,7 @@ namespace NumpyDotNet
 
         public int itemsize {
             get {
-                return dtype.ElementSize;
+                return Dtype.ElementSize;
             }
         }
 
@@ -1214,10 +1232,10 @@ namespace NumpyDotNet
 
         public ndarray astype(CodeContext cntx, object dtype = null) {
             dtype d = NpyDescr.DescrConverter(cntx, dtype);
-            if (d == this.dtype) {
+            if (d == this.Dtype) {
                 return this;
             }
-            if (this.dtype.HasNames) {
+            if (this.Dtype.HasNames) {
                 // CastToType doesn't work properly for
                 // record arrays, so we use FromArray.
                 int flags = NpyDefs.NPY_FORCECAST;
@@ -1408,7 +1426,7 @@ namespace NumpyDotNet
             if (dtype != null) {
                 rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
-            return Mean(iAxis, GetTypeDouble(this.dtype, rtype), @out);
+            return Mean(iAxis, GetTypeDouble(this.Dtype, rtype), @out);
         }
 
         public object min(object axis = null, ndarray @out = null) {
@@ -1417,7 +1435,7 @@ namespace NumpyDotNet
         }
 
         public ndarray newbyteorder(string endian = null) {
-            dtype newtype = NpyCoreApi.DescrNewByteorder(dtype, NpyUtil_ArgProcessing.ByteorderConverter(endian));
+            dtype newtype = NpyCoreApi.DescrNewByteorder(Dtype, NpyUtil_ArgProcessing.ByteorderConverter(endian));
             return NpyCoreApi.View(this, newtype, null);
         }
 
@@ -1451,7 +1469,7 @@ namespace NumpyDotNet
             }
             aValues = (values as ndarray);
             if (aValues == null) {
-                aValues = NpyArray.FromAny(values, dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
+                aValues = NpyArray.FromAny(values, Dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
             }
             eMode = NpyUtil_ArgProcessing.ClipmodeConverter(mode);
             PutTo(aValues, aIndices, eMode);
@@ -1515,7 +1533,7 @@ namespace NumpyDotNet
             NpyDefs.NPY_SEARCHSIDE eSide = NpyUtil_ArgProcessing.SearchsideConverter(side);
             ndarray aKeys = (keys as ndarray);
             if (aKeys == null) {
-                aKeys = NpyArray.FromAny(keys, NpyArray.FindArrayType(keys, dtype, NpyDefs.NPY_MAXDIMS),
+                aKeys = NpyArray.FromAny(keys, NpyArray.FindArrayType(keys, Dtype, NpyDefs.NPY_MAXDIMS),
                     0, 0, NpyDefs.NPY_CARRAY, null);
             }
             return ArrayReturn(SearchSorted(aKeys, eSide));
@@ -1579,7 +1597,7 @@ namespace NumpyDotNet
             if (dtype != null) {
                 rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
-            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, false, ddof);
+            return Std(iAxis, GetTypeDouble(this.Dtype, rtype), @out, false, ddof);
         }
 
         public object sum(CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null) {
@@ -1674,7 +1692,7 @@ namespace NumpyDotNet
             if (dtype != null) {
                 rtype = NpyDescr.DescrConverter(cntx, dtype);
             }
-            return Std(iAxis, GetTypeDouble(this.dtype, rtype), @out, true, ddof);
+            return Std(iAxis, GetTypeDouble(this.Dtype, rtype), @out, true, ddof);
         }
 
 
@@ -1737,7 +1755,7 @@ namespace NumpyDotNet
         /// <param name="offset">Offset into data array in bytes</param>
         /// <returns>Contents of the location</returns>
         internal object GetItem(long offset) {
-            return dtype.f.GetItem(offset, this);
+            return Dtype.f.GetItem(offset, this);
         }
 
 
@@ -1750,7 +1768,7 @@ namespace NumpyDotNet
         /// <param name="src">Value to write</param>
         /// <param name="offset">Offset into array in bytes</param>
         internal void SetItem(object src, long offset) {
-            dtype.f.SetItem(src, offset, this);
+            Dtype.f.SetItem(src, offset, this);
         }
 
 
@@ -1809,7 +1827,7 @@ namespace NumpyDotNet
         }
 
         public bool IsNotSwapped {
-            get { return dtype.IsNativeByteOrder; }
+            get { return Dtype.IsNativeByteOrder; }
         }
 
         public bool IsByteSwapped {
@@ -1841,15 +1859,15 @@ namespace NumpyDotNet
         }
 
         internal bool IsComplex {
-            get { return NpyDefs.IsComplex(dtype.TypeNum); }
+            get { return NpyDefs.IsComplex(Dtype.TypeNum); }
         }
 
         internal bool IsInteger {
-            get { return NpyDefs.IsInteger(dtype.TypeNum); }
+            get { return NpyDefs.IsInteger(Dtype.TypeNum); }
         }
 
         public bool IsFlexible {
-            get { return NpyDefs.IsFlexible(dtype.TypeNum); }
+            get { return NpyDefs.IsFlexible(Dtype.TypeNum); }
         }
 
         public bool IsWriteable {
@@ -1899,7 +1917,7 @@ namespace NumpyDotNet
 
         internal static object ArrayReturn(ndarray a) {
             if (a.ndim == 0) {
-                return a.dtype.ToScalar(a);
+                return a.Dtype.ToScalar(a);
             } else {
                 return a;
             }
@@ -1911,10 +1929,10 @@ namespace NumpyDotNet
             DumpData(sb, this.Dims, this.Strides, 0, 0);
 
             if (repr) {
-                if (NpyDefs.IsExtended(this.dtype.TypeNum)) {
-                    sb.AppendFormat(", '{0}{1}')", (char)dtype.Type, this.dtype.ElementSize);
+                if (NpyDefs.IsExtended(this.Dtype.TypeNum)) {
+                    sb.AppendFormat(", '{0}{1}')", (char)Dtype.Type, this.Dtype.ElementSize);
                 } else {
-                    sb.AppendFormat(", '{0}')", (char)dtype.Type);
+                    sb.AppendFormat(", '{0}')", (char)Dtype.Type);
                 }
             }
             return sb.ToString();
@@ -1933,7 +1951,7 @@ namespace NumpyDotNet
             int dimIdx, long offset) {
 
             if (dimIdx == ndim) {
-                Object value = dtype.f.GetItem(offset, this);
+                Object value = Dtype.f.GetItem(offset, this);
                 if (value == null) {
                     sb.Append("None");
                 } else {
@@ -1966,7 +1984,7 @@ namespace NumpyDotNet
                     throw new IndexOutOfRangeException("Index out of range");
                 }
                 long offset = index * Strides[0];
-                return dtype.ToScalar(this, offset);
+                return Dtype.ToScalar(this, offset);
             } else {
                 return ArrayBigItem(index);
             }
@@ -2070,7 +2088,7 @@ namespace NumpyDotNet
 
         internal static void IncreaseMemoryPressure(ndarray arr) {
             if (arr.flags.owndata) {
-                int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
+                int newBytes = (int)(arr.Size * arr.Dtype.ElementSize);
                 if (newBytes == 0) {
                     return;
                 }
@@ -2102,7 +2120,7 @@ namespace NumpyDotNet
 
         internal static void DecreaseMemoryPressure(ndarray arr) {
             if (arr.flags.owndata) {
-                int newBytes = (int)(arr.Size * arr.dtype.ElementSize);
+                int newBytes = (int)(arr.Size * arr.Dtype.ElementSize);
                 System.Threading.Interlocked.Add(ref TotalMemPressure, -newBytes);
                 if (newBytes > 0) {
                     System.GC.RemoveMemoryPressure(newBytes);
@@ -2162,12 +2180,12 @@ namespace NumpyDotNet
 
                 if ((flags & NpyBuffer.PyBuf.FORMAT) == 0) {
                     // Force an array of unsigned bytes.
-                    itemCount = arr.Size * arr.dtype.ElementSize;
+                    itemCount = arr.Size * arr.Dtype.ElementSize;
                     itemSize = sizeof(byte);
                     format = null;
                 } else {
                     itemCount = arr.Length;
-                    itemSize = arr.dtype.ElementSize;
+                    itemSize = arr.Dtype.ElementSize;
                     format = NpyCoreApi.GetBufferFormatString(arr);
                 }
             }

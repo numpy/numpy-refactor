@@ -20,6 +20,16 @@ namespace NumpyDotNet {
 
         public const string __module__ = "numpy.core.multiarray";
 
+
+        public static void __init__(CodeContext cntx) {
+            PythonDictionary moduleDict = cntx.ModuleContext.Module.Get__dict__();
+
+            moduleDict.Add(new KeyValuePair<object, object>("CLIP", NpyDefs.NPY_CLIPMODE.NPY_CLIP));
+            moduleDict.Add(new KeyValuePair<object, object>("WRAP", NpyDefs.NPY_CLIPMODE.NPY_WRAP));
+            moduleDict.Add(new KeyValuePair<object, object>("RAISE", NpyDefs.NPY_CLIPMODE.NPY_RAISE));
+        }
+
+
         /// <summary>
         /// Ick. See ScalarGeneric.Initialized.
         /// </summary>
@@ -101,14 +111,14 @@ namespace NumpyDotNet {
                             result = NpyCoreApi.NewCopy(arr, order);
                         }
                     } else {
-                        dtype oldtype = arr.dtype;
+                        dtype oldtype = arr.Dtype;
                         if (NpyCoreApi.EquivTypes(oldtype, type)) {
                             if (!copy && arr.StridingOk(order)) {
                                 result = arr;
                             } else {
                                 result = NpyCoreApi.NewCopy(arr, order);
                                 if (oldtype != type) {
-                                    result.dtype = oldtype;
+                                    result.Dtype = oldtype;
                                 }
                             }
                         }
@@ -190,7 +200,7 @@ namespace NumpyDotNet {
 
             aValues = (values as ndarray);
             if (aValues == null) {
-                aValues = NpyArray.FromAny(values, arr.dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
+                aValues = NpyArray.FromAny(values, arr.Dtype, 0, 0, NpyDefs.NPY_CARRAY, null);
             }
 
             arr.PutMask(aValues, aMask);
@@ -472,9 +482,9 @@ namespace NumpyDotNet {
             dtype type = NpyDescr.DescrConverter(cntx, typeObj);
 
             object method;
-            if (charArray.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
+            if (charArray.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
                 method = PythonOps.GetBoundAttr(cntx, DynamicHelpers.GetPythonTypeFromType(typeof(Bytes)), methodName);
-            } else if (charArray.dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+            } else if (charArray.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
                 method = PythonOps.GetBoundAttr(cntx, DynamicHelpers.GetPythonTypeFromType(typeof(string)), methodName);
             } else {
                 throw new ArgumentTypeException("string operation on non-string array");

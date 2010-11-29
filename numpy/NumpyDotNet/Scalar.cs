@@ -51,7 +51,7 @@ namespace NumpyDotNet
             PythonModule ma = (PythonModule)IronPython.Runtime.Operations.PythonOps.ImportBottom(cntx, "numpy.core.multiarray", 0);
             tupleValues[0] = ma.__getattribute__(cntx, "scalar");
 
-            if (dtype.isbuiltin == 0) { // TODO: Should be is scalar
+            if (((dtype)dtype).isbuiltin == 0) { // TODO: Should be is scalar
                 tupleValues[1] = new PythonTuple(new object[] { dtype, Value });
             } else {
                 tupleValues[1] = null;
@@ -169,7 +169,7 @@ namespace NumpyDotNet
             return ToArray().diagonal(offset, axis1, axis2);
         }
 
-        public virtual dtype dtype {
+        public virtual object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_VOID);
             }
@@ -219,6 +219,10 @@ namespace NumpyDotNet
 
         public void itemset(params object[] args) {
             throw new ArgumentException("array-scalars are immutable");
+        }
+
+        public int itemsize {
+            get { return ((dtype)dtype).itemsize; }
         }
 
         public object max(object axis = null, ndarray @out = null) {
@@ -647,7 +651,7 @@ namespace NumpyDotNet
 
         internal override object Value { get { return value; } }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -661,7 +665,7 @@ namespace NumpyDotNet
         }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteByte(result.UnsafeAddress, (byte)(value ? 1 : 0));
             return result;
         }
@@ -689,7 +693,7 @@ namespace NumpyDotNet
     [PythonType("numpy.number")]
     public class ScalarNumber : ScalarGeneric
     {
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_DOUBLE);
             }
@@ -699,7 +703,7 @@ namespace NumpyDotNet
     [PythonType("numpy.integer")]
     public class ScalarInteger : ScalarNumber
     {
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_LONG);
             }
@@ -724,7 +728,7 @@ namespace NumpyDotNet
             this.value = Convert.ToSByte(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -740,7 +744,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteByte(result.UnsafeAddress, (byte)value);
             return result;
         }
@@ -792,7 +796,7 @@ namespace NumpyDotNet
             this.value = Convert.ToInt16(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -808,7 +812,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt16(result.UnsafeAddress, value);
             return result;
         }
@@ -816,7 +820,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr p, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void *)p, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void *)p, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -864,7 +868,7 @@ namespace NumpyDotNet
             this.value = Convert.ToInt32(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -880,7 +884,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt32(result.UnsafeAddress, value);
             return result;
         }
@@ -888,7 +892,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -936,7 +940,7 @@ namespace NumpyDotNet
             this.value = Convert.ToInt64(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -952,7 +956,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt64(result.UnsafeAddress, value);
             return result;
         }
@@ -960,7 +964,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -999,7 +1003,7 @@ namespace NumpyDotNet
     [PythonType("numpy.unsignedinteger")]
     public class ScalarUnsignedInteger : ScalarInteger
     {
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_ULONG);
             }
@@ -1021,7 +1025,7 @@ namespace NumpyDotNet
             this.value = Convert.ToByte(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1037,7 +1041,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteByte(result.UnsafeAddress, value);
             return result;
         }
@@ -1099,7 +1103,7 @@ namespace NumpyDotNet
             this.value = Convert.ToUInt16(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1115,7 +1119,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt16(result.UnsafeAddress, (Int16)value);
             return result;
         }
@@ -1123,7 +1127,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1175,7 +1179,7 @@ namespace NumpyDotNet
             this.value = Convert.ToUInt32(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1191,7 +1195,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt32(result.UnsafeAddress, (Int32)value);
             return result;
         }
@@ -1199,7 +1203,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1262,7 +1266,7 @@ namespace NumpyDotNet
             this.value = Convert.ToUInt64(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1278,7 +1282,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             Marshal.WriteInt64(result.UnsafeAddress, (Int64)value);
             return result;
         }
@@ -1286,7 +1290,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1348,7 +1352,7 @@ namespace NumpyDotNet
             this.value = Convert.ToSingle(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1364,7 +1368,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             unsafe {
                 Single* p = (Single*) result.UnsafeAddress.ToPointer();
                 *p = value;
@@ -1375,7 +1379,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1423,7 +1427,7 @@ namespace NumpyDotNet
             this.value = Convert.ToSingle(value);
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1439,7 +1443,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             unsafe {
                 Double* p = (Double*)result.UnsafeAddress.ToPointer();
                 *p = value;
@@ -1450,7 +1454,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1486,7 +1490,7 @@ namespace NumpyDotNet
     [PythonType("numpy.complexfloating")]
     public class ScalarComplexFloating : ScalarInexact
     {
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_CDOUBLE);
             }
@@ -1517,7 +1521,7 @@ namespace NumpyDotNet
             value.Imag = (float)c.Imaginary;
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1533,7 +1537,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             unsafe {
                 float* p = (float*)result.UnsafeAddress.ToPointer();
                 *p++ = value.Real;
@@ -1545,7 +1549,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1601,7 +1605,7 @@ namespace NumpyDotNet
             this.value = (Complex)value;
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -1617,7 +1621,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             unsafe {
                 Complex* p = (Complex*)result.UnsafeAddress.ToPointer();
                 *p = value;
@@ -1628,7 +1632,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(dtype.Descr, data, (void*)dataPtr, !dtype.IsNativeByteOrder);
+                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1751,7 +1755,7 @@ namespace NumpyDotNet
             }
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return dtype_;
             }
@@ -1766,7 +1770,7 @@ namespace NumpyDotNet
         }
 
         internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
-            int elsize = arr.dtype.ElementSize;
+            int elsize = arr.Dtype.ElementSize;
             if (dtype_.ElementSize != elsize) {
                 dtype_ = new dtype(dtype_);
                 dtype_.ElementSize = elsize;
@@ -1775,7 +1779,7 @@ namespace NumpyDotNet
                 }
                 AllocData(elsize);
             }
-            dtype_ = arr.dtype;
+            dtype_ = arr.Dtype;
             unsafe {
                 arr.CopySwapOut(offset, dataptr.ToPointer(), !arr.IsNotSwapped);
             }
@@ -1831,7 +1835,7 @@ namespace NumpyDotNet
     [PythonType("numpy.character")]
     public class ScalarCharacter : ScalarFlexible
     {
-        public override dtype dtype {
+        public override object dtype {
             get {
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_STRING);
             }
@@ -1857,7 +1861,7 @@ namespace NumpyDotNet
             value = s;
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     dtype_ = GetDtype(value.Count, 'S');
@@ -1869,7 +1873,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             result.SetItem(value, 0);
             return result;
         }
@@ -1903,7 +1907,7 @@ namespace NumpyDotNet
             value = s;
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     dtype_ = GetDtype(value.Length, 'U');
@@ -1919,7 +1923,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             result.SetItem(value, 0);
             return result;
         }
@@ -1991,7 +1995,7 @@ namespace NumpyDotNet
             value = o;
         }
 
-        public override dtype dtype {
+        public override object dtype {
             get {
                 if (dtype_ == null) {
                     lock (GetType()) {
@@ -2007,7 +2011,7 @@ namespace NumpyDotNet
         internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
-            ndarray result = NpyCoreApi.AllocArray(dtype, 0, null, false);
+            ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             result.SetItem(value, 0);
             return result;
         }

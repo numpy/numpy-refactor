@@ -28,7 +28,7 @@ namespace NumpyDotNet {
         /// <param name="src">Source object</param>
         internal static void CopyObject(ndarray dest, Object src) {
             // For char arrays pad the input string.
-            if (dest.dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
+            if (dest.Dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
                 dest.ndim > 0 && src is String) {
                 int ndimNew = (int)dest.Dims[dest.ndim - 1];
                 int ndimOld = ((String)src).Length;
@@ -44,8 +44,8 @@ namespace NumpyDotNet {
             } else if (false) {
                 // TODO: Not handling scalars.  See arrayobject.c:111
             } else {
-                srcArray = FromAny(src, dest.dtype, 0, dest.ndim,
-                                   dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
+                srcArray = FromAny(src, dest.Dtype, 0, dest.ndim,
+                                   dest.Dtype.Flags & NpyDefs.NPY_FORTRAN, null);
             }
             NpyCoreApi.MoveInto(dest, srcArray);
         }
@@ -54,7 +54,7 @@ namespace NumpyDotNet {
         internal static void SetField(ndarray dest, IntPtr descr, int offset, object src)
         {
             // For char arrays pad the input string.
-            if (dest.dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
+            if (dest.Dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
                 dest.ndim > 0 && src is String)
             {
                 int ndimNew = (int)dest.Dims[dest.ndim - 1];
@@ -78,7 +78,7 @@ namespace NumpyDotNet {
             {
                 dtype src_dtype = NpyCoreApi.ToInterface<dtype>(descr);
                 srcArray = FromAny(src, src_dtype, 0, dest.ndim,
-                                   dest.dtype.Flags & NpyDefs.NPY_FORTRAN, null);
+                                   dest.Dtype.Flags & NpyDefs.NPY_FORTRAN, null);
             }
             NpyCoreApi.Incref(descr);
             if (NpyCoreApi.NpyArray_SetField(dest.Array, descr, offset, srcArray.Array) < 0)
@@ -116,8 +116,8 @@ namespace NumpyDotNet {
 
                 if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
                 if (descr != null && src is ndarray &&
-                    ((ndarray)src).dtype.IsNativeByteOrder) {
-                    descr = new dtype(((ndarray)src).dtype);
+                    ((ndarray)src).Dtype.IsNativeByteOrder) {
+                    descr = new dtype(((ndarray)src).Dtype);
                 } else if (descr != null && !descr.IsNativeByteOrder) {
                     // Descr replace
                 }
@@ -220,7 +220,7 @@ namespace NumpyDotNet {
                 // TODO: Look at __array_struct__ and __array_interface__
                 result = FromArrayAttr(NpyUtil_Python.DefaultContext, src, descr, context);
                 if (result != null) {
-                    if (descr != null && !NpyCoreApi.EquivTypes(descr, result.dtype) || flags != 0) {
+                    if (descr != null && !NpyCoreApi.EquivTypes(descr, result.Dtype) || flags != 0) {
                         result = FromArray(result, descr, flags);
                         return FromAnyReturn(result, minDepth, maxDepth);
                     }
@@ -360,13 +360,13 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray FromScalar(ScalarGeneric scalar, dtype descr = null) {
-            if (descr == null || NpyCoreApi.EquivTypes(scalar.dtype, descr)) {
+            if (descr == null || NpyCoreApi.EquivTypes((dtype)scalar.dtype, descr)) {
                 return scalar.ToArray();
             } else {
                 ndarray arr = scalar.ToArray();
                 // passing scalar.dtype instead of descr in because otherwise we loose information. Not
                 // sure if more processing is needed.  Relevant CPython code is PyArray_DescrFromScalarUnwrap
-                return FromArray(arr, scalar.dtype, 0);
+                return FromArray(arr, (dtype)scalar.dtype, 0);
             }
         }
 
@@ -380,7 +380,7 @@ namespace NumpyDotNet {
         /// <returns>New array (may be source array)</returns>
         internal static ndarray FromArray(ndarray src, dtype descr, int flags) {
             if (descr == null && flags == 0) return src;
-            if (descr == null) descr = src.dtype;
+            if (descr == null) descr = src.Dtype;
             if (descr != null) NpyCoreApi.Incref(descr.Descr);
             return NpyCoreApi.DecrefToInterface<ndarray>(
                 NpyCoreApi.NpyArray_FromArray(src.Array, descr.Descr, flags));
@@ -405,7 +405,7 @@ namespace NumpyDotNet {
                 throw new ArgumentException("shape-mismatch on array construction");
             }
 
-            result.dtype.f.SetItem(src, 0, result);
+            result.Dtype.f.SetItem(src, 0, result);
             return result;
         }
 
@@ -484,7 +484,7 @@ namespace NumpyDotNet {
             // Set the first num dims and strides for the 1's
             for (int i=0; i<num; i++) {
                 newdims[i] = (IntPtr)1;
-                newstrides[i] = (IntPtr)arr.dtype.ElementSize;
+                newstrides[i] = (IntPtr)arr.Dtype.ElementSize;
             }
             // Copy in the rest of dims and strides
             for (int i=num; i<ndmin; i++) {
@@ -493,7 +493,7 @@ namespace NumpyDotNet {
                 newstrides[i] = (IntPtr)arr.Strides[k];
             }
 
-            return NpyCoreApi.NewView(arr.dtype, ndmin, newdims, newstrides, arr, IntPtr.Zero, false);
+            return NpyCoreApi.NewView(arr.Dtype, ndmin, newdims, newstrides, arr, IntPtr.Zero, false);
         }
 
         private static dtype FindArrayReturn(dtype chktype,  dtype minitype) {
@@ -517,7 +517,7 @@ namespace NumpyDotNet {
             dtype chktype = null;
 
             if (src is ndarray) {
-                chktype = ((ndarray)src).dtype;
+                chktype = ((ndarray)src).Dtype;
                 if (minitype == null) {
                     return chktype;
                 } else {
@@ -526,7 +526,7 @@ namespace NumpyDotNet {
             }
 
             if (src is ScalarGeneric) {
-                chktype = ((ScalarGeneric)src).dtype;
+                chktype = (dtype)((ScalarGeneric)src).dtype;
                 if (minitype == null) {
                     return chktype;
                 } else {
@@ -570,7 +570,7 @@ namespace NumpyDotNet {
                 try {
                     object ip = PythonCalls.Call(cntx, arrayAttr);
                     if (ip is ndarray) {
-                        chktype = ((ndarray)ip).dtype;
+                        chktype = ((ndarray)ip).Dtype;
                         return FindArrayReturn(chktype, minitype);
                     }
                 } catch {
@@ -767,7 +767,7 @@ namespace NumpyDotNet {
         private static int DiscoverItemsize(object s, int nd, int min) {
             if (s is ndarray) {
                 ndarray a = (ndarray)s;
-                return Math.Max(min, a.dtype.ElementSize);
+                return Math.Max(min, a.Dtype.ElementSize);
             }
             int n = (int)NpyUtil_Python.CallBuiltin(null, "len", s);
             if (nd == 0 || s is string || s is Bytes || s is MemoryView || s is PythonBuffer) {
@@ -859,7 +859,7 @@ namespace NumpyDotNet {
             }
             if (swap) {
                 NpyCoreApi.Byteswap(result, true);
-                result.dtype = d;
+                result.Dtype = d;
             }
             return result;
         }
@@ -896,7 +896,7 @@ namespace NumpyDotNet {
         }
 
         internal static void FillObjects(ndarray arr, object o) {
-            dtype d = arr.dtype;
+            dtype d = arr.Dtype;
             if (d.IsObject) {
                 if (d.HasNames) {
                     foreach (string name in d.Names) {
@@ -947,7 +947,7 @@ namespace NumpyDotNet {
                 seq.Iteri((o, i) =>
                     AssignFromSeq((IEnumerable<Object>)o, result, dim + 1, offset + stride * i));
             } else {
-                seq.Iteri((o, i) => result.dtype.f.SetItem(o, offset + i*stride, result));
+                seq.Iteri((o, i) => result.Dtype.f.SetItem(o, offset + i*stride, result));
             }
         }
 
@@ -991,13 +991,13 @@ namespace NumpyDotNet {
                 new_dim += dims2[0];
             }
             dims[0] = new_dim;
-            ndarray result = NpyCoreApi.AllocArray(mps[0].dtype, dims.Length, dims, false);
-            if (!result.dtype.IsObject) {
+            ndarray result = NpyCoreApi.AllocArray(mps[0].Dtype, dims.Length, dims, false);
+            if (!result.Dtype.IsObject) {
                 // TODO: We really should be doing a memcpy here.
                 unsafe {
                     byte* dest = (byte*)result.UnsafeAddress.ToPointer();
                     foreach (ndarray a in mps) {
-                        long s = a.Size*a.dtype.ElementSize;
+                        long s = a.Size*a.Dtype.ElementSize;
                         byte* src = (byte*)a.UnsafeAddress;
                         while (s-- > 0) {
                             *dest++ = *src++;

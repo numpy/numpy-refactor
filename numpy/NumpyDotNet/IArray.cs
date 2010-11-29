@@ -24,7 +24,7 @@ namespace NumpyDotNet
         object cumsum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         PythonBuffer data { get; }
         ndarray diagonal(int offset = 0, int axis1 = 0, int axis2 = 1);
-        dtype dtype { get; set; }
+        object dtype { get; set; }
         void fill(object scalar);
         flagsobj flags { get; }
         object flat { get; set; }

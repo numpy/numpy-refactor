@@ -200,7 +200,7 @@ namespace NumpyDotNet {
 
         internal static Object getitemNotSupported(IntPtr ptr, ndarray arr) {
             throw new NotImplementedException(String.Format("Array type {0} not supported",
-                                                            arr.dtype.str));
+                                                            arr.Dtype.str));
         }
 
         internal static Object getitemBool(IntPtr ptr, ndarray arr) {
@@ -447,7 +447,7 @@ namespace NumpyDotNet {
             (ptr, arrPtr) => GetItemWrapper(getitemObject, ptr, arrPtr);
 
         internal static Object getitemString(IntPtr ptr, ndarray arr) {
-            return getitemString(ptr, arr.dtype.ElementSize);
+            return getitemString(ptr, arr.Dtype.ElementSize);
         }
 
         internal static Bytes getitemString(IntPtr ptr, int max) {
@@ -479,7 +479,7 @@ namespace NumpyDotNet {
         }
 
         internal static Object getitemUnicode(IntPtr ptr, ndarray arr) {
-            return getitemUnicode(ptr, arr.dtype.ElementSize, !arr.IsNotSwapped);
+            return getitemUnicode(ptr, arr.Dtype.ElementSize, !arr.IsNotSwapped);
         }
 
         internal static string getitemUnicode(IntPtr ptr, int elsize, bool swap) {
@@ -504,7 +504,7 @@ namespace NumpyDotNet {
             (ptr, arrPtr) => GetItemWrapper(getitemUnicode, ptr, arrPtr);
 
         internal static Object getitemVOID(IntPtr ptr, ndarray arr) {
-            dtype d = arr.dtype;
+            dtype d = arr.Dtype;
             if (d.HasNames) {
                 List<string> names = d.Names;
                 object[] result = new object[names.Count];
@@ -515,7 +515,7 @@ namespace NumpyDotNet {
                         NpyCoreApi.NpyArray_DescrField field = NpyCoreApi.GetDescrField(d, name);
                         dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
                         Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
-                        int alignment = arr.dtype.Alignment;
+                        int alignment = arr.Dtype.Alignment;
 
                         long fieldPtr = ptr.ToInt64() + field.offset;
                         if (alignment > 1 &&
@@ -584,7 +584,7 @@ namespace NumpyDotNet {
 
         internal static void setitemNotSupported(Object o, IntPtr ptr, ndarray arr) {
             throw new NotImplementedException(String.Format("Array type {0} not supported",
-                                                            arr.dtype.str));
+                                                            arr.Dtype.str));
         }
 
 
@@ -885,7 +885,7 @@ namespace NumpyDotNet {
 
 
         internal static void setitemString(Object o, IntPtr ptr, ndarray arr) {
-            setitemString(o, ptr, arr.dtype);
+            setitemString(o, ptr, arr.Dtype);
         }
 
         internal static void setitemString(Object o, IntPtr ptr, dtype descr) {
@@ -927,7 +927,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemString, value, ptr, arrPtr);
 
         internal static void setitemUnicode(Object o, IntPtr ptr, ndarray arr) {
-            setitemUnicode(o, ptr, arr.dtype);
+            setitemUnicode(o, ptr, arr.Dtype);
         }
 
         internal static void setitemUnicode(Object o, IntPtr ptr, dtype descr) {
@@ -972,7 +972,7 @@ namespace NumpyDotNet {
             (value, ptr, arrPtr) => SetItemWrapper(setitemUnicode, value, ptr, arrPtr);
 
         internal static void setitemVOID(object value, IntPtr ptr, ndarray arr) {
-            dtype d = arr.dtype;
+            dtype d = arr.Dtype;
             PythonTuple t = (value as PythonTuple);
             if (d.HasNames && t != null) {
                 List<string> names = d.Names;
@@ -987,7 +987,7 @@ namespace NumpyDotNet {
                         NpyCoreApi.NpyArray_DescrField field = NpyCoreApi.GetDescrField(d, name);
                         dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
                         Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
-                        int alignment = arr.dtype.Alignment;
+                        int alignment = arr.Dtype.Alignment;
                         long fieldPtr = ptr.ToInt64() + field.offset;
                         if (alignment > 1 &&
                             fieldPtr % alignment != 0) {
@@ -1018,8 +1018,8 @@ namespace NumpyDotNet {
                     // TODO: Make a memcpy or call one
                     byte* src = (byte*)avalue.UnsafeAddress.ToPointer();
                     byte* dest = (byte*)ptr.ToPointer();
-                    int dlen = arr.dtype.ElementSize;
-                    int slen = (int)(avalue.Size * avalue.dtype.ElementSize);
+                    int dlen = arr.Dtype.ElementSize;
+                    int slen = (int)(avalue.Size * avalue.Dtype.ElementSize);
                     int copyLen = Math.Min(dlen, slen);
                     int fillLen = Math.Max(0, dlen - slen);
                     while (copyLen-- > 0) {
@@ -1156,7 +1156,7 @@ namespace NumpyDotNet {
             IntPtr inPtr, IntPtr outPtr, IntPtr nTmp, IntPtr arrPtr, IntPtr unused) {
             ndarray arr = NpyCoreApi.ToInterface<ndarray>(arrPtr);
             long n = (long)nTmp;
-            int stride = arr.dtype.ElementSize;
+            int stride = arr.Dtype.ElementSize;
 
             for (long i = 0; i < n; i++) {
                 IntPtr tmp = Marshal.ReadIntPtr(outPtr);
@@ -1662,8 +1662,8 @@ namespace NumpyDotNet {
             ndarray ai = aip != null ? NpyCoreApi.ToInterface<ndarray>(aip) : null;
             ndarray ao = aop != null ? NpyCoreApi.ToInterface<ndarray>(aop) : null;
 
-            dtype inType = (ai != null) ? ai.dtype : NpyCoreApi.DescrFromType(inTypeCode);
-            dtype outType = (ao != null) ? ao.dtype : NpyCoreApi.DescrFromType(outTypeCode);
+            dtype inType = (ai != null) ? ai.Dtype : NpyCoreApi.DescrFromType(inTypeCode);
+            dtype outType = (ao != null) ? ao.Dtype : NpyCoreApi.DescrFromType(outTypeCode);
 
             int isize = inType.ElementSize;
             int osize = outType.ElementSize;

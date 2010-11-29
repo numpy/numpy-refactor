@@ -1389,6 +1389,9 @@ class TestRegression(TestCase):
         assert_equal(x[0], 2)
 
     def test_ufunc_no_unnecessary_views(self):
+        if sys.platform == 'cli':
+            # Not applicable to IronPython
+            return
         # ticket #1548
         class Subclass(np.ndarray):
             pass

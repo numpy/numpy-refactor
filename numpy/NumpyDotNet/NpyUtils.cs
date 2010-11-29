@@ -720,13 +720,13 @@ namespace NumpyDotNet {
                 // Boolean scalars
                 if (array_arg != null &&
                     array_arg.ndim == 0 &&
-                    NpyDefs.IsBool(array_arg.dtype.TypeNum)) {
+                    NpyDefs.IsBool(array_arg.Dtype.TypeNum)) {
                     indexes.AddIndex(Converter.ConvertToBoolean(array_arg));
                 }
                     // Integer scalars
                 else if (array_arg != null &&
                     array_arg.ndim == 0 &&
-                    NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
+                    NpyDefs.IsInteger(array_arg.Dtype.TypeNum)) {
                     try {
                         indexes.AddIndex((IntPtr)Converter.ConvertToInt64(array_arg));
                     } catch (IronPython.Runtime.Exceptions.TypeErrorException) {
@@ -736,9 +736,9 @@ namespace NumpyDotNet {
                     }
                 } else if (array_arg != null) {
                     // Arrays must be either boolean or integer.
-                    if (NpyDefs.IsInteger(array_arg.dtype.TypeNum)) {
+                    if (NpyDefs.IsInteger(array_arg.Dtype.TypeNum)) {
                         indexes.AddIntpArray(array_arg);
-                    } else if (NpyDefs.IsBool(array_arg.dtype.TypeNum)) {
+                    } else if (NpyDefs.IsBool(array_arg.Dtype.TypeNum)) {
                         indexes.AddBoolArray(array_arg);
                     } else {
                         throw new IndexOutOfRangeException("arrays used as indices must be of integer (or boolean) type.");

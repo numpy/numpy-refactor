@@ -425,7 +425,7 @@ namespace NumpyDotNet {
                 NpyArray_GetReal(arr.Array));
         }
         internal static ndarray GetField(ndarray arr, string name) {
-            NpyArray_DescrField field = GetDescrField(arr.dtype, name);
+            NpyArray_DescrField field = GetDescrField(arr.Dtype, name);
             dtype field_dtype = ToInterface<dtype>(field.descr);
             return GetField(arr, field_dtype, field.offset);
         }
