@@ -118,6 +118,10 @@ namespace NumpyDotNet
             return ToArray().astype(cntx, dtype);
         }
 
+        public object @base {
+            get { return null; }
+        }
+
         public ndarray byteswap(bool inplace = false) {
             if (inplace) {
                 throw new ArgumentException("cannot byteswap a scalar inplace");
@@ -237,6 +241,14 @@ namespace NumpyDotNet
             return ToArray().min(axis, @out);
         }
 
+
+        /// <summary>
+        /// Size of the object in bytes
+        /// </summary>
+        public object nbytes {
+            get { return this.itemsize; }
+        }
+
         public int ndim {
             get {
                 return 0;
@@ -346,6 +358,15 @@ namespace NumpyDotNet
         public ndarray swapaxes(object a1, object a2) {
             return ToArray().swapaxes(a1, a2);
         }
+
+
+        /// <summary>
+        /// Returns the transpose of this object, for scalars there is no change.
+        /// </summary>
+        public object T {
+            get { return this; }
+        }
+
 
         public object take(object indices, object axis = null, ndarray @out = null, object mode = null) {
             return ToArray().take(indices, axis, @out, mode);
@@ -792,6 +813,11 @@ namespace NumpyDotNet
             this.value = value;
         }
 
+        public ScalarInt16(string value, int @base = 10) {
+            this.value = Convert.ToInt16(value, @base);
+        }
+
+
         public ScalarInt16(IConvertible value) {
             this.value = Convert.ToInt16(value);
         }
@@ -862,6 +888,10 @@ namespace NumpyDotNet
 
         public ScalarInt32(Int32 value) {
             this.value = value;
+        }
+
+        public ScalarInt32(string value, int @base = 10) {
+            this.value = Convert.ToInt32(value, @base);
         }
 
         public ScalarInt32(IConvertible value) {
@@ -935,6 +965,11 @@ namespace NumpyDotNet
         public ScalarInt64(Int64 value) {
             this.value = value;
         }
+
+        public ScalarInt64(string value, int @base = 10) {
+            this.value = Convert.ToInt64(value, @base);
+        }
+
 
         public ScalarInt64(IConvertible value) {
             this.value = Convert.ToInt64(value);
