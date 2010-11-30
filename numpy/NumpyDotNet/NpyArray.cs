@@ -239,7 +239,7 @@ namespace NumpyDotNet {
             }
 
             bool seq = false;
-            if (src is string) {
+            if (!is_object && src is string) {
                 src = ((string)src).AsEnumerable().Cast<object>();
             }
             if (src is IEnumerable<object>) {
