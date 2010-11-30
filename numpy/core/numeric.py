@@ -27,13 +27,8 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'ComplexWarning']
 
 if sys.platform == 'cli':
-    obj2sctype = isnan = None
-    for n in '''int_asbuffer
-set_numeric_ops can_cast
-array2string get_printoptions set_printoptions
-set_string_function compare_chararrays
-bitwise_not CLIP RAISE WRAP MAXDIMS BUFSIZE ALLOW_THREADS
-             '''.split():
+    for n in ['int_asbuffer', 'set_numeric_ops', 'can_cast', 'compare_chararrays', 'bitwise_not']:
+        print "numeric.py: Temporarily filting symbol '%s'" % n
         __all__.remove(n)
 
 
@@ -64,15 +59,14 @@ dtype = multiarray.dtype
 
 ufunc = type(sin)
 
-if sys.platform != 'cli':
-    bitwise_not = invert
+bitwise_not = invert
 
-    CLIP = multiarray.CLIP
-    WRAP = multiarray.WRAP
-    RAISE = multiarray.RAISE
-    MAXDIMS = multiarray.MAXDIMS
-    ALLOW_THREADS = multiarray.ALLOW_THREADS
-    BUFSIZE = multiarray.BUFSIZE
+CLIP = multiarray.CLIP
+WRAP = multiarray.WRAP
+RAISE = multiarray.RAISE
+MAXDIMS = multiarray.MAXDIMS
+ALLOW_THREADS = multiarray.ALLOW_THREADS
+BUFSIZE = multiarray.BUFSIZE
 
 
 

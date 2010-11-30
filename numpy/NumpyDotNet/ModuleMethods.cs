@@ -26,7 +26,16 @@ namespace NumpyDotNet {
             moduleDict.Add(new KeyValuePair<object, object>("CLIP", (int)NpyDefs.NPY_CLIPMODE.NPY_CLIP));
             moduleDict.Add(new KeyValuePair<object, object>("WRAP", (int)NpyDefs.NPY_CLIPMODE.NPY_WRAP));
             moduleDict.Add(new KeyValuePair<object, object>("RAISE", (int)NpyDefs.NPY_CLIPMODE.NPY_RAISE));
-
+            moduleDict.Add(new KeyValuePair<object, object>("ALLOW_THREADS", 1));
+            moduleDict.Add(new KeyValuePair<object, object>("BUFSIZE", (int)NpyDefs.NPY_BUFSIZE));
+            moduleDict.Add(new KeyValuePair<object, object>("ITEM_HASOBJECT", (int)NpyDefs.NPY__ITEM_HASOBJECT));
+            moduleDict.Add(new KeyValuePair<object, object>("LIST_PICKLE", (int)NpyDefs.NPY_LIST_PICKLE));
+            moduleDict.Add(new KeyValuePair<object, object>("ITEM_IS_POINTER", (int)NpyDefs.NPY_ITEM_IS_POINTER));
+            moduleDict.Add(new KeyValuePair<object, object>("NEEDS_INIT", (int)NpyDefs.NPY_NEEDS_INIT));
+            moduleDict.Add(new KeyValuePair<object, object>("NEEDS_PYAPI", (int)NpyDefs.NPY_NEEDS_PYAPI));
+            moduleDict.Add(new KeyValuePair<object, object>("USE_GETITEM", (int)NpyDefs.NPY_USE_GETITEM));
+            moduleDict.Add(new KeyValuePair<object, object>("USE_SETITEM", (int)NpyDefs.NPY_USE_SETITEM));
+            moduleDict.Add(new KeyValuePair<object, object>("MAXDIMS", (int)NpyDefs.NPY_MAXDIMS));
         }
 
         /// <summary>
