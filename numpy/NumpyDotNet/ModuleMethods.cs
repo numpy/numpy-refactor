@@ -20,15 +20,14 @@ namespace NumpyDotNet {
 
         public const string __module__ = "numpy.core.multiarray";
 
-
         public static void __init__(CodeContext cntx) {
             PythonDictionary moduleDict = cntx.ModuleContext.Module.Get__dict__();
 
-            moduleDict.Add(new KeyValuePair<object, object>("CLIP", NpyDefs.NPY_CLIPMODE.NPY_CLIP));
-            moduleDict.Add(new KeyValuePair<object, object>("WRAP", NpyDefs.NPY_CLIPMODE.NPY_WRAP));
-            moduleDict.Add(new KeyValuePair<object, object>("RAISE", NpyDefs.NPY_CLIPMODE.NPY_RAISE));
-        }
+            moduleDict.Add(new KeyValuePair<object, object>("CLIP", (int)NpyDefs.NPY_CLIPMODE.NPY_CLIP));
+            moduleDict.Add(new KeyValuePair<object, object>("WRAP", (int)NpyDefs.NPY_CLIPMODE.NPY_WRAP));
+            moduleDict.Add(new KeyValuePair<object, object>("RAISE", (int)NpyDefs.NPY_CLIPMODE.NPY_RAISE));
 
+        }
 
         /// <summary>
         /// Ick. See ScalarGeneric.Initialized.
