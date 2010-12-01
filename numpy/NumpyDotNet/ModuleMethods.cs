@@ -95,11 +95,7 @@ namespace NumpyDotNet {
                 if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
-                if (args[3] != null && args[3] is string &&
-                    String.Compare((String)args[3], "Fortran", true) == 0)
-                    order = NpyDefs.NPY_ORDER.NPY_FORTRANORDER;
-                else order = NpyDefs.NPY_ORDER.NPY_CORDER;
-
+                order = NpyUtil_ArgProcessing.OrderConverter(args[3]);
                 if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
                 if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
