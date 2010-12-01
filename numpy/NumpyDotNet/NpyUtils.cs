@@ -177,7 +177,7 @@ namespace NumpyDotNet {
                 } catch (OverflowException) {
                     throw;
                 } catch {
-                    throw new ArgumentException(
+                    throw new ArgumentTypeException(
                         String.Format("Unable to convert type '{0}' to integer", obj.GetType().Name));
                 }
             }
@@ -218,7 +218,7 @@ namespace NumpyDotNet {
             } catch (OverflowException) {
                 throw;
             } catch { }
-            throw new ArgumentException(
+            throw new ArgumentTypeException(
                 String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
         }
 
@@ -574,7 +574,7 @@ namespace NumpyDotNet {
                 }
             }
             if (argsDict.Count > 0) {
-                throw new ArgumentException("Unknown named arguments were specified.");
+                throw new ArgumentTypeException("Unknown named arguments were specified.");
             }
             return args;
         }
