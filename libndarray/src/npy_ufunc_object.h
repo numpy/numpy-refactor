@@ -7,6 +7,11 @@
 #include "npy_iterators.h"
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
 typedef void (*NpyUFuncGenericFunction) (char **, npy_intp *,
                                          npy_intp *, void *);
 
@@ -531,5 +536,8 @@ static void generate_overflow_error(void)
 }
 #endif
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

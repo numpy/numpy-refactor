@@ -3,6 +3,10 @@
 
 #include "npy_config.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+    
 
 #if defined(_MSC_VER)
         #define NPY_INLINE __inline
@@ -657,5 +661,9 @@ typedef npy_int64 npy_datetime;
 #define NPY_TIMEDELTA_FMT NPY_INT64_FMT
 
 /* End of typedefs for numarray style bit-width names */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

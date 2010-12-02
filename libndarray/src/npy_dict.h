@@ -15,6 +15,10 @@
 #ifndef _NPY_DICT_H_
 #define _NPY_DICT_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct NpyDict_KVPair_struct;
 struct NpyDict_struct;
 
@@ -67,5 +71,9 @@ void NpyDict_SetDeallocationFunctions(NpyDict *hashTable,
                                       void (*keyDeallocator)(void *key),
                                       void (*valueDeallocator)(void *value));
 unsigned long NpyDict_StringHashFunction(const void *key);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

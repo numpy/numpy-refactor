@@ -8,6 +8,11 @@
 #include "npy_index.h"
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
 #define NpyArray_UCS4 npy_ucs4
 
 #define NpyDataType_FLAGCHK(dtype, flag)          \
@@ -472,6 +477,10 @@ extern void _unaligned_strided_byte_copy(char *dst, npy_intp outstrides,
                                          npy_intp N, int elsize, 
                                          NpyArray_Descr* unused);
 extern void _strided_byte_swap(void *p, npy_intp stride, npy_intp n, int size);
+
+#if defined(__cplusplus)
+}
+#endif
 
 
 #endif

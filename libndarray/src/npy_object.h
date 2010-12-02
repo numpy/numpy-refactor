@@ -8,6 +8,10 @@
 #include <assert.h>
 #include "npy_defs.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /* Simple object model for numpy objects.
    This is similar to the Python object model. */
 
@@ -126,5 +130,8 @@ NDARRAY_API CRITICAL_SECTION Npy_RefCntLock;
 
 #define NpyObject_Wrapper(a) ((a)->interface)
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

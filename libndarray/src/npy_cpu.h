@@ -20,6 +20,10 @@
 
 #include "npy_config.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #if defined( __i386__ ) || defined(i386) || defined(_M_IX86)
     /*
      * __i386__ is defined by gcc and Intel compiler on Linux,
@@ -103,6 +107,10 @@
         #error Unknown architecture, please report this to numpy maintainers \
                with information about your platform (OS, CPU and compiler)
     #endif
+#endif
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif

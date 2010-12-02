@@ -19,6 +19,10 @@
  *****************************************************************************
  */
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 /*
  * Don't pass structures between functions (only pointers) because how
@@ -106,6 +110,9 @@ npy_nc_tanh@c@(c@typ@ *x, c@typ@ *r);
 #undef cdouble
 #undef clongdouble
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
 

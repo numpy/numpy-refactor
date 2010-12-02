@@ -4,6 +4,12 @@
 #include "npy_object.h"
 #include "npy_defs.h"
 
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
 struct NpyArray {
     NpyObject_HEAD
     char *data;             /* pointer to raw data buffer */
@@ -112,5 +118,9 @@ NDARRAY_API int NpyArray_CompareLists(npy_intp *l1, npy_intp *l2, int n);
 #define NpyArray_ISFARRAY_RO(m) NpyArray_FLAGSWAP(m, NPY_FARRAY_RO)
 #define NpyArray_ISBEHAVED(m) NpyArray_FLAGSWAP(m, NPY_BEHAVED)
 #define NpyArray_ISBEHAVED_RO(m) NpyArray_FLAGSWAP(m, NPY_ALIGNED)
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

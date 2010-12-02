@@ -5,6 +5,9 @@
 #include "npy_index.h"
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 struct NpyUFuncObject;
 
@@ -47,5 +50,8 @@ struct NumericOps {
 };
 typedef struct NumericOps NumericOps;
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

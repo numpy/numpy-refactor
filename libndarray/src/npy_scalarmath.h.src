@@ -8,6 +8,10 @@
 #include "npy_api.h"
 #include "npy_ufunc_object.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 //static int ulonglong_overflow(ulonglong a, ulonglNUong b);
 //static int slonglong_overflow(longlong a0, longlong b0);
@@ -247,4 +251,7 @@ extern void
 #define npy_@name@_ctype_invert(a, out) *(out) = ~a;
 /**end repeat**/
 
+#if defined(__cplusplus)
+}
+#endif
 

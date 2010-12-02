@@ -11,6 +11,10 @@
 #include <stdint.h>
 #endif
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
  * This file contains defines and basic types used by the core
  * library.
@@ -610,6 +614,9 @@ typedef int  (NpyArray_FastTakeFunc)(void *dest, void *src, npy_intp *indarray,
                                      NPY_CLIPMODE clipmode);
 
 
+#if defined(__cplusplus)
+}
+#endif
 
 
 #endif

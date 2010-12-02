@@ -1,6 +1,10 @@
 #ifndef _NPY_CALCULATION_H_
 #define _NPY_CALCULATION_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 struct NpyArray;
 
@@ -33,5 +37,9 @@ NpyArray_Any(struct NpyArray *self, int axis, struct NpyArray *out);
 
 NDARRAY_API struct NpyArray *
 NpyArray_All(struct NpyArray *self, int axis, struct NpyArray *out);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

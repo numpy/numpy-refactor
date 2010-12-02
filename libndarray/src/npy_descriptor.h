@@ -11,6 +11,10 @@
     NpyDataType_FLAGCHK(dtype, NPY_ITEM_REFCOUNT)
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 struct NpyDict_struct;
 
 
@@ -336,5 +340,8 @@ NDARRAY_API int npy_arraydescr_isnative(NpyArray_Descr *self);
 NDARRAY_API int
 npy_descr_find_object_flag(NpyArray_Descr *self);
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

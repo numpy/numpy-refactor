@@ -4,6 +4,10 @@
 #include <math.h>
 #include "npy_common.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
  * NAN and INFINITY like macros (same behavior as glibc for NAN, same as C99
  * for INFINITY)
@@ -398,4 +402,9 @@ NDARRAY_API npy_clongdouble npy_csqrtl(npy_clongdouble z);
 
 NDARRAY_API npy_clongdouble npy_ccosl(npy_clongdouble z);
 NDARRAY_API npy_clongdouble npy_csinl(npy_clongdouble z);
+    
+#if defined(__cplusplus)
+}
+#endif
+
 #endif

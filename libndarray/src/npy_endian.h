@@ -1,6 +1,10 @@
 #ifndef _NPY_ENDIAN_H_
 #define _NPY_ENDIAN_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
  * NPY_BYTE_ORDER is set to the same value as BYTE_ORDER set by glibc in
  * endian.h
@@ -40,6 +44,10 @@
     #else
         #error Unknown CPU: can not set endianness
     #endif
+#endif
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif

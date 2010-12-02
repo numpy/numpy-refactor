@@ -3,6 +3,10 @@
 #if !defined(_NPY_BUFFER_H)
 #define _NPY_BUFFER_H
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /* Additional per-array data required for providing the buffer interface */
 typedef struct {
     char *format;
@@ -48,5 +52,9 @@ npy_buffer_info_cmp(npy_buffer_info_t *a, npy_buffer_info_t *b);
 
 extern NDARRAY_API void
 npy_buffer_info_free(npy_buffer_info_t *info);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

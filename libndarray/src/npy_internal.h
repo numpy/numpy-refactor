@@ -1,6 +1,10 @@
 #ifndef _NPY_INTERNAL_H_
 #define _NPY_INTERNAL_H_
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 
 extern struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs;
 
@@ -39,5 +43,8 @@ extern struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs;
         (_NpyArrayWrapperFuncs.descr_new_from_wrapper)((a), (b), (c)) :              \
         NPY_TRUE)
 
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

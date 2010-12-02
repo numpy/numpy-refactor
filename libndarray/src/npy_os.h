@@ -5,6 +5,11 @@
 #include <stdio.h>
 
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+
 #if defined(linux) || defined(__linux) || defined(__linux__)
     #define NPY_OS_LINUX
 #elif defined(__FreeBSD__) || defined(__NetBSD__) || \
@@ -74,5 +79,9 @@ NpyOS_ascii_ftolf(FILE *fp, double *value);
 
 int
 NpyOS_ascii_isspace(char c);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

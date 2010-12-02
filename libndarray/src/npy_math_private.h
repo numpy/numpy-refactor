@@ -26,6 +26,9 @@
 #include "npy_endian.h"
 #include "npy_common.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
 
 #ifdef NPY_OS_DARWIN
     /* This hardcoded logic is fragile, but universal builds makes it
@@ -513,5 +516,9 @@ typedef union {
         npy_clongdouble c99_z;
 } __npy_clongdouble_to_c99_cast;
 #endif /* NPY_HAVE_COMPLEX_H */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif /* !_NPY_MATH_PRIVATE_H_ */

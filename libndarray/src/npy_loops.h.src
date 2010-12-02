@@ -10,6 +10,10 @@
 #include "npy_utils.h"
 #include "npy_ufunc_object.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 #define npy_BOOL_invert npy_BOOL_logical_not
 #define npy_BOOL_negative npy_BOOL_logical_not
 #define npy_BOOL_add npy_BOOL_logical_or
@@ -525,5 +529,9 @@ npy_TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, 
  **                              END LOOPS                                  **
  *****************************************************************************
  */
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

@@ -3,6 +3,10 @@
 
 #include "npy_defs.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 /*
  * Structure for describing a slice without a stop.
  */
@@ -62,5 +66,9 @@ NDARRAY_API int NpyArray_IndexToDimsEtc(NpyArray* array, NpyIndex* indexes, int 
                                         npy_intp* offset_ptr, npy_bool allow_arrays);
 
 NDARRAY_API npy_intp NpyArray_SliceSteps(NpyIndexSlice *slice);
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif

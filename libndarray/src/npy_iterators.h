@@ -4,6 +4,10 @@
 #include "npy_object.h"
 #include "npy_index.h"
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct NpyArrayIterObject NpyArrayIterObject;
 
 /*
@@ -400,5 +404,9 @@ NpyArrayNeighborhoodIter_Next2D(NpyArrayNeighborhoodIterObject* iter);
 #define _NPY_INCLUDE_NEIGHBORHOOD_IMP
 #include "npy_neighbor_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
+
+#if defined(__cplusplus)
+}
+#endif
 
 #endif
