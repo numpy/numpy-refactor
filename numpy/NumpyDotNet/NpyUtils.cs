@@ -161,6 +161,11 @@ namespace NumpyDotNet {
                 return (int)obj;
             } else if (obj is ScalarInt32) {
                 return (int)(ScalarInt32)obj;
+            } else if (obj is BigInteger) {
+                // Looks weird, but important. Casting BigInteger to int causes overflow exceptions. However,
+                // casting to long then to int causes a simple truncation.  The test case is 0x8000000 to
+                // int32.  We want it to come up as -2147483648.
+                return (int)(long)(BigInteger)obj;
             } else {
                 try {
                     object result = CallBuiltin(cntx, "int", obj);
@@ -172,7 +177,7 @@ namespace NumpyDotNet {
                 } catch (OverflowException) {
                     throw;
                 } catch {
-                    throw new ArgumentException(
+                    throw new ArgumentTypeException(
                         String.Format("Unable to convert type '{0}' to integer", obj.GetType().Name));
                 }
             }
@@ -213,7 +218,7 @@ namespace NumpyDotNet {
             } catch (OverflowException) {
                 throw;
             } catch { }
-            throw new ArgumentException(
+            throw new ArgumentTypeException(
                 String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
         }
 
@@ -569,7 +574,7 @@ namespace NumpyDotNet {
                 }
             }
             if (argsDict.Count > 0) {
-                throw new ArgumentException("Unknown named arguments were specified.");
+                throw new ArgumentTypeException("Unknown named arguments were specified.");
             }
             return args;
         }

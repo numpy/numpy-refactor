@@ -12,7 +12,7 @@ using Microsoft.Scripting;
 namespace NumpyDotNet
 {
     [PythonType("numpy.generic")]
-    public class ScalarGeneric : IArray
+    public class ScalarGeneric : IArray, IConvertible
     {
         internal virtual ndarray ToArray() {
             return null;
@@ -116,6 +116,10 @@ namespace NumpyDotNet
 
         public ndarray astype(CodeContext cntx, object dtype = null) {
             return ToArray().astype(cntx, dtype);
+        }
+
+        public object @base {
+            get { return null; }
         }
 
         public ndarray byteswap(bool inplace = false) {
@@ -237,6 +241,14 @@ namespace NumpyDotNet
             return ToArray().min(axis, @out);
         }
 
+
+        /// <summary>
+        /// Size of the object in bytes
+        /// </summary>
+        public object nbytes {
+            get { return this.itemsize; }
+        }
+
         public int ndim {
             get {
                 return 0;
@@ -346,6 +358,15 @@ namespace NumpyDotNet
         public ndarray swapaxes(object a1, object a2) {
             return ToArray().swapaxes(a1, a2);
         }
+
+
+        /// <summary>
+        /// Returns the transpose of this object, for scalars there is no change.
+        /// </summary>
+        public object T {
+            get { return this; }
+        }
+
 
         public object take(object indices, object axis = null, ndarray @out = null, object mode = null) {
             return ToArray().take(indices, axis, @out, mode);
@@ -614,6 +635,78 @@ namespace NumpyDotNet
         internal static object ScalarFromData(dtype type, IntPtr data, int size) {
             return type.ToScalar(data, size);
         }
+
+        #region IConvertible
+
+        public virtual bool ToBoolean(IFormatProvider fp=null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual byte ToByte(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual char ToChar(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual DateTime ToDateTime(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Decimal ToDecimal(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Double ToDouble(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Int16 ToInt16(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Int32 ToInt32(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Int64 ToInt64(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual SByte ToSByte(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Single ToSingle(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual String ToString(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual Object ToType(Type t, IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual UInt16 ToUInt16(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual UInt32 ToUInt32(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual UInt64 ToUInt64(IFormatProvider fp = null) {
+            throw new NotImplementedException();
+        }
+
+        public virtual TypeCode GetTypeCode() {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 
     [PythonType("numpy.bool_")]
@@ -683,6 +776,43 @@ namespace NumpyDotNet
             return s.value;
         }
 
+        #region IConvertible
+
+        public override bool ToBoolean(IFormatProvider fp=null) {
+            return value;
+        }
+
+        public override Int16 ToInt16(IFormatProvider fp = null) {
+            return value ? (short)1 : (short)0;
+        }
+
+        public override Int32 ToInt32(IFormatProvider fp = null) {
+            return value ? 1 : 0;
+        }
+
+        public override Int64 ToInt64(IFormatProvider fp = null) {
+            return value ? 1 : 0;
+        }
+
+        public override UInt16 ToUInt16(IFormatProvider fp = null) {
+            return value ? (UInt16)1 : (UInt16)0;
+        }
+
+        public override UInt32 ToUInt32(IFormatProvider fp = null) {
+            return value ? 1u : 0u;
+        }
+
+        public override UInt64 ToUInt64(IFormatProvider fp = null) {
+            return value ? 1U : 0U;
+        }
+
+
+        public override String ToString() {
+            return value.ToString();
+        }
+
+        #endregion
+
         private bool value;
         static private dtype dtype_;
 
@@ -711,10 +841,74 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.signedinteger")]
-    public class ScalarSignedInteger : ScalarInteger { }
+    public class ScalarSignedInteger : ScalarInteger {  }
+
+    public class ScalarIntegerImpl<T> : ScalarInteger where T : IConvertible
+    {
+        protected T value;
+
+        internal override object Value { get { return value; } }
+
+        #region IConvertible
+
+        public override bool ToBoolean(IFormatProvider fp = null) {
+            return value.ToBoolean(fp);
+        }
+
+        public override byte ToByte(IFormatProvider fp = null) {
+            return value.ToByte(fp);
+        }
+
+        public override char ToChar(IFormatProvider fp = null) {
+            return value.ToChar(fp);
+        }
+
+        public override Decimal ToDecimal(IFormatProvider fp = null) {
+            return value.ToDecimal(fp);
+        }
+
+        public override Double ToDouble(IFormatProvider fp = null) {
+            return value.ToDouble(fp);
+        }
+
+        public override Int16 ToInt16(IFormatProvider fp = null) {
+            return value.ToInt16(fp);
+        }
+
+        public override Int32 ToInt32(IFormatProvider fp = null) {
+            return value.ToInt32(fp);
+        }
+
+        public override Int64 ToInt64(IFormatProvider fp = null) {
+            return value.ToInt64(fp);
+        }
+
+        public override SByte ToSByte(IFormatProvider fp = null) {
+            return value.ToSByte(fp);
+        }
+
+        public override Single ToSingle(IFormatProvider fp = null) {
+            return value.ToSingle(fp);
+        }
+
+        public override UInt16 ToUInt16(IFormatProvider fp = null) {
+            return value.ToUInt16(fp);
+        }
+
+        public override UInt32 ToUInt32(IFormatProvider fp = null) {
+            return value.ToUInt32(fp);
+        }
+
+        public override UInt64 ToUInt64(IFormatProvider fp = null) {
+            return value.ToUInt64(fp);
+        }
+
+        #endregion
+
+    }
 
     [PythonType("numpy.int8")]
-    public class ScalarInt8 : ScalarSignedInteger
+    public class ScalarInt8 : ScalarIntegerImpl<sbyte>
     {
         public ScalarInt8() {
             value = 0;
@@ -740,8 +934,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -774,7 +966,7 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private sbyte value;
+
         static private dtype dtype_;
 
         internal static readonly int MinValue = sbyte.MinValue;
@@ -782,7 +974,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.int16")]
-    public class ScalarInt16 : ScalarSignedInteger
+    public class ScalarInt16 : ScalarIntegerImpl<Int16>
     {
         public ScalarInt16() {
             value = 0;
@@ -791,6 +983,11 @@ namespace NumpyDotNet
         public ScalarInt16(Int16 value) {
             this.value = value;
         }
+
+        public ScalarInt16(string value, int @base = 10) {
+            this.value = Convert.ToInt16(value, @base);
+        }
+
 
         public ScalarInt16(IConvertible value) {
             this.value = Convert.ToInt16(value);
@@ -808,8 +1005,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -846,7 +1041,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private Int16 value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = Int16.MinValue;
@@ -854,7 +1048,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.int32")]
-    public class ScalarInt32 : ScalarSignedInteger
+    public class ScalarInt32 : ScalarIntegerImpl<Int32>
     {
         public ScalarInt32() {
             value = 0;
@@ -862,6 +1056,10 @@ namespace NumpyDotNet
 
         public ScalarInt32(Int32 value) {
             this.value = value;
+        }
+
+        public ScalarInt32(string value, int @base = 10) {
+            this.value = Convert.ToInt32(value, @base);
         }
 
         public ScalarInt32(IConvertible value) {
@@ -918,7 +1116,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private Int32 value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = Int32.MinValue;
@@ -926,7 +1123,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.int64")]
-    public class ScalarInt64 : ScalarSignedInteger
+    public class ScalarInt64 : ScalarIntegerImpl<Int64>
     {
         public ScalarInt64() {
             value = 0;
@@ -935,6 +1132,11 @@ namespace NumpyDotNet
         public ScalarInt64(Int64 value) {
             this.value = value;
         }
+
+        public ScalarInt64(string value, int @base = 10) {
+            this.value = Convert.ToInt64(value, @base);
+        }
+
 
         public ScalarInt64(IConvertible value) {
             this.value = Convert.ToInt64(value);
@@ -993,7 +1195,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private Int64 value;
         static private dtype dtype_;
 
         internal static readonly BigInteger MinValue = new BigInteger(Int64.MinValue);
@@ -1010,8 +1211,72 @@ namespace NumpyDotNet
         }
     }
 
+    public class ScalarUnsignedImpl<T> : ScalarUnsignedInteger where T : IConvertible
+    {
+        protected T value;
+
+        internal override object Value { get { return value; } }
+
+        #region IConvertible
+
+        public override bool ToBoolean(IFormatProvider fp = null) {
+            return value.ToBoolean(fp);
+        }
+
+        public override byte ToByte(IFormatProvider fp = null) {
+            return value.ToByte(fp);
+        }
+
+        public override char ToChar(IFormatProvider fp = null) {
+            return value.ToChar(fp);
+        }
+
+        public override Decimal ToDecimal(IFormatProvider fp = null) {
+            return value.ToDecimal(fp);
+        }
+
+        public override Double ToDouble(IFormatProvider fp = null) {
+            return value.ToDouble(fp);
+        }
+
+        public override Int16 ToInt16(IFormatProvider fp = null) {
+            return value.ToInt16(fp);
+        }
+
+        public override Int32 ToInt32(IFormatProvider fp = null) {
+            return value.ToInt32(fp);
+        }
+
+        public override Int64 ToInt64(IFormatProvider fp = null) {
+            return value.ToInt64(fp);
+        }
+
+        public override SByte ToSByte(IFormatProvider fp = null) {
+            return value.ToSByte(fp);
+        }
+
+        public override Single ToSingle(IFormatProvider fp = null) {
+            return value.ToSingle(fp);
+        }
+
+        public override UInt16 ToUInt16(IFormatProvider fp = null) {
+            return value.ToUInt16(fp);
+        }
+
+        public override UInt32 ToUInt32(IFormatProvider fp = null) {
+            return value.ToUInt32(fp);
+        }
+
+        public override UInt64 ToUInt64(IFormatProvider fp = null) {
+            return value.ToUInt64(fp);
+        }
+
+        #endregion
+
+    }
+
     [PythonType("numpy.uint8")]
-    public class ScalarUInt8 : ScalarUnsignedInteger
+    public class ScalarUInt8 : ScalarUnsignedImpl<byte>
     {
         public ScalarUInt8() {
             value = 0;
@@ -1037,8 +1302,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1077,7 +1340,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private byte value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = 0;
@@ -1085,7 +1347,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.uint16")]
-    public class ScalarUInt16 : ScalarUnsignedInteger
+    public class ScalarUInt16 : ScalarUnsignedImpl<UInt16>
     {
         public ScalarUInt16() {
             value = 0;
@@ -1115,8 +1377,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1153,7 +1413,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private UInt16 value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = 0;
@@ -1161,7 +1420,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.uint32")]
-    public class ScalarUInt32 : ScalarUnsignedInteger
+    public class ScalarUInt32 : ScalarUnsignedImpl<UInt32>
     {
         public ScalarUInt32() {
             value = 0;
@@ -1191,8 +1450,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1232,7 +1489,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private UInt32 value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = 0;
@@ -1240,7 +1496,7 @@ namespace NumpyDotNet
     }
 
     [PythonType("numpy.uint64")]
-    public class ScalarUInt64 : ScalarUnsignedInteger
+    public class ScalarUInt64 : ScalarUnsignedImpl<UInt64>
     {
         public ScalarUInt64() {
             value = 0;
@@ -1278,8 +1534,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1319,7 +1573,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private UInt64 value;
         static private dtype dtype_;
 
         internal static readonly int MinValue = 0;
@@ -1337,8 +1590,71 @@ namespace NumpyDotNet
     [PythonType("numpy.floating")]
     public class ScalarFloating : ScalarInexact { }
 
+    public class ScalarFloatingImpl<T> : ScalarFloating where T : IConvertible
+    {
+        protected T value;
+
+        internal override object Value { get { return value; } }
+
+        #region IConvertible
+
+        public override bool ToBoolean(IFormatProvider fp = null) {
+            return value.ToBoolean(fp);
+        }
+
+        public override byte ToByte(IFormatProvider fp = null) {
+            return value.ToByte(fp);
+        }
+
+        public override char ToChar(IFormatProvider fp = null) {
+            return value.ToChar(fp);
+        }
+
+        public override Decimal ToDecimal(IFormatProvider fp = null) {
+            return value.ToDecimal(fp);
+        }
+
+        public override Double ToDouble(IFormatProvider fp = null) {
+            return value.ToDouble(fp);
+        }
+
+        public override Int16 ToInt16(IFormatProvider fp = null) {
+            return value.ToInt16(fp);
+        }
+
+        public override Int32 ToInt32(IFormatProvider fp = null) {
+            return value.ToInt32(fp);
+        }
+
+        public override Int64 ToInt64(IFormatProvider fp = null) {
+            return value.ToInt64(fp);
+        }
+
+        public override SByte ToSByte(IFormatProvider fp = null) {
+            return value.ToSByte(fp);
+        }
+
+        public override Single ToSingle(IFormatProvider fp = null) {
+            return value.ToSingle(fp);
+        }
+
+        public override UInt16 ToUInt16(IFormatProvider fp = null) {
+            return value.ToUInt16(fp);
+        }
+
+        public override UInt32 ToUInt32(IFormatProvider fp = null) {
+            return value.ToUInt32(fp);
+        }
+
+        public override UInt64 ToUInt64(IFormatProvider fp = null) {
+            return value.ToUInt64(fp);
+        }
+
+        #endregion
+    }
+
     [PythonType("numpy.float32")]
-    public class ScalarFloat32 : ScalarFloating
+    public class ScalarFloat32 : ScalarFloatingImpl<Single>
     {
         public ScalarFloat32() {
             value = 0;
@@ -1364,8 +1680,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1408,12 +1722,11 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private Single value;
         static private dtype dtype_;
     }
 
     [PythonType("numpy.float64")]
-    public class ScalarFloat64 : ScalarFloating
+    public class ScalarFloat64 : ScalarFloatingImpl<Double>
     {
         public ScalarFloat64() {
             value = 0;
@@ -1439,8 +1752,6 @@ namespace NumpyDotNet
                 return dtype_;
             }
         }
-
-        internal override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1483,7 +1794,6 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
-        private Double value;
         static private dtype dtype_;
     }
 
@@ -1496,6 +1806,7 @@ namespace NumpyDotNet
             }
         }
     }
+
 
     [PythonType("numpy.complex64")]
     public class ScalarComplex64 : ScalarComplexFloating

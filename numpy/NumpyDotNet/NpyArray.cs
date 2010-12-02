@@ -238,10 +238,14 @@ namespace NumpyDotNet {
                 is_object = true;
             }
 
-            bool seq = false;
-            if (src is string) {
-                src = ((string)src).AsEnumerable().Cast<object>();
+            // Hack required because in C# strings are enumerations of chars, not objects. 
+            // However, we want to keep src as a string if we are building a string or object array.
+            if (!is_object && descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING && 
+                descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string) {
+                src = ((string)src).Cast<object>();
             }
+
+            bool seq = false;
             if (src is IEnumerable<object>) {
                 try {
                     result = FromIEnumerable((IEnumerable<object>)src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
@@ -669,7 +673,7 @@ namespace NumpyDotNet {
             if (stopAtTuple && src is PythonTuple) {
                 return 0;
             }
-            if (src is string) {
+            if (src is string || src is IEnumerable<char>) {
                 return (stopAtString ? 0 : 1);
             }
 

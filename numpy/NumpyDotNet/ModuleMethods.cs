@@ -20,15 +20,23 @@ namespace NumpyDotNet {
 
         public const string __module__ = "numpy.core.multiarray";
 
-
         public static void __init__(CodeContext cntx) {
             PythonDictionary moduleDict = cntx.ModuleContext.Module.Get__dict__();
 
-            moduleDict.Add(new KeyValuePair<object, object>("CLIP", NpyDefs.NPY_CLIPMODE.NPY_CLIP));
-            moduleDict.Add(new KeyValuePair<object, object>("WRAP", NpyDefs.NPY_CLIPMODE.NPY_WRAP));
-            moduleDict.Add(new KeyValuePair<object, object>("RAISE", NpyDefs.NPY_CLIPMODE.NPY_RAISE));
+            moduleDict.Add(new KeyValuePair<object, object>("CLIP", (int)NpyDefs.NPY_CLIPMODE.NPY_CLIP));
+            moduleDict.Add(new KeyValuePair<object, object>("WRAP", (int)NpyDefs.NPY_CLIPMODE.NPY_WRAP));
+            moduleDict.Add(new KeyValuePair<object, object>("RAISE", (int)NpyDefs.NPY_CLIPMODE.NPY_RAISE));
+            moduleDict.Add(new KeyValuePair<object, object>("ALLOW_THREADS", 1));
+            moduleDict.Add(new KeyValuePair<object, object>("BUFSIZE", (int)NpyDefs.NPY_BUFSIZE));
+            moduleDict.Add(new KeyValuePair<object, object>("ITEM_HASOBJECT", (int)NpyDefs.NPY__ITEM_HASOBJECT));
+            moduleDict.Add(new KeyValuePair<object, object>("LIST_PICKLE", (int)NpyDefs.NPY_LIST_PICKLE));
+            moduleDict.Add(new KeyValuePair<object, object>("ITEM_IS_POINTER", (int)NpyDefs.NPY_ITEM_IS_POINTER));
+            moduleDict.Add(new KeyValuePair<object, object>("NEEDS_INIT", (int)NpyDefs.NPY_NEEDS_INIT));
+            moduleDict.Add(new KeyValuePair<object, object>("NEEDS_PYAPI", (int)NpyDefs.NPY_NEEDS_PYAPI));
+            moduleDict.Add(new KeyValuePair<object, object>("USE_GETITEM", (int)NpyDefs.NPY_USE_GETITEM));
+            moduleDict.Add(new KeyValuePair<object, object>("USE_SETITEM", (int)NpyDefs.NPY_USE_SETITEM));
+            moduleDict.Add(new KeyValuePair<object, object>("MAXDIMS", (int)NpyDefs.NPY_MAXDIMS));
         }
-
 
         /// <summary>
         /// Ick. See ScalarGeneric.Initialized.
@@ -87,11 +95,7 @@ namespace NumpyDotNet {
                 if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
 
-                if (args[3] != null && args[3] is string &&
-                    String.Compare((String)args[3], "Fortran", true) == 0)
-                    order = NpyDefs.NPY_ORDER.NPY_FORTRANORDER;
-                else order = NpyDefs.NPY_ORDER.NPY_CORDER;
-
+                order = NpyUtil_ArgProcessing.OrderConverter(args[3]);
                 if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
                 if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
