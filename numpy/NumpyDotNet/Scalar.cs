@@ -782,6 +782,31 @@ namespace NumpyDotNet
             return value;
         }
 
+        public override Int16 ToInt16(IFormatProvider fp = null) {
+            return value ? (short)1 : (short)0;
+        }
+
+        public override Int32 ToInt32(IFormatProvider fp = null) {
+            return value ? 1 : 0;
+        }
+
+        public override Int64 ToInt64(IFormatProvider fp = null) {
+            return value ? 1 : 0;
+        }
+
+        public override UInt16 ToUInt16(IFormatProvider fp = null) {
+            return value ? (UInt16)1 : (UInt16)0;
+        }
+
+        public override UInt32 ToUInt32(IFormatProvider fp = null) {
+            return value ? 1u : 0u;
+        }
+
+        public override UInt64 ToUInt64(IFormatProvider fp = null) {
+            return value ? 1U : 0U;
+        }
+
+
         public override String ToString() {
             return value.ToString();
         }
