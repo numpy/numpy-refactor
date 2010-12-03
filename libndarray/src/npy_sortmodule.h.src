@@ -6,7 +6,9 @@
 extern "C" {
 #endif
 
-    
+
+NDARRAY_API void npy_add_sortfuncs(void);
+
 
 /**begin repeat
  *
