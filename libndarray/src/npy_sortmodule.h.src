@@ -1,0 +1,180 @@
+
+#if !defined(NPY_SORTMODULE_H_SRC)
+#define NPY_SORTMODULE_H_SRC
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
+    
+
+/**begin repeat
+ *
+ * #TYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
+ *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE, CFLOAT,
+ *         CDOUBLE,CLONGDOUBLE, INTP#
+ * #type = npy_bool, npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int,
+ *         npy_uint, npy_long, npy_ulong, npy_longlong, npy_ulonglong,
+ *         npy_float, npy_double, npy_longdouble, npy_cfloat, npy_cdouble,
+ *         npy_clongdouble, npy_intp#
+ */
+#define npy_@TYPE@_SWAP(a,b) {@type@ tmp = (b); (b)=(a); (a) = tmp;}
+
+/**end repeat**/
+
+/*
+ *****************************************************************************
+ **                        COMPARISON FUNCTIONS                             **
+ *****************************************************************************
+ */
+
+/**begin repeat
+ *
+ * #TYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
+ *         LONGLONG, ULONGLONG#
+ * #type = npy_bool, npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, npy_ulong,
+ *         npy_longlong, npy_ulonglong#
+ */
+NDARRAY_API int
+npy_@TYPE@_LT(@type@ a, @type@ b);
+/**end repeat**/
+
+
+/**begin repeat
+ *
+ * #TYPE = FLOAT, DOUBLE, LONGDOUBLE#
+ * #type = npy_float, npy_double, npy_longdouble#
+ */
+NDARRAY_API int
+npy_@TYPE@_LT(@type@ a, @type@ b);
+/**end repeat**/
+
+
+/*
+ * For inline functions SUN recommends not using a return in the then part
+ * of an if statement. It's a SUN compiler thing, so assign the return value
+ * to a variable instead.
+ */
+
+/**begin repeat
+ *
+ * #TYPE = CFLOAT, CDOUBLE, CLONGDOUBLE#
+ * #type = npy_cfloat, npy_cdouble, npy_clongdouble#
+ */
+NDARRAY_API int
+npy_@TYPE@_LT(@type@ a, @type@ b);
+/**end repeat**/
+
+
+NDARRAY_API void
+npy_STRING_COPY(char *s1, char *s2, size_t len);
+
+NDARRAY_API void
+npy_STRING_SWAP(char *s1, char *s2, size_t len);
+
+
+NDARRAY_API int
+npy_STRING_LT(char *s1, char *s2, size_t len);
+
+
+NDARRAY_API void
+npy_UNICODE_COPY(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
+
+
+NDARRAY_API void
+npy_UNICODE_SWAP(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
+
+
+NDARRAY_API int
+npy_UNICODE_LT(npy_ucs4 *s1, npy_ucs4 *s2, size_t len);
+
+
+/*
+ *****************************************************************************
+ **                            NUMERIC SORTS                                **
+ *****************************************************************************
+ */
+
+
+/**begin repeat
+ *
+ * #TYPE = BOOL, BYTE, UBYTE, SHORT, USHORT, INT, UINT, LONG, ULONG,
+ *         LONGLONG, ULONGLONG, FLOAT, DOUBLE, LONGDOUBLE,
+ *         CFLOAT, CDOUBLE, CLONGDOUBLE#
+ * #type = npy_bool, npy_byte, npy_ubyte, npy_short, npy_ushort, npy_int, npy_uint, npy_long, npy_ulong,
+ *         npy_longlong, npy_ulonglong, npy_float, npy_double, npy_longdouble,
+ *         npy_cfloat, npy_cdouble, npy_clongdouble#
+ */
+
+
+NDARRAY_API int
+npy_@TYPE@_quicksort(@type@ *start, npy_intp num, void *NOT_USED);
+
+NDARRAY_API int
+npy_@TYPE@_aquicksort(@type@ *v, npy_intp* tosort, npy_intp num, void *NOT_USED);
+
+NDARRAY_API int
+npy_@TYPE@_heapsort(@type@ *start, npy_intp n, void *NOT_USED);
+
+NDARRAY_API int
+npy_@TYPE@_aheapsort(@type@ *v, npy_intp *tosort, npy_intp n, void *NOT_USED);
+
+NDARRAY_API void
+npy_@TYPE@_mergesort0(@type@ *pl, @type@ *pr, @type@ *pw);
+
+NDARRAY_API int
+npy_@TYPE@_mergesort(@type@ *start, npy_intp num, void *NOT_USED);
+
+NDARRAY_API void
+npy_@TYPE@_amergesort0(npy_intp *pl, npy_intp *pr, @type@ *v, npy_intp *pw);
+
+NDARRAY_API int
+npy_@TYPE@_amergesort(@type@ *v, npy_intp *tosort, npy_intp num, void *NOT_USED);
+
+
+/**end repeat**/
+
+/*
+ *****************************************************************************
+ **                             STRING SORTS                                **
+ *****************************************************************************
+ */
+
+
+/**begin repeat
+ *
+ * #TYPE = STRING, UNICODE#
+ * #type = char, NpyArray_UCS4#
+ */
+
+NDARRAY_API void
+npy_@TYPE@_mergesort0(@type@ *pl, @type@ *pr, @type@ *pw, @type@ *vp, size_t len);
+
+NDARRAY_API int
+npy_@TYPE@_mergesort(@type@ *start, npy_intp num, NpyArray *arr);
+
+NDARRAY_API int
+npy_@TYPE@_quicksort(@type@ *start, npy_intp num, NpyArray *arr);
+
+NDARRAY_API int
+npy_@TYPE@_heapsort(@type@ *start, npy_intp n, NpyArray *arr);
+
+NDARRAY_API int
+npy_@TYPE@_aheapsort(@type@ *v, npy_intp *tosort, npy_intp n, NpyArray *arr);
+
+NDARRAY_API int
+npy_@TYPE@_aquicksort(@type@ *v, npy_intp* tosort, npy_intp num, NpyArray *arr);
+
+NDARRAY_API void
+npy_@TYPE@_amergesort0(npy_intp *pl, npy_intp *pr, @type@ *v, npy_intp *pw, int len);
+
+NDARRAY_API int
+npy_@TYPE@_amergesort(@type@ *v, npy_intp *tosort, npy_intp num, NpyArray *arr);
+/**end repeat**/
+
+#if defined(__cplusplus)
+}
+#endif
+
+#endif
+

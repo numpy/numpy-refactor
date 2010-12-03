@@ -69,7 +69,7 @@ am__objects_1 = src/npy_arrayobject.lo src/npy_arraytypes.lo \
 	src/npy_math.lo src/npy_math_complex.lo src/npy_methods.lo \
 	src/npy_multiarray.lo src/npy_number.lo src/npy_os.lo \
 	src/npy_refcount.lo src/npy_scalarmath.lo src/npy_shape.lo \
-	src/npy_ufunc_object.lo src/npy_usertypes.lo \
+	src/npy_sortmodule.lo src/npy_ufunc_object.lo src/npy_usertypes.lo \
 	tools/long_double.lo
 am_libndarray_la_OBJECTS = $(am__objects_1)
 libndarray_la_OBJECTS = $(am_libndarray_la_OBJECTS)
@@ -235,6 +235,7 @@ INSTINCLUDES = \
         src/npy_object.h \
         src/npy_os.h \
         src/npy_scalarmath.h \
+        src/npy_sortmodule.h \
         src/npy_ufunc_object.h \
         src/npy_utils.h
 
@@ -276,8 +277,9 @@ LIBSOURCES = \
         src/npy_number.c \
         src/npy_os.c \
         src/npy_refcount.c \
-        src/npy_scalarmath.c \
+        src/npy_scalarmath.c.src \
         src/npy_shape.c \
+        src/npy_sortmodule.c.src \
         src/npy_ufunc_object.c \
         src/npy_usertypes.c \
         src/npy_arraytypes.c.src \
@@ -314,6 +316,7 @@ CLEANFILES = \
         src/npy_math.c \
         src/npy_math_complex.c \
         src/npy_scalarmath.c \
+        src/npy_sortmodule.c \
         src/npy_config.c \
         tools/long_double.o
 
@@ -447,6 +450,8 @@ src/npy_os.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/npy_refcount.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/npy_scalarmath.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/npy_sortmodule.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/npy_shape.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/npy_ufunc_object.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -525,6 +530,8 @@ mostlyclean-compile:
 	-rm -f src/npy_scalarmath.lo
 	-rm -f src/npy_shape.$(OBJEXT)
 	-rm -f src/npy_shape.lo
+	-rm -f src/npy_sortmodule.$(OBJEXT)
+	-rm -f src/npy_sortmodule.lo
 	-rm -f src/npy_ufunc_object.$(OBJEXT)
 	-rm -f src/npy_ufunc_object.lo
 	-rm -f src/npy_usertypes.$(OBJEXT)
@@ -565,6 +572,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_refcount.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_scalarmath.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_shape.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_sortmodule.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_ufunc_object.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/npy_usertypes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tools/$(DEPDIR)/long_double.Plo@am__quote@
@@ -952,6 +960,13 @@ src/npy_scalarmath.c: src/npy_scalarmath.c.src src/npy_scalarmath.h
 
 src/npy_scalarmath.h: src/npy_scalarmath.h.src
 	$(CONV_TMPL) $<
+    
+src/npy_sortmodule.c: src/npy_sortmodule.c.src src/npy_sortmodule.h
+	$(CONV_TMPL) $<
+
+src/npy_sortmodule.h: src/npy_sortmodule.h.src
+	$(CONV_TMPL) $<
+    
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

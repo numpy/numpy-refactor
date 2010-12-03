@@ -23,6 +23,7 @@ INSTINCLUDES = \
         src/npy_object.h \
         src/npy_os.h \
         src/npy_scalarmath.h \
+        src/npy_sortmodule.h \
         src/npy_ufunc_object.h \
         src/npy_utils.h
 
@@ -62,8 +63,9 @@ LIBSOURCES = \
         src/npy_number.c \
         src/npy_os.c \
         src/npy_refcount.c \
-        src/npy_scalarmath.c \
+        src/npy_scalarmath.c.src \
         src/npy_shape.c \
+        src/npy_sortmodule.c.src \
         src/npy_ufunc_object.c \
         src/npy_usertypes.c \
         src/npy_arraytypes.c.src \
@@ -100,6 +102,7 @@ CLEANFILES = \
         src/npy_math.c \
         src/npy_math_complex.c \
         src/npy_scalarmath.c \
+        src/npy_sortmodule.c \
         src/npy_config.c \
         tools/long_double.o
 
@@ -147,3 +150,10 @@ src/npy_scalarmath.c: src/npy_scalarmath.c.src src/npy_scalarmath.h
 
 src/npy_scalarmath.h: src/npy_scalarmath.h.src
 	$(CONV_TMPL) $<
+
+src/npy_sortmodule.c: src/npy_sortmodule.c.src src/npy_sortmodule.h
+	$(CONV_TMPL) $<
+
+src/npy_sortmodule.h: src/npy_sortmodule.h.src
+	$(CONV_TMPL) $<
+

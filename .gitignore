@@ -106,6 +106,8 @@ libndarray/src/npy_loops.c
 libndarray/src/npy_loops.h
 libndarray/src/npy_scalarmath.c
 libndarray/src/npy_scalarmath.h
+libndarray/src/npy_sortmodule.c
+libndarray/src/npy_sortmodule.h
 libndarray/stamp-h1
 libndarray/windows/Debug
 libndarray/windows/Release
