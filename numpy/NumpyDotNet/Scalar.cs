@@ -589,19 +589,19 @@ namespace NumpyDotNet
             return ToArray().__rge__(cntx, o);
         }
 
-        public object __int__(CodeContext cntx) {
+        public virtual object __int__(CodeContext cntx) {
             return ToArray().__int__(cntx);
         }
 
-        public object __long__(CodeContext cntx) {
+        public virtual object __long__(CodeContext cntx) {
             return ToArray().__long__(cntx);
         }
 
-        public object __float__(CodeContext cntx) {
+        public virtual object __float__(CodeContext cntx) {
             return ToArray().__float__(cntx);
         }
 
-        public object __complex__(CodeContext cntx) {
+        public virtual object __complex__(CodeContext cntx) {
             return ToArray().__complex__(cntx);
         }
 
@@ -1866,6 +1866,10 @@ namespace NumpyDotNet
             return this;
         }
 
+        public override object __float__(CodeContext cntx) {
+            return (double)value.Real;
+        }
+
         public override object imag {
             get {
                 return new ScalarFloat32(value.Imag);
@@ -1947,6 +1951,10 @@ namespace NumpyDotNet
                 }
             }
             return this;
+        }
+
+        public override object __float__(CodeContext cntx) {
+            return value.Real;
         }
 
         public override object imag {

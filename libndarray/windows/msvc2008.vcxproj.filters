@@ -7,6 +7,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{333d78c3-db6c-438d-bcfb-bb99fc8b8970}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{4c8a9018-65db-4ff8-8545-8034a3f35e1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\npy_neighbor_imp.h">
@@ -76,6 +79,12 @@
       <Filter>Include</Filter>
     </ClInclude>
     <ClInclude Include="..\src\npy_buffer.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_scalarmath.h">
+      <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\npy_sortmodule.h">
       <Filter>Core</Filter>
     </ClInclude>
   </ItemGroup>
@@ -173,6 +182,15 @@
     <ClCompile Include="..\src\npy_buffer.c">
       <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="..\tools\long_double.c">
+      <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_scalarmath.c">
+      <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\npy_sortmodule.c">
+      <Filter>Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\npy_arraytypes.c.src">
@@ -191,6 +209,24 @@
       <Filter>Core</Filter>
     </None>
     <None Include="..\src\npy_loops.h.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\tools\conv_template.py">
+      <Filter>Tools</Filter>
+    </None>
+    <None Include="..\tools\mk_config.py">
+      <Filter>Tools</Filter>
+    </None>
+    <None Include="..\src\npy_scalarmath.c.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\src\npy_scalarmath.h.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\src\npy_sortmodule.c.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\src\npy_sortmodule.h.src">
       <Filter>Core</Filter>
     </None>
   </ItemGroup>

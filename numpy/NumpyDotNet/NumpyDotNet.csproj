@@ -93,6 +93,7 @@
     <Compile Include="NpyDefs.cs" />
     <Compile Include="NpyDescr.cs" />
     <Compile Include="Scalar.cs" />
+    <Compile Include="ScalarMathModule.cs" />
     <Compile Include="shape.cs" />
     <Compile Include="NpyUtils.cs" />
     <Compile Include="NumericOps.cs" />

@@ -75,6 +75,8 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\$(Configuration)\</OutDir>
+    <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
+    <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compile</CustomBuildBeforeTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -96,6 +98,15 @@
     <Link>
       <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <CustomBuildStep>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Processing .src files</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>npy_arraytypes.c; npy_funcs.c; npy_funcs.h</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -119,6 +130,15 @@
       <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuildStep>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Processing .src files</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>npy_arraytypes.c; npy_funcs.c; npy_funcs.h</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -179,6 +199,8 @@
     <ClInclude Include="..\src\npy_number.h" />
     <ClInclude Include="..\src\npy_object.h" />
     <ClInclude Include="..\src\npy_os.h" />
+    <ClInclude Include="..\src\npy_scalarmath.h" />
+    <ClInclude Include="..\src\npy_sortmodule.h" />
     <ClInclude Include="..\src\npy_ufunc_object.h" />
     <ClInclude Include="..\src\npy_utils.h" />
   </ItemGroup>
@@ -211,9 +233,12 @@
     <ClCompile Include="..\src\npy_number.c" />
     <ClCompile Include="..\src\npy_os.c" />
     <ClCompile Include="..\src\npy_refcount.c" />
+    <ClCompile Include="..\src\npy_scalarmath.c" />
     <ClCompile Include="..\src\npy_shape.c" />
+    <ClCompile Include="..\src\npy_sortmodule.c" />
     <ClCompile Include="..\src\npy_ufunc_object.c" />
     <ClCompile Include="..\src\npy_usertypes.c" />
+    <ClCompile Include="..\tools\long_double.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\npy_arraytypes.c.src" />
@@ -222,6 +247,48 @@
     <None Include="..\src\npy_ieee754.c.src" />
     <None Include="..\src\npy_loops.c.src" />
     <None Include="..\src\npy_loops.h.src" />
+    <None Include="..\src\npy_scalarmath.c.src">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.c.src</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.c</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.h</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py npy_scalarmath.c.src</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.c</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.h</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_scalarmath.c</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_scalarmath.c</Message>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\src\npy_scalarmath.h.src">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_scalarmath.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_scalarmath.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.h</Outputs>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\src\npy_sortmodule.c.src">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_sortmodule.c</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.c</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.h</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_sortmodule.c</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.c</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.h</AdditionalInputs>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\src\npy_sortmodule.h.src">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_sortmodule.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating npy_sortmodule.h</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.h</Outputs>
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\tools\conv_template.py" />
+    <None Include="..\tools\mk_config.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

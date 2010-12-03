@@ -741,6 +741,9 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc, IntPtr ret);
 
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_add_sortfuncs")]
+        internal static extern IntPtr NpyArray_InitSortModule();
+
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
 
@@ -1981,10 +1984,11 @@ namespace NumpyDotNet {
             Native_SizeOfLongLong = longLongSize;
             Native_SizeOfLongDouble = longDoubleSize;
 
+            // Important: keep this consistent with NpyArray_TypestrConvert in npy_conversion_utils.c
             if (intSize == 4 && longSize == 4 && longLongSize == 8) {
-                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
+                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_LONG;
                 TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
-                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
+                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_ULONG;
                 TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONGLONG;
             } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
                 TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
@@ -2087,6 +2091,9 @@ namespace NumpyDotNet {
                 out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
 
             NpyUFunc_SetFpErrFuncs(GetErrorStateDelegate, ErrorHandlerDelegate);
+
+            // Causes the sort functions to be registered with the type descriptor objects.
+            NpyArray_InitSortModule();
         }
         #endregion
 

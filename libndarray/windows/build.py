@@ -14,7 +14,7 @@ src_dir = r'..\src'
 
 
 def write_config():
-    os.system(r"cl ..\tools\long_double.c")
+    os.system(r"cl ..\\tools\\long_double.c")
     data = open('npy_config.h').read()
     data += '''
 /* long double representation */
@@ -25,15 +25,10 @@ def write_config():
     fo.close()
 
 
-def convert_templates():
-    for path in glob(join(src_dir, '*.src')):
-        process_file(path)
-
 
 def main():
-    convert_templates()
     write_config()
-    os.system("msbuild /v:diag msvc2008.vcproj")
+    os.system("msbuild /v:diag msvc2008.vcxproj")
     # shutil.copy(r'Release\ndarray.dll', sys.prefix)
 
 

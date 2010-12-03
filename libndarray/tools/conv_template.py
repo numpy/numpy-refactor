@@ -33,7 +33,9 @@ replacements
    comma-separated entries.
 """
 
+import os
 import re
+import glob
 
 # names for replacement that are already global.
 global_names = {}
@@ -204,21 +206,22 @@ def process_str(astr):
 
 def process_file(src):
     assert src.endswith('.src')
-
-    print "\treading:", src
-    data = open(src).read()
-    data = process_str(data)
-
     dst = src[:-4]
-    print "\twriting:", dst
-    fo = open(dst, 'w')
-    fo.write(data)
-    fo.close()
+
+    if not os.path.exists(dst) or os.path.getmtime(dst) <= os.path.getmtime(src):
+        print "\tProcessing %s into %s" % (src, dst)
+        data = open(src).read()
+        data = process_str(data)
+
+        fo = open(dst, 'w')
+        fo.write(data)
+        fo.close()
 
 
 if __name__ == "__main__":
     import sys
 
-    print "converting template:"
-    for path in sys.argv[1:]:
-        process_file(path)
+    os.chdir(sys.argv[1])
+    print "Processing code templates:"
+    for file in glob.glob("*.src"):
+        process_file(file)
