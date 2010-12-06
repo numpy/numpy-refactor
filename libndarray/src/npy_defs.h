@@ -507,6 +507,9 @@ typedef enum {
     do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
     NPY_END_THREADS; } while (0);
 
+#define NPY_LOOP_BEGIN_THREADS do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) _save = PyEval_SaveThread();} while (0)
+#define NPY_LOOP_END_THREADS   do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) PyEval_RestoreThread(_save);} while (0)
+    
 #define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
 #define NPY_ALLOW_C_API      __save__ = PyGILState_Ensure();
 #define NPY_DISABLE_C_API    PyGILState_Release(__save__);
@@ -518,6 +521,8 @@ typedef enum {
 #define NPY_END_THREADS
 #define NPY_BEGIN_THREADS_DESCR(dtype)
 #define NPY_END_THREADS_DESCR(dtype)
+#define NPY_LOOP_BEGIN_THREADS
+#define NPY_LOOP_END_THREADS
 #define NPY_ALLOW_C_API_DEF
 #define NPY_ALLOW_C_API
 #define NPY_DISABLE_C_API
