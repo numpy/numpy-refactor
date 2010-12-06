@@ -156,16 +156,16 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
   Copy an array.
 */
 NDARRAY_API NpyArray *
-NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
+NpyArray_NewCopy(NpyArray *m1, NPY_ORDER order)
 {
     NpyArray *ret;
-    npy_bool doFortran;
+    npy_bool fortran;
 
-    doFortran = (fortran == NPY_ANYORDER) ? NpyArray_ISFORTRAN(m1) : NPY_FALSE;
+    fortran = (order == NPY_ANYORDER) ? NpyArray_ISFORTRAN(m1) : (order == NPY_FORTRANORDER);
 
     Npy_INCREF(m1->descr);
     ret = NpyArray_Alloc(m1->descr, m1->nd, m1->dimensions,
-                         doFortran, Npy_INTERFACE(m1));
+                         fortran, Npy_INTERFACE(m1));
     if (ret == NULL) {
         return NULL;
     }
