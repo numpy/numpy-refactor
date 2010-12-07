@@ -489,15 +489,19 @@ typedef enum {
 #define NPY_BUFSIZE 10000
 /* #define NPY_BUFSIZE 80*/
 
-
-
-/* TODO: Need to generalize the threading interface. */
+    
 #if NPY_ALLOW_THREADS
-#define NPY_BEGIN_ALLOW_THREADS Py_BEGIN_ALLOW_THREADS
-#define NPY_END_ALLOW_THREADS Py_END_ALLOW_THREADS
-#define NPY_BEGIN_THREADS_DEF PyThreadState *_save=NULL;
-#define NPY_BEGIN_THREADS _save = PyEval_SaveThread();
-#define NPY_END_THREADS   do {if (_save) PyEval_RestoreThread(_save);} while (0);
+/* Function pointers provided at initialization by the call for enabling and
+   disabling threads.  For now, only the CPython model of single thread behavior
+   except where enabled is supported.  The code has not been thoroughly checked
+   to be sure that it is reentrant. */
+extern void *(*npy_enable_threads)();
+extern void (*npy_disable_threads)(void *);
+
+    
+#define NPY_BEGIN_THREADS_DEF void *_save=NULL;
+#define NPY_BEGIN_THREADS _save = (NULL != npy_enable_threads) ? npy_enable_threads() : NULL;
+#define NPY_END_THREADS   do { if (NULL != npy_disable_threads) npy_disable_threads(_save); } while (0);
 
 #define NPY_BEGIN_THREADS_DESCR(dtype)                           \
     do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
@@ -507,15 +511,11 @@ typedef enum {
     do {if (!(NpyDataType_FLAGCHK(dtype, NPY_NEEDS_PYAPI)))      \
     NPY_END_THREADS; } while (0);
 
-#define NPY_LOOP_BEGIN_THREADS do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) _save = PyEval_SaveThread();} while (0)
-#define NPY_LOOP_END_THREADS   do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) PyEval_RestoreThread(_save);} while (0)
-    
-#define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
-#define NPY_ALLOW_C_API      __save__ = PyGILState_Ensure();
-#define NPY_DISABLE_C_API    PyGILState_Release(__save__);
+#define NPY_LOOP_BEGIN_THREADS do {if (!(loop->obj & NPY_UFUNC_OBJ_NEEDS_API)) NPY_BEGIN_THREADS } while (0)
+#define NPY_LOOP_END_THREADS   do {if (!(loop->obj & NPY_UFUNC_OBJ_NEEDS_API)) NPY_END_THREADS } while (0)
+
 #else
-#define NPY_BEGIN_ALLOW_THREADS
-#define NPY_END_ALLOW_THREADS
+
 #define NPY_BEGIN_THREADS_DEF
 #define NPY_BEGIN_THREADS
 #define NPY_END_THREADS
@@ -523,9 +523,7 @@ typedef enum {
 #define NPY_END_THREADS_DESCR(dtype)
 #define NPY_LOOP_BEGIN_THREADS
 #define NPY_LOOP_END_THREADS
-#define NPY_ALLOW_C_API_DEF
-#define NPY_ALLOW_C_API
-#define NPY_DISABLE_C_API
+
 #endif
 
 

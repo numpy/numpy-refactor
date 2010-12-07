@@ -2454,6 +2454,17 @@ struct NpyInterface_WrapperFuncs _wrapper_funcs = {
 };
 
 
+/* These functions enable/disable threads and are provided as callbacks to the core. */
+static void *enable_threads()
+{
+    return PyEval_SaveThread();
+}
+
+static void disable_threads(void *save)
+{
+    if (NULL != save) PyEval_RestoreThread(save);
+}
+
 
 
 /* Initialization function for the module */
@@ -2478,7 +2489,8 @@ PyMODINIT_FUNC initmultiarray(void) {
                 (npy_tp_error_occurred) error_occurred,
                 (npy_tp_error_clear) error_clear,
                 (npy_tp_cmp_priority) cmp_priority,
-                NpyInterface_Incref, NpyInterface_Decref);
+                NpyInterface_Incref, NpyInterface_Decref,
+                enable_threads, disable_threads);
 
     /* Create the module and add the functions */
 #if defined(NPY_PY3K)

@@ -17,8 +17,16 @@
 /* Only use thread if configured in config and python supports it */
 #if defined WITH_THREAD && !NPY_NO_SMP
         #define NPY_ALLOW_THREADS 1
+
+        #define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
+        #define NPY_ALLOW_C_API      __save__ = PyGILState_Ensure();
+        #define NPY_DISABLE_C_API    PyGILState_Release(__save__);
 #else
         #define NPY_ALLOW_THREADS 0
+
+        #define NPY_ALLOW_C_API_DEF  PyGILState_STATE __save__;
+        #define NPY_ALLOW_C_API      __save__ = PyGILState_Ensure();
+        #define NPY_DISABLE_C_API    PyGILState_Release(__save__);
 #endif
 
 

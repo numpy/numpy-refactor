@@ -1573,14 +1573,15 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     npy_intp i, thisbuf = 0, size, bytes, totalbytes;
     char *dptr, *clean_sep, *tmp;
     int err = 0;
-
+    NPY_BEGIN_THREADS_DEF;
+    
     size = (num >= 0) ? num : FROM_BUFFER_SIZE;
     r = NpyArray_Alloc(dtype, 1, &size, NPY_FALSE, NULL);
     if (r == NULL) {
         return NULL;
     }
     clean_sep = swab_separator(sep);
-    NPY_BEGIN_ALLOW_THREADS;
+    NPY_BEGIN_THREADS;
     totalbytes = bytes = size * dtype->elsize;
     dptr = NpyArray_BYTES(r);
     for (i= 0; num < 0 || i < num; i++) {
@@ -1616,7 +1617,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
             NpyArray_BYTES(r) = tmp;
         }
     }
-    NPY_END_ALLOW_THREADS;
+    NPY_END_THREADS;
     free(clean_sep);
     if (err == 1) {
         NpyErr_MEMORY;
@@ -1768,7 +1769,8 @@ array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
 {
     NpyArray *r;
     npy_intp start, numbytes;
-
+    NPY_BEGIN_THREADS_DEF;
+    
     if (num < 0) {
         int fail = 0;
 
@@ -1799,9 +1801,9 @@ array_fromfile_binary(FILE *fp, NpyArray_Descr *dtype,
     if (r == NULL) {
         return NULL;
     }
-    NPY_BEGIN_ALLOW_THREADS;
+    NPY_BEGIN_THREADS;
     *nread = fread(r->data, dtype->elsize, num, fp);
-    NPY_END_ALLOW_THREADS;
+    NPY_END_THREADS;
     return r;
 }
 

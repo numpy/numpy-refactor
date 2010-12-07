@@ -39,6 +39,11 @@ struct NpyInterface_WrapperFuncs _NpyArrayWrapperFuncs = {
 };
 
 
+/* Provided by caller. */
+NDARRAY_API void *(*npy_enable_threads)() = NULL;
+NDARRAY_API void (*npy_disable_threads)(void *) = NULL;
+
+
 // TODO: Need cross-platform switch/support for thread-safe reference counting macros.
 #if defined(_WIN32)
 NDARRAY_API CRITICAL_SECTION Npy_RefCntLock;
@@ -53,7 +58,8 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
             npy_tp_error_occurred error_occurred,
             npy_tp_error_clear error_clear,
             npy_tp_cmp_priority cmp_priority,
-            npy_interface_incref incref, npy_interface_decref decref)
+            npy_interface_incref incref, npy_interface_decref decref,
+            void *(*enable_threads)(), void (*disable_threads)())
 
 {
     int s = sizeof(functionDefs);
@@ -62,6 +68,9 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
     InitializeCriticalSection(&Npy_RefCntLock);
 #endif
 
+    npy_enable_threads = enable_threads;
+    npy_disable_threads = disable_threads;
+    
     // Verify that the structure definition is correct and has the memory layout
     // that we expect. 
     assert(NULL == functionDefs || NPY_VALID_MAGIC == functionDefs->sentinel);
@@ -610,6 +619,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     int nd, eltsize, stride2;
     npy_intp dims[2], i, j;
     char *iptr, *optr;
+    NPY_BEGIN_THREADS_DEF;
 
     /* make sure it is well-behaved */
     tmp = NpyArray_ContiguousFromArray(arr, NpyArray_TYPE(arr));
@@ -642,7 +652,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
     }
 
     /* do 2-d loop */
-    NPY_BEGIN_ALLOW_THREADS;
+    NPY_BEGIN_THREADS;
     optr = NpyArray_DATA(ret);
     stride2 = eltsize * dims[0];
     for (i = 0; i < dims[0]; i++) {
@@ -654,7 +664,7 @@ NpyArray_CopyAndTranspose(NpyArray *arr)
             iptr += stride2;
         }
     }
-    NPY_END_ALLOW_THREADS;
+    NPY_END_THREADS;
 
     Npy_DECREF(tmp);
     return ret;

@@ -185,7 +185,8 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
     npy_intp n;
     NpyArrayIterObject *it;
     char msg[1024];
-
+    NPY_BEGIN_THREADS_DEF
+    
     /* binary data */
     if (NpyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
         NpyErr_SetString(NpyExc_ValueError, "cannot write " \
@@ -196,11 +197,11 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 
     if (NpyArray_ISCONTIGUOUS(self)) {
         size = NpyArray_SIZE(self);
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS;
         n = fwrite((const void *)self->data,
                    (size_t) self->descr->elsize,
                    (size_t) size, fp);
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
         if (n < size) {
             sprintf(msg,
                     "%ld requested and %ld written",
