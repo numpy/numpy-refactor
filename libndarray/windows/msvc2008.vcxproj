@@ -99,7 +99,7 @@
       <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <CustomBuildStep>
-      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src</Command>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  "..\src\*.src"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Processing .src files</Message>
@@ -131,7 +131,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src</Command>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  "..\src\*.src"</Command>
     </CustomBuildStep>
     <CustomBuildStep>
       <Message>Processing .src files</Message>

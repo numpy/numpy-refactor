@@ -221,7 +221,7 @@ def process_file(src):
 if __name__ == "__main__":
     import sys
 
-    os.chdir(sys.argv[1])
     print "Processing code templates:"
-    for file in glob.glob("*.src"):
-        process_file(file)
+    for arg in sys.argv[1:]:
+        for file in glob.glob(arg):
+            process_file(file)
