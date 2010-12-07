@@ -495,8 +495,8 @@ typedef enum {
    disabling threads.  For now, only the CPython model of single thread behavior
    except where enabled is supported.  The code has not been thoroughly checked
    to be sure that it is reentrant. */
-NDARRAY_API void *(*npy_enable_threads)();
-NDARRAY_API void (*npy_disable_threads)(void *);
+NDARRAY_API extern void *(*npy_enable_threads)();
+NDARRAY_API extern void (*npy_disable_threads)(void *);
 
     
 #define NPY_BEGIN_THREADS_DEF void *_save=NULL;
