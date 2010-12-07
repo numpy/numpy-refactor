@@ -129,6 +129,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     char *name = (NULL != self->name) ? self->name : "";
     int res;
     int i;
+    NPY_BEGIN_THREADS_DEF
 
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
@@ -175,7 +176,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
         goto fail;
     }
 
-    //    NPY_LOOP_BEGIN_THREADS;
+    NPY_LOOP_BEGIN_THREADS;
     switch(loop->meth) {
         case ONE_UFUNCLOOP:
             /*
@@ -469,7 +470,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
         } /* end of last case statement */
     }
 
-    //    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     for (i=0; i<nargs; i++) {
         if (mps[i] && (mps[i]->flags&NPY_UPDATEIFCOPY)) {
             NpyArray_ForceUpdate(mps[i]);
@@ -480,7 +481,7 @@ int NpyUFunc_GenericFunction(NpyUFuncObject *self, int nargs, NpyArray **mps,
     return 0;
 
 fail:
-    //    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     if (loop) {
         if (loop->objfunc) {
             char **castbuf = loop->castbuf;
@@ -634,7 +635,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     NpyUFuncReduceObject *loop;
     npy_intp i, n;
     char *dptr;
-//    NPY_BEGIN_THREADS_DEF
+    NPY_BEGIN_THREADS_DEF
 
     assert(arr == NULL ||
            (NPY_VALID_MAGIC == arr->nob_magic_number &&
@@ -647,7 +648,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
         return NULL;
     }
 
-//    NPY_LOOP_BEGIN_THREADS;
+    NPY_LOOP_BEGIN_THREADS;
     switch(loop->meth) {
         case ZERO_EL_REDUCELOOP:
             /* fprintf(stderr, "ZERO..%d\n", loop->size); */
@@ -788,7 +789,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             }
     }
 
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = loop->ret->base_arr;
@@ -802,7 +803,7 @@ NpyUFunc_Reduce(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     return ret;
 
 fail:
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     if (loop) {
         ufuncreduce_dealloc(loop);
     }
@@ -819,7 +820,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     NpyUFuncReduceObject *loop;
     npy_intp i, n;
     char *dptr;
-//    NPY_BEGIN_THREADS_DEF
+    NPY_BEGIN_THREADS_DEF
 
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
@@ -830,7 +831,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
         return NULL;
     }
 
-//    NPY_LOOP_BEGIN_THREADS;
+    NPY_LOOP_BEGIN_THREADS;
     switch(loop->meth) {
         case ZERO_EL_REDUCELOOP:
             /* Accumulate */
@@ -967,7 +968,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
             }
 
     }
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = NpyArray_BASE_ARRAY(loop->ret);
@@ -981,7 +982,7 @@ NpyUFunc_Accumulate(NpyUFuncObject *self, NpyArray *arr, NpyArray *out,
     return ret;
 
 fail:
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     if (loop) {
         ufuncreduce_dealloc(loop);
     }
@@ -1018,7 +1019,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     npy_intp mm = NpyArray_DIM(arr, axis) - 1;
     npy_intp n, i, j;
     char *dptr;
-//    NPY_BEGIN_THREADS_DEF;
+    NPY_BEGIN_THREADS_DEF;
 
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
 
@@ -1042,7 +1043,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
         return NULL;
     }
 
-//    NPY_LOOP_BEGIN_THREADS;
+    NPY_LOOP_BEGIN_THREADS;
     switch(loop->meth) {
         case ZERO_EL_REDUCELOOP:
             /* zero-length index -- return array immediately */
@@ -1153,7 +1154,7 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
 
             break;
     }
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     /* Hang on to this reference -- will be decref'd with loop */
     if (loop->retbase) {
         ret = NpyArray_BASE_ARRAY(loop->ret);
@@ -1167,202 +1168,12 @@ NpyUFunc_Reduceat(NpyUFuncObject *self, NpyArray *arr, NpyArray *ind,
     return ret;
 
 fail:
-//    NPY_LOOP_END_THREADS;
+    NPY_LOOP_END_THREADS;
     if (loop) {
         ufuncreduce_dealloc(loop);
     }
     return NULL;
 }
-
-#if 0
-/*
- * This code handles reduce, reduceat, and accumulate
- * (accumulate and reduce are special cases of the more general reduceat
- * but they are handled separately for speed)
- */
-static PyObject *
-PyUFunc_GenericReduction(PyUFuncObject *self, PyObject *args,
-                         PyObject *kwds, int operation)
-{
-    int axis=0;
-    PyArrayObject *mp, *ret = NULL;
-    PyObject *op, *res = NULL;
-    PyObject *obj_ind, *context;
-    PyArrayObject *indices = NULL;
-    PyArray_Descr *otype = NULL;
-    PyArrayObject *out = NULL;
-    static char *kwlist1[] = {"array", "axis", "dtype", "out", NULL};
-    static char *kwlist2[] = {"array", "indices", "axis", "dtype", "out", NULL};
-    static char *_reduce_type[] = {"reduce", "accumulate", "reduceat", NULL};
-
-    if (self == NULL) {
-        PyErr_SetString(PyExc_ValueError, "function not supported");
-        return NULL;
-    }
-    if (PyUFunc_UFUNC(self)->core_enabled) {
-        PyErr_Format(PyExc_RuntimeError,
-                     "Reduction not defined on ufunc with signature");
-        return NULL;
-    }
-    if (PyUFunc_UFUNC(self)->nin != 2) {
-        PyErr_Format(PyExc_ValueError,
-                     "%s only supported for binary functions",
-                     _reduce_type[operation]);
-        return NULL;
-    }
-    if (PyUFunc_UFUNC(self)->nout != 1) {
-        PyErr_Format(PyExc_ValueError,
-                     "%s only supported for functions " \
-                     "returning a single value",
-                     _reduce_type[operation]);
-        return NULL;
-    }
-
-    if (operation == NPY_UFUNC_REDUCEAT) {
-        PyArray_Descr *indtype;
-        indtype = PyArray_DescrFromType(PyArray_INTP);
-        if(!PyArg_ParseTupleAndKeywords(args, kwds, "OO|iO&O&", kwlist2,
-                                        &op, &obj_ind, &axis,
-                                        PyArray_DescrConverter2,
-                                        &otype,
-                                        PyArray_OutputConverter,
-                                        &out)) {
-            Py_XDECREF(otype);
-            return NULL;
-        }
-
-        indices = (PyArrayObject *)PyArray_FromAny(obj_ind, indtype,
-                                                   1, 1, CARRAY, NULL);
-        if (indices == NULL) {
-            Py_XDECREF(otype);
-            return NULL;
-        }
-    }
-    else {
-        if(!PyArg_ParseTupleAndKeywords(args, kwds, "O|iO&O&", kwlist1,
-                                        &op, &axis,
-                                        PyArray_DescrConverter2,
-                                        &otype,
-                                        PyArray_OutputConverter,
-                                        &out)) {
-            Py_XDECREF(otype);
-            return NULL;
-        }
-    }
-    /* Ensure input is an array */
-    if (!PyArray_Check(op) && !PyArray_IsScalar(op, Generic)) {
-        context = Py_BuildValue("O(O)i", self, op, 0);
-    }
-    else {
-        context = NULL;
-    }
-
-    mp = (PyArrayObject *)PyArray_FromAny(op, NULL, 0, 0, 0, context);
-    Py_XDECREF(context);
-    if (mp == NULL) {
-        return NULL;
-    }
-    assert(PyArray_ISVALID(mp));
-
-    /* Check to see if input is zero-dimensional */
-    if (PyArray_NDIM(mp) == 0) {
-        PyErr_Format(PyExc_TypeError, "cannot %s on a scalar",
-                     _reduce_type[operation]);
-        Py_XDECREF(otype);
-        Py_DECREF(mp);
-        return NULL;
-    }
-    /* Check to see that type (and otype) is not FLEXIBLE */
-    if (PyArray_ISFLEXIBLE(mp) ||
-        (otype && NpyTypeNum_ISFLEXIBLE(otype->descr->type_num))) {
-        PyErr_Format(PyExc_TypeError,
-                     "cannot perform %s with flexible type",
-                     _reduce_type[operation]);
-        Py_XDECREF(otype);
-        Py_DECREF(mp);
-        return NULL;
-    }
-
-    if (axis < 0) {
-        axis += PyArray_NDIM(mp);
-    }
-    if (axis < 0 || axis >= PyArray_NDIM(mp)) {
-        PyErr_SetString(PyExc_ValueError, "axis not in array");
-        Py_XDECREF(otype);
-        Py_DECREF(mp);
-        return NULL;
-    }
-    /*
-     * If out is specified it determines otype
-     * unless otype already specified.
-     */
-    if (otype == NULL && out != NULL) {
-        otype = PyArray_Descr_WRAP( PyArray_DESCR(out) );
-        Py_INCREF(otype);
-    }
-    if (otype == NULL) {
-        /*
-         * For integer types --- make sure at least a long
-         * is used for add and multiply reduction to avoid overflow
-         */
-        int typenum = PyArray_TYPE(mp);
-        if ((typenum < NPY_FLOAT)
-            && ((strcmp(PyUFunc_UFUNC(self)->name,"add") == 0)
-                || (strcmp(PyUFunc_UFUNC(self)->name,"multiply") == 0))) {
-                if (NpyTypeNum_ISBOOL(typenum)) {
-                    typenum = PyArray_LONG;
-                }
-                else if ((size_t)PyArray_ITEMSIZE(mp) < sizeof(long)) {
-                    if (NpyTypeNum_ISUNSIGNED(typenum)) {
-                        typenum = PyArray_ULONG;
-                    }
-                    else {
-                        typenum = PyArray_LONG;
-                    }
-                }
-            }
-        otype = PyArray_DescrFromType(typenum);
-    }
-
-
-    switch(operation) {
-        case NPY_UFUNC_REDUCE:
-            ret = (PyArrayObject *)PyUFunc_Reduce(self, mp, out, axis,
-                                                  otype->descr->type_num);
-            break;
-        case NPY_UFUNC_ACCUMULATE:
-            ret = (PyArrayObject *)PyUFunc_Accumulate(self, mp, out, axis,
-                                                      otype->descr->type_num);
-            break;
-        case NPY_UFUNC_REDUCEAT:
-            ret = (PyArrayObject *)PyUFunc_Reduceat(self, mp, indices, out,
-                                                    axis,
-                                                    otype->descr->type_num);
-            Py_DECREF(indices);
-            break;
-    }
-    Py_DECREF(mp);
-    Py_DECREF(otype);
-    if (ret == NULL) {
-        return NULL;
-    }
-    if (Py_TYPE(op) != Py_TYPE(ret)) {
-        res = PyObject_CallMethod(op, "__array_wrap__", "O", ret);
-        if (res == NULL) {
-            PyErr_Clear();
-        }
-        else if (res == Py_None) {
-            Py_DECREF(res);
-        }
-        else {
-            Py_DECREF(ret);
-            return res;
-        }
-    }
-    return PyArray_Return(ret);
-}
-
-#endif
 
 
 

@@ -1,5 +1,9 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Enables threads IF npy_enable_threads, npy_disable_threads
+   provided during initialization. */
+#define ALLOW_THREADS 1
+
 /* Core library ABI version */
 #undef ABI_VERSION
 

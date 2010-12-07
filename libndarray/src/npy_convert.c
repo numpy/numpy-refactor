@@ -156,16 +156,16 @@ NpyArray_SetDescr(NpyArray *self, NpyArray_Descr *newtype)
   Copy an array.
 */
 NDARRAY_API NpyArray *
-NpyArray_NewCopy(NpyArray *m1, NPY_ORDER fortran)
+NpyArray_NewCopy(NpyArray *m1, NPY_ORDER order)
 {
     NpyArray *ret;
-    npy_bool doFortran;
+    npy_bool fortran;
 
-    doFortran = (fortran == NPY_ANYORDER) ? NpyArray_ISFORTRAN(m1) : NPY_FALSE;
+    fortran = (order == NPY_ANYORDER) ? NpyArray_ISFORTRAN(m1) : (order == NPY_FORTRANORDER);
 
     Npy_INCREF(m1->descr);
     ret = NpyArray_Alloc(m1->descr, m1->nd, m1->dimensions,
-                         doFortran, Npy_INTERFACE(m1));
+                         fortran, Npy_INTERFACE(m1));
     if (ret == NULL) {
         return NULL;
     }
@@ -185,7 +185,8 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
     npy_intp n;
     NpyArrayIterObject *it;
     char msg[1024];
-
+    NPY_BEGIN_THREADS_DEF
+    
     /* binary data */
     if (NpyDataType_FLAGCHK(self->descr, NPY_LIST_PICKLE)) {
         NpyErr_SetString(NpyExc_ValueError, "cannot write " \
@@ -196,11 +197,11 @@ NpyArray_ToBinaryFile(NpyArray *self, FILE *fp)
 
     if (NpyArray_ISCONTIGUOUS(self)) {
         size = NpyArray_SIZE(self);
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS;
         n = fwrite((const void *)self->data,
                    (size_t) self->descr->elsize,
                    (size_t) size, fp);
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
         if (n < size) {
             sprintf(msg,
                     "%ld requested and %ld written",

@@ -1,6 +1,7 @@
 /* npy_arrayobject.c */
 
 #include <stdlib.h>
+#include <string.h>
 #include "npy_config.h"
 #include "npy_api.h"
 #include "npy_arrayobject.h"
