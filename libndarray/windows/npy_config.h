@@ -35,6 +35,8 @@ standard part of the distribution.
 #define NPY_ABI_VERSION 2.0
 #define NPY_API_VERSION 2.0
 
+#define NPY_ALLOW_THREADS 1
+
 #define NPY_HAVE_LONGLONG 1
 #define NPY_HAVE_UINTPTR_T 1
 #define NPY_WORDS_BIGENDIAN 0

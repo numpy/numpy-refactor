@@ -6,6 +6,7 @@ using System.Security;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using IronPython.Runtime;
 using IronPython.Runtime.Types;
 using IronPython.Runtime.Operations;
@@ -673,7 +674,8 @@ namespace NumpyDotNet {
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
-            IntPtr cmp_priority, IntPtr incref, IntPtr decref);
+            IntPtr cmp_priority, IntPtr incref, IntPtr decref,
+            IntPtr enable_thread, IntPtr disable_thread);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArray_Subarray(IntPtr arr, IntPtr dataptr);
@@ -1892,6 +1894,38 @@ namespace NumpyDotNet {
 
         #endregion
 
+        #region Thread handling
+        // CPython uses a threading model that is single threaded unless the global interpreter lock
+        // is explicitly released. While .NET supports true threading, the ndarray core has not been
+        // completely checked to makes sure that it is re-entrant.  Thus we artificially lock IronPython
+        // down and force ndarray accesses to be single threaded for now.
+
+        /// <summary>
+        /// Equivalent to the CPython GIL.
+        /// </summary>
+        private static readonly object GlobalIterpLock = new object();
+
+        /// <summary>
+        /// Releases the GIL so other threads can run.
+        /// </summary>
+        /// <returns>Return value is unused</returns>
+        private static IntPtr EnableThreads() {
+            Monitor.Exit(GlobalIterpLock);
+            return IntPtr.Zero;
+        }
+        private delegate IntPtr del_EnableThreads();
+
+        /// <summary>
+        /// Re-acquires the GIL forcing code to stop until other threads have exited the ndarray core.
+        /// </summary>
+        /// <param name="unused">Unused</param>
+        private static void DisableThreads(IntPtr unused) {
+            Monitor.Enter(GlobalIterpLock);
+        }
+        private delegate void del_DisableThreads(IntPtr unused);
+
+        #endregion
+
         //
         // These variables hold a reference to the delegates passed into the core.
         // Failure to hold these references causes the callback function to disappear
@@ -1922,6 +1956,10 @@ namespace NumpyDotNet {
             new del_ErrorOccurredCallback(ErrorOccurredCallback);
         private static readonly del_ClearErrorCallback ClearErrorCallbackDelegate =
             new del_ClearErrorCallback(ClearErrorCallback);
+        private static readonly del_EnableThreads EnableThreadsDelegate =
+            new del_EnableThreads(EnableThreads);
+        private static readonly del_DisableThreads DisableThreadsDelegate =
+            new del_DisableThreads(DisableThreads);
 
         private static unsafe readonly del_GetErrorState GetErrorStateDelegate = new del_GetErrorState(GetErrorState);
         private static unsafe readonly del_ErrorHandler ErrorHandlerDelegate = new del_ErrorHandler(ErrorHandler);
@@ -2035,7 +2073,11 @@ namespace NumpyDotNet {
                     Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
                     Marshal.GetFunctionPointerForDelegate(NumericOps.ComparePriorityDelegate),
                     Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
-                    Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate));
+                    Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate),
+                    IntPtr.Zero, IntPtr.Zero);
+                    // for now we run full threaded, no safety net.
+                    //Marshal.GetFunctionPointerForDelegate(EnableThreadsDelegate),
+                    //Marshal.GetFunctionPointerForDelegate(DisableThreadsDelegate));
             } catch (Exception e) {
                 Console.WriteLine("Failed during initialization: {0}", e);
             } finally {

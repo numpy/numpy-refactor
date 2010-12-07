@@ -59,7 +59,7 @@ npy_initlib(struct NpyArray_FunctionDefs *functionDefs,
             npy_tp_error_clear error_clear,
             npy_tp_cmp_priority cmp_priority,
             npy_interface_incref incref, npy_interface_decref decref,
-            void *(*enable_threads)(), void (*disable_threads)())
+            void *(*enable_threads)(), void (*disable_threads)(void *))
 
 {
     int s = sizeof(functionDefs);
