@@ -374,7 +374,7 @@ namespace NumpyDotNet
                 } else {
                     result = f.Call(cntx, null, a, b, ret);
                 }
-                if (result is ndarray) {
+                if (result.GetType() == typeof(ndarray)) {
                     return ArrayReturn((ndarray)result);
                 } else {
                     return result;
