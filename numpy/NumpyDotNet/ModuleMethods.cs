@@ -568,6 +568,15 @@ namespace NumpyDotNet {
         }
 
 
+        public static void set_typeDict(object o) {
+            if (!(o is PythonDictionary)) {
+                throw new ArgumentTypeException(
+                    String.Format("Attempt to set type dictionary to non-dictionary type '{0}'.", o.GetType().Name));
+            }
+            NpyDescr.TypeDict = (PythonDictionary)o;
+        }
+
+
         public static string format_longfloat(object x, int precision) {
             if (x is ScalarFloat64) {
                 return NpyCoreApi.FormatLongFloat((double)(ScalarFloat64)x, precision);

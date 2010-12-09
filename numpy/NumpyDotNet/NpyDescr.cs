@@ -58,7 +58,7 @@ namespace NumpyDotNet {
                 } else if (CheckForCommaString(s)) {
                     result = ConvertFromCommaString(cntx, s, align);
                 } else {
-                    result = ConvertSimpleString(s);
+                    result = ConvertSimpleString(cntx, s);
                 }
             } else if (obj is PythonTuple) {
                 result = TryConvertFromTuple(cntx, (PythonTuple)obj);
@@ -209,8 +209,8 @@ namespace NumpyDotNet {
         /// <returns>Corresponding descriptor object</returns>
         private static dtype ConvertFromPythonType(CodeContext cntx, IronPython.Runtime.Types.PythonType t) {
             NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_OBJECT;
-            if (t == PyInt_Type) type = NpyDefs.NPY_TYPES.NPY_LONG;
-            else if (t == PyLong_Type) type = NpyDefs.NPY_TYPES.NPY_LONGLONG;
+            if (t == PyInt_Type) type = (NpyCoreApi.Native_SizeOfInt == sizeof(int)) ? NpyDefs.NPY_TYPES.NPY_INT : NpyDefs.NPY_TYPES.NPY_LONG;
+            else if (t == PyLong_Type) type = (NpyCoreApi.Native_SizeOfLong == sizeof(long)) ? NpyDefs.NPY_TYPES.NPY_LONG : NpyDefs.NPY_TYPES.NPY_LONGLONG;
             else if (t == PyFloat_Type) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
             else if (t == PyBool_Type) type = NpyDefs.NPY_TYPES.NPY_BOOL;
             else if (t == PyComplex_Type) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;
@@ -337,7 +337,7 @@ namespace NumpyDotNet {
         }
 
 
-        private static dtype ConvertSimpleString(String s) {
+        private static dtype ConvertSimpleString(CodeContext cntx, String s) {
             byte endian = (byte)'=';
             if (s.Length == 0) {
                 throw new ArgumentTypeException("data type not understood");
@@ -354,10 +354,10 @@ namespace NumpyDotNet {
                     }
                     break;
             }
-            return ConvertSimpleString(s, endian);
+            return ConvertSimpleString(cntx, s, endian);
         }
 
-        private static dtype ConvertSimpleString(string s, byte endian) {
+        private static dtype ConvertSimpleString(CodeContext cntx, string s, byte endian) {
             byte type_char = (byte)' ';
             NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_NOTYPE+10;
             int elsize = 0;
@@ -367,8 +367,7 @@ namespace NumpyDotNet {
             }
             type_char = (byte)s[0];
             if (s.Length > 1) {
-                elsize = int.Parse(s.Substring(1));
-                if (elsize == 0) {
+                if (!int.TryParse(s.Substring(1), out elsize) || elsize == 0) {
                 } else if (type_char == (byte)NpyDefs.NPY_TYPECHAR.NPY_UNICODELTR) {
                     type = (NpyDefs.NPY_TYPES)type_char;
                     elsize <<= 2;
@@ -385,13 +384,19 @@ namespace NumpyDotNet {
             } else {
                 type = (NpyDefs.NPY_TYPES)type_char;
             }
-            // TODO: Handle typeDict.
+
             dtype result = null;
             if (type != NpyDefs.NPY_TYPES.NPY_NOTYPE+10) {
                 result = NpyCoreApi.DescrFromType(type);
             }
-            if (result == null) {
-                throw new ArgumentTypeException("data type not understood");
+
+            // If no type is recognized yet, see if the string is the name of one
+            // of the defined types in 'typedict'.
+            if (result == null && TypeDict != null) {
+                object tmp;
+                if (TypeDict.TryGetValue(s, out tmp)) {
+                    result = DescrConverter(cntx, tmp);
+                }
             }
             if (elsize != 0 && result.ElementSize == 0) {
                 result = NpyCoreApi.DescrNew(result);
@@ -513,6 +518,8 @@ namespace NumpyDotNet {
             List<FieldInfo> fields = l.Select(ItemToFieldInfo).ToList();
             return ConvertFromFields(cntx, fields, align);
         }
+
+        internal static PythonDictionary TypeDict { get; set; }
 
 
         private static readonly PythonType PyInt_Type = DynamicHelpers.GetPythonTypeFromType(typeof(int));
