@@ -790,6 +790,10 @@ namespace NumpyDotNet
             return NpyUtil_Python.CallBuiltin(cntx, "float", GetItem(0));
         }
 
+        public object __floordiv__(CodeContext cntx, object o) {
+            return BinaryOp(null, this, o, NpyDefs.NpyArray_Ops.npy_op_floor_divide);
+        }
+
         public object __complex__(CodeContext cntx) {
             if (Size != 1) {
                 throw new ArgumentException("only length 1 arrays can be converted to scalars");

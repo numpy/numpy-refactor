@@ -269,6 +269,9 @@ namespace NumpyDotNet {
 
         internal static object GenericReduction(ufunc f, ndarray arr,
             ndarray indices, ndarray ret, int axis, dtype otype, ufunc.ReduceOp op) {
+            if (indices != null) {
+                Incref(indices.Array);
+            }
             ndarray rval = DecrefToInterface<ndarray>(
                 NpyUFunc_GenericReduction(f.UFunc, arr.Array,
                     (indices != null) ? indices.Array : IntPtr.Zero,

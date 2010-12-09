@@ -122,14 +122,14 @@ namespace NumpyDotNet
             dtype type = NpyDescr.DescrConverter2(cntx, args[3]);
             ndarray arrOut = (args[4] != null) ? NpyArray.FromAny(args[4]) : null;
 
-            return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);
+            return GenericReduce(arr, indices, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);
         }
 
 
         #region Python interface
 
         public string __repr__() {
-            return String.Format("<ufunc '{0}'>", __name__());
+            return String.Format("<ufunc '{0}'>", __name__);
         }
 
         public string __str__() {
@@ -167,13 +167,15 @@ namespace NumpyDotNet
 
         // TODO: Implement 'types'
         public override string ToString() {
-            return __name__();
+            return __name__;
         }
 
-        public string __name__() {
-            CheckValid();
-            IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_name);
-            return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
+        public string __name__ {
+            get {
+                CheckValid();
+                IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_name);
+                return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
+            }
         }
 
         // TODO: Implement 'identity'

@@ -764,9 +764,6 @@ namespace NumpyDotNet {
         internal static void setitemFloat(Object o, IntPtr ptr, ndarray arr) {
             double fTmp = NpyUtil_Python.ConvertToDouble(o);
             float f = (float)fTmp;
-            if (f != fTmp) {
-                throw new OverflowException("floating-point overflow when casting from double to float");
-            }
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();

@@ -807,7 +807,7 @@ namespace NumpyDotNet
         }
 
 
-        public override String ToString() {
+        public override String ToString(IFormatProvider fp = null) {
             return value.ToString();
         }
 
@@ -1816,20 +1816,13 @@ namespace NumpyDotNet
             value.Imag = 0.0f;
         }
 
-        public ScalarComplex64(Single value) {
-            this.value.Real = value;
-            this.value.Imag = 0.0f;
+        public ScalarComplex64(object o) {
+            SetFromObj(o);
         }
 
-        public ScalarComplex64(Single real, Single imag) {
+        public ScalarComplex64(float real, float imag) {
             value.Real = real;
             value.Imag = imag;
-        }
-
-        public ScalarComplex64(dynamic value) {
-            Complex c = (Complex)value;
-            value.Real = (float)c.Real;
-            value.Imag = (float)c.Imaginary;
         }
 
         public override object dtype {
@@ -1886,7 +1879,7 @@ namespace NumpyDotNet
             return ToString();
         }
 
-        public override string ToString() {
+        public override string ToString(IFormatProvider fp = null) {
             if (value.Real == 0.0) {
                 return String.Format("{0}j", value.Imag);
             } else {
@@ -1901,6 +1894,43 @@ namespace NumpyDotNet
             internal float Imag;
         }
 
+
+        /// <summary>
+        /// Sets the object value from an unknown object type.  If imagOnly is false, then the real
+        /// or real and imaginary parts are set.  If imagOnly is set, then only the imaginary part
+        /// is set and arguments of complex type are rejected.
+        /// </summary>
+        /// <param name="o">Value to set</param>
+        /// <param name="imagOnly">True only sets imaginary part, false sets real or both</param>
+        protected void SetFromObj(object o) {
+            if (o == null) real = imag = 0.0f;
+            else if (o is int) {
+                value.Real = (int)o;
+                value.Imag = 0.0f;
+            } else if (o is long) {
+                value.Real = (long)o;
+                value.Imag = 0.0f;
+            } else if (o is float) {
+                value.Real = (float)o;
+                value.Imag = 0.0f;
+            } else if (o is double) {
+                value.Real = (float)(double)o;
+                value.Imag = 0.0f;
+            } else if (o is Complex) {
+                value.Real = (float)((Complex)o).Real;
+                value.Imag = (float)((Complex)o).Imaginary;
+            } else if (o is ScalarComplex64) {
+                value = ((ScalarComplex64)o).value;
+            } else if (o is ScalarComplex128) {
+                value.Real = (float)(double)((ScalarComplex128)o).real;
+                value.Imag = (float)(double)((ScalarComplex128)o).imag;
+            } else if (o is ScalarGeneric) {
+                value.Real = (float)(double)((ScalarGeneric)o).__float__(NpyUtil_Python.DefaultContext);
+                value.Imag = 0.0f;
+            } else throw new ArgumentTypeException(
+                  String.Format("Unable to construct complex value from type '{0}'.", o.GetType().Name));
+        }
+
         private Data value;
         static private dtype dtype_;
     }
@@ -1912,12 +1942,12 @@ namespace NumpyDotNet
             value = 0;
         }
 
-        public ScalarComplex128(double value) {
-            this.value = value;
+        public ScalarComplex128(object o) {
+            SetFromObj(o);
         }
 
-        public ScalarComplex128(dynamic value) {
-            this.value = (Complex)value;
+        public ScalarComplex128(double real, double imag) {
+            value = new Complex(real, imag);
         }
 
         public override object dtype {
@@ -1969,6 +1999,36 @@ namespace NumpyDotNet
             }
         }
 
+        /// <summary>
+        /// Sets the object value from an unknown object type.  If imagOnly is false, then the real
+        /// or real and imaginary parts are set.  If imagOnly is set, then only the imaginary part
+        /// is set and arguments of complex type are rejected.
+        /// </summary>
+        /// <param name="o">Value to set</param>
+        /// <param name="imagOnly">True only sets imaginary part, false sets real or both</param>
+        protected void SetFromObj(object o) {
+            if (o == null) real = imag = 0.0f;
+            else if (o is int) {
+                value = new Complex((int)o, 0.0);
+            } else if (o is long) {
+                value = new Complex((long)o, 0.0);
+            } else if (o is float) {
+                value = new Complex((float)o, 0.0);
+            } else if (o is double) {
+                value = new Complex((double)o, 0.0);
+            } else if (o is Complex) {
+                value = (Complex)o;
+            } else if (o is ScalarComplex64) {
+                value = new Complex((float)((ScalarComplex64)o).real, (float)((ScalarComplex64)o).imag);
+            } else if (o is ScalarComplex128) {
+                value = ((ScalarComplex128)o).value;
+            } else if (o is ScalarGeneric) {
+                value = new Complex((double)((ScalarGeneric)o).__float__(NpyUtil_Python.DefaultContext), 0.0);
+            } else throw new ArgumentTypeException(
+                  String.Format("Unable to construct complex value from type '{0}'.", o.GetType().Name));
+        }
+        
+        
         private Complex value;
         static private dtype dtype_;
     }

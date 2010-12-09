@@ -18,6 +18,8 @@ typedef int (*cmpfunc)(void *, void *);
 
 // Defined in __umath_generated.c, included below.
 static void InitOperators(void *);
+static void InitOtherOperators(void *dictionary, 
+    void (*addToDict)(void *dictObj, const char *funcStr, void *ufuncobj));
 
 
 // Utility calls provided by the managed layer.
@@ -91,6 +93,50 @@ static ExternFuncs managedFuncs;
 #define PyNumber_Rshift managedFuncs.rshift
 #define Py_get_one managedFuncs.get_one
 
+static void *blank3_data[] = { NULL, NULL, NULL };
+
+static NpyUFuncGenericFunction frexp_functions[] = {
+#if NPY_HAVE_DECL_FREXPF
+    npy_FLOAT_frexp,
+#endif
+    npy_DOUBLE_frexp
+#if NPY_HAVE_DECL_FREXPL
+    , npy_LONGDOUBLE_frexp
+#endif
+};
+
+static char frexp_signatures[] = {
+#if NPY_HAVE_DECL_FREXPF
+    NPY_FLOAT, NPY_FLOAT, NPY_INT,
+#endif
+    NPY_DOUBLE, NPY_DOUBLE, NPY_INT
+#if NPY_HAVE_DECL_FREXPL
+    , NPY_LONGDOUBLE, NPY_LONGDOUBLE, NPY_INT
+#endif
+};
+
+static NpyUFuncGenericFunction ldexp_functions[] = {
+#if NPY_HAVE_DECL_LDEXPF
+    npy_FLOAT_ldexp,
+#endif
+    npy_DOUBLE_ldexp
+#if NPY_HAVE_DECL_LDEXPL
+    , npy_LONGDOUBLE_ldexp
+#endif
+};
+
+
+static char ldexp_signatures[] = {
+#if NPY_HAVE_DECL_LDEXPF
+    NPY_FLOAT, NPY_INT, NPT_FLOAT,
+#endif
+    NPY_DOUBLE, NPY_LONG, NPY_DOUBLE
+#if NPY_HAVE_DECL_LDEXPL
+    , NPY_LONGDOUBLE, NPY_LONG, NPY_LONGDOUBLE
+#endif
+};
+
+
 
 // Initializes the ufuncs.  
 extern "C" __declspec(dllexport)
@@ -112,8 +158,41 @@ extern "C" __declspec(dllexport)
     // Populates the dictionary with the function names and corresponding ufunc
     // instance.
     InitOperators(dictionary);
+    InitOtherOperators(dictionary, addToDict);
 }
 
+
+
+
+static void InitOtherOperators(void *dictionary, 
+    void (*addToDict)(void *dictObj, const char *funcStr, void *ufuncobj)) {
+    int num=1;
+
+#if NPY_HAVE_DECL_FREXPF
+    num += 1;
+#endif
+#if NPY_HAVE_DECL_FREXPL
+    num += 1;
+#endif
+    NpyUFuncObject *f = NpyUFunc_FromFuncAndData(frexp_functions, blank3_data,
+        frexp_signatures, num, 1, 2, NpyUFunc_None, "frexp",
+        "Split the number, x, into a normalized fraction (y1) and exponent (y2)", 0);
+    addToDict(dictionary, "frexp", Npy_INTERFACE(f));
+    Npy_DECREF(f);                                
+
+    num = 1;
+#if NPY_HAVE_DECL_LDEXPF
+    num += 1;
+#endif
+#if NPY_HAVE_DECL_LDEXPL
+    num += 1;
+#endif
+    f = NpyUFunc_FromFuncAndData(ldexp_functions, blank3_data,
+        ldexp_signatures, num, 2, 1, NpyUFunc_None, "ldexp",
+        "Compute y = x1 * 2**x2.", 0);
+    addToDict(dictionary, "ldexp", Npy_INTERFACE(f));
+    Npy_DECREF(f);
+}
 
 
 /******************************************************************************

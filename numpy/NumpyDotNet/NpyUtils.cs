@@ -293,6 +293,11 @@ namespace NumpyDotNet {
 
             if (obj is Complex) {
                 return (Complex)obj;
+            } else if (obj is ScalarComplex128) {
+                return (Complex)((ScalarComplex128)obj).Value;
+            } else if (obj is ScalarComplex64) {
+                ScalarComplex64 c = (ScalarComplex64)obj;
+                return new Complex((float)c.real, (float)c.imag);
             } else {
                 if (obj is Bytes) {
                     obj = ConvertToString(obj, cntx);
