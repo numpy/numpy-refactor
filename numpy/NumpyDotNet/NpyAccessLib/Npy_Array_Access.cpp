@@ -576,12 +576,13 @@ extern "C" __declspec(dllexport)
 
 extern "C" __declspec(dllexport)
 void _cdecl NpyArrayAccess_UFuncGetOffsets(int *ninOffset, int *noutOffset,
-    int *nargsOffset, int *identityOffset, int *ntypesOffset, int *checkRetOffset, 
-    int *nameOffset, int *typesOffset, int *coreSigOffset)
+    int *nargsOffset, int *coreEnabledOffset, int *identityOffset, int *ntypesOffset, 
+    int *checkRetOffset, int *nameOffset, int *typesOffset, int *coreSigOffset)
 {
   	*ninOffset = offsetof(NpyUFuncObject, nin);
   	*noutOffset = offsetof(NpyUFuncObject, nout);
     *nargsOffset = offsetof(NpyUFuncObject, nargs);
+    *coreEnabledOffset = offsetof(NpyUFuncObject, core_enabled);
   	*identityOffset = offsetof(NpyUFuncObject, identity);
   	*ntypesOffset = offsetof(NpyUFuncObject, ntypes);
   	*checkRetOffset = offsetof(NpyUFuncObject, check_return);

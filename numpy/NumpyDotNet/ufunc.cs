@@ -62,6 +62,20 @@ namespace NumpyDotNet
         }
 
 
+        public object outer(CodeContext cntx, object a, object b) {
+            if (this.CoreEnabled) {
+                throw new ArgumentTypeException("method outer is not allowed in ufuncs with non-trivial signatures");
+            }
+
+            ndarray arr1 = NpyArray.FromAny(a);
+            ndarray arr2 = NpyArray.FromAny(b);
+            IntPtr[] newshape = arr1.Dims.AsEnumerable().Concat((Enumerable.Repeat(1L, arr2.ndim))).Select(x => new IntPtr(x)).ToArray();
+            ndarray newArr = NpyCoreApi.Newshape(arr1, newshape, NpyDefs.NPY_ORDER.NPY_ANYORDER);
+
+            return this.Call(cntx, null, newArr, arr2);
+        }
+
+
         /// <summary>
         /// Named arguments for reduce & accumulate.
         /// </summary>
@@ -162,6 +176,13 @@ namespace NumpyDotNet
             get {
                 CheckValid();
                 return Marshal.ReadInt32(core, NpyCoreApi.UFuncOffsets.off_ntypes);
+            }
+        }
+
+        public bool CoreEnabled {
+            get {
+                CheckValid();
+                return Marshal.ReadInt32(core, NpyCoreApi.UFuncOffsets.off_core_enabled) != 0;
             }
         }
 
