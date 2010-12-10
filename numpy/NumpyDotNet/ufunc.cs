@@ -69,6 +69,10 @@ namespace NumpyDotNet
 
             ndarray arr1 = NpyArray.FromAny(a);
             ndarray arr2 = NpyArray.FromAny(b);
+
+            // The final array shape is the shape of arr1 plus one dimension (size 1) for each dimension of arr2. 
+            // Example: arr1.shape = (5,), arr2.shape = (5,).  newshape ends up being (5, 1) and we transform arr1
+            // to that shape and then proceed with the operation.
             IntPtr[] newshape = arr1.Dims.AsEnumerable().Concat((Enumerable.Repeat(1L, arr2.ndim))).Select(x => new IntPtr(x)).ToArray();
             ndarray newArr = NpyCoreApi.Newshape(arr1, newshape, NpyDefs.NPY_ORDER.NPY_ANYORDER);
 

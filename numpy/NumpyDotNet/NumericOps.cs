@@ -1425,8 +1425,12 @@ namespace NumpyDotNet {
             else result = 0;
             return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
-        static internal del_GenericUnaryOp Op_Absolute =
-            a => GenericUnaryOp(Site_Abs, a);
+        static internal del_GenericUnaryOp Op_Absolute = aPtr => {
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object result = NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "abs", a);
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
+        };
+
 
         // TODO: trueDivide
         // TODO: floorDivide
