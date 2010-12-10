@@ -70,6 +70,14 @@ namespace NumpyDotNet
             return ToArray().__len__();
         }
 
+        public object __divmod__(CodeContext cntx, object b) {
+            return ToArray().__divmod__(cntx, b);
+        }
+
+        public object __rdivmod__(CodeContext cntx, object a) {
+            return ToArray().__rdivmod__(cntx, a);
+        }
+
         public object __lshift__(CodeContext cntx, object b) {
             return ToArray().__lshift__(cntx, b);
         }

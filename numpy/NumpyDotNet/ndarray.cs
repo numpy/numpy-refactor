@@ -331,6 +331,18 @@ namespace NumpyDotNet
             }
         }
 
+        public object __divmod__(CodeContext cntx, Object b) {
+            return PythonOps.MakeTuple(
+                BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_floor_divide),
+                BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_remainder));
+        }
+
+        public object __rdivmod__(CodeContext cntx, Object a) {
+            return PythonOps.MakeTuple(
+                BinaryOp(cntx, a, this, NpyDefs.NpyArray_Ops.npy_op_floor_divide),
+                BinaryOp(cntx, a, this, NpyDefs.NpyArray_Ops.npy_op_remainder));
+        }
+
         public object __lshift__(CodeContext cntx, Object b) {
             return BinaryOp(cntx, this, b, NpyDefs.NpyArray_Ops.npy_op_left_shift);
         }
@@ -352,11 +364,11 @@ namespace NumpyDotNet
         }
 
         public object __mod__(CodeContext cntx, Object b) {
-            return BinaryOp(cntx, this, b, "fmod");
+            return BinaryOp(cntx, this, b, "remainder");
         }
 
         public object __rmod__(CodeContext cntx, Object a) {
-            return BinaryOp(cntx, a, this, "fmod");
+            return BinaryOp(cntx, a, this, "remainder");
         }
 
         #endregion
