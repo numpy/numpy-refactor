@@ -432,6 +432,10 @@ namespace NumpyDotNet
             return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_subtract);
         }
 
+        public static object operator -(ScalarGeneric a) {
+            return ndarray.UnaryOp(null, a, NpyDefs.NpyArray_Ops.npy_op_negative);
+        }
+
         public static object operator *(ScalarGeneric a, object b) {
             return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_multiply);
         }
