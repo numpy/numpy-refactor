@@ -1260,15 +1260,14 @@ array_reduce(PyArrayObject *self, PyObject *NPY_UNUSED(args))
                                    /* dummy data-type */
                                    'b'));
 
-    /* Now fill in object's state.  This is a tuple with
-       5 arguments
+    /* Now fill in object's state.  This is a tuple with 5 arguments
 
-       1) an integer with the pickle version.
-       2) a Tuple giving the shape
-       3) a PyArray_Descr Object (with correct bytorder set)
-       4) a Bool stating if Fortran or not
-       5) a Python object representing the data (a string, or
-       a list or any user-defined object).
+       0) an integer with the pickle version.
+       1) a Tuple giving the shape
+       2) a PyArray_Descr Object (with correct bytorder set)
+       3) a Bool stating if Fortran or not
+       4) a Python object representing the data (a string, or
+          a list or any user-defined object).
 
        Notice because Python does not describe a mechanism to write
        raw data to the pickle, this performs a copy to a string first
@@ -1282,7 +1281,7 @@ array_reduce(PyArrayObject *self, PyObject *NPY_UNUSED(args))
     PyTuple_SET_ITEM(state, 0, PyInt_FromLong(version));
     PyTuple_SET_ITEM(state, 1, PyObject_GetAttrString((PyObject *)self,
                                                       "shape"));
-    descr = (PyArray_Descr *)Npy_INTERFACE( PyArray_DESCR(self) );
+    descr = (PyArray_Descr *)Npy_INTERFACE(PyArray_DESCR(self));
     Py_INCREF(descr);
     PyTuple_SET_ITEM(state, 2, (PyObject *)descr);
     mybool = (PyArray_ISFORTRAN(self) ? Py_True : Py_False);
@@ -1379,8 +1378,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
 #endif
 
         if (!PyBytes_Check(rawdata)) {
-            PyErr_SetString(PyExc_TypeError,
-                            "pickle not returning string");
+            PyErr_SetString(PyExc_TypeError, "pickle not returning string");
             return NULL;
         }
 
@@ -1389,8 +1387,7 @@ array_setstate(PyArrayObject *self, PyObject *args)
 
         if ((len != (PyArray_ITEMSIZE(self) * size))) {
             PyErr_SetString(PyExc_ValueError,
-                            "buffer size does not"  \
-                            " match array size");
+                            "buffer size does not match array size");
             return NULL;
         }
     }
@@ -1440,11 +1437,13 @@ array_setstate(PyArrayObject *self, PyObject *args)
             }
             if (swap) { /* byte-swap on pickle-read */
                 intp numels = num / PyArray_ITEMSIZE(self);
-                PyArray_DESCR(self)->f->copyswapn(PyArray_BYTES(self), PyArray_ITEMSIZE(self),
-                                          datastr, PyArray_ITEMSIZE(self),
-                                          numels, 1, PyArray_ARRAY(self));
+                PyArray_DESCR(self)->f->copyswapn(
+                    PyArray_BYTES(self), PyArray_ITEMSIZE(self),
+                    datastr, PyArray_ITEMSIZE(self),
+                    numels, 1, PyArray_ARRAY(self));
                 if (!PyArray_ISEXTENDED(self)) {
-                    PyArray_DESCR(self) = NpyArray_DescrFromType(PyArray_TYPE(self));
+                    PyArray_DESCR(self) = NpyArray_DescrFromType(
+                        PyArray_TYPE(self));
                 }
                 else {
                     PyArray_DESCR(self) = NpyArray_DescrNew(typecode->descr);
