@@ -269,6 +269,9 @@ namespace NumpyDotNet {
 
         internal static object GenericReduction(ufunc f, ndarray arr,
             ndarray indices, ndarray ret, int axis, dtype otype, ufunc.ReduceOp op) {
+            if (indices != null) {
+                Incref(indices.Array);
+            }
             ndarray rval = DecrefToInterface<ndarray>(
                 NpyUFunc_GenericReduction(f.UFunc, arr.Array,
                     (indices != null) ? indices.Array : IntPtr.Zero,
@@ -1101,7 +1104,7 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_UFuncGetOffsets")]
         private static extern void UFuncGetOffsets(out int ninOffset,
-            out int noutOffset, out int nargsOffset,
+            out int noutOffset, out int nargsOffset, out int coreEnabledOffset,
             out int identifyOffset, out int ntypesOffset, out int checkRetOffset,
             out int nameOffset, out int typesOffset, out int coreSigOffset);
 
@@ -1318,6 +1321,7 @@ namespace NumpyDotNet {
             internal int off_name;
             internal int off_types;
             internal int off_core_signature;
+            internal int off_core_enabled;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -2127,7 +2131,7 @@ namespace NumpyDotNet {
             GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
 
             UFuncGetOffsets(out UFuncOffsets.off_nin, out UFuncOffsets.off_nout,
-                out UFuncOffsets.off_nargs,
+                out UFuncOffsets.off_nargs, out UFuncOffsets.off_core_enabled,
                 out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
                 out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
                 out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);

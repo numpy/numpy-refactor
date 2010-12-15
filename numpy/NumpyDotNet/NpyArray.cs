@@ -238,29 +238,31 @@ namespace NumpyDotNet {
                 is_object = true;
             }
 
-            // Hack required because in C# strings are enumerations of chars, not objects. 
-            // However, we want to keep src as a string if we are building a string or object array.
-            if (!is_object && descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING && 
-                descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string) {
-                src = ((string)src).Cast<object>();
-            }
+            if (result == null) {
+                // Hack required because in C# strings are enumerations of chars, not objects. 
+                // However, we want to keep src as a string if we are building a string or object array.
+                if (!is_object && descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING &&
+                    descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string) {
+                    src = ((string)src).Cast<object>();
+                }
 
-            bool seq = false;
-            if (src is IEnumerable<object>) {
-                try {
-                    result = FromIEnumerable((IEnumerable<object>)src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
-                    seq = true;
-                } catch (InsufficientMemoryException) {
-                    throw;
-                } catch {
-                    if (is_object) {
-                        result = FromNestedList(src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0);
+                bool seq = false;
+                if (src is IEnumerable<object>) {
+                    try {
+                        result = FromIEnumerable((IEnumerable<object>)src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0, minDepth, maxDepth);
                         seq = true;
+                    } catch (InsufficientMemoryException) {
+                        throw;
+                    } catch {
+                        if (is_object) {
+                            result = FromNestedList(src, descr, (flags & NpyDefs.NPY_FORTRAN) != 0);
+                            seq = true;
+                        }
                     }
                 }
-            }
-            if (!seq) {
-                result = FromPythonScalar(src, descr);
+                if (!seq) {
+                    result = FromPythonScalar(src, descr);
+                }
             }
             return FromAnyReturn(result, minDepth, maxDepth);
         }

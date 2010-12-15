@@ -62,6 +62,24 @@ namespace NumpyDotNet
         }
 
 
+        public object outer(CodeContext cntx, object a, object b) {
+            if (this.CoreEnabled) {
+                throw new ArgumentTypeException("method outer is not allowed in ufuncs with non-trivial signatures");
+            }
+
+            ndarray arr1 = NpyArray.FromAny(a);
+            ndarray arr2 = NpyArray.FromAny(b);
+
+            // The final array shape is the shape of arr1 plus one dimension (size 1) for each dimension of arr2. 
+            // Example: arr1.shape = (5,), arr2.shape = (5,).  newshape ends up being (5, 1) and we transform arr1
+            // to that shape and then proceed with the operation.
+            IntPtr[] newshape = arr1.Dims.AsEnumerable().Concat((Enumerable.Repeat(1L, arr2.ndim))).Select(x => new IntPtr(x)).ToArray();
+            ndarray newArr = NpyCoreApi.Newshape(arr1, newshape, NpyDefs.NPY_ORDER.NPY_ANYORDER);
+
+            return this.Call(cntx, null, newArr, arr2);
+        }
+
+
         /// <summary>
         /// Named arguments for reduce & accumulate.
         /// </summary>
@@ -122,14 +140,14 @@ namespace NumpyDotNet
             dtype type = NpyDescr.DescrConverter2(cntx, args[3]);
             ndarray arrOut = (args[4] != null) ? NpyArray.FromAny(args[4]) : null;
 
-            return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);
+            return GenericReduce(arr, indices, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCEAT);
         }
 
 
         #region Python interface
 
         public string __repr__() {
-            return String.Format("<ufunc '{0}'>", __name__());
+            return String.Format("<ufunc '{0}'>", __name__);
         }
 
         public string __str__() {
@@ -165,15 +183,24 @@ namespace NumpyDotNet
             }
         }
 
-        // TODO: Implement 'types'
-        public override string ToString() {
-            return __name__();
+        public bool CoreEnabled {
+            get {
+                CheckValid();
+                return Marshal.ReadInt32(core, NpyCoreApi.UFuncOffsets.off_core_enabled) != 0;
+            }
         }
 
-        public string __name__() {
-            CheckValid();
-            IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_name);
-            return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
+        // TODO: Implement 'types'
+        public override string ToString() {
+            return __name__;
+        }
+
+        public string __name__ {
+            get {
+                CheckValid();
+                IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_name);
+                return (strPtr != IntPtr.Zero) ? Marshal.PtrToStringAnsi(strPtr) : null;
+            }
         }
 
         // TODO: Implement 'identity'

@@ -2,7 +2,11 @@ import sys
 
 import numpy as np
 from numpy.testing import *
-import numpy.core.umath_tests as umt
+
+if sys.platform == 'cli':
+    print "Warning: skipping numpy.core.umath_tests, not ported to IronPython yet"
+else:
+    import numpy.core.umath_tests as umt
 
 class TestUfunc(TestCase):
     def test_reduceat_shifting_sum(self) :
@@ -367,6 +371,8 @@ class TestUfunc(TestCase):
         # true divide, we keep the type of the input operand.  Which seems a
         # bit like implementing floor division and calling it "true divide".
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_signature(self):
         # the arguments to test_signature are: nin, nout, core_signature
         # pass
@@ -405,9 +411,13 @@ class TestUfunc(TestCase):
         # more complicated names for variables
         assert_equal(umt.test_signature(2,1,"(i1,i2),(J_1)->(_kAB)"),1)
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_get_signature(self):
         assert_equal(umt.inner1d.signature, "(i),(i)->()")
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_inner1d(self):
         self.check_inner1d_t( np.int )
         self.check_inner1d_t( np.double )
@@ -416,6 +426,8 @@ class TestUfunc(TestCase):
         a = np.arange( 6, dtype=tp ).reshape((2,3))
         assert_array_equal(umt.inner1d(a,a), np.sum(a*a,axis=-1))
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_broadcast(self):
         msg = "broadcast"
         a = np.arange(4).reshape((2,1,2))
@@ -440,6 +452,8 @@ class TestUfunc(TestCase):
             assert_equal(ret, None, err_msg=msg)
         except ValueError: None
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_type_cast(self):
         msg = "type cast"
         a = np.arange(6, dtype='short').reshape((2,3))
@@ -450,6 +464,8 @@ class TestUfunc(TestCase):
         assert_array_almost_equal(umt.inner1d(a,a), np.sum(a*a,axis=-1),
             err_msg=msg)
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_endian(self):
         msg = "big endian"
         a = np.arange(6, dtype='>i4').reshape((2,3))
@@ -458,6 +474,8 @@ class TestUfunc(TestCase):
         a = np.arange(6, dtype='<i4').reshape((2,3))
         assert_array_equal(umt.inner1d(a,a), np.sum(a*a,axis=-1), err_msg=msg)
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_incontiguous_array(self):
         msg = "incontiguous memory layout of array"
         x = np.arange(64).reshape((2,2,2,2,2,2))
@@ -474,6 +492,8 @@ class TestUfunc(TestCase):
         assert_equal(x[0,0,0], -1, err_msg=msg2)
         assert_array_equal(umt.inner1d(a,b), np.sum(a*b,axis=-1), err_msg=msg)
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def test_output_argument(self):
         msg = "output argument"
         a = np.arange(12).reshape((2,3,2))
@@ -494,6 +514,8 @@ class TestUfunc(TestCase):
         self.check_innerwt_t( np.int )
         self.check_innerwt_t( np.double )
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def check_innerwt_t( self, tp ):
         a = np.arange(6, dtype=tp).reshape((2,3))
         b = np.arange(10,16, dtype=tp).reshape((2,3))
@@ -509,6 +531,8 @@ class TestUfunc(TestCase):
         self.compare_matrix_multiply_results( np.double )
         self.compare_matrix_multiply_results( np.float32 )
 
+    @dec.skipif(sys.platform == 'cli', 
+        "umath_tests have not been ported to IronPython yet")
     def compare_matrix_multiply_results(self, tp):
         d1 = np.array(rand(2,3,4), dtype=tp)
         d2 = np.array(rand(2,3,4), dtype=tp)

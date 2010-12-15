@@ -322,16 +322,17 @@ namespace NumpyDotNet {
         }
 
 
-        public static ndarray lexsort(IList<object> keys, int axis = -1) {
-            int n = keys.Count;
+        public static ndarray lexsort(object keysObj, int axis = -1) {
+            IEnumerable<object> keys = keysObj as IEnumerable<object>;
+            if (keys == null || keys.Count() == 0) {
+                throw new ArgumentTypeException("Need sequence of keys with len > 0 in lexsort");
+            }
+
+            int n = keys.Count();
             ndarray[] arrays = new ndarray[n];
             int i = 0;
             foreach (object k in keys) {
-                ndarray a = (k as ndarray);
-                if (a == null) {
-                    a = NpyArray.FromAny(a, null, 0, 0, 0, null);
-                }
-                arrays[i++] = a;
+                arrays[i++] = NpyArray.FromAny(k);
             }
             return ndarray.LexSort(arrays, axis);
         }
@@ -565,6 +566,15 @@ namespace NumpyDotNet {
             } else {
                 ndarray.StrFunction = ff;
             }
+        }
+
+
+        public static void set_typeDict(object o) {
+            if (!(o is PythonDictionary)) {
+                throw new ArgumentTypeException(
+                    String.Format("Attempt to set type dictionary to non-dictionary type '{0}'.", o.GetType().Name));
+            }
+            NpyDescr.TypeDict = (PythonDictionary)o;
         }
 
 

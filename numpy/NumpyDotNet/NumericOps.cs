@@ -764,9 +764,6 @@ namespace NumpyDotNet {
         internal static void setitemFloat(Object o, IntPtr ptr, ndarray arr) {
             double fTmp = NpyUtil_Python.ConvertToDouble(o);
             float f = (float)fTmp;
-            if (f != fTmp) {
-                throw new OverflowException("floating-point overflow when casting from double to float");
-            }
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -1428,8 +1425,12 @@ namespace NumpyDotNet {
             else result = 0;
             return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
-        static internal del_GenericUnaryOp Op_Absolute =
-            a => GenericUnaryOp(Site_Abs, a);
+        static internal del_GenericUnaryOp Op_Absolute = aPtr => {
+            Object a = NpyCoreApi.GCHandleFromIntPtr(aPtr).Target;
+            Object result = NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "abs", a);
+            return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
+        };
+
 
         // TODO: trueDivide
         // TODO: floorDivide

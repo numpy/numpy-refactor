@@ -21,6 +21,8 @@ namespace NumpyDotNet
         public const double PZERO = 0.0;
         public const double NZERO = -0.0;
         public const double NAN = double.NaN;
+        
+        public const int FLOATING_POINT_SUPPORT = 1;
 
         public const int ERR_IGNORE = (int)NpyDefs.NPY_UFUNC_ERR.IGNORE;
         public const int ERR_WARN = (int)NpyDefs.NPY_UFUNC_ERR.WARN;
@@ -228,8 +230,6 @@ namespace NumpyDotNet
                 funcDict["mod"] = s;
             }
         }
-
-
 
         /// <summary>
         /// Structure for passing loop and arithmetic functions into the native
