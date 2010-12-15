@@ -395,11 +395,11 @@ typedef struct {
 #include "npy_neighbor_imp.h"
 #undef _NPY_INCLUDE_NEIGHBORHOOD_IMP
 
-#define PyArrayNeighborhoodIter_Reset(iter) \
-    NpyArrayNeighborhoodIter_Reset((iter)->iter)
+#define PyArrayNeighborhoodIter_Reset(n) \
+    NpyArrayNeighborhoodIter_Reset((n)->iter)
 
-#define PyArrayNeighborhoodIter_Next(iter) \
-    NpyArrayNeighborhoodIter_Next((iter)->iter)
+#define PyArrayNeighborhoodIter_Next(n) \
+    NpyArrayNeighborhoodIter_Next((n)->iter)
 
 #define PyArray_DEFAULT NPY_DEFAULT_TYPE
 
@@ -517,6 +517,15 @@ typedef struct {
 
 #define PyDataType_ISNOTSWAPPED(d) NpyArray_ISNBO(((PyArray_Descr *)(d))->byteorder)
 #define PyDataType_ISBYTESWAPPED(d) (!PyDataType_ISNOTSWAPPED(d))
+
+#define PyIter_ARRAY(i) ((i)->iter->ao)
+#define PyIter_DATA(i) ((i)->iter->dataptr)
+#define PyIter_INDEX(i) ((i)->iter->index)
+#define PyIter_SIZE(i) ((i)->iter->size)
+#define PyIter_NDIM(i) ((i)->iter->nd)
+#define PyIter_STRIDES(i) ((i)->iter->strides)
+#define PyIter_DIMENSIONS(i) ((i)->iter->dimensions)
+#define PyIter_DIMENSION (i, j) ((i)->iter->dimensions[j])
 
 
 /*

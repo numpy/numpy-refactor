@@ -1,6 +1,7 @@
 #ifndef _UFUNCOBJECT_H_
 #define _UFUNCOBJECT_H_
 
+#include "npy_defs.h"
 #include "npy_ufunc_object.h"
 
 #ifdef __cplusplus
@@ -24,19 +25,7 @@ typedef struct {
 #define PyUFunc_WRAP(obj) \
     (assert(NPY_VALID_MAGIC == (obj)->nob_magic_number), (PyUFuncObject *)Npy_INTERFACE(obj))
     
-#include "arrayobject.h"
-
-
-#if NPY_ALLOW_THREADS
-#define NPY_LOOP_BEGIN_THREADS do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) _save = PyEval_SaveThread();} while (0)
-#define NPY_LOOP_END_THREADS   do {if (!(loop->obj & UFUNC_OBJ_NEEDS_API)) PyEval_RestoreThread(_save);} while (0)
-#else
-#define NPY_LOOP_BEGIN_THREADS
-#define NPY_LOOP_END_THREADS
-#endif
-
-
-    
+#include "arrayobject.h"    
 #include "__ufunc_api.h"
 
 #define NPY_UFUNC_PYVALS_NAME "UFUNC_PYVALS"

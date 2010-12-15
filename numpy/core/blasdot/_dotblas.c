@@ -5,6 +5,7 @@ optimized\nmatrix multiply, inner product and dot for numpy arrays";
 #include "npy_api.h"
 #include "npy_descriptor.h"
 
+#include "npy_defs.h"
 #include "numpy/ndarrayobject.h"
 #include "numpy/ndarraytypes.h"
 
@@ -441,12 +442,13 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
 
 
     if (ap2shape == _scalar) {
+        NPY_BEGIN_THREADS_DEF;
         /*
          * Multiplication by a scalar -- Level 1 BLAS
          * if ap1shape is a matrix and we are not contiguous, then we can't
          * just blast through the entire array using a single striding factor
          */
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS;
 
         if (typenum == PyArray_DOUBLE) {
             if (l == 1) {
@@ -578,11 +580,12 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                 }
             }
         }
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
     }
     else if ((ap2shape == _column) && (ap1shape != _matrix)) {
         int ap1s, ap2s;
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS_DEF;
+        NPY_BEGIN_THREADS;
 
         ap2s = PyArray_STRIDE(ap2, 0) / PyArray_ITEMSIZE(ap2);
         if (ap1shape == _row) {
@@ -611,13 +614,14 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
             cblas_cdotu_sub(l, (float *)PyArray_BYTES(ap1), ap1s,
                             (float *)PyArray_BYTES(ap2), ap2s, (float *)PyArray_BYTES(ret));
         }
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
     }
     else if (ap1shape == _matrix && ap2shape != _matrix) {
         /* Matrix vector multiplication -- Level 2 BLAS */
         /* lda must be MAX(M,1) */
         enum CBLAS_ORDER Order;
         int ap2s;
+        NPY_BEGIN_THREADS_DEF;
 
         if (!PyArray_ISONESEGMENT(ap1)) {
             PyObject *new;
@@ -628,7 +632,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                 goto fail;
             }
         }
-        NPY_BEGIN_ALLOW_THREADS
+        NPY_BEGIN_THREADS
         if (PyArray_ISCONTIGUOUS(ap1)) {
             Order = CblasRowMajor;
             lda = (PyArray_DIM(ap1, 1) > 1 ? PyArray_DIM(ap1, 1) : 1);
@@ -664,12 +668,13 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                         (float *)PyArray_BYTES(ap2), ap2s, zeroF,
                         (float *)PyArray_BYTES(ret), 1);
         }
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
     }
     else if (ap1shape != _matrix && ap2shape == _matrix) {
         /* Vector matrix multiplication -- Level 2 BLAS */
         enum CBLAS_ORDER Order;
         int ap1s;
+        NPY_BEGIN_THREADS_DEF
 
         if (!PyArray_ISONESEGMENT(ap2)) {
             PyObject *new;
@@ -680,7 +685,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                 goto fail;
             }
         }
-        NPY_BEGIN_ALLOW_THREADS
+        NPY_BEGIN_THREADS
         if (PyArray_ISCONTIGUOUS(ap2)) {
             Order = CblasRowMajor;
             lda = (PyArray_DIM(ap2, 1) > 1 ? PyArray_DIM(ap2, 1) : 1);
@@ -719,7 +724,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                         oneF, (float *)PyArray_BYTES(ap2), lda,
                         (float *)PyArray_BYTES(ap1), ap1s, zeroF, (float *)PyArray_BYTES(ret), 1);
         }
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
     }
     else {
         /*
@@ -730,6 +735,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
         enum CBLAS_ORDER Order;
         enum CBLAS_TRANSPOSE Trans1, Trans2;
         int M, N, L;
+        NPY_BEGIN_THREADS_DEF;
 
         /* Optimization possible: */
         /*
@@ -756,7 +762,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
             }
         }
 
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS;
 
         Order = CblasRowMajor;
         Trans1 = CblasNoTrans;
@@ -795,7 +801,7 @@ dotblas_matrixproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                         (float *)PyArray_BYTES(ap2), ldb,
                         zeroF, (float *)PyArray_BYTES(ret), ldc);
         }
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
     }
 
 
@@ -834,6 +840,7 @@ dotblas_innerproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
     static const double zeroD[2] = {0.0, 0.0};
     PyTypeObject *subtype;
     double prior1, prior2;
+    NPY_BEGIN_THREADS_DEF
 
     if (!PyArg_ParseTuple(args, "OO", &op1, &op2)) return NULL;
 
@@ -920,7 +927,7 @@ dotblas_innerproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                                        (prior2 > prior1 ? ap2 : ap1));
 
     if (ret == NULL) goto fail;
-    NPY_BEGIN_ALLOW_THREADS
+    NPY_BEGIN_THREADS
     memset(PyArray_BYTES(ret), 0, PyArray_NBYTES(ret));
 
     if (PyArray_NDIM(ap2) == 0) {
@@ -1053,7 +1060,7 @@ dotblas_innerproduct(PyObject *NPY_UNUSED(dummy), PyObject *args)
                         zeroF, (float *)PyArray_BYTES(ret), ldc);
         }
     }
-    NPY_END_ALLOW_THREADS
+    NPY_END_THREADS
     Py_DECREF(ap1);
     Py_DECREF(ap2);
     return PyArray_Return(ret);
@@ -1079,6 +1086,7 @@ static PyObject *dotblas_vdot(PyObject *NPY_UNUSED(dummy), PyObject *args) {
     int typenum;
     npy_intp dimensions[NPY_MAXDIMS];
     PyArray_Descr *type;
+    NPY_BEGIN_THREADS_DEF
 
     if (!PyArg_ParseTuple(args, "OO", &op1, &op2)) return NULL;
 
@@ -1138,7 +1146,7 @@ static PyObject *dotblas_vdot(PyObject *NPY_UNUSED(dummy), PyObject *args) {
     ret = (PyArrayObject *)PyArray_SimpleNew(0, dimensions, typenum);
     if (ret == NULL) goto fail;
 
-    NPY_BEGIN_ALLOW_THREADS
+    NPY_BEGIN_THREADS
 
     /* Dot product between two vectors -- Level 1 BLAS */
     if (typenum == PyArray_DOUBLE) {
@@ -1158,7 +1166,7 @@ static PyObject *dotblas_vdot(PyObject *NPY_UNUSED(dummy), PyObject *args) {
                         (float *)PyArray_BYTES(ap2), 1, (float *)PyArray_BYTES(ret));
     }
 
-    NPY_END_ALLOW_THREADS
+    NPY_END_THREADS
 
     Py_DECREF(ap1);
     Py_DECREF(ap2);

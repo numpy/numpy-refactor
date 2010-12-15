@@ -60,7 +60,8 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
     size_t n3, n4;
     NpyArrayIterObject *it;
     PyObject *obj, *strobj, *tupobj, *byteobj;
-        
+    NPY_BEGIN_THREADS_DEF;
+    
     it = NpyArray_IterNew(PyArray_ARRAY(self));
     n3 = (sep ? strlen((const char *)sep) : 0);
     n4 = (format ? strlen((const char *)format) : 0);
@@ -110,10 +111,10 @@ int PyArray_ToTextFile(PyArrayObject *self, FILE *fp, char *sep, char *format)
 #else
         byteobj = strobj;
 #endif
-        NPY_BEGIN_ALLOW_THREADS;
+        NPY_BEGIN_THREADS;
         n2 = PyBytes_GET_SIZE(byteobj);
         n = fwrite(PyBytes_AS_STRING(byteobj), 1, n2, fp);
-        NPY_END_ALLOW_THREADS;
+        NPY_END_THREADS;
 #if defined(NPY_PY3K)
         Py_DECREF(byteobj);
 #endif
