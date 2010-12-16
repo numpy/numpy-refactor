@@ -46,17 +46,22 @@ namespace NumpyDotNet {
         /// types.
         /// </summary>
         internal static dtype DescrFromType(NpyDefs.NPY_TYPES type) {
+            // NOTE: No GIL wrapping here, function is re-entrant and includes locking.
             IntPtr descr = NpyArray_DescrFromType((int)type);
             CheckError();
             return DecrefToInterface<dtype>(descr);
         }
 
         internal static bool IsAligned(ndarray arr) {
-            return Npy_IsAligned(arr.Array) != 0;
+            lock (GlobalIterpLock) {
+                return Npy_IsAligned(arr.Array) != 0;
+            }
         }
 
         internal static bool IsWriteable(ndarray arr) {
-            return Npy_IsWriteable(arr.Array) != 0;
+            lock (GlobalIterpLock) {
+                return Npy_IsWriteable(arr.Array) != 0;
+            }
         }
 
         internal static byte OppositeByteOrder {
@@ -68,8 +73,10 @@ namespace NumpyDotNet {
         }
 
         internal static dtype SmallType(dtype t1, dtype t2) {
-            return ToInterface<dtype>(
-                NpyArray_SmallType(t1.Descr, t2.Descr));
+            lock (GlobalIterpLock) {
+                return ToInterface<dtype>(
+                    NpyArray_SmallType(t1.Descr, t2.Descr));
+            }
         }
 
 
@@ -80,13 +87,13 @@ namespace NumpyDotNet {
         /// <param name="dest">Destination array</param>
         /// <param name="src">Source array</param>
         internal static void MoveInto(ndarray dest, ndarray src) {
-            if (NpyArray_MoveInto(dest.Array, src.Array) == -1) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArray_MoveInto(dest.Array, src.Array) == -1) {
+                    CheckError();
+                }
             }
         }
 
-
-        private static object AllocArraySyncRoot = new Object();
 
         /// <summary>
         /// Allocates a new array and returns the ndarray wrapper
@@ -100,8 +107,8 @@ namespace NumpyDotNet {
             bool fortran) {
             IntPtr nativeDims = IntPtr.Zero;
 
-            lock (AllocArraySyncRoot) {
-                Incref(descr.Descr);
+            Incref(descr.Descr);
+            lock (GlobalIterpLock) {
                 return DecrefToInterface<ndarray>(
                     NpyArrayAccess_AllocArray(descr.Descr, numdim, dimensions, fortran));
             }
@@ -149,15 +156,19 @@ namespace NumpyDotNet {
             int flags, object interfaceData) {
             if (interfaceData == null) {
                 Incref(descr.Descr);
-                return DecrefToInterface<ndarray>(
-                    NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, IntPtr.Zero, IntPtr.Zero));
+                lock (GlobalIterpLock) {
+                    return DecrefToInterface<ndarray>(
+                        NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, IntPtr.Zero, IntPtr.Zero));
+                }
             } else {
                 GCHandle h = AllocGCHandle(interfaceData);
                 try {
                     Incref(descr.Descr);
+                    Monitor.Enter(GlobalIterpLock);
                     return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
                         flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
                 } finally {
+                    Monitor.Exit(GlobalIterpLock);
                     FreeGCHandle(h);
                 }
             }
@@ -167,41 +178,53 @@ namespace NumpyDotNet {
             int flags, object interfaceData) {
             if (interfaceData == null) {
                 Incref(descr.Descr);
-                return DecrefToInterface<ndarray>(
-                    NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, data, IntPtr.Zero));
+                lock (GlobalIterpLock) {
+                    return DecrefToInterface<ndarray>(
+                        NewFromDescrThunk(descr.Descr, dims.Length, flags, dims, strides, data, IntPtr.Zero));
+                }
             } else {
                 GCHandle h = AllocGCHandle(interfaceData);
                 try {
                     Incref(descr.Descr);
+                    Monitor.Enter(GlobalIterpLock);
                     return DecrefToInterface<ndarray>(NewFromDescrThunk(descr.Descr, dims.Length,
                         flags, dims, strides, IntPtr.Zero, GCHandle.ToIntPtr(h)));
                 } finally {
+                    Monitor.Exit(GlobalIterpLock);
                     FreeGCHandle(h);
                 }
             }
         }
 
         internal static flatiter IterNew(ndarray ao) {
-            return DecrefToInterface<flatiter>(
-                NpyArray_IterNew(ao.Array));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<flatiter>(
+                    NpyArray_IterNew(ao.Array));
+            }
         }
 
         internal static ndarray IterSubscript(flatiter iter, NpyIndexes indexes) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_IterSubscript(iter.Iter, indexes.Indexes, indexes.NumIndexes));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_IterSubscript(iter.Iter, indexes.Indexes, indexes.NumIndexes));
+            }
         }
 
         internal static void IterSubscriptAssign(flatiter iter, NpyIndexes indexes, ndarray val) {
-            if (NpyArray_IterSubscriptAssign(iter.Iter, indexes.Indexes, indexes.NumIndexes, val.Array) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArray_IterSubscriptAssign(iter.Iter, indexes.Indexes, indexes.NumIndexes, val.Array) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static ndarray FlatView(ndarray a)
         {
-            return DecrefToInterface<ndarray>(
-                NpyArray_FlatView(a.Array)
-                );
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_FlatView(a.Array)
+                    );
+            }
         }
 
 
@@ -211,18 +234,28 @@ namespace NumpyDotNet {
         /// <param name="objs">Sequence of objects to iterate over</param>
         /// <returns>Pointer to core multi-iterator structure</returns>
         internal static IntPtr MultiIterFromObjects(IEnumerable<object> objs) {
-            return MultiIterFromArrays(objs.Select(x => NpyArray.FromAny(x)));
+            lock (GlobalIterpLock) {
+                return MultiIterFromArrays(objs.Select(x => NpyArray.FromAny(x)));
+            }
         }
 
         internal static IntPtr MultiIterFromArrays(IEnumerable<ndarray> arrays) {
             IntPtr[] coreArrays = arrays.Select(x => { Incref(x.Array); return x.Array; }).ToArray();
-            IntPtr result = NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+            IntPtr result;
+
+            lock (GlobalIterpLock) {
+                result = NpyArrayAccess_MultiIterFromArrays(coreArrays, coreArrays.Length);
+            }
             CheckError();
             return result;
         }
 
         internal static ufunc GetNumericOp(NpyDefs.NpyArray_Ops op) {
-            IntPtr ufuncPtr = NpyArray_GetNumericOp((int)op);
+            IntPtr ufuncPtr;
+
+            lock (GlobalIterpLock) {
+                ufuncPtr = NpyArray_GetNumericOp((int)op);
+            }
             return ToInterface<ufunc>(ufuncPtr);
         }
 
@@ -272,11 +305,15 @@ namespace NumpyDotNet {
             if (indices != null) {
                 Incref(indices.Array);
             }
-            ndarray rval = DecrefToInterface<ndarray>(
-                NpyUFunc_GenericReduction(f.UFunc, arr.Array,
-                    (indices != null) ? indices.Array : IntPtr.Zero,
-                    (ret != null) ? ret.Array : IntPtr.Zero,
-                    axis, (otype != null) ? otype.Descr : IntPtr.Zero, (int)op));
+
+            ndarray rval;
+            lock (GlobalIterpLock) {
+                rval = DecrefToInterface<ndarray>(
+                    NpyUFunc_GenericReduction(f.UFunc, arr.Array,
+                        (indices != null) ? indices.Array : IntPtr.Zero,
+                        (ret != null) ? ret.Array : IntPtr.Zero,
+                        axis, (otype != null) ? otype.Descr : IntPtr.Zero, (int)op));
+            }
             if (rval != null) {
                 // TODO: Call array wrap processing: ufunc_object.c:1011
             }
@@ -344,8 +381,11 @@ namespace NumpyDotNet {
                     try {
                         int val;
                         Incref(f.UFunc);
-                        if ((val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
-                            PrepareCallback, GCHandle.ToIntPtr(h))) < 0) {
+                        lock (GlobalIterpLock) {
+                            val = NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
+                                PrepareCallback, GCHandle.ToIntPtr(h));
+                        }
+                        if (val < 0) {
                             CheckError();
                             if (pargs.ex != null) {
                                 throw pargs.ex;
@@ -367,11 +407,13 @@ namespace NumpyDotNet {
                 } else {
                     try {
                         Incref(f.UFunc);
+                        Monitor.Enter(GlobalIterpLock);
                         if (NpyUFunc_GenericFunction(f.UFunc, f.nargs, mps, ntypenums, rtypenums, 0,
                                 null, IntPtr.Zero) < 0) {
                             CheckError();
                         }
                     } finally {
+                        Monitor.Exit(GlobalIterpLock);
                         // Convert the args back.
                         for (int i = 0; i < arrays.Length; i++) {
                             if (mps[i] != IntPtr.Zero) {
@@ -387,46 +429,62 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray Byteswap(ndarray arr, bool inplace) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_Byteswap(arr.Array, inplace ? (byte)1 : (byte)0));
+            }
         }
 
         internal static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
             Incref(d.Descr);
-            return DecrefToInterface<ndarray>(
-                NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_CastToType(arr.Array, d.Descr, (fortran ? 1 : 0)));
+            }
         }
 
         internal static ndarray CheckAxis(ndarray arr, ref int axis, int flags) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_CheckAxis(arr.Array, ref axis, flags));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_CheckAxis(arr.Array, ref axis, flags));
+            }
         }
 
         internal static void CopyAnyInto(ndarray dest, ndarray src) {
-            if (NpyArray_CopyAnyInto(dest.Array, src.Array) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArray_CopyAnyInto(dest.Array, src.Array) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static void DescrDestroyFields(IntPtr fields) {
-            NpyDict_Destroy(fields);
+            lock (GlobalIterpLock) {
+                NpyDict_Destroy(fields);
+            }
         }
 
 
         internal static ndarray GetField(ndarray arr, dtype d, int offset) {
             Incref(d.Descr);
-            return DecrefToInterface<ndarray>(
-                NpyArray_GetField(arr.Array, d.Descr, offset));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_GetField(arr.Array, d.Descr, offset));
+            }
         }
 
         internal static ndarray GetImag(ndarray arr) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_GetImag(arr.Array));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_GetImag(arr.Array));
+            }
         }
 
         internal static ndarray GetReal(ndarray arr) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_GetReal(arr.Array));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_GetReal(arr.Array));
+            }
         }
         internal static ndarray GetField(ndarray arr, string name) {
             NpyArray_DescrField field = GetDescrField(arr.Dtype, name);
@@ -435,18 +493,24 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray Newshape(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order) {
-            return DecrefToInterface<ndarray>(
-                NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArrayAccess_Newshape(arr.Array, dims.Length, dims, (int)order));
+            }
         }
 
         internal static void SetShape(ndarray arr, IntPtr[] dims) {
-            if (NpyArrayAccess_SetShape(arr.Array, dims.Length, dims) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_SetShape(arr.Array, dims.Length, dims) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static void SetState(ndarray arr, IntPtr[] dims, NpyDefs.NPY_ORDER order, string rawdata) {
-            NpyArrayAccess_SetState(arr.Array, dims.Length, dims, (int)order, rawdata, (rawdata != null) ? rawdata.Length : 0);
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_SetState(arr.Array, dims.Length, dims, (int)order, rawdata, (rawdata != null) ? rawdata.Length : 0);
+            }
             CheckError();
         }
 
@@ -454,8 +518,10 @@ namespace NumpyDotNet {
         internal static ndarray NewView(dtype d, int nd, IntPtr[] dims, IntPtr[] strides,
             ndarray arr, IntPtr offset, bool ensure_array) {
             Incref(d.Descr);
-            return DecrefToInterface<ndarray>(
-                NpyArray_NewView(d.Descr, nd, dims, strides, arr.Array, offset, ensure_array ? 1 : 0));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_NewView(d.Descr, nd, dims, strides, arr.Array, offset, ensure_array ? 1 : 0));
+            }
         }
 
         /// <summary>
@@ -465,65 +531,85 @@ namespace NumpyDotNet {
         /// <param name="order">Desired order</param>
         /// <returns>New array</returns>
         internal static ndarray NewCopy(ndarray arr, NpyDefs.NPY_ORDER order) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_NewCopy(arr.Array, (int)order));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_NewCopy(arr.Array, (int)order));
+            }
         }
 
         internal static NpyDefs.NPY_TYPES TypestrConvert(int elsize, byte letter) {
-            return (NpyDefs.NPY_TYPES)NpyArray_TypestrConvert(elsize, (int)letter);
+            lock (GlobalIterpLock) {
+                return (NpyDefs.NPY_TYPES)NpyArray_TypestrConvert(elsize, (int)letter);
+            }
         }
 
         internal static void AddField(IntPtr fields, IntPtr names, int i,
             string name, dtype fieldType, int offset, string title) {
             Incref(fieldType.Descr);
-            if (NpyArrayAccess_AddField(fields, names, i, name, fieldType.Descr, offset, title) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_AddField(fields, names, i, name, fieldType.Descr, offset, title) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static NpyArray_DescrField GetDescrField(dtype d, string name) {
             NpyArray_DescrField result;
-            if (NpyArrayAccess_GetDescrField(d.Descr, name, out result) < 0) {
-                throw new ArgumentException(String.Format("Field {0} does not exist", name));
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_GetDescrField(d.Descr, name, out result) < 0) {
+                    throw new ArgumentException(String.Format("Field {0} does not exist", name));
+                }
             }
             return result;
         }
 
         internal static dtype DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment) {
-            return DecrefToInterface<dtype>(
-                NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<dtype>(
+                    NpyArrayAccess_DescrNewVoid(fields, names, elsize, flags, alignment));
+            }
         }
 
         internal static dtype DescrNewSubarray(dtype basetype, IntPtr[] shape) {
-            return DecrefToInterface<dtype>(
-                NpyArrayAccess_DescrNewSubarray(basetype.Descr, shape.Length, shape));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<dtype>(
+                    NpyArrayAccess_DescrNewSubarray(basetype.Descr, shape.Length, shape));
+            }
         }
 
         internal static dtype DescrNew(dtype d) {
-            return DecrefToInterface<dtype>(
-                NpyArray_DescrNew(d.Descr));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<dtype>(
+                    NpyArray_DescrNew(d.Descr));
+            }
         }
 
         internal static void GetBytes(ndarray arr, byte[] bytes, NpyDefs.NPY_ORDER order) {
-            if (NpyArrayAccess_GetBytes(arr.Array, bytes, bytes.LongLength, (int)order) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_GetBytes(arr.Array, bytes, bytes.LongLength, (int)order) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static void FillWithObject(ndarray arr, object obj) {
             GCHandle h = AllocGCHandle(obj);
             try {
+                Monitor.Enter(GlobalIterpLock);
                 if (NpyArray_FillWithObject(arr.Array, GCHandle.ToIntPtr(h)) < 0) {
                     CheckError();
                 }
             } finally {
+                Monitor.Exit(GlobalIterpLock);
                 FreeGCHandle(h);
             }
         }
 
         internal static void FillWithScalar(ndarray arr, ndarray zero_d_array) {
-            if (NpyArray_FillWithScalar(arr.Array, zero_d_array.Array) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArray_FillWithScalar(arr.Array, zero_d_array.Array) < 0) {
+                    CheckError();
+                }
             }
         }
 
@@ -535,34 +621,46 @@ namespace NumpyDotNet {
             if (subtype != null) {
                 GCHandle h = AllocGCHandle(subtype);
                 try {
+                    Monitor.Enter(GlobalIterpLock);
                     return DecrefToInterface<ndarray>(
                         NpyArray_View(arr.Array, descr, GCHandle.ToIntPtr(h)));
                 } finally {
+                    Monitor.Exit(GlobalIterpLock);
                     FreeGCHandle(h);
                 }
             }
             else {
-                return DecrefToInterface<ndarray>(
-                    NpyArray_View(arr.Array, descr, IntPtr.Zero));
+                lock (GlobalIterpLock) {
+                    return DecrefToInterface<ndarray>(
+                        NpyArray_View(arr.Array, descr, IntPtr.Zero));
+                }
             }
         }
 
         internal static ndarray ViewLike(ndarray arr, ndarray proto) {
-            return DecrefToInterface<ndarray>(
-                NpyArrayAccess_ViewLike(arr.Array, proto.Array));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArrayAccess_ViewLike(arr.Array, proto.Array));
+            }
         }
 
         internal static ndarray Subarray(ndarray self, IntPtr dataptr) {
-            return DecrefToInterface<ndarray>(NpyArray_Subarray(self.Array, dataptr));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(NpyArray_Subarray(self.Array, dataptr));
+            }
         }
 
         internal static dtype DescrNewByteorder(dtype d, char order) {
-            return DecrefToInterface<dtype>(
-                NpyArray_DescrNewByteorder(d.Descr, (byte)order));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<dtype>(
+                    NpyArray_DescrNewByteorder(d.Descr, (byte)order));
+            }
         }
 
         internal static void UpdateFlags(ndarray arr, int flagmask) {
-            NpyArray_UpdateFlags(arr.Array, flagmask);
+            lock (GlobalIterpLock) {
+                NpyArray_UpdateFlags(arr.Array, flagmask);
+            }
         }
 
         /// <summary>
@@ -571,27 +669,37 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="arr"></param>
         internal static void Fill(ndarray arr) {
-            if (NpyArrayAccess_Fill(arr.Array) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_Fill(arr.Array) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static void SetDateTimeInfo(dtype d, string units, int num, int den, int events) {
-            if (NpyArrayAccess_SetDateTimeInfo(d.Descr, units, num, den, events) < 0) {
-                CheckError();
+            lock (GlobalIterpLock) {
+                if (NpyArrayAccess_SetDateTimeInfo(d.Descr, units, num, den, events) < 0) {
+                    CheckError();
+                }
             }
         }
 
         internal static dtype InheritDescriptor(dtype t1, dtype other) {
-            return DecrefToInterface<dtype>(NpyArrayAccess_InheritDescriptor(t1.Descr, other.Descr));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<dtype>(NpyArrayAccess_InheritDescriptor(t1.Descr, other.Descr));
+            }
         }
 
         internal static bool EquivTypes(dtype d1, dtype d2) {
-            return NpyArray_EquivTypes(d1.Descr, d2.Descr) != 0;
+            lock (GlobalIterpLock) {
+                return NpyArray_EquivTypes(d1.Descr, d2.Descr) != 0;
+            }
         }
 
         internal static bool CanCastTo(dtype d1, dtype d2) {
-            return NpyArray_CanCastTo(d1.Descr, d2.Descr);
+            lock (GlobalIterpLock) {
+                return NpyArray_CanCastTo(d1.Descr, d2.Descr);
+            }
         }
 
         /// <summary>
@@ -600,9 +708,15 @@ namespace NumpyDotNet {
         /// <param name="arr">Array to get the format string for</param>
         /// <returns>Format string</returns>
         internal static string GetBufferFormatString(ndarray arr) {
-            IntPtr ptr = NpyArrayAccess_GetBufferFormatString(arr.Array);
+            IntPtr ptr;
+            lock (GlobalIterpLock) {
+                ptr = NpyArrayAccess_GetBufferFormatString(arr.Array);
+            }
+
             String s = Marshal.PtrToStringAnsi(ptr);
-            NpyArrayAccess_Free(ptr); // ptr was allocated with malloc, not SysStringAlloc - don't use automatic marshalling
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_Free(ptr); // ptr was allocated with malloc, not SysStringAlloc - don't use automatic marshalling
+            }
             return s;
         }
 
@@ -618,39 +732,75 @@ namespace NumpyDotNet {
         /// <param name="sep">Element separator string for text files, null for binary files</param>
         /// <returns>Array of file contents</returns>
         internal static ndarray ArrayFromFile(string fileName, dtype type, int count, string sep) {
-            return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(NpyArrayAccess_FromFile(fileName, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            }
         }
 
 
         internal static ndarray ArrayFromString(string data, dtype type, int count, string sep) {
             if (type != null) Incref(type.Descr);
-            return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(NpyArray_FromString(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            }
         }
 
         internal static ndarray ArrayFromBytes(byte[] data, dtype type, int count, string sep) {
             if (type != null) Incref(type.Descr);
-            return DecrefToInterface<ndarray>(NpyArray_FromBytes(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(NpyArray_FromBytes(data, (IntPtr)data.Length, (type != null) ? type.Descr : IntPtr.Zero, count, sep));
+            }
         }
 
         internal static ndarray CompareStringArrays(ndarray a1, ndarray a2, NpyDefs.NPY_COMPARE_OP op,
                                                     bool rstrip = false) {
-            return DecrefToInterface<ndarray>(
-                NpyArray_CompareStringArrays(a1.Array, a2.Array, (int)op, rstrip ? 1 : 0));
+            lock (GlobalIterpLock) {
+                return DecrefToInterface<ndarray>(
+                    NpyArray_CompareStringArrays(a1.Array, a2.Array, (int)op, rstrip ? 1 : 0));
+            }
         }
 
         #endregion
 
+        #region Gil Wrappers
+
+        private static Tresult GilWrapper<Tresult>(Func<Tresult> f) {
+            lock (GlobalIterpLock) {
+                return f();
+            }
+        }
+
+        private static Tresult GilWrapper<Tone, Tresult>(Func<Tone, Tresult> f, Tone one) {
+            lock (GlobalIterpLock) {
+                return f(one);
+            }
+        }
+
+        private static Tresult GilWrapper<Tone, Ttwo, Tresult>(Func<Tone, Ttwo, Tresult> f, Tone one, Ttwo two) {
+            lock (GlobalIterpLock) {
+                return f(one, two);
+            }
+        }
+
+        private static Tresult GilWrapper<Tone, Ttwo, Tthree, Tresult>(Func<Tone, Ttwo, Tthree, Tresult> f, Tone one, Ttwo two, Tthree three) {
+            lock (GlobalIterpLock) {
+                return f(one, two, three);
+            }
+        }
+
+        #endregion
 
         #region C API Definitions
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DescrNew(IntPtr descr);
+        private static extern IntPtr NpyArray_DescrNew(IntPtr descr);
+        internal static Func<IntPtr, IntPtr> DescrNewRaw = (IntPtr d) => GilWrapper(NpyArray_DescrNew, d);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DescrFromType(Int32 type);
+        private static extern IntPtr NpyArray_DescrFromType(Int32 type);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_SmallType(IntPtr descr1, IntPtr descr2);
+        private static extern IntPtr NpyArray_SmallType(IntPtr descr1, IntPtr descr2);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         internal static extern byte NpyArray_EquivTypes(IntPtr t1, IntPtr typ2);
@@ -1901,7 +2051,8 @@ namespace NumpyDotNet {
         #region Thread handling
         // CPython uses a threading model that is single threaded unless the global interpreter lock
         // is explicitly released. While .NET supports true threading, the ndarray core has not been
-        // completely checked to makes sure that it is re-entrant.  Thus we artificially lock IronPython
+        // completely checked to makes sure that it is re-entrant  much less modify each function to
+        // perform fine-grained locking on individual objects.  Thus we artificially lock IronPython
         // down and force ndarray accesses to be single threaded for now.
 
         /// <summary>

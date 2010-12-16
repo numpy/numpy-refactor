@@ -35,7 +35,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Descriptor to duplicate</param>
         internal dtype(dtype d) {
-            core = NpyCoreApi.NpyArray_DescrNew(d.core);
+            core = NpyCoreApi.DescrNewRaw(d.core);
             funcs = NumericOps.FuncsForType(this.TypeNum);
         }
 
