@@ -366,14 +366,11 @@ namespace NumpyDotNet {
         }
 
         internal static ndarray FromScalar(ScalarGeneric scalar, dtype descr = null) {
-            if (descr == null || NpyCoreApi.EquivTypes((dtype)scalar.dtype, descr)) {
-                return scalar.ToArray();
-            } else {
-                ndarray arr = scalar.ToArray();
-                // passing scalar.dtype instead of descr in because otherwise we loose information. Not
-                // sure if more processing is needed.  Relevant CPython code is PyArray_DescrFromScalarUnwrap
-                return NpyCoreApi.FromArray(arr, (dtype)scalar.dtype, 0);
+            ndarray arr = scalar.ToArray();
+            if (descr != null && !NpyCoreApi.EquivTypes((dtype)scalar.dtype, descr)) {
+                arr = NpyCoreApi.CastToType(arr, descr, arr.IsFortran);
             }
+            return arr;
         }
 
 

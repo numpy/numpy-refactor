@@ -641,12 +641,7 @@ namespace NumpyDotNet {
             }
 
             // Convert items to array objects
-            ndarray[] result = new ndarray[n];
-            n = 0;
-            foreach (object o in objs) {
-                result[n++] = NpyArray.FromAny(o, intype, 0, 0, NpyDefs.NPY_CARRAY, null);
-            }
-            return result;
+            return objs.Select(x => NpyArray.FromAny(x, intype, 0, 0, NpyDefs.NPY_CARRAY)).ToArray();
         }
     }
 

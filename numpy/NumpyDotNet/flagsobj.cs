@@ -138,6 +138,15 @@ namespace NumpyDotNet
             }
         }
 
+        public object __eq__(object o) {
+            flagsobj other = o as flagsobj;
+            if (other == null) {
+                return false;
+            }
+
+            return other.flags == flags;
+        }
+
         public virtual string __repr__() {
             return ToString();
         }

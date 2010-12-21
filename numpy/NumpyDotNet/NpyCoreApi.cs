@@ -877,13 +877,13 @@ namespace NumpyDotNet {
 
         internal static ndarray Correlate(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES typenum, int mode) {
             lock (GlobalIterpLock) {
-                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate(arr1.Array, arr1.Array, (int)typenum, mode));
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate(arr1.Array, arr2.Array, (int)typenum, mode));
             }
         }
 
         internal static ndarray Correlate2(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES typenum, int mode) {
             lock (GlobalIterpLock) {
-                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate2(arr1.Array, arr1.Array, (int)typenum, mode));
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate2(arr1.Array, arr2.Array, (int)typenum, mode));
             }
         }
 
