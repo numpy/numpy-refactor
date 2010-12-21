@@ -781,12 +781,12 @@ namespace NumpyDotNet {
 
         internal static ndarray Zeros(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
             ndarray result = Empty(shape, type, order);
-            NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
+            NpyCoreApi.ZeroFill(result, IntPtr.Zero);
             if (type.IsObject) {
                 // Object arrays are zero filled when created
                 FillObjects(result, 0);
             } else {
-                NpyCoreApi.NpyArrayAccess_ZeroFill(result.Array, IntPtr.Zero);
+                NpyCoreApi.ZeroFill(result, IntPtr.Zero);
             }
             return result;
         }

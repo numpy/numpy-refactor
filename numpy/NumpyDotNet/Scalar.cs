@@ -1023,7 +1023,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr p, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void *)p, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void *)p, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1098,7 +1098,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1174,7 +1174,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1395,7 +1395,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1468,7 +1468,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1552,7 +1552,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1701,7 +1701,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1773,7 +1773,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1861,7 +1861,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;
@@ -1985,7 +1985,7 @@ namespace NumpyDotNet
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.NpyArrayAccess_CopySwapScalar(((dtype)dtype).Descr, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
                 }
             }
             return this;

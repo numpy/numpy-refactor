@@ -124,7 +124,7 @@ namespace NumpyDotNet
             {
                 int nd = arr.ndim;
                 long[] result = new long[nd];
-                IntPtr coords = NpyCoreApi.IterCoords(core);
+                IntPtr coords = NpyCoreApi.IterCoords(this);
                 for (int i = 0; i < nd; i++)
                 {
                     result[i] = Marshal.ReadIntPtr(coords).ToInt64();
@@ -238,7 +238,7 @@ namespace NumpyDotNet
 
         internal void SingleAssign(IntPtr index, object value)
         {
-            IntPtr pos = NpyCoreApi.IterGoto1D(core, index);
+            IntPtr pos = NpyCoreApi.IterGoto1D(this, index);
             if (pos == IntPtr.Zero)
             {
                 NpyCoreApi.CheckError();
@@ -247,7 +247,7 @@ namespace NumpyDotNet
         }
 
         internal object Get(IntPtr index) {
-            IntPtr pos = NpyCoreApi.IterGoto1D(core, index);
+            IntPtr pos = NpyCoreApi.IterGoto1D(this, index);
             if (pos == IntPtr.Zero) {
                 NpyCoreApi.CheckError();
             }

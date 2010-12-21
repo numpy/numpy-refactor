@@ -175,7 +175,7 @@ namespace NumpyDotNet
         public NpyIndexes Bind(ndarray arr)
         {
             NpyIndexes result = new NpyIndexes();
-            int n = NpyCoreApi.BindIndex(arr.Array, indexes, num_indexes, result.indexes);
+            int n = NpyCoreApi.BindIndex(arr, this, result);
             if (n < 0)
             {
                 NpyCoreApi.CheckError();

@@ -23,10 +23,7 @@ namespace NumpyDotNet
                 newsize *= dim.ToInt64();
             }
 
-            if (NpyCoreApi.NpyArrayAccess_Resize(Array, newdims.Length, newdims, (refcheck ? 1 : 0), (int)fortran) < 0) {
-                NpyCoreApi.CheckError();
-            }
-
+            NpyCoreApi.Resize(this, newdims, refcheck, fortran);
             if (newsize > oldsize && Dtype.IsObject) {
                 using (ndarray view = (ndarray)Ravel(fortran)[new Slice(oldsize, null)]) {
                     NpyArray.FillObjects(view, 0);
@@ -44,13 +41,7 @@ namespace NumpyDotNet
         }
 
         internal ndarray Transpose(IntPtr[] permute = null) {
-            if (permute == null) {
-                return NpyCoreApi.DecrefToInterface<ndarray>(
-                    NpyCoreApi.NpyArrayAccess_Transpose(Array, 0, null));
-            } else {
-                return NpyCoreApi.DecrefToInterface<ndarray>(
-                    NpyCoreApi.NpyArrayAccess_Transpose(Array, permute.Length, permute));
-            }
+            return NpyCoreApi.Transpose(this, permute);
         }
     }
 

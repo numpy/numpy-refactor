@@ -35,7 +35,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="d">Descriptor to duplicate</param>
         internal dtype(dtype d) {
-            core = NpyCoreApi.DescrNewRaw(d.core);
+            core = NpyCoreApi.DescrNewRaw(d);
             funcs = NumericOps.FuncsForType(this.TypeNum);
         }
 
@@ -257,7 +257,7 @@ namespace NumpyDotNet {
                 // subarray is tuple of descriptor, shape (tuple of ints).
                 dtype baseDescr = (dtype)((PythonTuple)subarray)[0];
                 PythonTuple shape = (PythonTuple)((PythonTuple)subarray)[1];
-                NpyCoreApi.NpyArrayAccess_DescrReplaceSubarray(this.Descr, baseDescr.Descr, shape.Count(), shape.Cast<long>().Cast<IntPtr>().ToArray());
+                NpyCoreApi.DescrReplaceSubarray(this, baseDescr, shape.Cast<long>().Cast<IntPtr>().ToArray());
             }
 
             // Copy in the fields & names.
@@ -272,7 +272,7 @@ namespace NumpyDotNet {
                     string title = (fieldInfo.__len__() == 3) ? (string)fieldInfo[2] : null;
                     NpyCoreApi.AddField(fieldsPtr, namesPtr, i, n, descr, offset, title);
                 });
-                NpyCoreApi.DescrReplaceFields(this.Descr, namesPtr, fieldsPtr);
+                NpyCoreApi.DescrReplaceFields(this, namesPtr, fieldsPtr);
             }
 
             if (NpyDefs.IsExtended(this.TypeNum)) {
@@ -512,7 +512,7 @@ namespace NumpyDotNet {
                 if (ival.Any(x => !(x is string))) {
                     throw new ArgumentException("All items must be strings.");
                 }
-                NpyCoreApi.NpyArrayAccess_SetNamesList(core, ival.Cast<String>().ToArray(), n);
+                NpyCoreApi.SetNamesList(this, ival.Cast<String>().ToArray());
             }
         }
 

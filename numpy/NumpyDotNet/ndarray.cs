@@ -963,7 +963,7 @@ namespace NumpyDotNet
                             throw new RuntimeException("array is not writeable.");
                         }
                         IntPtr descr;
-                        int offset = NpyCoreApi.GetFieldOffset(Dtype.Descr, field, out descr);
+                        int offset = NpyCoreApi.GetFieldOffset(Dtype, field, out descr);
                         if (offset < 0) {
                             throw new ArgumentException(String.Format("field name '{0}' not found.", field));
                         }
@@ -1088,7 +1088,7 @@ namespace NumpyDotNet
                 return NpyCoreApi.ToInterface<dtype>(descr);
             }
             set {
-                NpyCoreApi.ArraySetDescr(core, value.Descr);
+                NpyCoreApi.ArraySetDescr(this, value);
             }
         }
 
@@ -1576,7 +1576,7 @@ namespace NumpyDotNet
                 if (bUic) {
                     throw new ArgumentException("cannot set UPDATEIFCOPY flag to True");
                 } else {
-                    NpyCoreApi.ClearUPDATEIFCOPY(Array);
+                    NpyCoreApi.ClearUPDATEIFCOPY(this);
                 }
             }
             if (write != null) {
@@ -1817,7 +1817,7 @@ namespace NumpyDotNet
         /// <param name="dimension">Dimension to query</param>
         /// <returns>Data stride in bytes</returns>
         public long Stride(int dimension) {
-            return NpyCoreApi.GetArrayStride(Array, dimension);
+            return NpyCoreApi.GetArrayStride(this, dimension);
         }
 
 
@@ -2064,11 +2064,11 @@ namespace NumpyDotNet
         }
 
         internal unsafe void CopySwapIn(long offset, void* data, bool swap) {
-            NpyCoreApi.NpyArrayAccess_CopySwapIn(core, offset, data, swap ? 1 : 0);
+            NpyCoreApi.CopySwapIn(this, offset, data, swap);
         }
 
         internal unsafe void CopySwapOut(long offset, void* data, bool swap) {
-            NpyCoreApi.NpyArrayAccess_CopySwapOut(core, offset, data, swap ? 1 : 0);
+            NpyCoreApi.CopySwapOut(this, offset, data, swap);
         }
 
         #endregion

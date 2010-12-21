@@ -543,7 +543,7 @@ namespace NumpyDotNet {
 
 
         public static int _get_ndarray_c_version() {
-            return (int)NpyCoreApi.NpyArrayAccess_GetAbiVersion();
+            return (int)NpyCoreApi.GetAbiVersion();
         }
 
 

@@ -146,8 +146,10 @@ namespace NumpyDotNet {
             retArr = new Int64[arr.ndim];
             unsafe {
                 fixed (Int64* dimMem = retArr) {
-                    if (!GetIntpArray(srcPtr, arr.ndim, dimMem)) {
-                        throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
+                    lock (GlobalIterpLock) {
+                        if (!GetIntpArray(srcPtr, arr.ndim, dimMem)) {
+                            throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting array dimensions.");
+                        }
                     }
                 }
             }
@@ -162,8 +164,10 @@ namespace NumpyDotNet {
             retArr = new Int64[iter.nd];
             unsafe {
                 fixed (Int64* dimMem = retArr) {
-                    if (!GetIntpArray(srcPtr, iter.nd, dimMem)) {
-                        throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting iterator dimensions.");
+                    lock (GlobalIterpLock) {
+                        if (!GetIntpArray(srcPtr, iter.nd, dimMem)) {
+                            throw new IronPython.Runtime.Exceptions.RuntimeException("Error getting iterator dimensions.");
+                        }
                     }
                 }
             }
@@ -1052,39 +1056,14 @@ namespace NumpyDotNet {
 
         #endregion
 
-        #region Gil Wrappers
-
-        private static Tresult GilWrapper<Tresult>(Func<Tresult> f) {
-            lock (GlobalIterpLock) {
-                return f();
-            }
-        }
-
-        private static Tresult GilWrapper<Tone, Tresult>(Func<Tone, Tresult> f, Tone one) {
-            lock (GlobalIterpLock) {
-                return f(one);
-            }
-        }
-
-        private static Tresult GilWrapper<Tone, Ttwo, Tresult>(Func<Tone, Ttwo, Tresult> f, Tone one, Ttwo two) {
-            lock (GlobalIterpLock) {
-                return f(one, two);
-            }
-        }
-
-        private static Tresult GilWrapper<Tone, Ttwo, Tthree, Tresult>(Func<Tone, Ttwo, Tthree, Tresult> f, Tone one, Ttwo two, Tthree three) {
-            lock (GlobalIterpLock) {
-                return f(one, two, three);
-            }
-        }
-
-        #endregion
 
         #region C API Definitions
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NpyArray_DescrNew(IntPtr descr);
-        internal static Func<IntPtr, IntPtr> DescrNewRaw = (IntPtr d) => GilWrapper(NpyArray_DescrNew, d);
+        internal static IntPtr DescrNewRaw(dtype d) {
+            lock (GlobalIterpLock) { return NpyArray_DescrNew(d.Descr); }
+        }
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr NpyArray_DescrFromType(Int32 type);
@@ -1388,30 +1367,154 @@ namespace NumpyDotNet {
         private static extern int DescrIsNative(IntPtr descr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
+        private static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
             IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
             IntPtr cmp_priority, IntPtr incref, IntPtr decref,
             IntPtr enable_thread, IntPtr disable_thread);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint = "npy_add_sortfuncs")]
-        internal static extern IntPtr NpyArray_InitSortModule();
+        private static extern IntPtr NpyArray_InitSortModule();
 
         #endregion
 
         #region NpyAccessLib functions
 
+        internal static void ArraySetDescr(ndarray arr, dtype newDescr) {
+            lock (GlobalIterpLock) { NpyArrayAccess_ArraySetDescr(arr.Array, newDescr.Descr); }
+        }
+
+        internal static long GetArrayStride(ndarray arr, int dims) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.NpyArrayAccess_GetArrayStride(arr.Array, dims);
+            }
+        }
+
+        internal static int BindIndex(ndarray arr, NpyIndexes indexes, NpyIndexes result) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.NpyArrayAccess_BindIndex(arr.Array, indexes.Indexes, indexes.NumIndexes, result.Indexes);
+            }
+        }
+
+        internal static int GetFieldOffset(dtype descr, string fieldName, out IntPtr descrPtr) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.NpyArrayAccess_GetFieldOffset(descr.Descr, fieldName, out descrPtr);
+            }
+        }
+
+        internal static void Resize(ndarray arr, IntPtr[] newshape, bool refcheck, NpyDefs.NPY_ORDER order) {
+            lock (GlobalIterpLock) {
+                if (NpyCoreApi.NpyArrayAccess_Resize(arr.Array, newshape.Length, newshape, (refcheck ? 1 : 0), (int)order) < 0) {
+                    NpyCoreApi.CheckError();
+                }
+            }
+        }
+
+        internal static ndarray Transpose(ndarray arr, IntPtr[] permute) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArrayAccess_Transpose(arr.Array, (permute != null) ? permute.Length : 0, permute));
+            }
+        }
+
+        internal static void ClearUPDATEIFCOPY(ndarray arr) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_ClearUPDATEIFCOPY(arr.Array);
+            }
+        }
+
+
+        internal static IntPtr IterNext(IntPtr corePtr) {
+            lock (GlobalIterpLock) {
+                return NpyArrayAccess_IterNext(corePtr);
+            }
+        }
+
+        internal static void IterReset(IntPtr iter) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_IterReset(iter);
+            }
+        }
+
+        internal static IntPtr IterGoto1D(flatiter iter, IntPtr index) {
+            lock (GlobalIterpLock) {
+                return NpyArrayAccess_IterGoto1D(iter.Iter, index);
+            }
+        }
+
+        internal static IntPtr IterCoords(flatiter iter) {
+            lock (GlobalIterpLock) {
+                return NpyArrayAccess_IterCoords(iter.Iter);
+            }
+        }
+
+        internal static void DescrReplaceSubarray(dtype descr, dtype baseDescr, IntPtr[] dims) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_DescrReplaceSubarray(descr.Descr, baseDescr.Descr, dims.Length, dims);
+            }
+        }
+
+        internal static void DescrReplaceFields(dtype descr, IntPtr namesPtr, IntPtr fieldsDict) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_DescrReplaceFields(descr.Descr, namesPtr, fieldsDict);
+            }
+        }
+
+        internal static void ZeroFill(ndarray arr, IntPtr offset) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_ZeroFill(arr.Array, offset);
+            }
+        }
+
+        internal unsafe static void CopySwapIn(ndarray arr, long offset, void* data, bool swap) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_CopySwapIn(arr.Array, offset, data, swap ? 1 : 0);
+            }
+        }
+
+        internal unsafe static void CopySwapOut(ndarray arr, long offset, void* data, bool swap) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_CopySwapIn(arr.Array, offset, data, swap ? 1 : 0);
+            }
+        }
+
+        internal unsafe static void CopySwapScalar(dtype dtype, void* dest, void* src, bool swap) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_CopySwapScalar(dtype.Descr, dest, src, swap);
+            }
+        }
+
+        internal static void SetNamesList(dtype descr, string[] nameslist) {
+            lock (GlobalIterpLock) {
+                NpyArrayAccess_SetNamesList(descr.Descr, nameslist, nameslist.Length);
+            }
+        }
+
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyUFuncAccess_Init(IntPtr funcDict,
             IntPtr funcDefs, IntPtr callMethodFunc, IntPtr addToDictFunc);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_ArraySetDescr")]
-        internal static extern void ArraySetDescr(IntPtr array, IntPtr newDescr);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NpyArrayAccess_ArraySetDescr(IntPtr array, IntPtr newDescr);
 
+        /// <summary>
+        /// Increments the reference count of the core object.  This routine is re-entrant and
+        /// locking is handled at the bottom layer.
+        /// </summary>
+        /// <param name="obj">Pointer to the core object to increment reference count to</param>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_Incref")]
         internal static extern void Incref(IntPtr obj);
 
+        /// <summary>
+        /// Decrements the reference count of the core object.  This can trigger the release of
+        /// the reference to the managed wrapper and eventually trigger a garbage collection of
+        /// the object.  If the core object does not have a managed wrapper, this can trigger the
+        /// immediate destruction of the core object. 
+        /// 
+        /// This function is re-entrant/thread-safe.
+        /// </summary>
+        /// <param name="obj">Pointer to the core object</param>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="NpyArrayAccess_Decref")]
         internal static extern void Decref(IntPtr obj);
@@ -1426,16 +1529,14 @@ namespace NumpyDotNet {
         unsafe private static extern bool GetIntpArray(IntPtr srcPtr, int len, Int64 *dimMem);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
+        private static extern IntPtr NpyArrayAccess_AllocArray(IntPtr descr, int nd,
             [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims, bool fortran);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_GetArrayStride")]
-        internal static extern long GetArrayStride(IntPtr arr, int dims);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern long NpyArrayAccess_GetArrayStride(IntPtr arr, int dims);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_BindIndex")]
-        internal static extern int BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int NpyArrayAccess_BindIndex(IntPtr arr, IntPtr indexes, int n, IntPtr bound_indexes);
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct NpyArray_DescrField
@@ -1446,47 +1547,51 @@ namespace NumpyDotNet {
         }
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_GetDescrField(IntPtr descr,
+        private static extern int NpyArrayAccess_GetDescrField(IntPtr descr,
             [In][MarshalAs(UnmanagedType.LPStr)]string name, out NpyArray_DescrField field);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_GetFieldOffset")]
-        internal static extern int GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int NpyArrayAccess_GetFieldOffset(IntPtr descr, [MarshalAs(UnmanagedType.LPStr)] string fieldName, out IntPtr out_descr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
+        private static extern IntPtr NpyArrayAccess_MultiIterFromArrays([MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] arrays, int n);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim,
+        private static extern IntPtr NpyArrayAccess_Newshape(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims,
             int order);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim,
+        private static extern int NpyArrayAccess_SetShape(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArrayAccess_SetState(IntPtr arr, int ndim,
+        private static extern void NpyArrayAccess_SetState(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims, int order,
             // Note string is marshalled as LPWStr (16-bit unicode) to avoid making a copy of it
             [MarshalAsAttribute(UnmanagedType.LPWStr)]string rawdata, int rawLength);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,
+        private static extern int NpyArrayAccess_Resize(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] newshape, int resize, int fortran);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
+        private static extern IntPtr NpyArrayAccess_Transpose(IntPtr arr, int ndim,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] permute);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern float NpyArrayAccess_GetAbiVersion();
+        /// <summary>
+        /// Returns the current ABI version.  Re-entrant, does not need locking.
+        /// </summary>
+        /// <returns>current version #</returns>
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_GetAbiVersion")]
+        internal static extern float GetAbiVersion();
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_ClearUPDATEIFCOPY")]
-        internal static extern void ClearUPDATEIFCOPY(IntPtr arr);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NpyArrayAccess_ClearUPDATEIFCOPY(IntPtr arr);
+
 
         /// <summary>
-        /// Deallocates an NpyObject.
+        /// Deallocates an NpyObject. Thread-safe.
         /// </summary>
         /// <param name="obj">The object to deallocate</param>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
@@ -1495,23 +1600,23 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterNext")]
-        internal static extern IntPtr IterNext(IntPtr iter);
+        private static extern IntPtr NpyArrayAccess_IterNext(IntPtr iter);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterReset")]
-        internal static extern void IterReset(IntPtr iter);
+        private static extern void NpyArrayAccess_IterReset(IntPtr iter);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterGoto1D")]
-        internal static extern IntPtr IterGoto1D(IntPtr iter, IntPtr index);
+        private static extern IntPtr NpyArrayAccess_IterGoto1D(IntPtr iter, IntPtr index);
 
+        // Re-entrant
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterArray")]
         internal static extern IntPtr IterArray(IntPtr iter);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_IterCoords")]
-        internal static extern IntPtr IterCoords(IntPtr iter);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr NpyArrayAccess_IterCoords(IntPtr iter);
 
         //
         // Offset functions - these return the offsets to fields in native structures
@@ -1551,24 +1656,25 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_GetIndexInfo")]
-        internal static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
+        private static extern void GetIndexInfo(out int unionOffset, out int indexSize, out int maxDims);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_NewFromDescrThunk")]
-        internal static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd, int flags,
+        private static extern IntPtr NewFromDescrThunk(IntPtr descr, int nd, int flags,
             [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] dims,
             [In][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=1)] long[] strides, IntPtr data, IntPtr interfaceData);
 
+        // Thread-safe.
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DescrDestroyNames")]
         internal static extern void DescrDestroyNames(IntPtr p, int n);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_AddField(IntPtr fields, IntPtr names, int i,
+        private static extern int NpyArrayAccess_AddField(IntPtr fields, IntPtr names, int i,
             [MarshalAs(UnmanagedType.LPStr)]string name, IntPtr descr, int offset,
             [MarshalAs(UnmanagedType.LPStr)]string title);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
+        private static extern IntPtr NpyArrayAccess_DescrNewVoid(IntPtr fields, IntPtr names, int elsize, int flags, int alignment);
 
         /// <summary>
         /// Allocates a new VOID descriptor and sets the subarray field as specified.
@@ -1578,7 +1684,7 @@ namespace NumpyDotNet {
         /// <param name="dims">Array of size of each dimension</param>
         /// <returns>New descriptor object</returns>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_DescrNewSubarray(IntPtr baseDescr,
+        private static extern IntPtr NpyArrayAccess_DescrNewSubarray(IntPtr baseDescr,
             int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
         /// <summary>
@@ -1589,67 +1695,79 @@ namespace NumpyDotNet {
         /// <param name="ndim">Number of dimensions</param>
         /// <param name="dims">Array of size of each dimension</param>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArrayAccess_DescrReplaceSubarray(IntPtr descr, IntPtr baseDescr,
+        private static extern void NpyArrayAccess_DescrReplaceSubarray(IntPtr descr, IntPtr baseDescr,
             int ndim, [In][MarshalAs(UnmanagedType.LPArray)]IntPtr[] dims);
 
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint="NpyArrayAccess_DescrReplaceFields")]
-        internal static extern void DescrReplaceFields(IntPtr descr, IntPtr namesArr, IntPtr fieldsDict);
-
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NpyArrayAccess_DescrReplaceFields(IntPtr descr, IntPtr namesArr, IntPtr fieldsDict);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_GetBytes(IntPtr arr,
+        private static extern int NpyArrayAccess_GetBytes(IntPtr arr,
             [Out][MarshalAs(UnmanagedType.LPArray,SizeParamIndex=2)] byte[] bytes, long len, int order);
 
+        // Thread-safe
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_ToInterface(IntPtr arr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArrayAccess_ZeroFill(IntPtr arr, IntPtr offset);
+        private static extern void NpyArrayAccess_ZeroFill(IntPtr arr, IntPtr offset);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_Fill(IntPtr arr);
+        private static extern int NpyArrayAccess_Fill(IntPtr arr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern void NpyArrayAccess_CopySwapIn(IntPtr arr, long offset, void* data, int swap);
+        private static unsafe extern void NpyArrayAccess_CopySwapIn(IntPtr arr, long offset, void* data, int swap);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_ViewLike(IntPtr arr, IntPtr proto);
+        private static extern IntPtr NpyArrayAccess_ViewLike(IntPtr arr, IntPtr proto);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
+        private static unsafe extern void NpyArrayAccess_CopySwapOut(IntPtr arr, long offset, void* data, int swap);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern void NpyArrayAccess_CopySwapScalar(IntPtr dtype, void *dest, void* src, bool swap);
+        private static unsafe extern void NpyArrayAccess_CopySwapScalar(IntPtr dtype, void *dest, void* src, bool swap);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
+        private static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
             [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
+        private static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_GetBufferFormatString(IntPtr arr);
+        private static extern IntPtr NpyArrayAccess_GetBufferFormatString(IntPtr arr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArrayAccess_Free(IntPtr ptr);
+        private static extern void NpyArrayAccess_Free(IntPtr ptr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArrayAccess_FromFile(string fileName, IntPtr dtype, int count, string sep);
+        private static extern IntPtr NpyArrayAccess_FromFile(string fileName, IntPtr dtype, int count, string sep);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArrayAccess_SetNamesList(IntPtr dtype, string[] nameslist, int len);
+        private static extern void NpyArrayAccess_SetNamesList(IntPtr dtype, string[] nameslist, int len);
 
+        // Thread-safe
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_DictAllocIter")]
         internal static extern IntPtr NpyDict_AllocIter();
 
+        // Thread-safe
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictFreeIter")]
         internal static extern void NpyDict_FreeIter(IntPtr iter);
 
+        /// <summary>
+        /// Accesses the next dictionary item, returning the key and value.  Thread-safe when operating across
+        /// separate iterators; caller must ensure that one iterator is not access simultaneously from two
+        /// different threads.
+        /// </summary>
+        /// <param name="dict">Pointer to the dictionary object</param>
+        /// <param name="iter">Iterator structure</param>
+        /// <param name="key">Next key</param>
+        /// <param name="value">Next value</param>
+        /// <returns>True if an element was returned, false at the end of the sequence</returns>
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictNext")]
         internal static extern bool NpyDict_Next(IntPtr dict, IntPtr iter, out IntPtr key, out IntPtr value);
 
+        // Thread-safe
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArrayAccess_FormatLongFloat")]
         internal static extern string FormatLongFloat(double v, int precision);
 
