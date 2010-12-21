@@ -183,7 +183,7 @@ namespace NumpyDotNet
             Action<NpyDefs.NpyArray_Ops, string> set = (op, opStr) => {
                 object f;
                 if (funcDict.TryGetValue(opStr, out f)) {
-                    NpyCoreApi.NpyArray_SetNumericOp((int)op, ((ufunc)f).UFunc);
+                    NpyCoreApi.SetNumericOp((int)op, (ufunc)f);
                 }
             };
 

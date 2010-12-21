@@ -308,7 +308,7 @@ namespace NumpyDotNet
                 newtype = NpyDescr.DescrConverter(cntx, descr);
             }
             if (GetType() != typeof(ndarray)) {
-                result = NpyArray.FromArray(this, Dtype, NpyDefs.NPY_ENSUREARRAY);
+                result = NpyCoreApi.FromArray(this, Dtype, NpyDefs.NPY_ENSUREARRAY);
             } else {
                 result = this;
             }
@@ -769,12 +769,12 @@ namespace NumpyDotNet
                     array_other.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING) {
                     dtype dt = new dtype(self.Dtype);
                     dt.ElementSize = array_other.Dtype.ElementSize*4;
-                    array_other = NpyArray.FromArray(array_other, dt, 0);
+                    array_other = NpyCoreApi.FromArray(array_other, dt, 0);
                 } else if (self.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
                            array_other.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
                     dtype dt = new dtype(array_other.Dtype);
                     dt.ElementSize = self.Dtype.ElementSize * 4;
-                    self = NpyArray.FromArray(self, dt, 0);
+                    self = NpyCoreApi.FromArray(self, dt, 0);
                 }
                 return ArrayReturn(NpyCoreApi.CompareStringArrays(self, array_other, op));
             }
@@ -818,7 +818,7 @@ namespace NumpyDotNet
         }
 
         public static explicit operator bool(ndarray arr) {
-            int val = NpyCoreApi.NpyArray_Bool(arr.core);
+            int val = NpyCoreApi.ArrayBool(arr);
             if (val < 0) {
                 NpyCoreApi.CheckError();
                 return false;
@@ -921,7 +921,7 @@ namespace NumpyDotNet
                     // General subscript case.
                     NpyCoreApi.Incref(Array);
                     ndarray result = NpyCoreApi.DecrefToInterface<ndarray>(
-                            NpyCoreApi.NpyArray_Subscript(Array, indexes.Indexes, indexes.NumIndexes));
+                            NpyCoreApi.ArraySubscript(this, indexes));
                     NpyCoreApi.Decref(Array);
 
                     if (result.ndim == 0) {
@@ -1001,9 +1001,7 @@ namespace NumpyDotNet
                         ndarray view = null;
                         try {
                             if (GetType() == typeof(ndarray)) {
-                                view = NpyCoreApi.DecrefToInterface<ndarray>(
-                                    NpyCoreApi.NpyArray_IndexSimple(core, indexes.Indexes, indexes.NumIndexes)
-                                    );
+                                view = NpyCoreApi.IndexSimple(this, indexes);
                             } else {
                                 // Call through python to let the subtype returns the correct view
                                 // TODO: Do we really need this? Why only for set with simple indexing?
@@ -1027,7 +1025,7 @@ namespace NumpyDotNet
                         ndarray array_value = NpyArray.FromAny(value, Dtype, 0, 0, NpyDefs.NPY_FORCECAST, null);
                         try {
                             NpyCoreApi.Incref(array_value.Array);
-                            if (NpyCoreApi.NpyArray_IndexFancyAssign(Array, indexes.Indexes, indexes.NumIndexes, array_value.Array) < 0) {
+                            if (NpyCoreApi.IndexFancyAssign(this, indexes, array_value) < 0) {
                                 NpyCoreApi.CheckError();
                             }
                         } finally {
@@ -1065,7 +1063,7 @@ namespace NumpyDotNet
         /// Total number of elements in the array.
         /// </summary>
         public object size {
-            get { return NpyCoreApi.NpyArray_Size(core).ToPython(); }
+            get { return NpyCoreApi.ArraySize(this).ToPython(); }
         }
 
         public PythonBuffer data {
@@ -1258,7 +1256,7 @@ namespace NumpyDotNet
                 if (IsFortran) {
                     flags |= NpyDefs.NPY_FORTRAN;
                 }
-                return NpyArray.FromArray(this, d, flags);
+                return NpyCoreApi.FromArray(this, d, flags);
             }
             return NpyCoreApi.CastToType(this, d, this.IsFortran);
         }
@@ -1675,7 +1673,7 @@ namespace NumpyDotNet
                 List result = new List();
                 long size = Dims[0];
                 for (long i = 0; i < size; i++) {
-                    result.append(ArrayBigItem(i).tolist());
+                    result.append(NpyCoreApi.ArrayItem(this, i).tolist());
                 }
                 return result;
             }
@@ -1736,7 +1734,7 @@ namespace NumpyDotNet
 
 
         public long Size {
-            get { return NpyCoreApi.NpyArray_Size(core).ToInt64(); }
+            get { return NpyCoreApi.ArraySize(this).ToInt64(); }
         }
 
         internal ndarray Real {
@@ -1758,8 +1756,7 @@ namespace NumpyDotNet
         }
 
         public ndarray NewCopy(NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_NewCopy(core, (byte)order));
+            return NpyCoreApi.NewCopy(this, order);
         }
 
 
@@ -1895,7 +1892,7 @@ namespace NumpyDotNet
         /// TODO: What does this return?
         /// </summary>
         public int ElementStrides {
-            get { return NpyCoreApi.NpyArray_ElementStrides(core); }
+            get { return NpyCoreApi.ElementStrides(this); }
         }
 
         public bool StridingOk(NpyDefs.NPY_ORDER order) {
@@ -2002,20 +1999,8 @@ namespace NumpyDotNet
                 long offset = index * Strides[0];
                 return Dtype.ToScalar(this, offset);
             } else {
-                return ArrayBigItem(index);
+                return NpyCoreApi.ArrayItem(this, index);
             }
-        }
-
-        /// <summary>
-        /// Indexes an array by a single long and returns the sub-array.
-        /// </summary>
-        /// <param name="index">The index into the array.</param>
-        /// <returns>The sub-array.</returns>
-        internal ndarray ArrayBigItem(long index)
-        {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                    NpyCoreApi.NpyArray_ArrayItem(Array, (IntPtr)index)
-                   );
         }
 
         internal Int32 RawFlags {

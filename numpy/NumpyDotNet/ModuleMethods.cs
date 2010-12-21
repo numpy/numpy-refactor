@@ -423,14 +423,14 @@ namespace NumpyDotNet {
         }
 
         public static object correlate(object o1, object o2, object mode) {
-            return correlateInternal(o1, o2, mode, NpyCoreApi.NpyArray_Correlate);
+            return correlateInternal(o1, o2, mode, NpyCoreApi.Correlate);
         }
 
         public static object correlate2(object o1, object o2, object mode) {
-            return correlateInternal(o1, o2, mode, NpyCoreApi.NpyArray_Correlate2);
+            return correlateInternal(o1, o2, mode, NpyCoreApi.Correlate2);
         }
 
-        private static object correlateInternal(object o1, object o2, object mode, Func<IntPtr, IntPtr, int, int, IntPtr> f) {
+        private static object correlateInternal(object o1, object o2, object mode, Func<ndarray, ndarray, NpyDefs.NPY_TYPES, int, ndarray> f) {
             // Find a type that works for both inputs. (ie, one is int, the other is float,
             // we want float for the result).
             dtype type = NpyArray.FindArrayType(o1, null);
@@ -440,8 +440,7 @@ namespace NumpyDotNet {
 
             ndarray arr1 = NpyArray.FromAny(o1, type, 1, 1, NpyDefs.NPY_DEFAULT);
             ndarray arr2 = NpyArray.FromAny(o2, type, 1, 1, NpyDefs.NPY_DEFAULT);
-
-            return NpyCoreApi.DecrefToInterface<ndarray>(f(arr1.Array, arr2.Array, (int)type.TypeNum, modeNum));
+            return f(arr1, arr2, type.TypeNum, modeNum);
         }
 
         private static int ModeToInt(object o) {
@@ -478,8 +477,7 @@ namespace NumpyDotNet {
 
         public static object _fastCopyAndTranspose(object a) {
             ndarray arr = NpyArray.FromAny(a, flags: NpyDefs.NPY_CARRAY);
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_CopyAndTranspose(arr.Array));
+            return NpyCoreApi.CopyAndTranspose(arr);
         }
 
         public static object _vec_string(CodeContext cntx, object charArrObj, object typeObj, string methodName, object argsSeq = null) {

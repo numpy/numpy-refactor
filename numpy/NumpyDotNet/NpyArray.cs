@@ -81,7 +81,7 @@ namespace NumpyDotNet {
                                    dest.Dtype.Flags & NpyDefs.NPY_FORTRAN, null);
             }
             NpyCoreApi.Incref(descr);
-            if (NpyCoreApi.NpyArray_SetField(dest.Array, descr, offset, srcArray.Array) < 0)
+            if (NpyCoreApi.SetField(dest, descr, offset, srcArray) < 0)
             {
                 NpyCoreApi.CheckError();
             }
@@ -158,7 +158,7 @@ namespace NumpyDotNet {
                 return (ndarray)o;
             }
             if (o is ndarray) {
-                return FromArray((ndarray)o, null, NpyDefs.NPY_ENSUREARRAY);
+                return NpyCoreApi.FromArray((ndarray)o, null, NpyDefs.NPY_ENSUREARRAY);
             }
             return FromAny(o, flags: NpyDefs.NPY_ENSUREARRAY);
         }
@@ -196,7 +196,7 @@ namespace NumpyDotNet {
 
             if (t != typeof(List) && t != typeof(PythonTuple)) {
                 if (src is ndarray) {
-                    result = FromArray((ndarray)src, descr, flags);
+                    result = NpyCoreApi.FromArray((ndarray)src, descr, flags);
                     return FromAnyReturn(result, minDepth, maxDepth);
                 }
                 if (src is ScalarGeneric) {
@@ -221,7 +221,7 @@ namespace NumpyDotNet {
                 result = FromArrayAttr(NpyUtil_Python.DefaultContext, src, descr, context);
                 if (result != null) {
                     if (descr != null && !NpyCoreApi.EquivTypes(descr, result.Dtype) || flags != 0) {
-                        result = FromArray(result, descr, flags);
+                        result = NpyCoreApi.FromArray(result, descr, flags);
                         return FromAnyReturn(result, minDepth, maxDepth);
                     }
                 }
@@ -372,24 +372,8 @@ namespace NumpyDotNet {
                 ndarray arr = scalar.ToArray();
                 // passing scalar.dtype instead of descr in because otherwise we loose information. Not
                 // sure if more processing is needed.  Relevant CPython code is PyArray_DescrFromScalarUnwrap
-                return FromArray(arr, (dtype)scalar.dtype, 0);
+                return NpyCoreApi.FromArray(arr, (dtype)scalar.dtype, 0);
             }
-        }
-
-        /// <summary>
-        /// Constructs a new array from an input array and descriptor type.  The
-        /// Underlying array may or may not be copied depending on the requirements.
-        /// </summary>
-        /// <param name="src">Source array</param>
-        /// <param name="descr">Desired type</param>
-        /// <param name="flags">New array flags</param>
-        /// <returns>New array (may be source array)</returns>
-        internal static ndarray FromArray(ndarray src, dtype descr, int flags) {
-            if (descr == null && flags == 0) return src;
-            if (descr == null) descr = src.Dtype;
-            if (descr != null) NpyCoreApi.Incref(descr.Descr);
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_FromArray(src.Array, descr.Descr, flags));
         }
 
 
@@ -938,7 +922,7 @@ namespace NumpyDotNet {
             if (seq is ndarray && seq.GetType() != typeof(ndarray)) {
                 // Convert to an array to ensure the dimensionality reduction
                 // assumption works.
-                ndarray array = FromArray((ndarray)seq, null, NpyDefs.NPY_ENSUREARRAY);
+                ndarray array = NpyCoreApi.FromArray((ndarray)seq, null, NpyDefs.NPY_ENSUREARRAY);
                 seq = (IEnumerable<object>)array;
             }
 
@@ -977,7 +961,7 @@ namespace NumpyDotNet {
             } else if (axis != 0) {
                 // Swap to make the axis 0
                 for (i = 0; i < n; i++) {
-                    mps[i] = NpyArray.FromArray(mps[i].SwapAxes(axis, 0), null, NpyDefs.NPY_C_CONTIGUOUS);
+                    mps[i] = NpyCoreApi.FromArray(mps[i].SwapAxes(axis, 0), null, NpyDefs.NPY_C_CONTIGUOUS);
                 }
             }
             long[] dims = mps[0].Dims;
@@ -1033,8 +1017,7 @@ namespace NumpyDotNet {
 
             ndarray a1 = FromAny(o1, d, flags: NpyDefs.NPY_ALIGNED);
             ndarray a2 = FromAny(o2, d, flags: NpyDefs.NPY_ALIGNED);
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_InnerProduct(a1.Array, a2.Array, (int)d.TypeNum));
+            return NpyCoreApi.InnerProduct(a1, a2, d.TypeNum);
         }
 
         internal static ndarray MatrixProduct(object o1, object o2) {
@@ -1048,8 +1031,7 @@ namespace NumpyDotNet {
             } else if (a2.ndim == 0) {
                 return NpyArray.EnsureAnyArray(a1 * a2.item());
             } else {
-                return NpyCoreApi.DecrefToInterface<ndarray>(
-                    NpyCoreApi.NpyArray_MatrixProduct(a1.Array, a2.Array, (int)d.TypeNum));
+                return NpyCoreApi.MatrixProduct(a1, a2, d.TypeNum);
             }
         }
     }

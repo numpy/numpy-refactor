@@ -11,8 +11,7 @@ namespace NumpyDotNet
     public partial class ndarray
     {
         internal ndarray ArgMax(int axis, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_ArgMax(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.ArrayArgMax(this, axis, ret);
         }
 
         internal ndarray ArgMin(int axis, ndarray ret = null) {
@@ -32,13 +31,11 @@ namespace NumpyDotNet
         }
 
         internal ndarray Max(int axis, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Max(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.ArrayMax(this, axis, ret);
         }
 
         internal ndarray Min(int axis, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Min(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.ArrayMin(this, axis, ret);
         }
 
         internal object Ptp(int axis, ndarray ret = null) {
@@ -108,31 +105,19 @@ namespace NumpyDotNet
         }
 
         internal ndarray Sum(int axis, dtype rtype, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Sum(Array, axis,
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
-                    (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.Sum(this, axis, rtype, ret);
         }
 
         internal ndarray Prod(int axis, dtype rtype, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Prod(Array, axis,
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
-                    (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.Prod(this, axis, rtype, ret);
         }
 
         internal ndarray CumSum(int axis, dtype rtype, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_CumSum(Array, axis,
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
-                    (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.CumSum(this, axis, rtype, ret);
         }
 
         internal ndarray CumProd(int axis, dtype rtype, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_CumProd(Array, axis,
-                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
-                    (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.CumProd(this, axis, rtype, ret);
         }
 
         internal object Mean(int axis, dtype rtype, ndarray ret = null) {
@@ -224,13 +209,11 @@ namespace NumpyDotNet
         }
 
         internal ndarray All(int axis, ndarray ret = null) {
-             return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_All(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.ArrayAll(this, axis, ret);
         }
 
         internal ndarray Any(int axis, ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Any(Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.ArrayAny(this, axis, ret);
         }
 
         internal object Clip(object min, object max, ndarray ret = null) {
@@ -249,8 +232,7 @@ namespace NumpyDotNet
         }
 
         internal ndarray Conjugate(ndarray ret = null) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Conjugate(Array, (ret == null ? IntPtr.Zero : ret.Array)));
+            return NpyCoreApi.Conjugate(this, ret);
         }
     }
 }

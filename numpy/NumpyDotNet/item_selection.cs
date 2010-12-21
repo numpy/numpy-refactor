@@ -11,57 +11,44 @@ namespace NumpyDotNet
     public partial class ndarray : IEnumerable<object>
     {
         internal ndarray TakeFrom(ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_TakeFrom(Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
-                );
+            return NpyCoreApi.TakeFrom(this, indices, axis, ret, clipMode);
         }
 
         internal void PutTo(ndarray values, ndarray indices, NpyDefs.NPY_CLIPMODE mode) {
-            if (NpyCoreApi.NpyArray_PutTo(Array, values.Array, indices.Array, (int)mode) < 0) {
+            if (NpyCoreApi.PutTo(this, values, indices, mode) < 0) {
                 NpyCoreApi.CheckError();
             }
         }
 
         internal void PutMask(ndarray values, ndarray mask) {
-            if (NpyCoreApi.NpyArray_PutMask(Array, values.Array, mask.Array) < 0) {
+            if (NpyCoreApi.PutMask(this, values, mask) < 0) {
                 NpyCoreApi.CheckError();
             }
         }
 
         internal ndarray Repeat(ndarray repeats, int axis) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Repeat(Array, repeats.Array, axis));
+            return NpyCoreApi.Repeat(this, repeats, axis);
         }
 
         internal ndarray Choose(IEnumerable<object> objs, ndarray ret = null, NpyDefs.NPY_CLIPMODE clipMode = NpyDefs.NPY_CLIPMODE.NPY_RAISE) {
             ndarray[] arrays = NpyUtil_ArgProcessing.ConvertToCommonType(objs);
-            IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Choose(Array, coreArrays, coreArrays.Length,
-                ret==null ? IntPtr.Zero : ret.Array, (int)clipMode));
+            return NpyCoreApi.Choose(this, arrays, ret, clipMode);
         }
 
         internal void Sort(int axis, NpyDefs.NPY_SORTKIND sortkind) {
-            if (NpyCoreApi.NpyArray_Sort(Array, axis, (int)sortkind) < 0) {
-                NpyCoreApi.CheckError();
-            }
+            NpyCoreApi.Sort(this, axis, sortkind);
         }
 
         internal ndarray ArgSort(int axis, NpyDefs.NPY_SORTKIND sortkind) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_ArgSort(Array, axis, (int)sortkind));
+            return NpyCoreApi.ArgSort(this, axis, sortkind);
         }
 
         internal static ndarray LexSort(ndarray[] arrays, int axis) {
-            int n = arrays.Length;
-            IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_LexSort(coreArrays, n, axis));
+            return NpyCoreApi.LexSort(arrays, axis);
         }
 
         internal ndarray SearchSorted(ndarray keys, NpyDefs.NPY_SEARCHSIDE side) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_SearchSorted(Array, keys.Array, (int)side));
+            return NpyCoreApi.Searchsorted(this, keys, side);
         }
 
         internal ndarray Diagonal(int offset, int axis1, int axis2) {
@@ -131,21 +118,7 @@ namespace NumpyDotNet
 
 
         internal ndarray[] NonZero() {
-            int nd = ndim;
-            IntPtr[] coreArrays = new IntPtr[nd];
-            GCHandle h = NpyCoreApi.AllocGCHandle(this);
-            try {
-                if (NpyCoreApi.NpyArray_NonZero(Array, coreArrays, GCHandle.ToIntPtr(h)) < 0) {
-                    NpyCoreApi.CheckError();
-                }
-            } finally {
-                NpyCoreApi.FreeGCHandle(h);
-            }
-            ndarray[] result = new ndarray[nd];
-            for (int i = 0; i < nd; i++) {
-                result[i] = NpyCoreApi.DecrefToInterface<ndarray>(coreArrays[i]);
-            }
-            return result;
+            return NpyCoreApi.NonZero(this);
         }
 
     }

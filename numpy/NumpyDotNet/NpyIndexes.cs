@@ -26,7 +26,7 @@ namespace NumpyDotNet
             if (indexes != IntPtr.Zero) {
                 if (num_indexes > 0)
                 {
-                    NpyCoreApi.NpyArray_IndexDealloc(indexes, num_indexes);
+                    NpyCoreApi.IndexDealloc(this);
                     num_indexes = 0;
                 }
                 Marshal.FreeCoTaskMem(indexes);

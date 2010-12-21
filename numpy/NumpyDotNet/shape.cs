@@ -9,13 +9,11 @@ namespace NumpyDotNet
     public partial class ndarray {
 
         internal ndarray Flatten(NpyDefs.NPY_ORDER order) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Flatten(Array, (int)order));
+            return NpyCoreApi.Flatten(this, order);
         }
 
         internal ndarray Ravel(NpyDefs.NPY_ORDER fortran) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Ravel(Array, (int)fortran));
+            return NpyCoreApi.Ravel(this, fortran);
         }
 
         internal void Resize(IntPtr[] newdims, bool refcheck, NpyDefs.NPY_ORDER fortran) {
@@ -38,13 +36,11 @@ namespace NumpyDotNet
 
 
         internal ndarray Squeeze() {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_Squeeze(Array));
+            return NpyCoreApi.Squeeze(this);
         }
 
         internal ndarray SwapAxes(int a1, int a2) {
-            return NpyCoreApi.DecrefToInterface<ndarray>(
-                NpyCoreApi.NpyArray_SwapAxes(Array, a1, a2));
+            return NpyCoreApi.SwapAxis(this, a1, a2);
         }
 
         internal ndarray Transpose(IntPtr[] permute = null) {

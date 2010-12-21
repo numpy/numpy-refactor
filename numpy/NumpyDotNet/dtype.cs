@@ -251,7 +251,7 @@ namespace NumpyDotNet {
             // Setup the subarray data.
             IntPtr subarrayPtr = Marshal.ReadIntPtr(this.core, NpyCoreApi.DescrOffsets.off_subarray);
             if (subarrayPtr != IntPtr.Zero) {
-                NpyCoreApi.NpyArray_DestroySubarray(subarrayPtr);
+                NpyCoreApi.DestroySubarray(subarrayPtr);
             }
             if (subarray != null) {
                 // subarray is tuple of descriptor, shape (tuple of ints).
@@ -262,8 +262,8 @@ namespace NumpyDotNet {
 
             // Copy in the fields & names.
             if (names != null) {
-                IntPtr namesPtr = NpyCoreApi.NpyArray_DescrAllocNames(names.Length);
-                IntPtr fieldsPtr = NpyCoreApi.NpyArray_DescrAllocFields();
+                IntPtr namesPtr = NpyCoreApi.DescrAllocNames(names.Length);
+                IntPtr fieldsPtr = NpyCoreApi.DescrAllocFields();
 
                 names.Iteri((n, i) => {
                     PythonTuple fieldInfo = (PythonTuple)fields[n];
@@ -281,7 +281,7 @@ namespace NumpyDotNet {
             }
             this.Flags = dtypeFlags;
             if (version < 3) {
-                this.Flags = NpyCoreApi.NpyArray_DescrFindObjectFlag(this.Descr);
+                this.Flags = NpyCoreApi.DescrFindObjectFlag(this);
             }
 
             // Reset the date/time info if present.
@@ -462,7 +462,7 @@ namespace NumpyDotNet {
 
         public bool isnative {
             get {
-                return NpyCoreApi.DescrIsNative(this.Descr) != 0;
+                return NpyCoreApi.DescrIsNative(this);
             }
         }
 
@@ -486,7 +486,7 @@ namespace NumpyDotNet {
             internal set {
                 PythonTuple dtTup = (PythonTuple)value;
                 Marshal.WriteIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo,
-                    NpyCoreApi.NpyArray_DateTimeInfoNew((string)dtTup[0], (int)dtTup[1], (int)dtTup[2], (int)dtTup[3]));
+                    NpyCoreApi.DateTimeInfoNew((string)dtTup[0], (int)dtTup[1], (int)dtTup[2], (int)dtTup[3]));
             }
         }
 

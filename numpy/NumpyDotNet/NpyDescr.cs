@@ -430,8 +430,8 @@ namespace NumpyDotNet {
             int dtypeflags = 0;
             int offset;
             HashSet<string> fieldNames = new HashSet<string>();
-            IntPtr names = NpyCoreApi.NpyArray_DescrAllocNames(n);
-            IntPtr fields = NpyCoreApi.NpyArray_DescrAllocFields();
+            IntPtr names = NpyCoreApi.DescrAllocNames(n);
+            IntPtr fields = NpyCoreApi.DescrAllocFields();
             try {
                 for (int i=0; i<n; i++) {
                     FieldInfo item = l[i];

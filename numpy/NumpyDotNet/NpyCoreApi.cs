@@ -114,6 +114,24 @@ namespace NumpyDotNet {
             }
         }
 
+        /// <summary>
+        /// Constructs a new array from an input array and descriptor type.  The
+        /// Underlying array may or may not be copied depending on the requirements.
+        /// </summary>
+        /// <param name="src">Source array</param>
+        /// <param name="descr">Desired type</param>
+        /// <param name="flags">New array flags</param>
+        /// <returns>New array (may be source array)</returns>
+        internal static ndarray FromArray(ndarray src, dtype descr, int flags) {
+            if (descr == null && flags == 0) return src;
+            if (descr == null) descr = src.Dtype;
+            if (descr != null) NpyCoreApi.Incref(descr.Descr);
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_FromArray(src.Array, descr.Descr, flags));
+            }
+        }
+
 
         /// <summary>
         /// Returns an array with the size or stride of each dimension in the given array.
@@ -760,6 +778,278 @@ namespace NumpyDotNet {
             }
         }
 
+        // API Defintions: every native call is private and must currently be wrapped by a function
+        // that at least holds the global interpreter lock (GlobalInterpLock).
+        internal static int ElementStrides(ndarray arr) { lock (GlobalIterpLock) { return NpyArray_ElementStrides(arr.Array); } }
+
+        internal static IntPtr ArraySubscript(ndarray arr, NpyIndexes indexes) {
+            lock (GlobalIterpLock) { return NpyArray_Subscript(arr.Array, indexes.Indexes, indexes.NumIndexes); }
+        }
+
+        internal static void IndexDealloc(NpyIndexes indexes) {
+            lock (GlobalIterpLock) { NpyArray_IndexDealloc(indexes.Indexes, indexes.NumIndexes); }
+        }
+
+        internal static IntPtr ArraySize(ndarray arr) {
+            lock (GlobalIterpLock) { return NpyArray_Size(arr.Array); }
+        }
+
+        /// <summary>
+        /// Indexes an array by a single long and returns the sub-array.
+        /// </summary>
+        /// <param name="index">The index into the array.</param>
+        /// <returns>The sub-array.</returns>
+        internal static ndarray ArrayItem(ndarray arr, long index) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_ArrayItem(arr.Array, (IntPtr)index));
+            }
+        }
+
+        internal static ndarray IndexSimple(ndarray arr, NpyIndexes indexes) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_IndexSimple(arr.Array, indexes.Indexes, indexes.NumIndexes));
+            }
+        }
+
+        internal static int IndexFancyAssign(ndarray dest, NpyIndexes indexes, ndarray values) {
+            lock (GlobalIterpLock) { return NpyArray_IndexFancyAssign(dest.Array, indexes.Indexes, indexes.NumIndexes, values.Array); }
+        }
+
+        internal static int SetField(ndarray arr, IntPtr dtype, int offset, ndarray srcArray) {
+            lock (GlobalIterpLock) { return NpyArray_SetField(arr.Array, dtype, offset, srcArray.Array); }
+        }
+
+        internal static void SetNumericOp(int op, ufunc ufunc) {
+            lock (GlobalIterpLock) { NpyArray_SetNumericOp(op, ufunc.UFunc); }
+        }
+
+        internal static ndarray ArrayAll(ndarray arr, int axis, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_All(arr.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray ArrayAny(ndarray arr, int axis, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Any(arr.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray ArrayArgMax(ndarray self, int axis, ndarray ret) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_ArgMax(self.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray ArgSort(ndarray arr, int axis, NpyDefs.NPY_SORTKIND sortkind) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_ArgSort(arr.Array, axis, (int)sortkind));
+            }
+        }
+
+        internal static int ArrayBool(ndarray arr) {
+            lock (GlobalIterpLock) { return NpyArray_Bool(arr.Array); }
+        }
+
+        internal static int ScalarKind(int typenum, ndarray arr) {
+            lock (GlobalIterpLock) { return NpyArray_ScalarKind(typenum, arr.Array); }
+        }
+
+        internal static ndarray Choose(ndarray sel, ndarray[] arrays, ndarray ret = null, NpyDefs.NPY_CLIPMODE clipMode = NpyDefs.NPY_CLIPMODE.NPY_RAISE) {
+            lock (GlobalIterpLock) {
+                IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_Choose(sel.Array, coreArrays, coreArrays.Length,
+                    ret == null ? IntPtr.Zero : ret.Array, (int)clipMode));
+            }
+        }
+
+        internal static ndarray Conjugate(ndarray arr, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Conjugate(arr.Array, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray Correlate(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES typenum, int mode) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate(arr1.Array, arr1.Array, (int)typenum, mode));
+            }
+        }
+
+        internal static ndarray Correlate2(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES typenum, int mode) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_Correlate2(arr1.Array, arr1.Array, (int)typenum, mode));
+            }
+        }
+
+        internal static ndarray CopyAndTranspose(ndarray arr) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_CopyAndTranspose(arr.Array));
+            }
+        }
+
+        internal static ndarray CumProd(ndarray arr, int axis, dtype rtype, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_CumProd(arr.Array, axis,
+                        (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
+                        (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray CumSum(ndarray arr, int axis, dtype rtype, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_CumSum(arr.Array, axis,
+                        (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
+                        (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static void DestroySubarray(IntPtr subarrayPtr) {
+            lock (GlobalIterpLock) { NpyArray_DestroySubarray(subarrayPtr); }
+        }
+
+        internal static int DescrFindObjectFlag(dtype type) {
+            lock (GlobalIterpLock) { return NpyArray_DescrFindObjectFlag(type.Descr); }
+        }
+
+        internal static ndarray Flatten(ndarray arr, NpyDefs.NPY_ORDER order) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Flatten(arr.Array, (int)order));
+        }
+
+        internal static ndarray InnerProduct(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES type) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_InnerProduct(arr1.Array, arr2.Array, (int)type));
+            }
+        }
+
+        internal static ndarray LexSort(ndarray[] arrays, int axis) {
+            int n = arrays.Length;
+            IntPtr[] coreArrays = arrays.Select(x => x.Array).ToArray();
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_LexSort(coreArrays, n, axis));
+            }
+        }
+
+        internal static ndarray MatrixProduct(ndarray arr1, ndarray arr2, NpyDefs.NPY_TYPES type) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyArray_MatrixProduct(arr1.Array, arr2.Array, (int)type));
+            }
+        }
+
+        internal static ndarray ArrayMax(ndarray arr, int axis, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Max(arr.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray ArrayMin(ndarray arr, int axis, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Min(arr.Array, axis, (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static ndarray[] NonZero(ndarray arr) {
+            int nd = arr.ndim;
+            IntPtr[] coreArrays = new IntPtr[nd];
+            GCHandle h = NpyCoreApi.AllocGCHandle(arr);
+            try {
+                Monitor.Enter(GlobalIterpLock);
+                if (NpyCoreApi.NpyArray_NonZero(arr.Array, coreArrays, GCHandle.ToIntPtr(h)) < 0) {
+                    NpyCoreApi.CheckError();
+                }
+            } finally {
+                Monitor.Exit(GlobalIterpLock);
+                NpyCoreApi.FreeGCHandle(h);
+            }
+            return coreArrays.Select(x => NpyCoreApi.DecrefToInterface<ndarray>(x)).ToArray();
+        }
+
+        internal static ndarray Prod(ndarray arr, int axis, dtype rtype, ndarray ret = null) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_Prod(arr.Array, axis,
+                        (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
+                        (ret == null ? IntPtr.Zero : ret.Array)));
+            }
+        }
+
+        internal static int PutMask(ndarray arr, ndarray values, ndarray mask) {
+            lock (GlobalIterpLock) {
+                return NpyArray_PutMask(arr.Array, values.Array, mask.Array);
+            }
+        }
+
+        internal static int PutTo(ndarray arr, ndarray values, ndarray indices, NpyDefs.NPY_CLIPMODE clipmode) {
+            lock (GlobalIterpLock) {
+                return NpyArray_PutTo(arr.Array, values.Array, indices.Array, (int)clipmode);
+            }
+        }
+
+
+        internal static ndarray Ravel(ndarray arr, NpyDefs.NPY_ORDER order) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Ravel(arr.Array, (int)order));
+            }
+        }
+
+        internal static ndarray Repeat(ndarray arr, ndarray repeats, int axis) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Repeat(arr.Array, repeats.Array, axis));
+            }
+        }
+
+        internal static ndarray Searchsorted(ndarray arr, ndarray keys, NpyDefs.NPY_SEARCHSIDE side) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_SearchSorted(arr.Array, keys.Array, (int)side));
+            }
+        }
+
+        internal static void Sort(ndarray arr, int axis, NpyDefs.NPY_SORTKIND sortkind) {
+            lock (GlobalIterpLock) {
+                if (NpyCoreApi.NpyArray_Sort(arr.Array, axis, (int)sortkind) < 0) {
+                    NpyCoreApi.CheckError();
+                }
+            }
+        }
+
+        internal static ndarray Squeeze(ndarray arr) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_Squeeze(arr.Array));
+            }
+        }
+
+        internal static ndarray Sum(ndarray arr, int axis, dtype rtype, ndarray ret = null) {
+            return NpyCoreApi.DecrefToInterface<ndarray>(
+                NpyCoreApi.NpyArray_Sum(arr.Array, axis,
+                    (int)(rtype == null ? NpyDefs.NPY_TYPES.NPY_NOTYPE : rtype.TypeNum),
+                    (ret == null ? IntPtr.Zero : ret.Array)));
+        }
+
+        internal static ndarray SwapAxis(ndarray arr, int a1, int a2) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(NpyCoreApi.NpyArray_SwapAxes(arr.Array, a1, a2));
+            }
+        }
+
+        internal static ndarray TakeFrom(ndarray arr, ndarray indices, int axis, ndarray ret, NpyDefs.NPY_CLIPMODE clipMode) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DecrefToInterface<ndarray>(
+                    NpyCoreApi.NpyArray_TakeFrom(arr.Array, indices.Array, axis, (ret != null ? ret.Array : IntPtr.Zero), (int)clipMode)
+                    );
+            }
+        }
+
+        internal static bool DescrIsNative(dtype type) {
+            lock (GlobalIterpLock) {
+                return NpyCoreApi.DescrIsNative(type.Descr) != 0;
+            }
+        }
+
         #endregion
 
         #region Gil Wrappers
@@ -803,169 +1093,161 @@ namespace NumpyDotNet {
         private static extern IntPtr NpyArray_SmallType(IntPtr descr1, IntPtr descr2);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern byte NpyArray_EquivTypes(IntPtr t1, IntPtr typ2);
+        private static extern byte NpyArray_EquivTypes(IntPtr t1, IntPtr typ2);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_ElementStrides(IntPtr arr);
+        private static extern int NpyArray_ElementStrides(IntPtr arr);
+              
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        private static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_MoveInto(IntPtr dest, IntPtr src);
+        private static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr, int flags);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern void NpyArray_dealloc(IntPtr arr);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern void NpyArray_DescrDestroy(IntPtr arr);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //internal static extern void NpyArray_DescrDeallocNamesAndFields(IntPtr dtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FromArray(IntPtr arr, IntPtr descr,
-            int flags);
+        private static extern IntPtr NpyArray_Subarray(IntPtr arr, IntPtr dataptr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_dealloc(IntPtr arr);
+        private static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern int NpyArray_SubscriptAssign(IntPtr self, IntPtr indexes, int n, IntPtr value);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_DescrDestroy(IntPtr arr);
+        private static extern void NpyArray_IndexDealloc(IntPtr indexes, int n);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_DescrDeallocNamesAndFields(IntPtr dtype);
+        private static extern IntPtr NpyArray_Size(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
-            IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
-            IntPtr cmp_priority, IntPtr incref, IntPtr decref,
-            IntPtr enable_thread, IntPtr disable_thread);
+        private static extern IntPtr NpyArray_ArrayItem(IntPtr array, IntPtr index);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Subarray(IntPtr arr, IntPtr dataptr);
+        private static extern IntPtr NpyArray_IndexSimple(IntPtr arr, IntPtr indexes, int n);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Subscript(IntPtr arr, IntPtr indexes, int n);
+        private static extern int NpyArray_IndexFancyAssign(IntPtr dest, IntPtr indexes, int n, IntPtr value_array);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_SubscriptAssign(IntPtr self, IntPtr indexes, int n, IntPtr value);
+        private static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_IndexDealloc(IntPtr indexes, int n);
+        private static extern int Npy_IsAligned(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Size(IntPtr arr);
+        private static extern int Npy_IsWriteable(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_ArrayItem(IntPtr array, IntPtr index);
+        private static extern IntPtr NpyArray_IterNew(IntPtr ao);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_IndexSimple(IntPtr arr, IntPtr indexes, int n);
+        private static extern IntPtr NpyArray_IterSubscript(IntPtr iter, IntPtr indexes, int n);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_IndexFancyAssign(IntPtr dest, IntPtr indexes, int n, IntPtr value_array);
+        private static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_SetField(IntPtr arr, IntPtr descr, int offset, IntPtr val);
+        private static extern int NpyArray_FillWithObject(IntPtr arr, IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Npy_IsAligned(IntPtr arr);
+        private static extern int NpyArray_FillWithScalar(IntPtr arr, IntPtr zero_d_array);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Npy_IsWriteable(IntPtr arr);
+        private static extern IntPtr NpyArray_FlatView(IntPtr arr);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //private static extern void npy_ufunc_dealloc(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_IterNew(IntPtr ao);
+        private static extern IntPtr NpyArray_GetNumericOp(int op);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_IterSubscript(IntPtr iter, IntPtr indexes, int n);
+        private static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
+        
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc, IntPtr ret);
+
+        //[DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        //internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_IterSubscriptAssign(IntPtr iter, IntPtr indexes, int n, IntPtr array_val);
+        private static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_FillWithObject(IntPtr arr, IntPtr obj);
+        private static extern IntPtr NpyArray_Any(IntPtr self, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_FillWithScalar(IntPtr arr, IntPtr zero_d_array);
+        private static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
+        
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr NpyArray_ArgSort(IntPtr arr, int axis, int sortkind);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FlatView(IntPtr arr);
+        private static extern int NpyArray_Bool(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void npy_ufunc_dealloc(IntPtr arr);
+        private static extern int NpyArray_ScalarKind(int typenum, IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GetNumericOp(int op);
+        private static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_SetNumericOp(int op, IntPtr ufunc);
+        private static extern bool NpyArray_CanCastTo(IntPtr fromDtype, IntPtr toDtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericUnaryFunction(IntPtr arr1, IntPtr ufunc, IntPtr ret);
+        private static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GenericBinaryFunction(IntPtr arr1, IntPtr arr2, IntPtr ufunc, IntPtr ret);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_add_sortfuncs")]
-        internal static extern IntPtr NpyArray_InitSortModule();
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_All(IntPtr self, int axis, IntPtr ret);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Any(IntPtr self, int axis, IntPtr ret);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_ArgMax(IntPtr self, int axis, IntPtr ret);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_ArgSort(IntPtr arr, int axis, int sortkind);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_Bool(IntPtr arr);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_ScalarKind(int typenum, IntPtr arr);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Byteswap(IntPtr arr, byte inplace);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool NpyArray_CanCastTo(IntPtr fromDtype, IntPtr toDtype);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CastToType(IntPtr array, IntPtr descr, int fortran);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis,
+        private static extern IntPtr NpyArray_CheckAxis(IntPtr arr, ref int axis,
                                                          int flags);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Choose(IntPtr array,
+        private static extern IntPtr NpyArray_Choose(IntPtr array,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)]IntPtr[] mps, int n, IntPtr ret, int clipMode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CompareStringArrays(IntPtr a1, IntPtr a2,
+        private static extern IntPtr NpyArray_CompareStringArrays(IntPtr a1, IntPtr a2,
                                                                    int op, int rstrip);
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
+        private static extern IntPtr NpyArray_Conjugate(IntPtr arr, IntPtr ret);
+        
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr NpyArray_Correlate(IntPtr arr1, IntPtr arr2, int typenum, int mode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Correlate(IntPtr arr1, IntPtr arr2, int typenum, int mode);
+        private static extern IntPtr NpyArray_Correlate2(IntPtr arr1, IntPtr arr2, int typenum, int mode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Correlate2(IntPtr arr1, IntPtr arr2, int typenum, int mode);
+        private static extern IntPtr NpyArray_CopyAndTranspose(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CopyAndTranspose(IntPtr arr);
+        private static extern int NpyArray_CopyAnyInto(IntPtr dest, IntPtr src);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_CopyAnyInto(IntPtr dest, IntPtr src);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int
+        private static extern IntPtr NpyArray_CumProd(IntPtr arr, int axis, int
                                                        rtype, IntPtr ret);
 
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int
+        private static extern IntPtr NpyArray_CumSum(IntPtr arr, int axis, int
                                                       rtype, IntPtr ret);
+        
+        // Reentrant - does not need to be wrapped.
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArray_DescrAllocNames")]
+        internal static extern IntPtr DescrAllocNames(int n);
 
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DescrAllocNames(int n);
-
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DescrAllocFields();
+        // Reentrant - does not need to be wrapped.
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArray_DescrAllocFields")]
+        internal static extern IntPtr DescrAllocFields();
 
         /// <summary>
         /// Deallocates a subarray block.  The pointer passed in is descr->subarray, not
@@ -973,116 +1255,117 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="subarrayPtr">Subarray structure</param>
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_DestroySubarray(IntPtr subarrayPtr);
+        private static extern void NpyArray_DestroySubarray(IntPtr subarrayPtr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl,
             EntryPoint="npy_descr_find_object_flag")]
-        internal static extern int NpyArray_DescrFindObjectFlag(IntPtr subarrayPtr);
+        private static extern int NpyArray_DescrFindObjectFlag(IntPtr subarrayPtr);
+
+        // Reentrant -- does not need to be wrapped.
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArray_DateTimeInfoNew")]
+        internal static extern IntPtr DateTimeInfoNew(string units, int num, int den, int events);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DateTimeInfoNew(string units, int num, int den, int events);
+        private static extern IntPtr NpyArray_DescrNewByteorder(IntPtr descr, byte order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_DescrNewByteorder(IntPtr descr, byte order);
+        private static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Flatten(IntPtr arr, int order);
+        private static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GetField(IntPtr arr, IntPtr dtype, int offset);
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GetImag(IntPtr arr);
+        private static extern IntPtr NpyArray_GetImag(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_GetReal(IntPtr arr);
+        private static extern IntPtr NpyArray_GetReal(IntPtr arr);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_InnerProduct(IntPtr arr, IntPtr arr2, int type);
+        private static extern IntPtr NpyArray_InnerProduct(IntPtr arr, IntPtr arr2, int type);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_LexSort(
+        private static extern IntPtr NpyArray_LexSort(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] IntPtr[] mps, int n, int axis);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_MatrixProduct(IntPtr arr, IntPtr arr2, int type);
+        private static extern IntPtr NpyArray_MatrixProduct(IntPtr arr, IntPtr arr2, int type);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Max(IntPtr arr, int axis, IntPtr ret);
+        private static extern IntPtr NpyArray_Max(IntPtr arr, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Min(IntPtr arr, int axis, IntPtr ret);
+        private static extern IntPtr NpyArray_Min(IntPtr arr, int axis, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
+        private static extern IntPtr NpyArray_NewCopy(IntPtr arr, int order);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_NewView(IntPtr descr, int nd,
+        private static extern IntPtr NpyArray_NewView(IntPtr descr, int nd,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] dims,
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]IntPtr[] strides,
             IntPtr arr, IntPtr offset, int ensureArray);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_NonZero(IntPtr self,
+        private static extern int NpyArray_NonZero(IntPtr self,
             [MarshalAs(UnmanagedType.LPArray,SizeConst=NpyDefs.NPY_MAXDIMS)] IntPtr[] index_arrays,
             IntPtr obj);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int
+        private static extern IntPtr NpyArray_Prod(IntPtr arr, int axis, int
                                                     rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_PutMask(IntPtr arr, IntPtr values, IntPtr mask);
+        private static extern int NpyArray_PutMask(IntPtr arr, IntPtr values, IntPtr mask);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_PutTo(IntPtr arr, IntPtr values, IntPtr indices, int clipmode);
+        private static extern int NpyArray_PutTo(IntPtr arr, IntPtr values, IntPtr indices, int clipmode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Ravel(IntPtr arr, int fortran);
+        private static extern IntPtr NpyArray_Ravel(IntPtr arr, int fortran);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Repeat(IntPtr arr, IntPtr repeats, int axis);
+        private static extern IntPtr NpyArray_Repeat(IntPtr arr, IntPtr repeats, int axis);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_SearchSorted(IntPtr op1, IntPtr op2, int side);
+        private static extern IntPtr NpyArray_SearchSorted(IntPtr op1, IntPtr op2, int side);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_Sort(IntPtr arr, int axis, int sortkind);
+        private static extern int NpyArray_Sort(IntPtr arr, int axis, int sortkind);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Squeeze(IntPtr self);
+        private static extern IntPtr NpyArray_Squeeze(IntPtr self);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int
-                                                   rtype, IntPtr ret);
+        private static extern IntPtr NpyArray_Sum(IntPtr arr, int axis, int rtype, IntPtr ret);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_SwapAxes(IntPtr arr, int a1, int a2);
+        private static extern IntPtr NpyArray_SwapAxes(IntPtr arr, int a1, int a2);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
+        private static extern IntPtr NpyArray_TakeFrom(IntPtr self, IntPtr indices, int axis, IntPtr ret, int clipMode);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
+        private static extern int NpyArray_TypestrConvert(int itemsize, int gentype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyArray_UpdateFlags(IntPtr arr, int flagmask);
+        private static extern void NpyArray_UpdateFlags(IntPtr arr, int flagmask);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_View(IntPtr arr, IntPtr descr, IntPtr subtype);
+        private static extern IntPtr NpyArray_View(IntPtr arr, IntPtr descr, IntPtr subtype);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyDict_Destroy(IntPtr dict);
+        private static extern void NpyDict_Destroy(IntPtr dict);
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         internal delegate int del_PrepareOutputs(IntPtr ufunc, IntPtr arrays, IntPtr args);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static unsafe extern int NpyUFunc_GenericFunction(IntPtr func, int nargs, IntPtr* mps,
+        private static unsafe extern int NpyUFunc_GenericFunction(IntPtr func, int nargs, IntPtr* mps,
             int ntypenums, [In][MarshalAs(UnmanagedType.LPArray)] int[] rtypenums,
             int originalObjectWasArray, del_PrepareOutputs npy_prepare_outputs_func, IntPtr prepare_out_args);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,
+        private static extern IntPtr NpyUFunc_GenericReduction(IntPtr ufunc,
             IntPtr arr, IntPtr indices, IntPtr arrOut, int axis, IntPtr descr,
             int operation);
 
@@ -1093,17 +1376,25 @@ namespace NumpyDotNet {
         internal unsafe delegate void del_ErrorHandler(sbyte* name, int errormask, IntPtr errobj, int retstatus, int* first);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void NpyUFunc_SetFpErrFuncs(del_GetErrorState errorState, del_ErrorHandler handler);
+        private static extern void NpyUFunc_SetFpErrFuncs(del_GetErrorState errorState, del_ErrorHandler handler);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
+        private static extern IntPtr NpyArray_FromString(string data, IntPtr len, IntPtr dtype, int num, string sep);
 
-        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl,
-         EntryPoint = "NpyArray_FromString")]
-        internal static extern IntPtr NpyArray_FromBytes(byte[] data, IntPtr len, IntPtr dtype, int num, string sep);
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint = "NpyArray_FromString")]
+        private static extern IntPtr NpyArray_FromBytes(byte[] data, IntPtr len, IntPtr dtype, int num, string sep);
 
         [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint="npy_arraydescr_isnative")]
-        internal static extern int DescrIsNative(IntPtr descr);
+        private static extern int DescrIsNative(IntPtr descr);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void npy_initlib(IntPtr functionDefs, IntPtr wrapperFuncs,
+            IntPtr error_set, IntPtr error_occured, IntPtr error_clear,
+            IntPtr cmp_priority, IntPtr incref, IntPtr decref,
+            IntPtr enable_thread, IntPtr disable_thread);
+
+        [DllImport("ndarray", CallingConvention = CallingConvention.Cdecl, EntryPoint = "npy_add_sortfuncs")]
+        internal static extern IntPtr NpyArray_InitSortModule();
 
         #endregion
 
@@ -1334,7 +1625,6 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int NpyArrayAccess_SetDateTimeInfo(IntPtr descr,
             [MarshalAs(UnmanagedType.LPStr)]string units, int num, int den, int events);
-
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr NpyArrayAccess_InheritDescriptor(IntPtr type, IntPtr conv);
