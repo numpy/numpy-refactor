@@ -269,6 +269,13 @@ namespace NumpyDotNet {
 
         internal static ndarray FromNestedList(object src, dtype descr, bool fortran) {
             long[] dims = new long[NpyDefs.NPY_MAXDIMS];
+
+            // Python generators appear as IEnumerables but can only be iterated over once
+            // so we need to save the results. 
+            if (src is IEnumerableOfTWrapper<object>) {
+                src = ((IEnumerableOfTWrapper<object>)src).ToList();
+            }
+
             int nd = ObjectDepthAndDimension(src, dims, 0, NpyDefs.NPY_MAXDIMS);
             if (nd == 0) {
                 return FromPythonScalar(src, descr);
@@ -413,6 +420,12 @@ namespace NumpyDotNet {
         internal static ndarray FromIEnumerable(IEnumerable<Object> src, dtype descr,
             bool fortran, int minDepth, int maxDepth) {
             ndarray result = null;
+
+            // Python generators appear as IEnumerables but can only be iterated over once
+            // so we need to save the results. 
+            if (src is IEnumerableOfTWrapper<object>) {
+                src = ((IEnumerableOfTWrapper<object>)src).ToList();
+            }
 
             if (descr == null) {
                 descr = FindArrayType(src, null, NpyDefs.NPY_MAXDIMS);

@@ -1014,6 +1014,8 @@ class TestCorrelate(_TestCorrelate):
         self.z2 = self.z1
 
     @dec.deprecated()
+    @dec.skipif(sys.platform == 'cli', 
+        "nose decorators don't work on IronPython yet")
     def test_complex(self):
         x = np.array([1, 2, 3, 4+1j], dtype=np.complex)
         y = np.array([-1, -2j, 3+1j], dtype=np.complex)
@@ -1022,10 +1024,14 @@ class TestCorrelate(_TestCorrelate):
         assert_array_almost_equal(z, r_z)
 
     @dec.deprecated()
+    @dec.skipif(sys.platform == 'cli', 
+        "nose decorators don't work on IronPython yet")
     def test_float(self):
         _TestCorrelate.test_float(self)
 
     @dec.deprecated()
+    @dec.skipif(sys.platform == 'cli', 
+        "nose decorators don't work on IronPython yet")
     def test_object(self):
         _TestCorrelate.test_object(self)
 

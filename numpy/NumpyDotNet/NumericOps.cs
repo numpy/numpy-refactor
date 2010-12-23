@@ -1116,6 +1116,10 @@ namespace NumpyDotNet {
             new CopySwapDelegate(CopySwap8);
 
         private unsafe static void CopySwapObject(byte* dest, byte* src, bool notused) {
+            if (src == null) {
+                return;
+            }
+
             IntPtr tmp = IntPtr.Zero;
             tmp = Marshal.ReadIntPtr((IntPtr)dest);
             if (tmp != IntPtr.Zero) {

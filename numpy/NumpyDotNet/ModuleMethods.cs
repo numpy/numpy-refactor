@@ -305,7 +305,23 @@ namespace NumpyDotNet {
             if (num == int.MaxValue && rtype.ElementSize == 0) {
                 throw new ArgumentException("A length must be specified when using variable-sized data type");
             }
-            num = Math.Min(num, iter.Count());
+
+            // Python generators appear as IEnumerables but can only be iterated over once
+            // so we need to save the results. 
+            if (iter is IEnumerableOfTWrapper<object>) {
+                iter = ((IEnumerableOfTWrapper<object>)iter).ToList();
+            }
+
+            int tmp = iter.Count();
+            if (num != int.MaxValue && num > tmp) {
+                throw new ArgumentException("iterator too short");
+            } else {
+                if (num < tmp) {
+                    iter = iter.Take(num);
+                } else {
+                    num = tmp;
+                }
+            } 
 
             if (rtype.ChkFlags(NpyDefs.NPY_ITEM_REFCOUNT)) {
                 throw new ArgumentException("cannot create object arrays from iterators");

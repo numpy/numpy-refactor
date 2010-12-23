@@ -2281,6 +2281,7 @@ namespace NumpyDotNet {
             AttributeError,
             ComplexWarning,
             NotImplementedError,
+            FloatingPointError,
             NoError
         }
 
@@ -2325,6 +2326,8 @@ namespace NumpyDotNet {
                         throw new IronPython.Runtime.Exceptions.TypeErrorException(msgTmp);
                     case NpyExc_Type.NotImplementedError:
                         throw new NotImplementedException(msgTmp);
+                    case NpyExc_Type.FloatingPointError:
+                        throw new IronPython.Runtime.Exceptions.FloatingPointException(msgTmp);
                     default:
                         Console.WriteLine("Unhandled exception type {0} in CheckError.", errTmp);
                         throw new IronPython.Runtime.Exceptions.RuntimeException(msgTmp);
@@ -2449,8 +2452,7 @@ namespace NumpyDotNet {
                     *first = bfirst ? 1 : 0;
                 }
             } catch (Exception ex) {
-                ErrorCode = NpyExc_Type.RuntimeError;
-                ErrorMessage = ex.Message;
+                SetError(NpyExc_Type.FloatingPointError, ex.Message);
             }
         }
 
