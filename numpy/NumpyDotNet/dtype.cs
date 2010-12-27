@@ -737,7 +737,13 @@ namespace NumpyDotNet {
         private IEnumerable<object> HashItems() {
             if (!HasNames && !HasSubarray) {
                 yield return Kind;
-                yield return ByteOrder;
+
+                if (ByteOrder == (byte)'=') {
+                    yield return NpyCoreApi.NativeByteOrder;
+                } else {
+                    yield return ByteOrder;
+                }
+                        
                 yield return TypeNum;
                 yield return ElementSize;
                 yield return Alignment;

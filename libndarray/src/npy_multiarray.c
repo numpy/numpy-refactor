@@ -910,7 +910,7 @@ _equivalent_fields(NpyDict *field1, NpyDict *field2)
     NpyDict_IterInit(&pos);
     while (same && NpyDict_IterNext(field1, &pos, (void **)&key,
                                     (void **)&value1)) {
-        value2 = NpyDict_Get(field2, key);
+        value2 = (NpyArray_DescrField *)NpyDict_Get(field2, key);
         if (NULL == value2 || value1->offset != value2->offset ||
             ((NULL == value1->title && NULL != value2->title) ||
              (NULL != value1->title && NULL == value2->title) ||
@@ -923,6 +923,37 @@ _equivalent_fields(NpyDict *field1, NpyDict *field2)
     }
     return same;
 }
+
+
+/*
+ * Compare the subarray data for two types.
+ * Return 1 if they are the same, 0 if not.
+ */
+static int
+_equivalent_subarrays(NpyArray_ArrayDescr *sub1, NpyArray_ArrayDescr *sub2)
+{
+    int val, i;
+
+    if (sub1 == sub2) {
+        return 1;
+
+    }
+    if (sub1 == NULL || sub2 == NULL) {
+        return 0;
+    }
+
+    if (sub1->shape_num_dims != sub2->shape_num_dims) {
+        return 0;
+    }
+    for (i=0; i < sub1->shape_num_dims; i++) {
+        if (sub1->shape_dims[i] != sub2->shape_dims[i]) {
+            return 0;
+        }
+    }
+
+    return NpyArray_EquivTypes(sub1->base, sub2->base);
+}
+
 
 
 /* compare the metadata for two date-times
@@ -959,6 +990,10 @@ NpyArray_EquivTypes(NpyArray_Descr *typ1, NpyArray_Descr *typ2)
     if (NpyArray_ISNBO(typ1->byteorder) != NpyArray_ISNBO(typ2->byteorder)) {
         return NPY_FALSE;
     }
+    if (NULL != typ1->subarray || NULL != typ2->subarray) {
+        return typenum1 == typenum2 && _equivalent_subarrays(typ1->subarray, typ2->subarray);
+    }
+
     if (typenum1 == NPY_VOID
         || typenum2 == NPY_VOID) {
         return ((typenum1 == typenum2)
