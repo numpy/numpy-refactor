@@ -27,6 +27,8 @@ class TestRegression(TestCase):
         """Ticket #7"""
         np.empty((1,),dtype=[('x',np.int64)])
 
+    @dec.knownfailureif(sys.platform == 'cli',
+                        "Pickling transposed arrays is not yet implemented")
     def test_pickle_transposed(self,level=rlevel):
         """Ticket #16"""
         a = np.transpose(np.array([[2,9],[7,0],[3,8]]))
@@ -141,6 +143,8 @@ class TestRegression(TestCase):
     @dec.knownfailureif(sys.version_info[0] >= 3,
                         "numpy.intp('0xff', 16) not supported on Py3, "
                         "as it does not inherit from Python int")
+    @dec.knownfailureif(sys.platform == 'cli',
+                        "overflow not thrown when setting MSBit of signed int")
     def test_intp(self,level=rlevel):
         """Ticket #99"""
         i_width = np.int_(0).nbytes*2 - 1
@@ -1447,6 +1451,8 @@ class TestRegression(TestCase):
 
         f.close()
 
+    @dec.knownfailureif(sys.platform == 'cli',
+                        "Warnings are emited but assert_warns doesn't detect it")
     def test_complex_scalar_warning(self):
         for tp in [np.csingle, np.cdouble, np.clongdouble]:
             x = tp(1+2j)

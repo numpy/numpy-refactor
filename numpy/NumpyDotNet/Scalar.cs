@@ -1813,6 +1813,14 @@ namespace NumpyDotNet
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_CDOUBLE);
             }
         }
+
+        protected static void EmitComplexWarning(CodeContext cntx) {
+            object warn = NpyUtil_Python.GetModuleAttr(cntx, "numpy.core", "ComplexWarning");
+            if (warn == null) {
+                throw new IronPython.Runtime.Exceptions.ImportException("Error importing numpy.core.ComplexWarning");
+            }
+            NpyUtil_Python.Warn((PythonType)warn, "Casting complex values to real discards the imaginary part", 1);
+        }
     }
 
 
@@ -1867,7 +1875,18 @@ namespace NumpyDotNet
             return this;
         }
 
+        public virtual object __int__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
+            return (int)value.Real;
+        }
+
+        public virtual object __long__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
+            return (long)value.Real;
+        }
+
         public override object __float__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
             return (double)value.Real;
         }
 
@@ -1991,7 +2010,18 @@ namespace NumpyDotNet
             return this;
         }
 
+        public virtual object __int__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
+            return (int)value.Real;
+        }
+
+        public virtual object __long__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
+            return (long)value.Real;
+        }
+
         public override object __float__(CodeContext cntx) {
+            EmitComplexWarning(cntx);
             return value.Real;
         }
 
