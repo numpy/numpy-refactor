@@ -1204,16 +1204,16 @@ namespace NumpyDotNet
 
         #region methods
 
-        public int dump(CodeContext cntx, object file, int protocol) {
+        public int dump(CodeContext cntx, object file) {
             if (file is string) {
                 file = NpyUtil_Python.CallBuiltin(cntx, "open", file, "wb");
             }
-            NpyUtil_Python.CallFunction(cntx, "cPickle", "dump", this, file, protocol);
+            NpyUtil_Python.CallFunction(cntx, "cPickle", "dump", this, file, 2);
             return 0;
         }
 
-        public int dump(CodeContext cntx, int protocol) {
-            NpyUtil_Python.CallFunction(cntx, "cPickle", "dumps", this, protocol);
+        public int dumps(CodeContext cntx) {
+            NpyUtil_Python.CallFunction(cntx, "cPickle", "dumps", this, 2);
             return 0;
         }
 

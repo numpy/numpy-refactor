@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using IronPython.Runtime;
@@ -559,13 +560,17 @@ namespace NumpyDotNet {
                         throw new System.Collections.Generic.KeyNotFoundException(
                             String.Format("Field named \"{0}\" not found.", (string)idx));
                     }
-                } else {
+                } else if (idx is int || idx is long || idx is BigInteger || idx is ScalarInteger) {
+                    int i = (int)NpyUtil_Python.ConvertToLong(idx);
                     try {
-                        int i = (int)NpyUtil_Python.ConvertToLong(idx);
-                        result = GetFieldsDict()[Names[i]]; // Names list checks index out of range, throws correct exception.
-                    } catch {
-                        throw new ArgumentException("Field key must be an integer, string, or unicode");
+                        result = GetFieldsDict()[Names[i]]; // Names list checks index out of range
+                    } catch (ArgumentException e) {
+                        // Translate exception type to make test_dtype_keyerrrs test in test_regression.py
+                        // happy.
+                        throw new IndexOutOfRangeException(e.Message);
                     }
+                } else {
+                    throw new ArgumentException("Field key must be an integer, string, or unicode");
                 }
 
                 // If result is set, it is a PythonTuple of the dtype and offset. We just want to return
