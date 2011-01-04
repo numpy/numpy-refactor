@@ -479,7 +479,7 @@ namespace NumpyDotNet {
             return ndarray.ArrayReturn(NpyArray.MatrixProduct(o1, o2));
         }
 
-        public static object where(object o, object x, object y) {
+        public static object where(object o, object x=null, object y=null) {
             ndarray arr = NpyArray.FromAny(o);
             if (x == null && y == null) {
                 return arr.nonzero();
