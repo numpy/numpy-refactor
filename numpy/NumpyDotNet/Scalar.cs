@@ -1875,12 +1875,12 @@ namespace NumpyDotNet
             return this;
         }
 
-        public virtual object __int__(CodeContext cntx) {
+        public override object __int__(CodeContext cntx) {
             EmitComplexWarning(cntx);
             return (int)value.Real;
         }
 
-        public virtual object __long__(CodeContext cntx) {
+        public override object __long__(CodeContext cntx) {
             EmitComplexWarning(cntx);
             return (long)value.Real;
         }
@@ -2010,12 +2010,12 @@ namespace NumpyDotNet
             return this;
         }
 
-        public virtual object __int__(CodeContext cntx) {
+        public override object __int__(CodeContext cntx) {
             EmitComplexWarning(cntx);
             return (int)value.Real;
         }
 
-        public virtual object __long__(CodeContext cntx) {
+        public override object __long__(CodeContext cntx) {
             EmitComplexWarning(cntx);
             return (long)value.Real;
         }

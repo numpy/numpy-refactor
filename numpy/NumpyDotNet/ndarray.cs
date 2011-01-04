@@ -597,6 +597,10 @@ namespace NumpyDotNet
             return UnaryOp(null, a, NpyDefs.NpyArray_Ops.npy_op_invert);
         }
 
+        public static implicit operator String(ndarray a) {
+            return StrFunction(a);
+        }
+
         // NOTE: For comparison operators we use the Python names
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
