@@ -1473,7 +1473,7 @@ namespace NumpyDotNet {
 
         internal unsafe static void CopySwapOut(ndarray arr, long offset, void* data, bool swap) {
             lock (GlobalIterpLock) {
-                NpyArrayAccess_CopySwapIn(arr.Array, offset, data, swap ? 1 : 0);
+                NpyArrayAccess_CopySwapOut(arr.Array, offset, data, swap ? 1 : 0);
             }
         }
 
