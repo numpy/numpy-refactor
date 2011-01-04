@@ -86,7 +86,7 @@ namespace NumpyDotNet
             return ToArray().__mod__(cntx, b);
         }
 
-        public string __repr__(CodeContext context) {
+        public virtual string __repr__(CodeContext context) {
             return ToArray().__str__(context);
         }
 
@@ -98,7 +98,7 @@ namespace NumpyDotNet
             return ToArray().__sqrt__(cntx);
         }
 
-        public string __str__(CodeContext context) {
+        public virtual string __str__(CodeContext context) {
             return ToArray().__str__(context);
         }
 
@@ -1890,6 +1890,10 @@ namespace NumpyDotNet
             return (double)value.Real;
         }
 
+        public object __complex__() {
+            return new Complex(value.Real, value.Imag);
+        }
+
         public override object imag {
             get {
                 return new ScalarFloat32(value.Imag);
@@ -1902,7 +1906,16 @@ namespace NumpyDotNet
             }
         }
 
-        public new string __repr__(CodeContext context) {
+        public static implicit operator string(ScalarComplex64 x) {
+            return x.ToString();
+        }
+
+        public override string __str__(CodeContext context) {
+            return ToString();
+        }
+
+
+        public override string __repr__(CodeContext context) {
             return ToString();
         }
 
@@ -2025,6 +2038,10 @@ namespace NumpyDotNet
             return value.Real;
         }
 
+        public object __complex__() {
+            return new Complex(value.Real, value.Imaginary);
+        }
+
         public override object imag {
             get {
                 return new ScalarFloat64(value.Imaginary);
@@ -2035,6 +2052,10 @@ namespace NumpyDotNet
             get {
                 return new ScalarFloat64(value.Real);
             }
+        }
+
+        public static implicit operator string(ScalarComplex128 x) {
+            return x.ToString();
         }
 
         /// <summary>
