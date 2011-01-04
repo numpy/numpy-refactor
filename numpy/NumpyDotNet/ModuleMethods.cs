@@ -100,8 +100,8 @@ namespace NumpyDotNet {
                 if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
                 if (ndmin >= NpyDefs.NPY_MAXDIMS) {
-                    throw new IronPython.Runtime.Exceptions.RuntimeException(
-                        String.Format("ndmin ({0} bigger than allowable number of dimension ({1}).",
+                    throw new ArgumentException(
+                        String.Format("ndmin ({0}) bigger than allowable number of dimension ({1}).",
                         ndmin, NpyDefs.NPY_MAXDIMS - 1));
                 }
 

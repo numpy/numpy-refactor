@@ -177,7 +177,7 @@ namespace NumpyDotNet {
                 } catch (OverflowException) {
                     throw;
                 } catch {
-                    throw new ArgumentTypeException(
+                    throw new ArgumentException(
                         String.Format("Unable to convert type '{0}' to integer", obj.GetType().Name));
                 }
             }
@@ -218,7 +218,7 @@ namespace NumpyDotNet {
             } catch (OverflowException) {
                 throw;
             } catch { }
-            throw new ArgumentTypeException(
+            throw new ArgumentException(
                 String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
         }
 

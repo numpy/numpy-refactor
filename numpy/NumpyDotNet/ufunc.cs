@@ -119,7 +119,9 @@ namespace NumpyDotNet
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_ACCUMULATE);
         }
 
-
+        public object identity() {
+            return Marshal.ReadInt32(this.UFunc, NpyCoreApi.UFuncOffsets.off_identify);
+        }
 
         private static string[] ReduceAtArgNames = new String[] {
             "array", "indices", "axis", "dtype", "out" };
