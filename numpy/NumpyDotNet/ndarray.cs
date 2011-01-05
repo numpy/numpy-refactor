@@ -1891,6 +1891,10 @@ namespace NumpyDotNet
             get { return ChkFlags(NpyDefs.NPY_WRITEABLE); }
         }
 
+        public bool IsString {
+            get { return Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING; }
+        }
+
 
         /// <summary>
         /// TODO: What does this return?

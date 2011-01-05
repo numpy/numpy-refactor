@@ -27,7 +27,8 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
            'ComplexWarning']
 
 if sys.platform == 'cli':
-    for n in ['int_asbuffer', 'set_numeric_ops', 'can_cast', 'compare_chararrays', 'bitwise_not']:
+    __all__.remove('compare_chararrays')
+    for n in ['int_asbuffer', 'set_numeric_ops', 'can_cast', 'bitwise_not']:
         print "numeric.py: Temporarily filtering symbol '%s'" % n
         __all__.remove(n)
 
@@ -35,6 +36,12 @@ if sys.platform == 'cli':
 import multiarray
 import umath
 from umath import *
+
+# Strange hack.  For some reason, possibly related to the circular dependencies
+# between multiarray and numeric, if 'compare_chararrays' is left in __all__ the
+# import fails.  But it works if it's imported here.
+if sys.platform == 'cli':
+    from multiarray import compare_chararrays
 
 import numerictypes
 from numerictypes import *

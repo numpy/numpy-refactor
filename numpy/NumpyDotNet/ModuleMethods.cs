@@ -603,6 +603,47 @@ namespace NumpyDotNet {
         }
 
 
+        public static object compare_chararrays(object a1, object a2, string cmp, object rstrip) {
+            bool rstripFlag = NpyUtil_ArgProcessing.BoolConverter(rstrip);
+
+            NpyDefs.NPY_COMPARE_OP cmpOp;
+
+            if (cmp == "==") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_EQ;
+            else if (cmp == "!=") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_NE;
+            else if (cmp == "<") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_LT;
+            else if (cmp == "<=") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_LE;
+            else if (cmp == ">=") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_GE;
+            else if (cmp == ">") cmpOp = NpyDefs.NPY_COMPARE_OP.NPY_GT;
+            else throw new ArgumentException("comparison must be '==', '!=', '<', '>', '<=', or '>='");
+
+            ndarray arr1 = NpyArray.FromAny(a1);
+            ndarray arr2 = NpyArray.FromAny(a2);
+            if (arr1 == null || arr2 == null) {
+                return null;
+            }
+
+            ndarray res;
+            if (arr1.IsString && arr2.IsString) {
+                if (arr1.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
+                    arr2.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    arr1 = PromoteToUnicode(arr1, arr2);
+                } else if (arr2.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_STRING &&
+                    arr1.Dtype.TypeNum == NpyDefs.NPY_TYPES.NPY_UNICODE) {
+                    arr2 = PromoteToUnicode(arr2, arr1);
+                }
+                res = NpyCoreApi.CompareStringArrays(arr1, arr2, cmpOp, rstripFlag);
+            } else {
+                throw new ArgumentTypeException("comparison of non-string arrays");
+            }
+            return res;
+        }
+
+        private static ndarray PromoteToUnicode(ndarray arr, ndarray src) {
+            dtype unicode = new dtype(src.Dtype);
+            unicode.ElementSize = src.itemsize * 4;
+            return NpyArray.FromAny(arr, unicode);
+        }
+
         /// <summary>
         /// Creates a scalar instance representing the (scalar) type in typecode. 'obj' is used to
         /// initialize the value as either an object or a sequence of bytes that are re-interpreted

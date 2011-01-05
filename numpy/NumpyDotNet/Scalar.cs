@@ -2326,6 +2326,14 @@ namespace NumpyDotNet
             return this;
         }
 
+        public string rstrip() {
+            return value.ToString().rstrip();
+        }
+
+        public string strip() {
+            return value.ToString().strip();
+        }
+
         private Bytes value;
         private dtype dtype_;
     }
@@ -2373,6 +2381,10 @@ namespace NumpyDotNet
 
         public string rstrip() {
             return value.rstrip();
+        }
+
+        public string strip() {
+            return value.strip();
         }
 
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
