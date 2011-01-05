@@ -512,7 +512,13 @@ namespace NumpyDotNet {
                 try {
                     int i = 0;
                     foreach (string name in names) {
-                        NpyCoreApi.NpyArray_DescrField field = NpyCoreApi.GetDescrField(d, name);
+                        NpyCoreApi.NpyArray_DescrField field;
+                        try {
+                            field = NpyCoreApi.GetDescrField(d, name);
+                        } catch (ArgumentException e) {
+                            return null;
+                        }
+
                         dtype field_dtype = NpyCoreApi.ToInterface<dtype>(field.descr);
                         Marshal.WriteIntPtr(arr.Array, NpyCoreApi.ArrayOffsets.off_descr, field.descr);
                         int alignment = arr.Dtype.Alignment;
