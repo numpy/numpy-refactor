@@ -512,7 +512,9 @@ namespace NumpyDotNet {
             object result = null;
             if (method != null) {
                 IEnumerable<object> seq = (argsSeq != null) ? (IEnumerable<object>)argsSeq : null;
-                if (seq != null && seq.Count() > 0) {
+                // Checks the first element of the sequence for null because defchararray.py 
+                // rstrip() calls with argsSeq of (None, ). 
+                if (seq != null && seq.Count() > 0 && seq.First() != null) {
                     result = VecStringWithArgs(cntx, charArray, type, method, seq);
                 } else if (argsSeq == null || seq != null) {
                     result = VecStringNoArgs(cntx, charArray, type, method);
