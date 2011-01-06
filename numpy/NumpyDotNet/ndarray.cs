@@ -1212,9 +1212,8 @@ namespace NumpyDotNet
             return 0;
         }
 
-        public int dumps(CodeContext cntx) {
-            NpyUtil_Python.CallFunction(cntx, "cPickle", "dumps", this, 2);
-            return 0;
+        public object dumps(CodeContext cntx) {
+            return NpyUtil_Python.CallFunction(cntx, "cPickle", "dumps", this, 2);
         }
 
         public object all(object axis = null, ndarray @out = null) {

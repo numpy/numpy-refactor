@@ -1202,7 +1202,13 @@ class TestResize(TestCase):
         assert_array_equal(x, np.eye(3))
 
     def test_invalid_arguements(self):
-        self.assertRaises(TypeError, np.eye(3).resize, 'hi')
+        # Error type is inconsistent for CPython. In test_regression.py test
+        # test_array_from_sequence_scalar_array expects it to be a ValueError
+        # but this one expected ValueError.
+        if sys.platform == "cli":
+            self.assertRaises(ValueError, np.eye(3).resize, 'hi')
+        else:
+            self.assertRaises(TypeError, np.eye(3).resize, 'hi')
         self.assertRaises(ValueError, np.eye(3).resize, -1)
         self.assertRaises(TypeError, np.eye(3).resize, order=1)
         self.assertRaises(TypeError, np.eye(3).resize, refcheck='hi')

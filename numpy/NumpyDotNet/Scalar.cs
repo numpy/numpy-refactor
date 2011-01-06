@@ -186,7 +186,7 @@ namespace NumpyDotNet
                 return NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_VOID);
             }
             set {
-                throw new ArgumentException("array-scalars are immutable");
+                throw new ArgumentTypeException("array-scalars are immutable");
             }
         }
 
@@ -204,7 +204,7 @@ namespace NumpyDotNet
                 return ToArray().flat;
             }
             set {
-                throw new ArgumentException("array-scalars are immutable");
+                throw new ArgumentTypeException("array-scalars are immutable");
             }
         }
 
@@ -221,7 +221,7 @@ namespace NumpyDotNet
                 return ndarray.ArrayReturn((ndarray)ToArray().imag);
             }
             set {
-                throw new ArgumentException("array-scalars are immutable");
+                throw new ArgumentTypeException("array-scalars are immutable");
             }
         }
 
@@ -230,7 +230,7 @@ namespace NumpyDotNet
         }
 
         public void itemset(params object[] args) {
-            throw new ArgumentException("array-scalars are immutable");
+            throw new ArgumentTypeException("array-scalars are immutable");
         }
 
         public int itemsize {
@@ -293,7 +293,7 @@ namespace NumpyDotNet
                 return ndarray.ArrayReturn((ndarray)ToArray().real);
             }
             set {
-                throw new ArgumentException("array-scalars are immutable");
+                throw new ArgumentTypeException("array-scalars are immutable");
             }
         }
 
@@ -319,7 +319,7 @@ namespace NumpyDotNet
         }
 
         public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
-            throw new ArgumentException("array-scalars are immutable");
+            throw new ArgumentTypeException("array-scalars are immutable");
         }
 
         public void setflags(object write = null, object align = null, object uic = null) {
@@ -385,7 +385,7 @@ namespace NumpyDotNet
                 return ToArray()[args: args];
             }
             set {
-                throw new ArgumentException("array-scalars are immutable");
+                throw new ArgumentTypeException("array-scalars are immutable");
             }
         }
 
