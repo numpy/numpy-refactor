@@ -383,11 +383,11 @@ npy_buffer_info_new(NpyArray *arr)
     npy_tmp_string_t fmt = {0,0,0};
     int k;
     
-    info = (npy_buffer_info_t*)malloc(sizeof(npy_buffer_info_t));
+    info = (npy_buffer_info_t*)npy_malloc(sizeof(npy_buffer_info_t));
     
     /* Fill in format */
     if (npy_buffer_format_string(NpyArray_DESCR(arr), &fmt, arr, NULL, NULL) != 0) {
-        free(info);
+        npy_free(info);
         return NULL;
     }
     npy_append_char(&fmt, '\0');
@@ -401,7 +401,7 @@ npy_buffer_info_new(NpyArray *arr)
         info->strides = NULL;
     }
     else {
-        info->shape = (size_t*)malloc(sizeof(size_t)
+        info->shape = (size_t*)npy_malloc(sizeof(size_t)
                                           * NpyArray_NDIM(arr) * 2 + 1);
         info->strides = info->shape + NpyArray_NDIM(arr);
         for (k = 0; k < NpyArray_NDIM(arr); ++k) {
@@ -440,11 +440,11 @@ NDARRAY_API void
 npy_buffer_info_free(npy_buffer_info_t *info)
 {
     if (info->format) {
-        free(info->format);
+        npy_free(info->format);
     }
     if (info->shape) {
-        free(info->shape);
+        npy_free(info->shape);
     }
-    free(info);
+    npy_free(info);
 }
 

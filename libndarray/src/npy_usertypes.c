@@ -36,7 +36,7 @@ static NpyArray_CastFuncsItem*
 castfuncs_new(void)
 {
     NpyArray_CastFuncsItem* result =
-        (NpyArray_CastFuncsItem *) malloc(sizeof(NpyArray_CastFuncsItem));
+        (NpyArray_CastFuncsItem *) npy_malloc(sizeof(NpyArray_CastFuncsItem));
     result[0].totype = NPY_NOTYPE;
     return result;
 }

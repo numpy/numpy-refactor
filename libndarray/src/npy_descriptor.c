@@ -78,7 +78,7 @@ NpyArray_DescrNew(NpyArray_Descr *base)
     
     assert(base != NULL && NPY_VALID_MAGIC == base->nob_magic_number);
 
-    new = (NpyArray_Descr *)malloc(sizeof(NpyArray_Descr));
+    new = (NpyArray_Descr *)npy_malloc(sizeof(NpyArray_Descr));
     if (new == NULL) {
         return NULL;
     }
@@ -288,7 +288,7 @@ NpyArray_DescrDestroy(NpyArray_Descr *self)
 
     self->nob_magic_number = NPY_INVALID_MAGIC;
 
-    free(self);
+    npy_free(self);
 }
 
 
@@ -386,7 +386,7 @@ NpyArray_DescrAllocNames(int n)
 {
     char **nameslist;
 
-    nameslist = (char **)malloc((n+1) * sizeof(char *));
+    nameslist = (char **)npy_malloc((n+1) * sizeof(char *));
     if (NULL != nameslist) {
         memset(nameslist, 0, (n+1)*sizeof(char *));
     }
@@ -420,7 +420,7 @@ NpyArray_DescrDeallocNamesAndFields(NpyArray_Descr *self)
             }
             self->names[i] = NULL;
         }
-        free(self->names);
+        npy_free(self->names);
         self->names = NULL;
     }
 
@@ -456,7 +456,7 @@ NpyArray_DescrReplaceNames(NpyArray_Descr *self, char **nameslist)
                       (void *) strdup(nameslist[i]));
         free(self->names[i]);
     }
-    free(self->names);
+    npy_free(self->names);
 
     self->names = nameslist;
     return 1;
@@ -477,7 +477,7 @@ NpyArray_DescrSetNames(NpyArray_Descr *self, char **nameslist)
         for (i = 0; NULL != self->names[i]; i++) {
             free(self->names[i]);
         }
-        free(self->names);
+        npy_free(self->names);
     }
     self->names = nameslist;
 }
@@ -496,7 +496,7 @@ NpyArray_DescrSetField(NpyDict *self, const char *key, NpyArray_Descr *descr,
 {
     NpyArray_DescrField *field;
 
-    field = (NpyArray_DescrField *) malloc(sizeof(NpyArray_DescrField));
+    field = (NpyArray_DescrField *) npy_malloc(sizeof(NpyArray_DescrField));
     field->descr = descr;
     field->offset = offset;
     field->title = (NULL == title) ? NULL : (char *) strdup(title);
@@ -532,7 +532,7 @@ NpyArray_DescrNamesCopy(char **names)
     if (names != NULL) {
         for (n=0; NULL != names[n]; n++);
 
-        copy = malloc((n+1) * sizeof(char *));
+        copy = npy_malloc((n+1) * sizeof(char *));
         for (i=0; i < n; i++) {
             copy[i] = (char *) strdup(names[i]);
         }
@@ -573,7 +573,7 @@ static void *npy_copy_fields_value(void *value_tmp)
     NpyArray_DescrField *copy;
 
     value = (NpyArray_DescrField *) value_tmp;
-    copy = (NpyArray_DescrField *) malloc(sizeof(NpyArray_DescrField));
+    copy = (NpyArray_DescrField *) npy_malloc(sizeof(NpyArray_DescrField));
 
     copy->descr = value->descr;
     Npy_XINCREF(copy->descr);
@@ -590,8 +590,8 @@ static void npy_dealloc_fields_value(void *value_tmp)
 
     Npy_XDECREF(value->descr);
     if (value->title != NULL)
-        free(value->title);
-    free(value);
+        free(value->title); /* NOT npy_free, allocated w/ strdup */
+    npy_free(value);
 }
 
 /* Exported as DATETIMEUNITS in multiarraymodule.c */

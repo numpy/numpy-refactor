@@ -8,6 +8,7 @@
 #include "npy_iterators.h"
 #include "npy_internal.h"
 
+#include "npy_dict.h"
 
 /* TODO: Make these into interface functions */
 extern int PyArray_INCREF(void *);
@@ -471,13 +472,15 @@ NpyArray_CompareStringArrays(NpyArray* a1, NpyArray* a2, int cmp_op, int rstrip)
 NDARRAY_API int
 NpyArray_dealloc(NpyArray *self)
 {
+    int i;
+
     int result = 0;
 
     assert(NPY_VALID_MAGIC == self->nob_magic_number);
     assert(NULL == self->base_arr ||
            NPY_VALID_MAGIC == self->base_arr->nob_magic_number);
 
-    if (self->base_arr) {
+    if (NULL != self->base_arr) {
         /*
          * UPDATEIFCOPY means that base points to an
          * array that should be updated with the contents
@@ -523,10 +526,16 @@ NpyArray_dealloc(NpyArray *self)
                 result = 1;
             }
         }
+        fflush(stdout);
+
         NpyDataMem_FREE(self->data);
+        self->data =NULL;
     }
 
-    NpyDimMem_FREE(self->dimensions);
+    if (NULL != self->dimensions) {
+        NpyDimMem_FREE(self->dimensions);
+    }
+    
     Npy_DECREF(self->descr);
     /* Flag that this object is now deallocated. */
     self->nob_magic_number = NPY_INVALID_MAGIC;

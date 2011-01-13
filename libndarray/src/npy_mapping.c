@@ -559,7 +559,7 @@ NpyArray_SetMap(NpyArrayMapIterObject *mit, NpyArray *arr)
     /* Need to decref arrays with objects in them */
     if (NpyDataType_FLAGCHK(arr->descr, NPY_ITEM_HASOBJECT)) {
         int elsize = NpyArray_ITEMSIZE(arr);
-        char* buf = (char*)malloc(elsize);
+        char* buf = (char*)npy_malloc(elsize);
         while (index--) {
             memcpy(buf, it->dataptr, elsize);
             NpyArray_Item_INCREF(buf, arr->descr);

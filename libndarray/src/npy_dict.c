@@ -81,14 +81,14 @@ NpyDict_CreateTable(long numOfBuckets)
 
     assert(numOfBuckets > 0);
 
-    hashTable = (NpyDict *) malloc(sizeof(NpyDict));
+    hashTable = (NpyDict *) npy_malloc(sizeof(NpyDict));
     if (hashTable == NULL)
         return NULL;
 
     hashTable->bucketArray = (NpyDict_KVPair **)
-    malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
+        npy_malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
     if (hashTable->bucketArray == NULL) {
-        free(hashTable);
+        npy_free(hashTable);
         return NULL;
     }
 
@@ -137,13 +137,13 @@ NpyDict_Destroy(NpyDict *hashTable)
                 hashTable->keyDeallocator((void *) pair->key);
             if (hashTable->valueDeallocator != NULL)
                 hashTable->valueDeallocator(pair->value);
-            free(pair);
+            npy_free(pair);
             pair = nextPair;
         }
     }
 
-    free(hashTable->bucketArray);
-    free(hashTable);
+    npy_free(hashTable->bucketArray);
+    npy_free(hashTable);
 }
 
 
@@ -168,9 +168,9 @@ NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(v
     int i;
     NpyDict *copy;
 
-    copy = (NpyDict *)malloc(sizeof(NpyDict));
+    copy = (NpyDict *)npy_malloc(sizeof(NpyDict));
     memcpy(copy, orig, sizeof(NpyDict));
-    copy->bucketArray = (NpyDict_KVPair **)malloc(copy->numOfBuckets * sizeof(NpyDict_KVPair *));
+    copy->bucketArray = (NpyDict_KVPair **)npy_malloc(copy->numOfBuckets * sizeof(NpyDict_KVPair *));
 
     /* Duplicate each table entry. */
     for (i = 0; i < copy->numOfBuckets; i++) {
@@ -178,7 +178,7 @@ NpyDict_Copy(const NpyDict *orig, void *(*copyKey)(void *), void *(*copyValue)(v
 
         copy->bucketArray[i] = NULL;
         while (pair != NULL) {
-            NpyDict_KVPair *newEntry = (NpyDict_KVPair *)malloc(sizeof(NpyDict_KVPair));
+            NpyDict_KVPair *newEntry = (NpyDict_KVPair *)npy_malloc(sizeof(NpyDict_KVPair));
             newEntry->key = copyKey((void *)pair->key);
             newEntry->value = copyValue((void *)pair->value);
             newEntry->next = copy->bucketArray[i];
@@ -300,7 +300,7 @@ NpyDict_Put(NpyDict *hashTable, const void *key, void *value)
         }
     }
     else {
-        NpyDict_KVPair *newPair = (NpyDict_KVPair *) malloc(sizeof(NpyDict_KVPair));
+        NpyDict_KVPair *newPair = (NpyDict_KVPair *) npy_malloc(sizeof(NpyDict_KVPair));
         if (newPair == NULL) {
             return -1;
         }
@@ -413,7 +413,7 @@ void NpyDict_Rekey(NpyDict *hashTable, const void *oldKey, const void *newKey)
                     hashTable->valueDeallocator(pair->value);
                 pair->value = pairToIns->value;
             }
-            free(pairToIns);
+            npy_free(pairToIns);
         }
         else {
             pairToIns->key = newKey;
@@ -494,7 +494,7 @@ NpyDict_Remove(NpyDict *hashTable, const void *key)
             previousPair->next = pair->next;
         else
             hashTable->bucketArray[hashValue] = pair->next;
-        free(pair);
+        npy_free(pair);
         hashTable->numOfElements--;
 
         if (hashTable->lowerRehashThreshold > 0.0) {
@@ -533,7 +533,7 @@ NpyDict_RemoveAll(NpyDict *hashTable)
                 hashTable->keyDeallocator((void *) pair->key);
             if (hashTable->valueDeallocator != NULL)
                 hashTable->valueDeallocator(pair->value);
-            free(pair);
+            npy_free(pair);
             pair = nextPair;
         }
         hashTable->bucketArray[i] = NULL;
@@ -804,7 +804,7 @@ NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
         return; /* already the right size! */
 
     newBucketArray = (NpyDict_KVPair **)
-    malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
+        npy_malloc(numOfBuckets * sizeof(NpyDict_KVPair *));
     if (newBucketArray == NULL) {
         /* Couldn't allocate memory for the new array.  This isn't a fatal
          * error; we just can't perform the rehash. */
@@ -825,7 +825,7 @@ NpyDict_Rehash(NpyDict *hashTable, long numOfBuckets)
         }
     }
 
-    free(hashTable->bucketArray);
+    npy_free(hashTable->bucketArray);
     hashTable->bucketArray = newBucketArray;
     hashTable->numOfBuckets = numOfBuckets;
 }

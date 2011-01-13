@@ -13,34 +13,34 @@
 NDARRAY_API NpyArray *
 NpyArray_View(NpyArray *self, NpyArray_Descr *type, void *subtype)
 {
-    NpyArray *new = NULL;
+    NpyArray *newArr = NULL;
 
     Npy_INCREF(NpyArray_DESCR(self));
-    new = NpyArray_NewFromDescr(NpyArray_DESCR(self),
+    newArr = NpyArray_NewFromDescr(NpyArray_DESCR(self),
                                 NpyArray_NDIM(self), NpyArray_DIMS(self),
                                 NpyArray_STRIDES(self),
                                 NpyArray_BYTES(self),
                                 NpyArray_FLAGS(self),
                                 NPY_FALSE,
                                 subtype, Npy_INTERFACE(self));
-    if (new == NULL) {
+    if (newArr == NULL) {
         return NULL;
     }
 
-    new->base_arr = self;
+    newArr->base_arr = self;
     Npy_INCREF(self);
-    assert(NULL == new->base_obj);
+    assert(NULL == newArr->base_obj);
 
     if (type != NULL) {
         /* TODO: unwrap type. */
-        if (NpyArray_SetDescr(new, type) < 0) {
-            Npy_DECREF(new);
+        if (NpyArray_SetDescr(newArr, type) < 0) {
+            Npy_DECREF(newArr);
             Npy_DECREF(type);
             return NULL;
         }
         Npy_DECREF(type);
     }
-    return new;
+    return newArr;
 }
 
 

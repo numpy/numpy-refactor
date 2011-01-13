@@ -1199,11 +1199,11 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
     if (ufunc->userloops == NULL) {
         ufunc->userloops = npy_create_userloops_table();
     }
-    funcdata = malloc(sizeof(NpyUFunc_Loop1d));
+    funcdata = npy_malloc(sizeof(NpyUFunc_Loop1d));
     if (funcdata == NULL) {
         goto fail;
     }
-    newtypes = malloc(sizeof(int)*ufunc->nargs);
+    newtypes = npy_malloc(sizeof(int)*ufunc->nargs);
     if (newtypes == NULL) {
         goto fail;
     }
@@ -1252,8 +1252,8 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
             /* just replace it with new function */
             current->func = function;
             current->data = data;
-            free(newtypes);
-            free(funcdata);
+            npy_free(newtypes);
+            npy_free(funcdata);
         }
         else {
             /*
@@ -1275,8 +1275,8 @@ NpyUFunc_RegisterLoopForType(NpyUFuncObject *ufunc,
     return 0;
 
 fail:
-    free(funcdata);
-    free(newtypes);
+    npy_free(funcdata);
+    npy_free(newtypes);
     if (!NpyErr_Occurred())
         NpyErr_MEMORY;
     return -1;
@@ -1292,7 +1292,7 @@ NpyUFunc_FromFuncAndDataAndSignature(NpyUFuncGenericFunction *func,
 {
     NpyUFuncObject *self;
 
-    self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
+    self = (NpyUFuncObject *)npy_malloc(sizeof(NpyUFuncObject));
     if (NULL == self) {
         return NULL;
     }
@@ -1376,7 +1376,7 @@ construct_loop(NpyUFuncObject *self)
         NpyErr_SetString(NpyExc_ValueError, "function not supported");
         return NULL;
     }
-    if ((loop = malloc(sizeof(NpyUFuncLoopObject))) == NULL) {
+    if ((loop = npy_malloc(sizeof(NpyUFuncLoopObject))) == NULL) {
         NpyErr_MEMORY;
         return loop;
     }
@@ -1387,7 +1387,7 @@ construct_loop(NpyUFuncObject *self)
 
     loop->iter = NpyArray_MultiIterNew();
     if (loop->iter == NULL) {
-        free(loop);
+        npy_free(loop);
         return NULL;
     }
 
@@ -1413,8 +1413,8 @@ construct_loop(NpyUFuncObject *self)
         int nstrides = self->nargs
         + self->core_offsets[self->nargs - 1]
         + self->core_num_dims[self->nargs - 1];
-        loop->core_dim_sizes = malloc(sizeof(npy_intp)*num_dim_ix);
-        loop->core_strides = malloc(sizeof(npy_intp)*nstrides);
+        loop->core_dim_sizes = npy_malloc(sizeof(npy_intp)*num_dim_ix);
+        loop->core_strides = npy_malloc(sizeof(npy_intp)*nstrides);
         if (loop->core_dim_sizes == NULL || loop->core_strides == NULL) {
             NpyErr_MEMORY;
             goto fail;
@@ -2010,7 +2010,7 @@ construct_reduce(NpyUFuncObject *self, NpyArray **arr, NpyArray *out,
     arg_types[0] = otype;
     arg_types[1] = otype;
     arg_types[2] = otype;
-    if ((loop = malloc(sizeof(NpyUFuncReduceObject))) == NULL) {
+    if ((loop = npy_malloc(sizeof(NpyUFuncReduceObject))) == NULL) {
         NpyErr_MEMORY;
         return loop;
     }
@@ -2392,7 +2392,7 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
     int i;
     int offset[2];
 
-    self = (NpyUFuncObject *)malloc(sizeof(NpyUFuncObject));
+    self = (NpyUFuncObject *)npy_malloc(sizeof(NpyUFuncObject));
     if (NULL == self) {
         return NULL;
     }
@@ -2435,7 +2435,7 @@ npy_ufunc_frompyfunc(int nin, int nout, char *fname, size_t fname_len,
     if (i) {
         offset[1] += (sizeof(void *)-i);
     }
-    self->ptr = malloc(offset[0] + offset[1] + sizeof(void *) +
+    self->ptr = npy_malloc(offset[0] + offset[1] + sizeof(void *) +
                        (fname_len + 14));
     if (NULL == self->ptr) {
         return NULL;
@@ -2551,27 +2551,26 @@ extract_specified_loop(NpyUFuncObject *self, int *arg_types,
 void
 npy_ufunc_dealloc(NpyUFuncObject *self)
 {
-    /* TODO: Ready to move */
     if (self->core_num_dims) {
-        free(self->core_num_dims);
+        npy_free(self->core_num_dims);
     }
     if (self->core_dim_ixs) {
-        free(self->core_dim_ixs);
+        npy_free(self->core_dim_ixs);
     }
     if (self->core_offsets) {
-        free(self->core_offsets);
+        npy_free(self->core_offsets);
     }
     if (self->core_signature) {
-        free(self->core_signature);
+        npy_free(self->core_signature);
     }
     if (self->ptr) {
-        free(self->ptr);
+        npy_free(self->ptr);
     }
     if (NULL != self->userloops) {
         NpyDict_Destroy(self->userloops);
     }
     self->nob_magic_number = NPY_INVALID_MAGIC;
-    free(self);
+    npy_free(self);
 }
 
 
@@ -2580,10 +2579,10 @@ ufuncloop_dealloc(NpyUFuncLoopObject *self)
 {
     if (self->ufunc != NULL) {
         if (self->core_dim_sizes) {
-            free(self->core_dim_sizes);
+            npy_free(self->core_dim_sizes);
         }
         if (self->core_strides) {
-            free(self->core_strides);
+            npy_free(self->core_strides);
         }
         self->iter->numiter = self->ufunc->nargs;
         Npy_DECREF(self->iter);
@@ -2594,7 +2593,7 @@ ufuncloop_dealloc(NpyUFuncLoopObject *self)
         Npy_DECREF(self->ufunc);
     }
     self->nob_magic_number = NPY_INVALID_MAGIC;
-    free(self);
+    npy_free(self);
 }
 
 
@@ -2613,7 +2612,7 @@ ufuncreduce_dealloc(NpyUFuncReduceObject *self)
         Npy_DECREF(self->ufunc);
     }
     self->nob_magic_number = NPY_INVALID_MAGIC;
-    free(self);
+    npy_free(self);
 }
 
 
@@ -2988,12 +2987,12 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
     }
 
     len = strlen(signature);
-    self->core_signature = malloc(sizeof(char) * (len+1));
+    self->core_signature = npy_malloc(sizeof(char) * (len+1));
     if (self->core_signature) {
         strcpy(self->core_signature, signature);
     }
     /* Allocate sufficient memory to store pointers to all dimension names */
-    var_names = malloc(sizeof(char const*) * len);
+    var_names = npy_malloc(sizeof(char const*) * len);
     if (var_names == NULL) {
         NpyErr_MEMORY;
         return -1;
@@ -3001,9 +3000,9 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
 
     self->core_enabled = 1;
     self->core_num_dim_ix = 0;
-    self->core_num_dims = malloc(sizeof(int) * self->nargs);
-    self->core_dim_ixs = malloc(sizeof(int) * len); /* shrink this later */
-    self->core_offsets = malloc(sizeof(int) * self->nargs);
+    self->core_num_dims = npy_malloc(sizeof(int) * self->nargs);
+    self->core_dim_ixs = npy_malloc(sizeof(int) * len); /* shrink this later */
+    self->core_offsets = npy_malloc(sizeof(int) * self->nargs);
     if (self->core_num_dims == NULL || self->core_dim_ixs == NULL
         || self->core_offsets == NULL) {
         NpyErr_MEMORY;
@@ -3094,18 +3093,18 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
     if (cur_core_dim == 0) {
         self->core_enabled = 0;
     }
-    free((void*)var_names);
+    npy_free((void*)var_names);
     return 0;
 
 fail:
-    free((void*)var_names);
+    npy_free((void*)var_names);
     if (parse_error) {
-        char *buf = malloc(sizeof(char) * (len + 200));
+        char *buf = npy_malloc(sizeof(char) * (len + 200));
         if (buf) {
             sprintf(buf, "%s at position %d in \"%s\"",
                     parse_error, i, signature);
             NpyErr_SetString(NpyExc_ValueError, signature);
-            free(buf);
+            npy_free(buf);
         }
         else {
             NpyErr_MEMORY;

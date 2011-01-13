@@ -8,6 +8,7 @@
 #include "npy_config.h"
 #include "npy_math.h"
 #include "npy_os.h"
+#include "npy_api.h"
 
 /*
  * From the C99 standard, section 7.19.6: The exponent always contains at least
@@ -15,6 +16,68 @@
  * exponent.
  */
 #define MIN_EXPONENT_DIGITS 2
+
+
+#if defined(NPY_MEMORY_DBG)
+/* 
+ * Memory debug functions.  These allocate memory normally using malloc but add
+ * a buffer on either side with a magic number to act as a bounds check and to
+ * verify that the memory hasn't already been released. Memory is also wiped on
+ * free to again help detect accessing free memory.
+ */
+
+/* Used to determine the alignment of ints. */
+struct _alignStruct {
+    char a;
+    int b;
+};
+static int _npy_int_alignment = (char *)&((struct _alignStruct *)0)->b - (char *)&((struct _alignStruct *)0)->a;
+
+void *npy_malloc(int size) 
+{
+    int alignedSize = (((size-1) / _npy_int_alignment)+1)*_npy_int_alignment;
+
+    /* Size is alignedSize + sizeof debug structure because the data field in the debug
+       structure is the same size as the sentinel magic number that will come at the end. */
+    NpyMemDebug *buffer = (NpyMemDebug *)malloc(sizeof(NpyMemDebug) + alignedSize);
+    buffer->blockSize = alignedSize;
+
+    /* Put magic number guards immediately before and after the requested block. */
+    buffer->magicNumber = NPY_GOOD_MEM_MAGIC;
+    *(int *)((char *)buffer + sizeof(NpyMemDebug) + alignedSize - sizeof(int)) = NPY_GOOD_MEM_MAGIC;
+    return &buffer->data;
+}
+
+void *npy_realloc(void *ptr, int size) 
+{
+    int newAlignedSize = ((size / _npy_int_alignment)+1) * _npy_int_alignment;
+    NpyMemDebug *newPtr;
+
+    NPY_CHECK_VALID_PTR(ptr);
+
+    newPtr = (NpyMemDebug *)realloc(NPY_BASE_PTR(ptr), newAlignedSize + sizeof(NpyMemDebug));
+    newPtr->blockSize = newAlignedSize;
+    newPtr->magicNumber = NPY_GOOD_MEM_MAGIC;
+    *(int *)((char *)newPtr + sizeof(NpyMemDebug) + newAlignedSize - sizeof(int)) = NPY_GOOD_MEM_MAGIC;
+    return &newPtr->data;
+}
+
+void npy_free(void *ptr) 
+{
+    if (NULL != ptr) {
+        NpyMemDebug *dbgPtr = NPY_BASE_PTR(ptr);
+
+        NPY_CHECK_VALID_PTR(ptr);
+
+        dbgPtr->magicNumber = NPY_FREE_MEM_MAGIC;
+        *NPY_LAST_MAGIC_PTR(ptr) = NPY_FREE_MEM_MAGIC;
+        memset(ptr, 0xfb, dbgPtr->blockSize);
+
+        free(dbgPtr);
+    }
+}
+
+#endif
 
 /*
  * Ensure that any exponent, if present, is at least MIN_EXPONENT_DIGITS

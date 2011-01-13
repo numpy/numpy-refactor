@@ -199,7 +199,7 @@ _strided_void_copy(char* dst, npy_intp outstrides, char* src, npy_intp instrides
                    NpyArray_Descr* descr)
 {
     int i;
-    char* tmp = (char*)malloc(elsize);
+    char* tmp = (char*)npy_malloc(elsize);
 
     for (i=0; i<N; i++) {
         memcpy(tmp, src, elsize);
@@ -209,7 +209,7 @@ _strided_void_copy(char* dst, npy_intp outstrides, char* src, npy_intp instrides
         src += instrides;
         dst += outstrides;
     }
-    free(tmp);
+    npy_free(tmp);
 }
 
 
@@ -429,7 +429,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
     nbytes = descr->elsize;
 
     if (!NpyArray_ISALIGNED(src)) {
-        aligned = malloc((size_t)nbytes);
+        aligned = npy_malloc((size_t)nbytes);
         if (aligned == NULL) {
             NpyErr_MEMORY;
             return -1;
@@ -488,7 +488,7 @@ _copy_from0d(NpyArray *dest, NpyArray *src, int usecopy, int swap)
 
 finish:
     if (aligned != NULL) {
-        free(aligned);
+        npy_free(aligned);
     }
     return retval;
 }
@@ -1086,7 +1086,7 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
              void *obj)
 {
     NpyArray_Descr *descr;
-    NpyArray *new;
+    NpyArray *newArr;
 
     descr = NpyArray_DescrFromType(type_num);
     if (descr == NULL) {
@@ -1102,11 +1102,13 @@ NpyArray_New(void *subtype, int nd, npy_intp *dims, int type_num,
         NpyArray_DESCR_REPLACE(descr);
         descr->elsize = itemsize;
     }
-    new = NpyArray_NewFromDescr(descr, nd, dims, strides,
+    newArr = NpyArray_NewFromDescr(descr, nd, dims, strides,
                                 data, flags, NPY_FALSE, subtype, obj);
-    assert(NULL != new && NPY_VALID_MAGIC == new->nob_magic_number &&
-           NPY_VALID_MAGIC == new->descr->nob_magic_number);
-    return new;
+    if (NULL == newArr) return NULL;
+
+    assert(NPY_VALID_MAGIC == newArr->nob_magic_number &&
+           NPY_VALID_MAGIC == newArr->descr->nob_magic_number);
+    return newArr;
 }
 
 /*
@@ -1580,7 +1582,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
     if (r == NULL) {
         return NULL;
     }
-    clean_sep = swab_separator(sep);
+    clean_sep = swab_separator(sep); /* Uses malloc, not npy_malloc */
     NPY_BEGIN_THREADS;
     totalbytes = bytes = size * dtype->elsize;
     dptr = NpyArray_BYTES(r);
@@ -1593,7 +1595,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
         dptr += dtype->elsize;
         if (num < 0 && thisbuf == size) {
             totalbytes += bytes;
-            tmp = NpyDataMem_RENEW(NpyArray_BYTES(r), totalbytes);
+            tmp = (char *)NpyDataMem_RENEW(NpyArray_BYTES(r), totalbytes);
             if (tmp == NULL) {
                 err = 1;
                 break;
@@ -1607,7 +1609,7 @@ array_from_text(NpyArray_Descr *dtype, npy_intp num, char *sep, size_t *nread,
         }
     }
     if (num < 0) {
-        tmp = NpyDataMem_RENEW(NpyArray_BYTES(r),
+        tmp = (char *)NpyDataMem_RENEW(NpyArray_BYTES(r),
                                NpyArray_MAX(*nread, 1) * dtype->elsize);
         if (tmp == NULL) {
             err = 1;
@@ -1679,7 +1681,7 @@ NpyArray_FromTextFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num, char *sep)
         const size_t nsize = NpyArray_MAX(nread, 1) * NpyArray_ITEMSIZE(ret);
         char *tmp;
 
-        if ((tmp = NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
+        if ((tmp = (char *)NpyDataMem_RENEW(NpyArray_BYTES(ret), nsize)) == NULL) {
             Npy_DECREF(ret);
             NpyErr_MEMORY;
             return NULL;
@@ -1839,12 +1841,13 @@ NpyArray_FromBinaryFile(FILE *fp, NpyArray_Descr *dtype, npy_intp num)
         const size_t nsize = NpyArray_MAX(nread,1)*ret->descr->elsize;
         char *tmp;
 
-        if((tmp = NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
+        if((tmp = (char *)NpyDataMem_RENEW(ret->data, nsize)) == NULL) {
             Npy_DECREF(ret);
             NpyErr_MEMORY;
             return NULL;
         }
         ret->data = tmp;
+        printf("Set data:2 = %p\n", ret->data);
         NpyArray_DIM(ret,0) = nread;
     }
     return ret;

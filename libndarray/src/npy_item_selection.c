@@ -229,7 +229,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
         goto finish;
     }
     if (NpyDataType_REFCHK(self->descr)) {
-        buf = (char*)malloc(chunk);
+        buf = (char*)npy_malloc(chunk);
         switch(clipmode) {
         case NPY_RAISE:
             for (i = 0; i < ni; i++) {
@@ -341,7 +341,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
 
  finish:
     if (buf != NULL) {
-        free(buf);
+        npy_free(buf);
     }
     Npy_XDECREF(values);
     Npy_XDECREF(indices);
@@ -353,7 +353,7 @@ NpyArray_PutTo(NpyArray *self, NpyArray* values0, NpyArray *indices0,
 
  fail:
     if (buf != NULL) {
-        free(buf);
+        npy_free(buf);
     }
     Npy_XDECREF(indices);
     Npy_XDECREF(values);
@@ -417,7 +417,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
         return 0;
     }
     if (NpyDataType_REFCHK(self->descr)) {
-        char* buf = (char*)malloc(chunk);
+        char* buf = (char*)npy_malloc(chunk);
         for (i = 0; i < ni; i++) {
             tmp = ((npy_bool *)(mask->data))[i];
             if (tmp) {
@@ -428,7 +428,7 @@ NpyArray_PutMask(NpyArray *self, NpyArray* values0, NpyArray* mask0)
                 memcpy(dest + i * chunk, buf, chunk);
             }
         }
-        free(buf);
+       npy_free(buf);
     }
     else {
         func = self->descr->f->fastputmask;
@@ -1218,7 +1218,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
 
         valbuffer = NpyDataMem_NEW(N*maxelsize);
         indbuffer = NpyDataMem_NEW(N*sizeof(npy_intp));
-        swaps = malloc(n*sizeof(int));
+        swaps = npy_malloc(n*sizeof(int));
         for (j = 0; j < n; j++) {
             swaps[j] = NpyArray_ISBYTESWAPPED(mps[j]);
         }
@@ -1240,7 +1240,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
                 if (argsort(valbuffer, (npy_intp *)indbuffer, N, mps[j]) < 0) {
                     NpyDataMem_FREE(valbuffer);
                     NpyDataMem_FREE(indbuffer);
-                    free(swaps);
+                    npy_free(swaps);
                     goto fail;
                 }
                 NpyArray_ITER_NEXT(its[j]);
@@ -1251,7 +1251,7 @@ NpyArray_LexSort(NpyArray** mps, int n, int axis)
         }
         NpyDataMem_FREE(valbuffer);
         NpyDataMem_FREE(indbuffer);
-        free(swaps);
+        npy_free(swaps);
     }
     else {
         while (size--) {

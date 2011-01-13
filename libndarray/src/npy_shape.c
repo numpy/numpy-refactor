@@ -101,7 +101,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
             sd = newsize*self->descr->elsize;
         }
         /* Reallocate space if needed */
-        new_data = NpyDataMem_RENEW(self->data, sd);
+        new_data = (char *)NpyDataMem_RENEW(self->data, sd);
         if (new_data == NULL) {
             NpyErr_MEMORY;
             return -1;
@@ -119,7 +119,7 @@ NpyArray_Resize(NpyArray *self, NpyArray_Dims *newshape, int refcheck,
         /* Different number of dimensions. */
         self->nd = new_nd;
         /* Need new dimensions and strides arrays */
-        dimptr = NpyDimMem_RENEW(self->dimensions, 2*new_nd);
+        dimptr = (npy_intp *)NpyDimMem_RENEW(self->dimensions, 2*new_nd);
         if (dimptr == NULL) {
             NpyErr_MEMORY;
             return -1;

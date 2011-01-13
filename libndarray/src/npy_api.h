@@ -337,16 +337,55 @@ NDARRAY_API NpyArray* NpyArray_CompareStringArrays(NpyArray* a1, NpyArray* a2,
 /*
  * Memory
  */
-#define NpyDataMem_NEW(sz) malloc(sz)
-#define NpyDataMem_RENEW(p, sz) realloc(p, sz)
-#define NpyDataMem_FREE(p) free(p)
+#if defined(NPY_MEMORY_DBG)
+    typedef struct NpyMemDebug {
+        int blockSize;
+        int magicNumber;
+        int data;           /* Same size as magic number because we push another magic number after data */
+    } NpyMemDebug;
 
-#define NpyDimMem_NEW(size) ((npy_intp *)malloc(size*sizeof(npy_intp)))
-#define NpyDimMem_RENEW(p, sz) ((npy_intp *)realloc(p, sz*sizeof(npy_intp)))
-#define NpyDimMem_FREE(ptr) free(ptr)
+    /* These debug versions track multiple frees and some buffer overruns */
+    NDARRAY_API extern void *npy_malloc(int size);
+    NDARRAY_API extern void *npy_realloc(void *ptr, int size);
+    NDARRAY_API extern void npy_free(void *ptr);
 
-#define NpyArray_malloc(size) malloc(size)
-#define NpyArray_free(ptr) free(ptr)
+    #if NPY_WORDS_BIGENDIAN
+    #define NPY_GOOD_MEM_MAGIC 0xCAFEF00D
+    #define NPY_FREE_MEM_MAGIC 0xDEADBEEF
+    #else
+    #define NPY_GOOD_MEM_MAGIC 0x0DF0FECA
+    #define NPY_FREE_MEM_MAGIC 0xEFBEADDE
+    #endif
+
+    /* These are ugly. First one takes a data pointer pointing at the 'data' field and moves it back
+       to the start of the structure.  The second returns a pointer to the sentinel magic number that
+       falls after the end of the data region. */
+    #define NPY_BASE_PTR(ptr) ((NpyMemDebug *)((char *)ptr - ((char *)&((NpyMemDebug *)0x00)->data - 0x00)))
+    #define NPY_LAST_MAGIC_PTR(ptr) ((int *)((char *)ptr + \
+                                             NPY_BASE_PTR(ptr)->blockSize ))
+
+    #define NPY_CHECK_VALID_PTR(ptr) \
+        assert(NPY_GOOD_MEM_MAGIC == NPY_BASE_PTR(ptr)->magicNumber && \
+               NPY_GOOD_MEM_MAGIC == *NPY_LAST_MAGIC_PTR(ptr))
+#else
+    #define npy_malloc(sz) malloc(sz)
+    #define npy_realloc(ptr, sz) realloc(ptr, sz)
+    #define npy_free(ptr) free(ptr)
+
+    #define NPY_CHECK_VALID_PTR(ptr) 
+
+#endif
+
+#define NpyDataMem_NEW(sz) npy_malloc(sz)
+#define NpyDataMem_RENEW(p, sz) npy_realloc(p, sz)
+#define NpyDataMem_FREE(p) npy_free(p)
+
+#define NpyDimMem_NEW(size) ((npy_intp *)npy_malloc(size*sizeof(npy_intp)))
+#define NpyDimMem_RENEW(p, sz) ((npy_intp *)npy_realloc(p, sz*sizeof(npy_intp)))
+#define NpyDimMem_FREE(ptr) npy_free(ptr)
+
+#define NpyArray_malloc(size) npy_malloc(size)
+#define NpyArray_free(ptr) npy_free(ptr)
 
 
 /*

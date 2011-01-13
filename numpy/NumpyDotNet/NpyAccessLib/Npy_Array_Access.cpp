@@ -490,7 +490,7 @@ extern "C" __declspec(dllexport)
             free(names[i]);
         }
     }
-    free(names);
+    npy_free(names);
 }
 
 extern "C" __declspec(dllexport)
@@ -783,7 +783,7 @@ extern "C" __declspec(dllexport)
 extern "C" __declspec(dllexport)
     NpyDict_Iter *NpyArrayAccess_DictAllocIter()
 {
-    NpyDict_Iter *iter = (NpyDict_Iter *)malloc(sizeof(NpyDict_Iter));
+    NpyDict_Iter *iter = (NpyDict_Iter *)npy_malloc(sizeof(NpyDict_Iter));
     NpyDict_IterInit(iter);
     return iter;
 }
@@ -791,7 +791,7 @@ extern "C" __declspec(dllexport)
 extern "C" __declspec(dllexport)
     void NpyArrayAccess_DictFreeIter(NpyDict_Iter *iter)
 {
-    free(iter);
+    npy_free(iter);
 }
 
 extern "C" __declspec(dllexport)
