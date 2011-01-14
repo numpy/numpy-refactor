@@ -36,16 +36,15 @@
 #define PY_ARRAY_UNIQUE_SYMBOL _npy_umathmodule_ARRAY_API
 #define NO_IMPORT_ARRAY
 
-#include "npy_api.h"
-#include "npy_iterators.h"
-#include <npy_dict.h>
-#include <npy_ufunc_object.h>
-
 #include "numpy/noprefix.h"
 #include "numpy/arrayobject.h"
 #include "numpy/ufuncobject.h"
 #include "numpy/ndarraytypes.h"
 #include "numpy/npy_3kcompat.h"
+#include "npy_api.h"
+#include "npy_iterators.h"
+#include <npy_dict.h>
+#include <npy_ufunc_object.h>
 
 #include "ufunc_object.h"
 

@@ -15,6 +15,7 @@
 /* $Id: multiarraymodule.c,v 1.36 2005/09/14 00:14:00 teoliphant Exp $ */
 
 #define PY_SSIZE_T_CLEAN
+#include "numpy/ndarraytypes.h"
 #include "Python.h"
 #include "structmember.h"
 
@@ -2516,7 +2517,7 @@ PyMODINIT_FUNC initmultiarray(void) {
     if (!d) {
         goto err;
     }
-    PyArray_Type.tp_free = _pya_free;
+    PyArray_Type.tp_free = PyArray_free;
     if (PyType_Ready(&PyArray_Type) < 0) {
         return RETVAL;
     }

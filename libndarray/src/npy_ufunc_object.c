@@ -3087,8 +3087,8 @@ _parse_signature(NpyUFuncObject *self, const char *signature)
         parse_error = "incomplete signature: not all arguments found";
         goto fail;
     }
-    self->core_dim_ixs = realloc(self->core_dim_ixs,
-                                 sizeof(int)*cur_core_dim);
+    self->core_dim_ixs = npy_realloc(self->core_dim_ixs,
+                                     sizeof(int)*cur_core_dim);
     /* check for trivial core-signature, e.g. "(),()->()" */
     if (cur_core_dim == 0) {
         self->core_enabled = 0;

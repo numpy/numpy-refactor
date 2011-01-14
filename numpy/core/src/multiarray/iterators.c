@@ -4,11 +4,12 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
-#include "npy_api.h"
-#include "npy_iterators.h"
+#include "numpy/ndarraytypes.h"
 #include "numpy/npy_3kcompat.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
+#include "npy_api.h"
+#include "npy_iterators.h"
 #include "npy_config.h"
 #include "conversion_utils.h"
 
@@ -917,7 +918,7 @@ static char* _set_constant(NpyArray* ao, NpyArray *fill)
 static void decref_and_free(void* p)
 {
     Py_DECREF(*(PyObject **)p);
-    free(p);
+    npy_free(p);
 }
 
 /*
@@ -937,18 +938,18 @@ PyArray_NeighborhoodIterNew(PyArrayIterObject *x, intp *bounds,
     switch (mode) {
         case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
             fillptr = PyArray_Zero(Npy_INTERFACE(x->iter->ao));
-            freefill = free;
+            freefill = npy_free;
             mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
             break;
         case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
             fillptr = PyArray_One(Npy_INTERFACE(x->iter->ao));
-            freefill = free;
+            freefill = npy_free;
             mode = NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING;
             break;
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
             fillptr = _set_constant(x->iter->ao, PyArray_ARRAY(fill));
             if (!NpyArray_ISOBJECT(x->iter->ao)) {
-                freefill = free;
+                freefill = npy_free;
             } else {
                 freefill = decref_and_free;
             }

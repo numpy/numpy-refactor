@@ -440,7 +440,7 @@ NDARRAY_API void
 npy_buffer_info_free(npy_buffer_info_t *info)
 {
     if (info->format) {
-        npy_free(info->format);
+        free(info->format);
     }
     if (info->shape) {
         npy_free(info->shape);

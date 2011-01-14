@@ -51,7 +51,7 @@ castfuncs_append(NpyArray_CastFuncsItem* items,
         n++;
     }
     items = (NpyArray_CastFuncsItem *)
-        realloc(items, (n + 2) * sizeof(NpyArray_CastFuncsItem));
+        npy_realloc(items, (n + 2) * sizeof(NpyArray_CastFuncsItem));
     items[n].totype = totype;
     items[n].castfunc = func;
     items[n + 1].totype = NPY_NOTYPE;
@@ -68,7 +68,7 @@ _append_new(int *types, int insert)
     while (types[n] != NPY_NOTYPE) {
         n++;
     }
-    newtypes = (int *)realloc(types, (n + 2) * sizeof(int));
+    newtypes = (int *)npy_realloc(types, (n + 2) * sizeof(int));
     newtypes[n] = insert;
     newtypes[n + 1] = NPY_NOTYPE;
     return newtypes;
@@ -196,8 +196,8 @@ NpyArray_RegisterDataType(NpyArray_Descr *descr)
         NpyErr_SetString(NpyExc_ValueError, "missing typeobject");
         return -1;
     } */
-    npy_userdescrs = realloc(npy_userdescrs,
-                             (numusertypes + 1) * sizeof(void *));
+    npy_userdescrs = npy_realloc(npy_userdescrs,
+                                 (numusertypes + 1) * sizeof(void *));
     if (npy_userdescrs == NULL) {
         NpyErr_MEMORY;
         return -1;

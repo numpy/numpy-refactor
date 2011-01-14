@@ -380,7 +380,7 @@ _convert_from_array_descr(PyObject *obj, int align)
     }
     fields = NpyArray_DescrAllocFields();
     if (NULL == fields) {
-        free(nameslist);
+        npy_free(nameslist);
         return NULL;
     }
 
@@ -541,7 +541,7 @@ _convert_from_array_descr(PyObject *obj, int align)
                 free(nameslist[i]);
             }
         }
-        free(nameslist);
+        npy_free(nameslist);
     }
 
     if (NULL != fields) {
@@ -591,7 +591,7 @@ _convert_from_list(PyObject *obj, int align)
     }
     fields = NpyArray_DescrAllocFields();
     if (NULL == fields) {
-        free(nameslist);
+        npy_free(nameslist);
         return NULL;
     }
 
@@ -644,7 +644,7 @@ _convert_from_list(PyObject *obj, int align)
                 free(nameslist[i]);
             }
         }
-        free(nameslist);
+        npy_free(nameslist);
     }
 
     if (NULL != fields) {
@@ -1132,7 +1132,7 @@ _convert_from_dict(PyObject *obj, int align)
                 free(nameslist[i]);
             }
         }
-        free(nameslist);
+        npy_free(nameslist);
     }
 
     if (NULL != fields) {

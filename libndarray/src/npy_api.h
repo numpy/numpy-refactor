@@ -368,9 +368,9 @@ NDARRAY_API NpyArray* NpyArray_CompareStringArrays(NpyArray* a1, NpyArray* a2,
         assert(NPY_GOOD_MEM_MAGIC == NPY_BASE_PTR(ptr)->magicNumber && \
                NPY_GOOD_MEM_MAGIC == *NPY_LAST_MAGIC_PTR(ptr))
 #else
-    #define npy_malloc(sz) malloc(sz)
-    #define npy_realloc(ptr, sz) realloc(ptr, sz)
-    #define npy_free(ptr) free(ptr)
+    #define npy_malloc malloc
+    #define npy_realloc realloc
+    #define npy_free free
 
     #define NPY_CHECK_VALID_PTR(ptr) 
 

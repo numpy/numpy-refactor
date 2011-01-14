@@ -4,6 +4,7 @@
 
 #define _MULTIARRAYMODULE
 #define NPY_NO_PREFIX
+#include "numpy/ndarraytypes.h"
 #include "numpy/arrayobject.h"
 #include "numpy/arrayscalars.h"
 #include "npy_api.h"
