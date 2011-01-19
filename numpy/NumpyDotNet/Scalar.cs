@@ -86,7 +86,7 @@ namespace NumpyDotNet
             return ToArray().__mod__(cntx, b);
         }
 
-        public virtual string __repr__(CodeContext context) {
+        public virtual object __repr__(CodeContext context) {
             return ToArray().__str__(context);
         }
 
@@ -98,7 +98,7 @@ namespace NumpyDotNet
             return ToArray().__sqrt__(cntx);
         }
 
-        public virtual string __str__(CodeContext context) {
+        public virtual object __str__(CodeContext context) {
             return ToArray().__str__(context);
         }
 
@@ -1295,7 +1295,11 @@ namespace NumpyDotNet
         }
 
         public ScalarUInt8(IConvertible value) {
-            this.value = Convert.ToByte(value);
+            try {
+                this.value = Convert.ToByte(value);
+            } catch (OverflowException) {
+                this.value = Byte.MaxValue;
+            }
         }
 
         public override object dtype {
@@ -1601,6 +1605,19 @@ namespace NumpyDotNet
     public class ScalarFloatingImpl<T> : ScalarFloating where T : IConvertible
     {
         protected T value;
+
+        public override object __repr__(CodeContext context) {
+            // IronPython has its own float formatter that is slightly different than .NET
+            // and causes test failures if we don't call it.
+            return NpyUtil_Python.CallBuiltin(context, "str", value);
+        }
+
+        public override object __str__(CodeContext context) {
+            // IronPython has its own float formatter that is slightly different than .NET
+            // and causes test failures if we don't call it.
+            return NpyUtil_Python.CallBuiltin(context, "str", value);
+        }
+
 
         internal override object Value { get { return value; } }
 
@@ -1910,20 +1927,24 @@ namespace NumpyDotNet
             return x.ToString();
         }
 
-        public override string __str__(CodeContext context) {
+        public override object __str__(CodeContext context) {
             return ToString();
         }
 
-
-        public override string __repr__(CodeContext context) {
+        public override object __repr__(CodeContext context) {
             return ToString();
         }
 
         public override string ToString(IFormatProvider fp = null) {
+            // Use the Python str() function instead of .NET formatting because the
+            // formats are slightly different and cause regression failures.
             if (value.Real == 0.0) {
-                return String.Format("{0}j", value.Imag);
+                return String.Format("{0}j", 
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag));
             } else {
-                return String.Format("({0}+{1}j)", value.Real, value.Imag);
+                return String.Format("({0}+{1}j)",
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real),
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag));
             }
         }
 
@@ -2051,6 +2072,25 @@ namespace NumpyDotNet
         public override object real {
             get {
                 return new ScalarFloat64(value.Real);
+            }
+        }
+
+        public override object __str__(CodeContext context) {
+            return ToString();
+        }
+
+        public override object __repr__(CodeContext context) {
+            return ToString();
+        }
+
+        public override string ToString(IFormatProvider fp = null) {
+            if (value.Real == 0.0) {
+                return String.Format("{0}j",
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary));
+            } else {
+                return String.Format("({0}+{1}j)",
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real),
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary));
             }
         }
 

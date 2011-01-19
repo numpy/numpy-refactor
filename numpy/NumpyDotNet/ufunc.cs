@@ -94,8 +94,8 @@ namespace NumpyDotNet
                 throw new ArgumentException("Insufficient number of arguments.");
             }
 
-            // TODO: Not passing context to FromAny - see ufunc_object.c:960
-            ndarray arr = NpyArray.FromAny(args[0]);
+            PythonTuple context = new PythonTuple(new object[] { this, new PythonTuple(new object[] { args[0] }), 0 });
+            ndarray arr = NpyArray.FromAny(args[0], null, 0, 0, 0, context);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
             dtype type = NpyDescr.DescrConverter2(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
@@ -110,8 +110,8 @@ namespace NumpyDotNet
                 throw new ArgumentException("Insufficient number of arguments.");
             }
 
-            // TODO: Not passing context to FromAny - see ufunc_object.c:960
-            ndarray arr = NpyArray.FromAny(args[0]);
+            PythonTuple context = new PythonTuple(new object[] { this, new PythonTuple(new object[] { args[0] }), 0 });
+            ndarray arr = NpyArray.FromAny(args[0], null, 0, 0, 0, context);
             int axis = NpyUtil_ArgProcessing.IntConverter(args[1]);
             dtype type = NpyDescr.DescrConverter2(cntx, args[2]);
             ndarray arrOut = (args[3] != null) ? NpyArray.FromAny(args[3]) : null;
@@ -133,8 +133,8 @@ namespace NumpyDotNet
                 throw new ArgumentException("Insufficient number of arguments.");
             }
 
-            // TODO: Not passing context to FromAny - see ufunc_object.c:960
-            ndarray arr = NpyArray.FromAny(args[0]);
+            PythonTuple context = new PythonTuple(new object[] { this, new PythonTuple(new object[] { args[0] }), 0 });
+            ndarray arr = NpyArray.FromAny(args[0], null, 0, 0, 0, context);
             ndarray indices = NpyArray.FromAny(args[1],
                 NpyCoreApi.DescrFromType(NpyDefs.NPY_INTP),
                 1, 1, NpyDefs.NPY_CARRAY, null);

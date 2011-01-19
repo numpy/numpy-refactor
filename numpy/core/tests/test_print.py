@@ -74,6 +74,9 @@ def check_complex_type(tp):
         assert_equal(str(tp(1e10)), ref,
                      err_msg='Failed str formatting for type %s' % tp)
 
+@dec.skipif(sys.platform == 'cli',
+            "IronPython is inconsistent in formatting floats & complex numbers, "
+            "sometimes using adding the trailing .0 and other times not.")
 def test_complex_types():
     """Check formatting of complex types.
 
@@ -87,7 +90,26 @@ def test_complex_types():
 
 def test_complex_inf_nan():
     """Check inf/nan formatting of complex types."""
-    if sys.version_info >= (2, 6):
+    if sys.platform == 'cli':
+        TESTS = {
+            complex(np.inf, 0): "(inf+0.0j)",
+            complex(0, np.inf): "infj",
+            complex(-np.inf, 0): "(-inf+0.0j)",
+            complex(0, -np.inf): "-infj",
+            complex(np.inf, 1): "(inf+1.0j)",
+            complex(1, np.inf): "(1.0+infj)",
+            complex(-np.inf, 1): "(-inf+1.0j)",
+            complex(1, -np.inf): "(1.0+-infj)",
+            complex(np.nan, 0): "(nan+0.0j)",
+            complex(0, np.nan): "nanj",
+            complex(-np.nan, 0): "(nan+0.0j)",
+            complex(0, -np.nan): "nanj",
+            complex(np.nan, 1): "(nan+1.0j)",
+            complex(1, np.nan): "(1.0+nanj)",
+            complex(-np.nan, 1): "(nan+1.0j)",
+            complex(1, -np.nan): "(1.0+nanj)",
+        }
+    elif sys.version_info >= (2, 6):
         TESTS = {
             complex(np.inf, 0): "(inf+0j)",
             complex(0, np.inf): "inf*j",
@@ -168,6 +190,9 @@ def check_float_type_print(tp):
             ref = '1e+10'
         _test_redirected_print(float(1e10), tp, ref)
 
+@dec.skipif(sys.platform == 'cli',
+            "IronPython is inconsistent in formatting floats & complex numbers, "
+            "sometimes using adding the trailing .0 and other times not.")
 def check_complex_type_print(tp):
     # We do not create complex with inf/nan directly because the feature is
     # missing in python < 2.6
