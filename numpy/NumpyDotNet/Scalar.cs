@@ -549,7 +549,7 @@ namespace NumpyDotNet
         // since these operators usually return boolean arrays and
         // .NET seems to expect them to return bool
 
-        public object __eq__(CodeContext cntx, object o) {
+        public virtual object __eq__(CodeContext cntx, object o) {
             return ToArray().__eq__(cntx, o);
         }
 
@@ -783,6 +783,21 @@ namespace NumpyDotNet
         public static implicit operator bool(ScalarBool s) {
             return s.value;
         }
+
+        public override object __eq__(CodeContext cntx, object o) {
+            if (o is Boolean) {
+                return value == (Boolean)o;
+            } else if (o is ScalarBool) {
+                return value == ((ScalarBool)o).value;
+            } else if (o is IConvertible) {
+                try {
+                    bool other = ((IConvertible)o).ToBoolean(null);
+                    return value == other;
+                } catch { }
+            }
+            return ToArray().__eq__(cntx, o);
+        }
+
 
         #region IConvertible
 

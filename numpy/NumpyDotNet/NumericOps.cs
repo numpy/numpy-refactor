@@ -1198,6 +1198,8 @@ namespace NumpyDotNet {
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Subtract;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Multiply;
         private static CallSite<Func<CallSite, Object, Object, Object>> Site_Divide;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_TrueDivide;
+        private static CallSite<Func<CallSite, Object, Object, Object>> Site_FloorDivide;
         private static CallSite<Func<CallSite, Object, Object>> Site_Negative;
         private static CallSite<Func<CallSite, Object, Object>> Site_Abs;
 
@@ -1249,6 +1251,22 @@ namespace NumpyDotNet {
                         null, typeof(NumericOps),
                         new CSharpArgumentInfo[] {
                             CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
+                        }));
+
+                    Site_TrueDivide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        Binder.InvokeMember(CSharpBinderFlags.None, "__truediv__",
+                        null, typeof(NumericOps),
+                        new CSharpArgumentInfo[] {
+                            CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
+                            CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
+                        }));
+
+                    Site_FloorDivide = CallSite<Func<CallSite, Object, Object, Object>>.Create(
+                        Binder.InvokeMember(CSharpBinderFlags.None, "__floordiv__",
+                        null, typeof(NumericOps),
+                        new CSharpArgumentInfo[] {
+                            CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null),
+                            CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                         }));
 
                     Site_Power = CallSite<Func<CallSite, Object, Object, Object>>.Create(
@@ -1424,6 +1442,10 @@ namespace NumpyDotNet {
             (a, b) => GenericBinOp(Site_Multiply, a, b);
         static internal del_GenericBinOp Op_Divide =
             (a, b) => GenericBinOp(Site_Divide, a, b);
+        static internal del_GenericBinOp Op_TrueDivide =
+            (a, b) => GenericBinOp(Site_TrueDivide, a, b);
+        static internal del_GenericBinOp Op_FloorDivide =
+            (a, b) => GenericBinOp(Site_FloorDivide, a, b);
         static internal del_GenericUnaryOp Op_Negate =
             a => GenericUnaryOp(Site_Negative, a);
         static internal del_GenericUnaryOp Op_Sign = aPtr => {
@@ -1440,10 +1462,6 @@ namespace NumpyDotNet {
             Object result = NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "abs", a);
             return GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
         };
-
-
-        // TODO: trueDivide
-        // TODO: floorDivide
 
         static internal del_GenericBinOp Op_Remainder =
             (a, b) => GenericBinOp(Site_Remainder, a, b);

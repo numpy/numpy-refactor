@@ -520,12 +520,32 @@ namespace NumpyDotNet
             return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_divide, this);
         }
 
+        [SpecialName]
+        public object InPlaceTrueDivide(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_true_divide, this);
+        }
+
+        [SpecialName]
+        public object InPlaceTrueDivide(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_true_divide, this);
+        }
+
+        [SpecialName]
+        public object InPlaceFloorDivide(object b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_floor_divide, this);
+        }
+
+        [SpecialName]
+        public object InPlaceFloorDivide(ndarray b) {
+            return BinaryOp(null, this, b, NpyDefs.NpyArray_Ops.npy_op_floor_divide, this);
+        }
+
         public object __pow__(object a) {
             // TODO: Add optimizations for scalar powers
             return BinaryOp(null, this, a, NpyDefs.NpyArray_Ops.npy_op_power);
         }
 
-        // TODO: Add inplace operators.
+        
 
         public static object operator &(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
@@ -808,6 +828,10 @@ namespace NumpyDotNet
 
         public object __floordiv__(CodeContext cntx, object o) {
             return BinaryOp(null, this, o, NpyDefs.NpyArray_Ops.npy_op_floor_divide);
+        }
+
+        public object __truediv__(CodeContext cntx, object o) {
+            return BinaryOp(null, this, 0, NpyDefs.NpyArray_Ops.npy_op_true_divide);
         }
 
         public object __complex__(CodeContext cntx) {

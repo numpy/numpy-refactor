@@ -140,8 +140,8 @@ namespace NumpyDotNet
             funcs.subtract = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Subtract);
             funcs.multiply = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Multiply);
             funcs.divide = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Divide);
-            funcs.trueDivide = IntPtr.Zero; // TODO: True divide not implemented
-            funcs.floorDivide = IntPtr.Zero;  // TODO: floor divide not implemented
+            funcs.trueDivide = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_TrueDivide);
+            funcs.floorDivide = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_FloorDivide);
             funcs.invert = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Invert);
             funcs.negative = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Negate);
             funcs.remainder = Marshal.GetFunctionPointerForDelegate(NumericOps.Op_Remainder);
