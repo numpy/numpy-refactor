@@ -87,10 +87,6 @@ namespace NumpyDotNet {
             int ndmin = 0;
             ndarray result = null;
 
-            // Ensures that the numeric operations are initialized once at startup.
-            // TODO: This is unpleasant, there must be a better way to do this.
-            NumericOps.InitUFuncOps(cntx);
-
             try {
                 if (args[1] != null) type = NpyDescr.DescrConverter(cntx, args[1]);
                 if (args[2] != null) copy = NpyUtil_ArgProcessing.BoolConverter(args[2]);
@@ -99,59 +95,71 @@ namespace NumpyDotNet {
                 if (args[4] != null) subok = NpyUtil_ArgProcessing.BoolConverter(args[4]);
                 if (args[5] != null) ndmin = NpyUtil_ArgProcessing.IntConverter(args[5]);
 
-                if (ndmin >= NpyDefs.NPY_MAXDIMS) {
-                    throw new ArgumentException(
-                        String.Format("ndmin ({0}) bigger than allowable number of dimension ({1}).",
-                        ndmin, NpyDefs.NPY_MAXDIMS - 1));
-                }
+                result = Array(src, type, copy, order, subok, ndmin);
+            } catch (Exception e) {
+                throw e;
+            }
+            return result;
+        }
 
-                if (subok && src is ndarray ||
-                    !subok && src != null && src.GetType() == typeof(ndarray)) {
-                    ndarray arr = (ndarray)src;
-                    if (type == null) {
+        public static ndarray Array(Object src, dtype type, bool copy=true, 
+                                     NpyDefs.NPY_ORDER order=NpyDefs.NPY_ORDER.NPY_ANYORDER, 
+                                     bool subok=false, int ndmin=0) {
+            // Ensures that the numeric operations are initialized once at startup.
+            // TODO: This is unpleasant, there must be a better way to do this.
+            NumericOps.InitUFuncOps(NpyUtil_Python.DefaultContext);
+
+            ndarray result = null;
+            if (ndmin >= NpyDefs.NPY_MAXDIMS) {
+                throw new ArgumentException(
+                    String.Format("ndmin ({0}) bigger than allowable number of dimension ({1}).",
+                    ndmin, NpyDefs.NPY_MAXDIMS - 1));
+            }
+
+            if (subok && src is ndarray ||
+                !subok && src != null && src.GetType() == typeof(ndarray)) {
+                ndarray arr = (ndarray)src;
+                if (type == null) {
+                    if (!copy && arr.StridingOk(order)) {
+                        result = arr;
+                    } else {
+                        result = NpyCoreApi.NewCopy(arr, order);
+                    }
+                } else {
+                    dtype oldtype = arr.Dtype;
+                    if (NpyCoreApi.EquivTypes(oldtype, type)) {
                         if (!copy && arr.StridingOk(order)) {
                             result = arr;
                         } else {
                             result = NpyCoreApi.NewCopy(arr, order);
-                        }
-                    } else {
-                        dtype oldtype = arr.Dtype;
-                        if (NpyCoreApi.EquivTypes(oldtype, type)) {
-                            if (!copy && arr.StridingOk(order)) {
-                                result = arr;
-                            } else {
-                                result = NpyCoreApi.NewCopy(arr, order);
-                                if (oldtype != type) {
-                                    result.Dtype = oldtype;
-                                }
+                            if (oldtype != type) {
+                                result.Dtype = oldtype;
                             }
                         }
                     }
                 }
+            }
 
-                // If no result has been determined...
-                if (result == null) {
-                    int flags = 0;
+            // If no result has been determined...
+            if (result == null) {
+                int flags = 0;
 
-                    if (copy) flags = NpyDefs.NPY_ENSURECOPY;
-                    if (order == NpyDefs.NPY_ORDER.NPY_CORDER) {
-                        flags |= NpyDefs.NPY_CONTIGUOUS;
-                    } else if (order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER ||
-                             src is ndarray && ((ndarray)src).IsFortran) {
-                                 flags |= NpyDefs.NPY_FORTRAN;
-                    }
-
-                    if (!subok) flags |= NpyDefs.NPY_ENSUREARRAY;
-
-                    flags |= NpyDefs.NPY_FORCECAST;
-                    result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
+                if (copy) flags = NpyDefs.NPY_ENSURECOPY;
+                if (order == NpyDefs.NPY_ORDER.NPY_CORDER) {
+                    flags |= NpyDefs.NPY_CONTIGUOUS;
+                } else if (order == NpyDefs.NPY_ORDER.NPY_FORTRANORDER ||
+                         src is ndarray && ((ndarray)src).IsFortran) {
+                    flags |= NpyDefs.NPY_FORTRAN;
                 }
 
-                if (result != null && result.ndim < ndmin) {
-                    result = NpyArray.PrependOnes(result, result.ndim, ndmin);
-                }
-            } catch (Exception e) {
-                throw e;
+                if (!subok) flags |= NpyDefs.NPY_ENSUREARRAY;
+
+                flags |= NpyDefs.NPY_FORCECAST;
+                result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
+            }
+
+            if (result != null && result.ndim < ndmin) {
+                result = NpyArray.PrependOnes(result, result.ndim, ndmin);
             }
             return result;
         }
@@ -551,10 +559,11 @@ namespace NumpyDotNet {
             ndarray result = NpyCoreApi.NewFromDescr(type, inIter.dims, null, 0, null);
             flatiter outIter = NpyCoreApi.IterNew(result);
 
-            List<flatiter> iters = inIter.iters.Cast<flatiter>().ToList();
+            //List<flatiter> iters = inIter.iters.Cast<flatiter>().ToList();
             while (inIter.MoveNext()) {
                 outIter.MoveNext();
-                outIter.Current = PythonOps.CallWithContext(cntx, method, args: iters.Select(i => i.Current).ToArray());
+                object[] args = inIter.Iters.Select(i => i.Current).ToArray();
+                outIter.Current = PythonOps.CallWithContext(cntx, method, args: args);
             }
             return result;
         }

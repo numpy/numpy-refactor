@@ -241,6 +241,15 @@ extern "C" __declspec(dllexport)
 	void _cdecl NpyArrayAccess_Dealloc(_NpyObject *obj)
 {
     assert(NPY_VALID_MAGIC == obj->nob_magic_number);
+    assert(0 == obj->nob_refcnt);
+
+    // Clear the interface pointer because some deallocators temporarily increment the
+    // reference count on the object for some reason.  This causes callbacks into the
+    // managed world that we do not want (and is added overhead).
+    obj->nob_interface = NULL;
+
+    // Calls the type-specific deallocation route.  This routine releases any references
+    // held by the object itself prior to actually freeing the memory. 
 	obj->nob_type->ntp_dealloc(obj);
 }
 

@@ -256,9 +256,7 @@ namespace NumpyDotNet {
         /// <param name="objs">Sequence of objects to iterate over</param>
         /// <returns>Pointer to core multi-iterator structure</returns>
         internal static IntPtr MultiIterFromObjects(IEnumerable<object> objs) {
-            lock (GlobalIterpLock) {
-                return MultiIterFromArrays(objs.Select(x => NpyArray.FromAny(x)));
-            }
+            return MultiIterFromArrays(objs.Select(x => NpyArray.FromAny(x)));
         }
 
         internal static IntPtr MultiIterFromArrays(IEnumerable<ndarray> arrays) {
@@ -1489,6 +1487,18 @@ namespace NumpyDotNet {
             }
         }
 
+        /// <summary>
+        /// Deallocates the core data structure.  The obj IntRef is no longer valid after this
+        /// point and there must not be any existing internal core references to this object
+        /// either.
+        /// </summary>
+        /// <param name="obj">Core NpyObject instance to deallocate</param>
+        internal static void Dealloc(IntPtr obj) {
+            lock(GlobalIterpLock) { 
+                NpyArrayAccess_Dealloc(obj); 
+            }
+        }
+
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyUFuncAccess_Init(IntPtr funcDict,
@@ -1594,9 +1604,8 @@ namespace NumpyDotNet {
         /// Deallocates an NpyObject. Thread-safe.
         /// </summary>
         /// <param name="obj">The object to deallocate</param>
-        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
-            EntryPoint = "NpyArrayAccess_Dealloc")]
-        internal static extern void Dealloc(IntPtr obj);
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void NpyArrayAccess_Dealloc(IntPtr obj);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl,
             EntryPoint = "NpyArrayAccess_IterNext")]
@@ -1932,6 +1941,7 @@ namespace NumpyDotNet {
             if (ptr == IntPtr.Zero) {
                 return default(TResult);
             }
+
             IntPtr wrapper = Marshal.ReadIntPtr(ptr, (int)Offset_InterfacePtr);
             if (wrapper == IntPtr.Zero) {
                 // The wrapper object is dynamically created for some instances
@@ -2651,7 +2661,7 @@ namespace NumpyDotNet {
             }
 
             // Initialize the offsets to each structure type for fast access
-            // TODO: Not sure if this is a great way to do this, but for now it's
+            // TODO: Not a great way to do this, but for now it's
             // a convenient way to get hard field offsets from the core.
             ArrayGetOffsets(out ArrayOffsets.off_magic_number,
                             out ArrayOffsets.off_descr,

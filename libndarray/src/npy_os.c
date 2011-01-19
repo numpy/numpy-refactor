@@ -40,6 +40,7 @@ void *npy_malloc(int size)
     /* Size is alignedSize + sizeof debug structure because the data field in the debug
        structure is the same size as the sentinel magic number that will come at the end. */
     NpyMemDebug *buffer = (NpyMemDebug *)malloc(sizeof(NpyMemDebug) + alignedSize);
+    if (NULL == buffer) return NULL;
     buffer->blockSize = alignedSize;
 
     /* Put magic number guards immediately before and after the requested block. */
@@ -71,7 +72,7 @@ void npy_free(void *ptr)
 
         dbgPtr->magicNumber = NPY_FREE_MEM_MAGIC;
         *NPY_LAST_MAGIC_PTR(ptr) = NPY_FREE_MEM_MAGIC;
-        memset(ptr, 0xfb, dbgPtr->blockSize);
+        //memset(ptr, 0xfb, dbgPtr->blockSize);
 
         free(dbgPtr);
     }

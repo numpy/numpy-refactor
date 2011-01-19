@@ -84,18 +84,23 @@ namespace NumpyDotNet
 
         public PythonTuple iters {
             get {
-                int n = numiter;
-                flatiter[] result = new flatiter[n];
-                IntPtr iters = core + NpyCoreApi.MultiIterOffsets.off_iters;
-                for (int i=0; i<n; i++) {
-                    result[i] = NpyCoreApi.ToInterface<flatiter>(Marshal.ReadIntPtr(iters));
-                    iters += IntPtr.Size;
-                }
-                return new PythonTuple(result);
+                return new PythonTuple(this.Iters);
             }
         }
 
 
+        public flatiter[] Iters {
+            get {
+                int n = numiter;
+                flatiter[] result = new flatiter[n];
+                IntPtr iters = core + NpyCoreApi.MultiIterOffsets.off_iters;
+                for (int i = 0; i < n; i++) {
+                    result[i] = NpyCoreApi.ToInterface<flatiter>(Marshal.ReadIntPtr(iters));
+                    iters += IntPtr.Size;
+                }
+                return result;
+            }
+        }
 
         private flatiter iter(int i) {
             IntPtr iter = core + NpyCoreApi.MultiIterOffsets.off_iters + i * IntPtr.Size;

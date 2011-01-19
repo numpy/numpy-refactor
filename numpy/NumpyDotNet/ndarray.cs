@@ -1524,6 +1524,10 @@ namespace NumpyDotNet
             return NpyCoreApi.Newshape(this, newshape, order);
         }
 
+        public ndarray Reshape(IEnumerable<long> shape, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_ANYORDER) {
+            return NpyCoreApi.Newshape(this, shape.Select(x => (IntPtr)x).ToArray(), order);
+        }
+
         private static string[] resizeKeywords = { "refcheck" };
 
         public void resize([ParamDictionary] IDictionary<object,object> kwds, params object[] args) {
@@ -2114,7 +2118,6 @@ namespace NumpyDotNet
                 // want to collect too often but don't want to page either.
                 if (IntPtr.Size == 4 &&
                     (TotalMemPressure > 1500000000 || TotalMemPressure + newBytes > 1700000000)) {
-                    Console.WriteLine("Forcing collection");
                     System.GC.Collect();
                     System.GC.WaitForPendingFinalizers();
                 }

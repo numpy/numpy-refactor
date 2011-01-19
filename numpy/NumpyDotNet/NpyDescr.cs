@@ -15,7 +15,7 @@ namespace NumpyDotNet {
     /// Implements the descriptor (NpyArray_Descr) functionality.  This is not the
     /// public wrapper but a collection of funtionality to support the dtype class.
     /// </summary>
-    internal class NpyDescr {
+    public class NpyDescr {
 
         /// <summary>
         /// Same as DescrConverter but null input objects translates to null dtype instead
@@ -37,7 +37,7 @@ namespace NumpyDotNet {
         /// <param name="obj">Object to convert, null results in default type (double)</param>
         /// <param name="align">If true, fields must be aligned</param>
         /// <returns>Type descriptor (never null)</returns>
-        internal static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
+        public static dtype DescrConverter(CodeContext cntx, Object obj, bool align=false) {
             dtype result = null;
             PythonType pt;
 
