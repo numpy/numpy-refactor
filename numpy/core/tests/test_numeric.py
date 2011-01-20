@@ -325,8 +325,10 @@ class TestFloatExceptions(TestCase):
                         lambda a,b:a+b, ftype(np.inf), ftype(-np.inf))
                 self.assert_raises_fpe(invalid,
                         lambda a,b:a*b, ftype(0), ftype(np.inf))
-                self.assert_raises_fpe(overflow,
-                        np.power, ftype(2), ftype(2**fi.nexp))
+                if sys.platform != 'cli':
+                    # Windows CRT library does not raise over/underflow exceptions on pow.
+                    self.assert_raises_fpe(overflow,
+                            np.power, ftype(2), ftype(2**fi.nexp))
         finally:
             np.seterr(**oldsettings)
 
