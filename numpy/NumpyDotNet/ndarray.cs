@@ -1768,11 +1768,11 @@ namespace NumpyDotNet
             get { return NpyCoreApi.ArraySize(this).ToInt64(); }
         }
 
-        internal ndarray Real {
+        public ndarray Real {
             get { return NpyCoreApi.GetReal(this); }
         }
 
-        internal ndarray Imag {
+        public ndarray Imag {
             get { return NpyCoreApi.GetImag(this); }
         }
 
@@ -1780,7 +1780,7 @@ namespace NumpyDotNet
             return StrFunction(this);
         }
 
-        internal flatiter Flat {
+        public flatiter Flat {
             get {
                 return NpyCoreApi.IterNew(this);
             }

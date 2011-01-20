@@ -1938,6 +1938,10 @@ namespace NumpyDotNet
             }
         }
 
+        public static implicit operator Complex(ScalarComplex64 x) {
+            return new Complex(x.value.Real, x.value.Imag);
+        }
+
         public static implicit operator string(ScalarComplex64 x) {
             return x.ToString();
         }
@@ -2111,6 +2115,10 @@ namespace NumpyDotNet
 
         public static implicit operator string(ScalarComplex128 x) {
             return x.ToString();
+        }
+
+        public static implicit operator Complex(ScalarComplex128 x) {
+            return x.value;
         }
 
         /// <summary>
