@@ -1754,6 +1754,11 @@ namespace NumpyDotNet
             return i.value;
         }
 
+        public static implicit operator Complex(ScalarFloat32 x) {
+            return new Complex(x.value, 0.0);
+        }
+
+
         public new bool __nonzero__() {
             return value != 0;
         }
@@ -1824,6 +1829,10 @@ namespace NumpyDotNet
 
         public static implicit operator double(ScalarFloat64 i) {
             return i.value;
+        }
+
+        public static implicit operator Complex(ScalarFloat64 x) {
+            return new Complex(x.value, 0.0);
         }
 
         public new bool __nonzero__() {
