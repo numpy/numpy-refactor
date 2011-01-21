@@ -318,7 +318,7 @@ namespace NumpyDotNet
             return ToArray().searchsorted(keys, side);
         }
 
-        public void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
+        public virtual void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
             throw new ArgumentTypeException("array-scalars are immutable");
         }
 
@@ -2252,9 +2252,9 @@ namespace NumpyDotNet
         }
 
         private void Dispose(bool disposing) {
-            if (dataptr != IntPtr.Zero) {
+            if (dataptr != IntPtr.Zero && base_arr == null) {
                 lock (this) {
-                    if (dataptr != IntPtr.Zero) {
+                    if (dataptr != IntPtr.Zero && base_arr == null) {
                         Marshal.FreeCoTaskMem(dataptr);
                         dataptr = IntPtr.Zero;
                         if (disposing) {
@@ -2281,21 +2281,65 @@ namespace NumpyDotNet
 
         internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
             int elsize = arr.Dtype.ElementSize;
-            if (dtype_.ElementSize != elsize) {
+
+            if (dataptr != IntPtr.Zero) {
+                throw new IronPython.Runtime.Exceptions.RuntimeException("Unexpected modification to existing scalar object.");
+            }
+
+/*            if (dtype_.ElementSize != elsize) {
                 dtype_ = new dtype(dtype_);
                 dtype_.ElementSize = elsize;
-                if (dataptr != IntPtr.Zero) {
-                    Marshal.FreeCoTaskMem(dataptr);
-                }
-                AllocData(elsize);
-            }
+                //if (dataptr != IntPtr.Zero) {
+                //    Marshal.FreeCoTaskMem(dataptr);
+                //}
+            } else {
+                dtype_ = arr.Dtype;
+            } */
             dtype_ = arr.Dtype;
-            unsafe {
-                arr.CopySwapOut(offset, dataptr.ToPointer(), !arr.IsNotSwapped);
-            }
+
+            if (arr.Dtype.HasNames) {
+                base_arr = arr;
+                dataptr = (IntPtr)((long)arr.UnsafeAddress + offset);
+            } else {
+                base_arr = null;
+                AllocData(elsize);
+                unsafe {
+                    arr.CopySwapOut(offset, dataptr.ToPointer(), !arr.IsNotSwapped);
+                }
+            } 
             return this;
         }
 
+        /// <summary>
+        /// Set field for void-types is allowed.  This sets some portion of the data
+        /// memory based on the passed value.
+        /// </summary>
+        /// <param name="cntx">IronPython interpreter context</param>
+        /// <param name="value">Value to set</param>
+        /// <param name="dtype">Type of value</param>
+        /// <param name="offset">Offset into scalar's data in bytes</param>
+        public override void setfield(CodeContext cntx, object value, object dtype, int offset = 0) {
+            dtype valueType = NpyDescr.DescrConverter(cntx, dtype);
+            if (offset < 0 || offset + valueType.itemsize > dtype_.itemsize) {
+                throw new ArgumentException(
+                    String.Format("Need 0 <= offset <= {0} for requested type but received offset of {1}.",
+                                  dtype_.itemsize, offset));
+            }
+
+            // If we are storing an object, allocate a new GC handle and release any existing
+            // GC handle.  Otherwise we just copy the data over.
+            if (valueType.TypeNum == NpyDefs.NPY_TYPES.NPY_OBJECT) {
+                IntPtr tmp = Marshal.ReadIntPtr(dataptr, offset);
+                Marshal.WriteIntPtr(dataptr, offset, GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(value)));
+                NpyCoreApi.FreeGCHandle(NpyCoreApi.GCHandleFromIntPtr(tmp));
+            } else {
+                using (ndarray src = NpyArray.FromAny(value, valueType, 0, 0, NpyDefs.NPY_CARRAY)) {
+                    unsafe {
+                        src.CopySwapOut(0, (dataptr + offset).ToPointer(), false);
+                    }
+                }
+            }
+        }
 
         internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
             throw new NotImplementedException("Scalar fill operations are not supported for flexible (variable-size) types.");
@@ -2339,7 +2383,11 @@ namespace NumpyDotNet
         private dtype dtype_;
         private IntPtr dataptr;
 
-
+        /// <summary>
+        /// When set this object is sharing memroy with the array below.  This occurs when accessing
+        /// elements of record type array.
+        /// </summary>
+        private ndarray base_arr;
     }
 
     [PythonType("numpy.character")]
