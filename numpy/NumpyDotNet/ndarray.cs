@@ -1138,7 +1138,7 @@ namespace NumpyDotNet
                 if (descr == null) {
                     descr = NpyDescr.DescrConverter(NpyUtil_Python.DefaultContext, value);
                 }
-                this.Dtype = descr;
+                NpyCoreApi.ArraySetDescr(this, descr);
             }
         }
 

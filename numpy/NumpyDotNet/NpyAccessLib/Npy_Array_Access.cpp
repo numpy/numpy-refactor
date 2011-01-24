@@ -105,10 +105,7 @@ void _cdecl NpyArrayAccess_ArraySetDescr(void *arrTmp, void *newDescrTmp)
     assert(NPY_VALID_MAGIC == arr->nob_magic_number);
     assert(NPY_VALID_MAGIC == newDescr->nob_magic_number);
 
-    NpyArray_Descr *oldDescr = arr->descr;
-    Npy_INCREF(newDescr);
-    arr->descr = newDescr;
-    Npy_DECREF(oldDescr);
+    NpyArray_SetDescr(arr, newDescr);
 }
 
 
