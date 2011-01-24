@@ -554,6 +554,8 @@ class TestRegression(TestCase):
         assert_equal(np.array("a\x00\x0b\x0c\x00").item(),
                      'a\x00\x0b\x0c')
 
+    @dec.skipif(sys.platform == 'cli',
+                "asbytes() doesn't work correctly on IronPython")
     def test_junk_in_string_fields_of_recarray(self, level=rlevel):
         """Ticket #483"""
         r = np.array([[asbytes('abc')]], dtype=[('var1', '|S20')])

@@ -647,6 +647,9 @@ namespace NumpyDotNet
             }
 
             object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
+            if (result == null || result == Builtin.NotImplemented) {
+                result = BinaryOp(cntx, arrayother, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+            }
             if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                     if (Dtype != arrayother.Dtype) {
@@ -910,7 +913,7 @@ namespace NumpyDotNet
                 if (args == null) {
                     args = new object[] { null };
                 } else {
-                    if (args.Length == 1 && args[0] is IEnumerable<object>) {
+                    if (args.Length == 1 && args[0] is IEnumerable<object> && !(args[0] is ndarray)) {
                         args = ((IEnumerable<object>)args[0]).ToArray();
                     }
 
