@@ -1,3 +1,4 @@
+import sys
 from os import path
 import numpy as np
 from numpy.testing import *
@@ -35,6 +36,8 @@ class TestFromrecords(TestCase):
         x1[1] = 34
         assert_equal(r.a, np.array([1, 2, 3, 4]))
 
+    @dec.skipif(sys.platform == 'cli',
+                "Array from file descriptors are not yet supported on IronPython")
     def test_recarray_fromfile(self):
         data_dir = path.join(path.dirname(__file__), 'data')
         filename = path.join(data_dir, 'recarray_from_file.fits')
