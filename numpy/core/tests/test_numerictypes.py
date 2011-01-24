@@ -308,8 +308,11 @@ class read_values_nested(object):
         h = np.array(self._buffer, dtype=self._descr)
         self.assert_(h.dtype['Info']['value'].name == 'complex128')
         self.assert_(h.dtype['Info']['y2'].name == 'float64')
+        print "name = %s " % (h.dtype['info']['Name'].name,)
         if sys.version_info[0] >= 3:
             self.assert_(h.dtype['info']['Name'].name == 'str256')
+        elif sys.platform == 'cli':
+            self.assert_(h.dtype['info']['Name'].name == 'unicode32')
         else:
             self.assert_(h.dtype['info']['Name'].name == 'unicode256')
         self.assert_(h.dtype['info']['Value'].name == 'complex128')
@@ -317,8 +320,12 @@ class read_values_nested(object):
     def test_nested2_descriptor(self):
         """Check access nested descriptors of a nested array (2nd level)"""
         h = np.array(self._buffer, dtype=self._descr)
-        self.assert_(h.dtype['Info']['Info2']['value'].name == 'void256')
-        self.assert_(h.dtype['Info']['Info2']['z3'].name == 'void64')
+        if sys.platform == 'cli':
+            self.assert_(h.dtype['Info']['Info2']['value'].name == 'void32')
+            self.assert_(h.dtype['Info']['Info2']['z3'].name == 'void8')
+        else:
+            self.assert_(h.dtype['Info']['Info2']['value'].name == 'void256')
+            self.assert_(h.dtype['Info']['Info2']['z3'].name == 'void64')
 
 
 class test_read_values_nested_single(read_values_nested, TestCase):
@@ -362,6 +369,9 @@ class TestMultipleFields(TestCase):
         self.ary = np.array([(1,2,3,4),(5,6,7,8)], dtype='i4,f4,i2,c8')
     def _bad_call(self):
         return self.ary['f0','f1']
+
+    @dec.skipif(sys.platform == 'cli',
+                "Works either way on IronPython")
     def test_no_tuple(self):
         self.assertRaises(IndexError, self._bad_call)
     def test_return(self):
