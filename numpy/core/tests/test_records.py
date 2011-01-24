@@ -13,6 +13,7 @@ class TestFromrecords(TestCase):
                             names='col1,col2,col3')
         assert_equal(r[0].item(), (456, 'dbe', 1.2))
 
+    @dec.skipif(sys.platform == 'cli', 'Buffer support is not available on IronPython yet.')
     def test_method_array(self):
         r = np.rec.array(asbytes('abcdefg') * 100, formats='i2,a3,i4', shape=3, byteorder='big')
         assert_equal(r[1].item(), (25444, asbytes('efg'), 1633837924))
@@ -20,12 +21,20 @@ class TestFromrecords(TestCase):
     def test_method_array2(self):
         r = np.rec.array([(1, 11, 'a'), (2, 22, 'b'), (3, 33, 'c'), (4, 44, 'd'), (5, 55, 'ex'),
                      (6, 66, 'f'), (7, 77, 'g')], formats='u1,f4,a1')
-        assert_equal(r[1].item(), (2, 22.0, asbytes('b')))
+        if sys.platform == 'cli':
+            # asbytes() doesn't work correctly on IronPython.
+            assert_equal(r[1].item(), (2, 22.0, b'b'))
+        else:
+            assert_equal(r[1].item(), (2, 22.0, asbytes('b')))
 
     def test_recarray_slices(self):
         r = np.rec.array([(1, 11, 'a'), (2, 22, 'b'), (3, 33, 'c'), (4, 44, 'd'), (5, 55, 'ex'),
                      (6, 66, 'f'), (7, 77, 'g')], formats='u1,f4,a1')
-        assert_equal(r[1::2][1].item(), (4, 44.0, asbytes('d')))
+        if sys.platform == 'cli':
+            # asbytes() doesn't work correctly on IronPython.
+            assert_equal(r[1::2][1].item(), (4, 44.0, b'd'))
+        else:
+            assert_equal(r[1::2][1].item(), (4, 44.0, asbytes('d')))
 
     def test_recarray_fromarrays(self):
         x1 = np.array([1, 2, 3, 4])
