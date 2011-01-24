@@ -943,7 +943,13 @@ namespace NumpyDotNet
                             offset += val * s[i];
                         }
                         return Dtype.ToScalar(this, offset);
+                    } else if (indexes.IsMultiField) {
+                        // Special case for multiple fields, transfer control back to Python.
+                        // See PyArray_Subscript in mapping.c of the CPython API for similar.
+                        return NpyUtil_Python.CallFunction(NpyUtil_Python.DefaultContext, "numpy.core._internal",
+                                                           "_index_fields", this, args);
                     }
+
 
                     // General subscript case.
                     NpyCoreApi.Incref(Array);

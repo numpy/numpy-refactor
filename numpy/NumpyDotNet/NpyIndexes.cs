@@ -99,6 +99,20 @@ namespace NumpyDotNet
         }
 
         /// <summary>
+        /// Returns true if this index is all strings accessing fields in the array.
+        /// </summary>
+        public bool IsMultiField {
+            get {
+                for (int i = 0; i < num_indexes; i++) {
+                    if (IndexType(i) != NpyIndexTypes.STRING) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
         /// Returns whether or not this index is a single item index for an array on size ndims.
         /// </summary>
         public bool IsSingleItem(int ndims)
