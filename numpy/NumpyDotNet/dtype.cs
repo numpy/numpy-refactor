@@ -999,7 +999,7 @@ namespace NumpyDotNet {
                 return arr.GetItem(offset);
             } else {
                 ScalarGeneric result = scalarInfo.ScalarConstructor();
-                return result.FillData(arr, offset);
+                return result.FillData(arr, offset, arr.Dtype.IsNativeByteOrder);
             }
         }
 
@@ -1009,7 +1009,7 @@ namespace NumpyDotNet {
             }
 
             ScalarGeneric result = scalarInfo.ScalarConstructor();
-            return result.FillData(dataPtr, size);
+            return result.FillData(dataPtr, size, true);
         }
 
         #endregion

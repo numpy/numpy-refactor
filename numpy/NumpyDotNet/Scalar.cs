@@ -37,11 +37,11 @@ namespace NumpyDotNet
         /// Fill the value with the value from the 0-d array
         /// </summary>
         /// <param name="arr"></param>
-        internal virtual ScalarGeneric FillData(ndarray arr, long offset = 0) {
-            return FillData((IntPtr)(arr.UnsafeAddress.ToInt64() + offset), 0);
+        internal virtual ScalarGeneric FillData(ndarray arr, long offset, bool nativeByteOrder) {
+            return FillData((IntPtr)(arr.UnsafeAddress.ToInt64() + offset), 0, nativeByteOrder);
         }
 
-        internal virtual ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal virtual ScalarGeneric FillData(IntPtr dataPtr, int size, bool nativeByteOrder) {
             throw new NotImplementedException();
         }
 
@@ -771,7 +771,7 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr p, int size) {
+        internal override ScalarGeneric FillData(IntPtr p, int size, bool isNativeByteOrder) {
             value = (Marshal.ReadByte(p) != 0);
             return (value ? TRUE : FALSE);
         }
@@ -964,7 +964,7 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr p, int size) {
+        internal override ScalarGeneric FillData(IntPtr p, int size, bool isNativeByteOrder) {
             value = (sbyte)Marshal.ReadByte(p);
             return this;
         }
@@ -1035,10 +1035,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr p, int size) {
+        internal override ScalarGeneric FillData(IntPtr p, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void *)p, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void *)p, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1110,10 +1110,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1186,10 +1186,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1336,13 +1336,13 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
+        internal override ScalarGeneric FillData(ndarray arr, long offset, bool isNativeByteOrder) {
             IntPtr p = (IntPtr)(arr.UnsafeAddress.ToInt64() + offset);
             value = Marshal.ReadByte(p);
             return this;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             value = Marshal.ReadByte(dataPtr);
             return this;
         }
@@ -1411,10 +1411,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1484,10 +1484,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1568,10 +1568,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1730,10 +1730,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1807,10 +1807,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -1907,10 +1907,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -2063,10 +2063,10 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             unsafe {
                 fixed (void* data = &value) {
-                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !((dtype)dtype).IsNativeByteOrder);
+                    NpyCoreApi.CopySwapScalar((dtype)dtype, data, (void*)dataPtr, !isNativeByteOrder);
                 }
             }
             return this;
@@ -2279,7 +2279,7 @@ namespace NumpyDotNet
             return a;
         }
 
-        internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
+        internal override ScalarGeneric FillData(ndarray arr, long offset, bool isNativeByteOrder) {
             int elsize = arr.Dtype.ElementSize;
 
             if (dataptr != IntPtr.Zero) {
@@ -2341,7 +2341,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             throw new NotImplementedException("Scalar fill operations are not supported for flexible (variable-size) types.");
         }
 
@@ -2436,12 +2436,12 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
+        internal override ScalarGeneric FillData(ndarray arr, long offset, bool isNativeByteOrder) {
             value = (Bytes)arr.GetItem(offset);
             return this;
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             value = NumericOps.getitemString(dataPtr, size);
             return this;
         }
@@ -2494,7 +2494,7 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
+        internal override ScalarGeneric FillData(ndarray arr, long offset, bool isNativeByteOrder) {
             value = (string)arr.GetItem(offset);
             return this;
         }
@@ -2507,7 +2507,7 @@ namespace NumpyDotNet
             return value.strip();
         }
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             value = (string)NumericOps.getitemUnicode(dataPtr, size, false);
             // TODO: Unpickling unicode strings requires a double-copy of the data. We really need a better implementation.
 /*            byte[] b = new byte[size];
@@ -2586,13 +2586,13 @@ namespace NumpyDotNet
             return result;
         }
 
-        internal override ScalarGeneric FillData(ndarray arr, long offset = 0) {
+        internal override ScalarGeneric FillData(ndarray arr, long offset, bool isNativeByteOrder) {
             value = arr.GetItem(offset);
             return this;
         }
 
 
-        internal override ScalarGeneric FillData(IntPtr dataPtr, int size) {
+        internal override ScalarGeneric FillData(IntPtr dataPtr, int size, bool isNativeByteOrder) {
             throw new NotImplementedException("Scalar fill operations are not supported for flexible (variable-size) types.");
         }
 
