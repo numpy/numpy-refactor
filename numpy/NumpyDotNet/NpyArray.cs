@@ -241,7 +241,8 @@ namespace NumpyDotNet {
             if (result == null) {
                 // Hack required because in C# strings are enumerations of chars, not objects. 
                 // However, we want to keep src as a string if we are building a string or object array.
-                if (!is_object && descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING &&
+                if (!is_object && 
+                    (descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING || descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR) &&
                     descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string) {
                     src = ((string)src).Cast<object>();
                 }

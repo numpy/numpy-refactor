@@ -704,10 +704,25 @@ namespace NumpyDotNet
                 }
             }
 
-            object result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
-            if (result == null || result == Builtin.NotImplemented) {
-                result = BinaryOp(cntx, arrayother, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+            // The next two blocks are ugly.  First try equal with arguments in the expected
+            // order this == arrayother.  If that fails with a not implemented issue or type
+            // error, then we retry with the arguments reversed.
+            object result = null;
+            try {
+                result = BinaryOp(cntx, this, arrayother, NpyDefs.NpyArray_Ops.npy_op_equal);
+            } catch (NotImplementedException) {
+                result = null;
+            } catch (ArgumentTypeException) {
+                result = null;
             }
+            if (result == null || result == Builtin.NotImplemented) {
+                try {
+                    result = BinaryOp(cntx, arrayother, this, NpyDefs.NpyArray_Ops.npy_op_equal);
+                } catch (NotImplementedException) {
+                    result = Builtin.NotImplemented;
+                }
+            }
+
             if (result == Builtin.NotImplemented) {
                 if (type == NpyDefs.NPY_TYPES.NPY_VOID) {
                     if (Dtype != arrayother.Dtype) {

@@ -406,10 +406,6 @@ namespace NumpyDotNet {
                                 PrepareCallback, GCHandle.ToIntPtr(h));
                         }
                         if (val < 0) {
-                            if (f.nin == 2 && f.nout == 1) {
-                                ClearErrorCallback();
-                                throw new NotImplementedException();
-                            }
                             CheckError();
                             if (pargs.ex != null) {
                                 throw pargs.ex;
