@@ -470,6 +470,8 @@ namespace NumpyDotNet {
 
         public object fields { get { return this.GetFieldsDict(); } }
 
+        public PythonDictionary Fields { get { return this.GetFieldsDict(); } }
+
         public object dtinfo {
             get {
                 IntPtr dtinfoPtr = Marshal.ReadIntPtr(core, NpyCoreApi.DescrOffsets.off_dtinfo);

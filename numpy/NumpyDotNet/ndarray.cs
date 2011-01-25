@@ -227,6 +227,64 @@ namespace NumpyDotNet
             }
         }
 
+
+        /// <summary>
+        /// Duplicates the array, performing a deepcopy of the array and all contained objects.
+        /// </summary>
+        /// <param name="visit">Passed to the Python copy.deepcopy() routine</param>
+        /// <returns>duplicated array</returns>
+        public object __deepcopy__(object visit) {
+            ndarray ret = this.copy();
+            if (ret.Dtype.IsObject) {
+                IntPtr optr = ret.UnsafeAddress;
+                flatiter it = this.Flat;
+                while (it.MoveNext()) {
+                    deepcopy_call(it.CurrentPtr, optr, this, this.Dtype, visit);
+                    optr = optr + this.Dtype.itemsize;
+                }
+            }
+            return ret;
+        }
+
+
+        /// <summary>
+        /// Recursive function to copy object element, even when the element is a record with
+        /// fields containing objects.
+        /// </summary>
+        /// <param name="iptr">Pointer to the start of the input element</param>
+        /// <param name="optr">Pointer to the destination element</param>
+        /// <param name="arr">Source array</param>
+        /// <param name="type">Element type descriptor</param>
+        /// <param name="visit">Passed to Python copy.deepcopy() function</param>
+        private void deepcopy_call(IntPtr iptr, IntPtr optr, ndarray arr, dtype type, object visit) {
+            if (type.IsObject) {
+                if (type.HasNames) {
+                    // Check each field and recursively process any that contain object references.
+                    PythonDictionary fields = Dtype.Fields;
+                    foreach (KeyValuePair<object, object> i in fields) {
+                        string key = (string)i.Key;
+                        PythonTuple value = (PythonTuple)i.Value;
+                        if (value.Count == 3 && (string)value[2] == key) continue;
+
+                        dtype subtype = (dtype)value[0];
+                        int offset = (int)value[1];
+
+                        deepcopy_call(iptr + offset, optr + offset, arr, subtype, visit);
+                    }
+                } else {
+                    object current = type.f.GetItem((long)iptr - (long)arr.UnsafeAddress, arr);
+                    object copy = NpyUtil_Python.CallFunction(NpyUtil_Python.DefaultContext, "copy", "deepcopy",
+                                                              current, visit);
+                    IntPtr otemp = Marshal.ReadIntPtr(optr);
+                    if (otemp != IntPtr.Zero) {
+                        NpyCoreApi.FreeGCHandle( NpyCoreApi.GCHandleFromIntPtr(otemp) );
+                    }
+                    Marshal.WriteIntPtr(optr, GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(copy)));
+                }
+            }
+        }
+
+
         public virtual object __setstate__(PythonTuple shape, dtype typecode, object fortran, object rawdata) {
             return __setstate__(0, shape, typecode, fortran, rawdata);
         }

@@ -202,6 +202,9 @@ namespace NumpyDotNet
 
         #endregion
 
+        public IntPtr CurrentPtr {
+            get { return current; }
+        }
 
         #region IEnumerator<object>
 
