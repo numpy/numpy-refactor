@@ -243,7 +243,7 @@ namespace NumpyDotNet {
                 // However, we want to keep src as a string if we are building a string or object array.
                 if (!is_object && 
                     (descr.TypeNum != NpyDefs.NPY_TYPES.NPY_STRING || descr.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR) &&
-                    descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string) {
+                    descr.TypeNum != NpyDefs.NPY_TYPES.NPY_UNICODE && src is string && ((string)src).Length > 1) {
                     src = ((string)src).Cast<object>();
                 }
 
