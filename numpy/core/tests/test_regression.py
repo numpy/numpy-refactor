@@ -1312,6 +1312,9 @@ class TestRegression(TestCase):
         finally:
             np.seterr(**old_err)
 
+    @dec.skipif(sys.platform == 'cli',
+                "Requires buffer support for md5 to access internal representation - "
+                "not currently supported by numpy or md5 module.")
     def test_buffer_hashlib(self):
         try:
             from hashlib import md5
