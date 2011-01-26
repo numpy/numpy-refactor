@@ -9,6 +9,10 @@ __all__ = ['bytes', 'asbytes', 'isfileobj', 'getexception', 'strchar',
 
 import sys
 
+# For now we use the V3 settings for IronPython as well. However, this isn't
+# correct because asbytes() returns a string under IronPython.  Unfortunately
+# fixing it breaks other code because on IronPython bytes[] is not considered
+# a string. Ugh.
 if sys.version_info[0] >= 3 or sys.platform == 'cli':
     import io
     bytes = bytes

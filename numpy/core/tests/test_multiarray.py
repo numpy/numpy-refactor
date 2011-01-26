@@ -1079,6 +1079,8 @@ class TestIO(object):
         assert_array_equal(x, y)
 
     def _check_from(self, s, value, **kw):
+        if sys.platform == 'cli':
+            asbytes = bytes
         y = np.fromstring(asbytes(s), **kw)
         assert_array_equal(y, value)
 
@@ -1216,7 +1218,10 @@ class TestResize(TestCase):
             self.assertRaises(TypeError, np.eye(3).resize, 'hi')
         self.assertRaises(ValueError, np.eye(3).resize, -1)
         self.assertRaises(TypeError, np.eye(3).resize, order=1)
-        self.assertRaises(TypeError, np.eye(3).resize, refcheck='hi')
+        if sys.platform == 'cli':
+            self.assertRaises(ValueError, np.eye(3).resize, refcheck='hi')
+        else:
+            self.assertRaises(TypeError, np.eye(3).resize, refcheck='hi')
 
     def test_freeform_shape(self):
         x = np.eye(3)
