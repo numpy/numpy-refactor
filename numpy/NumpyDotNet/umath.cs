@@ -115,6 +115,9 @@ namespace NumpyDotNet
             return (ufunc)result;
         }
 
+        public static void Init() {
+            __init__(NpyUtil_Python.DefaultContext);
+        }
 
         public static void __init__(CodeContext cntx) {
             // Initialize the ufunc instances.

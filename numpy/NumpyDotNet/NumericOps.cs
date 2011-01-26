@@ -87,7 +87,7 @@ namespace NumpyDotNet {
         /// <summary>
         /// Initializes the type-specific functions for each native type.
         /// </summary>
-        private static void InitArrFuncs() {
+        internal static void InitArrFuncs() {
             lock (ArrFuncsSyncRoot) {
                 if (ArrFuncs == null) {
                     ArrFuncs[] arr = new ArrFuncs[(int)NpyDefs.NPY_TYPES.NPY_NTYPES];

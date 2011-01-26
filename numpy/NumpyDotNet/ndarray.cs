@@ -613,8 +613,8 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
-        public static object operator &(ndarray a, ndarray b) {
-            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
+        public static ndarray operator &(ndarray a, ndarray b) {
+            return (ndarray)BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_and);
         }
 
         [SpecialName]
@@ -635,8 +635,8 @@ namespace NumpyDotNet
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
-        public static object operator |(ndarray a, ndarray b) {
-            return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
+        public static ndarray operator |(ndarray a, ndarray b) {
+            return (ndarray)BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_or);
         }
 
         [SpecialName]
@@ -660,6 +660,15 @@ namespace NumpyDotNet
         public static object operator ^(ndarray a, ndarray b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_bitwise_xor);
         }
+
+        public static ndarray operator <<(ndarray a, int shift) {
+            return (ndarray)BinaryOp(null, a, shift, NpyDefs.NpyArray_Ops.npy_op_left_shift);
+        }
+
+        public static ndarray operator >>(ndarray a, int shift) {
+            return (ndarray)BinaryOp(null, a, shift, NpyDefs.NpyArray_Ops.npy_op_right_shift);
+        }
+
 
         [SpecialName]
         public object InPlaceExclusiveOr(object b) {
@@ -2154,7 +2163,7 @@ namespace NumpyDotNet
         /// Pointer to the internal memory. Should be used with great caution - memory
         /// is native memory, not managed memory.
         /// </summary>
-        internal IntPtr UnsafeAddress {
+        public IntPtr UnsafeAddress {
             get { return Marshal.ReadIntPtr(core, NpyCoreApi.ArrayOffsets.off_data); }
         }
 
