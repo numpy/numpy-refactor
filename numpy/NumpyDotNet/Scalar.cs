@@ -1767,6 +1767,61 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
+        public virtual object __eq__(CodeContext cntx, ScalarFloat32 o) {
+            return value == o.value;
+        }
+
+        public virtual object __eq__(CodeContext cntx, float o) {
+            return value == o;
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarFloat32 o) {
+            return value != o.value;
+        }
+
+        public virtual object __ne__(CodeContext cntx, float o) {
+            return value != o;
+        }
+
+        public virtual object __lt__(CodeContext cntx, ScalarFloat32 o) {
+            return value < o.value;
+        }
+
+        public virtual object __lt__(CodeContext cntx, float o) {
+            return value < o;
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarFloat32 o) {
+            return value <= o.value;
+        }
+
+        public virtual object __le__(CodeContext cntx, float o) {
+            return value <= o;
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarFloat32 o) {
+            return value > o.value;
+        }
+
+        public virtual object __gt__(CodeContext cntx, float o) {
+            return value > o;
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarFloat32 o) {
+            return value >= o.value;
+        }
+
+        public virtual object __ge__(CodeContext cntx, float o) {
+            return value >= o;
+        }
+
+        public override object __repr__(CodeContext context) {
+            // Format code 'R' is important because it cause all digits to be generated.
+            // Primarily important for double type.
+            return value.ToString("R");
+        }
+
+
         static private dtype dtype_;
     }
 
@@ -1842,6 +1897,63 @@ namespace NumpyDotNet
         public static explicit operator bool(ScalarFloat64 s) {
             return s.value != 0;
         }
+
+
+        public virtual object __eq__(CodeContext cntx, ScalarFloat64 o) {
+            return value == o.value;
+        }
+
+        public virtual object __eq__(CodeContext cntx, double o) {
+            return value == o;
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarFloat64 o) {
+            return value != o.value;
+        }
+
+        public virtual object __ne__(CodeContext cntx, double o) {
+            return value != o;
+        }
+
+        public virtual object __lt__(CodeContext cntx, ScalarFloat64 o) {
+            return value < o.value;
+        }
+
+        public virtual object __lt__(CodeContext cntx, double o) {
+            return value < o;
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarFloat64 o) {
+            return value <= o.value;
+        }
+
+        public virtual object __le__(CodeContext cntx, double o) {
+            return value <= o;
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarFloat64 o) {
+            return value > o.value;
+        }
+
+        public virtual object __gt__(CodeContext cntx, double o) {
+            return value > o;
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarFloat64 o) {
+            return value >= o.value;
+        }
+
+        public virtual object __ge__(CodeContext cntx, double o) {
+            return value >= o;
+        }
+
+        public override object __repr__(CodeContext context) {
+            // Format code 'R' is important because it cause all digits to be generated;
+            // by default the format only goes up to 15 digits but double can represent
+            // 17 digits.
+            return value.ToString("R");
+        }
+
 
         static private dtype dtype_;
     }
@@ -1968,11 +2080,11 @@ namespace NumpyDotNet
             // formats are slightly different and cause regression failures.
             if (value.Real == 0.0) {
                 return String.Format("{0}j", 
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag));
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag.ToString("R")));
             } else {
                 return String.Format("({0}+{1}j)",
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real),
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag));
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real.ToString("R")),
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imag.ToString("R")));
             }
         }
 
@@ -2018,6 +2130,14 @@ namespace NumpyDotNet
                 value.Imag = 0.0f;
             } else throw new ArgumentTypeException(
                   String.Format("Unable to construct complex value from type '{0}'.", o.GetType().Name));
+        }
+
+        public virtual object __eq__(CodeContext cntx, ScalarComplex64 o) {
+            return value.Real == o.value.Real && value.Imag == o.value.Imag;
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarComplex64 o) {
+            return value.Real != o.value.Real || value.Imag != o.value.Imag;
         }
 
         private Data value;
@@ -2114,11 +2234,11 @@ namespace NumpyDotNet
         public override string ToString(IFormatProvider fp = null) {
             if (value.Real == 0.0) {
                 return String.Format("{0}j",
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary));
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary.ToString("R")));
             } else {
                 return String.Format("({0}+{1}j)",
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real),
-                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary));
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Real.ToString("R")),
+                    NpyUtil_Python.CallBuiltin(NpyUtil_Python.DefaultContext, "str", value.Imaginary.ToString("R")));
             }
         }
 
@@ -2158,8 +2278,15 @@ namespace NumpyDotNet
             } else throw new ArgumentTypeException(
                   String.Format("Unable to construct complex value from type '{0}'.", o.GetType().Name));
         }
-        
-        
+
+        public virtual object __eq__(CodeContext cntx, ScalarComplex128 o) {
+            return value == o.value;
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarComplex128 o) {
+            return value != o.value;
+        }
+
         private Complex value;
         static private dtype dtype_;
     }

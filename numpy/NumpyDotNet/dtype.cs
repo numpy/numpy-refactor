@@ -256,9 +256,18 @@ namespace NumpyDotNet {
             }
             if (subarray != null) {
                 // subarray is tuple of descriptor, shape (tuple of ints).
-                dtype baseDescr = (dtype)((PythonTuple)subarray)[0];
-                PythonTuple shape = (PythonTuple)((PythonTuple)subarray)[1];
-                NpyCoreApi.DescrReplaceSubarray(this, baseDescr, shape.Cast<long>().Cast<IntPtr>().ToArray());
+                PythonTuple sa = (PythonTuple)subarray;
+                dtype baseDescr = (dtype)sa[0];
+                IntPtr[] shape;
+                if (sa[1] is PythonTuple) {
+                    shape = ((PythonTuple)sa[1]).Select(x => (IntPtr)((IConvertible)x).ToInt64(null)).ToArray();
+                } else if (sa[1] is IConvertible) {
+                    shape = new IntPtr[] { (IntPtr)((IConvertible)sa[1]).ToInt64(null) };
+                } else {
+                    throw new IronPython.Runtime.Exceptions.RuntimeException(
+                        String.Format("Unexpected type '{0}' for shape definition while unpickling dtype.", sa[1].GetType().Name));
+                }
+                NpyCoreApi.DescrReplaceSubarray(this, baseDescr, shape);
             }
 
             // Copy in the fields & names.
