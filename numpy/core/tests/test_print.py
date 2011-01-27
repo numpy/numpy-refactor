@@ -92,22 +92,22 @@ def test_complex_inf_nan():
     """Check inf/nan formatting of complex types."""
     if sys.platform == 'cli':
         TESTS = {
-            complex(np.inf, 0): "(inf+0.0j)",
-            complex(0, np.inf): "infj",
-            complex(-np.inf, 0): "(-inf+0.0j)",
-            complex(0, -np.inf): "-infj",
-            complex(np.inf, 1): "(inf+1.0j)",
-            complex(1, np.inf): "(1.0+infj)",
-            complex(-np.inf, 1): "(-inf+1.0j)",
-            complex(1, -np.inf): "(1.0+-infj)",
-            complex(np.nan, 0): "(nan+0.0j)",
-            complex(0, np.nan): "nanj",
-            complex(-np.nan, 0): "(nan+0.0j)",
-            complex(0, -np.nan): "nanj",
-            complex(np.nan, 1): "(nan+1.0j)",
-            complex(1, np.nan): "(1.0+nanj)",
-            complex(-np.nan, 1): "(nan+1.0j)",
-            complex(1, -np.nan): "(1.0+nanj)",
+            complex(np.inf, 0): "(Infinity+0j)",
+            complex(0, np.inf): "Infinityj",
+            complex(-np.inf, 0): "(-Infinity+0j)",
+            complex(0, -np.inf): "-Infinityj",
+            complex(np.inf, 1): "(Infinity+1j)",
+            complex(1, np.inf): "(1+Infinityj)",
+            complex(-np.inf, 1): "(-Infinity+1j)",
+            complex(1, -np.inf): "(1+-Infinityj)",
+            complex(np.nan, 0): "(NaN+0j)",
+            complex(0, np.nan): "NaNj",
+            complex(-np.nan, 0): "(NaN+0j)",
+            complex(0, -np.nan): "NaNj",
+            complex(np.nan, 1): "(NaN+1j)",
+            complex(1, np.nan): "(1+NaNj)",
+            complex(-np.nan, 1): "(NaN+1j)",
+            complex(1, -np.nan): "(1+NaNj)",
         }
     elif sys.version_info >= (2, 6):
         TESTS = {
