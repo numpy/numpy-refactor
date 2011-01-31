@@ -2396,11 +2396,11 @@ namespace NumpyDotNet
     {
         public ndarray_Enumerator(ndarray a) {
             arr = a;
-            index = (IntPtr)(-1);
+            index = -1;
         }
 
         public object Current {
-            get { return arr[index.ToPython()]; }
+            get { return arr[(int)index]; }
         }
 
         public void Dispose() {
@@ -2410,14 +2410,14 @@ namespace NumpyDotNet
 
         public bool MoveNext() {
             index += 1;
-            return (index.ToInt64() < arr.Dims[0]);
+            return (index < arr.Dims[0]);
         }
 
         public void Reset() {
-            index = (IntPtr)(-1);
+            index = -1;
         }
 
         private ndarray arr;
-        private IntPtr index;
+        private long index;
     }
 }

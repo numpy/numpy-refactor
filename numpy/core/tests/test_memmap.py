@@ -1,4 +1,5 @@
 from tempfile import NamedTemporaryFile, mktemp
+import sys
 import os
 import warnings
 
@@ -18,6 +19,8 @@ class TestMemmap(TestCase):
     def tearDown(self):
         self.tmpfp.close()
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_roundtrip(self):
         # Write data to file
         fp = memmap(self.tmpfp, dtype=self.dtype, mode='w+',
@@ -31,6 +34,8 @@ class TestMemmap(TestCase):
         assert allclose(self.data, newfp)
         assert_array_equal(self.data, newfp)
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_open_with_filename(self):
         tmpname = mktemp('','mmap')
         fp = memmap(tmpname, dtype=self.dtype, mode='w+',
@@ -39,6 +44,8 @@ class TestMemmap(TestCase):
         del fp
         os.unlink(tmpname)
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_attributes(self):
         offset = 1
         mode = "w+"
@@ -48,6 +55,8 @@ class TestMemmap(TestCase):
         self.assertEquals(mode, fp.mode)
         del fp
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_filename(self):
         tmpname = mktemp('','mmap')
         fp = memmap(tmpname, dtype=self.dtype, mode='w+',
@@ -61,11 +70,15 @@ class TestMemmap(TestCase):
         del fp
         os.unlink(tmpname)
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_filename_fileobj(self):
         fp = memmap(self.tmpfp, dtype=self.dtype, mode="w+",
                     shape=self.shape)
         self.assertEquals(fp.filename, self.tmpfp.name)
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_flush(self):
         fp = memmap(self.tmpfp, dtype=self.dtype, mode='w+',
                     shape=self.shape)
@@ -76,6 +89,8 @@ class TestMemmap(TestCase):
         fp.sync()
         warnings.simplefilter('default', DeprecationWarning)
 
+    @dec.skipif(sys.platform == 'cli',
+                "File memory mapping not yet supported under IronPython")
     def test_del(self):
         # Make sure a view does not delete the underlying mmap
         fp_base = memmap(self.tmpfp, dtype=self.dtype, mode='w+',

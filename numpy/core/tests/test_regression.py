@@ -325,7 +325,7 @@ class TestRegression(TestCase):
     def test_character_array_strip(self,level=rlevel):
         """Ticket #246"""
         x = np.char.array(("x","x ","x  "))
-        for c in x: assert_equal(c,"x")
+        for c in x: assert_equal(str(c),"x")
 
     def test_lexsort(self,level=rlevel):
         """Lexsort memory error"""
@@ -708,7 +708,10 @@ class TestRegression(TestCase):
         how 32-bit versions are supposed to work. """
     def test_sign_bit(self, level=rlevel):
         x = np.array([0,-0.0,0])
-        assert_equal(str(np.abs(x)),'[ 0.  0.  0.]')
+        if sys.platform == 'cli':
+            assert_equal(str(np.abs(x)),'[0.0 0.0 0.0]')
+        else:
+            assert_equal(str(np.abs(x)),'[ 0.  0.  0.]')
 
     def test_flat_index_byteswap(self, level=rlevel):
         for dt in (np.dtype('<i4'),np.dtype('>i4')):
