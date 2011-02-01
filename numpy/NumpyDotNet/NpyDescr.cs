@@ -209,8 +209,8 @@ namespace NumpyDotNet {
         /// <returns>Corresponding descriptor object</returns>
         private static dtype ConvertFromPythonType(CodeContext cntx, IronPython.Runtime.Types.PythonType t) {
             NpyDefs.NPY_TYPES type = NpyDefs.NPY_TYPES.NPY_OBJECT;
-            if (t == PyInt_Type) type = (NpyCoreApi.Native_SizeOfInt == sizeof(int)) ? NpyDefs.NPY_TYPES.NPY_INT : NpyDefs.NPY_TYPES.NPY_LONG;
-            else if (t == PyLong_Type) type = (NpyCoreApi.Native_SizeOfLong == sizeof(long)) ? NpyDefs.NPY_TYPES.NPY_LONG : NpyDefs.NPY_TYPES.NPY_LONGLONG;
+            if (t == PyInt_Type) type = NpyCoreApi.TypeOf_Int32;
+            else if (t == PyLong_Type) type = NpyCoreApi.TypeOf_Int64;
             else if (t == PyFloat_Type) type = NpyDefs.NPY_TYPES.NPY_DOUBLE;
             else if (t == PyBool_Type) type = NpyDefs.NPY_TYPES.NPY_BOOL;
             else if (t == PyComplex_Type) type = NpyDefs.NPY_TYPES.NPY_CDOUBLE;

@@ -1094,7 +1094,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = GetDtype(4, 'i');
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_INT);
                         }
                     }
                 }
@@ -1470,7 +1470,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = GetDtype(4, 'u');
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_UINT);
                         }
                     }
                 }
