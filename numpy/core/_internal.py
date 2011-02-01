@@ -166,14 +166,14 @@ def _split(input):
 
     return newlist
 
-format_datetime = re.compile(asbytes(r"""
+format_datetime = re.compile(r"""
      (?P<typecode>M8|m8|datetime64|timedelta64)
      ([[]
        ((?P<num>\d+)?
        (?P<baseunit>Y|M|W|B|D|h|m|s|ms|us|ns|ps|fs|as)
        (/(?P<den>\d+))?
       []])
-     (//(?P<events>\d+))?)?"""), re.X)
+     (//(?P<events>\d+))?)?""", re.X)
 
 # Return (baseunit, num, den, events), datetime
 #  from date-time string
