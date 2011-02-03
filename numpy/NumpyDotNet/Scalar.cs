@@ -2102,7 +2102,7 @@ namespace NumpyDotNet
         public override object __rdivmod__(CodeContext cntx, object a) {
             throw new ArgumentTypeException(
                 String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
-                    this.GetType().Name, b.GetType().Name));
+                    this.GetType().Name, a.GetType().Name));
         }
 
 
@@ -2253,7 +2253,7 @@ namespace NumpyDotNet
         public override object __rdivmod__(CodeContext cntx, object a) {
             throw new ArgumentTypeException(
                 String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
-                    this.GetType().Name, b.GetType().Name));
+                    this.GetType().Name, a.GetType().Name));
         }
 
         public object __complex__() {
