@@ -2019,7 +2019,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        internal override object Value { get { return new Complex(value.Real, value.Imag); } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -2086,6 +2086,25 @@ namespace NumpyDotNet
         public override object __repr__(CodeContext context) {
             return ToString();
         }
+
+        public object __mod__(CodeContext cntx, object b) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for %: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
+        }
+
+        public object __divmod__(CodeContext cntx, object b) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
+        }
+
+        public object __rdivmod__(CodeContext cntx, object a) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
+        }
+
 
         public override string ToString(IFormatProvider fp = null) {
             // Use the Python str() function instead of .NET formatting because the
@@ -2217,6 +2236,24 @@ namespace NumpyDotNet
         public override object __float__(CodeContext cntx) {
             EmitComplexWarning(cntx);
             return value.Real;
+        }
+
+        public object __mod__(CodeContext cntx, object b) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for %: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
+        }
+
+        public object __divmod__(CodeContext cntx, object b) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
+        }
+
+        public object __rdivmod__(CodeContext cntx, object a) {
+            throw new ArgumentTypeException(
+                String.Format("unsupported operand type(s) for divmod: '{0}' and '{1}'",
+                    this.GetType().Name, b.GetType().Name));
         }
 
         public object __complex__() {
