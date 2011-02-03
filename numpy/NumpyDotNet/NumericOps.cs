@@ -618,10 +618,10 @@ namespace NumpyDotNet {
             sbyte f;
 
             if (o is sbyte) f = (sbyte)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToSByte(null);
+            else if (o is ScalarInt8) f = ((ScalarInt8)o).ToSByte();
             else {
                 int fTmp = NpyUtil_Python.ConvertToInt(o);
-                f = (sbyte)fTmp;
+                f = (sbyte)(fTmp & 0xff);
             }
 
             unsafe {
@@ -636,10 +636,10 @@ namespace NumpyDotNet {
             byte f;
 
             if (o is byte) f = (byte)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToByte(null);
+            else if (o is ScalarUInt8) f = ((ScalarUInt8)o).ToByte();
             else {
                 int fTmp = NpyUtil_Python.ConvertToInt(o);
-                f = (byte)fTmp;
+                f = (byte)(fTmp & 0x00ff);
             }
 
             unsafe {
@@ -654,10 +654,10 @@ namespace NumpyDotNet {
             short f;
 
             if (o is Int16) f = (short)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToInt16(null);
+            else if (o is ScalarInt16) f = ((ScalarInt16)o).ToInt16();
             else {
                 int fTmp = NpyUtil_Python.ConvertToInt(o);
-                f = (short)fTmp;
+                f = (short)(fTmp & 0xffff);
             }
 
             unsafe {
@@ -676,10 +676,10 @@ namespace NumpyDotNet {
             ushort f;
 
             if (o is UInt16) f = (ushort)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToUInt16(null);
+            else if (o is ScalarUInt16) f = ((ScalarUInt16)o).ToUInt16();
             else {
                 int fTmp = NpyUtil_Python.ConvertToInt(o);
-                f = (ushort)fTmp;
+                f = (ushort)(fTmp & 0xffff);
             }
 
             unsafe {
@@ -713,8 +713,8 @@ namespace NumpyDotNet {
             uint f;
 
             if (o is UInt32) f = (uint)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToUInt32(null);
-            else f = (uint)NpyUtil_Python.ConvertToLong(o);
+            else if (o is ScalarUInt32) f = ((ScalarUInt32)o).ToUInt32();
+            else f = (uint)(NpyUtil_Python.ConvertToLong(o) & 0xffffffff);
 
             unsafe {
                 byte* p = (byte*)ptr.ToPointer();
@@ -751,7 +751,6 @@ namespace NumpyDotNet {
             ulong f;
 
             if (o is UInt64) f = (ulong)o;
-            else if (o is IConvertible) f = ((IConvertible)o).ToUInt64(null);
             else if (o is BigInteger) ((BigInteger)o).AsUInt64(out f);
             else f = (UInt64)NpyUtil_Python.ConvertToLong(o);
 

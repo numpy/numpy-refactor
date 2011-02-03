@@ -486,6 +486,10 @@ namespace NumpyDotNet
             }
         }
 
+        public static object operator +(ndarray a) {
+            return a;
+        }
+
         public static object operator +(ndarray a, Object b) {
             return BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
         }

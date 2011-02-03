@@ -92,15 +92,16 @@ class TestTypes(TestCase):
                 try:
                     val = vala % valb
                     valo = val1 % val2
+                    if hasattr(val, "dtype") and hasattr(valo, "dtype"):
+                        # Invalid operands in IronPython don't have dtype attributes.
+                        assert val.dtype.num == valo.dtype.num and \
+                               val.dtype.char == valo.dtype.char, \
+                               "error with (%d,%d)" % (k,l)
                 except TypeError, e:
                     # Some combos just don't work, like byte % complex.  We
                     # just don't worry about classifying the cases here, and
                     # instead just ignore these types of problems.  <grin>
                     pass
-
-                assert val.dtype.num == valo.dtype.num and \
-                       val.dtype.char == valo.dtype.char, \
-                       "error with (%d,%d)" % (k,l)
 
     def test_type_negative(self, level=1):
         # Uhh, "negate" ???  Or maybe "unary minus".
@@ -255,6 +256,8 @@ class TestTypes(TestCase):
         z = np.clongdouble( 4 + 5j )
         r = np.nonzero( z )
 
+    @dec.skipif(sys.platform == 'cli',
+                "Construction of arrays by passing sequences to scalar constructors is not supported on IronPython")
     def test_type_create(self, level=1):
         for k, atype in enumerate(types):
             a = np.array([1,2,3],atype)

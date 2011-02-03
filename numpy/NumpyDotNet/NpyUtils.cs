@@ -208,6 +208,8 @@ namespace NumpyDotNet {
                 object result = CallBuiltin(cntx, "int", obj);
                 if (result is int) {
                     return (long)(int)result;
+                } else if (result is long) {
+                    return (long)result;
                 } else if (result is BigInteger) {
                     BigInteger i = (BigInteger)result;
                     if (i > long.MaxValue || i < long.MinValue) {
@@ -217,7 +219,7 @@ namespace NumpyDotNet {
                 }
             } catch (OverflowException) {
                 throw;
-            } catch { }
+            } catch (Exception e) { }
             throw new ArgumentException(
                 String.Format("Unable to convert type '{0}' to integer or long value", obj.GetType().Name));
         }

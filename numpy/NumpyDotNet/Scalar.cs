@@ -78,6 +78,14 @@ namespace NumpyDotNet
             return ToArray().__rdivmod__(cntx, a);
         }
 
+        public object __floordiv__(CodeContext cntx, object o) {
+            return ToArray().__floordiv__(cntx, o);
+        }
+
+        public object __truediv__(CodeContext cntx, object o) {
+            return ToArray().__truediv__(cntx, o);
+        }
+
         public object __lshift__(CodeContext cntx, object b) {
             return ToArray().__lshift__(cntx, b);
         }
@@ -459,6 +467,10 @@ namespace NumpyDotNet
 
         public static object operator +(object a, ScalarGeneric b) {
             return ndarray.BinaryOp(null, a, b, NpyDefs.NpyArray_Ops.npy_op_add);
+        }
+
+        public static object operator +(ScalarGeneric a) {
+            return a;
         }
 
         public static object operator -(ScalarGeneric a, object b) {
@@ -2035,7 +2047,7 @@ namespace NumpyDotNet
 
         public override object __long__(CodeContext cntx) {
             EmitComplexWarning(cntx);
-            return (long)value.Real;
+            return (BigInteger)value.Real;
         }
 
         public override object __float__(CodeContext cntx) {
@@ -2199,7 +2211,7 @@ namespace NumpyDotNet
 
         public override object __long__(CodeContext cntx) {
             EmitComplexWarning(cntx);
-            return (long)value.Real;
+            return (BigInteger)value.Real;
         }
 
         public override object __float__(CodeContext cntx) {
