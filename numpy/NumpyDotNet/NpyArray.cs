@@ -15,7 +15,7 @@ namespace NumpyDotNet {
     /// class has functionality corresponding to functions in arrayobject.c,
     /// ctors.c, and multiarraymodule.c
     /// </summary>
-    internal static class NpyArray {
+    public static class NpyArray {
 
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace NumpyDotNet {
         /// </summary>
         /// <param name="dest">Destination array</param>
         /// <param name="src">Source object</param>
-        internal static void CopyObject(ndarray dest, Object src) {
+        public static void CopyObject(ndarray dest, Object src) {
             // For char arrays pad the input string.
             if (dest.Dtype.Type == NpyDefs.NPY_TYPECHAR.NPY_CHARLTR &&
                 dest.ndim > 0 && src is String) {
@@ -100,7 +100,7 @@ namespace NumpyDotNet {
         /// <param name="shape">Size of each dimension of the array</param>
         /// <param name="strides">Stride of each dimension</param>
         /// <returns>True if strides are ok, false if not</returns>
-        internal static bool CheckStrides(int elSize, long[] shape, long[] strides) {
+        public static bool CheckStrides(int elSize, long[] shape, long[] strides) {
             // Product of all dimension sizes * element size in bytes.
             long numbytes = shape.Aggregate(1L, (acc, x) => acc * x) * elSize;
             long end = numbytes - elSize;
@@ -111,7 +111,7 @@ namespace NumpyDotNet {
         }
 
 
-        internal static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
+        public static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
             int maxDepth, int requires, Object context) {
 
                 if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
@@ -184,7 +184,7 @@ namespace NumpyDotNet {
         /// <param name="requires"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        internal static ndarray FromAny(Object src, dtype descr=null, int minDepth=0,
+        public static ndarray FromAny(Object src, dtype descr = null, int minDepth = 0,
             int maxDepth=0, int flags=0, Object context=null) {
             ndarray result = null;
 
@@ -783,14 +783,14 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray Empty(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
+        public static ndarray Empty(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
             if (type == null) {
                 type = NpyCoreApi.DescrFromType(NpyDefs.DefaultType);
             }
             return NpyCoreApi.NewFromDescr(type, shape, null, (int)order, null);
         }
 
-        internal static ndarray Zeros(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
+        public static ndarray Zeros(long[] shape, dtype type = null, NpyDefs.NPY_ORDER order = NpyDefs.NPY_ORDER.NPY_CORDER) {
             ndarray result = Empty(shape, type, order);
             NpyCoreApi.ZeroFill(result, IntPtr.Zero);
             if (type.IsObject) {
@@ -802,7 +802,7 @@ namespace NumpyDotNet {
             return result;
         }
 
-        internal static ndarray Arange(CodeContext cntx, object start, object stop = null, object step = null, dtype d = null) {
+        public static ndarray Arange(CodeContext cntx, object start, object stop = null, object step = null, dtype d = null) {
             long[] dims;
 
             if (d == null) {
@@ -952,7 +952,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray Concatenate(IEnumerable<object> arrays, int axis) {
+        public static ndarray Concatenate(IEnumerable<object> arrays, int axis) {
             int i;
 
             try {
@@ -1022,7 +1022,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray InnerProduct(object o1, object o2) {
+        public static ndarray InnerProduct(object o1, object o2) {
             dtype d = FindArrayType(o1, null);
             d = FindArrayType(o2, d);
 
@@ -1031,7 +1031,7 @@ namespace NumpyDotNet {
             return NpyCoreApi.InnerProduct(a1, a2, d.TypeNum);
         }
 
-        internal static ndarray MatrixProduct(object o1, object o2) {
+        public static ndarray MatrixProduct(object o1, object o2) {
             dtype d = FindArrayType(o1, null);
             d = FindArrayType(o2, d);
 
