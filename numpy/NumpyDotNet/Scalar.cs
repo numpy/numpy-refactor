@@ -18,7 +18,7 @@ namespace NumpyDotNet
             return null;
         }
 
-        internal virtual object Value {
+        public virtual object Value {
             get {
                 throw new NotImplementedException(
                     String.Format("Internal error: Value has not been overridden for scalar type '{0}'", GetType().Name));
@@ -762,7 +762,7 @@ namespace NumpyDotNet
             value = val;
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         public override object dtype {
             get {
@@ -882,7 +882,7 @@ namespace NumpyDotNet
     {
         protected T value;
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         #region IConvertible
 
@@ -1114,7 +1114,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1190,7 +1190,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -1250,7 +1250,7 @@ namespace NumpyDotNet
     {
         protected T value;
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         #region IConvertible
 
@@ -1646,7 +1646,7 @@ namespace NumpyDotNet
         }
 
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         #region IConvertible
 
@@ -2019,7 +2019,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return new Complex(value.Real, value.Imag); } }
+        public override object Value { get { return new Complex(value.Real, value.Imag); } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -2203,7 +2203,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -2447,7 +2447,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return this[0]; } }
+        public override object Value { get { return this[0]; } }
 
         internal override ndarray ToArray() {
             ndarray a = NpyCoreApi.NewFromDescr(dtype_, new long[0], null, dataptr, 0, null);
@@ -2604,7 +2604,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -2662,7 +2662,7 @@ namespace NumpyDotNet
             return s.value;
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
@@ -2754,7 +2754,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal override object Value { get { return value; } }
+        public override object Value { get { return value; } }
 
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
