@@ -70,37 +70,37 @@ extern "C" {
     for(i = 0; i < n; i++, ip1 += is1, ip2 += is2, op1 += os1, op2 += os2)
 
 
-void
+NDARRAY_API void
 NpyUFunc_F_F(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_F_F_As_D_D(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_FF_F(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_FF_F_As_DD_D(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_D_D(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_DD_D(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_G_G(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_GG_G(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_f_f(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_f_f_As_d_d(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_ff_f(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_ff_f_As_dd_d(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_d_d(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_dd_d(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_g_g(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
-void
+NDARRAY_API void
 NpyUFunc_gg_g(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
 
 
@@ -117,7 +117,7 @@ NpyUFunc_gg_g(char **args, npy_intp *dimensions, npy_intp *steps, void *func);
  *         subtract#
  **/
 
-void
+NDARRAY_API void
 npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
@@ -125,7 +125,7 @@ npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UN
  * #kind = maximum, minimum#
  * #OP =  >, <#
  **/
-void
+NDARRAY_API void
 npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
@@ -133,11 +133,11 @@ npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UN
  * #kind = absolute, logical_not#
  * #OP =  !=, ==#
  **/
-void
+NDARRAY_API void
 npy_BOOL_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
-void
+NDARRAY_API void
 npy_BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 /*
@@ -162,25 +162,25 @@ npy_BOOL_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
 #define npy_@S@@TYPE@_fmax npy_@S@@TYPE@_maximum
 #define npy_@S@@TYPE@_fmin npy_@S@@TYPE@_minimum
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat2
@@ -189,7 +189,7 @@ npy_@S@@TYPE@_invert(char **args, npy_intp *dimensions, npy_intp *steps, void *N
  *          left_shift, right_shift#
  * #OP = +, -,*, &, |, ^, <<, >>#
  */
-void
+NDARRAY_API void
 npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat2**/
@@ -199,54 +199,54 @@ npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *N
  *         logical_and, logical_or#
  * #OP =  ==, !=, >, >=, <, <=, &&, ||#
  */
-void
+NDARRAY_API void
 npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat2**/
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat2
  * #kind = maximum, minimum#
  * #OP =  >, <#
  **/
-void
+NDARRAY_API void
 npy_@S@@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat2**/
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_true_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_power(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@S@@TYPE@_fmod(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_U@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_U@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_U@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
@@ -271,7 +271,7 @@ npy_U@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *
  * # kind = add, subtract, multiply, divide#
  * # OP = +, -, *, /#
  */
-void
+NDARRAY_API void
 npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -280,21 +280,21 @@ npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
  *        logical_and, logical_or#
  * #OP = ==, !=, <, <=, >, >=, &&, ||#
  */
-void
+NDARRAY_API void
 npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind = isnan, isinf, isfinite, signbit, copysign, nextafter, spacing#
  * #func = npy_isnan, npy_isinf, npy_isfinite, npy_signbit, npy_copysign, nextafter, spacing#
  **/
-void
+NDARRAY_API void
 npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -302,7 +302,7 @@ npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
  * #kind = maximum, minimum#
  * #OP =  >=, <=#
  **/
-void
+NDARRAY_API void
 npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -310,50 +310,50 @@ npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_
  * #kind = fmax, fmin#
  * #OP =  >=, <=#
  **/
-void
+NDARRAY_API void
 npy_@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_remainder(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
 
-void
+NDARRAY_API void
 npy_@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_@TYPE@_negative(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 
-void
+NDARRAY_API void
 npy_@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 
-void
+NDARRAY_API void
 npy_@TYPE@_modf(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 #if NPY_HAVE_DECL_FREXP@C@
-void
+NDARRAY_API void
 npy_@TYPE@_frexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 #endif
 
 #if NPY_HAVE_DECL_LDEXP@C@
-void
+NDARRAY_API void
 npy_@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 #endif
 
@@ -388,25 +388,25 @@ npy_@TYPE@_ldexp(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_U
  * #kind = add, subtract#
  * #OP = +, -#
  */
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_C@TYPE@_multiply(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_floor_divide(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind= greater, greater_equal, less, less_equal, equal, not_equal#
  * #OP = CGT, CGE, CLT, CLE, CEQ, CNE#
  */
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -415,50 +415,50 @@ npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
    #OP1 = ||, ||#
    #OP2 = &&, ||#
 */
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_C@TYPE@_logical_xor(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_logical_not(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**begin repeat1
  * #kind = isnan, isinf, isfinite#
  * #func = npy_isnan, npy_isinf, npy_isfinite#
  * #OP = ||, ||, &&#
  **/
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
-void
+NDARRAY_API void
 npy_C@TYPE@_square(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_reciprocal(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_ones_like(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(data));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_conjugate(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_absolute(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@__arg(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_C@TYPE@_sign(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /**begin repeat1
  * #kind = maximum, minimum#
  * #OP = CGE, CLE#
  */
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -466,7 +466,7 @@ npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
  * #kind = fmax, fmin#
  * #OP = CGE, CLE#
  */
-void
+NDARRAY_API void
 npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat1**/
 
@@ -499,29 +499,29 @@ npy_C@TYPE@_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY
  *      absolute, logical_and, logical_not, logical_or, logical_xor, maximum,
  *      minimum, negative, ones_like, sign#
  */
-void
+NDARRAY_API void
 npy_DATETIME_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_TIMEDELTA_@kind@(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 /**end repeat**/
 
-void
+NDARRAY_API void
 npy_DATETIME_Mm_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_DATETIME_mM_M_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_DATETIME_Mm_M_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_DATETIME_MM_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_TIMEDELTA_mm_m_add(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
-void
+NDARRAY_API void
 npy_TIMEDELTA_mm_m_subtract(char **args, npy_intp *dimensions, npy_intp *steps, void *NPY_UNUSED(func));
 
 /*
