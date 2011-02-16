@@ -476,7 +476,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
  *         dptr += npts*2
  * 
  */
-    cfftf(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
+    GLOBALFUNC(cfftf)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
     /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":44
  *     for i in range(nrepeats):
@@ -661,7 +661,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  *         dptr += npts*2
  * 
  */
-    cfftb(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
+    GLOBALFUNC(cfftb)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
     /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":66
  *     for i in range(nrepeats):
@@ -740,7 +740,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
  * 
  *     return op
  */
-  cffti(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
+  GLOBALFUNC(cffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":81
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
@@ -1015,7 +1015,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  *         rptr[0] = rptr[1]
  *         rptr[1] = 0.0
  */
-    rfftf(__pyx_v_npts, (__pyx_v_rptr + 1), __pyx_v_wsave);
+    GLOBALFUNC(rfftf)(__pyx_v_npts, (__pyx_v_rptr + 1), __pyx_v_wsave);
 
     /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":109
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
@@ -1284,7 +1284,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  *         rptr += npts
  *         dptr += npts*2
  */
-    rfftb(__pyx_v_npts, __pyx_v_rptr, __pyx_v_wsave);
+    GLOBALFUNC(rfftb)(__pyx_v_npts, __pyx_v_rptr, __pyx_v_wsave);
 
     /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":139
  *         rptr[0] = dptr[0]
@@ -1372,7 +1372,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
  * 
  *     return op
  */
-  rffti(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
+  GLOBALFUNC(rffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":155
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))

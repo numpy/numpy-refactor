@@ -15,6 +15,12 @@ extern "C" {
 #define Treal float
 #endif
 
+#ifdef __cplusplus
+#define GLOBALFUNC(x) ::x
+#else
+#define GLOBALFUNC(x) x
+#endif
+
 extern void cfftf(int N, Treal data[], const Treal wrk[]);
 extern void cfftb(int N, Treal data[], const Treal wrk[]);
 extern void cffti(int N, Treal wrk[]);

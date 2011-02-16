@@ -6,12 +6,12 @@ cdef extern from "string.h":
 
 cdef extern from "fftpack.h":
     ctypedef double Treal
-    void fftpack_cfftf "cfftf"(int N, Treal *data, Treal *wrk)
-    void fftpack_cfftb "cfftb"(int N, Treal *data, Treal *wrk)
-    void fftpack_cffti "cffti"(int N, Treal *wrk)
-    void fftpack_rfftf "rfftf"(int N, Treal *data, Treal *wrk)
-    void fftpack_rfftb "rfftb"(int N, Treal *data, Treal *wrk)
-    void fftpack_rffti "rffti"(int N, Treal *wrk)
+    void fftpack_cfftf "GLOBALFUNC(cfftf)"(int N, Treal *data, Treal *wrk)
+    void fftpack_cfftb "GLOBALFUNC(cfftb)"(int N, Treal *data, Treal *wrk)
+    void fftpack_cffti "GLOBALFUNC(cffti)"(int N, Treal *wrk)
+    void fftpack_rfftf "GLOBALFUNC(rfftf)"(int N, Treal *data, Treal *wrk)
+    void fftpack_rfftb "GLOBALFUNC(rfftb)"(int N, Treal *data, Treal *wrk)
+    void fftpack_rffti "GLOBALFUNC(rffti)"(int N, Treal *wrk)
 
 cimport numpy as np
 np.import_array()
