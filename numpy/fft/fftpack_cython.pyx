@@ -25,17 +25,18 @@ cdef cfftf(np.ndarray op1, object op2):
     cdef int npts, nrepeats, i
     cdef np.ndarray data
     
-    data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+    data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
     
-    #if np.PyArray_AsCArray(<void **>&(<object>op2), <void *>&wsave, &nsave, 1, np.PyArray_DOUBLE, 0) == -1:
+    #if np.PyArray_AsCArray(<void **>&(<object>op2), <void *>&wsave, &nsave, 1, np.NPY_DOUBLE, 0) == -1:
     #    return None
     
     nsave = np.PyArray_DIMS(op2)[0]
-    npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+    npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
     if nsave != npts*4 + 15:
         raise error("invalid work array for fft size")
     
-    nrepeats = np.PyArray_SIZE(data) / npts
+    nrepeats = np.PyArray_SIZE(data)
+    nrepeats /= npts
     dptr = <double *>np.PyArray_DATA(data)
     wsave = <double *>np.PyArray_DATA(op2)
     
@@ -50,14 +51,15 @@ cdef cfftb(np.ndarray op1, np.ndarray op2):
     cdef np.intp_t nsave
     cdef int npts, nrepeats, i
     
-    data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+    data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
 
     nsave = np.PyArray_DIMS(op2)[0] 
-    npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+    npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
     if nsave != npts*4 + 15:
         raise error("invalid work array for fft size")
 
-    nrepeats = np.PyArray_SIZE(data) / npts
+    nrepeats = np.PyArray_SIZE(data)
+    nrepeats /= npts
     dptr = <double *>np.PyArray_DATA(data)
     wsave = <double *>np.PyArray_DATA(op2)
     
@@ -74,7 +76,7 @@ cdef cffti(long n):
     # Magic size needed by cffti
     dim = 4*n + 15;
     # Create a 1 dimensional array of dimensions of type double
-    op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+    op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
 
     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
 
@@ -85,11 +87,11 @@ cdef rfftf(np.ndarray op1, np.ndarray op2):
     cdef np.intp_t nsave
     cdef int npts, nrepeats, rstep, i
 
-    data = np.PyArray_FROMANY(op1, np.PyArray_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+    data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
     
     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
-    ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_CDOUBLE, 0)
+    ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
     
     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2
@@ -98,7 +100,8 @@ cdef rfftf(np.ndarray op1, np.ndarray op2):
     if nsave != npts*2+15:
         raise error("invalid work array for fft size")
 
-    nrepeats = np.PyArray_SIZE(data) / npts
+    nrepeats = np.PyArray_SIZE(data)
+    nrepeats /= npts
     rptr = <double *>np.PyArray_DATA(ret)
     dptr = <double *>np.PyArray_DATA(data)
     wsave = <double *>np.PyArray_DATA(op2)
@@ -118,16 +121,17 @@ cdef rfftb(np.ndarray op1, np.ndarray op2):
     cdef np.intp_t nsave
     cdef int npts, nrepeats, i
 
-    data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+    data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
     
-    ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_DOUBLE, 0)    
+    ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)    
     
     nsave = np.PyArray_DIMS(op2)[0]
     if nsave != npts*2 + 15:
         raise error("invalid work array for fft size")
 
-    nrepeats = np.PyArray_SIZE(ret) / npts
+    nrepeats = np.PyArray_SIZE(ret)
+    nrepeats /= npts
     rptr = <double *>np.PyArray_DATA(ret)
     dptr = <double *>np.PyArray_DATA(data)
     wsave = <double *>np.PyArray_DATA(data)
@@ -148,7 +152,7 @@ cdef rffti(long n):
     # Magic size needed by rffti
     dim = 2*n + 15
     # Create a 1 dimensional array of dimensions of type double
-    op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+    op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
 
     fftpack_rffti(n, <double *>np.PyArray_DATA(op))
 

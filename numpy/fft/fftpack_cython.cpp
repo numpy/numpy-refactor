@@ -188,6 +188,9 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^); /*proto*/
 public delegate __pyx_t_5numpy_3fft_5numpy_intp_t *__pyx_delegate_t_5numpy_3fft_5numpy_PyArray_DIMS(NumpyDotNet::ndarray^);
 static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet::ndarray^); /*proto*/
 [InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate __pyx_t_5numpy_3fft_5numpy_intp_t __pyx_delegate_t_5numpy_3fft_5numpy_PyArray_SIZE(NumpyDotNet::ndarray^);
+static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet::ndarray^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
 public delegate System::Object^ __pyx_delegate_t_5numpy_3fft_5numpy_PyArray_FromAny(System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^);
 static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^); /*proto*/
 [InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
@@ -229,75 +232,45 @@ static System::Object^ rffti(long); /*proto*/
 namespace clr_fftpack_cython {
   public ref class module_fftpack_cython sealed abstract {
 /* Cython code section 'global_var' */
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_CDOUBLE_28_37;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DIM_34_13;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_34_54;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_34_25;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_34_25;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_34_55;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_34_55;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_36_19;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_SIZE_38_17;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_38_30;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_div_38_37;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_38_37;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_CDOUBLE_53_37;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DIM_56_13;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_56_54;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_56_25;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_56_25;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_58_19;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_SIZE_60_17;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_60_30;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_div_60_37;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_60_37;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DOUBLE_77_41;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_77_41;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DOUBLE_88_37;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_89_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_89_54;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_91_48;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_91_48;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_92_42;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_CDOUBLE_92_75;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_92_75;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_57_55;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_57_55;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_59_19;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_91_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_91_54;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_93_48;
 static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_93_48;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_95_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_95_54;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_99_19;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_SIZE_101_17;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_101_30;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_div_101_37;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_101_37;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_CDOUBLE_121_37;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_122_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_122_54;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_124_42;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DOUBLE_124_75;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_124_75;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_128_19;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_SIZE_130_17;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_130_30;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_div_130_36;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_130_36;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_PyArray_DOUBLE_151_41;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_151_41;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_append_196_18;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_196_25;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_zeros_198_16;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call3_198_22;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_210_49;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_210_49;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_214_49;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_214_49;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_NpyArray_219_22;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_FromAny_219_31;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call6_219_39;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_and_222_13;
-static  CallSite< System::Func< CallSite^, System::Object^, bool >^ >^ __site_istrue_222_13;
-static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_ior_223_14;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_224_77;
-static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_227_21;
-static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_ndim_230_14;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_94_42;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_95_48;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_95_48;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_97_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_97_54;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_101_19;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_125_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_125_54;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_127_42;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_131_19;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_append_197_18;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_197_25;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_zeros_199_16;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call3_199_22;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_211_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_211_49;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_215_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_215_49;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_219_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_219_49;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_NpyArray_224_22;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_FromAny_224_31;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call6_224_39;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_and_227_13;
+static  CallSite< System::Func< CallSite^, System::Object^, bool >^ >^ __site_istrue_227_13;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_ior_228_14;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_229_77;
+static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_232_21;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_ndim_235_14;
 static CodeContext^ __pyx_context;
 /* Cython code section 'dotnet_globals' */
 
@@ -332,27 +305,24 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
   System::Object^ __pyx_t_3 = nullptr;
-  int __pyx_t_4;
+  Py_ssize_t __pyx_t_4;
   int __pyx_t_5;
   int __pyx_t_6;
   int __pyx_t_7;
-  int __pyx_t_8;
   __pyx_v_data = nullptr;
 
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":28
  *     cdef np.ndarray data
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
  * 
- *     #if np.PyArray_AsCArray(<void **>&(<object>op2), <void *>&wsave, &nsave, 1, np.PyArray_DOUBLE, 0) == -1:
+ *     #if np.PyArray_AsCArray(<void **>&(<object>op2), <void *>&wsave, &nsave, 1, np.NPY_DOUBLE, 0) == -1:
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_CDOUBLE_28_37->Target(__site_get_PyArray_CDOUBLE_28_37, __pyx_t_1, __pyx_context);
+  __pyx_t_1 = (System::Object^)(long long)(NPY_CDOUBLE);
+  __pyx_t_2 = (System::Object^)(long long)((NPY_ENSURECOPY | NPY_C_CONTIGUOUS));
+  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
-  __pyx_t_1 = (System::Object^)(long long)((NPY_ENSURECOPY | NPY_C_CONTIGUOUS));
-  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_2, __pyx_int_1, __pyx_int_0, __pyx_t_1); 
   __pyx_t_2 = nullptr;
-  __pyx_t_1 = nullptr;
   if (__pyx_t_3 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_3) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
@@ -363,7 +333,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
  *     #    return None
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  */
   if (__pyx_v_op2 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_op2) == nullptr) {
@@ -374,26 +344,20 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":34
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)             # <<<<<<<<<<<<<<
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]             # <<<<<<<<<<<<<<
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")
  */
-  __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_1 = __site_get_PyArray_DIM_34_13->Target(__site_get_PyArray_DIM_34_13, __pyx_t_3, __pyx_context);
-  __pyx_t_3 = nullptr;
   __pyx_t_3 = PyArray_NDIM(((System::Object^)__pyx_v_data)); 
-  __pyx_t_2 = __site_op_sub_34_54->Target(__site_op_sub_34_54, __pyx_t_3, __pyx_int_1);
+  __pyx_t_2 = __site_op_sub_34_55->Target(__site_op_sub_34_55, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
-  __pyx_t_3 = __site_call2_34_25->Target(__site_call2_34_25, __pyx_context, __pyx_t_1, ((System::Object^)__pyx_v_data), __pyx_t_2);
-  __pyx_t_1 = nullptr;
+  __pyx_t_4 = __site_cvt_Py_ssize_t_34_55->Target(__site_cvt_Py_ssize_t_34_55, __pyx_t_2);
   __pyx_t_2 = nullptr;
-  __pyx_t_4 = __site_cvt_int_34_25->Target(__site_cvt_int_34_25, __pyx_t_3);
-  __pyx_t_3 = nullptr;
-  __pyx_v_npts = __pyx_t_4;
+  __pyx_v_npts = (PyArray_DIMS(__pyx_v_data)[__pyx_t_4]);
 
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":35
  *     nsave = np.PyArray_DIMS(op2)[0]
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:             # <<<<<<<<<<<<<<
  *         raise error("invalid work array for fft size")
  * 
@@ -402,17 +366,17 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   if (__pyx_t_5) {
 
     /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":36
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+ *     nrepeats = np.PyArray_SIZE(data)
  */
-    __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "error");
-    __pyx_t_2 = __site_call1_36_19->Target(__site_call1_36_19, __pyx_context, __pyx_t_3, ((System::Object^)"invalid work array for fft size"));
-    __pyx_t_3 = nullptr;
-    throw PythonOps::MakeException(__pyx_context, __pyx_t_2, nullptr, nullptr);
+    __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "error");
+    __pyx_t_3 = __site_call1_36_19->Target(__site_call1_36_19, __pyx_context, __pyx_t_2, ((System::Object^)"invalid work array for fft size"));
     __pyx_t_2 = nullptr;
+    throw PythonOps::MakeException(__pyx_context, __pyx_t_3, nullptr, nullptr);
+    __pyx_t_3 = nullptr;
     goto __pyx_L3;
   }
   __pyx_L3:;
@@ -420,34 +384,32 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":38
  *         raise error("invalid work array for fft size")
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts             # <<<<<<<<<<<<<<
+ *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
+ *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
- *     wsave = <double *>np.PyArray_DATA(op2)
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_3 = __site_get_PyArray_SIZE_38_17->Target(__site_get_PyArray_SIZE_38_17, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  __pyx_t_2 = __site_call1_38_30->Target(__site_call1_38_30, __pyx_context, __pyx_t_3, ((System::Object^)__pyx_v_data));
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_npts;
-  __pyx_t_1 = __site_op_div_38_37->Target(__site_op_div_38_37, __pyx_t_2, __pyx_t_3);
-  __pyx_t_2 = nullptr;
-  __pyx_t_3 = nullptr;
-  __pyx_t_6 = __site_cvt_int_38_37->Target(__site_cvt_int_38_37, __pyx_t_1);
-  __pyx_t_1 = nullptr;
-  __pyx_v_nrepeats = __pyx_t_6;
+  __pyx_v_nrepeats = PyArray_SIZE(__pyx_v_data);
 
   /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":39
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts             # <<<<<<<<<<<<<<
+ *     dptr = <double *>np.PyArray_DATA(data)
+ *     wsave = <double *>np.PyArray_DATA(op2)
+ */
+  __pyx_v_nrepeats /= __pyx_v_npts;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":40
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  */
   __pyx_v_dptr = ((double *)PyArray_DATA(__pyx_v_data));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":40
- *     nrepeats = np.PyArray_SIZE(data) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":41
+ *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
  * 
@@ -458,18 +420,18 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   }
   __pyx_v_wsave = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_op2)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":42
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":43
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
  *         fftpack_cfftf(npts, dptr, wsave)
  *         dptr += npts*2
  */
-  __pyx_t_7 = __pyx_v_nrepeats;
-  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-    __pyx_v_i = __pyx_t_8;
+  __pyx_t_6 = __pyx_v_nrepeats;
+  for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
+    __pyx_v_i = __pyx_t_7;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":43
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":44
  * 
  *     for i in range(nrepeats):
  *         fftpack_cfftf(npts, dptr, wsave)             # <<<<<<<<<<<<<<
@@ -478,7 +440,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
  */
     GLOBALFUNC(cfftf)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":44
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":45
  *     for i in range(nrepeats):
  *         fftpack_cfftf(npts, dptr, wsave)
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -488,7 +450,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":46
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":47
  *         dptr += npts*2
  * 
  *     return data             # <<<<<<<<<<<<<<
@@ -503,7 +465,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, System::Object^
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":48
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":49
  *     return data
  * 
  * cdef cfftb(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -523,62 +485,56 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
   System::Object^ __pyx_t_3 = nullptr;
-  int __pyx_t_4;
+  Py_ssize_t __pyx_t_4;
   int __pyx_t_5;
   int __pyx_t_6;
   int __pyx_t_7;
-  int __pyx_t_8;
   __pyx_v_data = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":53
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":54
  *     cdef int npts, nrepeats, i
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_CDOUBLE_53_37->Target(__site_get_PyArray_CDOUBLE_53_37, __pyx_t_1, __pyx_context);
+  __pyx_t_1 = (System::Object^)(long long)(NPY_CDOUBLE);
+  __pyx_t_2 = (System::Object^)(long long)((NPY_ENSURECOPY | NPY_C_CONTIGUOUS));
+  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
-  __pyx_t_1 = (System::Object^)(long long)((NPY_ENSURECOPY | NPY_C_CONTIGUOUS));
-  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_2, __pyx_int_1, __pyx_int_0, __pyx_t_1); 
   __pyx_t_2 = nullptr;
-  __pyx_t_1 = nullptr;
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":55
- *     data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":56
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":56
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":57
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)             # <<<<<<<<<<<<<<
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]             # <<<<<<<<<<<<<<
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")
  */
-  __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_1 = __site_get_PyArray_DIM_56_13->Target(__site_get_PyArray_DIM_56_13, __pyx_t_3, __pyx_context);
-  __pyx_t_3 = nullptr;
+  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+    throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
+  }
   __pyx_t_3 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_2 = __site_op_sub_56_54->Target(__site_op_sub_56_54, __pyx_t_3, __pyx_int_1);
+  __pyx_t_2 = __site_op_sub_57_55->Target(__site_op_sub_57_55, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
-  __pyx_t_3 = __site_call2_56_25->Target(__site_call2_56_25, __pyx_context, __pyx_t_1, __pyx_v_data, __pyx_t_2);
-  __pyx_t_1 = nullptr;
+  __pyx_t_4 = __site_cvt_Py_ssize_t_57_55->Target(__site_cvt_Py_ssize_t_57_55, __pyx_t_2);
   __pyx_t_2 = nullptr;
-  __pyx_t_4 = __site_cvt_int_56_25->Target(__site_cvt_int_56_25, __pyx_t_3);
-  __pyx_t_3 = nullptr;
-  __pyx_v_npts = __pyx_t_4;
+  __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_4]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":57
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":58
  *     nsave = np.PyArray_DIMS(op2)[0]
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:             # <<<<<<<<<<<<<<
  *         raise error("invalid work array for fft size")
  * 
@@ -586,45 +542,46 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_5 = (__pyx_v_nsave != ((__pyx_v_npts * 4) + 15));
   if (__pyx_t_5) {
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":58
- *     npts = np.PyArray_DIM(data, np.PyArray_NDIM(data) - 1)
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":59
+ *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+ *     nrepeats = np.PyArray_SIZE(data)
  */
-    __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "error");
-    __pyx_t_2 = __site_call1_58_19->Target(__site_call1_58_19, __pyx_context, __pyx_t_3, ((System::Object^)"invalid work array for fft size"));
-    __pyx_t_3 = nullptr;
-    throw PythonOps::MakeException(__pyx_context, __pyx_t_2, nullptr, nullptr);
+    __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "error");
+    __pyx_t_3 = __site_call1_59_19->Target(__site_call1_59_19, __pyx_context, __pyx_t_2, ((System::Object^)"invalid work array for fft size"));
     __pyx_t_2 = nullptr;
+    throw PythonOps::MakeException(__pyx_context, __pyx_t_3, nullptr, nullptr);
+    __pyx_t_3 = nullptr;
     goto __pyx_L3;
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":60
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":61
  *         raise error("invalid work array for fft size")
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts             # <<<<<<<<<<<<<<
+ *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
+ *     nrepeats /= npts
+ *     dptr = <double *>np.PyArray_DATA(data)
+ */
+  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+    throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
+  }
+  __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_data));
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":62
+ * 
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts             # <<<<<<<<<<<<<<
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_3 = __site_get_PyArray_SIZE_60_17->Target(__site_get_PyArray_SIZE_60_17, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  __pyx_t_2 = __site_call1_60_30->Target(__site_call1_60_30, __pyx_context, __pyx_t_3, __pyx_v_data);
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_npts;
-  __pyx_t_1 = __site_op_div_60_37->Target(__site_op_div_60_37, __pyx_t_2, __pyx_t_3);
-  __pyx_t_2 = nullptr;
-  __pyx_t_3 = nullptr;
-  __pyx_t_6 = __site_cvt_int_60_37->Target(__site_cvt_int_60_37, __pyx_t_1);
-  __pyx_t_1 = nullptr;
-  __pyx_v_nrepeats = __pyx_t_6;
+  __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":61
- * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":63
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
@@ -634,8 +591,8 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":62
- *     nrepeats = np.PyArray_SIZE(data) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":64
+ *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
  * 
@@ -643,18 +600,18 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":64
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":66
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
  *         fftpack_cfftb(npts, dptr, wsave)
  *         dptr += npts*2
  */
-  __pyx_t_7 = __pyx_v_nrepeats;
-  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
-    __pyx_v_i = __pyx_t_8;
+  __pyx_t_6 = __pyx_v_nrepeats;
+  for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
+    __pyx_v_i = __pyx_t_7;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":65
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":67
  * 
  *     for i in range(nrepeats):
  *         fftpack_cfftb(npts, dptr, wsave)             # <<<<<<<<<<<<<<
@@ -663,7 +620,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(cfftb)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":66
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":68
  *     for i in range(nrepeats):
  *         fftpack_cfftb(npts, dptr, wsave)
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -673,7 +630,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":68
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":70
  *         dptr += npts*2
  * 
  *     return data             # <<<<<<<<<<<<<<
@@ -688,7 +645,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":70
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":72
  *     return data
  * 
  * cdef cffti(long n):             # <<<<<<<<<<<<<<
@@ -701,40 +658,33 @@ static  System::Object^ cffti(long __pyx_v_n) {
   NumpyDotNet::ndarray^ __pyx_v_op;
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
-  System::Object^ __pyx_t_2 = nullptr;
-  int __pyx_t_3;
   __pyx_v_op = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":75
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":77
  * 
  *     # Magic size needed by cffti
  *     dim = 4*n + 15;             # <<<<<<<<<<<<<<
  *     # Create a 1 dimensional array of dimensions of type double
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  */
   __pyx_v_dim = ((4 * __pyx_v_n) + 15);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":77
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":79
  *     dim = 4*n + 15;
  *     # Create a 1 dimensional array of dimensions of type double
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
  * 
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_DOUBLE_77_41->Target(__site_get_PyArray_DOUBLE_77_41, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  __pyx_t_3 = __site_cvt_int_77_41->Target(__site_cvt_int_77_41, __pyx_t_2);
-  __pyx_t_2 = nullptr;
-  __pyx_t_2 = PyArray_New(NULL, 1, (&__pyx_v_dim), __pyx_t_3, NULL, NULL, 0, 0, NULL); 
-  if (__pyx_t_2 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_2) == nullptr) {
+  __pyx_t_1 = PyArray_New(NULL, 1, (&__pyx_v_dim), NPY_DOUBLE, NULL, NULL, 0, 0, NULL); 
+  if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_2);
-  __pyx_t_2 = nullptr;
+  __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":79
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":81
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  * 
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))             # <<<<<<<<<<<<<<
  * 
@@ -742,7 +692,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
  */
   GLOBALFUNC(cffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":81
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":83
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
  * 
  *     return op             # <<<<<<<<<<<<<<
@@ -757,7 +707,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":83
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":85
  *     return op
  * 
  * cdef rfftf(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -783,36 +733,32 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   Py_ssize_t __pyx_t_4;
   Py_ssize_t __pyx_t_5;
   int __pyx_t_6;
-  int __pyx_t_7;
+  Py_ssize_t __pyx_t_7;
   Py_ssize_t __pyx_t_8;
-  Py_ssize_t __pyx_t_9;
+  int __pyx_t_9;
   int __pyx_t_10;
   int __pyx_t_11;
-  int __pyx_t_12;
-  int __pyx_t_13;
   __pyx_v_data = nullptr;
   __pyx_v_ret = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":88
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":90
  *     cdef int npts, nrepeats, rstep, i
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
+ *     data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  * 
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_DOUBLE_88_37->Target(__site_get_PyArray_DOUBLE_88_37, __pyx_t_1, __pyx_context);
+  __pyx_t_1 = (System::Object^)(long long)(NPY_DOUBLE);
+  __pyx_t_2 = (System::Object^)(long long)(NPY_C_CONTIGUOUS);
+  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
-  __pyx_t_1 = (System::Object^)(long long)(NPY_C_CONTIGUOUS);
-  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_2, __pyx_int_1, __pyx_int_0, __pyx_t_1); 
   __pyx_t_2 = nullptr;
-  __pyx_t_1 = nullptr;
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":89
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":91
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+ *     data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]             # <<<<<<<<<<<<<<
  * 
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
@@ -821,54 +767,49 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_3 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_1 = __site_op_sub_89_54->Target(__site_op_sub_89_54, __pyx_t_3, __pyx_int_1);
+  __pyx_t_2 = __site_op_sub_91_54->Target(__site_op_sub_91_54, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
-  __pyx_t_4 = __site_cvt_Py_ssize_t_89_54->Target(__site_cvt_Py_ssize_t_89_54, __pyx_t_1);
-  __pyx_t_1 = nullptr;
+  __pyx_t_4 = __site_cvt_Py_ssize_t_91_54->Target(__site_cvt_Py_ssize_t_91_54, __pyx_t_2);
+  __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_4]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":91
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":93
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  * 
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1             # <<<<<<<<<<<<<<
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_CDOUBLE, 0)
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
  */
   if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_3 = __site_op_sub_91_48->Target(__site_op_sub_91_48, __pyx_t_1, __pyx_int_1);
-  __pyx_t_1 = nullptr;
-  __pyx_t_5 = __site_cvt_Py_ssize_t_91_48->Target(__site_cvt_Py_ssize_t_91_48, __pyx_t_3);
+  __pyx_t_2 = PyArray_NDIM(__pyx_v_data); 
+  __pyx_t_3 = __site_op_sub_93_48->Target(__site_op_sub_93_48, __pyx_t_2, __pyx_int_1);
+  __pyx_t_2 = nullptr;
+  __pyx_t_5 = __site_cvt_Py_ssize_t_93_48->Target(__site_cvt_Py_ssize_t_93_48, __pyx_t_3);
   __pyx_t_3 = nullptr;
   (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_5]) = (__Pyx_div_long(__pyx_v_npts, 2) + 1);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":92
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":94
  * 
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_CDOUBLE, 0)             # <<<<<<<<<<<<<<
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)             # <<<<<<<<<<<<<<
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
  * 
  */
   __pyx_t_3 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_6 = __site_cvt_int_92_42->Target(__site_cvt_int_92_42, __pyx_t_3);
+  __pyx_t_6 = __site_cvt_int_94_42->Target(__site_cvt_int_94_42, __pyx_t_3);
   __pyx_t_3 = nullptr;
   if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_1 = __site_get_PyArray_CDOUBLE_92_75->Target(__site_get_PyArray_CDOUBLE_92_75, __pyx_t_3, __pyx_context);
+  __pyx_t_3 = PyArray_ZEROS(__pyx_t_6, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), NPY_CDOUBLE, 0); 
+  __pyx_v_ret = __pyx_t_3;
   __pyx_t_3 = nullptr;
-  __pyx_t_7 = __site_cvt_int_92_75->Target(__site_cvt_int_92_75, __pyx_t_1);
-  __pyx_t_1 = nullptr;
-  __pyx_t_1 = PyArray_ZEROS(__pyx_t_6, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), __pyx_t_7, 0); 
-  __pyx_v_ret = __pyx_t_1;
-  __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":93
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":95
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_CDOUBLE, 0)
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts             # <<<<<<<<<<<<<<
  * 
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2
@@ -876,14 +817,14 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_3 = __site_op_sub_93_48->Target(__site_op_sub_93_48, __pyx_t_1, __pyx_int_1);
-  __pyx_t_1 = nullptr;
-  __pyx_t_8 = __site_cvt_Py_ssize_t_93_48->Target(__site_cvt_Py_ssize_t_93_48, __pyx_t_3);
+  __pyx_t_3 = PyArray_NDIM(__pyx_v_data); 
+  __pyx_t_2 = __site_op_sub_95_48->Target(__site_op_sub_95_48, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
-  (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_8]) = __pyx_v_npts;
+  __pyx_t_7 = __site_cvt_Py_ssize_t_95_48->Target(__site_cvt_Py_ssize_t_95_48, __pyx_t_2);
+  __pyx_t_2 = nullptr;
+  (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_7]) = __pyx_v_npts;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":95
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":97
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
  * 
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2             # <<<<<<<<<<<<<<
@@ -893,14 +834,14 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_t_3 = PyArray_NDIM(__pyx_v_ret); 
-  __pyx_t_1 = __site_op_sub_95_54->Target(__site_op_sub_95_54, __pyx_t_3, __pyx_int_1);
+  __pyx_t_2 = PyArray_NDIM(__pyx_v_ret); 
+  __pyx_t_3 = __site_op_sub_97_54->Target(__site_op_sub_97_54, __pyx_t_2, __pyx_int_1);
+  __pyx_t_2 = nullptr;
+  __pyx_t_8 = __site_cvt_Py_ssize_t_97_54->Target(__site_cvt_Py_ssize_t_97_54, __pyx_t_3);
   __pyx_t_3 = nullptr;
-  __pyx_t_9 = __site_cvt_Py_ssize_t_95_54->Target(__site_cvt_Py_ssize_t_95_54, __pyx_t_1);
-  __pyx_t_1 = nullptr;
-  __pyx_v_rstep = ((PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_ret))[__pyx_t_9]) * 2);
+  __pyx_v_rstep = ((PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_ret))[__pyx_t_8]) * 2);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":97
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":99
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
@@ -909,55 +850,56 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":98
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":100
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2+15:             # <<<<<<<<<<<<<<
  *         raise error("invalid work array for fft size")
  * 
  */
-  __pyx_t_10 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
-  if (__pyx_t_10) {
+  __pyx_t_9 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
+  if (__pyx_t_9) {
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":99
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":101
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2+15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+ *     nrepeats = np.PyArray_SIZE(data)
  */
-    __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "error");
-    __pyx_t_3 = __site_call1_99_19->Target(__site_call1_99_19, __pyx_context, __pyx_t_1, ((System::Object^)"invalid work array for fft size"));
-    __pyx_t_1 = nullptr;
-    throw PythonOps::MakeException(__pyx_context, __pyx_t_3, nullptr, nullptr);
+    __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "error");
+    __pyx_t_2 = __site_call1_101_19->Target(__site_call1_101_19, __pyx_context, __pyx_t_3, ((System::Object^)"invalid work array for fft size"));
     __pyx_t_3 = nullptr;
+    throw PythonOps::MakeException(__pyx_context, __pyx_t_2, nullptr, nullptr);
+    __pyx_t_2 = nullptr;
     goto __pyx_L3;
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":101
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":103
  *         raise error("invalid work array for fft size")
  * 
- *     nrepeats = np.PyArray_SIZE(data) / npts             # <<<<<<<<<<<<<<
+ *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
+ *     nrepeats /= npts
+ *     rptr = <double *>np.PyArray_DATA(ret)
+ */
+  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+    throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
+  }
+  __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_data));
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":104
+ * 
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts             # <<<<<<<<<<<<<<
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  */
-  __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_1 = __site_get_PyArray_SIZE_101_17->Target(__site_get_PyArray_SIZE_101_17, __pyx_t_3, __pyx_context);
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __site_call1_101_30->Target(__site_call1_101_30, __pyx_context, __pyx_t_1, __pyx_v_data);
-  __pyx_t_1 = nullptr;
-  __pyx_t_1 = __pyx_v_npts;
-  __pyx_t_2 = __site_op_div_101_37->Target(__site_op_div_101_37, __pyx_t_3, __pyx_t_1);
-  __pyx_t_3 = nullptr;
-  __pyx_t_1 = nullptr;
-  __pyx_t_11 = __site_cvt_int_101_37->Target(__site_cvt_int_101_37, __pyx_t_2);
-  __pyx_t_2 = nullptr;
-  __pyx_v_nrepeats = __pyx_t_11;
+  __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":102
- * 
- *     nrepeats = np.PyArray_SIZE(data) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":105
+ *     nrepeats = np.PyArray_SIZE(data)
+ *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)             # <<<<<<<<<<<<<<
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)
@@ -967,8 +909,8 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_rptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ret)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":103
- *     nrepeats = np.PyArray_SIZE(data) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":106
+ *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
@@ -979,7 +921,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":104
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":107
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
@@ -988,18 +930,18 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":106
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":109
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
  *         fftpack_rfftf(npts, rptr+1, wsave)
  */
-  __pyx_t_12 = __pyx_v_nrepeats;
-  for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
-    __pyx_v_i = __pyx_t_13;
+  __pyx_t_10 = __pyx_v_nrepeats;
+  for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
+    __pyx_v_i = __pyx_t_11;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":107
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":110
  * 
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))             # <<<<<<<<<<<<<<
@@ -1008,7 +950,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     memcpy(((char *)(__pyx_v_rptr + 1)), __pyx_v_dptr, (__pyx_v_npts * (sizeof(double))));
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":108
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":111
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
  *         fftpack_rfftf(npts, rptr+1, wsave)             # <<<<<<<<<<<<<<
@@ -1017,7 +959,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(rfftf)(__pyx_v_npts, (__pyx_v_rptr + 1), __pyx_v_wsave);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":109
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":112
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
  *         fftpack_rfftf(npts, rptr+1, wsave)
  *         rptr[0] = rptr[1]             # <<<<<<<<<<<<<<
@@ -1026,7 +968,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[0]) = (__pyx_v_rptr[1]);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":110
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":113
  *         fftpack_rfftf(npts, rptr+1, wsave)
  *         rptr[0] = rptr[1]
  *         rptr[1] = 0.0             # <<<<<<<<<<<<<<
@@ -1035,7 +977,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[1]) = 0.0;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":111
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":114
  *         rptr[0] = rptr[1]
  *         rptr[1] = 0.0
  *         rptr += rstep             # <<<<<<<<<<<<<<
@@ -1044,7 +986,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     __pyx_v_rptr += __pyx_v_rstep;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":112
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":115
  *         rptr[1] = 0.0
  *         rptr += rstep
  *         dptr += npts             # <<<<<<<<<<<<<<
@@ -1054,7 +996,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += __pyx_v_npts;
   }
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":114
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":117
  *         dptr += npts
  * 
  *     return ret             # <<<<<<<<<<<<<<
@@ -1069,7 +1011,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":116
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":119
  *     return ret
  * 
  * cdef rfftb(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -1096,69 +1038,60 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   int __pyx_t_6;
   int __pyx_t_7;
   int __pyx_t_8;
-  int __pyx_t_9;
-  int __pyx_t_10;
   __pyx_v_data = nullptr;
   __pyx_v_ret = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":121
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":124
  *     cdef int npts, nrepeats, i
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  * 
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_CDOUBLE_121_37->Target(__site_get_PyArray_CDOUBLE_121_37, __pyx_t_1, __pyx_context);
+  __pyx_t_1 = (System::Object^)(long long)(NPY_CDOUBLE);
+  __pyx_t_2 = (System::Object^)(long long)(NPY_C_CONTIGUOUS);
+  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
-  __pyx_t_1 = (System::Object^)(long long)(NPY_C_CONTIGUOUS);
-  __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_2, __pyx_int_1, __pyx_int_0, __pyx_t_1); 
   __pyx_t_2 = nullptr;
-  __pyx_t_1 = nullptr;
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":122
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":125
  * 
- *     data = np.PyArray_FROMANY(op1, np.PyArray_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]             # <<<<<<<<<<<<<<
  * 
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_DOUBLE, 0)
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)
  */
   if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_3 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_1 = __site_op_sub_122_54->Target(__site_op_sub_122_54, __pyx_t_3, __pyx_int_1);
+  __pyx_t_2 = __site_op_sub_125_54->Target(__site_op_sub_125_54, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
-  __pyx_t_4 = __site_cvt_Py_ssize_t_122_54->Target(__site_cvt_Py_ssize_t_122_54, __pyx_t_1);
-  __pyx_t_1 = nullptr;
+  __pyx_t_4 = __site_cvt_Py_ssize_t_125_54->Target(__site_cvt_Py_ssize_t_125_54, __pyx_t_2);
+  __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_4]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":124
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":127
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  * 
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_DOUBLE, 0)             # <<<<<<<<<<<<<<
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)             # <<<<<<<<<<<<<<
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  */
-  __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_5 = __site_cvt_int_124_42->Target(__site_cvt_int_124_42, __pyx_t_1);
-  __pyx_t_1 = nullptr;
+  __pyx_t_2 = PyArray_NDIM(__pyx_v_data); 
+  __pyx_t_5 = __site_cvt_int_127_42->Target(__site_cvt_int_127_42, __pyx_t_2);
+  __pyx_t_2 = nullptr;
   if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_3 = __site_get_PyArray_DOUBLE_124_75->Target(__site_get_PyArray_DOUBLE_124_75, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  __pyx_t_6 = __site_cvt_int_124_75->Target(__site_cvt_int_124_75, __pyx_t_3);
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = PyArray_ZEROS(__pyx_t_5, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), __pyx_t_6, 0); 
-  __pyx_v_ret = __pyx_t_3;
-  __pyx_t_3 = nullptr;
+  __pyx_t_2 = PyArray_ZEROS(__pyx_t_5, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), NPY_DOUBLE, 0); 
+  __pyx_v_ret = __pyx_t_2;
+  __pyx_t_2 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":126
- *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.PyArray_DOUBLE, 0)
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":129
+ *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
  *     if nsave != npts*2 + 15:
@@ -1166,55 +1099,56 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":127
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":130
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2 + 15:             # <<<<<<<<<<<<<<
  *         raise error("invalid work array for fft size")
  * 
  */
-  __pyx_t_7 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
-  if (__pyx_t_7) {
+  __pyx_t_6 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
+  if (__pyx_t_6) {
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":128
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":131
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
  * 
- *     nrepeats = np.PyArray_SIZE(ret) / npts
+ *     nrepeats = np.PyArray_SIZE(ret)
  */
-    __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "error");
-    __pyx_t_1 = __site_call1_128_19->Target(__site_call1_128_19, __pyx_context, __pyx_t_3, ((System::Object^)"invalid work array for fft size"));
+    __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "error");
+    __pyx_t_3 = __site_call1_131_19->Target(__site_call1_131_19, __pyx_context, __pyx_t_2, ((System::Object^)"invalid work array for fft size"));
+    __pyx_t_2 = nullptr;
+    throw PythonOps::MakeException(__pyx_context, __pyx_t_3, nullptr, nullptr);
     __pyx_t_3 = nullptr;
-    throw PythonOps::MakeException(__pyx_context, __pyx_t_1, nullptr, nullptr);
-    __pyx_t_1 = nullptr;
     goto __pyx_L3;
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":130
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":133
  *         raise error("invalid work array for fft size")
  * 
- *     nrepeats = np.PyArray_SIZE(ret) / npts             # <<<<<<<<<<<<<<
+ *     nrepeats = np.PyArray_SIZE(ret)             # <<<<<<<<<<<<<<
+ *     nrepeats /= npts
+ *     rptr = <double *>np.PyArray_DATA(ret)
+ */
+  if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
+    throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
+  }
+  __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_ret));
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":134
+ * 
+ *     nrepeats = np.PyArray_SIZE(ret)
+ *     nrepeats /= npts             # <<<<<<<<<<<<<<
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_3 = __site_get_PyArray_SIZE_130_17->Target(__site_get_PyArray_SIZE_130_17, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  __pyx_t_1 = __site_call1_130_30->Target(__site_call1_130_30, __pyx_context, __pyx_t_3, __pyx_v_ret);
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_npts;
-  __pyx_t_2 = __site_op_div_130_36->Target(__site_op_div_130_36, __pyx_t_1, __pyx_t_3);
-  __pyx_t_1 = nullptr;
-  __pyx_t_3 = nullptr;
-  __pyx_t_8 = __site_cvt_int_130_36->Target(__site_cvt_int_130_36, __pyx_t_2);
-  __pyx_t_2 = nullptr;
-  __pyx_v_nrepeats = __pyx_t_8;
+  __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":131
- * 
- *     nrepeats = np.PyArray_SIZE(ret) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":135
+ *     nrepeats = np.PyArray_SIZE(ret)
+ *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)             # <<<<<<<<<<<<<<
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(data)
@@ -1224,8 +1158,8 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_rptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ret)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":132
- *     nrepeats = np.PyArray_SIZE(ret) / npts
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":136
+ *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(data)
@@ -1236,7 +1170,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":133
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":137
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
@@ -1248,18 +1182,18 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_v_wsave = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":135
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":139
  *     wsave = <double *>np.PyArray_DATA(data)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
  *         rptr[0] = dptr[0]
  */
-  __pyx_t_9 = __pyx_v_nrepeats;
-  for (__pyx_t_10 = 0; __pyx_t_10 < __pyx_t_9; __pyx_t_10+=1) {
-    __pyx_v_i = __pyx_t_10;
+  __pyx_t_7 = __pyx_v_nrepeats;
+  for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
+    __pyx_v_i = __pyx_t_8;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":136
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":140
  * 
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))             # <<<<<<<<<<<<<<
@@ -1268,7 +1202,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     memcpy(((char *)(__pyx_v_rptr + 1)), (__pyx_v_dptr + 2), ((__pyx_v_npts - 1) * (sizeof(double))));
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":137
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":141
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
  *         rptr[0] = dptr[0]             # <<<<<<<<<<<<<<
@@ -1277,7 +1211,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[0]) = (__pyx_v_dptr[0]);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":138
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":142
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
  *         rptr[0] = dptr[0]
  *         fftpack_rfftb(npts, rptr, wsave)             # <<<<<<<<<<<<<<
@@ -1286,7 +1220,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(rfftb)(__pyx_v_npts, __pyx_v_rptr, __pyx_v_wsave);
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":139
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":143
  *         rptr[0] = dptr[0]
  *         fftpack_rfftb(npts, rptr, wsave)
  *         rptr += npts             # <<<<<<<<<<<<<<
@@ -1295,7 +1229,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     __pyx_v_rptr += __pyx_v_npts;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":140
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":144
  *         fftpack_rfftb(npts, rptr, wsave)
  *         rptr += npts
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -1305,7 +1239,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":142
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":146
  *         dptr += npts*2
  * 
  *     return ret             # <<<<<<<<<<<<<<
@@ -1320,7 +1254,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":144
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":148
  *     return ret
  * 
  * cdef rffti(long n):             # <<<<<<<<<<<<<<
@@ -1333,40 +1267,33 @@ static  System::Object^ rffti(long __pyx_v_n) {
   NumpyDotNet::ndarray^ __pyx_v_op;
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
-  System::Object^ __pyx_t_2 = nullptr;
-  int __pyx_t_3;
   __pyx_v_op = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":149
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":153
  * 
  *     # Magic size needed by rffti
  *     dim = 2*n + 15             # <<<<<<<<<<<<<<
  *     # Create a 1 dimensional array of dimensions of type double
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  */
   __pyx_v_dim = ((2 * __pyx_v_n) + 15);
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":151
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":155
  *     dim = 2*n + 15
  *     # Create a 1 dimensional array of dimensions of type double
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
  * 
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
-  __pyx_t_2 = __site_get_PyArray_DOUBLE_151_41->Target(__site_get_PyArray_DOUBLE_151_41, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  __pyx_t_3 = __site_cvt_int_151_41->Target(__site_cvt_int_151_41, __pyx_t_2);
-  __pyx_t_2 = nullptr;
-  __pyx_t_2 = PyArray_New(NULL, 1, (&__pyx_v_dim), __pyx_t_3, NULL, NULL, 0, 0, NULL); 
-  if (__pyx_t_2 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_2) == nullptr) {
+  __pyx_t_1 = PyArray_New(NULL, 1, (&__pyx_v_dim), NPY_DOUBLE, NULL, NULL, 0, 0, NULL); 
+  if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_2);
-  __pyx_t_2 = nullptr;
+  __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":153
- *     op = np.PyArray_New(NULL, 1, &dim, np.PyArray_DOUBLE, NULL, NULL, 0, 0, NULL)
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":157
+ *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  * 
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))             # <<<<<<<<<<<<<<
  * 
@@ -1374,7 +1301,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
  */
   GLOBALFUNC(rffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":155
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\fftpack_cython.pyx":159
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))
  * 
  *     return op             # <<<<<<<<<<<<<<
@@ -1387,7 +1314,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":187
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":188
  *     object Npy_INTERFACE_array "Npy_INTERFACE_OBJECT" (NpyArray*)
  * 
  * cdef inline object PyUFunc_FromFuncAndData(PyUFuncGenericFunction* func, void** data,             # <<<<<<<<<<<<<<
@@ -1399,7 +1326,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_3fft
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":190
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":191
  *         char* types, int ntypes, int nin, int nout,
  *         int identity, char* name, char* doc, int c):
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))             # <<<<<<<<<<<<<<
@@ -1416,7 +1343,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_3fft
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":192
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":193
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):             # <<<<<<<<<<<<<<
@@ -1438,7 +1365,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = nullptr;
   __pyx_v_numpy = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":193
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":194
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):
  *     shape_list = []             # <<<<<<<<<<<<<<
@@ -1449,7 +1376,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":195
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":196
  *     shape_list = []
  *     cdef int i
  *     for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -1460,22 +1387,22 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":196
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":197
  *     cdef int i
  *     for i in range(ndim):
  *         shape_list.append(shape[i])             # <<<<<<<<<<<<<<
  *     import numpy
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')
  */
-    __pyx_t_1 = __site_get_append_196_18->Target(__site_get_append_196_18, ((System::Object^)__pyx_v_shape_list), __pyx_context);
+    __pyx_t_1 = __site_get_append_197_18->Target(__site_get_append_197_18, ((System::Object^)__pyx_v_shape_list), __pyx_context);
     __pyx_t_4 = (__pyx_v_shape[__pyx_v_i]);
-    __pyx_t_5 = __site_call1_196_25->Target(__site_call1_196_25, __pyx_context, __pyx_t_1, __pyx_t_4);
+    __pyx_t_5 = __site_call1_197_25->Target(__site_call1_197_25, __pyx_context, __pyx_t_1, __pyx_t_4);
     __pyx_t_1 = nullptr;
     __pyx_t_4 = nullptr;
     __pyx_t_5 = nullptr;
   }
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":197
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":198
  *     for i in range(ndim):
  *         shape_list.append(shape[i])
  *     import numpy             # <<<<<<<<<<<<<<
@@ -1486,21 +1413,21 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_numpy = __pyx_t_5;
   __pyx_t_5 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":198
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":199
  *         shape_list.append(shape[i])
  *     import numpy
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')             # <<<<<<<<<<<<<<
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  */
-  __pyx_t_5 = __site_get_zeros_198_16->Target(__site_get_zeros_198_16, __pyx_v_numpy, __pyx_context);
+  __pyx_t_5 = __site_get_zeros_199_16->Target(__site_get_zeros_199_16, __pyx_v_numpy, __pyx_context);
   __pyx_t_4 = Npy_INTERFACE_OBJECT(NpyArray_DescrFromType(__pyx_v_typenum)); 
   if (__pyx_v_fortran) {
     __pyx_t_1 = "F";
   } else {
     __pyx_t_1 = "C";
   }
-  __pyx_t_6 = __site_call3_198_22->Target(__site_call3_198_22, __pyx_context, __pyx_t_5, ((System::Object^)__pyx_v_shape_list), __pyx_t_4, ((System::Object^)__pyx_t_1));
+  __pyx_t_6 = __site_call3_199_22->Target(__site_call3_199_22, __pyx_context, __pyx_t_5, ((System::Object^)__pyx_v_shape_list), __pyx_t_4, ((System::Object^)__pyx_t_1));
   __pyx_t_5 = nullptr;
   __pyx_t_4 = nullptr;
   __pyx_t_1 = nullptr;
@@ -1513,7 +1440,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":200
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":201
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):             # <<<<<<<<<<<<<<
@@ -1525,7 +1452,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":201
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":202
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL             # <<<<<<<<<<<<<<
@@ -1538,7 +1465,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":202
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":203
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL
  *     assert obj == NULL             # <<<<<<<<<<<<<<
@@ -1551,7 +1478,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":203
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":204
  *     assert subtype == NULL
  *     assert obj == NULL
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))             # <<<<<<<<<<<<<<
@@ -1568,7 +1495,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":205
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":206
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))
  * 
  * cdef inline int PyArray_AsCArray(void **apIn, void *ptr, npy_intp *dims, int nd, int typenum, int itemsize):             # <<<<<<<<<<<<<<
@@ -1579,7 +1506,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
 static CYTHON_INLINE int PyArray_AsCArray(void **__pyx_v_apIn, void *__pyx_v_ptr, __pyx_t_5numpy_3fft_5numpy_npy_intp *__pyx_v_dims, int __pyx_v_nd, int __pyx_v_typenum, int __pyx_v_itemsize) {
   int __pyx_r;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":206
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":207
  * 
  * cdef inline int PyArray_AsCArray(void **apIn, void *ptr, npy_intp *dims, int nd, int typenum, int itemsize):
  *     return NpyArray_AsCArray(<NpyArray **>apIn, ptr, dims, nd, NpyArray_DescrFromType(typenum))             # <<<<<<<<<<<<<<
@@ -1594,7 +1521,7 @@ static CYTHON_INLINE int PyArray_AsCArray(void **__pyx_v_apIn, void *__pyx_v_ptr
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":208
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":209
  *     return NpyArray_AsCArray(<NpyArray **>apIn, ptr, dims, nd, NpyArray_DescrFromType(typenum))
  * 
  * cdef inline void* PyArray_DATA(ndarray n):             # <<<<<<<<<<<<<<
@@ -1607,15 +1534,15 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":210
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":211
  * cdef inline void* PyArray_DATA(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
  * 
  * cdef inline intp_t* PyArray_DIMS(ndarray n):
  */
-  __pyx_t_1 = __site_get_Array_210_49->Target(__site_get_Array_210_49, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_210_49->Target(__site_cvt_PY_LONG_LONG_210_49, __pyx_t_1);
+  __pyx_t_1 = __site_get_Array_211_49->Target(__site_get_Array_211_49, ((System::Object^)__pyx_v_n), __pyx_context);
+  __pyx_t_2 = __site_cvt_PY_LONG_LONG_211_49->Target(__site_cvt_PY_LONG_LONG_211_49, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_DATA(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
   goto __pyx_L0;
@@ -1625,7 +1552,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":212
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":213
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline intp_t* PyArray_DIMS(ndarray n):             # <<<<<<<<<<<<<<
@@ -1638,15 +1565,15 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":214
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":215
  * cdef inline intp_t* PyArray_DIMS(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
  * 
- * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
+ * cdef inline intp_t PyArray_SIZE(ndarray n):
  */
-  __pyx_t_1 = __site_get_Array_214_49->Target(__site_get_Array_214_49, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_214_49->Target(__site_cvt_PY_LONG_LONG_214_49, __pyx_t_1);
+  __pyx_t_1 = __site_get_Array_215_49->Target(__site_get_Array_215_49, ((System::Object^)__pyx_v_n), __pyx_context);
+  __pyx_t_2 = __site_cvt_PY_LONG_LONG_215_49->Target(__site_cvt_PY_LONG_LONG_215_49, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_DIMS(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
   goto __pyx_L0;
@@ -1656,8 +1583,39 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":216
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":217
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)
+ * 
+ * cdef inline intp_t PyArray_SIZE(ndarray n):             # <<<<<<<<<<<<<<
+ *     # XXX "long long" is wrong type
+ *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)
+ */
+
+static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet::ndarray^ __pyx_v_n) {
+  __pyx_t_5numpy_3fft_5numpy_intp_t __pyx_r;
+  System::Object^ __pyx_t_1 = nullptr;
+  PY_LONG_LONG __pyx_t_2;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":219
+ * cdef inline intp_t PyArray_SIZE(ndarray n):
+ *     # XXX "long long" is wrong type
+ *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
+ * 
+ * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
+ */
+  __pyx_t_1 = __site_get_Array_219_49->Target(__site_get_Array_219_49, ((System::Object^)__pyx_v_n), __pyx_context);
+  __pyx_t_2 = __site_cvt_PY_LONG_LONG_219_49->Target(__site_cvt_PY_LONG_LONG_219_49, __pyx_t_1);
+  __pyx_t_1 = nullptr;
+  __pyx_r = NpyArray_SIZE(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
+  goto __pyx_L0;
+
+  __pyx_r = 0;
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":221
+ *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):             # <<<<<<<<<<<<<<
  *     import clr
@@ -1673,7 +1631,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = nullptr;
   __pyx_v_NumpyDotNet = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":217
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":222
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr             # <<<<<<<<<<<<<<
@@ -1684,7 +1642,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":218
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":223
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr
  *     import NumpyDotNet.NpyArray             # <<<<<<<<<<<<<<
@@ -1695,17 +1653,17 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_NumpyDotNet = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":219
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":224
  *     import clr
  *     import NumpyDotNet.NpyArray
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)             # <<<<<<<<<<<<<<
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  */
-  __pyx_t_1 = __site_get_NpyArray_219_22->Target(__site_get_NpyArray_219_22, __pyx_v_NumpyDotNet, __pyx_context);
-  __pyx_t_2 = __site_get_FromAny_219_31->Target(__site_get_FromAny_219_31, __pyx_t_1, __pyx_context);
+  __pyx_t_1 = __site_get_NpyArray_224_22->Target(__site_get_NpyArray_224_22, __pyx_v_NumpyDotNet, __pyx_context);
+  __pyx_t_2 = __site_get_FromAny_224_31->Target(__site_get_FromAny_224_31, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
-  __pyx_t_1 = __site_call6_219_39->Target(__site_call6_219_39, __pyx_context, __pyx_t_2, __pyx_v_op, __pyx_v_newtype, __pyx_v_min_depth, __pyx_v_max_depth, __pyx_v_flags, __pyx_v_context);
+  __pyx_t_1 = __site_call6_224_39->Target(__site_call6_224_39, __pyx_context, __pyx_t_2, __pyx_v_op, __pyx_v_newtype, __pyx_v_min_depth, __pyx_v_max_depth, __pyx_v_flags, __pyx_v_context);
   __pyx_t_2 = nullptr;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = nullptr;
@@ -1716,7 +1674,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":221
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":226
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):             # <<<<<<<<<<<<<<
@@ -1731,7 +1689,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   int __pyx_t_3;
   int __pyx_t_4;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":222
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":227
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:             # <<<<<<<<<<<<<<
@@ -1739,13 +1697,13 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)
  */
   __pyx_t_1 = (System::Object^)(long long)(NPY_ENSURECOPY);
-  __pyx_t_2 = __site_op_and_222_13->Target(__site_op_and_222_13, __pyx_v_flags, __pyx_t_1);
+  __pyx_t_2 = __site_op_and_227_13->Target(__site_op_and_227_13, __pyx_v_flags, __pyx_t_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_3 = __site_istrue_222_13->Target(__site_istrue_222_13, __pyx_t_2);
+  __pyx_t_3 = __site_istrue_227_13->Target(__site_istrue_227_13, __pyx_t_2);
   __pyx_t_2 = nullptr;
   if (__pyx_t_3) {
 
-    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":223
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":228
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT             # <<<<<<<<<<<<<<
@@ -1753,7 +1711,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
  * 
  */
     __pyx_t_2 = (System::Object^)(long long)(NPY_DEFAULT);
-    __pyx_t_1 = __site_op_ior_223_14->Target(__site_op_ior_223_14, __pyx_v_flags, __pyx_t_2);
+    __pyx_t_1 = __site_op_ior_228_14->Target(__site_op_ior_228_14, __pyx_v_flags, __pyx_t_2);
     __pyx_t_2 = nullptr;
     __pyx_v_flags = __pyx_t_1;
     __pyx_t_1 = nullptr;
@@ -1761,16 +1719,16 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":224
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":229
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)             # <<<<<<<<<<<<<<
  * 
  * cdef inline object PyArray_Check(obj):
  */
-  __pyx_t_4 = __site_cvt_int_224_77->Target(__site_cvt_int_224_77, __pyx_v_type);
+  __pyx_t_4 = __site_cvt_int_229_77->Target(__site_cvt_int_229_77, __pyx_v_type);
   __pyx_t_1 = Npy_INTERFACE_OBJECT(NpyArray_DescrFromType(__pyx_t_4)); 
-  __pyx_t_2 = PyArray_FromAny(__pyx_v_m, __pyx_t_1, __pyx_v_min, __pyx_v_max, __pyx_v_flags, Py_None); 
+  __pyx_t_2 = PyArray_FromAny(__pyx_v_m, __pyx_t_1, __pyx_v_min, __pyx_v_max, __pyx_v_flags, nullptr); 
   __pyx_t_1 = nullptr;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = nullptr;
@@ -1781,7 +1739,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":226
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":231
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)
  * 
  * cdef inline object PyArray_Check(obj):             # <<<<<<<<<<<<<<
@@ -1794,7 +1752,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":227
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":232
  * 
  * cdef inline object PyArray_Check(obj):
  *     return isinstance(obj, ndarray)             # <<<<<<<<<<<<<<
@@ -1802,7 +1760,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
  * cdef inline object PyArray_NDIM(obj):
  */
   __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "isinstance");
-  __pyx_t_2 = __site_call2_227_21->Target(__site_call2_227_21, __pyx_context, __pyx_t_1, __pyx_v_obj, ((System::Object^)((System::Object^)__pyx_ptype_5numpy_3fft_5numpy_ndarray)));
+  __pyx_t_2 = __site_call2_232_21->Target(__site_call2_232_21, __pyx_context, __pyx_t_1, __pyx_v_obj, ((System::Object^)((System::Object^)__pyx_ptype_5numpy_3fft_5numpy_ndarray)));
   __pyx_t_1 = nullptr;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = nullptr;
@@ -1813,7 +1771,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":229
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":234
  *     return isinstance(obj, ndarray)
  * 
  * cdef inline object PyArray_NDIM(obj):             # <<<<<<<<<<<<<<
@@ -1825,14 +1783,14 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":230
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":235
  * 
  * cdef inline object PyArray_NDIM(obj):
  *     return obj.ndim             # <<<<<<<<<<<<<<
  * 
  * cdef inline void import_array():
  */
-  __pyx_t_1 = __site_get_ndim_230_14->Target(__site_get_ndim_230_14, __pyx_v_obj, __pyx_context);
+  __pyx_t_1 = __site_get_ndim_235_14->Target(__site_get_ndim_235_14, __pyx_v_obj, __pyx_context);
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = nullptr;
   goto __pyx_L0;
@@ -1842,7 +1800,7 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":232
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":237
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
@@ -1871,75 +1829,45 @@ static void __Pyx_InitSites(CodeContext^ __pyx_context) {
   const int PythonOperationKind_TrueDivide = 25;
   const int PythonOperationKind_InPlaceFloorDivide = 0x20000000 | 23;
   const int PythonOperationKind_InPlaceTrueDivide = 0x20000000 | 25;
-  __site_get_PyArray_CDOUBLE_28_37 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_CDOUBLE", false));
-  __site_get_PyArray_DIM_34_13 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DIM", false));
-  __site_op_sub_34_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_call2_34_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
-  __site_cvt_int_34_25 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_sub_34_55 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_34_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_call1_36_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_get_PyArray_SIZE_38_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_SIZE", false));
-  __site_call1_38_30 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_op_div_38_37 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Divide));
-  __site_cvt_int_38_37 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_CDOUBLE_53_37 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_CDOUBLE", false));
-  __site_get_PyArray_DIM_56_13 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DIM", false));
-  __site_op_sub_56_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_call2_56_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
-  __site_cvt_int_56_25 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_call1_58_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_get_PyArray_SIZE_60_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_SIZE", false));
-  __site_call1_60_30 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_op_div_60_37 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Divide));
-  __site_cvt_int_60_37 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_DOUBLE_77_41 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DOUBLE", false));
-  __site_cvt_int_77_41 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_DOUBLE_88_37 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DOUBLE", false));
-  __site_op_sub_89_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_89_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_op_sub_91_48 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_91_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_cvt_int_92_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_CDOUBLE_92_75 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_CDOUBLE", false));
-  __site_cvt_int_92_75 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_sub_57_55 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_57_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_call1_59_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
+  __site_op_sub_91_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_91_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_op_sub_93_48 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
   __site_cvt_Py_ssize_t_93_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_op_sub_95_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_95_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_call1_99_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_get_PyArray_SIZE_101_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_SIZE", false));
-  __site_call1_101_30 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_op_div_101_37 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Divide));
-  __site_cvt_int_101_37 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_CDOUBLE_121_37 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_CDOUBLE", false));
-  __site_op_sub_122_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_122_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_cvt_int_124_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_DOUBLE_124_75 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DOUBLE", false));
-  __site_cvt_int_124_75 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_call1_128_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_get_PyArray_SIZE_130_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_SIZE", false));
-  __site_call1_130_30 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_op_div_130_36 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Divide));
-  __site_cvt_int_130_36 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_PyArray_DOUBLE_151_41 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "PyArray_DOUBLE", false));
-  __site_cvt_int_151_41 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_append_196_18 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "append", false));
-  __site_call1_196_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_get_zeros_198_16 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "zeros", false));
-  __site_call3_198_22 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(3)));
-  __site_get_Array_210_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_210_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_Array_214_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_214_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
-  __site_get_NpyArray_219_22 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "NpyArray", false));
-  __site_get_FromAny_219_31 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "FromAny", false));
-  __site_call6_219_39 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(6)));
-  __site_op_and_222_13 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::And));
-  __site_istrue_222_13 = CallSite< System::Func< CallSite^, System::Object^, bool >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, bool::typeid, ConversionResultKind::ExplicitCast));
-  __site_op_ior_223_14 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::OrAssign));
-  __site_cvt_int_224_77 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
-  __site_call2_227_21 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
-  __site_get_ndim_230_14 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "ndim", false));
+  __site_cvt_int_94_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_sub_95_48 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_95_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_sub_97_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_97_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_call1_101_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
+  __site_op_sub_125_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
+  __site_cvt_Py_ssize_t_125_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_int_127_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_call1_131_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
+  __site_get_append_197_18 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "append", false));
+  __site_call1_197_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
+  __site_get_zeros_199_16 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "zeros", false));
+  __site_call3_199_22 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(3)));
+  __site_get_Array_211_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
+  __site_cvt_PY_LONG_LONG_211_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_get_Array_215_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
+  __site_cvt_PY_LONG_LONG_215_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_get_Array_219_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
+  __site_cvt_PY_LONG_LONG_219_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_get_NpyArray_224_22 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "NpyArray", false));
+  __site_get_FromAny_224_31 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "FromAny", false));
+  __site_call6_224_39 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(6)));
+  __site_op_and_227_13 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::And));
+  __site_istrue_227_13 = CallSite< System::Func< CallSite^, System::Object^, bool >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, bool::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_ior_228_14 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::OrAssign));
+  __site_cvt_int_229_77 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_call2_232_21 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
+  __site_get_ndim_235_14 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "ndim", false));
 }
 [SpecialName]
 static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) {
@@ -1993,7 +1921,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "__test__", ((System::Object^)__pyx_t_1));
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":232
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\fft\numpy.pxd":237
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
