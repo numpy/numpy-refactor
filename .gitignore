@@ -6,6 +6,7 @@
 *$
 *.bak
 *.diff
+*.opensdf
 *.org
 .project
 *.rej
@@ -16,6 +17,7 @@
 *.suo
 *.obj
 *.tmp
+*.user
 
 # Compiled source #
 ###################
@@ -81,6 +83,8 @@ Thumbs.db
 
 # Things specific to this project #
 ###################################
+[Dd]ebug/
+[Rr]elease/
 numpy/core/__svn_version__.py
 numpy/version.py
 doc/numpy.scipy.org/_build
@@ -109,11 +113,7 @@ libndarray/src/npy_scalarmath.h
 libndarray/src/npy_sortmodule.c
 libndarray/src/npy_sortmodule.h
 libndarray/stamp-h1
-libndarray/windows/Debug
-libndarray/windows/Release
 libndarray/windows/x64
 numpy/NumpyDotNet/bin
 numpy/NumpyDotNet/obj
-numpy/NumpyDotNet/Debug
-numpy/NumpyDotNet/NpyAccessLib/Debug
 tools/win32build/misc/msvcrt90/msvcr90.def
