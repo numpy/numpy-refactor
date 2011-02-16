@@ -7,9 +7,9 @@
 extern "C" {
 #endif
 
-#define DOUBLE
+#define FFTPACK_DOUBLE_PRECISION
 
-#ifdef DOUBLE
+#ifdef FFTPACK_DOUBLE_PRECISION
 #define Treal double
 #else
 #define Treal float
