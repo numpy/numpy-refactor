@@ -19,7 +19,7 @@ np.import_array()
 class error(Exception):
     pass
 
-cdef cfftf(np.ndarray op1, object op2):
+cdef cfftf(np.ndarray op1, np.ndarray op2):
     cdef double *wsave, *dptr
     cdef np.intp_t nsave
     cdef int npts, nrepeats, i
@@ -27,9 +27,10 @@ cdef cfftf(np.ndarray op1, object op2):
     
     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
     
-    #if np.PyArray_AsCArray(<void **>&(<object>op2), <void *>&wsave, &nsave, 1, np.NPY_DOUBLE, 0) == -1:
-    #    return None
-    
+    # Force op2 to be contiguous in place of calling PyArray_AsCArray()
+    if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
+        op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+
     nsave = np.PyArray_DIMS(op2)[0]
     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
     if nsave != npts*4 + 15:
@@ -52,6 +53,10 @@ cdef cfftb(np.ndarray op1, np.ndarray op2):
     cdef int npts, nrepeats, i
     
     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+
+    # Force op2 to be contiguous in place of calling PyArray_AsCArray()
+    if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
+        op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
 
     nsave = np.PyArray_DIMS(op2)[0] 
     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
@@ -88,8 +93,12 @@ cdef rfftf(np.ndarray op1, np.ndarray op2):
     cdef int npts, nrepeats, rstep, i
 
     data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+
+    # Force op2 to be contiguous in place of calling PyArray_AsCArray()
+    if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
+        op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+
     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
-    
     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
@@ -121,11 +130,15 @@ cdef rfftb(np.ndarray op1, np.ndarray op2):
     cdef np.intp_t nsave
     cdef int npts, nrepeats, i
 
-    data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
-    npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
-    
+    data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+
+     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
+    if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
+        op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
+
     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)    
     
+    npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
     nsave = np.PyArray_DIMS(op2)[0]
     if nsave != npts*2 + 15:
         raise error("invalid work array for fft size")
