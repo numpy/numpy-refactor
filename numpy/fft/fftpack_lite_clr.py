@@ -1,4 +1,4 @@
 import clr
-clr.AddReference("fft")
+clr.AddReference("fftpack_lite")
 
 from numpy__fft__fftpack_cython import *
