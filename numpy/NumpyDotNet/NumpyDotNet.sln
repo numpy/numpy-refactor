@@ -16,6 +16,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ndarray", "..\..\libndarray\windows\msvc2008.vcxproj", "{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mtrand", "..\random\mtrand\mtrand.vcxproj", "{B5C0DD2F-2814-4A09-B3AC-96782C38C6EC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1B601FD0-B1EA-41DC-A899-07093F298467} = {1B601FD0-B1EA-41DC-A899-07093F298467}
+		{CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26} = {CF7AC3D1-E2DF-41D2-BEA6-1E2756CDEA26}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

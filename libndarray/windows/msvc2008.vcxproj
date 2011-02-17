@@ -248,6 +248,8 @@
     <None Include="..\src\npy_ieee754.c.src" />
     <None Include="..\src\npy_loops.c.src" />
     <None Include="..\src\npy_loops.h.src" />
+    <None Include="..\src\npy_math.c.src" />
+    <None Include="..\src\npy_math_complex.c.src" />
     <None Include="..\src\npy_scalarmath.c.src">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.c.src</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.c</Outputs>
