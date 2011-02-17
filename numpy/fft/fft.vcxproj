@@ -89,6 +89,7 @@
   <ItemGroup>
     <None Include="fftpack.py" />
     <None Include="fftpack_cython.pyx" />
+    <None Include="fftpack_lite_clr.py" />
     <None Include="helper.py" />
     <None Include="info.py" />
     <None Include="__init__.py" />
