@@ -7,12 +7,18 @@
 extern "C" {
 #endif
 
-#define DOUBLE
+#define FFTPACK_DOUBLE_PRECISION
 
-#ifdef DOUBLE
+#ifdef FFTPACK_DOUBLE_PRECISION
 #define Treal double
 #else
 #define Treal float
+#endif
+
+#ifdef __cplusplus
+#define GLOBALFUNC(x) ::x
+#else
+#define GLOBALFUNC(x) x
 #endif
 
 extern void cfftf(int N, Treal data[], const Treal wrk[]);
