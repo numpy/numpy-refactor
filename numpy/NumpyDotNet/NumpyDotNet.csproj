@@ -70,19 +70,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="IronPython">
-      <HintPath>..\..\..\IronPython_Main\bin\Release\IronPython.dll</HintPath>
+      <HintPath>..\..\..\IronPython\bin\Debug\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\IronPython_Main\bin\Release\IronPython.Modules.dll</HintPath>
+      <HintPath>..\..\..\IronPython\bin\Debug\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>..\..\..\IronPython\bin\Debug\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\..\IronPython_Main\bin\Release\Microsoft.Scripting.Metadata.dll</HintPath>
+      <HintPath>..\..\..\IronPython\bin\Debug\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

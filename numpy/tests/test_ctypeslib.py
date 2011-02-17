@@ -1,4 +1,5 @@
 import sys
+import exceptions
 
 import numpy as np
 from numpy.ctypeslib import ndpointer, load_library
@@ -8,6 +9,8 @@ try:
     cdll = load_library('multiarray', np.core.multiarray.__file__)
     _HAS_CTYPE = True
 except ImportError:
+    _HAS_CTYPE = False
+except exceptions.OSError, e:
     _HAS_CTYPE = False
 
 class TestLoadLibrary(TestCase):

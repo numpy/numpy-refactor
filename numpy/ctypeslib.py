@@ -99,7 +99,7 @@ else:
             # default to libname.[so|pyd].  Sometimes, these files are built
             # erroneously on non-linux platforms.
             libname_ext = ['%s.so' % libname, '%s.pyd' % libname]
-            if sys.platform == 'win32':
+            if sys.platform == 'win32' or sys.platform == 'cli':
                 libname_ext.insert(0, '%s.dll' % libname)
             elif sys.platform == 'darwin':
                 libname_ext.insert(0, '%s.dylib' % libname)

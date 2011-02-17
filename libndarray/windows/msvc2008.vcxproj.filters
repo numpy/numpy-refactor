@@ -229,5 +229,11 @@
     <None Include="..\src\npy_sortmodule.h.src">
       <Filter>Core</Filter>
     </None>
+    <None Include="..\src\npy_math.c.src">
+      <Filter>Core</Filter>
+    </None>
+    <None Include="..\src\npy_math_complex.c.src">
+      <Filter>Core</Filter>
+    </None>
   </ItemGroup>
 </Project>
