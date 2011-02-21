@@ -358,6 +358,7 @@ extern "C" __declspec(dllexport)
         dims = (npy_intp *)dimsLong;
         strides = (npy_intp *)stridesLong;
     }
+    Npy_INCREF(descr);
     return NpyArray_NewFromDescr(descr, nd, dims, strides, data, flags, 
         NPY_FALSE, NULL, interfaceData);
 }
