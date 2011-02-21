@@ -118,7 +118,6 @@
     <Compile Include="Wrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="iron_install.py" />
     <None Include="Tests\test_dtype.py">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -128,7 +127,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"$(IRONPYTHON_HOME)\ipy.exe" "$(ProjectDir)iron_install.py" "$(TargetDir)"
+    <PostBuildEvent>"$(IRONPYTHON_HOME)\ipy.exe" "$(ProjectDir)\..\..\iron_install.py" "$(TargetDir)"
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

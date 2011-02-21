@@ -884,6 +884,7 @@ NpyArray_NewFromDescr(NpyArray_Descr *descr, int nd,
     char msg[1024];
 
     assert(NULL != descr && NPY_VALID_MAGIC == descr->nob_magic_number);
+    assert(0 < descr->nob_refcnt);
 
     if (descr->subarray) {
         NpyArray *ret;
