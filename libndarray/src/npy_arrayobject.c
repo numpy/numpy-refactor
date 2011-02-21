@@ -20,6 +20,7 @@ extern int PyArray_XDECREF(void *);
 NDARRAY_API npy_intp
 NpyArray_Size(NpyArray *op)
 {
+    assert(NPY_VALID_MAGIC == op->nob_magic_number);
     return NpyArray_SIZE(op);
 }
 

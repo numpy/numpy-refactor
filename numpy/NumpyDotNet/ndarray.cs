@@ -90,7 +90,8 @@ namespace NumpyDotNet
         protected override void Dispose(bool disposing) {
             if (core != IntPtr.Zero) {
                 lock (this) {
-                    DecreaseMemoryPressure(this);
+                    if (reservedMemPressure > 0)
+                        DecreaseMemoryPressure(reservedMemPressure);
                     base.Dispose(disposing);
                 }
             }
@@ -2232,6 +2233,12 @@ namespace NumpyDotNet
         /// </summary>
         private static long TotalMemPressure = 0;
 
+
+        /// <summary>
+        /// Memory pressure reserved for this instance in bytes to be released on dispose.
+        /// </summary>
+        private long reservedMemPressure = 0; 
+
         internal static void IncreaseMemoryPressure(ndarray arr) {
             if (arr.flags.owndata) {
                 int newBytes = (int)(arr.Size * arr.Dtype.ElementSize);
@@ -2258,21 +2265,19 @@ namespace NumpyDotNet
 
                 System.Threading.Interlocked.Add(ref TotalMemPressure, newBytes);
                 System.GC.AddMemoryPressure(newBytes);
+                arr.reservedMemPressure = newBytes;
                 //Console.WriteLine("Added {0} bytes of pressure, now {1}",
                 //    newBytes, TotalMemPressure);
             }
         }
 
-        internal static void DecreaseMemoryPressure(ndarray arr) {
-            if (arr.flags.owndata) {
-                int newBytes = (int)(arr.Size * arr.Dtype.ElementSize);
-                System.Threading.Interlocked.Add(ref TotalMemPressure, -newBytes);
-                if (newBytes > 0) {
-                    System.GC.RemoveMemoryPressure(newBytes);
-                }
-                //Console.WriteLine("Removed {0} bytes of pressure, now {1}",
-                //    newBytes, TotalMemPressure);
+        internal static void DecreaseMemoryPressure(long numBytes) {
+            System.Threading.Interlocked.Add(ref TotalMemPressure, -numBytes);
+            if (numBytes > 0) {
+                System.GC.RemoveMemoryPressure(numBytes);
             }
+            //Console.WriteLine("Removed {0} bytes of pressure, now {1}",
+            //    newBytes, TotalMemPressure);
         }
 
         #endregion
