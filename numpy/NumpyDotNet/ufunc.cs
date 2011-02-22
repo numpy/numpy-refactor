@@ -87,7 +87,7 @@ namespace NumpyDotNet
             "array", "axis", "dtype", "out" };
 
 
-        public object reduce(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
+        public object reduce(CodeContext cntx, [ParamDictionary] IDictionary<object, object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -103,7 +103,7 @@ namespace NumpyDotNet
             return GenericReduce(arr, null, axis, type, arrOut, ReduceOp.NPY_UFUNC_REDUCE);
         }
 
-        public object accumulate(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
+        public object accumulate(CodeContext cntx, [ParamDictionary] IDictionary<object, object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceArgNames, kwargs);
 
             if (args[0] == null) {
@@ -126,7 +126,7 @@ namespace NumpyDotNet
         private static string[] ReduceAtArgNames = new String[] {
             "array", "indices", "axis", "dtype", "out" };
 
-        public object reduceat(CodeContext cntx, [ParamDictionary] IDictionary<object,object> kwargs, params Object[] posArgs) {
+        public object reduceat(CodeContext cntx, [ParamDictionary] IDictionary<object, object> kwargs, params Object[] posArgs) {
             object[] args = NpyUtil_ArgProcessing.BuildArgsArray(posArgs, ReduceAtArgNames, kwargs);
 
             if (args[0] == null || args[1] == null) {
@@ -427,23 +427,45 @@ namespace NumpyDotNet
                 throw new ArgumentException("invalid number of arguments");
             }
             ndarray[] result = new ndarray[nargs];
-            for (int i = 0; i < args.Length; i++) {
+            for (int i = 0; i < nin; i++) {
                 // TODO: Add check for scalars
                 object arg = args[i];
                 object context = null;
-                object[] contextArray = null;
-                if (!(arg is ndarray)) {
-                    if (contextArray == null) {
-                        contextArray = new object[] { this, new PythonTuple(args), i };
-                    } else {
-                        contextArray[2] = i;
-                    }
+                if (!(arg is ndarray) && !(arg is ScalarGeneric)) {
+                    object[] contextArray = null;
+                    contextArray = new object[] { this, new PythonTuple(args), i };
                     context = new PythonTuple(contextArray);
                 }
                 result[i] = NpyArray.FromAny(arg, context: context);
             }
+
+            for (int i = nin; i < nargs; i++) {
+                if (i >= args.Length || args[i] == null) {
+                    result[i] = null;
+                } else if (args[i] is ndarray) {
+                    result[i] = (ndarray)args[i];
+                } else if (args[i] is flatiter) {
+                    // TODO What this code needs to do... Is flatiter the right equiv to PyArrayIter?
+                    //PyObject *new = PyObject_CallMethod(obj, "__array__", NULL);
+                    //if (new == NULL) {
+                    //    result = -1;
+                    //    goto fail;
+                    //} else if (!PyArray_Check(new)) {
+                    //    PyErr_SetString(PyExc_TypeError,
+                    //                    "__array__ must return an array.");
+                    //    Py_DECREF(new);
+                    //    result = -1;
+                    //    goto fail;
+                    //} else {
+                    //    mps[i] = (PyArrayObject *)new;
+                    //}
+                    throw new NotImplementedException("Calling __array__ method on flatiter (PyArrayIter) is not yet implemented.");
+                } else {
+                    throw new ArgumentTypeException("return arrays must be of array type");
+                }
+            }
+
             return result;
         }
     }
 }
-
