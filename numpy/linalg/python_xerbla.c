@@ -1,5 +1,10 @@
-#include "Python.h"
+#include "npy_api.h"
 #include "f2c.h"
+
+/* Work around some Microsoft sillyness. */
+#if _MSC_VER
+#define snprintf sprintf_s
+#endif
 
 /*
   From the original manpage:
@@ -32,6 +37,6 @@ int xerbla_(char *srname, integer *info)
                 len--;
 
         snprintf(buf, sizeof(buf), format, len, srname, *info);
-        PyErr_SetString(PyExc_ValueError, buf);
+        NpyErr_SetString(NpyExc_ValueError, buf);
         return 0;
 }
