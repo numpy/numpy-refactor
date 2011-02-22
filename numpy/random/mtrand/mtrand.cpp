@@ -28,6 +28,15 @@ static CodeContext^ mk_empty_context(CodeContext^ ctx) {
   dict["__module__"] = "mtrand";
   return gcnew CodeContext(dict, ctx->ModuleContext);
 }
+  #define PyBUF_SIMPLE 0
+  #define PyBUF_WRITABLE 0x0001
+  #define PyBUF_FORMAT 0x0004
+  #define PyBUF_ND 0x0008
+  #define PyBUF_STRIDES (0x0010 | PyBUF_ND)
+  #define PyBUF_C_CONTIGUOUS (0x0020 | PyBUF_STRIDES)
+  #define PyBUF_F_CONTIGUOUS (0x0040 | PyBUF_STRIDES)
+  #define PyBUF_ANY_CONTIGUOUS (0x0080 | PyBUF_STRIDES)
+  #define PyBUF_INDIRECT (0x0100 | PyBUF_STRIDES)
 
 
 /* inline attribute */
@@ -73,11 +82,12 @@ static CodeContext^ mk_empty_context(CodeContext^ ctx) {
 #include "npy_iterators.h"
 #include "npy_common.h"
 #include "npy_descriptor.h"
+#include "stdio.h"
 #include "string.h"
 #include "memory.h"
-#include "randomkit.c"
-#include "distributions.c"
-#include "initarray.c"
+#include "randomkit.h"
+#include "distributions.h"
+#include "initarray.h"
 
 #ifdef __GNUC__
 /* Test for GCC > 2.95 */
@@ -126,34 +136,112 @@ typedef long (*__pyx_t_6mtrand_rk_discnmN)(rk_state *, long, long, long);
 typedef long (*__pyx_t_6mtrand_rk_discd)(rk_state *, double);
 /* Cython code section 'utility_code_proto' */
 /* Cython code section 'module_declarations' */
+/* Module declarations from cpython.version */
+/* Module declarations from cpython.ref */
+/* Module declarations from cpython.exc */
+/* Module declarations from cpython.module */
+/* Module declarations from cpython.mem */
+/* Module declarations from cpython.tuple */
+/* Module declarations from cpython.list */
+/* Module declarations from libc.stdio */
+/* Module declarations from cpython.object */
+/* Module declarations from cpython.sequence */
+/* Module declarations from cpython.mapping */
+/* Module declarations from cpython.iterator */
+/* Module declarations from cpython.type */
+/* Module declarations from cpython.number */
+/* Module declarations from cpython.int */
+/* Module declarations from cpython.bool */
+/* Module declarations from cpython.long */
+/* Module declarations from cpython.float */
+/* Module declarations from cpython.complex */
+/* Module declarations from cpython.string */
+/* Module declarations from cpython.unicode */
+/* Module declarations from cpython.dict */
+/* Module declarations from cpython.instance */
+/* Module declarations from cpython.function */
+/* Module declarations from cpython.method */
+/* Module declarations from cpython.weakref */
+/* Module declarations from cpython.getargs */
+/* Module declarations from cpython.pythread */
+/* Module declarations from cpython.cobject */
+/* Module declarations from cpython.oldbuffer */
+/* Module declarations from cpython.set */
+/* Module declarations from cpython.buffer */
+/* Module declarations from cpython.bytes */
+/* Module declarations from cpython.pycapsule */
+/* Module declarations from cpython */
 /* Module declarations from mtrand */
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate NpyArray *__pyx_delegate_t_6mtrand_npy_array_from_py_array(System::Object^);
 static CYTHON_INLINE NpyArray *npy_array_from_py_array(System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate NpyArrayMultiIterObject *__pyx_delegate_t_6mtrand_npy_iter_from_py_iter(System::Object^);
 static CYTHON_INLINE NpyArrayMultiIterObject *npy_iter_from_py_iter(System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate void *__pyx_delegate_t_6mtrand_dataptr(System::Object^);
 static CYTHON_INLINE void *dataptr(System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate NpyArrayMultiIterObject *__pyx_delegate_t_6mtrand_getiter(System::Object^);
 static CYTHON_INLINE NpyArrayMultiIterObject *getiter(System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont0_array(rk_state *, __pyx_t_6mtrand_rk_cont0, System::Object^);
 static System::Object^ cont0_array(rk_state *, __pyx_t_6mtrand_rk_cont0, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont1_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont1, System::Object^, double);
 static System::Object^ cont1_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont1, System::Object^, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont1_array(rk_state *, __pyx_t_6mtrand_rk_cont1, System::Object^, System::Object^);
 static System::Object^ cont1_array(rk_state *, __pyx_t_6mtrand_rk_cont1, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont2_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont2, System::Object^, double, double);
 static System::Object^ cont2_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont2, System::Object^, double, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont2_array(rk_state *, __pyx_t_6mtrand_rk_cont2, System::Object^, System::Object^, System::Object^);
 static System::Object^ cont2_array(rk_state *, __pyx_t_6mtrand_rk_cont2, System::Object^, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont3_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont3, System::Object^, double, double, double);
 static System::Object^ cont3_array_sc(rk_state *, __pyx_t_6mtrand_rk_cont3, System::Object^, double, double, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_cont3_array(rk_state *, __pyx_t_6mtrand_rk_cont3, System::Object^, System::Object^, System::Object^, System::Object^);
 static System::Object^ cont3_array(rk_state *, __pyx_t_6mtrand_rk_cont3, System::Object^, System::Object^, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_disc0_array(rk_state *, __pyx_t_6mtrand_rk_disc0, System::Object^);
 static System::Object^ disc0_array(rk_state *, __pyx_t_6mtrand_rk_disc0, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discnp_array_sc(rk_state *, __pyx_t_6mtrand_rk_discnp, System::Object^, long, double);
 static System::Object^ discnp_array_sc(rk_state *, __pyx_t_6mtrand_rk_discnp, System::Object^, long, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discnp_array(rk_state *, __pyx_t_6mtrand_rk_discnp, System::Object^, System::Object^, System::Object^);
 static System::Object^ discnp_array(rk_state *, __pyx_t_6mtrand_rk_discnp, System::Object^, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discdd_array_sc(rk_state *, __pyx_t_6mtrand_rk_discdd, System::Object^, double, double);
 static System::Object^ discdd_array_sc(rk_state *, __pyx_t_6mtrand_rk_discdd, System::Object^, double, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discdd_array(rk_state *, __pyx_t_6mtrand_rk_discdd, System::Object^, System::Object^, System::Object^);
 static System::Object^ discdd_array(rk_state *, __pyx_t_6mtrand_rk_discdd, System::Object^, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discnmN_array_sc(rk_state *, __pyx_t_6mtrand_rk_discnmN, System::Object^, long, long, long);
 static System::Object^ discnmN_array_sc(rk_state *, __pyx_t_6mtrand_rk_discnmN, System::Object^, long, long, long); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discnmN_array(rk_state *, __pyx_t_6mtrand_rk_discnmN, System::Object^, System::Object^, System::Object^, System::Object^);
 static System::Object^ discnmN_array(rk_state *, __pyx_t_6mtrand_rk_discnmN, System::Object^, System::Object^, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discd_array_sc(rk_state *, __pyx_t_6mtrand_rk_discd, System::Object^, double);
 static System::Object^ discd_array_sc(rk_state *, __pyx_t_6mtrand_rk_discd, System::Object^, double); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate System::Object^ __pyx_delegate_t_6mtrand_discd_array(rk_state *, __pyx_t_6mtrand_rk_discd, System::Object^, System::Object^);
 static System::Object^ discd_array(rk_state *, __pyx_t_6mtrand_rk_discd, System::Object^, System::Object^); /*proto*/
+[InteropServices::UnmanagedFunctionPointer(InteropServices::CallingConvention::Cdecl)]
+public delegate double __pyx_delegate_t_6mtrand_kahan_sum(double *, long);
 static double kahan_sum(double *, long); /*proto*/
 /* Cython code section 'typeinfo' */
 /* Cython code section 'before_global_var' */
 #define __Pyx_MODULE_NAME "mtrand"
 
 /* Implementation of mtrand */
-public ref struct __pyx_module_mtrand {
+namespace clr_mtrand {
+  public ref class module_mtrand sealed abstract {
 /* Cython code section 'global_var' */
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^ >^ >^ __site_call0_4297_19;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_seed_4298_12;
@@ -161,6 +249,7 @@ static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_set_state_4300_17;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_random_sample_4301_21;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_randint_4302_15;
+static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_bytes_4303_13;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_uniform_4304_15;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_rand_4305_12;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_randn_4306_13;
@@ -477,6 +566,8 @@ static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_863_26;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_size_864_24;
 static  CallSite< System::Func< CallSite^, System::Object^, npy_intp >^ >^ __site_cvt_npy_intp_864_24;
+static  CallSite< System::Func< CallSite^, System::Object^, unsigned int >^ >^ __site_cvt_870_4;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_mul_892_35;
 static  CallSite< System::Func< CallSite^, System::Object^, double >^ >^ __site_cvt_double_974_30;
 static  CallSite< System::Func< CallSite^, System::Object^, double >^ >^ __site_cvt_double_975_32;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_array_984_17;
@@ -1006,8 +1097,48 @@ static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System
 static CodeContext^ __pyx_context;
 /* Cython code section 'dotnet_globals' */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 static Types::PythonType^ __pyx_ptype_6mtrand_RandomState = nullptr;
 /* Cython code section 'decls' */
+static int^ __pyx_int_0;
+static int^ __pyx_int_1;
+static int^ __pyx_int_2;
+static int^ __pyx_int_3;
+static int^ __pyx_int_624;
 static System::Object^ __pyx_k_1;
 static System::Object^ __pyx_k_2;
 static System::Object^ __pyx_k_3;
@@ -1025,8 +1156,10 @@ static System::Object^ __pyx_k_14;
 static System::Object^ __pyx_k_15;
 static System::Object^ __pyx_k_16;
 /* Cython code section 'all_the_rest' */
+public:
+static System::String^ __module__ = __Pyx_MODULE_NAME;
 
-/* "/home/cwitty/work/cynet/samples/numpy.pxi":85
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":85
  * 
  * IF CYTHON_BACKEND == "IronPython":
  *     cdef inline NpyArray *npy_array_from_py_array(x):             # <<<<<<<<<<<<<<
@@ -1040,7 +1173,7 @@ static CYTHON_INLINE NpyArray *npy_array_from_py_array(System::Object^ __pyx_v_x
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "/home/cwitty/work/cynet/samples/numpy.pxi":88
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":88
  *         # XXX This should have type-checking on 'x'
  *         # XXX "long long" is wrong type
  *         cdef long long ptr = x.Array             # <<<<<<<<<<<<<<
@@ -1052,7 +1185,7 @@ static CYTHON_INLINE NpyArray *npy_array_from_py_array(System::Object^ __pyx_v_x
   __pyx_t_1 = nullptr;
   __pyx_v_ptr = __pyx_t_2;
 
-  /* "/home/cwitty/work/cynet/samples/numpy.pxi":89
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":89
  *         # XXX "long long" is wrong type
  *         cdef long long ptr = x.Array
  *         return <NpyArray*>ptr             # <<<<<<<<<<<<<<
@@ -1067,7 +1200,7 @@ static CYTHON_INLINE NpyArray *npy_array_from_py_array(System::Object^ __pyx_v_x
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/numpy.pxi":91
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":91
  *         return <NpyArray*>ptr
  * 
  *     cdef inline NpyArrayMultiIterObject *npy_iter_from_py_iter(x):             # <<<<<<<<<<<<<<
@@ -1081,7 +1214,7 @@ static CYTHON_INLINE NpyArrayMultiIterObject *npy_iter_from_py_iter(System::Obje
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "/home/cwitty/work/cynet/samples/numpy.pxi":94
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":94
  *         # XXX This should have type-checking on 'x'
  *         # XXX "long long" is wrong type
  *         cdef long long ptr = x.Iter             # <<<<<<<<<<<<<<
@@ -1092,7 +1225,7 @@ static CYTHON_INLINE NpyArrayMultiIterObject *npy_iter_from_py_iter(System::Obje
   __pyx_t_1 = nullptr;
   __pyx_v_ptr = __pyx_t_2;
 
-  /* "/home/cwitty/work/cynet/samples/numpy.pxi":95
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\numpy.pxi":95
  *         # XXX "long long" is wrong type
  *         cdef long long ptr = x.Iter
  *         return <NpyArrayMultiIterObject*>ptr             # <<<<<<<<<<<<<<
@@ -1105,7 +1238,7 @@ static CYTHON_INLINE NpyArrayMultiIterObject *npy_iter_from_py_iter(System::Obje
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":127
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":127
  * 
  * 
  * cdef inline void *dataptr(object arr):             # <<<<<<<<<<<<<<
@@ -1116,7 +1249,7 @@ static CYTHON_INLINE NpyArrayMultiIterObject *npy_iter_from_py_iter(System::Obje
 static CYTHON_INLINE void *dataptr(System::Object^ __pyx_v_arr) {
   void *__pyx_r;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":128
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":128
  * 
  * cdef inline void *dataptr(object arr):
  *     return npy_array_from_py_array(arr).data             # <<<<<<<<<<<<<<
@@ -1131,7 +1264,7 @@ static CYTHON_INLINE void *dataptr(System::Object^ __pyx_v_arr) {
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":130
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":130
  *     return npy_array_from_py_array(arr).data
  * 
  * cdef inline NpyArrayMultiIterObject *getiter(object multi):             # <<<<<<<<<<<<<<
@@ -1142,7 +1275,7 @@ static CYTHON_INLINE void *dataptr(System::Object^ __pyx_v_arr) {
 static CYTHON_INLINE NpyArrayMultiIterObject *getiter(System::Object^ __pyx_v_multi) {
   NpyArrayMultiIterObject *__pyx_r;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":131
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":131
  * 
  * cdef inline NpyArrayMultiIterObject *getiter(object multi):
  *     return npy_iter_from_py_iter(multi)             # <<<<<<<<<<<<<<
@@ -1157,7 +1290,7 @@ static CYTHON_INLINE NpyArrayMultiIterObject *getiter(System::Object^ __pyx_v_mu
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":134
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":134
  * 
  * 
  * cdef object cont0_array(rk_state *state, rk_cont0 func, object size):             # <<<<<<<<<<<<<<
@@ -1179,17 +1312,17 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":138
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":138
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":139
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":139
  * 
  *     if size is None:
  *         return func(state)             # <<<<<<<<<<<<<<
@@ -1204,7 +1337,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":141
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":141
  *         return func(state)
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -1223,7 +1356,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":142
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":142
  *     else:
  *         arr = np.empty(size, np.double)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -1235,7 +1368,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_2 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":143
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":143
  *         arr = np.empty(size, np.double)
  *         length = arr.size
  *         data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1244,7 +1377,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":144
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":144
  *         length = arr.size
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -1254,7 +1387,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":145
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":145
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state)             # <<<<<<<<<<<<<<
@@ -1264,7 +1397,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":146
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":146
  *         for i from 0 <= i < length:
  *             data[i] = func(state)
  *         return arr             # <<<<<<<<<<<<<<
@@ -1281,7 +1414,7 @@ static  System::Object^ cont0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":149
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":149
  * 
  * 
  * cdef object cont1_array_sc(rk_state *state, rk_cont1 func, object size,             # <<<<<<<<<<<<<<
@@ -1303,17 +1436,17 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":154
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":154
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, a)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":155
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":155
  * 
  *     if size is None:
  *         return func(state, a)             # <<<<<<<<<<<<<<
@@ -1328,7 +1461,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":157
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":157
  *         return func(state, a)
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -1347,7 +1480,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":158
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":158
  *     else:
  *         arr = np.empty(size, np.double)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -1359,7 +1492,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_2 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":159
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":159
  *         arr = np.empty(size, np.double)
  *         length = arr.size
  *         data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1368,7 +1501,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
  */
     __pyx_v_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":160
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":160
  *         length = arr.size
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -1378,7 +1511,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":161
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":161
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state, a)             # <<<<<<<<<<<<<<
@@ -1388,7 +1521,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_a);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":162
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":162
  *         for i from 0 <= i < length:
  *             data[i] = func(state, a)
  *         return arr             # <<<<<<<<<<<<<<
@@ -1405,7 +1538,7 @@ static  System::Object^ cont1_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":165
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":165
  * 
  * 
  * cdef object cont1_array(rk_state *state, rk_cont1 func, object size,             # <<<<<<<<<<<<<<
@@ -1433,7 +1566,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_arr = nullptr;
   __pyx_v_multi = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":172
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":172
  *     cdef NpyArrayIterObject *itera
  * 
  *     oa = np.array(a, np.double)             # <<<<<<<<<<<<<<
@@ -1452,17 +1585,17 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_oa = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":173
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":173
  * 
  *     oa = np.array(a, np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         arr = np.empty_like(oa)
  *         length = arr.size
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":174
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":174
  *     oa = np.array(a, np.double)
  *     if size is None:
  *         arr = np.empty_like(oa)             # <<<<<<<<<<<<<<
@@ -1477,7 +1610,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":175
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":175
  *     if size is None:
  *         arr = np.empty_like(oa)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -1489,7 +1622,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_1 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":176
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":176
  *         arr = np.empty_like(oa)
  *         length = arr.size
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1498,7 +1631,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":177
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":177
  *         length = arr.size
  *         arr_data = <double *>dataptr(arr)
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))             # <<<<<<<<<<<<<<
@@ -1507,7 +1640,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_itera = NpyArray_IterNew(npy_array_from_py_array(__pyx_v_oa));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":178
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":178
  *         arr_data = <double *>dataptr(arr)
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -1517,7 +1650,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":179
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":179
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, (<double *>(itera.dataptr))[0])             # <<<<<<<<<<<<<<
@@ -1526,7 +1659,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (((double *)__pyx_v_itera->dataptr)[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":180
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":180
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, (<double *>(itera.dataptr))[0])
  *             NpyArray_ITER_NEXT(itera)             # <<<<<<<<<<<<<<
@@ -1539,7 +1672,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":182
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":182
  *             NpyArray_ITER_NEXT(itera)
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -1558,7 +1691,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":183
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":183
  *     else:
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1567,7 +1700,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":184
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":184
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa)             # <<<<<<<<<<<<<<
@@ -1582,7 +1715,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":185
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":185
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -1598,7 +1731,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_3 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":186
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":186
  *         multi = np.broadcast(arr, oa)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -1614,7 +1747,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":187
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":187
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -1626,7 +1759,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_2 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":188
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":188
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(iter), 1)             # <<<<<<<<<<<<<<
@@ -1637,7 +1770,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_t_2), 1));
       __pyx_t_2 = nullptr;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":189
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":189
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(iter), 1)
  *             arr_data[i] = func(state, oa_data[0])             # <<<<<<<<<<<<<<
@@ -1646,7 +1779,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":190
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":190
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(iter), 1)
  *             arr_data[i] = func(state, oa_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(iter), 1)             # <<<<<<<<<<<<<<
@@ -1660,7 +1793,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":191
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":191
  *             arr_data[i] = func(state, oa_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(iter), 1)
  *     return arr             # <<<<<<<<<<<<<<
@@ -1675,7 +1808,7 @@ static  System::Object^ cont1_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":194
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":194
  * 
  * 
  * cdef object cont2_array_sc(rk_state *state, rk_cont2 func, object size,             # <<<<<<<<<<<<<<
@@ -1697,17 +1830,17 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":199
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":199
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, a, b)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":200
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":200
  * 
  *     if size is None:
  *         return func(state, a, b)             # <<<<<<<<<<<<<<
@@ -1722,7 +1855,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":202
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":202
  *         return func(state, a, b)
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -1741,7 +1874,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":203
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":203
  *     else:
  *         arr = np.empty(size, np.double)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -1753,7 +1886,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_2 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":204
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":204
  *         arr = np.empty(size, np.double)
  *         length = arr.size
  *         data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1762,7 +1895,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
  */
     __pyx_v_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":205
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":205
  *         length = arr.size
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -1772,7 +1905,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":206
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":206
  *         data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state, a, b)             # <<<<<<<<<<<<<<
@@ -1782,7 +1915,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_a, __pyx_v_b);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":207
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":207
  *         for i from 0 <= i < length:
  *             data[i] = func(state, a, b)
  *         return arr             # <<<<<<<<<<<<<<
@@ -1799,7 +1932,7 @@ static  System::Object^ cont2_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":210
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":210
  * 
  * 
  * cdef object cont2_array(rk_state *state, rk_cont2 func, object size,             # <<<<<<<<<<<<<<
@@ -1829,7 +1962,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_multi = nullptr;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":217
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":217
  *     cdef npy_intp length, i
  * 
  *     oa = np.array(a, np.double)             # <<<<<<<<<<<<<<
@@ -1848,7 +1981,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_oa = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":218
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":218
  * 
  *     oa = np.array(a, np.double)
  *     ob = np.array(b, np.double)             # <<<<<<<<<<<<<<
@@ -1867,17 +2000,17 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_ob = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":219
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":219
  *     oa = np.array(a, np.double)
  *     ob = np.array(b, np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         multi = np.broadcast(oa, ob)
  *         arr = np.empty(multi.shape, np.double)
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":220
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":220
  *     ob = np.array(b, np.double)
  *     if size is None:
  *         multi = np.broadcast(oa, ob)             # <<<<<<<<<<<<<<
@@ -1892,7 +2025,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":221
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":221
  *     if size is None:
  *         multi = np.broadcast(oa, ob)
  *         arr = np.empty(multi.shape, np.double)             # <<<<<<<<<<<<<<
@@ -1913,7 +2046,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_3;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":222
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":222
  *         multi = np.broadcast(oa, ob)
  *         arr = np.empty(multi.shape, np.double)
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -1922,7 +2055,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":223
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":223
  *         arr = np.empty(multi.shape, np.double)
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -1934,7 +2067,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_3 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":224
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":224
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)             # <<<<<<<<<<<<<<
@@ -1943,7 +2076,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 0));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":225
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":225
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -1952,7 +2085,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_ob_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":226
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":226
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0])             # <<<<<<<<<<<<<<
@@ -1961,7 +2094,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]), (__pyx_v_ob_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":227
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":227
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -1974,7 +2107,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":229
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":229
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -1993,7 +2126,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_3;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":230
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":230
  *     else:
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2002,7 +2135,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":231
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":231
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa, ob)             # <<<<<<<<<<<<<<
@@ -2017,7 +2150,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_3;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":232
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":232
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa, ob)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -2033,7 +2166,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":233
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":233
  *         multi = np.broadcast(arr, oa, ob)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -2049,7 +2182,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":234
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":234
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -2061,7 +2194,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_1 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":235
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":235
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -2070,7 +2203,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":236
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":236
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -2079,7 +2212,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_ob_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":237
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":237
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0])             # <<<<<<<<<<<<<<
@@ -2088,7 +2221,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]), (__pyx_v_ob_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":238
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":238
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -2097,7 +2230,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       NpyArray_MultiIter_NEXTi(getiter(__pyx_v_multi), 1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":239
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":239
  *             arr_data[i] = func(state, oa_data[0], ob_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -2109,7 +2242,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":240
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":240
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)
  *     return arr             # <<<<<<<<<<<<<<
@@ -2124,7 +2257,7 @@ static  System::Object^ cont2_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":243
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":243
  * 
  * 
  * cdef object cont3_array_sc(rk_state *state, rk_cont3 func, object size,             # <<<<<<<<<<<<<<
@@ -2146,17 +2279,17 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":248
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":248
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, a, b, c)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":249
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":249
  * 
  *     if size is None:
  *         return func(state, a, b, c)             # <<<<<<<<<<<<<<
@@ -2171,7 +2304,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":251
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":251
  *         return func(state, a, b, c)
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -2190,7 +2323,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":252
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":252
  *     else:
  *         arr = np.empty(size, np.double)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -2202,7 +2335,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_2 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":253
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":253
  *         arr = np.empty(size, np.double)
  *         length = arr.size
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2211,7 +2344,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":254
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":254
  *         length = arr.size
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -2221,7 +2354,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":255
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":255
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, a, b, c)             # <<<<<<<<<<<<<<
@@ -2231,7 +2364,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_a, __pyx_v_b, __pyx_v_c);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":256
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":256
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, a, b, c)
  *         return arr             # <<<<<<<<<<<<<<
@@ -2248,7 +2381,7 @@ static  System::Object^ cont3_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":259
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":259
  * 
  * 
  * cdef object cont3_array(rk_state *state, rk_cont3 func, object size,             # <<<<<<<<<<<<<<
@@ -2281,7 +2414,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_multi = nullptr;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":267
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":267
  *     cdef npy_intp length, i
  * 
  *     oa = np.array(a, np.double)             # <<<<<<<<<<<<<<
@@ -2300,7 +2433,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_oa = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":268
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":268
  * 
  *     oa = np.array(a, np.double)
  *     ob = np.array(b, np.double)             # <<<<<<<<<<<<<<
@@ -2319,7 +2452,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_ob = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":269
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":269
  *     oa = np.array(a, np.double)
  *     ob = np.array(b, np.double)
  *     oc = np.array(c, np.double)             # <<<<<<<<<<<<<<
@@ -2338,17 +2471,17 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_oc = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":270
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":270
  *     ob = np.array(b, np.double)
  *     oc = np.array(c, np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         multi = np.broadcast(oa, ob, oc)
  *         arr = np.empty(multi.shape, np.double)
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":271
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":271
  *     oc = np.array(c, np.double)
  *     if size is None:
  *         multi = np.broadcast(oa, ob, oc)             # <<<<<<<<<<<<<<
@@ -2363,7 +2496,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":272
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":272
  *     if size is None:
  *         multi = np.broadcast(oa, ob, oc)
  *         arr = np.empty(multi.shape, np.double)             # <<<<<<<<<<<<<<
@@ -2384,7 +2517,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":273
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":273
  *         multi = np.broadcast(oa, ob, oc)
  *         arr = np.empty(multi.shape, np.double)
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2393,7 +2526,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":274
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":274
  *         arr = np.empty(multi.shape, np.double)
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -2405,7 +2538,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_2 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":275
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":275
  *         arr_data = <double *>dataptr(arr)
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)             # <<<<<<<<<<<<<<
@@ -2414,7 +2547,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 0));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":276
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":276
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -2423,7 +2556,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_ob_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":277
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":277
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -2432,7 +2565,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oc_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":278
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":278
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])             # <<<<<<<<<<<<<<
@@ -2441,7 +2574,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]), (__pyx_v_ob_data[0]), (__pyx_v_oc_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":279
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":279
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -2454,7 +2587,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":281
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":281
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     else:
  *         arr = np.empty(size, np.double)             # <<<<<<<<<<<<<<
@@ -2473,7 +2606,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":282
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":282
  *     else:
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2482,7 +2615,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((double *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":283
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":283
  *         arr = np.empty(size, np.double)
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa, ob, oc)             # <<<<<<<<<<<<<<
@@ -2497,7 +2630,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":284
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":284
  *         arr_data = <double *>dataptr(arr)
  *         multi = np.broadcast(arr, oa, ob, oc)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -2513,7 +2646,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":285
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":285
  *         multi = np.broadcast(arr, oa, ob, oc)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -2529,7 +2662,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":286
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":286
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -2541,7 +2674,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_1 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":287
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":287
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -2550,7 +2683,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":288
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":288
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -2559,7 +2692,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_ob_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":289
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":289
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 3)             # <<<<<<<<<<<<<<
@@ -2568,7 +2701,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oc_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 3));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":290
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":290
  *             ob_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 3)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])             # <<<<<<<<<<<<<<
@@ -2577,7 +2710,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]), (__pyx_v_ob_data[0]), (__pyx_v_oc_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":291
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":291
  *             oc_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 3)
  *             arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -2589,7 +2722,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":292
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":292
  *             arr_data[i] = func(state, oa_data[0], ob_data[0], oc_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     return arr             # <<<<<<<<<<<<<<
@@ -2604,7 +2737,7 @@ static  System::Object^ cont3_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":295
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":295
  * 
  * 
  * cdef object disc0_array(rk_state *state, rk_disc0 func, object size):             # <<<<<<<<<<<<<<
@@ -2626,17 +2759,17 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":299
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":299
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":300
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":300
  * 
  *     if size is None:
  *         return func(state)             # <<<<<<<<<<<<<<
@@ -2651,7 +2784,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":302
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":302
  *         return func(state)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -2668,7 +2801,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_4;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":303
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":303
  *     else:
  *         arr = np.empty(size, int)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -2680,7 +2813,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_4 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":304
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":304
  *         arr = np.empty(size, int)
  *         length = arr.size
  *         data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2689,7 +2822,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":305
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":305
  *         length = arr.size
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -2699,7 +2832,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":306
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":306
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state)             # <<<<<<<<<<<<<<
@@ -2709,7 +2842,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":307
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":307
  *         for i from 0 <= i < length:
  *             data[i] = func(state)
  *         return arr             # <<<<<<<<<<<<<<
@@ -2726,7 +2859,7 @@ static  System::Object^ disc0_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":310
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":310
  * 
  * 
  * cdef object discnp_array_sc(rk_state *state, rk_discnp func, object size,             # <<<<<<<<<<<<<<
@@ -2748,17 +2881,17 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":315
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":315
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, n, p)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":316
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":316
  * 
  *     if size is None:
  *         return func(state, n, p)             # <<<<<<<<<<<<<<
@@ -2773,7 +2906,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":318
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":318
  *         return func(state, n, p)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -2790,7 +2923,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_v_arr = __pyx_t_4;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":319
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":319
  *     else:
  *         arr = np.empty(size, int)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -2802,7 +2935,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_t_4 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":320
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":320
  *         arr = np.empty(size, int)
  *         length = arr.size
  *         data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2811,7 +2944,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
  */
     __pyx_v_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":321
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":321
  *         length = arr.size
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -2821,7 +2954,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":322
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":322
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, p)             # <<<<<<<<<<<<<<
@@ -2831,7 +2964,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_n, __pyx_v_p);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":323
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":323
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, p)
  *         return arr             # <<<<<<<<<<<<<<
@@ -2848,7 +2981,7 @@ static  System::Object^ discnp_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":326
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":326
  * 
  * 
  * cdef object discnp_array(rk_state *state, rk_discnp func, object size,             # <<<<<<<<<<<<<<
@@ -2878,7 +3011,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_multi = nullptr;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":333
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":333
  *     cdef npy_intp length, i
  * 
  *     on = np.array(n, dtype=np.long)             # <<<<<<<<<<<<<<
@@ -2897,7 +3030,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_on = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":334
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":334
  * 
  *     on = np.array(n, dtype=np.long)
  *     op = np.array(p, dtype=np.double)             # <<<<<<<<<<<<<<
@@ -2916,17 +3049,17 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_op = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":335
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":335
  *     on = np.array(n, dtype=np.long)
  *     op = np.array(p, dtype=np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":336
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":336
  *     op = np.array(p, dtype=np.double)
  *     if size is None:
  *         multi = np.broadcast(on, op)             # <<<<<<<<<<<<<<
@@ -2941,7 +3074,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":337
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":337
  *     if size is None:
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)             # <<<<<<<<<<<<<<
@@ -2962,7 +3095,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_arr = __pyx_t_3;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":338
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":338
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -2971,7 +3104,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":339
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":339
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -2983,7 +3116,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_3 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":340
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":340
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)             # <<<<<<<<<<<<<<
@@ -2992,7 +3125,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_on_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 0));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":341
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":341
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3001,7 +3134,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_op_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":342
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":342
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, on_data[0], op_data[0])             # <<<<<<<<<<<<<<
@@ -3010,7 +3143,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_op_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":343
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":343
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -3023,7 +3156,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":345
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":345
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -3040,7 +3173,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":346
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":346
  *     else:
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3049,7 +3182,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":347
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":347
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, op)             # <<<<<<<<<<<<<<
@@ -3064,7 +3197,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":348
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":348
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, op)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -3080,7 +3213,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":349
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":349
  *         multi = np.broadcast(arr, on, op)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -3096,7 +3229,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":350
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":350
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -3108,7 +3241,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_3 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":351
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":351
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3117,7 +3250,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_on_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":352
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":352
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -3126,7 +3259,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_op_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":353
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":353
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], op_data[0])             # <<<<<<<<<<<<<<
@@ -3135,7 +3268,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_op_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":354
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":354
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3144,7 +3277,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       NpyArray_MultiIter_NEXTi(getiter(__pyx_v_multi), 1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":355
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":355
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -3156,7 +3289,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":356
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":356
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)
  *     return arr             # <<<<<<<<<<<<<<
@@ -3171,7 +3304,7 @@ static  System::Object^ discnp_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":359
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":359
  * 
  * 
  * cdef object discdd_array_sc(rk_state *state, rk_discdd func, object size,             # <<<<<<<<<<<<<<
@@ -3193,17 +3326,17 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":364
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":364
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, n, p)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":365
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":365
  * 
  *     if size is None:
  *         return func(state, n, p)             # <<<<<<<<<<<<<<
@@ -3218,7 +3351,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":367
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":367
  *         return func(state, n, p)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -3235,7 +3368,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_v_arr = __pyx_t_4;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":368
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":368
  *     else:
  *         arr = np.empty(size, int)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -3247,7 +3380,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_t_4 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":369
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":369
  *         arr = np.empty(size, int)
  *         length = arr.size
  *         data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3256,7 +3389,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
  */
     __pyx_v_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":370
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":370
  *         length = arr.size
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -3266,7 +3399,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":371
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":371
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, p)             # <<<<<<<<<<<<<<
@@ -3276,7 +3409,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_n, __pyx_v_p);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":372
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":372
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, p)
  *         return arr             # <<<<<<<<<<<<<<
@@ -3293,7 +3426,7 @@ static  System::Object^ discdd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":375
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":375
  * 
  * 
  * cdef object discdd_array(rk_state *state, rk_discdd func, object size,             # <<<<<<<<<<<<<<
@@ -3323,7 +3456,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_multi = nullptr;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":382
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":382
  *     cdef npy_intp length, i
  * 
  *     on = np.array(n, np.double)             # <<<<<<<<<<<<<<
@@ -3342,7 +3475,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_on = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":383
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":383
  * 
  *     on = np.array(n, np.double)
  *     op = np.array(p, np.double)             # <<<<<<<<<<<<<<
@@ -3361,17 +3494,17 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   __pyx_v_op = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":384
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":384
  *     on = np.array(n, np.double)
  *     op = np.array(p, np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":385
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":385
  *     op = np.array(p, np.double)
  *     if size is None:
  *         multi = np.broadcast(on, op)             # <<<<<<<<<<<<<<
@@ -3386,7 +3519,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":386
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":386
  *     if size is None:
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)             # <<<<<<<<<<<<<<
@@ -3407,7 +3540,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_arr = __pyx_t_3;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":387
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":387
  *         multi = np.broadcast(on, op)
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3416,7 +3549,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":388
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":388
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -3428,7 +3561,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_3 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":389
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":389
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)             # <<<<<<<<<<<<<<
@@ -3437,7 +3570,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_on_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 0));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":390
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":390
  *         for i from 0 <= i < multi.size:
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3446,7 +3579,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_op_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":391
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":391
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, on_data[0], op_data[0])             # <<<<<<<<<<<<<<
@@ -3455,7 +3588,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_op_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":392
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":392
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -3468,7 +3601,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":394
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":394
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -3485,7 +3618,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":395
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":395
  *     else:
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3494,7 +3627,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":396
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":396
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, op)             # <<<<<<<<<<<<<<
@@ -3509,7 +3642,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":397
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":397
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, op)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -3525,7 +3658,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":398
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":398
  *         multi = np.broadcast(arr, on, op)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -3541,7 +3674,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":399
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":399
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -3553,7 +3686,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
     __pyx_t_3 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":400
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":400
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3562,7 +3695,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_on_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":401
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":401
  *         for i from 0 <= i < multi.size:
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -3571,7 +3704,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       __pyx_v_op_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":402
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":402
  *             on_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], op_data[0])             # <<<<<<<<<<<<<<
@@ -3580,7 +3713,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_op_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":403
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":403
  *             op_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3589,7 +3722,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
  */
       NpyArray_MultiIter_NEXTi(getiter(__pyx_v_multi), 1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":404
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":404
  *             arr_data[i] = func(state, on_data[0], op_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -3601,7 +3734,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":405
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":405
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 2)
  *     return arr             # <<<<<<<<<<<<<<
@@ -3616,7 +3749,7 @@ static  System::Object^ discdd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":408
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":408
  * 
  * 
  * cdef object discnmN_array_sc(rk_state *state, rk_discnmN func, object size,             # <<<<<<<<<<<<<<
@@ -3638,17 +3771,17 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":413
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":413
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, n, m, N)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":414
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":414
  * 
  *     if size is None:
  *         return func(state, n, m, N)             # <<<<<<<<<<<<<<
@@ -3663,7 +3796,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":416
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":416
  *         return func(state, n, m, N)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -3680,7 +3813,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
     __pyx_v_arr = __pyx_t_4;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":417
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":417
  *     else:
  *         arr = np.empty(size, int)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -3692,7 +3825,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
     __pyx_t_4 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":418
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":418
  *         arr = np.empty(size, int)
  *         length = arr.size
  *         data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3701,7 +3834,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
  */
     __pyx_v_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":419
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":419
  *         length = arr.size
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -3711,7 +3844,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":420
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":420
  *         data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, m, N)             # <<<<<<<<<<<<<<
@@ -3721,7 +3854,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
       (__pyx_v_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_n, __pyx_v_m, __pyx_v_N);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":421
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":421
  *         for i from 0 <= i < length:
  *             data[i] = func(state, n, m, N)
  *         return arr             # <<<<<<<<<<<<<<
@@ -3738,7 +3871,7 @@ static  System::Object^ discnmN_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtran
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":424
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":424
  * 
  * 
  * cdef object discnmN_array(rk_state *state, rk_discnmN func, object size,             # <<<<<<<<<<<<<<
@@ -3771,7 +3904,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   __pyx_v_multi = nullptr;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":432
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":432
  *     cdef npy_intp length, i
  * 
  *     on = np.array(n, np.long)             # <<<<<<<<<<<<<<
@@ -3790,7 +3923,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   __pyx_v_on = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":433
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":433
  * 
  *     on = np.array(n, np.long)
  *     om = np.array(m, np.long)             # <<<<<<<<<<<<<<
@@ -3809,7 +3942,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   __pyx_v_om = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":434
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":434
  *     on = np.array(n, np.long)
  *     om = np.array(m, np.long)
  *     oN = np.array(N, np.long)             # <<<<<<<<<<<<<<
@@ -3828,17 +3961,17 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   __pyx_v_oN = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":435
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":435
  *     om = np.array(m, np.long)
  *     oN = np.array(N, np.long)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         multi = np.broadcast(on, om, oN)
  *         arr = np.empty(multi.shape, np.long)
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":436
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":436
  *     oN = np.array(N, np.long)
  *     if size is None:
  *         multi = np.broadcast(on, om, oN)             # <<<<<<<<<<<<<<
@@ -3853,7 +3986,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":437
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":437
  *     if size is None:
  *         multi = np.broadcast(on, om, oN)
  *         arr = np.empty(multi.shape, np.long)             # <<<<<<<<<<<<<<
@@ -3874,7 +4007,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_v_arr = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":438
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":438
  *         multi = np.broadcast(on, om, oN)
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3883,7 +4016,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":439
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":439
  *         arr = np.empty(multi.shape, np.long)
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -3895,7 +4028,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_t_2 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":440
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":440
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)             # <<<<<<<<<<<<<<
@@ -3904,7 +4037,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_on_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 0));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":441
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":441
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -3913,7 +4046,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_om_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":442
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":442
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 0)
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -3922,7 +4055,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_oN_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":443
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":443
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])             # <<<<<<<<<<<<<<
@@ -3931,7 +4064,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_om_data[0]), (__pyx_v_oN_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":444
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":444
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -3944,7 +4077,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":446
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":446
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -3961,7 +4094,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":447
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":447
  *     else:
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -3970,7 +4103,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":448
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":448
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, om, oN)             # <<<<<<<<<<<<<<
@@ -3985,7 +4118,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":449
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":449
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, on, om, oN)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -4001,7 +4134,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":450
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":450
  *         multi = np.broadcast(arr, on, om, oN)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -4017,7 +4150,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":451
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":451
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -4029,7 +4162,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
     __pyx_t_2 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":452
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":452
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -4038,7 +4171,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_on_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":453
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":453
  *         for i from 0 <= i < multi.size:
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)             # <<<<<<<<<<<<<<
@@ -4047,7 +4180,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_om_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 2));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":454
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":454
  *             on_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 3)             # <<<<<<<<<<<<<<
@@ -4056,7 +4189,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       __pyx_v_oN_data = ((long *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 3));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":455
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":455
  *             om_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 2)
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 3)
  *             arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])             # <<<<<<<<<<<<<<
@@ -4065,7 +4198,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_on_data[0]), (__pyx_v_om_data[0]), (__pyx_v_oN_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":456
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":456
  *             oN_data = <long *>NpyArray_MultiIter_DATA(getiter(multi), 3)
  *             arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))             # <<<<<<<<<<<<<<
@@ -4077,7 +4210,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":457
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":457
  *             arr_data[i] = func(state, on_data[0], om_data[0], oN_data[0])
  *             NpyArray_MultiIter_NEXT(getiter(multi))
  *     return arr             # <<<<<<<<<<<<<<
@@ -4092,7 +4225,7 @@ static  System::Object^ discnmN_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_r
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":460
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":460
  * 
  * 
  * cdef object discd_array_sc(rk_state *state, rk_discd func, object size,             # <<<<<<<<<<<<<<
@@ -4114,17 +4247,17 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   npy_intp __pyx_t_6;
   __pyx_v_arr = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":465
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":465
  *     cdef npy_intp length, i
  * 
  *     if size is None:             # <<<<<<<<<<<<<<
  *         return func(state, a)
  *     else:
  */
-  __pyx_t_1 = (__pyx_v_size == Py_None);
+  __pyx_t_1 = (__pyx_v_size == nullptr);
   if (__pyx_t_1) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":466
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":466
  * 
  *     if size is None:
  *         return func(state, a)             # <<<<<<<<<<<<<<
@@ -4139,7 +4272,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":468
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":468
  *         return func(state, a)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -4156,7 +4289,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_v_arr = __pyx_t_4;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":469
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":469
  *     else:
  *         arr = np.empty(size, int)
  *         length = arr.size             # <<<<<<<<<<<<<<
@@ -4168,7 +4301,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_4 = nullptr;
     __pyx_v_length = __pyx_t_5;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":470
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":470
  *         arr = np.empty(size, int)
  *         length = arr.size
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -4177,7 +4310,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":471
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":471
  *         length = arr.size
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -4187,7 +4320,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
     __pyx_t_6 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_6; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":472
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":472
  *         arr_data = <long *>dataptr(arr)
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, a)             # <<<<<<<<<<<<<<
@@ -4197,7 +4330,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, __pyx_v_a);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":473
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":473
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, a)
  *         return arr             # <<<<<<<<<<<<<<
@@ -4214,7 +4347,7 @@ static  System::Object^ discd_array_sc(rk_state *__pyx_v_state, __pyx_t_6mtrand_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":476
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":476
  * 
  * 
  * cdef object discd_array(rk_state *state, rk_discd func, object size,             # <<<<<<<<<<<<<<
@@ -4245,7 +4378,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_arr = nullptr;
   __pyx_v_multi = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":483
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":483
  *     cdef npy_intp length, i
  * 
  *     oa = np.array(a, np.double)             # <<<<<<<<<<<<<<
@@ -4264,17 +4397,17 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   __pyx_v_oa = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":484
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":484
  * 
  *     oa = np.array(a, np.double)
  *     if size is None:             # <<<<<<<<<<<<<<
  *         array = np.empty(oa.shape, dtype=np.long)
  *         length = array.size
  */
-  __pyx_t_4 = (__pyx_v_size == Py_None);
+  __pyx_t_4 = (__pyx_v_size == nullptr);
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":485
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":485
  *     oa = np.array(a, np.double)
  *     if size is None:
  *         array = np.empty(oa.shape, dtype=np.long)             # <<<<<<<<<<<<<<
@@ -4295,7 +4428,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_array = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":486
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":486
  *     if size is None:
  *         array = np.empty(oa.shape, dtype=np.long)
  *         length = array.size             # <<<<<<<<<<<<<<
@@ -4307,7 +4440,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_2 = nullptr;
     __pyx_v_length = __pyx_t_6;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":487
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":487
  *         array = np.empty(oa.shape, dtype=np.long)
  *         length = array.size
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -4316,7 +4449,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":488
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":488
  *         length = array.size
  *         arr_data = <long *>dataptr(arr)
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))             # <<<<<<<<<<<<<<
@@ -4325,7 +4458,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_itera = NpyArray_IterNew(npy_array_from_py_array(__pyx_v_oa));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":489
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":489
  *         arr_data = <long *>dataptr(arr)
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))
  *         for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -4335,7 +4468,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_7 = __pyx_v_length;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":490
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":490
  *         itera = NpyArray_IterNew(npy_array_from_py_array(oa))
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, (<double *>(itera.dataptr))[0])             # <<<<<<<<<<<<<<
@@ -4344,7 +4477,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (((double *)__pyx_v_itera->dataptr)[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":491
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":491
  *         for i from 0 <= i < length:
  *             arr_data[i] = func(state, (<double *>(itera.dataptr))[0])
  *             NpyArray_ITER_NEXT(itera)             # <<<<<<<<<<<<<<
@@ -4357,7 +4490,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":493
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":493
  *             NpyArray_ITER_NEXT(itera)
  *     else:
  *         arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -4374,7 +4507,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":494
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":494
  *     else:
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -4383,7 +4516,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
     __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":495
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":495
  *         arr = np.empty(size, int)
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, oa)             # <<<<<<<<<<<<<<
@@ -4398,7 +4531,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_v_multi = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":496
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":496
  *         arr_data = <long *>dataptr(arr)
  *         multi = np.broadcast(arr, oa)
  *         if multi.size != arr.size:             # <<<<<<<<<<<<<<
@@ -4414,7 +4547,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":497
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":497
  *         multi = np.broadcast(arr, oa)
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")             # <<<<<<<<<<<<<<
@@ -4430,7 +4563,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":498
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":498
  *         if multi.size != arr.size:
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:             # <<<<<<<<<<<<<<
@@ -4442,7 +4575,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
     __pyx_t_2 = nullptr;
     for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_7; __pyx_v_i++) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":499
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":499
  *             raise ValueError("size is not compatible with inputs")
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -4451,7 +4584,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       __pyx_v_oa_data = ((double *)NpyArray_MultiIter_DATA(getiter(__pyx_v_multi), 1));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":500
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":500
  *         for i from 0 <= i < multi.size:
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, oa_data[0])             # <<<<<<<<<<<<<<
@@ -4460,7 +4593,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
  */
       (__pyx_v_arr_data[__pyx_v_i]) = __pyx_v_func(__pyx_v_state, (__pyx_v_oa_data[0]));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":501
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":501
  *             oa_data = <double *>NpyArray_MultiIter_DATA(getiter(multi), 1)
  *             arr_data[i] = func(state, oa_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)             # <<<<<<<<<<<<<<
@@ -4472,7 +4605,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   }
   __pyx_L3:;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":502
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":502
  *             arr_data[i] = func(state, oa_data[0])
  *             NpyArray_MultiIter_NEXTi(getiter(multi), 1)
  *     return arr             # <<<<<<<<<<<<<<
@@ -4487,7 +4620,7 @@ static  System::Object^ discd_array(rk_state *__pyx_v_state, __pyx_t_6mtrand_rk_
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":505
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":505
  * 
  * 
  * cdef double kahan_sum(double *darr, long n):             # <<<<<<<<<<<<<<
@@ -4504,7 +4637,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
   double __pyx_r;
   long __pyx_t_1;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":509
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":509
  *     cdef long i
  * 
  *     sum = darr[0]             # <<<<<<<<<<<<<<
@@ -4513,7 +4646,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
  */
   __pyx_v_sum = (__pyx_v_darr[0]);
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":510
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":510
  * 
  *     sum = darr[0]
  *     c = 0.0             # <<<<<<<<<<<<<<
@@ -4522,7 +4655,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
  */
   __pyx_v_c = 0.0;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":511
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":511
  *     sum = darr[0]
  *     c = 0.0
  *     for i from 1 <= i < n:             # <<<<<<<<<<<<<<
@@ -4532,7 +4665,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
   __pyx_t_1 = __pyx_v_n;
   for (__pyx_v_i = 1; __pyx_v_i < __pyx_t_1; __pyx_v_i++) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":512
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":512
  *     c = 0.0
  *     for i from 1 <= i < n:
  *         y = darr[i] - c             # <<<<<<<<<<<<<<
@@ -4541,7 +4674,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
  */
     __pyx_v_y = ((__pyx_v_darr[__pyx_v_i]) - __pyx_v_c);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":513
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":513
  *     for i from 1 <= i < n:
  *         y = darr[i] - c
  *         t = sum + y             # <<<<<<<<<<<<<<
@@ -4550,7 +4683,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
  */
     __pyx_v_t = (__pyx_v_sum + __pyx_v_y);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":514
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":514
  *         y = darr[i] - c
  *         t = sum + y
  *         c = (t - sum) - y             # <<<<<<<<<<<<<<
@@ -4559,7 +4692,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
  */
     __pyx_v_c = ((__pyx_v_t - __pyx_v_sum) - __pyx_v_y);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":515
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":515
  *         t = sum + y
  *         c = (t - sum) - y
  *         sum = t             # <<<<<<<<<<<<<<
@@ -4569,7 +4702,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
     __pyx_v_sum = __pyx_v_t;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":516
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":516
  *         c = (t - sum) - y
  *         sum = t
  *     return sum             # <<<<<<<<<<<<<<
@@ -4584,7 +4717,7 @@ static  double kahan_sum(double *__pyx_v_darr, long __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":519
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":519
  * 
  * 
  * def flat_array(o, dtype):             # <<<<<<<<<<<<<<
@@ -4605,7 +4738,7 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
   __pyx_v_dtype = dtype;
   __pyx_v_a = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":520
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":520
  * 
  * def flat_array(o, dtype):
  *     a = np.array(o, dtype=dtype)             # <<<<<<<<<<<<<<
@@ -4620,7 +4753,7 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
   __pyx_v_a = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":521
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":521
  * def flat_array(o, dtype):
  *     a = np.array(o, dtype=dtype)
  *     if len(a.shape) == 1:             # <<<<<<<<<<<<<<
@@ -4632,13 +4765,13 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
   __pyx_t_3 = __site_call1_521_10->Target(__site_call1_521_10, __pyx_context, __pyx_t_1, __pyx_t_2);
   __pyx_t_1 = nullptr;
   __pyx_t_2 = nullptr;
-  __pyx_t_2 = __site_op_eq_521_20->Target(__site_op_eq_521_20, __pyx_t_3, 1);
+  __pyx_t_2 = __site_op_eq_521_20->Target(__site_op_eq_521_20, __pyx_t_3, __pyx_int_1);
   __pyx_t_3 = nullptr;
   __pyx_t_4 = __site_istrue_521_20->Target(__site_istrue_521_20, __pyx_t_2);
   __pyx_t_2 = nullptr;
   if (__pyx_t_4) {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":522
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":522
  *     a = np.array(o, dtype=dtype)
  *     if len(a.shape) == 1:
  *         return a             # <<<<<<<<<<<<<<
@@ -4651,7 +4784,7 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
   }
   /*else*/ {
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":524
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":524
  *         return a
  *     else:
  *         return a.flatten()             # <<<<<<<<<<<<<<
@@ -4672,7 +4805,7 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
   return __pyx_r;
 }
 
-/* "/home/cwitty/work/cynet/samples/mtrand.pyx":527
+/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":527
  * 
  * 
  * cdef class RandomState:             # <<<<<<<<<<<<<<
@@ -4683,7 +4816,7 @@ static System::Object^ flat_array(System::Object^ o, System::Object^ dtype) {
 ref struct RandomState {
   rk_state *internal_state;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":562
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":562
  *     cdef rk_state *internal_state
  * 
  *     def __cinit__(self, seed=None):             # <<<<<<<<<<<<<<
@@ -4700,10 +4833,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(seed) == nullptr) {
       __pyx_v_seed = seed;
     } else {
-      __pyx_v_seed = ((System::Object^)Py_None);
+      __pyx_v_seed = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":563
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":563
  * 
  *     def __cinit__(self, seed=None):
  *         self.internal_state = <rk_state *>malloc(sizeof(rk_state))             # <<<<<<<<<<<<<<
@@ -4712,7 +4845,7 @@ ref struct RandomState {
  */
     ((RandomState^)__pyx_v_self)->internal_state = ((rk_state *)malloc((sizeof(rk_state))));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":565
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":565
  *         self.internal_state = <rk_state *>malloc(sizeof(rk_state))
  * 
  *         self.seed(seed)             # <<<<<<<<<<<<<<
@@ -4727,7 +4860,7 @@ ref struct RandomState {
     __pyx_r = 0;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":567
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":567
  *         self.seed(seed)
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4739,7 +4872,7 @@ ref struct RandomState {
     int __pyx_t_1;
     System::Object^ __pyx_v_self = this;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":568
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":568
  * 
  *     def __dealloc__(self):
  *         if self.internal_state != NULL:             # <<<<<<<<<<<<<<
@@ -4749,7 +4882,7 @@ ref struct RandomState {
     __pyx_t_1 = (((RandomState^)__pyx_v_self)->internal_state != NULL);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":569
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":569
  *     def __dealloc__(self):
  *         if self.internal_state != NULL:
  *             free(self.internal_state)             # <<<<<<<<<<<<<<
@@ -4758,7 +4891,7 @@ ref struct RandomState {
  */
       free(((RandomState^)__pyx_v_self)->internal_state);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":570
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":570
  *         if self.internal_state != NULL:
  *             free(self.internal_state)
  *             self.internal_state = NULL             # <<<<<<<<<<<<<<
@@ -4773,7 +4906,7 @@ ref struct RandomState {
   }
   ~RandomState() { this->!RandomState(); }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":572
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":572
  *             self.internal_state = NULL
  * 
  *     def seed(self, seed=None):             # <<<<<<<<<<<<<<
@@ -4797,22 +4930,22 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(seed) == nullptr) {
       __pyx_v_seed = seed;
     } else {
-      __pyx_v_seed = ((System::Object^)Py_None);
+      __pyx_v_seed = ((System::Object^)nullptr);
     }
     __pyx_v_iseed = nullptr;
     __pyx_v_obj = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":593
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":593
  *         cdef rk_error errcode
  * 
  *         if seed is None:             # <<<<<<<<<<<<<<
  *             errcode = rk_randomseed(self.internal_state)
  *         elif type(seed) is int:
  */
-    __pyx_t_1 = (__pyx_v_seed == Py_None);
+    __pyx_t_1 = (__pyx_v_seed == nullptr);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":594
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":594
  * 
  *         if seed is None:
  *             errcode = rk_randomseed(self.internal_state)             # <<<<<<<<<<<<<<
@@ -4823,7 +4956,7 @@ ref struct RandomState {
       goto __pyx_L5;
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":595
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":595
  *         if seed is None:
  *             errcode = rk_randomseed(self.internal_state)
  *         elif type(seed) is int:             # <<<<<<<<<<<<<<
@@ -4839,7 +4972,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":596
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":596
  *             errcode = rk_randomseed(self.internal_state)
  *         elif type(seed) is int:
  *             rk_seed(seed, self.internal_state)             # <<<<<<<<<<<<<<
@@ -4851,7 +4984,7 @@ ref struct RandomState {
       goto __pyx_L5;
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":597
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":597
  *         elif type(seed) is int:
  *             rk_seed(seed, self.internal_state)
  *         elif isinstance(seed, np.integer):             # <<<<<<<<<<<<<<
@@ -4869,7 +5002,7 @@ ref struct RandomState {
     __pyx_t_3 = nullptr;
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":598
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":598
  *             rk_seed(seed, self.internal_state)
  *         elif isinstance(seed, np.integer):
  *             iseed = int(seed)             # <<<<<<<<<<<<<<
@@ -4882,7 +5015,7 @@ ref struct RandomState {
       __pyx_v_iseed = __pyx_t_5;
       __pyx_t_5 = nullptr;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":599
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":599
  *         elif isinstance(seed, np.integer):
  *             iseed = int(seed)
  *             rk_seed(iseed, self.internal_state)             # <<<<<<<<<<<<<<
@@ -4895,7 +5028,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":601
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":601
  *             rk_seed(iseed, self.internal_state)
  *         else:
  *             obj = flat_array(seed, np.long)             # <<<<<<<<<<<<<<
@@ -4912,7 +5045,7 @@ ref struct RandomState {
       __pyx_v_obj = __pyx_t_3;
       __pyx_t_3 = nullptr;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":604
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":604
  *             init_by_array(self.internal_state,
  *                           <unsigned long *>dataptr(obj),
  *                           npy_array_from_py_array(obj).dimensions[0])             # <<<<<<<<<<<<<<
@@ -4927,7 +5060,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":606
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":606
  *                           npy_array_from_py_array(obj).dimensions[0])
  * 
  *     def get_state(self):             # <<<<<<<<<<<<<<
@@ -4945,7 +5078,7 @@ ref struct RandomState {
     System::Object^ __pyx_v_self = this;
     __pyx_v_state = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":636
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":636
  * 
  *         """
  *         state = np.empty(624, np.uint)             # <<<<<<<<<<<<<<
@@ -4958,13 +5091,13 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_3 = __site_get_uint_636_32->Target(__site_get_uint_636_32, __pyx_t_1, __pyx_context);
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_call2_636_24->Target(__site_call2_636_24, __pyx_context, __pyx_t_2, 624, __pyx_t_3);
+    __pyx_t_1 = __site_call2_636_24->Target(__site_call2_636_24, __pyx_context, __pyx_t_2, __pyx_int_624, __pyx_t_3);
     __pyx_t_2 = nullptr;
     __pyx_t_3 = nullptr;
     __pyx_v_state = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":639
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":639
  *         memcpy(<void *>dataptr(state),
  *                <void *>(self.internal_state.key),
  *                624 * sizeof(long))             # <<<<<<<<<<<<<<
@@ -4973,7 +5106,7 @@ ref struct RandomState {
  */
     memcpy(((void *)dataptr(__pyx_v_state)), ((void *)((RandomState^)__pyx_v_self)->internal_state->key), (624 * (sizeof(long))));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":640
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":640
  *                <void *>(self.internal_state.key),
  *                624 * sizeof(long))
  *         state = np.asarray(state, np.uint32)             # <<<<<<<<<<<<<<
@@ -4992,7 +5125,7 @@ ref struct RandomState {
     __pyx_v_state = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":641
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":641
  *                624 * sizeof(long))
  *         state = np.asarray(state, np.uint32)
  *         return ('MT19937', state, self.internal_state.pos,             # <<<<<<<<<<<<<<
@@ -5001,7 +5134,7 @@ ref struct RandomState {
  */
     __pyx_t_1 = ((RandomState^)__pyx_v_self)->internal_state->pos;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":642
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":642
  *         state = np.asarray(state, np.uint32)
  *         return ('MT19937', state, self.internal_state.pos,
  *             self.internal_state.has_gauss, self.internal_state.gauss)             # <<<<<<<<<<<<<<
@@ -5023,7 +5156,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":644
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":644
  *             self.internal_state.has_gauss, self.internal_state.gauss)
  * 
  *     def set_state(self, state):             # <<<<<<<<<<<<<<
@@ -5056,7 +5189,7 @@ ref struct RandomState {
     __pyx_v_cached_gaussian = nullptr;
     __pyx_v_obj = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":693
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":693
  *         cdef int pos
  * 
  *         algorithm_name = state[0]             # <<<<<<<<<<<<<<
@@ -5067,7 +5200,7 @@ ref struct RandomState {
     __pyx_v_algorithm_name = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":694
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":694
  * 
  *         algorithm_name = state[0]
  *         if algorithm_name != 'MT19937':             # <<<<<<<<<<<<<<
@@ -5079,7 +5212,7 @@ ref struct RandomState {
     __pyx_t_1 = nullptr;
     if (__pyx_t_2) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":695
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":695
  *         algorithm_name = state[0]
  *         if algorithm_name != 'MT19937':
  *             raise ValueError("algorithm must be 'MT19937'")             # <<<<<<<<<<<<<<
@@ -5095,7 +5228,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":696
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":696
  *         if algorithm_name != 'MT19937':
  *             raise ValueError("algorithm must be 'MT19937'")
  *         key, pos = state[1:3]             # <<<<<<<<<<<<<<
@@ -5104,7 +5237,7 @@ ref struct RandomState {
  */
     __pyx_t_3 = __site_getslice_696_24->Target(__site_getslice_696_24, __pyx_v_state, 1, 3);
     __pyx_t_4 = safe_cast< array<System::Object^>^ >(LightExceptions::CheckAndThrow(PythonOps::GetEnumeratorValuesNoComplexSets(__pyx_context, __pyx_t_3, 2)));
-    __pyx_t_5 = __pyx_t_4[0];
+    __pyx_t_1 = __pyx_t_4[0];
     __pyx_t_5 = __pyx_t_4[1];
     __pyx_t_6 = __site_cvt_int_696_8->Target(__site_cvt_int_696_8, __pyx_t_5);
     __pyx_t_5 = nullptr;
@@ -5114,7 +5247,7 @@ ref struct RandomState {
     __pyx_t_1 = nullptr;
     __pyx_v_pos = __pyx_t_6;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":697
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":697
  *             raise ValueError("algorithm must be 'MT19937'")
  *         key, pos = state[1:3]
  *         if len(state) == 3:             # <<<<<<<<<<<<<<
@@ -5124,22 +5257,22 @@ ref struct RandomState {
     __pyx_t_3 = PythonOps::GetGlobal(__pyx_context, "len");
     __pyx_t_5 = __site_call1_697_14->Target(__site_call1_697_14, __pyx_context, __pyx_t_3, __pyx_v_state);
     __pyx_t_3 = nullptr;
-    __pyx_t_3 = __site_op_eq_697_22->Target(__site_op_eq_697_22, __pyx_t_5, 3);
+    __pyx_t_3 = __site_op_eq_697_22->Target(__site_op_eq_697_22, __pyx_t_5, __pyx_int_3);
     __pyx_t_5 = nullptr;
     __pyx_t_2 = __site_istrue_697_22->Target(__site_istrue_697_22, __pyx_t_3);
     __pyx_t_3 = nullptr;
     if (__pyx_t_2) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":698
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":698
  *         key, pos = state[1:3]
  *         if len(state) == 3:
  *             has_gauss = 0             # <<<<<<<<<<<<<<
  *             cached_gaussian = 0.0
  *         else:
  */
-      __pyx_v_has_gauss = 0;
+      __pyx_v_has_gauss = __pyx_int_0;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":699
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":699
  *         if len(state) == 3:
  *             has_gauss = 0
  *             cached_gaussian = 0.0             # <<<<<<<<<<<<<<
@@ -5153,7 +5286,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":701
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":701
  *             cached_gaussian = 0.0
  *         else:
  *             has_gauss, cached_gaussian = state[3:5]             # <<<<<<<<<<<<<<
@@ -5162,7 +5295,7 @@ ref struct RandomState {
  */
       __pyx_t_3 = __site_getslice_701_46->Target(__site_getslice_701_46, __pyx_v_state, 3, 5);
       __pyx_t_4 = safe_cast< array<System::Object^>^ >(LightExceptions::CheckAndThrow(PythonOps::GetEnumeratorValuesNoComplexSets(__pyx_context, __pyx_t_3, 2)));
-      __pyx_t_1 = __pyx_t_4[0];
+      __pyx_t_5 = __pyx_t_4[0];
       __pyx_t_1 = __pyx_t_4[1];
       __pyx_t_3 = nullptr;
       __pyx_t_4 = nullptr;
@@ -5173,7 +5306,7 @@ ref struct RandomState {
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":703
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":703
  *             has_gauss, cached_gaussian = state[3:5]
  * 
  *         obj = flat_array(key, np.uint)             # <<<<<<<<<<<<<<
@@ -5190,7 +5323,7 @@ ref struct RandomState {
     __pyx_v_obj = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":704
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":704
  * 
  *         obj = flat_array(key, np.uint)
  *         if obj.shape[0] != 624:             # <<<<<<<<<<<<<<
@@ -5200,13 +5333,13 @@ ref struct RandomState {
     __pyx_t_1 = __site_get_shape_704_14->Target(__site_get_shape_704_14, __pyx_v_obj, __pyx_context);
     __pyx_t_5 = __site_getindex_704_20->Target(__site_getindex_704_20, __pyx_t_1, ((System::Object^)0));
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_op_ne_704_24->Target(__site_op_ne_704_24, __pyx_t_5, 624);
+    __pyx_t_1 = __site_op_ne_704_24->Target(__site_op_ne_704_24, __pyx_t_5, __pyx_int_624);
     __pyx_t_5 = nullptr;
     __pyx_t_2 = __site_istrue_704_24->Target(__site_istrue_704_24, __pyx_t_1);
     __pyx_t_1 = nullptr;
     if (__pyx_t_2) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":705
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":705
  *         obj = flat_array(key, np.uint)
  *         if obj.shape[0] != 624:
  *             raise ValueError("state must be 624 longs")             # <<<<<<<<<<<<<<
@@ -5222,7 +5355,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":708
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":708
  *         memcpy(<void *>(self.internal_state.key),
  *                <void *>dataptr(obj),
  *                624 * sizeof(long))             # <<<<<<<<<<<<<<
@@ -5231,7 +5364,7 @@ ref struct RandomState {
  */
     memcpy(((void *)((RandomState^)__pyx_v_self)->internal_state->key), ((void *)dataptr(__pyx_v_obj)), (624 * (sizeof(long))));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":709
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":709
  *                <void *>dataptr(obj),
  *                624 * sizeof(long))
  *         self.internal_state.pos = pos             # <<<<<<<<<<<<<<
@@ -5240,7 +5373,7 @@ ref struct RandomState {
  */
     ((RandomState^)__pyx_v_self)->internal_state->pos = __pyx_v_pos;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":710
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":710
  *                624 * sizeof(long))
  *         self.internal_state.pos = pos
  *         self.internal_state.has_gauss = has_gauss             # <<<<<<<<<<<<<<
@@ -5250,7 +5383,7 @@ ref struct RandomState {
     __pyx_t_7 = __site_cvt_int_710_49->Target(__site_cvt_int_710_49, __pyx_v_has_gauss);
     ((RandomState^)__pyx_v_self)->internal_state->has_gauss = __pyx_t_7;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":711
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":711
  *         self.internal_state.pos = pos
  *         self.internal_state.has_gauss = has_gauss
  *         self.internal_state.gauss = cached_gaussian             # <<<<<<<<<<<<<<
@@ -5264,7 +5397,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":714
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":714
  * 
  *     # Pickling support:
  *     def __getstate__(self):             # <<<<<<<<<<<<<<
@@ -5278,7 +5411,7 @@ ref struct RandomState {
     System::Object^ __pyx_t_2 = nullptr;
     System::Object^ __pyx_v_self = this;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":715
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":715
  *     # Pickling support:
  *     def __getstate__(self):
  *         return self.get_state()             # <<<<<<<<<<<<<<
@@ -5297,7 +5430,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":717
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":717
  *         return self.get_state()
  * 
  *     def __setstate__(self, state):             # <<<<<<<<<<<<<<
@@ -5313,7 +5446,7 @@ ref struct RandomState {
     System::Object^ __pyx_v_self = this;
     __pyx_v_state = state;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":718
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":718
  * 
  *     def __setstate__(self, state):
  *         self.set_state(state)             # <<<<<<<<<<<<<<
@@ -5329,7 +5462,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":720
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":720
  *         self.set_state(state)
  * 
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -5344,7 +5477,7 @@ ref struct RandomState {
     System::Object^ __pyx_t_3 = nullptr;
     System::Object^ __pyx_v_self = this;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":721
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":721
  * 
  *     def __reduce__(self):
  *         return (np.random.__RandomState_ctor, (), self.get_state())             # <<<<<<<<<<<<<<
@@ -5371,7 +5504,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":724
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":724
  * 
  *     # Basic distributions:
  *     def random_sample(self, size=None):             # <<<<<<<<<<<<<<
@@ -5387,10 +5520,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":765
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":765
  * 
  *         """
  *         return cont0_array(self.internal_state, rk_double, size)             # <<<<<<<<<<<<<<
@@ -5407,7 +5540,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":767
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":767
  *         return cont0_array(self.internal_state, rk_double, size)
  * 
  *     def tomaxint(self, size=None):             # <<<<<<<<<<<<<<
@@ -5423,10 +5556,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":793
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":793
  * 
  *         """
  *         return disc0_array(self.internal_state, rk_long, size)             # <<<<<<<<<<<<<<
@@ -5443,7 +5576,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":795
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":795
  *         return disc0_array(self.internal_state, rk_long, size)
  * 
  *     def randint(self, low, high=None, size=None):             # <<<<<<<<<<<<<<
@@ -5477,26 +5610,26 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(high) == nullptr) {
       __pyx_v_high = high;
     } else {
-      __pyx_v_high = ((System::Object^)Py_None);
+      __pyx_v_high = ((System::Object^)nullptr);
     }
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
     __pyx_v_arr = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":849
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":849
  *         cdef npy_intp length, i
  * 
  *         if high is None:             # <<<<<<<<<<<<<<
  *             lo = 0
  *             hi = low
  */
-    __pyx_t_1 = (__pyx_v_high == Py_None);
+    __pyx_t_1 = (__pyx_v_high == nullptr);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":850
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":850
  * 
  *         if high is None:
  *             lo = 0             # <<<<<<<<<<<<<<
@@ -5505,7 +5638,7 @@ ref struct RandomState {
  */
       __pyx_v_lo = 0;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":851
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":851
  *         if high is None:
  *             lo = 0
  *             hi = low             # <<<<<<<<<<<<<<
@@ -5518,7 +5651,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":853
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":853
  *             hi = low
  *         else:
  *             lo = low             # <<<<<<<<<<<<<<
@@ -5528,7 +5661,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_long_853_20->Target(__site_cvt_long_853_20, __pyx_v_low);
       __pyx_v_lo = __pyx_t_3;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":854
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":854
  *         else:
  *             lo = low
  *             hi = high             # <<<<<<<<<<<<<<
@@ -5540,7 +5673,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":856
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":856
  *             hi = high
  * 
  *         diff = hi - lo - 1             # <<<<<<<<<<<<<<
@@ -5549,7 +5682,7 @@ ref struct RandomState {
  */
     __pyx_v_diff = ((__pyx_v_hi - __pyx_v_lo) - 1);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":857
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":857
  * 
  *         diff = hi - lo - 1
  *         if diff < 0:             # <<<<<<<<<<<<<<
@@ -5559,7 +5692,7 @@ ref struct RandomState {
     __pyx_t_1 = (__pyx_v_diff < 0);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":858
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":858
  *         diff = hi - lo - 1
  *         if diff < 0:
  *             raise ValueError("low >= high")             # <<<<<<<<<<<<<<
@@ -5575,17 +5708,17 @@ ref struct RandomState {
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":860
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":860
  *             raise ValueError("low >= high")
  * 
  *         if size is None:             # <<<<<<<<<<<<<<
  *             return <long>rk_interval(diff, self.internal_state) + lo
  *         else:
  */
-    __pyx_t_1 = (__pyx_v_size == Py_None);
+    __pyx_t_1 = (__pyx_v_size == nullptr);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":861
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":861
  * 
  *         if size is None:
  *             return <long>rk_interval(diff, self.internal_state) + lo             # <<<<<<<<<<<<<<
@@ -5600,7 +5733,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":863
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":863
  *             return <long>rk_interval(diff, self.internal_state) + lo
  *         else:
  *             arr = np.empty(size, int)             # <<<<<<<<<<<<<<
@@ -5617,7 +5750,7 @@ ref struct RandomState {
       __pyx_v_arr = __pyx_t_7;
       __pyx_t_7 = nullptr;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":864
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":864
  *         else:
  *             arr = np.empty(size, int)
  *             length = arr.size             # <<<<<<<<<<<<<<
@@ -5629,7 +5762,7 @@ ref struct RandomState {
       __pyx_t_7 = nullptr;
       __pyx_v_length = __pyx_t_8;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":865
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":865
  *             arr = np.empty(size, int)
  *             length = arr.size
  *             arr_data = <long *>dataptr(arr)             # <<<<<<<<<<<<<<
@@ -5638,7 +5771,7 @@ ref struct RandomState {
  */
       __pyx_v_arr_data = ((long *)dataptr(__pyx_v_arr));
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":866
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":866
  *             length = arr.size
  *             arr_data = <long *>dataptr(arr)
  *             for i from 0 <= i < length:             # <<<<<<<<<<<<<<
@@ -5648,7 +5781,7 @@ ref struct RandomState {
       __pyx_t_9 = __pyx_v_length;
       for (__pyx_v_i = 0; __pyx_v_i < __pyx_t_9; __pyx_v_i++) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":867
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":867
  *             arr_data = <long *>dataptr(arr)
  *             for i from 0 <= i < length:
  *                 arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)             # <<<<<<<<<<<<<<
@@ -5658,12 +5791,12 @@ ref struct RandomState {
         (__pyx_v_arr_data[__pyx_v_i]) = (__pyx_v_lo + ((long)rk_interval(__pyx_v_diff, ((RandomState^)__pyx_v_self)->internal_state)));
       }
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":868
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":868
  *             for i from 0 <= i < length:
  *                 arr_data[i] = lo + <long>rk_interval(diff, self.internal_state)
  *             return arr             # <<<<<<<<<<<<<<
  * 
- *     # def bytes(self, unsigned int length):
+ *     def bytes(self, unsigned int length):
  */
       __pyx_r = __pyx_v_arr;
       goto __pyx_L0;
@@ -5675,8 +5808,77 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":898
- *     #     return res
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":870
+ *             return arr
+ * 
+ *     def bytes(self, unsigned int length):             # <<<<<<<<<<<<<<
+ *         """
+ *         bytes(length)
+ */
+
+  virtual System::Object^ bytes(System::Object^ length) {
+    unsigned int __pyx_v_length;
+    System::Object^ __pyx_v_res = nullptr;
+    char *__pyx_v_bytes_ptr;
+    System::Object^ __pyx_r = nullptr;
+    System::Object^ __pyx_t_1 = nullptr;
+    System::Object^ __pyx_t_2 = nullptr;
+    char *__pyx_t_3;
+    System::IntPtr __pyx_t_4;
+    System::Object^ __pyx_v_self = this;
+    __pyx_v_length = __site_cvt_870_4->Target(__site_cvt_870_4, length);
+
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":892
+ * 
+ *         """
+ *         cdef bytes_type res = b'x' * length             # <<<<<<<<<<<<<<
+ *         cdef char *bytes_ptr = res
+ * 
+ */
+    __pyx_t_1 = __pyx_v_length;
+    __pyx_t_2 = __site_op_mul_892_35->Target(__site_op_mul_892_35, ((System::Object^)PythonOps::MakeBytes(gcnew array<unsigned char>{120})), __pyx_t_1);
+    __pyx_t_1 = nullptr;
+    __pyx_v_res = __pyx_t_2;
+    __pyx_t_2 = nullptr;
+
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":893
+ *         """
+ *         cdef bytes_type res = b'x' * length
+ *         cdef char *bytes_ptr = res             # <<<<<<<<<<<<<<
+ * 
+ *         rk_fill(bytes_ptr, length, self.internal_state)
+ */
+    __pyx_t_4 = InteropServices::Marshal::StringToHGlobalAnsi(dynamic_cast<System::String^>(((System::Object^)__pyx_v_res)));
+    __pyx_t_3 = static_cast<char *>(__pyx_t_4.ToPointer());
+    __pyx_v_bytes_ptr = __pyx_t_3;
+    InteropServices::Marshal::FreeHGlobal(__pyx_t_4);
+
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":895
+ *         cdef char *bytes_ptr = res
+ * 
+ *         rk_fill(bytes_ptr, length, self.internal_state)             # <<<<<<<<<<<<<<
+ *         return res
+ * 
+ */
+    rk_fill(__pyx_v_bytes_ptr, __pyx_v_length, ((RandomState^)__pyx_v_self)->internal_state);
+
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":896
+ * 
+ *         rk_fill(bytes_ptr, length, self.internal_state)
+ *         return res             # <<<<<<<<<<<<<<
+ * 
+ *     def uniform(self, low=0.0, high=1.0, size=None):
+ */
+    __pyx_r = ((System::Object^)__pyx_v_res);
+    goto __pyx_L0;
+
+    __pyx_r = nullptr;
+    __pyx_L0:;
+    return __pyx_r;
+  }
+
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":898
+ *         return res
  * 
  *     def uniform(self, low=0.0, high=1.0, size=None):             # <<<<<<<<<<<<<<
  *         """
@@ -5711,11 +5913,11 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
     __pyx_v_diff = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":971
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":971
  *         cdef double flow, fhigh
  *         cdef object temp
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -5724,7 +5926,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":973
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":973
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -5733,7 +5935,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":974
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":974
  * 
  *         try:
  *             flow = <double>low             # <<<<<<<<<<<<<<
@@ -5743,7 +5945,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_974_30->Target(__site_cvt_double_974_30, __pyx_v_low);
       __pyx_v_flow = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":975
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":975
  *         try:
  *             flow = <double>low
  *             fhigh = <double>high             # <<<<<<<<<<<<<<
@@ -5753,7 +5955,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_975_32->Target(__site_cvt_double_975_32, __pyx_v_high);
       __pyx_v_fhigh = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":976
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":976
  *             flow = <double>low
  *             fhigh = <double>high
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -5764,7 +5966,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":977
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":977
  *             fhigh = <double>high
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -5778,7 +5980,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":980
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":980
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -5787,7 +5989,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":982
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":982
  *         if sc:
  *             return cont2_array_sc(self.internal_state, rk_uniform, size,
  *                                   flow, fhigh - flow)             # <<<<<<<<<<<<<<
@@ -5802,7 +6004,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":984
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":984
  *                                   flow, fhigh - flow)
  * 
  *         diff = np.array(high) - np.array(low)             # <<<<<<<<<<<<<<
@@ -5825,7 +6027,7 @@ ref struct RandomState {
     __pyx_v_diff = __pyx_t_7;
     __pyx_t_7 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":986
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":986
  *         diff = np.array(high) - np.array(low)
  *         return cont2_array(self.internal_state, rk_uniform, size,
  *                            low, diff)             # <<<<<<<<<<<<<<
@@ -5842,7 +6044,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":988
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":988
  *                            low, diff)
  * 
  *     def rand(self, *args):             # <<<<<<<<<<<<<<
@@ -5858,7 +6060,7 @@ ref struct RandomState {
     System::Object^ __pyx_v_self = this;
     System::Object^ __pyx_v_args = PythonOps::MakeTuple(args);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1026
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1026
  * 
  *         """
  *         if len(args) == 0:             # <<<<<<<<<<<<<<
@@ -5868,13 +6070,13 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "len");
     __pyx_t_2 = __site_call1_1026_14->Target(__site_call1_1026_14, __pyx_context, __pyx_t_1, ((System::Object^)__pyx_v_args));
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_op_eq_1026_21->Target(__site_op_eq_1026_21, __pyx_t_2, 0);
+    __pyx_t_1 = __site_op_eq_1026_21->Target(__site_op_eq_1026_21, __pyx_t_2, __pyx_int_0);
     __pyx_t_2 = nullptr;
     __pyx_t_3 = __site_istrue_1026_21->Target(__site_istrue_1026_21, __pyx_t_1);
     __pyx_t_1 = nullptr;
     if (__pyx_t_3) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1027
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1027
  *         """
  *         if len(args) == 0:
  *             return self.random_sample()             # <<<<<<<<<<<<<<
@@ -5891,7 +6093,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1029
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1029
  *             return self.random_sample()
  *         else:
  *             return self.random_sample(size=args)             # <<<<<<<<<<<<<<
@@ -5912,7 +6114,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1031
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1031
  *             return self.random_sample(size=args)
  * 
  *     def randn(self, *args):             # <<<<<<<<<<<<<<
@@ -5928,7 +6130,7 @@ ref struct RandomState {
     System::Object^ __pyx_v_self = this;
     System::Object^ __pyx_v_args = PythonOps::MakeTuple(args);
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1082
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1082
  * 
  *         """
  *         if len(args) == 0:             # <<<<<<<<<<<<<<
@@ -5938,13 +6140,13 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "len");
     __pyx_t_2 = __site_call1_1082_14->Target(__site_call1_1082_14, __pyx_context, __pyx_t_1, ((System::Object^)__pyx_v_args));
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_op_eq_1082_21->Target(__site_op_eq_1082_21, __pyx_t_2, 0);
+    __pyx_t_1 = __site_op_eq_1082_21->Target(__site_op_eq_1082_21, __pyx_t_2, __pyx_int_0);
     __pyx_t_2 = nullptr;
     __pyx_t_3 = __site_istrue_1082_21->Target(__site_istrue_1082_21, __pyx_t_1);
     __pyx_t_1 = nullptr;
     if (__pyx_t_3) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1083
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1083
  *         """
  *         if len(args) == 0:
  *             return self.standard_normal()             # <<<<<<<<<<<<<<
@@ -5961,7 +6163,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1085
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1085
  *             return self.standard_normal()
  *         else:
  *             return self.standard_normal(args)             # <<<<<<<<<<<<<<
@@ -5982,7 +6184,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1087
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1087
  *             return self.standard_normal(args)
  * 
  *     def random_integers(self, low, high=None, size=None):             # <<<<<<<<<<<<<<
@@ -6004,25 +6206,25 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(high) == nullptr) {
       __pyx_v_high = high;
     } else {
-      __pyx_v_high = ((System::Object^)Py_None);
+      __pyx_v_high = ((System::Object^)nullptr);
     }
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1160
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1160
  * 
  *         """
  *         if high is None:             # <<<<<<<<<<<<<<
  *             high = low
  *             low = 1
  */
-    __pyx_t_1 = (__pyx_v_high == Py_None);
+    __pyx_t_1 = (__pyx_v_high == nullptr);
     if (__pyx_t_1) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1161
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1161
  *         """
  *         if high is None:
  *             high = low             # <<<<<<<<<<<<<<
@@ -6031,19 +6233,19 @@ ref struct RandomState {
  */
       __pyx_v_high = __pyx_v_low;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1162
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1162
  *         if high is None:
  *             high = low
  *             low = 1             # <<<<<<<<<<<<<<
  *         return self.randint(low, high + 1, size)
  * 
  */
-      __pyx_v_low = 1;
+      __pyx_v_low = __pyx_int_1;
       goto __pyx_L5;
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1163
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1163
  *             high = low
  *             low = 1
  *         return self.randint(low, high + 1, size)             # <<<<<<<<<<<<<<
@@ -6051,7 +6253,7 @@ ref struct RandomState {
  *     # Complicated, continuous distributions:
  */
     __pyx_t_2 = __site_get_randint_1163_19->Target(__site_get_randint_1163_19, __pyx_v_self, __pyx_context);
-    __pyx_t_3 = __site_op_add_1163_38->Target(__site_op_add_1163_38, __pyx_v_high, 1);
+    __pyx_t_3 = __site_op_add_1163_38->Target(__site_op_add_1163_38, __pyx_v_high, __pyx_int_1);
     __pyx_t_4 = __site_call3_1163_27->Target(__site_call3_1163_27, __pyx_context, __pyx_t_2, __pyx_v_low, __pyx_t_3, __pyx_v_size);
     __pyx_t_2 = nullptr;
     __pyx_t_3 = nullptr;
@@ -6064,7 +6266,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1166
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1166
  * 
  *     # Complicated, continuous distributions:
  *     def standard_normal(self, size=None):             # <<<<<<<<<<<<<<
@@ -6080,10 +6282,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1196
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1196
  * 
  *         """
  *         return cont0_array(self.internal_state, rk_gauss, size)             # <<<<<<<<<<<<<<
@@ -6100,7 +6302,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1198
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1198
  *         return cont0_array(self.internal_state, rk_gauss, size)
  * 
  *     def normal(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -6136,10 +6338,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1281
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1281
  *         """
  *         cdef double floc, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -6148,7 +6350,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1283
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1283
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -6157,7 +6359,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1284
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1284
  * 
  *         try:
  *             floc = <double>loc             # <<<<<<<<<<<<<<
@@ -6167,7 +6369,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1284_30->Target(__site_cvt_double_1284_30, __pyx_v_loc);
       __pyx_v_floc = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1285
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1285
  *         try:
  *             floc = <double>loc
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -6177,7 +6379,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1285_34->Target(__site_cvt_double_1285_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1286
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1286
  *             floc = <double>loc
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -6188,7 +6390,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1287
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1287
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -6202,7 +6404,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1290
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1290
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -6211,7 +6413,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1291
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1291
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -6221,7 +6423,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1292
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1292
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -6237,7 +6439,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1294
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1294
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_normal, size, floc,
  *                                   fscale)             # <<<<<<<<<<<<<<
@@ -6252,7 +6454,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1296
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1296
  *                                   fscale)
  * 
  *         if np.any(np.less_equal(scale, 0)):             # <<<<<<<<<<<<<<
@@ -6265,7 +6467,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_less_equal_1296_20->Target(__site_get_less_equal_1296_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_1296_31->Target(__site_call2_1296_31, __pyx_context, __pyx_t_8, __pyx_v_scale, 0);
+    __pyx_t_7 = __site_call2_1296_31->Target(__site_call2_1296_31, __pyx_context, __pyx_t_8, __pyx_v_scale, __pyx_int_0);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_1296_17->Target(__site_call1_1296_17, __pyx_context, __pyx_t_6, __pyx_t_7);
     __pyx_t_6 = nullptr;
@@ -6274,7 +6476,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1297
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1297
  * 
  *         if np.any(np.less_equal(scale, 0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -6290,7 +6492,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1298
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1298
  *         if np.any(np.less_equal(scale, 0)):
  *             raise ValueError("scale <= 0")
  *         return cont2_array(self.internal_state, rk_normal, size, loc, scale)             # <<<<<<<<<<<<<<
@@ -6307,7 +6509,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1300
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1300
  *         return cont2_array(self.internal_state, rk_normal, size, loc, scale)
  * 
  *     def beta(self, a, b, size=None):             # <<<<<<<<<<<<<<
@@ -6335,10 +6537,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1338
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1338
  *         """
  *         cdef double fa, fb
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -6347,7 +6549,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1340
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1340
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -6356,7 +6558,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1341
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1341
  * 
  *         try:
  *             fa = <double>a             # <<<<<<<<<<<<<<
@@ -6366,7 +6568,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1341_26->Target(__site_cvt_double_1341_26, __pyx_v_a);
       __pyx_v_fa = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1342
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1342
  *         try:
  *             fa = <double>a
  *             fb = <double>b             # <<<<<<<<<<<<<<
@@ -6376,7 +6578,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1342_26->Target(__site_cvt_double_1342_26, __pyx_v_b);
       __pyx_v_fb = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1343
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1343
  *             fa = <double>a
  *             fb = <double>b
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -6387,7 +6589,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1344
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1344
  *             fb = <double>b
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -6401,7 +6603,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1347
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1347
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -6410,7 +6612,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1348
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1348
  * 
  *         if sc:
  *             if fa <= 0:             # <<<<<<<<<<<<<<
@@ -6420,7 +6622,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fa <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1349
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1349
  *         if sc:
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -6436,7 +6638,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1350
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1350
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")
  *             if fb <= 0:             # <<<<<<<<<<<<<<
@@ -6446,7 +6648,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fb <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1351
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1351
  *                 raise ValueError("a <= 0")
  *             if fb <= 0:
  *                 raise ValueError("b <= 0")             # <<<<<<<<<<<<<<
@@ -6462,7 +6664,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1352
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1352
  *             if fb <= 0:
  *                 raise ValueError("b <= 0")
  *             return cont2_array_sc(self.internal_state, rk_beta, size, fa, fb)             # <<<<<<<<<<<<<<
@@ -6477,7 +6679,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1354
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1354
  *             return cont2_array_sc(self.internal_state, rk_beta, size, fa, fb)
  * 
  *         if np.any(np.less_equal(a, 0)):             # <<<<<<<<<<<<<<
@@ -6490,7 +6692,7 @@ ref struct RandomState {
     __pyx_t_6 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_less_equal_1354_20->Target(__site_get_less_equal_1354_20, __pyx_t_6, __pyx_context);
     __pyx_t_6 = nullptr;
-    __pyx_t_6 = __site_call2_1354_31->Target(__site_call2_1354_31, __pyx_context, __pyx_t_8, __pyx_v_a, 0);
+    __pyx_t_6 = __site_call2_1354_31->Target(__site_call2_1354_31, __pyx_context, __pyx_t_8, __pyx_v_a, __pyx_int_0);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_1354_17->Target(__site_call1_1354_17, __pyx_context, __pyx_t_7, __pyx_t_6);
     __pyx_t_7 = nullptr;
@@ -6499,7 +6701,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1355
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1355
  * 
  *         if np.any(np.less_equal(a, 0)):
  *             raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -6515,7 +6717,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1356
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1356
  *         if np.any(np.less_equal(a, 0)):
  *             raise ValueError("a <= 0")
  *         if np.any(np.less_equal(b, 0)):             # <<<<<<<<<<<<<<
@@ -6528,7 +6730,7 @@ ref struct RandomState {
     __pyx_t_6 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_7 = __site_get_less_equal_1356_20->Target(__site_get_less_equal_1356_20, __pyx_t_6, __pyx_context);
     __pyx_t_6 = nullptr;
-    __pyx_t_6 = __site_call2_1356_31->Target(__site_call2_1356_31, __pyx_context, __pyx_t_7, __pyx_v_b, 0);
+    __pyx_t_6 = __site_call2_1356_31->Target(__site_call2_1356_31, __pyx_context, __pyx_t_7, __pyx_v_b, __pyx_int_0);
     __pyx_t_7 = nullptr;
     __pyx_t_7 = __site_call1_1356_17->Target(__site_call1_1356_17, __pyx_context, __pyx_t_8, __pyx_t_6);
     __pyx_t_8 = nullptr;
@@ -6537,7 +6739,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1357
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1357
  *             raise ValueError("a <= 0")
  *         if np.any(np.less_equal(b, 0)):
  *             raise ValueError("b <= 0")             # <<<<<<<<<<<<<<
@@ -6553,7 +6755,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1358
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1358
  *         if np.any(np.less_equal(b, 0)):
  *             raise ValueError("b <= 0")
  *         return cont2_array(self.internal_state, rk_beta, size, a, b)             # <<<<<<<<<<<<<<
@@ -6570,7 +6772,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1360
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1360
  *         return cont2_array(self.internal_state, rk_beta, size, a, b)
  * 
  *     def exponential(self, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -6599,10 +6801,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1399
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1399
  *         """
  *         cdef double fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -6611,7 +6813,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1401
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1401
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -6620,7 +6822,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1402
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1402
  * 
  *         try:
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -6630,7 +6832,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1402_34->Target(__site_cvt_double_1402_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1403
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1403
  *         try:
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -6641,7 +6843,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1404
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1404
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -6655,7 +6857,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1407
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1407
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -6664,7 +6866,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1408
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1408
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -6674,7 +6876,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1409
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1409
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -6690,7 +6892,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1411
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1411
  *                 raise ValueError("scale <= 0")
  *             return cont1_array_sc(self.internal_state, rk_exponential, size,
  *                                   fscale)             # <<<<<<<<<<<<<<
@@ -6705,7 +6907,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1413
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1413
  *                                   fscale)
  * 
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -6729,7 +6931,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1414
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1414
  * 
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -6745,7 +6947,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1415
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1415
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")
  *         return cont1_array(self.internal_state, rk_exponential, size, scale)             # <<<<<<<<<<<<<<
@@ -6762,7 +6964,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1417
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1417
  *         return cont1_array(self.internal_state, rk_exponential, size, scale)
  * 
  *     def standard_exponential(self, size=None):             # <<<<<<<<<<<<<<
@@ -6778,10 +6980,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1443
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1443
  * 
  *         """
  *         return cont0_array(self.internal_state, rk_standard_exponential, size)             # <<<<<<<<<<<<<<
@@ -6798,7 +7000,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1445
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1445
  *         return cont0_array(self.internal_state, rk_standard_exponential, size)
  * 
  *     def standard_gamma(self, shape, size=None):             # <<<<<<<<<<<<<<
@@ -6823,10 +7025,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1513
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1513
  *         """
  *         cdef double fshape
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -6835,7 +7037,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1515
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1515
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -6844,7 +7046,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1516
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1516
  * 
  *         try:
  *             fshape = <double>shape             # <<<<<<<<<<<<<<
@@ -6854,7 +7056,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1516_34->Target(__site_cvt_double_1516_34, __pyx_v_shape);
       __pyx_v_fshape = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1517
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1517
  *         try:
  *             fshape = <double>shape
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -6865,7 +7067,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1518
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1518
  *             fshape = <double>shape
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -6879,7 +7081,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1521
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1521
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -6888,7 +7090,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1522
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1522
  * 
  *         if sc:
  *             if fshape <= 0:             # <<<<<<<<<<<<<<
@@ -6898,7 +7100,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fshape <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1523
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1523
  *         if sc:
  *             if fshape <= 0:
  *                 raise ValueError("shape <= 0")             # <<<<<<<<<<<<<<
@@ -6914,7 +7116,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1525
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1525
  *                 raise ValueError("shape <= 0")
  *             return cont1_array_sc(self.internal_state, rk_standard_gamma, size,
  *                                   fshape)             # <<<<<<<<<<<<<<
@@ -6929,7 +7131,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1527
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1527
  *                                   fshape)
  * 
  *         if np.any(np.less_equal(shape, 0.0)):             # <<<<<<<<<<<<<<
@@ -6953,7 +7155,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1528
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1528
  * 
  *         if np.any(np.less_equal(shape, 0.0)):
  *             raise ValueError("shape <= 0")             # <<<<<<<<<<<<<<
@@ -6969,7 +7171,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1529
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1529
  *         if np.any(np.less_equal(shape, 0.0)):
  *             raise ValueError("shape <= 0")
  *         return cont1_array(self.internal_state, rk_standard_gamma, size, shape)             # <<<<<<<<<<<<<<
@@ -6986,7 +7188,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1531
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1531
  *         return cont1_array(self.internal_state, rk_standard_gamma, size, shape)
  * 
  *     def gamma(self, shape, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -7019,10 +7221,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1602
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1602
  *         """
  *         cdef double fshape, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -7031,7 +7233,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1604
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1604
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7040,7 +7242,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1605
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1605
  * 
  *         try:
  *             fshape = <double>shape             # <<<<<<<<<<<<<<
@@ -7050,7 +7252,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1605_34->Target(__site_cvt_double_1605_34, __pyx_v_shape);
       __pyx_v_fshape = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1606
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1606
  *         try:
  *             fshape = <double>shape
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -7060,7 +7262,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1606_34->Target(__site_cvt_double_1606_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1607
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1607
  *             fshape = <double>shape
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -7071,7 +7273,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1608
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1608
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -7085,7 +7287,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1611
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1611
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -7094,7 +7296,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1612
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1612
  * 
  *         if sc:
  *             if fshape <= 0:             # <<<<<<<<<<<<<<
@@ -7104,7 +7306,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fshape <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1613
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1613
  *         if sc:
  *             if fshape <= 0:
  *                 raise ValueError("shape <= 0")             # <<<<<<<<<<<<<<
@@ -7120,7 +7322,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1614
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1614
  *             if fshape <= 0:
  *                 raise ValueError("shape <= 0")
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -7130,7 +7332,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1615
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1615
  *                 raise ValueError("shape <= 0")
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -7146,7 +7348,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1617
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1617
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_gamma, size,
  *                                   fshape, fscale)             # <<<<<<<<<<<<<<
@@ -7161,7 +7363,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1619
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1619
  *                                   fshape, fscale)
  * 
  *         if np.any(np.less_equal(shape, 0.0)):             # <<<<<<<<<<<<<<
@@ -7185,7 +7387,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1620
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1620
  * 
  *         if np.any(np.less_equal(shape, 0.0)):
  *             raise ValueError("shape <= 0")             # <<<<<<<<<<<<<<
@@ -7201,7 +7403,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1621
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1621
  *         if np.any(np.less_equal(shape, 0.0)):
  *             raise ValueError("shape <= 0")
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -7225,7 +7427,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1622
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1622
  *             raise ValueError("shape <= 0")
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -7241,7 +7443,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1623
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1623
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")
  *         return cont2_array(self.internal_state, rk_gamma, size, shape, scale)             # <<<<<<<<<<<<<<
@@ -7258,7 +7460,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1625
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1625
  *         return cont2_array(self.internal_state, rk_gamma, size, shape, scale)
  * 
  *     def f(self, dfnum, dfden, size=None):             # <<<<<<<<<<<<<<
@@ -7287,10 +7489,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1707
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1707
  *         """
  *         cdef double fdfnum, fdfden
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -7299,7 +7501,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1709
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1709
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7308,7 +7510,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1710
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1710
  * 
  *         try:
  *             fdfnum = <double>dfnum             # <<<<<<<<<<<<<<
@@ -7318,7 +7520,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1710_34->Target(__site_cvt_double_1710_34, __pyx_v_dfnum);
       __pyx_v_fdfnum = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1711
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1711
  *         try:
  *             fdfnum = <double>dfnum
  *             fdfden = <double>dfden             # <<<<<<<<<<<<<<
@@ -7328,7 +7530,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1711_34->Target(__site_cvt_double_1711_34, __pyx_v_dfden);
       __pyx_v_fdfden = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1712
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1712
  *             fdfnum = <double>dfnum
  *             fdfden = <double>dfden
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -7339,7 +7541,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1713
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1713
  *             fdfden = <double>dfden
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -7353,7 +7555,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1716
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1716
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -7362,7 +7564,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1717
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1717
  * 
  *         if sc:
  *             if fdfnum <= 0:             # <<<<<<<<<<<<<<
@@ -7372,7 +7574,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fdfnum <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1718
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1718
  *         if sc:
  *             if fdfnum <= 0:
  *                 raise ValueError("shape <= 0")             # <<<<<<<<<<<<<<
@@ -7388,7 +7590,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1719
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1719
  *             if fdfnum <= 0:
  *                 raise ValueError("shape <= 0")
  *             if fdfden <= 0:             # <<<<<<<<<<<<<<
@@ -7398,7 +7600,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fdfden <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1720
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1720
  *                 raise ValueError("shape <= 0")
  *             if fdfden <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -7414,7 +7616,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1722
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1722
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_f, size, fdfnum,
  *                                   fdfden)             # <<<<<<<<<<<<<<
@@ -7429,7 +7631,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1724
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1724
  *                                   fdfden)
  * 
  *         if np.any(np.less_equal(dfnum, 0.0)):             # <<<<<<<<<<<<<<
@@ -7453,7 +7655,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1725
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1725
  * 
  *         if np.any(np.less_equal(dfnum, 0.0)):
  *             raise ValueError("dfnum <= 0")             # <<<<<<<<<<<<<<
@@ -7469,7 +7671,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1726
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1726
  *         if np.any(np.less_equal(dfnum, 0.0)):
  *             raise ValueError("dfnum <= 0")
  *         if np.any(np.less_equal(dfden, 0.0)):             # <<<<<<<<<<<<<<
@@ -7493,7 +7695,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1727
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1727
  *             raise ValueError("dfnum <= 0")
  *         if np.any(np.less_equal(dfden, 0.0)):
  *             raise ValueError("dfden <= 0")             # <<<<<<<<<<<<<<
@@ -7509,7 +7711,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1728
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1728
  *         if np.any(np.less_equal(dfden, 0.0)):
  *             raise ValueError("dfden <= 0")
  *         return cont2_array(self.internal_state, rk_f, size, dfnum, dfden)             # <<<<<<<<<<<<<<
@@ -7526,7 +7728,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1730
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1730
  *         return cont2_array(self.internal_state, rk_f, size, dfnum, dfden)
  * 
  *     def noncentral_f(self, dfnum, dfden, nonc, size=None):             # <<<<<<<<<<<<<<
@@ -7559,10 +7761,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1795
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1795
  *         """
  *         cdef double fdfnum, fdfden, fnonc
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -7571,7 +7773,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1797
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1797
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7580,7 +7782,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1798
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1798
  * 
  *         try:
  *             fdfnum = <double>dfnum             # <<<<<<<<<<<<<<
@@ -7590,7 +7792,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1798_34->Target(__site_cvt_double_1798_34, __pyx_v_dfnum);
       __pyx_v_fdfnum = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1799
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1799
  *         try:
  *             fdfnum = <double>dfnum
  *             fdfden = <double>dfden             # <<<<<<<<<<<<<<
@@ -7600,7 +7802,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1799_34->Target(__site_cvt_double_1799_34, __pyx_v_dfden);
       __pyx_v_fdfden = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1800
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1800
  *             fdfnum = <double>dfnum
  *             fdfden = <double>dfden
  *             fnonc = <double>nonc             # <<<<<<<<<<<<<<
@@ -7610,7 +7812,7 @@ ref struct RandomState {
       __pyx_t_5 = __site_cvt_double_1800_32->Target(__site_cvt_double_1800_32, __pyx_v_nonc);
       __pyx_v_fnonc = ((double)__pyx_t_5);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1801
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1801
  *             fdfden = <double>dfden
  *             fnonc = <double>nonc
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -7621,7 +7823,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1802
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1802
  *             fnonc = <double>nonc
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -7635,7 +7837,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1805
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1805
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -7644,7 +7846,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1806
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1806
  * 
  *         if sc:
  *             if fdfnum <= 1:             # <<<<<<<<<<<<<<
@@ -7654,7 +7856,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fdfnum <= 1.0);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1807
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1807
  *         if sc:
  *             if fdfnum <= 1:
  *                 raise ValueError("dfnum <= 1")             # <<<<<<<<<<<<<<
@@ -7670,7 +7872,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1808
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1808
  *             if fdfnum <= 1:
  *                 raise ValueError("dfnum <= 1")
  *             if fdfden <= 0:             # <<<<<<<<<<<<<<
@@ -7680,7 +7882,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fdfden <= 0.0);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1809
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1809
  *                 raise ValueError("dfnum <= 1")
  *             if fdfden <= 0:
  *                 raise ValueError("dfden <= 0")             # <<<<<<<<<<<<<<
@@ -7696,7 +7898,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1810
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1810
  *             if fdfden <= 0:
  *                 raise ValueError("dfden <= 0")
  *             if fnonc < 0:             # <<<<<<<<<<<<<<
@@ -7706,7 +7908,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fnonc < 0.0);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1811
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1811
  *                 raise ValueError("dfden <= 0")
  *             if fnonc < 0:
  *                 raise ValueError("nonc < 0")             # <<<<<<<<<<<<<<
@@ -7722,7 +7924,7 @@ ref struct RandomState {
       }
       __pyx_L8:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1813
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1813
  *                 raise ValueError("nonc < 0")
  *             return cont3_array_sc(self.internal_state, rk_noncentral_f, size,
  *                                   fdfnum, fdfden, fnonc)             # <<<<<<<<<<<<<<
@@ -7737,7 +7939,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1815
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1815
  *                                   fdfnum, fdfden, fnonc)
  * 
  *         if np.any(np.less_equal(dfnum, 1.0)):             # <<<<<<<<<<<<<<
@@ -7761,7 +7963,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1816
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1816
  * 
  *         if np.any(np.less_equal(dfnum, 1.0)):
  *             raise ValueError("dfnum <= 1")             # <<<<<<<<<<<<<<
@@ -7777,7 +7979,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1817
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1817
  *         if np.any(np.less_equal(dfnum, 1.0)):
  *             raise ValueError("dfnum <= 1")
  *         if np.any(np.less_equal(dfden, 0.0)):             # <<<<<<<<<<<<<<
@@ -7801,7 +8003,7 @@ ref struct RandomState {
     __pyx_t_10 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1818
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1818
  *             raise ValueError("dfnum <= 1")
  *         if np.any(np.less_equal(dfden, 0.0)):
  *             raise ValueError("dfden <= 0")             # <<<<<<<<<<<<<<
@@ -7817,7 +8019,7 @@ ref struct RandomState {
     }
     __pyx_L10:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1819
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1819
  *         if np.any(np.less_equal(dfden, 0.0)):
  *             raise ValueError("dfden <= 0")
  *         if np.any(np.less(nonc, 0.0)):             # <<<<<<<<<<<<<<
@@ -7841,7 +8043,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1820
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1820
  *             raise ValueError("dfden <= 0")
  *         if np.any(np.less(nonc, 0.0)):
  *             raise ValueError("nonc < 0")             # <<<<<<<<<<<<<<
@@ -7857,7 +8059,7 @@ ref struct RandomState {
     }
     __pyx_L11:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1822
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1822
  *             raise ValueError("nonc < 0")
  *         return cont3_array(self.internal_state, rk_noncentral_f, size,
  *                            dfnum, dfden, nonc)             # <<<<<<<<<<<<<<
@@ -7874,7 +8076,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1824
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1824
  *                            dfnum, dfden, nonc)
  * 
  *     def chisquare(self, df, size=None):             # <<<<<<<<<<<<<<
@@ -7899,10 +8101,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1889
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1889
  *         """
  *         cdef double fdf
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -7911,7 +8113,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1891
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1891
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -7920,7 +8122,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1892
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1892
  * 
  *         try:
  *             fdf = <double>df             # <<<<<<<<<<<<<<
@@ -7930,7 +8132,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1892_28->Target(__site_cvt_double_1892_28, __pyx_v_df);
       __pyx_v_fdf = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1893
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1893
  *         try:
  *             fdf = <double>df
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -7941,7 +8143,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1894
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1894
  *             fdf = <double>df
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -7955,7 +8157,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1897
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1897
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -7964,7 +8166,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1898
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1898
  * 
  *         if sc:
  *             if fdf <= 0:             # <<<<<<<<<<<<<<
@@ -7974,7 +8176,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fdf <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1899
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1899
  *         if sc:
  *             if fdf <= 0:
  *                 raise ValueError("df <= 0")             # <<<<<<<<<<<<<<
@@ -7990,7 +8192,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1900
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1900
  *             if fdf <= 0:
  *                 raise ValueError("df <= 0")
  *             return cont1_array_sc(self.internal_state, rk_chisquare, size, fdf)             # <<<<<<<<<<<<<<
@@ -8005,7 +8207,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1902
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1902
  *             return cont1_array_sc(self.internal_state, rk_chisquare, size, fdf)
  * 
  *         if np.any(np.less_equal(df, 0.0)):             # <<<<<<<<<<<<<<
@@ -8029,7 +8231,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1903
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1903
  * 
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 0")             # <<<<<<<<<<<<<<
@@ -8045,7 +8247,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1904
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1904
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 0")
  *         return cont1_array(self.internal_state, rk_chisquare, size, df)             # <<<<<<<<<<<<<<
@@ -8062,7 +8264,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1906
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1906
  *         return cont1_array(self.internal_state, rk_chisquare, size, df)
  * 
  *     def noncentral_chisquare(self, df, nonc, size=None):             # <<<<<<<<<<<<<<
@@ -8091,10 +8293,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1976
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1976
  *         """
  *         cdef double fdf, fnonc
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -8103,7 +8305,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1978
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1978
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -8112,7 +8314,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1979
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1979
  * 
  *         try:
  *             fdf = <double>df             # <<<<<<<<<<<<<<
@@ -8122,7 +8324,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_1979_28->Target(__site_cvt_double_1979_28, __pyx_v_df);
       __pyx_v_fdf = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1980
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1980
  *         try:
  *             fdf = <double>df
  *             fnonc = <double>nonc             # <<<<<<<<<<<<<<
@@ -8132,7 +8334,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_1980_32->Target(__site_cvt_double_1980_32, __pyx_v_nonc);
       __pyx_v_fnonc = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1981
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1981
  *             fdf = <double>df
  *             fnonc = <double>nonc
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -8143,7 +8345,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1982
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1982
  *             fnonc = <double>nonc
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -8157,7 +8359,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1985
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1985
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -8166,7 +8368,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1986
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1986
  * 
  *         if sc:
  *             if fdf <= 1:             # <<<<<<<<<<<<<<
@@ -8176,7 +8378,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fdf <= 1.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1987
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1987
  *         if sc:
  *             if fdf <= 1:
  *                 raise ValueError("df <= 0")             # <<<<<<<<<<<<<<
@@ -8192,7 +8394,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1988
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1988
  *             if fdf <= 1:
  *                 raise ValueError("df <= 0")
  *             if fnonc <= 0:             # <<<<<<<<<<<<<<
@@ -8202,7 +8404,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fnonc <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1989
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1989
  *                 raise ValueError("df <= 0")
  *             if fnonc <= 0:
  *                 raise ValueError("nonc <= 0")             # <<<<<<<<<<<<<<
@@ -8218,7 +8420,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1991
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1991
  *                 raise ValueError("nonc <= 0")
  *             return cont2_array_sc(self.internal_state, rk_noncentral_chisquare,
  *                                   size, fdf, fnonc)             # <<<<<<<<<<<<<<
@@ -8233,7 +8435,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1993
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1993
  *                                   size, fdf, fnonc)
  * 
  *         if np.any(np.less_equal(df, 0.0)):             # <<<<<<<<<<<<<<
@@ -8257,7 +8459,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1994
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1994
  * 
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 1")             # <<<<<<<<<<<<<<
@@ -8273,7 +8475,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1995
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1995
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 1")
  *         if np.any(np.less_equal(nonc, 0.0)):             # <<<<<<<<<<<<<<
@@ -8297,7 +8499,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1996
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1996
  *             raise ValueError("df <= 1")
  *         if np.any(np.less_equal(nonc, 0.0)):
  *             raise ValueError("nonc < 0")             # <<<<<<<<<<<<<<
@@ -8313,7 +8515,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1998
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1998
  *             raise ValueError("nonc < 0")
  *         return cont2_array(self.internal_state, rk_noncentral_chisquare, size,
  *                            df, nonc)             # <<<<<<<<<<<<<<
@@ -8330,7 +8532,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2000
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2000
  *                            df, nonc)
  * 
  *     def standard_cauchy(self, size=None):             # <<<<<<<<<<<<<<
@@ -8346,10 +8548,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2059
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2059
  * 
  *         """
  *         return cont0_array(self.internal_state, rk_standard_cauchy, size)             # <<<<<<<<<<<<<<
@@ -8366,7 +8568,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2061
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2061
  *         return cont0_array(self.internal_state, rk_standard_cauchy, size)
  * 
  *     def standard_t(self, df, size=None):             # <<<<<<<<<<<<<<
@@ -8391,10 +8593,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2147
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2147
  *         """
  *         cdef double fdf
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -8403,7 +8605,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2149
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2149
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -8412,7 +8614,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2150
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2150
  * 
  *         try:
  *             fdf = <double>df             # <<<<<<<<<<<<<<
@@ -8422,7 +8624,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2150_28->Target(__site_cvt_double_2150_28, __pyx_v_df);
       __pyx_v_fdf = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2151
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2151
  *         try:
  *             fdf = <double>df
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -8433,7 +8635,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2152
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2152
  *             fdf = <double>df
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -8447,7 +8649,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2155
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2155
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -8456,7 +8658,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2156
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2156
  * 
  *         if sc:
  *             if fdf <= 0:             # <<<<<<<<<<<<<<
@@ -8466,7 +8668,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fdf <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2157
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2157
  *         if sc:
  *             if fdf <= 0:
  *                 raise ValueError("df <= 0")             # <<<<<<<<<<<<<<
@@ -8482,7 +8684,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2158
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2158
  *             if fdf <= 0:
  *                 raise ValueError("df <= 0")
  *             return cont1_array_sc(self.internal_state, rk_standard_t, size, fdf)             # <<<<<<<<<<<<<<
@@ -8497,7 +8699,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2160
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2160
  *             return cont1_array_sc(self.internal_state, rk_standard_t, size, fdf)
  * 
  *         if np.any(np.less_equal(df, 0.0)):             # <<<<<<<<<<<<<<
@@ -8521,7 +8723,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2161
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2161
  * 
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 0")             # <<<<<<<<<<<<<<
@@ -8537,7 +8739,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2162
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2162
  *         if np.any(np.less_equal(df, 0.0)):
  *             raise ValueError("df <= 0")
  *         return cont1_array(self.internal_state, rk_standard_t, size, df)             # <<<<<<<<<<<<<<
@@ -8554,7 +8756,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2165
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2165
  * 
  * 
  *     def vonmises(self, mu, kappa, size=None):             # <<<<<<<<<<<<<<
@@ -8583,10 +8785,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2243
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2243
  *         """
  *         cdef double fmu, fkappa
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -8595,7 +8797,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2245
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2245
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -8604,7 +8806,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2246
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2246
  * 
  *         try:
  *             fmu = <double>mu             # <<<<<<<<<<<<<<
@@ -8614,7 +8816,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2246_28->Target(__site_cvt_double_2246_28, __pyx_v_mu);
       __pyx_v_fmu = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2247
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2247
  *         try:
  *             fmu = <double>mu
  *             fkappa = <double>kappa             # <<<<<<<<<<<<<<
@@ -8624,7 +8826,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_2247_34->Target(__site_cvt_double_2247_34, __pyx_v_kappa);
       __pyx_v_fkappa = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2248
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2248
  *             fmu = <double>mu
  *             fkappa = <double>kappa
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -8635,7 +8837,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2249
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2249
  *             fkappa = <double>kappa
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -8649,7 +8851,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2252
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2252
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -8658,7 +8860,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2253
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2253
  * 
  *         if sc:
  *             if fkappa < 0:             # <<<<<<<<<<<<<<
@@ -8668,7 +8870,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fkappa < 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2254
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2254
  *         if sc:
  *             if fkappa < 0:
  *                 raise ValueError("kappa < 0")             # <<<<<<<<<<<<<<
@@ -8684,7 +8886,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2256
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2256
  *                 raise ValueError("kappa < 0")
  *             return cont2_array_sc(self.internal_state, rk_vonmises, size, fmu,
  *                                   fkappa)             # <<<<<<<<<<<<<<
@@ -8699,7 +8901,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2258
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2258
  *                                   fkappa)
  * 
  *         if np.any(np.less(kappa, 0.0)):             # <<<<<<<<<<<<<<
@@ -8723,7 +8925,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2259
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2259
  * 
  *         if np.any(np.less(kappa, 0.0)):
  *             raise ValueError("kappa < 0")             # <<<<<<<<<<<<<<
@@ -8739,7 +8941,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2260
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2260
  *         if np.any(np.less(kappa, 0.0)):
  *             raise ValueError("kappa < 0")
  *         return cont2_array(self.internal_state, rk_vonmises, size, mu, kappa)             # <<<<<<<<<<<<<<
@@ -8756,7 +8958,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2262
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2262
  *         return cont2_array(self.internal_state, rk_vonmises, size, mu, kappa)
  * 
  *     def pareto(self, a, size=None):             # <<<<<<<<<<<<<<
@@ -8781,10 +8983,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2336
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2336
  *         """
  *         cdef double fa
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -8793,7 +8995,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2338
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2338
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -8802,7 +9004,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2339
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2339
  * 
  *         try:
  *             fa = <double>a             # <<<<<<<<<<<<<<
@@ -8812,7 +9014,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2339_26->Target(__site_cvt_double_2339_26, __pyx_v_a);
       __pyx_v_fa = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2340
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2340
  *         try:
  *             fa = <double>a
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -8823,7 +9025,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2341
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2341
  *             fa = <double>a
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -8837,7 +9039,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2344
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2344
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -8846,7 +9048,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2345
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2345
  * 
  *         if sc:
  *             if fa <= 0:             # <<<<<<<<<<<<<<
@@ -8856,7 +9058,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fa <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2346
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2346
  *         if sc:
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -8872,7 +9074,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2347
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2347
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")
  *             return cont1_array_sc(self.internal_state, rk_pareto, size, fa)             # <<<<<<<<<<<<<<
@@ -8887,7 +9089,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2349
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2349
  *             return cont1_array_sc(self.internal_state, rk_pareto, size, fa)
  * 
  *         if np.any(np.less_equal(a, 0.0)):             # <<<<<<<<<<<<<<
@@ -8911,7 +9113,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2350
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2350
  * 
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -8927,7 +9129,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2351
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2351
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")
  *         return cont1_array(self.internal_state, rk_pareto, size, a)             # <<<<<<<<<<<<<<
@@ -8944,7 +9146,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2353
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2353
  *         return cont1_array(self.internal_state, rk_pareto, size, a)
  * 
  *     def weibull(self, a, size=None):             # <<<<<<<<<<<<<<
@@ -8969,10 +9171,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2438
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2438
  *         """
  *         cdef double fa
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -8981,7 +9183,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2440
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2440
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -8990,7 +9192,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2441
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2441
  * 
  *         try:
  *             fa = <double>a             # <<<<<<<<<<<<<<
@@ -9000,7 +9202,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2441_26->Target(__site_cvt_double_2441_26, __pyx_v_a);
       __pyx_v_fa = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2442
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2442
  *         try:
  *             fa = <double>a
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -9011,7 +9213,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2443
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2443
  *             fa = <double>a
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -9025,7 +9227,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2446
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2446
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -9034,7 +9236,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2447
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2447
  * 
  *         if sc:
  *             if fa <= 0:             # <<<<<<<<<<<<<<
@@ -9044,7 +9246,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fa <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2448
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2448
  *         if sc:
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -9060,7 +9262,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2449
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2449
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")
  *             return cont1_array_sc(self.internal_state, rk_weibull, size, fa)             # <<<<<<<<<<<<<<
@@ -9075,7 +9277,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2451
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2451
  *             return cont1_array_sc(self.internal_state, rk_weibull, size, fa)
  * 
  *         if np.any(np.less_equal(a, 0.0)):             # <<<<<<<<<<<<<<
@@ -9099,7 +9301,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2452
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2452
  * 
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -9115,7 +9317,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2453
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2453
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")
  *         return cont1_array(self.internal_state, rk_weibull, size, a)             # <<<<<<<<<<<<<<
@@ -9132,7 +9334,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2455
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2455
  *         return cont1_array(self.internal_state, rk_weibull, size, a)
  * 
  *     def power(self, a, size=None):             # <<<<<<<<<<<<<<
@@ -9157,10 +9359,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2549
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2549
  *         """
  *         cdef double fa
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -9169,7 +9371,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2551
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2551
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -9178,7 +9380,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2552
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2552
  * 
  *         try:
  *             fa = <double>a             # <<<<<<<<<<<<<<
@@ -9188,7 +9390,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2552_26->Target(__site_cvt_double_2552_26, __pyx_v_a);
       __pyx_v_fa = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2553
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2553
  *         try:
  *             fa = <double>a
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -9199,7 +9401,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2554
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2554
  *             fa = <double>a
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -9213,7 +9415,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2557
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2557
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -9222,7 +9424,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2558
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2558
  * 
  *         if sc:
  *             if fa <= 0:             # <<<<<<<<<<<<<<
@@ -9232,7 +9434,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fa <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2559
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2559
  *         if sc:
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -9248,7 +9450,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2560
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2560
  *             if fa <= 0:
  *                 raise ValueError("a <= 0")
  *             return cont1_array_sc(self.internal_state, rk_power, size, fa)             # <<<<<<<<<<<<<<
@@ -9263,7 +9465,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2562
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2562
  *             return cont1_array_sc(self.internal_state, rk_power, size, fa)
  * 
  *         if np.any(np.less_equal(a, 0.0)):             # <<<<<<<<<<<<<<
@@ -9287,7 +9489,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2563
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2563
  * 
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")             # <<<<<<<<<<<<<<
@@ -9303,7 +9505,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2564
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2564
  *         if np.any(np.less_equal(a, 0.0)):
  *             raise ValueError("a <= 0")
  *         return cont1_array(self.internal_state, rk_power, size, a)             # <<<<<<<<<<<<<<
@@ -9320,7 +9522,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2566
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2566
  *         return cont1_array(self.internal_state, rk_power, size, a)
  * 
  *     def laplace(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -9357,10 +9559,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2640
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2640
  *         """
  *         cdef double floc, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -9369,7 +9571,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2642
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2642
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -9378,7 +9580,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2643
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2643
  * 
  *         try:
  *             floc = <double>loc             # <<<<<<<<<<<<<<
@@ -9388,7 +9590,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2643_30->Target(__site_cvt_double_2643_30, __pyx_v_loc);
       __pyx_v_floc = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2644
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2644
  *         try:
  *             floc = <double>loc
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -9398,7 +9600,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_2644_34->Target(__site_cvt_double_2644_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2645
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2645
  *             floc = <double>loc
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -9409,7 +9611,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2646
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2646
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -9423,7 +9625,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2649
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2649
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -9432,7 +9634,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2650
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2650
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -9442,7 +9644,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2651
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2651
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9458,7 +9660,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2653
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2653
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_laplace, size,
  *                                   floc, fscale)             # <<<<<<<<<<<<<<
@@ -9473,7 +9675,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2655
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2655
  *                                   floc, fscale)
  * 
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -9497,7 +9699,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2656
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2656
  * 
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9513,7 +9715,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2657
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2657
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")
  *         return cont2_array(self.internal_state, rk_laplace, size, loc, scale)             # <<<<<<<<<<<<<<
@@ -9530,7 +9732,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2660
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2660
  * 
  * 
  *     def gumbel(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -9567,10 +9769,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2768
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2768
  *         """
  *         cdef double floc, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -9579,7 +9781,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2770
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2770
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -9588,7 +9790,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2771
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2771
  * 
  *         try:
  *             floc = <double>loc             # <<<<<<<<<<<<<<
@@ -9598,7 +9800,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2771_30->Target(__site_cvt_double_2771_30, __pyx_v_loc);
       __pyx_v_floc = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2772
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2772
  *         try:
  *             floc = <double>loc
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -9608,7 +9810,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_2772_34->Target(__site_cvt_double_2772_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2773
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2773
  *             floc = <double>loc
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -9619,7 +9821,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2774
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2774
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -9633,7 +9835,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2777
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2777
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -9642,7 +9844,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2778
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2778
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -9652,7 +9854,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2779
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2779
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9668,7 +9870,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2781
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2781
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_gumbel, size,
  *                                   floc, fscale)             # <<<<<<<<<<<<<<
@@ -9683,7 +9885,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2783
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2783
  *                                   floc, fscale)
  * 
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -9707,7 +9909,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2784
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2784
  * 
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9723,7 +9925,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2785
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2785
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")
  *         return cont2_array(self.internal_state, rk_gumbel, size, loc, scale)             # <<<<<<<<<<<<<<
@@ -9740,7 +9942,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2787
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2787
  *         return cont2_array(self.internal_state, rk_gumbel, size, loc, scale)
  * 
  *     def logistic(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -9777,10 +9979,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2859
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2859
  *         """
  *         cdef double floc, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -9789,7 +9991,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2861
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2861
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -9798,7 +10000,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2862
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2862
  * 
  *         try:
  *             floc = <double>loc             # <<<<<<<<<<<<<<
@@ -9808,7 +10010,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2862_30->Target(__site_cvt_double_2862_30, __pyx_v_loc);
       __pyx_v_floc = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2863
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2863
  *         try:
  *             floc = <double>loc
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -9818,7 +10020,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_2863_34->Target(__site_cvt_double_2863_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2864
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2864
  *             floc = <double>loc
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -9829,7 +10031,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2865
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2865
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -9843,7 +10045,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2868
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2868
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -9852,7 +10054,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2869
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2869
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -9862,7 +10064,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2870
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2870
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9878,7 +10080,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2872
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2872
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_logistic, size,
  *                                   floc, fscale)             # <<<<<<<<<<<<<<
@@ -9893,7 +10095,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2874
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2874
  *                                   floc, fscale)
  * 
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -9917,7 +10119,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2875
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2875
  * 
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -9933,7 +10135,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2876
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2876
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0")
  *         return cont2_array(self.internal_state, rk_logistic, size, loc, scale)             # <<<<<<<<<<<<<<
@@ -9950,7 +10152,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2878
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2878
  *         return cont2_array(self.internal_state, rk_logistic, size, loc, scale)
  * 
  *     def lognormal(self, mean=0.0, sigma=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -9987,10 +10189,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2991
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2991
  *         """
  *         cdef double fmean, fsigma
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -9999,7 +10201,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2993
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2993
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -10008,7 +10210,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2994
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2994
  * 
  *         try:
  *             fmean = <double>mean             # <<<<<<<<<<<<<<
@@ -10018,7 +10220,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_2994_32->Target(__site_cvt_double_2994_32, __pyx_v_mean);
       __pyx_v_fmean = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2995
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2995
  *         try:
  *             fmean = <double>mean
  *             fsigma = <double>sigma             # <<<<<<<<<<<<<<
@@ -10028,7 +10230,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_2995_34->Target(__site_cvt_double_2995_34, __pyx_v_sigma);
       __pyx_v_fsigma = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2996
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2996
  *             fmean = <double>mean
  *             fsigma = <double>sigma
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -10039,7 +10241,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2997
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2997
  *             fsigma = <double>sigma
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -10053,7 +10255,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3000
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3000
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -10062,7 +10264,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3001
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3001
  * 
  *         if sc:
  *             if fsigma <= 0:             # <<<<<<<<<<<<<<
@@ -10072,7 +10274,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fsigma <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3002
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3002
  *         if sc:
  *             if fsigma <= 0:
  *                 raise ValueError("sigma <= 0")             # <<<<<<<<<<<<<<
@@ -10088,7 +10290,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3004
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3004
  *                 raise ValueError("sigma <= 0")
  *             return cont2_array_sc(self.internal_state, rk_lognormal, size,
  *                                   fmean, fsigma)             # <<<<<<<<<<<<<<
@@ -10103,7 +10305,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3006
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3006
  *                                   fmean, fsigma)
  * 
  *         if np.any(np.less_equal(sigma, 0.0)):             # <<<<<<<<<<<<<<
@@ -10127,7 +10329,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3007
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3007
  * 
  *         if np.any(np.less_equal(sigma, 0.0)):
  *             raise ValueError("sigma <= 0.0")             # <<<<<<<<<<<<<<
@@ -10143,7 +10345,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3009
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3009
  *             raise ValueError("sigma <= 0.0")
  *         return cont2_array(self.internal_state, rk_lognormal, size,
  *                            mean, sigma)             # <<<<<<<<<<<<<<
@@ -10160,7 +10362,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3011
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3011
  *                            mean, sigma)
  * 
  *     def rayleigh(self, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -10189,10 +10391,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3067
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3067
  *         """
  *         cdef double fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -10201,7 +10403,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3069
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3069
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -10210,7 +10412,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3070
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3070
  * 
  *         try:
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -10220,7 +10422,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3070_34->Target(__site_cvt_double_3070_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3071
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3071
  *         try:
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -10231,7 +10433,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3072
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3072
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -10245,7 +10447,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3075
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3075
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -10254,7 +10456,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3076
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3076
  * 
  *         if sc:
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -10264,7 +10466,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3077
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3077
  *         if sc:
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -10280,7 +10482,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3079
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3079
  *                 raise ValueError("scale <= 0")
  *             return cont1_array_sc(self.internal_state, rk_rayleigh, size,
  *                                   fscale)             # <<<<<<<<<<<<<<
@@ -10295,7 +10497,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3081
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3081
  *                                   fscale)
  * 
  *         if np.any(np.less_equal(scale, 0.0)):             # <<<<<<<<<<<<<<
@@ -10319,7 +10521,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3082
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3082
  * 
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0.0")             # <<<<<<<<<<<<<<
@@ -10335,7 +10537,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3083
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3083
  *         if np.any(np.less_equal(scale, 0.0)):
  *             raise ValueError("scale <= 0.0")
  *         return cont1_array(self.internal_state, rk_rayleigh, size, scale)             # <<<<<<<<<<<<<<
@@ -10352,7 +10554,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3085
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3085
  *         return cont1_array(self.internal_state, rk_rayleigh, size, scale)
  * 
  *     def wald(self, mean, scale, size=None):             # <<<<<<<<<<<<<<
@@ -10381,10 +10583,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3149
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3149
  *         """
  *         cdef double fmean, fscale
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -10393,7 +10595,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3151
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3151
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -10402,7 +10604,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3152
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3152
  * 
  *         try:
  *             fmean = <double>mean             # <<<<<<<<<<<<<<
@@ -10412,7 +10614,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3152_32->Target(__site_cvt_double_3152_32, __pyx_v_mean);
       __pyx_v_fmean = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3153
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3153
  *         try:
  *             fmean = <double>mean
  *             fscale = <double>scale             # <<<<<<<<<<<<<<
@@ -10422,7 +10624,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_3153_34->Target(__site_cvt_double_3153_34, __pyx_v_scale);
       __pyx_v_fscale = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3154
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3154
  *             fmean = <double>mean
  *             fscale = <double>scale
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -10433,7 +10635,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3155
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3155
  *             fscale = <double>scale
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -10447,7 +10649,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3158
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3158
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -10456,7 +10658,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3159
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3159
  * 
  *         if sc:
  *             if fmean <= 0:             # <<<<<<<<<<<<<<
@@ -10466,7 +10668,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fmean <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3160
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3160
  *         if sc:
  *             if fmean <= 0:
  *                 raise ValueError("mean <= 0")             # <<<<<<<<<<<<<<
@@ -10482,7 +10684,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3161
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3161
  *             if fmean <= 0:
  *                 raise ValueError("mean <= 0")
  *             if fscale <= 0:             # <<<<<<<<<<<<<<
@@ -10492,7 +10694,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fscale <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3162
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3162
  *                 raise ValueError("mean <= 0")
  *             if fscale <= 0:
  *                 raise ValueError("scale <= 0")             # <<<<<<<<<<<<<<
@@ -10508,7 +10710,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3164
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3164
  *                 raise ValueError("scale <= 0")
  *             return cont2_array_sc(self.internal_state, rk_wald, size,
  *                                   fmean, fscale)             # <<<<<<<<<<<<<<
@@ -10523,7 +10725,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3166
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3166
  *                                   fmean, fscale)
  * 
  *         if np.any(np.less_equal(mean,0.0)):             # <<<<<<<<<<<<<<
@@ -10547,7 +10749,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3167
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3167
  * 
  *         if np.any(np.less_equal(mean,0.0)):
  *             raise ValueError("mean <= 0.0")             # <<<<<<<<<<<<<<
@@ -10562,7 +10764,7 @@ ref struct RandomState {
       goto __pyx_L8;
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3168
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3168
  *         if np.any(np.less_equal(mean,0.0)):
  *             raise ValueError("mean <= 0.0")
  *         elif np.any(np.less_equal(scale,0.0)):             # <<<<<<<<<<<<<<
@@ -10586,7 +10788,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3169
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3169
  *             raise ValueError("mean <= 0.0")
  *         elif np.any(np.less_equal(scale,0.0)):
  *             raise ValueError("scale <= 0.0")             # <<<<<<<<<<<<<<
@@ -10602,7 +10804,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3170
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3170
  *         elif np.any(np.less_equal(scale,0.0)):
  *             raise ValueError("scale <= 0.0")
  *         return cont2_array(self.internal_state, rk_wald, size, mean, scale)             # <<<<<<<<<<<<<<
@@ -10619,7 +10821,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3174
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3174
  * 
  * 
  *     def triangular(self, left, mode, right, size=None):             # <<<<<<<<<<<<<<
@@ -10651,10 +10853,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3232
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3232
  *         """
  *         cdef double fleft, fmode, fright
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -10663,7 +10865,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3234
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3234
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -10672,7 +10874,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3235
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3235
  * 
  *         try:
  *             fleft = <double>left             # <<<<<<<<<<<<<<
@@ -10682,7 +10884,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3235_32->Target(__site_cvt_double_3235_32, __pyx_v_left);
       __pyx_v_fleft = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3236
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3236
  *         try:
  *             fleft = <double>left
  *             fright = <double>right             # <<<<<<<<<<<<<<
@@ -10692,7 +10894,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_3236_34->Target(__site_cvt_double_3236_34, __pyx_v_right);
       __pyx_v_fright = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3237
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3237
  *             fleft = <double>left
  *             fright = <double>right
  *             fmode = <double>mode             # <<<<<<<<<<<<<<
@@ -10702,7 +10904,7 @@ ref struct RandomState {
       __pyx_t_5 = __site_cvt_double_3237_32->Target(__site_cvt_double_3237_32, __pyx_v_mode);
       __pyx_v_fmode = ((double)__pyx_t_5);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3238
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3238
  *             fright = <double>right
  *             fmode = <double>mode
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -10713,7 +10915,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3239
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3239
  *             fmode = <double>mode
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -10727,7 +10929,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3242
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3242
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -10736,7 +10938,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3243
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3243
  * 
  *         if sc:
  *             if fleft > fmode:             # <<<<<<<<<<<<<<
@@ -10746,7 +10948,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fleft > __pyx_v_fmode);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3244
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3244
  *         if sc:
  *             if fleft > fmode:
  *                 raise ValueError("left > mode")             # <<<<<<<<<<<<<<
@@ -10762,7 +10964,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3245
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3245
  *             if fleft > fmode:
  *                 raise ValueError("left > mode")
  *             if fmode > fright:             # <<<<<<<<<<<<<<
@@ -10772,7 +10974,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fmode > __pyx_v_fright);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3246
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3246
  *                 raise ValueError("left > mode")
  *             if fmode > fright:
  *                 raise ValueError("mode > right")             # <<<<<<<<<<<<<<
@@ -10788,7 +10990,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3247
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3247
  *             if fmode > fright:
  *                 raise ValueError("mode > right")
  *             if fleft == fright:             # <<<<<<<<<<<<<<
@@ -10798,7 +11000,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_fleft == __pyx_v_fright);
       if (__pyx_t_6) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3248
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3248
  *                 raise ValueError("mode > right")
  *             if fleft == fright:
  *                 raise ValueError("left == right")             # <<<<<<<<<<<<<<
@@ -10814,7 +11016,7 @@ ref struct RandomState {
       }
       __pyx_L8:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3250
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3250
  *                 raise ValueError("left == right")
  *             return cont3_array_sc(self.internal_state, rk_triangular, size,
  *                                   fleft, fmode, fright)             # <<<<<<<<<<<<<<
@@ -10829,7 +11031,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3252
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3252
  *                                   fleft, fmode, fright)
  * 
  *         if np.any(np.greater(left, mode)):             # <<<<<<<<<<<<<<
@@ -10851,7 +11053,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3253
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3253
  * 
  *         if np.any(np.greater(left, mode)):
  *             raise ValueError("left > mode")             # <<<<<<<<<<<<<<
@@ -10867,7 +11069,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3254
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3254
  *         if np.any(np.greater(left, mode)):
  *             raise ValueError("left > mode")
  *         if np.any(np.greater(mode, right)):             # <<<<<<<<<<<<<<
@@ -10889,7 +11091,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3255
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3255
  *             raise ValueError("left > mode")
  *         if np.any(np.greater(mode, right)):
  *             raise ValueError("mode > right")             # <<<<<<<<<<<<<<
@@ -10905,7 +11107,7 @@ ref struct RandomState {
     }
     __pyx_L10:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3256
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3256
  *         if np.any(np.greater(mode, right)):
  *             raise ValueError("mode > right")
  *         if np.any(np.equal(left, right)):             # <<<<<<<<<<<<<<
@@ -10927,7 +11129,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3257
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3257
  *             raise ValueError("mode > right")
  *         if np.any(np.equal(left, right)):
  *             raise ValueError("left == right")             # <<<<<<<<<<<<<<
@@ -10943,7 +11145,7 @@ ref struct RandomState {
     }
     __pyx_L11:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3259
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3259
  *             raise ValueError("left == right")
  *         return cont3_array(self.internal_state, rk_triangular, size,
  *                            left, mode, right)             # <<<<<<<<<<<<<<
@@ -10960,7 +11162,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3262
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3262
  * 
  *     # Complicated, discrete distributions:
  *     def binomial(self, n, p, size=None):             # <<<<<<<<<<<<<<
@@ -10988,10 +11190,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3345
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3345
  *         cdef long ln
  *         cdef double fp
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -11000,7 +11202,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3347
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3347
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -11009,7 +11211,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3348
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3348
  * 
  *         try:
  *             fp = <double>p             # <<<<<<<<<<<<<<
@@ -11019,7 +11221,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3348_26->Target(__site_cvt_double_3348_26, __pyx_v_p);
       __pyx_v_fp = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3349
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3349
  *         try:
  *             fp = <double>p
  *             ln = <long>n             # <<<<<<<<<<<<<<
@@ -11029,7 +11231,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_long_3349_24->Target(__site_cvt_long_3349_24, __pyx_v_n);
       __pyx_v_ln = ((long)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3350
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3350
  *             fp = <double>p
  *             ln = <long>n
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -11040,7 +11242,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3351
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3351
  *             ln = <long>n
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -11054,7 +11256,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3354
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3354
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -11063,7 +11265,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3355
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3355
  * 
  *         if sc:
  *             if ln <= 0:             # <<<<<<<<<<<<<<
@@ -11073,7 +11275,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_ln <= 0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3356
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3356
  *         if sc:
  *             if ln <= 0:
  *                 raise ValueError("n <= 0")             # <<<<<<<<<<<<<<
@@ -11089,7 +11291,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3357
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3357
  *             if ln <= 0:
  *                 raise ValueError("n <= 0")
  *             if fp < 0:             # <<<<<<<<<<<<<<
@@ -11099,7 +11301,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fp < 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3358
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3358
  *                 raise ValueError("n <= 0")
  *             if fp < 0:
  *                 raise ValueError("p < 0")             # <<<<<<<<<<<<<<
@@ -11114,7 +11316,7 @@ ref struct RandomState {
         goto __pyx_L7;
       }
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3359
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3359
  *             if fp < 0:
  *                 raise ValueError("p < 0")
  *             elif fp > 1:             # <<<<<<<<<<<<<<
@@ -11124,7 +11326,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fp > 1.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3360
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3360
  *                 raise ValueError("p < 0")
  *             elif fp > 1:
  *                 raise ValueError("p > 1")             # <<<<<<<<<<<<<<
@@ -11140,7 +11342,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3362
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3362
  *                 raise ValueError("p > 1")
  *             return discnp_array_sc(self.internal_state, rk_binomial, size,
  *                                    ln, fp)             # <<<<<<<<<<<<<<
@@ -11155,7 +11357,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3364
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3364
  *                                    ln, fp)
  * 
  *         if np.any(np.less_equal(n, 0)):             # <<<<<<<<<<<<<<
@@ -11168,7 +11370,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_less_equal_3364_20->Target(__site_get_less_equal_3364_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3364_31->Target(__site_call2_3364_31, __pyx_context, __pyx_t_8, __pyx_v_n, 0);
+    __pyx_t_7 = __site_call2_3364_31->Target(__site_call2_3364_31, __pyx_context, __pyx_t_8, __pyx_v_n, __pyx_int_0);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_3364_17->Target(__site_call1_3364_17, __pyx_context, __pyx_t_6, __pyx_t_7);
     __pyx_t_6 = nullptr;
@@ -11177,7 +11379,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3365
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3365
  * 
  *         if np.any(np.less_equal(n, 0)):
  *             raise ValueError("n <= 0")             # <<<<<<<<<<<<<<
@@ -11193,7 +11395,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3366
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3366
  *         if np.any(np.less_equal(n, 0)):
  *             raise ValueError("n <= 0")
  *         if np.any(np.less(p, 0)):             # <<<<<<<<<<<<<<
@@ -11206,7 +11408,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_6 = __site_get_less_3366_20->Target(__site_get_less_3366_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3366_25->Target(__site_call2_3366_25, __pyx_context, __pyx_t_6, __pyx_v_p, 0);
+    __pyx_t_7 = __site_call2_3366_25->Target(__site_call2_3366_25, __pyx_context, __pyx_t_6, __pyx_v_p, __pyx_int_0);
     __pyx_t_6 = nullptr;
     __pyx_t_6 = __site_call1_3366_17->Target(__site_call1_3366_17, __pyx_context, __pyx_t_8, __pyx_t_7);
     __pyx_t_8 = nullptr;
@@ -11215,7 +11417,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3367
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3367
  *             raise ValueError("n <= 0")
  *         if np.any(np.less(p, 0)):
  *             raise ValueError("p < 0")             # <<<<<<<<<<<<<<
@@ -11231,7 +11433,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3368
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3368
  *         if np.any(np.less(p, 0)):
  *             raise ValueError("p < 0")
  *         if np.any(np.greater(p, 1)):             # <<<<<<<<<<<<<<
@@ -11244,7 +11446,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_greater_3368_20->Target(__site_get_greater_3368_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3368_28->Target(__site_call2_3368_28, __pyx_context, __pyx_t_8, __pyx_v_p, 1);
+    __pyx_t_7 = __site_call2_3368_28->Target(__site_call2_3368_28, __pyx_context, __pyx_t_8, __pyx_v_p, __pyx_int_1);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_3368_17->Target(__site_call1_3368_17, __pyx_context, __pyx_t_6, __pyx_t_7);
     __pyx_t_6 = nullptr;
@@ -11253,7 +11455,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3369
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3369
  *             raise ValueError("p < 0")
  *         if np.any(np.greater(p, 1)):
  *             raise ValueError("p > 1")             # <<<<<<<<<<<<<<
@@ -11269,7 +11471,7 @@ ref struct RandomState {
     }
     __pyx_L10:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3370
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3370
  *         if np.any(np.greater(p, 1)):
  *             raise ValueError("p > 1")
  *         return discnp_array(self.internal_state, rk_binomial, size, n, p)             # <<<<<<<<<<<<<<
@@ -11286,7 +11488,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3373
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3373
  * 
  * 
  *     def negative_binomial(self, n, p, size=None):             # <<<<<<<<<<<<<<
@@ -11314,10 +11516,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3440
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3440
  *         cdef double fn
  *         cdef double fp
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -11326,7 +11528,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3442
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3442
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -11335,7 +11537,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3443
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3443
  * 
  *         try:
  *             fp = <double>p             # <<<<<<<<<<<<<<
@@ -11345,7 +11547,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3443_26->Target(__site_cvt_double_3443_26, __pyx_v_p);
       __pyx_v_fp = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3444
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3444
  *         try:
  *             fp = <double>p
  *             fn = <double>n             # <<<<<<<<<<<<<<
@@ -11355,7 +11557,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_double_3444_26->Target(__site_cvt_double_3444_26, __pyx_v_n);
       __pyx_v_fn = ((double)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3445
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3445
  *             fp = <double>p
  *             fn = <double>n
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -11366,7 +11568,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3446
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3446
  *             fn = <double>n
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -11380,7 +11582,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3449
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3449
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -11389,7 +11591,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3450
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3450
  * 
  *         if sc:
  *             if fn <= 0:             # <<<<<<<<<<<<<<
@@ -11399,7 +11601,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fn <= 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3451
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3451
  *         if sc:
  *             if fn <= 0:
  *                 raise ValueError("n <= 0")             # <<<<<<<<<<<<<<
@@ -11415,7 +11617,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3452
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3452
  *             if fn <= 0:
  *                 raise ValueError("n <= 0")
  *             if fp < 0:             # <<<<<<<<<<<<<<
@@ -11425,7 +11627,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fp < 0.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3453
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3453
  *                 raise ValueError("n <= 0")
  *             if fp < 0:
  *                 raise ValueError("p < 0")             # <<<<<<<<<<<<<<
@@ -11440,7 +11642,7 @@ ref struct RandomState {
         goto __pyx_L7;
       }
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3454
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3454
  *             if fp < 0:
  *                 raise ValueError("p < 0")
  *             elif fp > 1:             # <<<<<<<<<<<<<<
@@ -11450,7 +11652,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_fp > 1.0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3455
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3455
  *                 raise ValueError("p < 0")
  *             elif fp > 1:
  *                 raise ValueError("p > 1")             # <<<<<<<<<<<<<<
@@ -11466,7 +11668,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3457
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3457
  *                 raise ValueError("p > 1")
  *             return discdd_array_sc(self.internal_state, rk_negative_binomial,
  *                                    size, fn, fp)             # <<<<<<<<<<<<<<
@@ -11481,7 +11683,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3459
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3459
  *                                    size, fn, fp)
  * 
  *         if np.any(np.less_equal(n, 0)):             # <<<<<<<<<<<<<<
@@ -11494,7 +11696,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_less_equal_3459_20->Target(__site_get_less_equal_3459_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3459_31->Target(__site_call2_3459_31, __pyx_context, __pyx_t_8, __pyx_v_n, 0);
+    __pyx_t_7 = __site_call2_3459_31->Target(__site_call2_3459_31, __pyx_context, __pyx_t_8, __pyx_v_n, __pyx_int_0);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_3459_17->Target(__site_call1_3459_17, __pyx_context, __pyx_t_6, __pyx_t_7);
     __pyx_t_6 = nullptr;
@@ -11503,7 +11705,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3460
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3460
  * 
  *         if np.any(np.less_equal(n, 0)):
  *             raise ValueError("n <= 0")             # <<<<<<<<<<<<<<
@@ -11519,7 +11721,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3461
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3461
  *         if np.any(np.less_equal(n, 0)):
  *             raise ValueError("n <= 0")
  *         if np.any(np.less(p, 0)):             # <<<<<<<<<<<<<<
@@ -11532,7 +11734,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_6 = __site_get_less_3461_20->Target(__site_get_less_3461_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3461_25->Target(__site_call2_3461_25, __pyx_context, __pyx_t_6, __pyx_v_p, 0);
+    __pyx_t_7 = __site_call2_3461_25->Target(__site_call2_3461_25, __pyx_context, __pyx_t_6, __pyx_v_p, __pyx_int_0);
     __pyx_t_6 = nullptr;
     __pyx_t_6 = __site_call1_3461_17->Target(__site_call1_3461_17, __pyx_context, __pyx_t_8, __pyx_t_7);
     __pyx_t_8 = nullptr;
@@ -11541,7 +11743,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3462
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3462
  *             raise ValueError("n <= 0")
  *         if np.any(np.less(p, 0)):
  *             raise ValueError("p < 0")             # <<<<<<<<<<<<<<
@@ -11557,7 +11759,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3463
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3463
  *         if np.any(np.less(p, 0)):
  *             raise ValueError("p < 0")
  *         if np.any(np.greater(p, 1)):             # <<<<<<<<<<<<<<
@@ -11570,7 +11772,7 @@ ref struct RandomState {
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_8 = __site_get_greater_3463_20->Target(__site_get_greater_3463_20, __pyx_t_7, __pyx_context);
     __pyx_t_7 = nullptr;
-    __pyx_t_7 = __site_call2_3463_28->Target(__site_call2_3463_28, __pyx_context, __pyx_t_8, __pyx_v_p, 1);
+    __pyx_t_7 = __site_call2_3463_28->Target(__site_call2_3463_28, __pyx_context, __pyx_t_8, __pyx_v_p, __pyx_int_1);
     __pyx_t_8 = nullptr;
     __pyx_t_8 = __site_call1_3463_17->Target(__site_call1_3463_17, __pyx_context, __pyx_t_6, __pyx_t_7);
     __pyx_t_6 = nullptr;
@@ -11579,7 +11781,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3464
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3464
  *             raise ValueError("p < 0")
  *         if np.any(np.greater(p, 1)):
  *             raise ValueError("p > 1")             # <<<<<<<<<<<<<<
@@ -11595,7 +11797,7 @@ ref struct RandomState {
     }
     __pyx_L10:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3466
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3466
  *             raise ValueError("p > 1")
  *         return discdd_array(self.internal_state, rk_negative_binomial,
  *                             size, n, p)             # <<<<<<<<<<<<<<
@@ -11612,7 +11814,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3468
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3468
  *                             size, n, p)
  * 
  *     def poisson(self, lam=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -11640,10 +11842,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3517
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3517
  *         """
  *         cdef double flam
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -11652,7 +11854,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3519
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3519
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -11661,7 +11863,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3520
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3520
  * 
  *         try:
  *             flam = <double>lam             # <<<<<<<<<<<<<<
@@ -11671,7 +11873,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3520_30->Target(__site_cvt_double_3520_30, __pyx_v_lam);
       __pyx_v_flam = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3521
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3521
  *         try:
  *             flam = <double>lam
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -11682,7 +11884,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3522
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3522
  *             flam = <double>lam
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -11696,7 +11898,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3525
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3525
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -11705,19 +11907,19 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3526
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3526
  * 
  *         if sc:
  *             if lam < 0:             # <<<<<<<<<<<<<<
  *                 raise ValueError("lam < 0")
  *             return discd_array_sc(self.internal_state, rk_poisson, size, flam)
  */
-      __pyx_t_4 = __site_op_lt_3526_19->Target(__site_op_lt_3526_19, __pyx_v_lam, 0);
+      __pyx_t_4 = __site_op_lt_3526_19->Target(__site_op_lt_3526_19, __pyx_v_lam, __pyx_int_0);
       __pyx_t_5 = __site_istrue_3526_19->Target(__site_istrue_3526_19, __pyx_t_4);
       __pyx_t_4 = nullptr;
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3527
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3527
  *         if sc:
  *             if lam < 0:
  *                 raise ValueError("lam < 0")             # <<<<<<<<<<<<<<
@@ -11733,7 +11935,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3528
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3528
  *             if lam < 0:
  *                 raise ValueError("lam < 0")
  *             return discd_array_sc(self.internal_state, rk_poisson, size, flam)             # <<<<<<<<<<<<<<
@@ -11748,7 +11950,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3530
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3530
  *             return discd_array_sc(self.internal_state, rk_poisson, size, flam)
  * 
  *         if np.any(np.less(lam, 0)):             # <<<<<<<<<<<<<<
@@ -11761,7 +11963,7 @@ ref struct RandomState {
     __pyx_t_6 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_7 = __site_get_less_3530_20->Target(__site_get_less_3530_20, __pyx_t_6, __pyx_context);
     __pyx_t_6 = nullptr;
-    __pyx_t_6 = __site_call2_3530_25->Target(__site_call2_3530_25, __pyx_context, __pyx_t_7, __pyx_v_lam, 0);
+    __pyx_t_6 = __site_call2_3530_25->Target(__site_call2_3530_25, __pyx_context, __pyx_t_7, __pyx_v_lam, __pyx_int_0);
     __pyx_t_7 = nullptr;
     __pyx_t_7 = __site_call1_3530_17->Target(__site_call1_3530_17, __pyx_context, __pyx_t_4, __pyx_t_6);
     __pyx_t_4 = nullptr;
@@ -11770,7 +11972,7 @@ ref struct RandomState {
     __pyx_t_7 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3531
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3531
  * 
  *         if np.any(np.less(lam, 0)):
  *             raise ValueError("lam < 0")             # <<<<<<<<<<<<<<
@@ -11786,7 +11988,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3532
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3532
  *         if np.any(np.less(lam, 0)):
  *             raise ValueError("lam < 0")
  *         return discd_array(self.internal_state, rk_poisson, size, lam)             # <<<<<<<<<<<<<<
@@ -11803,7 +12005,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3534
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3534
  *         return discd_array(self.internal_state, rk_poisson, size, lam)
  * 
  *     def zipf(self, a, size=None):             # <<<<<<<<<<<<<<
@@ -11828,10 +12030,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3611
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3611
  *         """
  *         cdef double fa
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -11840,7 +12042,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3613
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3613
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -11849,7 +12051,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3614
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3614
  * 
  *         try:
  *             fa = <double>a             # <<<<<<<<<<<<<<
@@ -11859,7 +12061,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3614_26->Target(__site_cvt_double_3614_26, __pyx_v_a);
       __pyx_v_fa = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3615
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3615
  *         try:
  *             fa = <double>a
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -11870,7 +12072,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3616
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3616
  *             fa = <double>a
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -11884,7 +12086,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3619
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3619
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -11893,7 +12095,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3620
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3620
  * 
  *         if sc:
  *             if fa <= 1.0:             # <<<<<<<<<<<<<<
@@ -11903,7 +12105,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fa <= 1.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3621
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3621
  *         if sc:
  *             if fa <= 1.0:
  *                 raise ValueError("a <= 1.0")             # <<<<<<<<<<<<<<
@@ -11919,7 +12121,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3622
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3622
  *             if fa <= 1.0:
  *                 raise ValueError("a <= 1.0")
  *             return discd_array_sc(self.internal_state, rk_zipf, size, fa)             # <<<<<<<<<<<<<<
@@ -11934,7 +12136,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3624
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3624
  *             return discd_array_sc(self.internal_state, rk_zipf, size, fa)
  * 
  *         if np.any(np.less_equal(a, 1.0)):             # <<<<<<<<<<<<<<
@@ -11958,7 +12160,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3625
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3625
  * 
  *         if np.any(np.less_equal(a, 1.0)):
  *             raise ValueError("a <= 1.0")             # <<<<<<<<<<<<<<
@@ -11974,7 +12176,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3626
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3626
  *         if np.any(np.less_equal(a, 1.0)):
  *             raise ValueError("a <= 1.0")
  *         return discd_array(self.internal_state, rk_zipf, size, a)             # <<<<<<<<<<<<<<
@@ -11991,7 +12193,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3628
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3628
  *         return discd_array(self.internal_state, rk_zipf, size, a)
  * 
  *     def geometric(self, p, size=None):             # <<<<<<<<<<<<<<
@@ -12016,10 +12218,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3674
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3674
  *         """
  *         cdef double fp
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -12028,7 +12230,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3676
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3676
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -12037,7 +12239,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3677
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3677
  * 
  *         try:
  *             fp = <double>p             # <<<<<<<<<<<<<<
@@ -12047,7 +12249,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3677_26->Target(__site_cvt_double_3677_26, __pyx_v_p);
       __pyx_v_fp = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3678
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3678
  *         try:
  *             fp = <double>p
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -12058,7 +12260,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3679
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3679
  *             fp = <double>p
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -12072,7 +12274,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3682
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3682
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -12081,7 +12283,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3683
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3683
  * 
  *         if sc:
  *             if fp < 0.0:             # <<<<<<<<<<<<<<
@@ -12091,7 +12293,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fp < 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3684
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3684
  *         if sc:
  *             if fp < 0.0:
  *                 raise ValueError("p < 0.0")             # <<<<<<<<<<<<<<
@@ -12107,7 +12309,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3685
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3685
  *             if fp < 0.0:
  *                 raise ValueError("p < 0.0")
  *             if fp > 1.0:             # <<<<<<<<<<<<<<
@@ -12117,7 +12319,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fp > 1.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3686
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3686
  *                 raise ValueError("p < 0.0")
  *             if fp > 1.0:
  *                 raise ValueError("p > 1.0")             # <<<<<<<<<<<<<<
@@ -12133,7 +12335,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3687
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3687
  *             if fp > 1.0:
  *                 raise ValueError("p > 1.0")
  *             return discd_array_sc(self.internal_state, rk_geometric, size, fp)             # <<<<<<<<<<<<<<
@@ -12148,7 +12350,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3689
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3689
  *             return discd_array_sc(self.internal_state, rk_geometric, size, fp)
  * 
  *         if np.any(np.less(p, 0.0)):             # <<<<<<<<<<<<<<
@@ -12172,7 +12374,7 @@ ref struct RandomState {
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3690
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3690
  * 
  *         if np.any(np.less(p, 0.0)):
  *             raise ValueError("p < 0.0")             # <<<<<<<<<<<<<<
@@ -12188,7 +12390,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3691
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3691
  *         if np.any(np.less(p, 0.0)):
  *             raise ValueError("p < 0.0")
  *         if np.any(np.greater(p, 1.0)):             # <<<<<<<<<<<<<<
@@ -12212,7 +12414,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3692
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3692
  *             raise ValueError("p < 0.0")
  *         if np.any(np.greater(p, 1.0)):
  *             raise ValueError("p > 1.0")             # <<<<<<<<<<<<<<
@@ -12228,7 +12430,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3693
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3693
  *         if np.any(np.greater(p, 1.0)):
  *             raise ValueError("p > 1.0")
  *         return discd_array(self.internal_state, rk_geometric, size, p)             # <<<<<<<<<<<<<<
@@ -12245,7 +12447,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3695
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3695
  *         return discd_array(self.internal_state, rk_geometric, size, p)
  * 
  *     def hypergeometric(self, ngood, nbad, nsample, size=None):             # <<<<<<<<<<<<<<
@@ -12278,10 +12480,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3780
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3780
  *         """
  *         cdef long lngood, lnbad, lnsample
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -12290,7 +12492,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3782
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3782
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -12299,7 +12501,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3783
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3783
  * 
  *         try:
  *             lngood = <long>ngood             # <<<<<<<<<<<<<<
@@ -12309,7 +12511,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_long_3783_32->Target(__site_cvt_long_3783_32, __pyx_v_ngood);
       __pyx_v_lngood = ((long)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3784
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3784
  *         try:
  *             lngood = <long>ngood
  *             lnbad = <long>nbad             # <<<<<<<<<<<<<<
@@ -12319,7 +12521,7 @@ ref struct RandomState {
       __pyx_t_4 = __site_cvt_long_3784_30->Target(__site_cvt_long_3784_30, __pyx_v_nbad);
       __pyx_v_lnbad = ((long)__pyx_t_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3785
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3785
  *             lngood = <long>ngood
  *             lnbad = <long>nbad
  *             lnsample = <long>nsample             # <<<<<<<<<<<<<<
@@ -12329,7 +12531,7 @@ ref struct RandomState {
       __pyx_t_5 = __site_cvt_long_3785_36->Target(__site_cvt_long_3785_36, __pyx_v_nsample);
       __pyx_v_lnsample = ((long)__pyx_t_5);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3786
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3786
  *             lnbad = <long>nbad
  *             lnsample = <long>nsample
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -12340,7 +12542,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3787
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3787
  *             lnsample = <long>nsample
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -12354,7 +12556,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3790
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3790
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -12363,19 +12565,19 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3791
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3791
  * 
  *         if sc:
  *             if ngood < 1:             # <<<<<<<<<<<<<<
  *                 raise ValueError("ngood < 1")
  *             if nbad < 1:
  */
-      __pyx_t_6 = __site_op_lt_3791_21->Target(__site_op_lt_3791_21, __pyx_v_ngood, 1);
+      __pyx_t_6 = __site_op_lt_3791_21->Target(__site_op_lt_3791_21, __pyx_v_ngood, __pyx_int_1);
       __pyx_t_7 = __site_istrue_3791_21->Target(__site_istrue_3791_21, __pyx_t_6);
       __pyx_t_6 = nullptr;
       if (__pyx_t_7) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3792
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3792
  *         if sc:
  *             if ngood < 1:
  *                 raise ValueError("ngood < 1")             # <<<<<<<<<<<<<<
@@ -12391,19 +12593,19 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3793
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3793
  *             if ngood < 1:
  *                 raise ValueError("ngood < 1")
  *             if nbad < 1:             # <<<<<<<<<<<<<<
  *                 raise ValueError("nbad < 1")
  *             if nsample < 1:
  */
-      __pyx_t_8 = __site_op_lt_3793_20->Target(__site_op_lt_3793_20, __pyx_v_nbad, 1);
+      __pyx_t_8 = __site_op_lt_3793_20->Target(__site_op_lt_3793_20, __pyx_v_nbad, __pyx_int_1);
       __pyx_t_7 = __site_istrue_3793_20->Target(__site_istrue_3793_20, __pyx_t_8);
       __pyx_t_8 = nullptr;
       if (__pyx_t_7) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3794
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3794
  *                 raise ValueError("ngood < 1")
  *             if nbad < 1:
  *                 raise ValueError("nbad < 1")             # <<<<<<<<<<<<<<
@@ -12419,19 +12621,19 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3795
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3795
  *             if nbad < 1:
  *                 raise ValueError("nbad < 1")
  *             if nsample < 1:             # <<<<<<<<<<<<<<
  *                 raise ValueError("nsample < 1")
  *             if ngood + nbad < nsample:
  */
-      __pyx_t_6 = __site_op_lt_3795_23->Target(__site_op_lt_3795_23, __pyx_v_nsample, 1);
+      __pyx_t_6 = __site_op_lt_3795_23->Target(__site_op_lt_3795_23, __pyx_v_nsample, __pyx_int_1);
       __pyx_t_7 = __site_istrue_3795_23->Target(__site_istrue_3795_23, __pyx_t_6);
       __pyx_t_6 = nullptr;
       if (__pyx_t_7) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3796
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3796
  *                 raise ValueError("nbad < 1")
  *             if nsample < 1:
  *                 raise ValueError("nsample < 1")             # <<<<<<<<<<<<<<
@@ -12447,7 +12649,7 @@ ref struct RandomState {
       }
       __pyx_L8:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3797
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3797
  *             if nsample < 1:
  *                 raise ValueError("nsample < 1")
  *             if ngood + nbad < nsample:             # <<<<<<<<<<<<<<
@@ -12461,7 +12663,7 @@ ref struct RandomState {
       __pyx_t_6 = nullptr;
       if (__pyx_t_7) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3798
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3798
  *                 raise ValueError("nsample < 1")
  *             if ngood + nbad < nsample:
  *                 raise ValueError("ngood + nbad < nsample")             # <<<<<<<<<<<<<<
@@ -12477,7 +12679,7 @@ ref struct RandomState {
       }
       __pyx_L9:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3800
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3800
  *                 raise ValueError("ngood + nbad < nsample")
  *             return discnmN_array_sc(self.internal_state, rk_hypergeometric, size,
  *                                     lngood, lnbad, lnsample)             # <<<<<<<<<<<<<<
@@ -12492,7 +12694,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3802
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3802
  *                                     lngood, lnbad, lnsample)
  * 
  *         if np.any(np.less(ngood, 1)):             # <<<<<<<<<<<<<<
@@ -12505,7 +12707,7 @@ ref struct RandomState {
     __pyx_t_8 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_9 = __site_get_less_3802_20->Target(__site_get_less_3802_20, __pyx_t_8, __pyx_context);
     __pyx_t_8 = nullptr;
-    __pyx_t_8 = __site_call2_3802_25->Target(__site_call2_3802_25, __pyx_context, __pyx_t_9, __pyx_v_ngood, 1);
+    __pyx_t_8 = __site_call2_3802_25->Target(__site_call2_3802_25, __pyx_context, __pyx_t_9, __pyx_v_ngood, __pyx_int_1);
     __pyx_t_9 = nullptr;
     __pyx_t_9 = __site_call1_3802_17->Target(__site_call1_3802_17, __pyx_context, __pyx_t_6, __pyx_t_8);
     __pyx_t_6 = nullptr;
@@ -12514,7 +12716,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_7) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3803
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3803
  * 
  *         if np.any(np.less(ngood, 1)):
  *             raise ValueError("ngood < 1")             # <<<<<<<<<<<<<<
@@ -12530,7 +12732,7 @@ ref struct RandomState {
     }
     __pyx_L10:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3804
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3804
  *         if np.any(np.less(ngood, 1)):
  *             raise ValueError("ngood < 1")
  *         if np.any(np.less(nbad, 1)):             # <<<<<<<<<<<<<<
@@ -12543,7 +12745,7 @@ ref struct RandomState {
     __pyx_t_8 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_6 = __site_get_less_3804_20->Target(__site_get_less_3804_20, __pyx_t_8, __pyx_context);
     __pyx_t_8 = nullptr;
-    __pyx_t_8 = __site_call2_3804_25->Target(__site_call2_3804_25, __pyx_context, __pyx_t_6, __pyx_v_nbad, 1);
+    __pyx_t_8 = __site_call2_3804_25->Target(__site_call2_3804_25, __pyx_context, __pyx_t_6, __pyx_v_nbad, __pyx_int_1);
     __pyx_t_6 = nullptr;
     __pyx_t_6 = __site_call1_3804_17->Target(__site_call1_3804_17, __pyx_context, __pyx_t_9, __pyx_t_8);
     __pyx_t_9 = nullptr;
@@ -12552,7 +12754,7 @@ ref struct RandomState {
     __pyx_t_6 = nullptr;
     if (__pyx_t_7) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3805
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3805
  *             raise ValueError("ngood < 1")
  *         if np.any(np.less(nbad, 1)):
  *             raise ValueError("nbad < 1")             # <<<<<<<<<<<<<<
@@ -12568,7 +12770,7 @@ ref struct RandomState {
     }
     __pyx_L11:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3806
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3806
  *         if np.any(np.less(nbad, 1)):
  *             raise ValueError("nbad < 1")
  *         if np.any(np.less(nsample, 1)):             # <<<<<<<<<<<<<<
@@ -12581,7 +12783,7 @@ ref struct RandomState {
     __pyx_t_8 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_9 = __site_get_less_3806_20->Target(__site_get_less_3806_20, __pyx_t_8, __pyx_context);
     __pyx_t_8 = nullptr;
-    __pyx_t_8 = __site_call2_3806_25->Target(__site_call2_3806_25, __pyx_context, __pyx_t_9, __pyx_v_nsample, 1);
+    __pyx_t_8 = __site_call2_3806_25->Target(__site_call2_3806_25, __pyx_context, __pyx_t_9, __pyx_v_nsample, __pyx_int_1);
     __pyx_t_9 = nullptr;
     __pyx_t_9 = __site_call1_3806_17->Target(__site_call1_3806_17, __pyx_context, __pyx_t_6, __pyx_t_8);
     __pyx_t_6 = nullptr;
@@ -12590,7 +12792,7 @@ ref struct RandomState {
     __pyx_t_9 = nullptr;
     if (__pyx_t_7) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3807
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3807
  *             raise ValueError("nbad < 1")
  *         if np.any(np.less(nsample, 1)):
  *             raise ValueError("nsample < 1")             # <<<<<<<<<<<<<<
@@ -12606,7 +12808,7 @@ ref struct RandomState {
     }
     __pyx_L12:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3808
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3808
  *         if np.any(np.less(nsample, 1)):
  *             raise ValueError("nsample < 1")
  *         if np.any(np.less(np.add(ngood, nbad), nsample)):             # <<<<<<<<<<<<<<
@@ -12634,7 +12836,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_7) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3809
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3809
  *             raise ValueError("nsample < 1")
  *         if np.any(np.less(np.add(ngood, nbad), nsample)):
  *             raise ValueError("ngood + nbad < nsample")             # <<<<<<<<<<<<<<
@@ -12650,7 +12852,7 @@ ref struct RandomState {
     }
     __pyx_L13:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3811
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3811
  *             raise ValueError("ngood + nbad < nsample")
  *         return discnmN_array(self.internal_state, rk_hypergeometric, size,
  *                              ngood, nbad, nsample)             # <<<<<<<<<<<<<<
@@ -12667,7 +12869,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3814
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3814
  * 
  * 
  *     def logseries(self, p, size=None):             # <<<<<<<<<<<<<<
@@ -12692,10 +12894,10 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3889
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3889
  *         """
  *         cdef double fp
  *         cdef int sc = 0             # <<<<<<<<<<<<<<
@@ -12704,7 +12906,7 @@ ref struct RandomState {
  */
     __pyx_v_sc = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3891
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3891
  *         cdef int sc = 0
  * 
  *         try:             # <<<<<<<<<<<<<<
@@ -12713,7 +12915,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3892
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3892
  * 
  *         try:
  *             fp = <double>p             # <<<<<<<<<<<<<<
@@ -12723,7 +12925,7 @@ ref struct RandomState {
       __pyx_t_3 = __site_cvt_double_3892_26->Target(__site_cvt_double_3892_26, __pyx_v_p);
       __pyx_v_fp = ((double)__pyx_t_3);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3893
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3893
  *         try:
  *             fp = <double>p
  *             sc = 1             # <<<<<<<<<<<<<<
@@ -12734,7 +12936,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_1) {
       System::Object^ __pyx_lt_2 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_1);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3894
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3894
  *             fp = <double>p
  *             sc = 1
  *         except:             # <<<<<<<<<<<<<<
@@ -12748,7 +12950,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3897
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3897
  *             pass
  * 
  *         if sc:             # <<<<<<<<<<<<<<
@@ -12757,7 +12959,7 @@ ref struct RandomState {
  */
     if (__pyx_v_sc) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3898
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3898
  * 
  *         if sc:
  *             if fp <= 0.0:             # <<<<<<<<<<<<<<
@@ -12767,7 +12969,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fp <= 0.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3899
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3899
  *         if sc:
  *             if fp <= 0.0:
  *                 raise ValueError("p <= 0.0")             # <<<<<<<<<<<<<<
@@ -12783,7 +12985,7 @@ ref struct RandomState {
       }
       __pyx_L6:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3900
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3900
  *             if fp <= 0.0:
  *                 raise ValueError("p <= 0.0")
  *             if fp >= 1.0:             # <<<<<<<<<<<<<<
@@ -12793,7 +12995,7 @@ ref struct RandomState {
       __pyx_t_4 = (__pyx_v_fp >= 1.0);
       if (__pyx_t_4) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3901
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3901
  *                 raise ValueError("p <= 0.0")
  *             if fp >= 1.0:
  *                 raise ValueError("p >= 1.0")             # <<<<<<<<<<<<<<
@@ -12809,7 +13011,7 @@ ref struct RandomState {
       }
       __pyx_L7:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3902
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3902
  *             if fp >= 1.0:
  *                 raise ValueError("p >= 1.0")
  *             return discd_array_sc(self.internal_state, rk_logseries, size, fp)             # <<<<<<<<<<<<<<
@@ -12824,7 +13026,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3904
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3904
  *             return discd_array_sc(self.internal_state, rk_logseries, size, fp)
  * 
  *         if np.any(np.less_equal(p, 0.0)):             # <<<<<<<<<<<<<<
@@ -12848,7 +13050,7 @@ ref struct RandomState {
     __pyx_t_5 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3905
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3905
  * 
  *         if np.any(np.less_equal(p, 0.0)):
  *             raise ValueError("p <= 0.0")             # <<<<<<<<<<<<<<
@@ -12864,7 +13066,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3906
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3906
  *         if np.any(np.less_equal(p, 0.0)):
  *             raise ValueError("p <= 0.0")
  *         if np.any(np.greater_equal(p, 1.0)):             # <<<<<<<<<<<<<<
@@ -12888,7 +13090,7 @@ ref struct RandomState {
     __pyx_t_8 = nullptr;
     if (__pyx_t_4) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3907
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3907
  *             raise ValueError("p <= 0.0")
  *         if np.any(np.greater_equal(p, 1.0)):
  *             raise ValueError("p >= 1.0")             # <<<<<<<<<<<<<<
@@ -12904,7 +13106,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3908
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3908
  *         if np.any(np.greater_equal(p, 1.0)):
  *             raise ValueError("p >= 1.0")
  *         return discd_array(self.internal_state, rk_logseries, size, p)             # <<<<<<<<<<<<<<
@@ -12921,7 +13123,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3911
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3911
  * 
  *     # Multivariate distributions:
  *     def multivariate_normal(self, mean, cov, size=None):             # <<<<<<<<<<<<<<
@@ -12956,7 +13158,7 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
     __pyx_v_shape = nullptr;
     __pyx_v_final_shape = nullptr;
@@ -12966,7 +13168,7 @@ ref struct RandomState {
     __pyx_v_s = nullptr;
     __pyx_v_v = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4004
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4004
  *         """
  *         # Check preconditions on arguments
  *         mean = np.array(mean)             # <<<<<<<<<<<<<<
@@ -12981,7 +13183,7 @@ ref struct RandomState {
     __pyx_v_mean = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4005
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4005
  *         # Check preconditions on arguments
  *         mean = np.array(mean)
  *         cov = np.array(cov)             # <<<<<<<<<<<<<<
@@ -12996,17 +13198,17 @@ ref struct RandomState {
     __pyx_v_cov = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4006
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4006
  *         mean = np.array(mean)
  *         cov = np.array(cov)
  *         if size is None:             # <<<<<<<<<<<<<<
  *             shape = []
  *         else:
  */
-    __pyx_t_3 = (__pyx_v_size == Py_None);
+    __pyx_t_3 = (__pyx_v_size == nullptr);
     if (__pyx_t_3) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4007
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4007
  *         cov = np.array(cov)
  *         if size is None:
  *             shape = []             # <<<<<<<<<<<<<<
@@ -13020,7 +13222,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4009
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4009
  *             shape = []
  *         else:
  *             shape = size             # <<<<<<<<<<<<<<
@@ -13031,7 +13233,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4010
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4010
  *         else:
  *             shape = size
  *         if len(mean.shape) != 1:             # <<<<<<<<<<<<<<
@@ -13043,13 +13245,13 @@ ref struct RandomState {
     __pyx_t_4 = __site_call1_4010_14->Target(__site_call1_4010_14, __pyx_context, __pyx_t_1, __pyx_t_2);
     __pyx_t_1 = nullptr;
     __pyx_t_2 = nullptr;
-    __pyx_t_2 = __site_op_ne_4010_27->Target(__site_op_ne_4010_27, __pyx_t_4, 1);
+    __pyx_t_2 = __site_op_ne_4010_27->Target(__site_op_ne_4010_27, __pyx_t_4, __pyx_int_1);
     __pyx_t_4 = nullptr;
     __pyx_t_3 = __site_istrue_4010_27->Target(__site_istrue_4010_27, __pyx_t_2);
     __pyx_t_2 = nullptr;
     if (__pyx_t_3) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4011
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4011
  *             shape = size
  *         if len(mean.shape) != 1:
  *                raise ValueError("mean must be 1 dimensional")             # <<<<<<<<<<<<<<
@@ -13065,7 +13267,7 @@ ref struct RandomState {
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4012
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4012
  *         if len(mean.shape) != 1:
  *                raise ValueError("mean must be 1 dimensional")
  *         if (len(cov.shape) != 2) or (cov.shape[0] != cov.shape[1]):             # <<<<<<<<<<<<<<
@@ -13077,7 +13279,7 @@ ref struct RandomState {
     __pyx_t_1 = __site_call1_4012_15->Target(__site_call1_4012_15, __pyx_context, __pyx_t_4, __pyx_t_2);
     __pyx_t_4 = nullptr;
     __pyx_t_2 = nullptr;
-    __pyx_t_2 = __site_op_ne_4012_27->Target(__site_op_ne_4012_27, __pyx_t_1, 2);
+    __pyx_t_2 = __site_op_ne_4012_27->Target(__site_op_ne_4012_27, __pyx_t_1, __pyx_int_2);
     __pyx_t_1 = nullptr;
     __pyx_t_3 = __site_istrue_4012_27->Target(__site_istrue_4012_27, __pyx_t_2);
     __pyx_t_2 = nullptr;
@@ -13099,7 +13301,7 @@ ref struct RandomState {
     }
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4013
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4013
  *                raise ValueError("mean must be 1 dimensional")
  *         if (len(cov.shape) != 2) or (cov.shape[0] != cov.shape[1]):
  *                raise ValueError("cov must be 2 dimensional and square")             # <<<<<<<<<<<<<<
@@ -13115,7 +13317,7 @@ ref struct RandomState {
     }
     __pyx_L7:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4014
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4014
  *         if (len(cov.shape) != 2) or (cov.shape[0] != cov.shape[1]):
  *                raise ValueError("cov must be 2 dimensional and square")
  *         if mean.shape[0] != cov.shape[0]:             # <<<<<<<<<<<<<<
@@ -13135,7 +13337,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4015
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4015
  *                raise ValueError("cov must be 2 dimensional and square")
  *         if mean.shape[0] != cov.shape[0]:
  *                raise ValueError("mean and cov must have same length")             # <<<<<<<<<<<<<<
@@ -13151,7 +13353,7 @@ ref struct RandomState {
     }
     __pyx_L8:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4017
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4017
  *                raise ValueError("mean and cov must have same length")
  *         # Compute shape of output
  *         if isinstance(shape, int):             # <<<<<<<<<<<<<<
@@ -13167,7 +13369,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     if (__pyx_t_6) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4018
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4018
  *         # Compute shape of output
  *         if isinstance(shape, int):
  *             shape = [shape]             # <<<<<<<<<<<<<<
@@ -13181,7 +13383,7 @@ ref struct RandomState {
     }
     __pyx_L9:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4019
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4019
  *         if isinstance(shape, int):
  *             shape = [shape]
  *         final_shape = list(shape[:])             # <<<<<<<<<<<<<<
@@ -13196,7 +13398,7 @@ ref struct RandomState {
     __pyx_v_final_shape = ((System::Object^)__pyx_t_1);
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4020
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4020
  *             shape = [shape]
  *         final_shape = list(shape[:])
  *         final_shape.append(mean.shape[0])             # <<<<<<<<<<<<<<
@@ -13212,7 +13414,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4024
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4024
  *         # numbers. The matrix has rows with the same length as mean and as
  *         # many rows are necessary to form a matrix of shape final_shape.
  *         x = self.standard_normal(np.multiply.reduce(final_shape))             # <<<<<<<<<<<<<<
@@ -13233,7 +13435,7 @@ ref struct RandomState {
     __pyx_v_x = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4025
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4025
  *         # many rows are necessary to form a matrix of shape final_shape.
  *         x = self.standard_normal(np.multiply.reduce(final_shape))
  *         x.shape = (np.multiply.reduce(final_shape[0:len(final_shape) - 1]),             # <<<<<<<<<<<<<<
@@ -13248,7 +13450,7 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "len");
     __pyx_t_4 = __site_call1_4025_55->Target(__site_call1_4025_55, __pyx_context, __pyx_t_1, ((System::Object^)__pyx_v_final_shape));
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_op_sub_4025_69->Target(__site_op_sub_4025_69, __pyx_t_4, 1);
+    __pyx_t_1 = __site_op_sub_4025_69->Target(__site_op_sub_4025_69, __pyx_t_4, __pyx_int_1);
     __pyx_t_4 = nullptr;
     __pyx_t_7 = __site_cvt_Py_ssize_t_4025_69->Target(__site_cvt_Py_ssize_t_4025_69, __pyx_t_1);
     __pyx_t_1 = nullptr;
@@ -13257,7 +13459,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4026
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4026
  *         x = self.standard_normal(np.multiply.reduce(final_shape))
  *         x.shape = (np.multiply.reduce(final_shape[0:len(final_shape) - 1]),
  *                    mean.shape[0])             # <<<<<<<<<<<<<<
@@ -13271,7 +13473,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4025
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4025
  *         # many rows are necessary to form a matrix of shape final_shape.
  *         x = self.standard_normal(np.multiply.reduce(final_shape))
  *         x.shape = (np.multiply.reduce(final_shape[0:len(final_shape) - 1]),             # <<<<<<<<<<<<<<
@@ -13281,7 +13483,7 @@ ref struct RandomState {
     __site_set_shape_4025_9->Target(__site_set_shape_4025_9, __pyx_v_x, __pyx_t_1);
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4034
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4034
  *         # decomposition of cov is such an A.
  * 
  *         from numpy.dual import svd             # <<<<<<<<<<<<<<
@@ -13294,7 +13496,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4036
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4036
  *         from numpy.dual import svd
  *         # XXX: we really should be doing this by Cholesky decomposition
  *         u, s, v = svd(cov)             # <<<<<<<<<<<<<<
@@ -13303,8 +13505,8 @@ ref struct RandomState {
  */
     __pyx_t_1 = __site_call1_4036_21->Target(__site_call1_4036_21, __pyx_context, __pyx_v_svd, __pyx_v_cov);
     __pyx_t_8 = safe_cast< array<System::Object^>^ >(LightExceptions::CheckAndThrow(PythonOps::GetEnumeratorValuesNoComplexSets(__pyx_context, __pyx_t_1, 3)));
-    __pyx_t_9 = __pyx_t_8[0];
-    __pyx_t_9 = __pyx_t_8[1];
+    __pyx_t_2 = __pyx_t_8[0];
+    __pyx_t_4 = __pyx_t_8[1];
     __pyx_t_9 = __pyx_t_8[2];
     __pyx_t_1 = nullptr;
     __pyx_t_8 = nullptr;
@@ -13315,7 +13517,7 @@ ref struct RandomState {
     __pyx_v_v = __pyx_t_9;
     __pyx_t_9 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4037
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4037
  *         # XXX: we really should be doing this by Cholesky decomposition
  *         u, s, v = svd(cov)
  *         x = np.dot(x * np.sqrt(s), v)             # <<<<<<<<<<<<<<
@@ -13338,7 +13540,7 @@ ref struct RandomState {
     __pyx_v_x = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4040
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4040
  *         # The rows of x now have the correct covariance but mean 0. Add
  *         # mean to each row. Then each row will have mean mean.
  *         np.add(mean, x, x)             # <<<<<<<<<<<<<<
@@ -13352,7 +13554,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4041
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4041
  *         # mean to each row. Then each row will have mean mean.
  *         np.add(mean, x, x)
  *         x.shape = tuple(final_shape)             # <<<<<<<<<<<<<<
@@ -13365,7 +13567,7 @@ ref struct RandomState {
     __site_set_shape_4041_9->Target(__site_set_shape_4041_9, __pyx_v_x, __pyx_t_4);
     __pyx_t_4 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4042
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4042
  *         np.add(mean, x, x)
  *         x.shape = tuple(final_shape)
  *         return x             # <<<<<<<<<<<<<<
@@ -13380,7 +13582,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4044
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4044
  *         return x
  * 
  *     def multinomial(self, long n, object pvals, size=None):             # <<<<<<<<<<<<<<
@@ -13416,13 +13618,13 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
     __pyx_v_parr = nullptr;
     __pyx_v_shape = nullptr;
     __pyx_v_multin = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4102
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4102
  *         cdef double Sum
  * 
  *         d = len(pvals)             # <<<<<<<<<<<<<<
@@ -13436,7 +13638,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     __pyx_v_d = __pyx_t_3;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4103
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4103
  * 
  *         d = len(pvals)
  *         parr = flat_array(pvals, np.double)             # <<<<<<<<<<<<<<
@@ -13453,7 +13655,7 @@ ref struct RandomState {
     __pyx_v_parr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4104
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4104
  *         d = len(pvals)
  *         parr = flat_array(pvals, np.double)
  *         pix = <double *>dataptr(parr)             # <<<<<<<<<<<<<<
@@ -13462,7 +13664,7 @@ ref struct RandomState {
  */
     __pyx_v_pix = ((double *)dataptr(__pyx_v_parr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4106
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4106
  *         pix = <double *>dataptr(parr)
  * 
  *         if kahan_sum(pix, d-1) > (1.0 + 1e-12):             # <<<<<<<<<<<<<<
@@ -13472,7 +13674,7 @@ ref struct RandomState {
     __pyx_t_5 = (kahan_sum(__pyx_v_pix, (__pyx_v_d - 1)) > (1.0 + 1e-12));
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4107
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4107
  * 
  *         if kahan_sum(pix, d-1) > (1.0 + 1e-12):
  *             raise ValueError("sum(pvals[:-1]) > 1.0")             # <<<<<<<<<<<<<<
@@ -13488,17 +13690,17 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4109
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4109
  *             raise ValueError("sum(pvals[:-1]) > 1.0")
  * 
  *         if size is None:             # <<<<<<<<<<<<<<
  *             shape = (d,)
  *         elif type(size) is int:
  */
-    __pyx_t_5 = (__pyx_v_size == Py_None);
+    __pyx_t_5 = (__pyx_v_size == nullptr);
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4110
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4110
  * 
  *         if size is None:
  *             shape = (d,)             # <<<<<<<<<<<<<<
@@ -13513,7 +13715,7 @@ ref struct RandomState {
       goto __pyx_L6;
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4111
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4111
  *         if size is None:
  *             shape = (d,)
  *         elif type(size) is int:             # <<<<<<<<<<<<<<
@@ -13529,7 +13731,7 @@ ref struct RandomState {
     __pyx_t_1 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4112
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4112
  *             shape = (d,)
  *         elif type(size) is int:
  *             shape = (size, d)             # <<<<<<<<<<<<<<
@@ -13545,7 +13747,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4114
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4114
  *             shape = (size, d)
  *         else:
  *             shape = size + (d,)             # <<<<<<<<<<<<<<
@@ -13562,7 +13764,7 @@ ref struct RandomState {
     }
     __pyx_L6:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4116
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4116
  *             shape = size + (d,)
  * 
  *         multin = np.zeros(shape, int)             # <<<<<<<<<<<<<<
@@ -13579,7 +13781,7 @@ ref struct RandomState {
     __pyx_v_multin = __pyx_t_2;
     __pyx_t_2 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4117
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4117
  * 
  *         multin = np.zeros(shape, int)
  *         mnix = <long *>dataptr(multin)             # <<<<<<<<<<<<<<
@@ -13588,7 +13790,7 @@ ref struct RandomState {
  */
     __pyx_v_mnix = ((long *)dataptr(__pyx_v_multin));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4118
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4118
  *         multin = np.zeros(shape, int)
  *         mnix = <long *>dataptr(multin)
  *         i = 0             # <<<<<<<<<<<<<<
@@ -13597,7 +13799,7 @@ ref struct RandomState {
  */
     __pyx_v_i = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4119
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4119
  *         mnix = <long *>dataptr(multin)
  *         i = 0
  *         while i < multin.size:             # <<<<<<<<<<<<<<
@@ -13614,7 +13816,7 @@ ref struct RandomState {
       __pyx_t_1 = nullptr;
       if (!__pyx_t_5) break;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4120
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4120
  *         i = 0
  *         while i < multin.size:
  *             Sum = 1.0             # <<<<<<<<<<<<<<
@@ -13623,7 +13825,7 @@ ref struct RandomState {
  */
       __pyx_v_Sum = 1.0;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4121
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4121
  *         while i < multin.size:
  *             Sum = 1.0
  *             dn = n             # <<<<<<<<<<<<<<
@@ -13632,7 +13834,7 @@ ref struct RandomState {
  */
       __pyx_v_dn = __pyx_v_n;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4122
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4122
  *             Sum = 1.0
  *             dn = n
  *             for j from 0 <= j < d-1:             # <<<<<<<<<<<<<<
@@ -13642,7 +13844,7 @@ ref struct RandomState {
       __pyx_t_6 = (__pyx_v_d - 1);
       for (__pyx_v_j = 0; __pyx_v_j < __pyx_t_6; __pyx_v_j++) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4123
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4123
  *             dn = n
  *             for j from 0 <= j < d-1:
  *                 mnix[i+j] = rk_binomial(self.internal_state, dn, pix[j]/Sum)             # <<<<<<<<<<<<<<
@@ -13655,7 +13857,7 @@ ref struct RandomState {
         }
         (__pyx_v_mnix[(__pyx_v_i + __pyx_v_j)]) = rk_binomial(((RandomState^)__pyx_v_self)->internal_state, __pyx_v_dn, (__pyx_t_7 / __pyx_v_Sum));
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4124
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4124
  *             for j from 0 <= j < d-1:
  *                 mnix[i+j] = rk_binomial(self.internal_state, dn, pix[j]/Sum)
  *                 dn = dn - mnix[i+j]             # <<<<<<<<<<<<<<
@@ -13664,7 +13866,7 @@ ref struct RandomState {
  */
         __pyx_v_dn = (__pyx_v_dn - (__pyx_v_mnix[(__pyx_v_i + __pyx_v_j)]));
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4125
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4125
  *                 mnix[i+j] = rk_binomial(self.internal_state, dn, pix[j]/Sum)
  *                 dn = dn - mnix[i+j]
  *                 if dn <= 0:             # <<<<<<<<<<<<<<
@@ -13674,7 +13876,7 @@ ref struct RandomState {
         __pyx_t_5 = (__pyx_v_dn <= 0);
         if (__pyx_t_5) {
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4126
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4126
  *                 dn = dn - mnix[i+j]
  *                 if dn <= 0:
  *                     break             # <<<<<<<<<<<<<<
@@ -13686,7 +13888,7 @@ ref struct RandomState {
         }
         __pyx_L11:;
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4127
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4127
  *                 if dn <= 0:
  *                     break
  *                 Sum = Sum - pix[j]             # <<<<<<<<<<<<<<
@@ -13697,7 +13899,7 @@ ref struct RandomState {
       }
       __pyx_L10_break:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4128
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4128
  *                     break
  *                 Sum = Sum - pix[j]
  *             if dn > 0:             # <<<<<<<<<<<<<<
@@ -13707,7 +13909,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_dn > 0);
       if (__pyx_t_5) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4129
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4129
  *                 Sum = Sum - pix[j]
  *             if dn > 0:
  *                 mnix[i+d-1] = dn             # <<<<<<<<<<<<<<
@@ -13719,7 +13921,7 @@ ref struct RandomState {
       }
       __pyx_L12:;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4131
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4131
  *                 mnix[i+d-1] = dn
  * 
  *             i = i + d             # <<<<<<<<<<<<<<
@@ -13729,7 +13931,7 @@ ref struct RandomState {
       __pyx_v_i = (__pyx_v_i + __pyx_v_d);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4133
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4133
  *             i = i + d
  * 
  *         return multin             # <<<<<<<<<<<<<<
@@ -13744,7 +13946,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4135
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4135
  *         return multin
  * 
  *     def dirichlet(self, object alpha, size=None):             # <<<<<<<<<<<<<<
@@ -13779,13 +13981,13 @@ ref struct RandomState {
     if (dynamic_cast<System::Reflection::Missing^>(size) == nullptr) {
       __pyx_v_size = size;
     } else {
-      __pyx_v_size = ((System::Object^)Py_None);
+      __pyx_v_size = ((System::Object^)nullptr);
     }
     __pyx_v_alpha_arr = nullptr;
     __pyx_v_shape = nullptr;
     __pyx_v_diric = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4196
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4196
  *         cdef double acc, invacc
  * 
  *         k = len(alpha)             # <<<<<<<<<<<<<<
@@ -13799,7 +14001,7 @@ ref struct RandomState {
     __pyx_t_2 = nullptr;
     __pyx_v_k = __pyx_t_3;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4197
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4197
  * 
  *         k = len(alpha)
  *         alpha_arr = flat_array(alpha, np.double, 1, 1)             # <<<<<<<<<<<<<<
@@ -13810,13 +14012,13 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "np");
     __pyx_t_4 = __site_get_double_4197_40->Target(__site_get_double_4197_40, __pyx_t_1, __pyx_context);
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_call4_4197_30->Target(__site_call4_4197_30, __pyx_context, __pyx_t_2, __pyx_v_alpha, __pyx_t_4, 1, 1);
+    __pyx_t_1 = __site_call4_4197_30->Target(__site_call4_4197_30, __pyx_context, __pyx_t_2, __pyx_v_alpha, __pyx_t_4, __pyx_int_1, __pyx_int_1);
     __pyx_t_2 = nullptr;
     __pyx_t_4 = nullptr;
     __pyx_v_alpha_arr = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4198
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4198
  *         k = len(alpha)
  *         alpha_arr = flat_array(alpha, np.double, 1, 1)
  *         alpha_data = <double *>dataptr(alpha_arr)             # <<<<<<<<<<<<<<
@@ -13825,17 +14027,17 @@ ref struct RandomState {
  */
     __pyx_v_alpha_data = ((double *)dataptr(__pyx_v_alpha_arr));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4200
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4200
  *         alpha_data = <double *>dataptr(alpha_arr)
  * 
  *         if size is None:             # <<<<<<<<<<<<<<
  *             shape = (k,)
  *         elif type(size) is int:
  */
-    __pyx_t_5 = (__pyx_v_size == Py_None);
+    __pyx_t_5 = (__pyx_v_size == nullptr);
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4201
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4201
  * 
  *         if size is None:
  *             shape = (k,)             # <<<<<<<<<<<<<<
@@ -13850,7 +14052,7 @@ ref struct RandomState {
       goto __pyx_L5;
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4202
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4202
  *         if size is None:
  *             shape = (k,)
  *         elif type(size) is int:             # <<<<<<<<<<<<<<
@@ -13866,7 +14068,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4203
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4203
  *             shape = (k,)
  *         elif type(size) is int:
  *             shape = (size, k)             # <<<<<<<<<<<<<<
@@ -13882,7 +14084,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4205
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4205
  *             shape = (size, k)
  *         else:
  *             shape = size + (k,)             # <<<<<<<<<<<<<<
@@ -13899,7 +14101,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4207
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4207
  *             shape = size + (k,)
  * 
  *         diric = np.zeros(shape, np.double)             # <<<<<<<<<<<<<<
@@ -13918,7 +14120,7 @@ ref struct RandomState {
     __pyx_v_diric = __pyx_t_1;
     __pyx_t_1 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4208
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4208
  * 
  *         diric = np.zeros(shape, np.double)
  *         val_data = <double *>dataptr(diric)             # <<<<<<<<<<<<<<
@@ -13927,7 +14129,7 @@ ref struct RandomState {
  */
     __pyx_v_val_data = ((double *)dataptr(__pyx_v_diric));
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4210
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4210
  *         val_data = <double *>dataptr(diric)
  * 
  *         i = 0             # <<<<<<<<<<<<<<
@@ -13936,7 +14138,7 @@ ref struct RandomState {
  */
     __pyx_v_i = 0;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4211
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4211
  * 
  *         i = 0
  *         totsize = diric.size             # <<<<<<<<<<<<<<
@@ -13948,7 +14150,7 @@ ref struct RandomState {
     __pyx_t_1 = nullptr;
     __pyx_v_totsize = __pyx_t_6;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4212
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4212
  *         i = 0
  *         totsize = diric.size
  *         while i < totsize:             # <<<<<<<<<<<<<<
@@ -13959,7 +14161,7 @@ ref struct RandomState {
       __pyx_t_5 = (__pyx_v_i < __pyx_v_totsize);
       if (!__pyx_t_5) break;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4213
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4213
  *         totsize = diric.size
  *         while i < totsize:
  *             acc = 0.0             # <<<<<<<<<<<<<<
@@ -13968,7 +14170,7 @@ ref struct RandomState {
  */
       __pyx_v_acc = 0.0;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4214
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4214
  *         while i < totsize:
  *             acc = 0.0
  *             for j from 0 <= j < k:             # <<<<<<<<<<<<<<
@@ -13978,7 +14180,7 @@ ref struct RandomState {
       __pyx_t_7 = __pyx_v_k;
       for (__pyx_v_j = 0; __pyx_v_j < __pyx_t_7; __pyx_v_j++) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4215
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4215
  *             acc = 0.0
  *             for j from 0 <= j < k:
  *                 val_data[i+j] = rk_standard_gamma(self.internal_state,             # <<<<<<<<<<<<<<
@@ -13987,7 +14189,7 @@ ref struct RandomState {
  */
         (__pyx_v_val_data[(__pyx_v_i + __pyx_v_j)]) = rk_standard_gamma(((RandomState^)__pyx_v_self)->internal_state, (__pyx_v_alpha_data[__pyx_v_j]));
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4217
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4217
  *                 val_data[i+j] = rk_standard_gamma(self.internal_state,
  *                                                   alpha_data[j])
  *                 acc = acc + val_data[i+j]             # <<<<<<<<<<<<<<
@@ -13997,7 +14199,7 @@ ref struct RandomState {
         __pyx_v_acc = (__pyx_v_acc + (__pyx_v_val_data[(__pyx_v_i + __pyx_v_j)]));
       }
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4218
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4218
  *                                                   alpha_data[j])
  *                 acc = acc + val_data[i+j]
  *             invacc  = 1/acc             # <<<<<<<<<<<<<<
@@ -14009,7 +14211,7 @@ ref struct RandomState {
       }
       __pyx_v_invacc = (1.0 / __pyx_v_acc);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4219
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4219
  *                 acc = acc + val_data[i+j]
  *             invacc  = 1/acc
  *             for j from 0 <= j < k:             # <<<<<<<<<<<<<<
@@ -14019,7 +14221,7 @@ ref struct RandomState {
       __pyx_t_7 = __pyx_v_k;
       for (__pyx_v_j = 0; __pyx_v_j < __pyx_t_7; __pyx_v_j++) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4220
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4220
  *             invacc  = 1/acc
  *             for j from 0 <= j < k:
  *                 val_data[i+j]   = val_data[i+j] * invacc             # <<<<<<<<<<<<<<
@@ -14029,7 +14231,7 @@ ref struct RandomState {
         (__pyx_v_val_data[(__pyx_v_i + __pyx_v_j)]) = ((__pyx_v_val_data[(__pyx_v_i + __pyx_v_j)]) * __pyx_v_invacc);
       }
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4221
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4221
  *             for j from 0 <= j < k:
  *                 val_data[i+j]   = val_data[i+j] * invacc
  *             i = i + k             # <<<<<<<<<<<<<<
@@ -14039,7 +14241,7 @@ ref struct RandomState {
       __pyx_v_i = (__pyx_v_i + __pyx_v_k);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4223
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4223
  *             i = i + k
  * 
  *         return diric             # <<<<<<<<<<<<<<
@@ -14054,7 +14256,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4226
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4226
  * 
  *     # Shuffling and permutations:
  *     def shuffle(self, object x):             # <<<<<<<<<<<<<<
@@ -14078,7 +14280,7 @@ ref struct RandomState {
     System::Object^ __pyx_v_self = this;
     __pyx_v_x = x;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4236
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4236
  *         cdef int copy
  * 
  *         i = len(x) - 1             # <<<<<<<<<<<<<<
@@ -14088,13 +14290,13 @@ ref struct RandomState {
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "len");
     __pyx_t_2 = __site_call1_4236_15->Target(__site_call1_4236_15, __pyx_context, __pyx_t_1, __pyx_v_x);
     __pyx_t_1 = nullptr;
-    __pyx_t_1 = __site_op_sub_4236_19->Target(__site_op_sub_4236_19, __pyx_t_2, 1);
+    __pyx_t_1 = __site_op_sub_4236_19->Target(__site_op_sub_4236_19, __pyx_t_2, __pyx_int_1);
     __pyx_t_2 = nullptr;
     __pyx_t_3 = __site_cvt_long_4236_19->Target(__site_cvt_long_4236_19, __pyx_t_1);
     __pyx_t_1 = nullptr;
     __pyx_v_i = __pyx_t_3;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4237
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4237
  * 
  *         i = len(x) - 1
  *         try:             # <<<<<<<<<<<<<<
@@ -14103,7 +14305,7 @@ ref struct RandomState {
  */
     try {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4238
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4238
  *         i = len(x) - 1
  *         try:
  *             j = len(x[0])             # <<<<<<<<<<<<<<
@@ -14121,7 +14323,7 @@ ref struct RandomState {
     } catch (System::Exception^ __pyx_lt_4) {
       System::Object^ __pyx_lt_5 = PythonOps::SetCurrentException(__pyx_context, __pyx_lt_4);
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4239
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4239
  *         try:
  *             j = len(x[0])
  *         except:             # <<<<<<<<<<<<<<
@@ -14132,7 +14334,7 @@ ref struct RandomState {
         // XXX should update traceback here __Pyx_AddTraceback("mtrand.RandomState.shuffle");
         PythonOps::BuildExceptionInfo(__pyx_context, __pyx_lt_4);
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4240
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4240
  *             j = len(x[0])
  *         except:
  *             j = 0             # <<<<<<<<<<<<<<
@@ -14144,7 +14346,7 @@ ref struct RandomState {
       PythonOps::ExceptionHandled(__pyx_context);
     }
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4242
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4242
  *             j = 0
  * 
  *         if j == 0:             # <<<<<<<<<<<<<<
@@ -14154,7 +14356,7 @@ ref struct RandomState {
     __pyx_t_8 = (__pyx_v_j == 0);
     if (__pyx_t_8) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4244
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4244
  *         if j == 0:
  *             # adaptation of random.shuffle()
  *             while i > 0:             # <<<<<<<<<<<<<<
@@ -14165,7 +14367,7 @@ ref struct RandomState {
         __pyx_t_8 = (__pyx_v_i > 0);
         if (!__pyx_t_8) break;
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4245
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4245
  *             # adaptation of random.shuffle()
  *             while i > 0:
  *                 j = rk_interval(i, self.internal_state)             # <<<<<<<<<<<<<<
@@ -14174,7 +14376,7 @@ ref struct RandomState {
  */
         __pyx_v_j = rk_interval(__pyx_v_i, ((RandomState^)__pyx_v_self)->internal_state);
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4246
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4246
  *             while i > 0:
  *                 j = rk_interval(i, self.internal_state)
  *                 x[i], x[j] = x[j], x[i]             # <<<<<<<<<<<<<<
@@ -14188,7 +14390,7 @@ ref struct RandomState {
         __site_setindex_4246_23->Target(__site_setindex_4246_23, __pyx_v_x, ((System::Object^)__pyx_v_j), __pyx_t_2);
         __pyx_t_2 = nullptr;
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4247
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4247
  *                 j = rk_interval(i, self.internal_state)
  *                 x[i], x[j] = x[j], x[i]
  *                 i = i - 1             # <<<<<<<<<<<<<<
@@ -14201,7 +14403,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4250
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4250
  *         else:
  *             # make copies
  *             copy = hasattr(x[0], 'copy')             # <<<<<<<<<<<<<<
@@ -14217,7 +14419,7 @@ ref struct RandomState {
       __pyx_t_1 = nullptr;
       __pyx_v_copy = __pyx_t_9;
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4251
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4251
  *             # make copies
  *             copy = hasattr(x[0], 'copy')
  *             if copy:             # <<<<<<<<<<<<<<
@@ -14226,7 +14428,7 @@ ref struct RandomState {
  */
       if (__pyx_v_copy) {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4252
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4252
  *             copy = hasattr(x[0], 'copy')
  *             if copy:
  *                 while(i > 0):             # <<<<<<<<<<<<<<
@@ -14237,7 +14439,7 @@ ref struct RandomState {
           __pyx_t_8 = (__pyx_v_i > 0);
           if (!__pyx_t_8) break;
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4253
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4253
  *             if copy:
  *                 while(i > 0):
  *                     j = rk_interval(i, self.internal_state)             # <<<<<<<<<<<<<<
@@ -14246,7 +14448,7 @@ ref struct RandomState {
  */
           __pyx_v_j = rk_interval(__pyx_v_i, ((RandomState^)__pyx_v_self)->internal_state);
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4254
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4254
  *                 while(i > 0):
  *                     j = rk_interval(i, self.internal_state)
  *                     x[i], x[j] = x[j].copy(), x[i].copy()             # <<<<<<<<<<<<<<
@@ -14268,7 +14470,7 @@ ref struct RandomState {
           __site_setindex_4254_27->Target(__site_setindex_4254_27, __pyx_v_x, ((System::Object^)__pyx_v_j), __pyx_t_6);
           __pyx_t_6 = nullptr;
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4255
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4255
  *                     j = rk_interval(i, self.internal_state)
  *                     x[i], x[j] = x[j].copy(), x[i].copy()
  *                     i = i - 1             # <<<<<<<<<<<<<<
@@ -14281,7 +14483,7 @@ ref struct RandomState {
       }
       /*else*/ {
 
-        /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4257
+        /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4257
  *                     i = i - 1
  *             else:
  *                 while(i > 0):             # <<<<<<<<<<<<<<
@@ -14292,7 +14494,7 @@ ref struct RandomState {
           __pyx_t_8 = (__pyx_v_i > 0);
           if (!__pyx_t_8) break;
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4258
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4258
  *             else:
  *                 while(i > 0):
  *                     j = rk_interval(i, self.internal_state)             # <<<<<<<<<<<<<<
@@ -14301,7 +14503,7 @@ ref struct RandomState {
  */
           __pyx_v_j = rk_interval(__pyx_v_i, ((RandomState^)__pyx_v_self)->internal_state);
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4259
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4259
  *                 while(i > 0):
  *                     j = rk_interval(i, self.internal_state)
  *                     x[i], x[j] = x[j][:], x[i][:]             # <<<<<<<<<<<<<<
@@ -14319,7 +14521,7 @@ ref struct RandomState {
           __site_setindex_4259_27->Target(__site_setindex_4259_27, __pyx_v_x, ((System::Object^)__pyx_v_j), __pyx_t_2);
           __pyx_t_2 = nullptr;
 
-          /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4260
+          /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4260
  *                     j = rk_interval(i, self.internal_state)
  *                     x[i], x[j] = x[j][:], x[i][:]
  *                     i = i - 1             # <<<<<<<<<<<<<<
@@ -14337,7 +14539,7 @@ ref struct RandomState {
     return __pyx_r;
   }
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4262
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4262
  *                     i = i - 1
  * 
  *     def permutation(self, object x):             # <<<<<<<<<<<<<<
@@ -14358,7 +14560,7 @@ ref struct RandomState {
     __pyx_v_x = x;
     __pyx_v_arr = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4289
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4289
  * 
  *         """
  *         if isinstance(x, (int, np.integer)):             # <<<<<<<<<<<<<<
@@ -14380,7 +14582,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     if (__pyx_t_5) {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4290
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4290
  *         """
  *         if isinstance(x, (int, np.integer)):
  *             arr = np.arange(x)             # <<<<<<<<<<<<<<
@@ -14398,7 +14600,7 @@ ref struct RandomState {
     }
     /*else*/ {
 
-      /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4292
+      /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4292
  *             arr = np.arange(x)
  *         else:
  *             arr = np.array(x)             # <<<<<<<<<<<<<<
@@ -14415,7 +14617,7 @@ ref struct RandomState {
     }
     __pyx_L5:;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4293
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4293
  *         else:
  *             arr = np.array(x)
  *         self.shuffle(arr)             # <<<<<<<<<<<<<<
@@ -14427,7 +14629,7 @@ ref struct RandomState {
     __pyx_t_4 = nullptr;
     __pyx_t_3 = nullptr;
 
-    /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4294
+    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4294
  *             arr = np.array(x)
  *         self.shuffle(arr)
  *         return arr             # <<<<<<<<<<<<<<
@@ -14448,6 +14650,11 @@ ref struct RandomState {
 /* Cython code section 'init_globals' */
 
 static int __Pyx_InitGlobals(void) {
+  __pyx_int_0 = 0;
+  __pyx_int_1 = 1;
+  __pyx_int_2 = 2;
+  __pyx_int_3 = 3;
+  __pyx_int_624 = 624;
 
   return 0;
 }
@@ -14465,6 +14672,7 @@ static void __Pyx_InitSites(CodeContext^ __pyx_context) {
   __site_get_set_state_4300_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "set_state", false));
   __site_get_random_sample_4301_21 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "random_sample", false));
   __site_get_randint_4302_15 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "randint", false));
+  __site_get_bytes_4303_13 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "bytes", false));
   __site_get_uniform_4304_15 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "uniform", false));
   __site_get_rand_4305_12 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "rand", false));
   __site_get_randn_4306_13 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "randn", false));
@@ -14781,6 +14989,8 @@ static void __Pyx_InitSites(CodeContext^ __pyx_context) {
   __site_call2_863_26 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
   __site_get_size_864_24 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "size", false));
   __site_cvt_npy_intp_864_24 = CallSite< System::Func< CallSite^, System::Object^, npy_intp >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, npy_intp::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_870_4 = CallSite< System::Func< CallSite^, System::Object^, unsigned int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, unsigned int::typeid, ConversionResultKind::ExplicitCast));
+  __site_op_mul_892_35 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Multiply));
   __site_cvt_double_974_30 = CallSite< System::Func< CallSite^, System::Object^, double >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, double::typeid, ConversionResultKind::ExplicitCast));
   __site_cvt_double_975_32 = CallSite< System::Func< CallSite^, System::Object^, double >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, double::typeid, ConversionResultKind::ExplicitCast));
   __site_get_array_984_17 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "array", false));
@@ -15316,11 +15526,12 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __Pyx_InitGlobals();
   /*--- Type init code ---*/
   __pyx_ptype_6mtrand_RandomState = safe_cast<Types::PythonType^>(dict["RandomState"]);
+  /*--- Create function pointers ---*/
   /*--- Execution code ---*/
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":124
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":124
  * 
  * # Initialize numpy
  * import numpy as np             # <<<<<<<<<<<<<<
@@ -15331,8 +15542,8 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "np", __pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":898
- *     #     return res
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":898
+ *         return res
  * 
  *     def uniform(self, low=0.0, high=1.0, size=None):             # <<<<<<<<<<<<<<
  *         """
@@ -15345,7 +15556,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_2 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1198
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1198
  *         return cont0_array(self.internal_state, rk_gauss, size)
  * 
  *     def normal(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15359,7 +15570,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_4 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1360
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1360
  *         return cont2_array(self.internal_state, rk_beta, size, a, b)
  * 
  *     def exponential(self, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15370,7 +15581,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_5 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1531
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1531
  *         return cont1_array(self.internal_state, rk_standard_gamma, size, shape)
  * 
  *     def gamma(self, shape, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15381,7 +15592,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_6 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2566
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2566
  *         return cont1_array(self.internal_state, rk_power, size, a)
  * 
  *     def laplace(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15395,7 +15606,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_8 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2660
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2660
  * 
  * 
  *     def gumbel(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15409,7 +15620,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_10 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2787
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2787
  *         return cont2_array(self.internal_state, rk_gumbel, size, loc, scale)
  * 
  *     def logistic(self, loc=0.0, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15423,7 +15634,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_12 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":2878
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":2878
  *         return cont2_array(self.internal_state, rk_logistic, size, loc, scale)
  * 
  *     def lognormal(self, mean=0.0, sigma=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15437,7 +15648,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_14 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3011
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3011
  *                            mean, sigma)
  * 
  *     def rayleigh(self, scale=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15448,7 +15659,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_15 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":3468
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":3468
  *                             size, n, p)
  * 
  *     def poisson(self, lam=1.0, size=None):             # <<<<<<<<<<<<<<
@@ -15459,7 +15670,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_k_16 = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4297
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4297
  * 
  * 
  * _rand = RandomState()             # <<<<<<<<<<<<<<
@@ -15470,7 +15681,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "_rand", __pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4298
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4298
  * 
  * _rand = RandomState()
  * seed = _rand.seed             # <<<<<<<<<<<<<<
@@ -15483,7 +15694,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "seed", __pyx_t_2);
   __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4299
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4299
  * _rand = RandomState()
  * seed = _rand.seed
  * get_state = _rand.get_state             # <<<<<<<<<<<<<<
@@ -15496,7 +15707,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "get_state", __pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4300
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4300
  * seed = _rand.seed
  * get_state = _rand.get_state
  * set_state = _rand.set_state             # <<<<<<<<<<<<<<
@@ -15509,12 +15720,12 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "set_state", __pyx_t_2);
   __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4301
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4301
  * get_state = _rand.get_state
  * set_state = _rand.set_state
  * random_sample = _rand.random_sample             # <<<<<<<<<<<<<<
  * randint = _rand.randint
- * # bytes = _rand.bytes
+ * bytes = _rand.bytes
  */
   __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
   __pyx_t_1 = __site_get_random_sample_4301_21->Target(__site_get_random_sample_4301_21, __pyx_t_2, __pyx_context);
@@ -15522,11 +15733,11 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "random_sample", __pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4302
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4302
  * set_state = _rand.set_state
  * random_sample = _rand.random_sample
  * randint = _rand.randint             # <<<<<<<<<<<<<<
- * # bytes = _rand.bytes
+ * bytes = _rand.bytes
  * uniform = _rand.uniform
  */
   __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
@@ -15535,531 +15746,551 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "randint", __pyx_t_2);
   __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4304
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4303
+ * random_sample = _rand.random_sample
  * randint = _rand.randint
- * # bytes = _rand.bytes
+ * bytes = _rand.bytes             # <<<<<<<<<<<<<<
+ * uniform = _rand.uniform
+ * rand = _rand.rand
+ */
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_bytes_4303_13->Target(__site_get_bytes_4303_13, __pyx_t_2, __pyx_context);
+  __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "bytes", __pyx_t_1);
+  __pyx_t_1 = nullptr;
+
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4304
+ * randint = _rand.randint
+ * bytes = _rand.bytes
  * uniform = _rand.uniform             # <<<<<<<<<<<<<<
  * rand = _rand.rand
  * randn = _rand.randn
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_uniform_4304_15->Target(__site_get_uniform_4304_15, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "uniform", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_uniform_4304_15->Target(__site_get_uniform_4304_15, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "uniform", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4305
- * # bytes = _rand.bytes
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4305
+ * bytes = _rand.bytes
  * uniform = _rand.uniform
  * rand = _rand.rand             # <<<<<<<<<<<<<<
  * randn = _rand.randn
  * random_integers = _rand.random_integers
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_rand_4305_12->Target(__site_get_rand_4305_12, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "rand", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_rand_4305_12->Target(__site_get_rand_4305_12, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "rand", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4306
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4306
  * uniform = _rand.uniform
  * rand = _rand.rand
  * randn = _rand.randn             # <<<<<<<<<<<<<<
  * random_integers = _rand.random_integers
  * standard_normal = _rand.standard_normal
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_randn_4306_13->Target(__site_get_randn_4306_13, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "randn", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_randn_4306_13->Target(__site_get_randn_4306_13, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "randn", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4307
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4307
  * rand = _rand.rand
  * randn = _rand.randn
  * random_integers = _rand.random_integers             # <<<<<<<<<<<<<<
  * standard_normal = _rand.standard_normal
  * normal = _rand.normal
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_random_integers_4307_23->Target(__site_get_random_integers_4307_23, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "random_integers", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_random_integers_4307_23->Target(__site_get_random_integers_4307_23, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "random_integers", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4308
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4308
  * randn = _rand.randn
  * random_integers = _rand.random_integers
  * standard_normal = _rand.standard_normal             # <<<<<<<<<<<<<<
  * normal = _rand.normal
  * beta = _rand.beta
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_standard_normal_4308_23->Target(__site_get_standard_normal_4308_23, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "standard_normal", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_standard_normal_4308_23->Target(__site_get_standard_normal_4308_23, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "standard_normal", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4309
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4309
  * random_integers = _rand.random_integers
  * standard_normal = _rand.standard_normal
  * normal = _rand.normal             # <<<<<<<<<<<<<<
  * beta = _rand.beta
  * exponential = _rand.exponential
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_normal_4309_14->Target(__site_get_normal_4309_14, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "normal", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_normal_4309_14->Target(__site_get_normal_4309_14, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "normal", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4310
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4310
  * standard_normal = _rand.standard_normal
  * normal = _rand.normal
  * beta = _rand.beta             # <<<<<<<<<<<<<<
  * exponential = _rand.exponential
  * standard_exponential = _rand.standard_exponential
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_beta_4310_12->Target(__site_get_beta_4310_12, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "beta", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_beta_4310_12->Target(__site_get_beta_4310_12, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "beta", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4311
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4311
  * normal = _rand.normal
  * beta = _rand.beta
  * exponential = _rand.exponential             # <<<<<<<<<<<<<<
  * standard_exponential = _rand.standard_exponential
  * standard_gamma = _rand.standard_gamma
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_exponential_4311_19->Target(__site_get_exponential_4311_19, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "exponential", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_exponential_4311_19->Target(__site_get_exponential_4311_19, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "exponential", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4312
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4312
  * beta = _rand.beta
  * exponential = _rand.exponential
  * standard_exponential = _rand.standard_exponential             # <<<<<<<<<<<<<<
  * standard_gamma = _rand.standard_gamma
  * gamma = _rand.gamma
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_standard_exponential_4312_28->Target(__site_get_standard_exponential_4312_28, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "standard_exponential", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_standard_exponential_4312_28->Target(__site_get_standard_exponential_4312_28, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "standard_exponential", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4313
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4313
  * exponential = _rand.exponential
  * standard_exponential = _rand.standard_exponential
  * standard_gamma = _rand.standard_gamma             # <<<<<<<<<<<<<<
  * gamma = _rand.gamma
  * f = _rand.f
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_standard_gamma_4313_22->Target(__site_get_standard_gamma_4313_22, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "standard_gamma", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_standard_gamma_4313_22->Target(__site_get_standard_gamma_4313_22, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "standard_gamma", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4314
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4314
  * standard_exponential = _rand.standard_exponential
  * standard_gamma = _rand.standard_gamma
  * gamma = _rand.gamma             # <<<<<<<<<<<<<<
  * f = _rand.f
  * noncentral_f = _rand.noncentral_f
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_gamma_4314_13->Target(__site_get_gamma_4314_13, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "gamma", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_gamma_4314_13->Target(__site_get_gamma_4314_13, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "gamma", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4315
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4315
  * standard_gamma = _rand.standard_gamma
  * gamma = _rand.gamma
  * f = _rand.f             # <<<<<<<<<<<<<<
  * noncentral_f = _rand.noncentral_f
  * chisquare = _rand.chisquare
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_f_4315_9->Target(__site_get_f_4315_9, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "f", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_f_4315_9->Target(__site_get_f_4315_9, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "f", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4316
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4316
  * gamma = _rand.gamma
  * f = _rand.f
  * noncentral_f = _rand.noncentral_f             # <<<<<<<<<<<<<<
  * chisquare = _rand.chisquare
  * noncentral_chisquare = _rand.noncentral_chisquare
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_noncentral_f_4316_20->Target(__site_get_noncentral_f_4316_20, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "noncentral_f", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_noncentral_f_4316_20->Target(__site_get_noncentral_f_4316_20, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "noncentral_f", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4317
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4317
  * f = _rand.f
  * noncentral_f = _rand.noncentral_f
  * chisquare = _rand.chisquare             # <<<<<<<<<<<<<<
  * noncentral_chisquare = _rand.noncentral_chisquare
  * standard_cauchy = _rand.standard_cauchy
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_chisquare_4317_17->Target(__site_get_chisquare_4317_17, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "chisquare", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_chisquare_4317_17->Target(__site_get_chisquare_4317_17, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "chisquare", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4318
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4318
  * noncentral_f = _rand.noncentral_f
  * chisquare = _rand.chisquare
  * noncentral_chisquare = _rand.noncentral_chisquare             # <<<<<<<<<<<<<<
  * standard_cauchy = _rand.standard_cauchy
  * standard_t = _rand.standard_t
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_noncentral_chisquare_4318_28->Target(__site_get_noncentral_chisquare_4318_28, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "noncentral_chisquare", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_noncentral_chisquare_4318_28->Target(__site_get_noncentral_chisquare_4318_28, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "noncentral_chisquare", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4319
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4319
  * chisquare = _rand.chisquare
  * noncentral_chisquare = _rand.noncentral_chisquare
  * standard_cauchy = _rand.standard_cauchy             # <<<<<<<<<<<<<<
  * standard_t = _rand.standard_t
  * vonmises = _rand.vonmises
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_standard_cauchy_4319_23->Target(__site_get_standard_cauchy_4319_23, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "standard_cauchy", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_standard_cauchy_4319_23->Target(__site_get_standard_cauchy_4319_23, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "standard_cauchy", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4320
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4320
  * noncentral_chisquare = _rand.noncentral_chisquare
  * standard_cauchy = _rand.standard_cauchy
  * standard_t = _rand.standard_t             # <<<<<<<<<<<<<<
  * vonmises = _rand.vonmises
  * pareto = _rand.pareto
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_standard_t_4320_18->Target(__site_get_standard_t_4320_18, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "standard_t", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_standard_t_4320_18->Target(__site_get_standard_t_4320_18, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "standard_t", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4321
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4321
  * standard_cauchy = _rand.standard_cauchy
  * standard_t = _rand.standard_t
  * vonmises = _rand.vonmises             # <<<<<<<<<<<<<<
  * pareto = _rand.pareto
  * weibull = _rand.weibull
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_vonmises_4321_16->Target(__site_get_vonmises_4321_16, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "vonmises", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_vonmises_4321_16->Target(__site_get_vonmises_4321_16, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "vonmises", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4322
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4322
  * standard_t = _rand.standard_t
  * vonmises = _rand.vonmises
  * pareto = _rand.pareto             # <<<<<<<<<<<<<<
  * weibull = _rand.weibull
  * power = _rand.power
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_pareto_4322_14->Target(__site_get_pareto_4322_14, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "pareto", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_pareto_4322_14->Target(__site_get_pareto_4322_14, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "pareto", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4323
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4323
  * vonmises = _rand.vonmises
  * pareto = _rand.pareto
  * weibull = _rand.weibull             # <<<<<<<<<<<<<<
  * power = _rand.power
  * laplace = _rand.laplace
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_weibull_4323_15->Target(__site_get_weibull_4323_15, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "weibull", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_weibull_4323_15->Target(__site_get_weibull_4323_15, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "weibull", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4324
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4324
  * pareto = _rand.pareto
  * weibull = _rand.weibull
  * power = _rand.power             # <<<<<<<<<<<<<<
  * laplace = _rand.laplace
  * gumbel = _rand.gumbel
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_power_4324_13->Target(__site_get_power_4324_13, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "power", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_power_4324_13->Target(__site_get_power_4324_13, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "power", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4325
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4325
  * weibull = _rand.weibull
  * power = _rand.power
  * laplace = _rand.laplace             # <<<<<<<<<<<<<<
  * gumbel = _rand.gumbel
  * logistic = _rand.logistic
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_laplace_4325_15->Target(__site_get_laplace_4325_15, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "laplace", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_laplace_4325_15->Target(__site_get_laplace_4325_15, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "laplace", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4326
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4326
  * power = _rand.power
  * laplace = _rand.laplace
  * gumbel = _rand.gumbel             # <<<<<<<<<<<<<<
  * logistic = _rand.logistic
  * lognormal = _rand.lognormal
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_gumbel_4326_14->Target(__site_get_gumbel_4326_14, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "gumbel", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_gumbel_4326_14->Target(__site_get_gumbel_4326_14, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "gumbel", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4327
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4327
  * laplace = _rand.laplace
  * gumbel = _rand.gumbel
  * logistic = _rand.logistic             # <<<<<<<<<<<<<<
  * lognormal = _rand.lognormal
  * rayleigh = _rand.rayleigh
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_logistic_4327_16->Target(__site_get_logistic_4327_16, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "logistic", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_logistic_4327_16->Target(__site_get_logistic_4327_16, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "logistic", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4328
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4328
  * gumbel = _rand.gumbel
  * logistic = _rand.logistic
  * lognormal = _rand.lognormal             # <<<<<<<<<<<<<<
  * rayleigh = _rand.rayleigh
  * wald = _rand.wald
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_lognormal_4328_17->Target(__site_get_lognormal_4328_17, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "lognormal", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_lognormal_4328_17->Target(__site_get_lognormal_4328_17, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "lognormal", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4329
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4329
  * logistic = _rand.logistic
  * lognormal = _rand.lognormal
  * rayleigh = _rand.rayleigh             # <<<<<<<<<<<<<<
  * wald = _rand.wald
  * triangular = _rand.triangular
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_rayleigh_4329_16->Target(__site_get_rayleigh_4329_16, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "rayleigh", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_rayleigh_4329_16->Target(__site_get_rayleigh_4329_16, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "rayleigh", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4330
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4330
  * lognormal = _rand.lognormal
  * rayleigh = _rand.rayleigh
  * wald = _rand.wald             # <<<<<<<<<<<<<<
  * triangular = _rand.triangular
  * 
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_wald_4330_12->Target(__site_get_wald_4330_12, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "wald", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_wald_4330_12->Target(__site_get_wald_4330_12, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "wald", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4331
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4331
  * rayleigh = _rand.rayleigh
  * wald = _rand.wald
  * triangular = _rand.triangular             # <<<<<<<<<<<<<<
  * 
  * binomial = _rand.binomial
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_triangular_4331_18->Target(__site_get_triangular_4331_18, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "triangular", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_triangular_4331_18->Target(__site_get_triangular_4331_18, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "triangular", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4333
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4333
  * triangular = _rand.triangular
  * 
  * binomial = _rand.binomial             # <<<<<<<<<<<<<<
  * negative_binomial = _rand.negative_binomial
  * poisson = _rand.poisson
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_binomial_4333_16->Target(__site_get_binomial_4333_16, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "binomial", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_binomial_4333_16->Target(__site_get_binomial_4333_16, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "binomial", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4334
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4334
  * 
  * binomial = _rand.binomial
  * negative_binomial = _rand.negative_binomial             # <<<<<<<<<<<<<<
  * poisson = _rand.poisson
  * zipf = _rand.zipf
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_negative_binomial_4334_25->Target(__site_get_negative_binomial_4334_25, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "negative_binomial", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_negative_binomial_4334_25->Target(__site_get_negative_binomial_4334_25, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "negative_binomial", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4335
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4335
  * binomial = _rand.binomial
  * negative_binomial = _rand.negative_binomial
  * poisson = _rand.poisson             # <<<<<<<<<<<<<<
  * zipf = _rand.zipf
  * geometric = _rand.geometric
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_poisson_4335_15->Target(__site_get_poisson_4335_15, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "poisson", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_poisson_4335_15->Target(__site_get_poisson_4335_15, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "poisson", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4336
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4336
  * negative_binomial = _rand.negative_binomial
  * poisson = _rand.poisson
  * zipf = _rand.zipf             # <<<<<<<<<<<<<<
  * geometric = _rand.geometric
  * hypergeometric = _rand.hypergeometric
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_zipf_4336_12->Target(__site_get_zipf_4336_12, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "zipf", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_zipf_4336_12->Target(__site_get_zipf_4336_12, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "zipf", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4337
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4337
  * poisson = _rand.poisson
  * zipf = _rand.zipf
  * geometric = _rand.geometric             # <<<<<<<<<<<<<<
  * hypergeometric = _rand.hypergeometric
  * logseries = _rand.logseries
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_geometric_4337_17->Target(__site_get_geometric_4337_17, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "geometric", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_geometric_4337_17->Target(__site_get_geometric_4337_17, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "geometric", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4338
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4338
  * zipf = _rand.zipf
  * geometric = _rand.geometric
  * hypergeometric = _rand.hypergeometric             # <<<<<<<<<<<<<<
  * logseries = _rand.logseries
  * 
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_hypergeometric_4338_22->Target(__site_get_hypergeometric_4338_22, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "hypergeometric", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_hypergeometric_4338_22->Target(__site_get_hypergeometric_4338_22, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "hypergeometric", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4339
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4339
  * geometric = _rand.geometric
  * hypergeometric = _rand.hypergeometric
  * logseries = _rand.logseries             # <<<<<<<<<<<<<<
  * 
  * multivariate_normal = _rand.multivariate_normal
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_logseries_4339_17->Target(__site_get_logseries_4339_17, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "logseries", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_logseries_4339_17->Target(__site_get_logseries_4339_17, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "logseries", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4341
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4341
  * logseries = _rand.logseries
  * 
  * multivariate_normal = _rand.multivariate_normal             # <<<<<<<<<<<<<<
  * multinomial = _rand.multinomial
  * dirichlet = _rand.dirichlet
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_multivariate_normal_4341_27->Target(__site_get_multivariate_normal_4341_27, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "multivariate_normal", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_multivariate_normal_4341_27->Target(__site_get_multivariate_normal_4341_27, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "multivariate_normal", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4342
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4342
  * 
  * multivariate_normal = _rand.multivariate_normal
  * multinomial = _rand.multinomial             # <<<<<<<<<<<<<<
  * dirichlet = _rand.dirichlet
  * 
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_multinomial_4342_19->Target(__site_get_multinomial_4342_19, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "multinomial", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_multinomial_4342_19->Target(__site_get_multinomial_4342_19, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "multinomial", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4343
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4343
  * multivariate_normal = _rand.multivariate_normal
  * multinomial = _rand.multinomial
  * dirichlet = _rand.dirichlet             # <<<<<<<<<<<<<<
  * 
  * shuffle = _rand.shuffle
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_dirichlet_4343_17->Target(__site_get_dirichlet_4343_17, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "dirichlet", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_dirichlet_4343_17->Target(__site_get_dirichlet_4343_17, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "dirichlet", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4345
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4345
  * dirichlet = _rand.dirichlet
  * 
  * shuffle = _rand.shuffle             # <<<<<<<<<<<<<<
  * permutation = _rand.permutation
  */
-  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_1 = __site_get_shuffle_4345_15->Target(__site_get_shuffle_4345_15, __pyx_t_2, __pyx_context);
-  __pyx_t_2 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "shuffle", __pyx_t_1);
+  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_2 = __site_get_shuffle_4345_15->Target(__site_get_shuffle_4345_15, __pyx_t_1, __pyx_context);
   __pyx_t_1 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "shuffle", __pyx_t_2);
+  __pyx_t_2 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":4346
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":4346
  * 
  * shuffle = _rand.shuffle
  * permutation = _rand.permutation             # <<<<<<<<<<<<<<
  */
-  __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "_rand");
-  __pyx_t_2 = __site_get_permutation_4346_19->Target(__site_get_permutation_4346_19, __pyx_t_1, __pyx_context);
-  __pyx_t_1 = nullptr;
-  PythonOps::SetGlobal(__pyx_context, "permutation", __pyx_t_2);
+  __pyx_t_2 = PythonOps::GetGlobal(__pyx_context, "_rand");
+  __pyx_t_1 = __site_get_permutation_4346_19->Target(__site_get_permutation_4346_19, __pyx_t_2, __pyx_context);
   __pyx_t_2 = nullptr;
+  PythonOps::SetGlobal(__pyx_context, "permutation", __pyx_t_1);
+  __pyx_t_1 = nullptr;
 
-  /* "/home/cwitty/work/cynet/samples/mtrand.pyx":1
+  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\random\mtrand\mtrand.pyx":1
  * # mtrad.pyx -- A Pyrex wrapper of Jean-Sebastien Roy's RandomKit             # <<<<<<<<<<<<<<
  * #
  * # Copyright 2005 Robert Kern (robert.kern@gmail.com)
  */
-  __pyx_t_2 = PythonOps::MakeEmptyDict();
-  PythonOps::SetGlobal(__pyx_context, "__test__", ((System::Object^)__pyx_t_2));
-  __pyx_t_2 = nullptr;
+  __pyx_t_1 = PythonOps::MakeEmptyDict();
+  PythonOps::SetGlobal(__pyx_context, "__test__", ((System::Object^)__pyx_t_1));
+  __pyx_t_1 = nullptr;
+
+  /* "C:\Python26\lib\site-packages\Cython\Includes\cpython\type.pxd":2
+ * 
+ * cdef extern from "Python.h":             # <<<<<<<<<<<<<<
+ *     # The C structure of the objects used to describe built-in types.
+ * 
+ */
 }
 /* Cython code section 'cleanup_globals' */
 /* Cython code section 'cleanup_module' */
@@ -16069,4 +16300,5 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
 /* Runtime support code */
 /* Cython code section 'end' */
 };
-[assembly: PythonModule("mtrand", __pyx_module_mtrand::typeid)];
+[assembly: PythonModule("mtrand", module_mtrand::typeid)];
+};
