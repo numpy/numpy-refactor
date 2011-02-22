@@ -3,6 +3,7 @@ import sys
 import shutil
 import tempfile
 from os.path import dirname, isdir, isfile, join
+from iron_install import install
 
 
 if sys.platform != 'cli':
@@ -15,9 +16,10 @@ src_dir = os.getcwd()
 def msbuild():
     pass
     os.chdir(join(src_dir, r'numpy\NumpyDotNet'))
-    os.system('msbuild /p:Configuration=Debug_Install')
+    os.system('msbuild /p:Configuration=Debug')
     os.chdir(src_dir)
 
 
 if __name__ == '__main__':
     msbuild()
+    install()
