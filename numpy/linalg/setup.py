@@ -1,5 +1,13 @@
 
 import sys
+from os.path import isdir
+from numpy.distutils.system_info import get_info
+
+def ndarray_lib_dir():
+    info = get_info('ndarray')
+    path = info['library_dirs'][0]
+    assert isdir(path)
+    return path
 
 def configuration(parent_package='',top_path=None):
     from numpy.distutils.misc_util import Configuration
@@ -27,6 +35,8 @@ def configuration(parent_package='',top_path=None):
                                     'zlapack_lite.c', 'dlapack_lite.c',
                                     'blas_lite.c', 'dlamch.c',
                                     'f2c_lite.c','f2c.h'],
+                         library_dirs=[ndarray_lib_dir()],
+                         libraries=['ndarray'],
                          extra_info = lapack_info
                          )
 
