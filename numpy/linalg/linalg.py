@@ -21,8 +21,7 @@ from numpy.core import array, asarray, zeros, empty, transpose, \
         maximum, flatnonzero, diagonal, arange, fastCopyAndTranspose, sum, \
         isfinite, size, finfo, absolute, log, exp
 from numpy.lib import triu
-if sys.platform != 'cli':
-    from numpy.linalg import lapack_lite
+from numpy.linalg import lapack_lite
 from numpy.matrixlib.defmatrix import matrix_power
 from numpy.compat import asbytes
 
