@@ -295,6 +295,124 @@ static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, Sys
 static  CallSite< System::Func< CallSite^, System::Object^, bool >^ >^ __site_istrue_42_82;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_mod_43_85;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_43_25;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_70_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_71_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_72_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_73_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_74_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_75_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_76_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_77_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_78_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_137_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_138_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_139_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_140_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_141_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_142_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_143_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_144_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_207_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_208_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_209_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_210_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_211_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_212_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_213_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_214_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_215_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_238_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_239_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_240_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_241_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_242_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_243_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_244_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_245_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_246_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_247_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_266_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_267_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_268_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_269_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_270_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_271_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_316_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_317_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_318_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_319_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_320_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_321_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_322_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_323_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_324_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_338_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_339_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_340_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_341_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_342_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_356_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_357_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_358_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_359_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_378_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_379_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_380_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_381_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_382_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_383_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_401_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_402_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_427_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_428_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_429_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_430_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_431_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_432_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_433_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_434_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_435_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_461_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_462_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_463_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_464_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_465_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_466_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_467_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_468_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_469_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_487_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_488_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_489_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_490_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_491_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_492_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_519_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_520_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_521_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_522_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_523_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_524_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_525_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_526_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_527_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_542_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_543_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_544_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_545_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_546_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_560_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_561_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_562_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_563_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_582_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_583_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_584_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_585_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_586_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_587_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_604_10;
+static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_setindex_605_10;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_append_198_18;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_198_25;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_zeros_200_16;
@@ -358,7 +476,7 @@ static char *__pyx_k__zungqr = "zungqr";
 public:
 static System::String^ __module__ = __Pyx_MODULE_NAME;
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":35
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":35
  * 
  * 
  * cdef int check_object(object ob, int t, char *obname, char *tname, char *funname):             # <<<<<<<<<<<<<<
@@ -377,7 +495,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   System::Object^ __pyx_t_7 = nullptr;
   int __pyx_t_8;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":36
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":36
  * 
  * cdef int check_object(object ob, int t, char *obname, char *tname, char *funname):
  *     if not np.PyArray_Check(ob):             # <<<<<<<<<<<<<<
@@ -390,7 +508,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   __pyx_t_3 = (!__pyx_t_2);
   if (__pyx_t_3) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":37
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":37
  * cdef int check_object(object ob, int t, char *obname, char *tname, char *funname):
  *     if not np.PyArray_Check(ob):
  *         raise LapackError("Expected an array for parameter %s in lapack_lite.%s" % (obname, funname))             # <<<<<<<<<<<<<<
@@ -398,8 +516,8 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
  *         raise LapackError("Parameter %s is not contiguous in lapack_lite.%s" % (obname, funname))
  */
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "LapackError");
-    __pyx_t_4 = gcnew String(__pyx_v_obname);
-    __pyx_t_5 = gcnew String(__pyx_v_funname);
+    __pyx_t_4 = gcnew System::String(__pyx_v_obname);
+    __pyx_t_5 = gcnew System::String(__pyx_v_funname);
     __pyx_t_6 = PythonOps::MakeTuple(gcnew array<System::Object^>{((System::Object^)__pyx_t_4), ((System::Object^)__pyx_t_5)});
     __pyx_t_4 = nullptr;
     __pyx_t_5 = nullptr;
@@ -413,7 +531,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
     goto __pyx_L3;
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":38
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":38
  *     if not np.PyArray_Check(ob):
  *         raise LapackError("Expected an array for parameter %s in lapack_lite.%s" % (obname, funname))
  *     elif not (np.PyArray_FLAGS(ob) & np.NPY_CONTIGUOUS):             # <<<<<<<<<<<<<<
@@ -434,7 +552,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   __pyx_t_2 = (!__pyx_t_3);
   if (__pyx_t_2) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":39
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":39
  *         raise LapackError("Expected an array for parameter %s in lapack_lite.%s" % (obname, funname))
  *     elif not (np.PyArray_FLAGS(ob) & np.NPY_CONTIGUOUS):
  *         raise LapackError("Parameter %s is not contiguous in lapack_lite.%s" % (obname, funname))             # <<<<<<<<<<<<<<
@@ -442,8 +560,8 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
  *         raise LapackError("Parameter %s is not of type %s in lapack_lite.%s" % (obname, tname, funname))
  */
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "LapackError");
-    __pyx_t_5 = gcnew String(__pyx_v_obname);
-    __pyx_t_6 = gcnew String(__pyx_v_funname);
+    __pyx_t_5 = gcnew System::String(__pyx_v_obname);
+    __pyx_t_6 = gcnew System::String(__pyx_v_funname);
     __pyx_t_4 = PythonOps::MakeTuple(gcnew array<System::Object^>{((System::Object^)__pyx_t_5), ((System::Object^)__pyx_t_6)});
     __pyx_t_5 = nullptr;
     __pyx_t_6 = nullptr;
@@ -457,7 +575,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
     goto __pyx_L3;
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":40
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":40
  *     elif not (np.PyArray_FLAGS(ob) & np.NPY_CONTIGUOUS):
  *         raise LapackError("Parameter %s is not contiguous in lapack_lite.%s" % (obname, funname))
  *     elif np.PyArray_TYPE(ob) != t:             # <<<<<<<<<<<<<<
@@ -477,7 +595,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   __pyx_t_1 = nullptr;
   if (__pyx_t_2) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":41
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":41
  *         raise LapackError("Parameter %s is not contiguous in lapack_lite.%s" % (obname, funname))
  *     elif np.PyArray_TYPE(ob) != t:
  *         raise LapackError("Parameter %s is not of type %s in lapack_lite.%s" % (obname, tname, funname))             # <<<<<<<<<<<<<<
@@ -485,9 +603,9 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
  *         raise LapackError("Parameter %s has non-native byte order in lapack_lite.%s" % (obname, funname))
  */
     __pyx_t_1 = PythonOps::GetGlobal(__pyx_context, "LapackError");
-    __pyx_t_6 = gcnew String(__pyx_v_obname);
-    __pyx_t_4 = gcnew String(__pyx_v_tname);
-    __pyx_t_5 = gcnew String(__pyx_v_funname);
+    __pyx_t_6 = gcnew System::String(__pyx_v_obname);
+    __pyx_t_4 = gcnew System::String(__pyx_v_tname);
+    __pyx_t_5 = gcnew System::String(__pyx_v_funname);
     __pyx_t_7 = PythonOps::MakeTuple(gcnew array<System::Object^>{((System::Object^)__pyx_t_6), ((System::Object^)__pyx_t_4), ((System::Object^)__pyx_t_5)});
     __pyx_t_6 = nullptr;
     __pyx_t_4 = nullptr;
@@ -502,7 +620,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
     goto __pyx_L3;
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":42
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":42
  *     elif np.PyArray_TYPE(ob) != t:
  *         raise LapackError("Parameter %s is not of type %s in lapack_lite.%s" % (obname, tname, funname))
  *     elif np.PyArray_DESCR(ob).byteorder != '=' and np.PyArray_DESCR(ob).byteorder != '|':             # <<<<<<<<<<<<<<
@@ -538,7 +656,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   }
   if (__pyx_t_8) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":43
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":43
  *         raise LapackError("Parameter %s is not of type %s in lapack_lite.%s" % (obname, tname, funname))
  *     elif np.PyArray_DESCR(ob).byteorder != '=' and np.PyArray_DESCR(ob).byteorder != '|':
  *         raise LapackError("Parameter %s has non-native byte order in lapack_lite.%s" % (obname, funname))             # <<<<<<<<<<<<<<
@@ -546,8 +664,8 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
  *     return 1
  */
     __pyx_t_7 = PythonOps::GetGlobal(__pyx_context, "LapackError");
-    __pyx_t_5 = gcnew String(__pyx_v_obname);
-    __pyx_t_1 = gcnew String(__pyx_v_funname);
+    __pyx_t_5 = gcnew System::String(__pyx_v_obname);
+    __pyx_t_1 = gcnew System::String(__pyx_v_funname);
     __pyx_t_4 = PythonOps::MakeTuple(gcnew array<System::Object^>{((System::Object^)__pyx_t_5), ((System::Object^)__pyx_t_1)});
     __pyx_t_5 = nullptr;
     __pyx_t_1 = nullptr;
@@ -562,7 +680,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":45
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":45
  *         raise LapackError("Parameter %s has non-native byte order in lapack_lite.%s" % (obname, funname))
  * 
  *     return 1             # <<<<<<<<<<<<<<
@@ -577,7 +695,7 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":48
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":48
  * 
  * 
  * cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -587,12 +705,13 @@ static  int check_object(System::Object^ __pyx_v_ob, int __pyx_v_t, char *__pyx_
 
 static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_wr, System::Object^ __pyx_v_wi, System::Object^ __pyx_v_vl, int __pyx_v_ldvl, System::Object^ __pyx_v_vr, int __pyx_v_ldvr, System::Object^ __pyx_v_work, int __pyx_v_lwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":53
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":53
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -607,7 +726,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":54
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":54
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(wr,np.NPY_DOUBLE,"wr","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -622,7 +741,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":55
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":55
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(wr,np.NPY_DOUBLE,"wr","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(wi,np.NPY_DOUBLE,"wi","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -637,7 +756,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":56
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":56
  *     if not check_object(wr,np.NPY_DOUBLE,"wr","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(wi,np.NPY_DOUBLE,"wi","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(vl,np.NPY_DOUBLE,"vl","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -652,7 +771,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":57
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":57
  *     if not check_object(wi,np.NPY_DOUBLE,"wi","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(vl,np.NPY_DOUBLE,"vl","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(vr,np.NPY_DOUBLE,"vr","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -667,7 +786,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":58
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":58
  *     if not check_object(vl,np.NPY_DOUBLE,"vl","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(vr,np.NPY_DOUBLE,"vr","np.NPY_DOUBLE","dgeev"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgeev"): return None             # <<<<<<<<<<<<<<
@@ -682,7 +801,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L8:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":61
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":61
  * 
  *     lapack_lite_status__ = lapack_dgeev(&jobvl,&jobvr,&n,
  *                                         <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -693,7 +812,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":62
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":62
  *     lapack_lite_status__ = lapack_dgeev(&jobvl,&jobvr,&n,
  *                                         <double *>np.PyArray_DATA(a),&lda,
  *                                         <double *>np.PyArray_DATA(wr),             # <<<<<<<<<<<<<<
@@ -704,7 +823,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":63
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":63
  *                                         <double *>np.PyArray_DATA(a),&lda,
  *                                         <double *>np.PyArray_DATA(wr),
  *                                         <double *>np.PyArray_DATA(wi),             # <<<<<<<<<<<<<<
@@ -715,7 +834,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":64
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":64
  *                                         <double *>np.PyArray_DATA(wr),
  *                                         <double *>np.PyArray_DATA(wi),
  *                                         <double *>np.PyArray_DATA(vl),&ldvl,             # <<<<<<<<<<<<<<
@@ -726,7 +845,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":65
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":65
  *                                         <double *>np.PyArray_DATA(wi),
  *                                         <double *>np.PyArray_DATA(vl),&ldvl,
  *                                         <double *>np.PyArray_DATA(vr),&ldvr,             # <<<<<<<<<<<<<<
@@ -737,7 +856,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":66
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":66
  *                                         <double *>np.PyArray_DATA(vl),&ldvl,
  *                                         <double *>np.PyArray_DATA(vr),&ldvr,
  *                                         <double *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -748,116 +867,133 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":67
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":67
  *                                         <double *>np.PyArray_DATA(vr),&ldvr,
  *                                         <double *>np.PyArray_DATA(work),&lwork,
  *                                         &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dgeev_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgeev)((&__pyx_v_jobvl), (&__pyx_v_jobvr), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_wr))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_wi))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vl))), (&__pyx_v_ldvl), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vr))), (&__pyx_v_ldvr), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgeev_)((&__pyx_v_jobvl), (&__pyx_v_jobvr), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_wr))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_wi))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vl))), (&__pyx_v_ldvl), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vr))), (&__pyx_v_ldvr), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":69
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":69
  *                                         &info)
  * 
- *     return {"dgeev_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dgeev_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":70
- * 
- *     return {"dgeev_" : lapack_lite_status__,
- *             "jobvl" : jobvl,             # <<<<<<<<<<<<<<
- *             "jobvr" : jobvr,
- *             "n" : n,
- */
-  __pyx_t_3 = __pyx_v_jobvl;
-  __pyx_t_2[((System::Object^)"jobvl")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":71
- *     return {"dgeev_" : lapack_lite_status__,
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_jobvr;
-  __pyx_t_2[((System::Object^)"jobvr")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":72
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldvl" : ldvl,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":73
- *             "jobvr" : jobvr,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":74
- *             "n" : n,
- *             "lda" : lda,
- *             "ldvl" : ldvl,             # <<<<<<<<<<<<<<
- *             "ldvr" : ldvr,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_ldvl;
-  __pyx_t_2[((System::Object^)"ldvl")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":75
- *             "lda" : lda,
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info}
- */
-  __pyx_t_3 = __pyx_v_ldvr;
-  __pyx_t_2[((System::Object^)"ldvr")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":76
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info}
- * 
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":77
- *             "ldvr" : ldvr,
- *             "lwork" : lwork,
- *             "info" : info}             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":70
+ * 
+ *     retval = {}
+ *     retval["dgeev_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_70_10->Target(__site_setindex_70_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgeev_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":71
+ *     retval = {}
+ *     retval["dgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl             # <<<<<<<<<<<<<<
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_jobvl;
+  __site_setindex_71_10->Target(__site_setindex_71_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobvl"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":72
+ *     retval["dgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_jobvr;
+  __site_setindex_72_10->Target(__site_setindex_72_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobvr"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":73
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_73_10->Target(__site_setindex_73_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":74
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_74_10->Target(__site_setindex_74_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":75
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl             # <<<<<<<<<<<<<<
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_ldvl;
+  __site_setindex_75_10->Target(__site_setindex_75_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvl"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":76
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_ldvr;
+  __site_setindex_76_10->Target(__site_setindex_76_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvr"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":77
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ * 
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_77_10->Target(__site_setindex_77_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":78
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ * 
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_78_10->Target(__site_setindex_78_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":80
+ *     retval["info"] = info
+ * 
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -865,7 +1001,7 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":80
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":83
  * 
  * 
  * cdef dsyevd(char jobz, char uplo, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -875,12 +1011,13 @@ static  System::Object^ dgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
 
 static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_w, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_iwork, int __pyx_v_liwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":122
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":125
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dsyevd"): return None             # <<<<<<<<<<<<<<
@@ -895,7 +1032,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":123
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":126
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dsyevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","dsyevd"): return None             # <<<<<<<<<<<<<<
@@ -910,7 +1047,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":124
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":127
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dsyevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","dsyevd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dsyevd"): return None             # <<<<<<<<<<<<<<
@@ -925,7 +1062,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":125
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":128
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","dsyevd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dsyevd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","dsyevd"): return None             # <<<<<<<<<<<<<<
@@ -940,7 +1077,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":128
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":131
  * 
  *     lapack_lite_status__ = lapack_dsyevd(&jobz,&uplo,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -951,7 +1088,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":129
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":132
  *     lapack_lite_status__ = lapack_dsyevd(&jobz,&uplo,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(w),             # <<<<<<<<<<<<<<
@@ -962,7 +1099,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":130
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":133
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(w),
  *                                          <double *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -973,108 +1110,125 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":131
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":134
  *                                          <double *>np.PyArray_DATA(w),
  *                                          <double *>np.PyArray_DATA(work),&lwork,
  *                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dsyevd_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dsyevd)((&__pyx_v_jobz), (&__pyx_v_uplo), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_liwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dsyevd_)((&__pyx_v_jobz), (&__pyx_v_uplo), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_liwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":133
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":136
  *                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)
  * 
- *     return {"dsyevd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobz" : jobz,
- *             "uplo" : uplo,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dsyevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dsyevd_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":134
- * 
- *     return {"dsyevd_" : lapack_lite_status__,
- *             "jobz" : jobz,             # <<<<<<<<<<<<<<
- *             "uplo" : uplo,
- *             "n" : n,
- */
-  __pyx_t_3 = __pyx_v_jobz;
-  __pyx_t_2[((System::Object^)"jobz")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":135
- *     return {"dsyevd_" : lapack_lite_status__,
- *             "jobz" : jobz,
- *             "uplo" : uplo,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_uplo;
-  __pyx_t_2[((System::Object^)"uplo")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":136
- *             "jobz" : jobz,
- *             "uplo" : uplo,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":137
- *             "uplo" : uplo,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "liwork" : liwork,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":138
- *             "n" : n,
- *             "lda" : lda,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "liwork" : liwork,
- *             "info" : info}
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":139
- *             "lda" : lda,
- *             "lwork" : lwork,
- *             "liwork" : liwork,             # <<<<<<<<<<<<<<
- *             "info" : info}
- * 
- */
-  __pyx_t_3 = __pyx_v_liwork;
-  __pyx_t_2[((System::Object^)"liwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":140
- *             "lwork" : lwork,
- *             "liwork" : liwork,
- *             "info" : info}             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":137
+ * 
+ *     retval = {}
+ *     retval["dsyevd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_137_10->Target(__site_setindex_137_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dsyevd_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":138
+ *     retval = {}
+ *     retval["dsyevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz             # <<<<<<<<<<<<<<
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_jobz;
+  __site_setindex_138_10->Target(__site_setindex_138_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobz"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":139
+ *     retval["dsyevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_uplo;
+  __site_setindex_139_10->Target(__site_setindex_139_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"uplo"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":140
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_140_10->Target(__site_setindex_140_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":141
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["liwork"] = liwork
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_141_10->Target(__site_setindex_141_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":142
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_142_10->Target(__site_setindex_142_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":143
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ *     retval["liwork"] = liwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_liwork;
+  __site_setindex_143_10->Target(__site_setindex_143_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"liwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":144
+ *     retval["lwork"] = lwork
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_144_10->Target(__site_setindex_144_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":145
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -1082,7 +1236,7 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":143
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":148
  * 
  * 
  * cdef zheevd(char jobz, char uplo, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -1092,12 +1246,13 @@ static  System::Object^ dsyevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
 
 static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_w, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_rwork, int __pyx_v_lrwork, System::Object^ __pyx_v_iwork, int __pyx_v_liwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":188
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":193
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zheevd"): return None             # <<<<<<<<<<<<<<
@@ -1112,7 +1267,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":189
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":194
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zheevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","zheevd"): return None             # <<<<<<<<<<<<<<
@@ -1127,7 +1282,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":190
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":195
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zheevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","zheevd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zheevd"): return None             # <<<<<<<<<<<<<<
@@ -1142,7 +1297,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":191
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":196
  *     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","zheevd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zheevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zheevd"): return None             # <<<<<<<<<<<<<<
@@ -1157,7 +1312,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":192
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":197
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zheevd"): return None
  *     if not check_object(w,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zheevd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","zheevd"): return None             # <<<<<<<<<<<<<<
@@ -1172,7 +1327,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":195
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":200
  * 
  *     lapack_lite_status__ = lapack_zheevd(&jobz,&uplo,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -1183,7 +1338,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":196
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":201
  *     lapack_lite_status__ = lapack_zheevd(&jobz,&uplo,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(w),             # <<<<<<<<<<<<<<
@@ -1194,7 +1349,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":197
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":202
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(w),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -1205,7 +1360,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":198
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":203
  *                                          <double *>np.PyArray_DATA(w),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),&lrwork,             # <<<<<<<<<<<<<<
@@ -1216,119 +1371,136 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":199
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":204
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),&lrwork,
  *                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zheevd_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zheevd)((&__pyx_v_jobz), (&__pyx_v_uplo), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), (&__pyx_v_lrwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_liwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zheevd_)((&__pyx_v_jobz), (&__pyx_v_uplo), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), (&__pyx_v_lrwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_liwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":201
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":206
  *                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)
  * 
- *     return {"zheevd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobz" : jobz,
- *             "uplo" : uplo,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zheevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zheevd_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":202
- * 
- *     return {"zheevd_" : lapack_lite_status__,
- *             "jobz" : jobz,             # <<<<<<<<<<<<<<
- *             "uplo" : uplo,
- *             "n" : n,
- */
-  __pyx_t_3 = __pyx_v_jobz;
-  __pyx_t_2[((System::Object^)"jobz")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":203
- *     return {"zheevd_" : lapack_lite_status__,
- *             "jobz" : jobz,
- *             "uplo" : uplo,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_uplo;
-  __pyx_t_2[((System::Object^)"uplo")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":204
- *             "jobz" : jobz,
- *             "uplo" : uplo,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":205
- *             "uplo" : uplo,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "lrwork" : lrwork,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":206
- *             "n" : n,
- *             "lda" : lda,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "lrwork" : lrwork,
- *             "liwork" : liwork,
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":207
- *             "lda" : lda,
- *             "lwork" : lwork,
- *             "lrwork" : lrwork,             # <<<<<<<<<<<<<<
- *             "liwork" : liwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_lrwork;
-  __pyx_t_2[((System::Object^)"lrwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":208
- *             "lwork" : lwork,
- *             "lrwork" : lrwork,
- *             "liwork" : liwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_liwork;
-  __pyx_t_2[((System::Object^)"liwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":210
- *             "liwork" : liwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":207
+ * 
+ *     retval = {}
+ *     retval["zheevd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_207_10->Target(__site_setindex_207_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zheevd_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":208
+ *     retval = {}
+ *     retval["zheevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz             # <<<<<<<<<<<<<<
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_jobz;
+  __site_setindex_208_10->Target(__site_setindex_208_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobz"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":209
+ *     retval["zheevd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_uplo;
+  __site_setindex_209_10->Target(__site_setindex_209_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"uplo"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":210
+ *     retval["jobz"] = jobz
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_210_10->Target(__site_setindex_210_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":211
+ *     retval["uplo"] = uplo
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["lrwork"] = lrwork
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_211_10->Target(__site_setindex_211_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":212
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["lrwork"] = lrwork
+ *     retval["liwork"] = liwork
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_212_10->Target(__site_setindex_212_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":213
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ *     retval["lrwork"] = lrwork             # <<<<<<<<<<<<<<
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lrwork;
+  __site_setindex_213_10->Target(__site_setindex_213_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lrwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":214
+ *     retval["lwork"] = lwork
+ *     retval["lrwork"] = lrwork
+ *     retval["liwork"] = liwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_liwork;
+  __site_setindex_214_10->Target(__site_setindex_214_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"liwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":215
+ *     retval["lrwork"] = lrwork
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_215_10->Target(__site_setindex_215_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":216
+ *     retval["liwork"] = liwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -1336,7 +1508,7 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":213
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":219
  * 
  * 
  * cdef dgelsd(int m, int n, int nrhs, object a, int lda, object b, int ldb,             # <<<<<<<<<<<<<<
@@ -1346,12 +1518,13 @@ static  System::Object^ zheevd(char __pyx_v_jobz, char __pyx_v_uplo, int __pyx_v
 
 static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_b, int __pyx_v_ldb, System::Object^ __pyx_v_s, double __pyx_v_rcond, int __pyx_v_rank, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_iwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":218
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":224
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgelsd"): return None             # <<<<<<<<<<<<<<
@@ -1366,7 +1539,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":219
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":225
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(b,np.NPY_DOUBLE,"b","np.NPY_DOUBLE","dgelsd"): return None             # <<<<<<<<<<<<<<
@@ -1381,7 +1554,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":220
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":226
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(b,np.NPY_DOUBLE,"b","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgelsd"): return None             # <<<<<<<<<<<<<<
@@ -1396,7 +1569,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":221
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":227
  *     if not check_object(b,np.NPY_DOUBLE,"b","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgelsd"): return None             # <<<<<<<<<<<<<<
@@ -1411,7 +1584,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":222
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":228
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgelsd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","dgelsd"): return None             # <<<<<<<<<<<<<<
@@ -1426,7 +1599,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":225
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":231
  * 
  *     lapack_lite_status__ = lapack_dgelsd(&m,&n,&nrhs,
  *                                          <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -1437,7 +1610,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":226
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":232
  *     lapack_lite_status__ = lapack_dgelsd(&m,&n,&nrhs,
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(b),&ldb,             # <<<<<<<<<<<<<<
@@ -1448,7 +1621,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":227
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":233
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(b),&ldb,
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,             # <<<<<<<<<<<<<<
@@ -1459,7 +1632,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":228
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":234
  *                                          <double *>np.PyArray_DATA(b),&ldb,
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,
  *                                          <double *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -1470,130 +1643,147 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":229
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":235
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,
  *                                          <double *>np.PyArray_DATA(work),&lwork,
  *                                          <int *>np.PyArray_DATA(iwork),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dgelsd_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgelsd)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_nrhs), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), (&__pyx_v_rcond), (&__pyx_v_rank), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgelsd_)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_nrhs), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), (&__pyx_v_rcond), (&__pyx_v_rank), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":231
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":237
  *                                          <int *>np.PyArray_DATA(iwork),&info)
  * 
- *     return {"dgelsd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dgelsd_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":232
- * 
- *     return {"dgelsd_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "nrhs" : nrhs,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":233
- *     return {"dgelsd_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":234
- *             "m" : m,
- *             "n" : n,
- *             "nrhs" : nrhs,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldb" : ldb,
- */
-  __pyx_t_3 = __pyx_v_nrhs;
-  __pyx_t_2[((System::Object^)"nrhs")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":235
- *             "n" : n,
- *             "nrhs" : nrhs,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldb" : ldb,
- *             "rcond" : rcond,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":236
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- *             "ldb" : ldb,             # <<<<<<<<<<<<<<
- *             "rcond" : rcond,
- *             "rank" : rank,
- */
-  __pyx_t_3 = __pyx_v_ldb;
-  __pyx_t_2[((System::Object^)"ldb")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":237
- *             "lda" : lda,
- *             "ldb" : ldb,
- *             "rcond" : rcond,             # <<<<<<<<<<<<<<
- *             "rank" : rank,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_rcond;
-  __pyx_t_2[((System::Object^)"rcond")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":238
- *             "ldb" : ldb,
- *             "rcond" : rcond,
- *             "rank" : rank,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_rank;
-  __pyx_t_2[((System::Object^)"rank")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":239
- *             "rcond" : rcond,
- *             "rank" : rank,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *             }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":241
- *             "lwork" : lwork,
- *             "info" : info
- *             }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":238
+ * 
+ *     retval = {}
+ *     retval["dgelsd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_238_10->Target(__site_setindex_238_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgelsd_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":239
+ *     retval = {}
+ *     retval["dgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_239_10->Target(__site_setindex_239_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":240
+ *     retval["dgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_240_10->Target(__site_setindex_240_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":241
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ */
+  __pyx_t_2 = __pyx_v_nrhs;
+  __site_setindex_241_10->Target(__site_setindex_241_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"nrhs"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":242
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldb"] = ldb
+ *     retval["rcond"] = rcond
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_242_10->Target(__site_setindex_242_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":243
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb             # <<<<<<<<<<<<<<
+ *     retval["rcond"] = rcond
+ *     retval["rank"] = rank
+ */
+  __pyx_t_2 = __pyx_v_ldb;
+  __site_setindex_243_10->Target(__site_setindex_243_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldb"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":244
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ *     retval["rcond"] = rcond             # <<<<<<<<<<<<<<
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_rcond;
+  __site_setindex_244_10->Target(__site_setindex_244_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"rcond"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":245
+ *     retval["ldb"] = ldb
+ *     retval["rcond"] = rcond
+ *     retval["rank"] = rank             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_rank;
+  __site_setindex_245_10->Target(__site_setindex_245_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"rank"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":246
+ *     retval["rcond"] = rcond
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_246_10->Target(__site_setindex_246_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":247
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_247_10->Target(__site_setindex_247_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":248
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -1601,7 +1791,7 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":244
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":251
  * 
  * 
  * cdef dgesv(int n, int nrhs, object a, int lda, object ipiv,             # <<<<<<<<<<<<<<
@@ -1611,12 +1801,13 @@ static  System::Object^ dgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
 
 static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_ipiv, System::Object^ __pyx_v_b, int __pyx_v_ldb, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":248
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":255
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesv"): return None             # <<<<<<<<<<<<<<
@@ -1631,7 +1822,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":249
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":256
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesv"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","dgesv"): return None             # <<<<<<<<<<<<<<
@@ -1646,7 +1837,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":250
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":257
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesv"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","dgesv"): return None
  *     if not check_object(b,np.NPY_DOUBLE,"b","np.NPY_DOUBLE","dgesv"): return None             # <<<<<<<<<<<<<<
@@ -1661,7 +1852,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":253
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":260
  * 
  *     lapack_lite_status__ = lapack_dgesv(&n,&nrhs,
  *                                         <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -1672,7 +1863,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":254
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":261
  *     lapack_lite_status__ = lapack_dgesv(&n,&nrhs,
  *                                         <double *>np.PyArray_DATA(a),&lda,
  *                                         <int *>np.PyArray_DATA(ipiv),             # <<<<<<<<<<<<<<
@@ -1683,7 +1874,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":255
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":262
  *                                         <double *>np.PyArray_DATA(a),&lda,
  *                                         <int *>np.PyArray_DATA(ipiv),
  *                                         <double *>np.PyArray_DATA(b),&ldb,             # <<<<<<<<<<<<<<
@@ -1694,83 +1885,100 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":256
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":263
  *                                         <int *>np.PyArray_DATA(ipiv),
  *                                         <double *>np.PyArray_DATA(b),&ldb,
  *                                         &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dgesv_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgesv)((&__pyx_v_n), (&__pyx_v_nrhs), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgesv_)((&__pyx_v_n), (&__pyx_v_nrhs), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":258
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":265
  *                                         &info)
  * 
- *     return {"dgesv_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "nrhs" : nrhs,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgesv_"] = lapack_lite_status__
+ *     retval["n"] = n
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dgesv_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":259
- * 
- *     return {"dgesv_" : lapack_lite_status__,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":260
- *     return {"dgesv_" : lapack_lite_status__,
- *             "n" : n,
- *             "nrhs" : nrhs,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldb" : ldb,
- */
-  __pyx_t_3 = __pyx_v_nrhs;
-  __pyx_t_2[((System::Object^)"nrhs")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":261
- *             "n" : n,
- *             "nrhs" : nrhs,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldb" : ldb,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":262
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- *             "ldb" : ldb,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_ldb;
-  __pyx_t_2[((System::Object^)"ldb")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":264
- *             "ldb" : ldb,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":266
+ * 
+ *     retval = {}
+ *     retval["dgesv_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_266_10->Target(__site_setindex_266_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgesv_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":267
+ *     retval = {}
+ *     retval["dgesv_"] = lapack_lite_status__
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_267_10->Target(__site_setindex_267_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":268
+ *     retval["dgesv_"] = lapack_lite_status__
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ */
+  __pyx_t_2 = __pyx_v_nrhs;
+  __site_setindex_268_10->Target(__site_setindex_268_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"nrhs"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":269
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_269_10->Target(__site_setindex_269_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":270
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_ldb;
+  __site_setindex_270_10->Target(__site_setindex_270_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldb"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":271
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_271_10->Target(__site_setindex_271_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":272
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -1778,7 +1986,7 @@ static  System::Object^ dgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":267
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":275
  * 
  * 
  * cdef dgesdd(char jobz, int m, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -1791,6 +1999,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   long __pyx_v_work0;
   int __pyx_v_mn;
   int __pyx_v_mx;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   int __pyx_t_2;
@@ -1803,9 +2012,9 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   long __pyx_t_9;
   long __pyx_t_10;
   System::Object^ __pyx_t_11 = nullptr;
-  System::Object^ __pyx_t_12 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":274
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":282
  *     cdef int mn, mx
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1820,7 +2029,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":275
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":283
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1835,7 +2044,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":276
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":284
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(u,np.NPY_DOUBLE,"u","np.NPY_DOUBLE","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1850,7 +2059,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":277
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":285
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(u,np.NPY_DOUBLE,"u","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(vt,np.NPY_DOUBLE,"vt","np.NPY_DOUBLE","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1865,7 +2074,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":278
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":286
  *     if not check_object(u,np.NPY_DOUBLE,"u","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(vt,np.NPY_DOUBLE,"vt","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1880,7 +2089,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":279
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":287
  *     if not check_object(vt,np.NPY_DOUBLE,"vt","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgesdd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","dgesdd"): return None             # <<<<<<<<<<<<<<
@@ -1895,7 +2104,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L8:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":282
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":290
  * 
  *     lapack_lite_status__ = lapack_dgesdd(&jobz,&m,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -1906,7 +2115,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":283
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":291
  *     lapack_lite_status__ = lapack_dgesdd(&jobz,&m,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(s),             # <<<<<<<<<<<<<<
@@ -1917,7 +2126,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":284
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":292
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(s),
  *                                          <double *>np.PyArray_DATA(u),&ldu,             # <<<<<<<<<<<<<<
@@ -1928,7 +2137,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":285
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":293
  *                                          <double *>np.PyArray_DATA(s),
  *                                          <double *>np.PyArray_DATA(u),&ldu,
  *                                          <double *>np.PyArray_DATA(vt),&ldvt,             # <<<<<<<<<<<<<<
@@ -1939,7 +2148,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":286
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":294
  *                                          <double *>np.PyArray_DATA(u),&ldu,
  *                                          <double *>np.PyArray_DATA(vt),&ldvt,
  *                                          <double *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -1950,7 +2159,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":287
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":295
  *                                          <double *>np.PyArray_DATA(vt),&ldvt,
  *                                          <double *>np.PyArray_DATA(work),&lwork,
  *                                          <int *>np.PyArray_DATA(iwork),&info)             # <<<<<<<<<<<<<<
@@ -1960,9 +2169,9 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgesdd)((&__pyx_v_jobz), (&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_u))), (&__pyx_v_ldu), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vt))), (&__pyx_v_ldvt), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgesdd_)((&__pyx_v_jobz), (&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_u))), (&__pyx_v_ldu), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vt))), (&__pyx_v_ldvt), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":289
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":297
  *                                          <int *>np.PyArray_DATA(iwork),&info)
  * 
  *     if info == 0 and lwork == -1:             # <<<<<<<<<<<<<<
@@ -1978,7 +2187,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   if (__pyx_t_3) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":294
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":302
  *         # too small.
  *         # Change it to the maximum of the minimum and the optimal.
  *         work0 = <long>(<double *>np.PyArray_DATA(work))[0]             # <<<<<<<<<<<<<<
@@ -1990,7 +2199,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     }
     __pyx_v_work0 = ((long)(((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work)))[0]));
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":295
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":303
  *         # Change it to the maximum of the minimum and the optimal.
  *         work0 = <long>(<double *>np.PyArray_DATA(work))[0]
  *         mn = min(m,n)             # <<<<<<<<<<<<<<
@@ -2006,7 +2215,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     }
     __pyx_v_mn = __pyx_t_6;
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":296
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":304
  *         work0 = <long>(<double *>np.PyArray_DATA(work))[0]
  *         mn = min(m,n)
  *         mx = max(m,n)             # <<<<<<<<<<<<<<
@@ -2022,7 +2231,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     }
     __pyx_v_mx = __pyx_t_5;
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":298
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":306
  *         mx = max(m,n)
  * 
  *         if jobz == 'N':             # <<<<<<<<<<<<<<
@@ -2032,7 +2241,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     __pyx_t_3 = (__pyx_v_jobz == 'N');
     if (__pyx_t_3) {
 
-      /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":299
+      /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":307
  * 
  *         if jobz == 'N':
  *             work0 = max(work0,3*mn + max(mx,6*mn)+500)             # <<<<<<<<<<<<<<
@@ -2057,7 +2266,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
       goto __pyx_L10;
     }
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":300
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":308
  *         if jobz == 'N':
  *             work0 = max(work0,3*mn + max(mx,6*mn)+500)
  *         elif jobz == 'O':             # <<<<<<<<<<<<<<
@@ -2067,7 +2276,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     __pyx_t_3 = (__pyx_v_jobz == 'O');
     if (__pyx_t_3) {
 
-      /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":301
+      /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":309
  *             work0 = max(work0,3*mn + max(mx,6*mn)+500)
  *         elif jobz == 'O':
  *             work0 = max(work0,3*mn*mn + max(mx,5*mn*mn+4*mn+500))             # <<<<<<<<<<<<<<
@@ -2092,7 +2301,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
       goto __pyx_L10;
     }
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":302
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":310
  *         elif jobz == 'O':
  *             work0 = max(work0,3*mn*mn + max(mx,5*mn*mn+4*mn+500))
  *         elif jobz == 'S' or jobz == 'A':             # <<<<<<<<<<<<<<
@@ -2108,7 +2317,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     }
     if (__pyx_t_2) {
 
-      /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":303
+      /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":311
  *             work0 = max(work0,3*mn*mn + max(mx,5*mn*mn+4*mn+500))
  *         elif jobz == 'S' or jobz == 'A':
  *             work0 = max(work0,3*mn*mn + max(mx,4*mn*(mn+1))+500)             # <<<<<<<<<<<<<<
@@ -2134,12 +2343,12 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     }
     __pyx_L10:;
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":305
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":313
  *             work0 = max(work0,3*mn*mn + max(mx,4*mn*(mn+1))+500)
  * 
  *         (<double *>np.PyArray_DATA(work))[0] = <double>work0             # <<<<<<<<<<<<<<
  * 
- *     return {"dgesdd_" : lapack_lite_status__,
+ *     retval = {}
  */
     if (__pyx_v_work == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_work) == nullptr) {
       throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
@@ -2149,107 +2358,124 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L9:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":307
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":315
  *         (<double *>np.PyArray_DATA(work))[0] = <double>work0
  * 
- *     return {"dgesdd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobz" : jobz,
- *             "m" : m,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
  */
   __pyx_t_11 = PythonOps::MakeEmptyDict();
-  __pyx_t_12 = __pyx_v_lapack_lite_status__;
-  __pyx_t_11[((System::Object^)"dgesdd_")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":308
- * 
- *     return {"dgesdd_" : lapack_lite_status__,
- *             "jobz" : jobz,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
- */
-  __pyx_t_12 = __pyx_v_jobz;
-  __pyx_t_11[((System::Object^)"jobz")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":309
- *     return {"dgesdd_" : lapack_lite_status__,
- *             "jobz" : jobz,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_12 = __pyx_v_m;
-  __pyx_t_11[((System::Object^)"m")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":310
- *             "jobz" : jobz,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldu" : ldu,
- */
-  __pyx_t_12 = __pyx_v_n;
-  __pyx_t_11[((System::Object^)"n")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":311
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,
- */
-  __pyx_t_12 = __pyx_v_lda;
-  __pyx_t_11[((System::Object^)"lda")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":312
- *             "n" : n,
- *             "lda" : lda,
- *             "ldu" : ldu,             # <<<<<<<<<<<<<<
- *             "ldvt" : ldvt,
- *             "lwork" : lwork,
- */
-  __pyx_t_12 = __pyx_v_ldu;
-  __pyx_t_11[((System::Object^)"ldu")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":313
- *             "lda" : lda,
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_12 = __pyx_v_ldvt;
-  __pyx_t_11[((System::Object^)"ldvt")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":314
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_12 = __pyx_v_lwork;
-  __pyx_t_11[((System::Object^)"lwork")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":316
- *             "lwork" : lwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_12 = __pyx_v_info;
-  __pyx_t_11[((System::Object^)"info")] = __pyx_t_12;
-  __pyx_t_12 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_11);
+  __pyx_v_retval = __pyx_t_11;
   __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":316
+ * 
+ *     retval = {}
+ *     retval["dgesdd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m
+ */
+  __pyx_t_11 = __pyx_v_lapack_lite_status__;
+  __site_setindex_316_10->Target(__site_setindex_316_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgesdd_"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":317
+ *     retval = {}
+ *     retval["dgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_11 = __pyx_v_jobz;
+  __site_setindex_317_10->Target(__site_setindex_317_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobz"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":318
+ *     retval["dgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_11 = __pyx_v_m;
+  __site_setindex_318_10->Target(__site_setindex_318_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":319
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu
+ */
+  __pyx_t_11 = __pyx_v_n;
+  __site_setindex_319_10->Target(__site_setindex_319_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":320
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt
+ */
+  __pyx_t_11 = __pyx_v_lda;
+  __site_setindex_320_10->Target(__site_setindex_320_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":321
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu             # <<<<<<<<<<<<<<
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_11 = __pyx_v_ldu;
+  __site_setindex_321_10->Target(__site_setindex_321_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldu"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":322
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_11 = __pyx_v_ldvt;
+  __site_setindex_322_10->Target(__site_setindex_322_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvt"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":323
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_11 = __pyx_v_lwork;
+  __site_setindex_323_10->Target(__site_setindex_323_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":324
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_11 = __pyx_v_info;
+  __site_setindex_324_10->Target(__site_setindex_324_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_11);
+  __pyx_t_11 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":325
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -2257,7 +2483,7 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":319
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":328
  * 
  * 
  * cdef dgetrf(int m, int n, object a, int lda, object ipiv, int info):             # <<<<<<<<<<<<<<
@@ -2267,12 +2493,13 @@ static  System::Object^ dgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
 
 static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_ipiv, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":322
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":331
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgetrf"): return None             # <<<<<<<<<<<<<<
@@ -2287,7 +2514,7 @@ static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":323
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":332
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgetrf"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","dgetrf"): return None             # <<<<<<<<<<<<<<
@@ -2302,7 +2529,7 @@ static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":325
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":334
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","dgetrf"): return None
  * 
  *     lapack_lite_status__ = lapack_dgetrf(&m,&n,<double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -2313,75 +2540,92 @@ static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":326
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":335
  * 
  *     lapack_lite_status__ = lapack_dgetrf(&m,&n,<double *>np.PyArray_DATA(a),&lda,
  *                                          <int *>np.PyArray_DATA(ipiv),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dgetrf_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_ipiv == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ipiv) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgetrf)((&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgetrf_)((&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":328
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":337
  *                                          <int *>np.PyArray_DATA(ipiv),&info)
  * 
- *     return {"dgetrf_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dgetrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":329
- * 
- *     return {"dgetrf_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":330
- *     return {"dgetrf_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":331
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":333
- *             "lda" : lda,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":338
+ * 
+ *     retval = {}
+ *     retval["dgetrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_338_10->Target(__site_setindex_338_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgetrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":339
+ *     retval = {}
+ *     retval["dgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_339_10->Target(__site_setindex_339_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":340
+ *     retval["dgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_340_10->Target(__site_setindex_340_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":341
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_341_10->Target(__site_setindex_341_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":342
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_342_10->Target(__site_setindex_342_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":343
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -2389,7 +2633,7 @@ static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":336
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":346
  * 
  * 
  * cdef dpotrf(char uplo, int n, object a, int lda, int info):             # <<<<<<<<<<<<<<
@@ -2399,12 +2643,13 @@ static  System::Object^ dgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
 
 static  System::Object^ dpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":339
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":349
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dpotrf"): return None             # <<<<<<<<<<<<<<
@@ -2419,7 +2664,7 @@ static  System::Object^ dpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":342
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":352
  * 
  *     lapack_lite_status__ = lapack_dpotrf(&uplo,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -2430,61 +2675,78 @@ static  System::Object^ dpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":343
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":353
  *     lapack_lite_status__ = lapack_dpotrf(&uplo,&n,
  *                                          <double *>np.PyArray_DATA(a),&lda,
  *                                          &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dpotrf_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dpotrf)((&__pyx_v_uplo), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dpotrf_)((&__pyx_v_uplo), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":345
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":355
  *                                          &info)
  * 
- *     return {"dpotrf_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dpotrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":346
- * 
- *     return {"dpotrf_" : lapack_lite_status__,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":347
- *     return {"dpotrf_" : lapack_lite_status__,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":349
- *             "lda" : lda,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":356
+ * 
+ *     retval = {}
+ *     retval["dpotrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_356_10->Target(__site_setindex_356_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dpotrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":357
+ *     retval = {}
+ *     retval["dpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_357_10->Target(__site_setindex_357_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":358
+ *     retval["dpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_358_10->Target(__site_setindex_358_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":359
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_359_10->Target(__site_setindex_359_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":360
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -2492,7 +2754,7 @@ static  System::Object^ dpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":352
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":363
  * 
  * 
  * cdef dgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):             # <<<<<<<<<<<<<<
@@ -2502,12 +2764,13 @@ static  System::Object^ dpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
 
 static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_tau, System::Object^ __pyx_v_work, int __pyx_v_lwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":356
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":367
  * 
  *     # check objects and convert to right storage order
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -2522,7 +2785,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":357
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":368
  *     # check objects and convert to right storage order
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeqrf"): return None
  *     if not check_object(tau,np.NPY_DOUBLE,"tau","np.NPY_DOUBLE","dgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -2537,7 +2800,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":358
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":369
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeqrf"): return None
  *     if not check_object(tau,np.NPY_DOUBLE,"tau","np.NPY_DOUBLE","dgeqrf"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -2552,7 +2815,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":361
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":372
  * 
  *     lapack_lite_status__ = lapack_dgeqrf(&m, &n,
  *                                          <double *>np.PyArray_DATA(a), &lda,             # <<<<<<<<<<<<<<
@@ -2563,7 +2826,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":362
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":373
  *     lapack_lite_status__ = lapack_dgeqrf(&m, &n,
  *                                          <double *>np.PyArray_DATA(a), &lda,
  *                                          <double *>np.PyArray_DATA(tau),             # <<<<<<<<<<<<<<
@@ -2574,7 +2837,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":363
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":374
  *                                          <double *>np.PyArray_DATA(a), &lda,
  *                                          <double *>np.PyArray_DATA(tau),
  *                                          <double *>np.PyArray_DATA(work), &lwork,             # <<<<<<<<<<<<<<
@@ -2585,83 +2848,100 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":364
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":375
  *                                          <double *>np.PyArray_DATA(tau),
  *                                          <double *>np.PyArray_DATA(work), &lwork,
  *                                          &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dgeqrf_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgeqrf)((&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dgeqrf_)((&__pyx_v_m), (&__pyx_v_n), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":366
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":377
  *                                          &info)
  * 
- *     return {"dgeqrf_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dgeqrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":367
- * 
- *     return {"dgeqrf_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":368
- *     return {"dgeqrf_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":369
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":370
- *             "n" : n,
- *             "lda" : lda,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":372
- *             "lwork" : lwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":378
+ * 
+ *     retval = {}
+ *     retval["dgeqrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_378_10->Target(__site_setindex_378_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dgeqrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":379
+ *     retval = {}
+ *     retval["dgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_379_10->Target(__site_setindex_379_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":380
+ *     retval["dgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_380_10->Target(__site_setindex_380_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":381
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_381_10->Target(__site_setindex_381_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":382
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_382_10->Target(__site_setindex_382_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":383
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_383_10->Target(__site_setindex_383_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":384
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -2669,7 +2949,7 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":375
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":387
  * 
  * 
  * cdef dorgqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):             # <<<<<<<<<<<<<<
@@ -2679,12 +2959,13 @@ static  System::Object^ dgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
 
 static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_tau, System::Object^ __pyx_v_work, int __pyx_v_lwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":378
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":390
  *     cdef int  lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dorgqr"): return None             # <<<<<<<<<<<<<<
@@ -2699,7 +2980,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":379
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":391
  * 
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dorgqr"): return None
  *     if not check_object(tau,np.NPY_DOUBLE,"tau","np.NPY_DOUBLE","dorgqr"): return None             # <<<<<<<<<<<<<<
@@ -2714,7 +2995,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":380
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":392
  *     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dorgqr"): return None
  *     if not check_object(tau,np.NPY_DOUBLE,"tau","np.NPY_DOUBLE","dorgqr"): return None
  *     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dorgqr"): return None             # <<<<<<<<<<<<<<
@@ -2729,7 +3010,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":383
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":395
  * 
  *     lapack_lite_status__ = lapack_dorgqr(&m, &n, &k,
  *                                          <double *>np.PyArray_DATA(a), &lda,             # <<<<<<<<<<<<<<
@@ -2740,7 +3021,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":384
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":396
  *     lapack_lite_status__ = lapack_dorgqr(&m, &n, &k,
  *                                          <double *>np.PyArray_DATA(a), &lda,
  *                                          <double *>np.PyArray_DATA(tau),             # <<<<<<<<<<<<<<
@@ -2751,7 +3032,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":385
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":397
  *                                          <double *>np.PyArray_DATA(a), &lda,
  *                                          <double *>np.PyArray_DATA(tau),
  *                                          <double *>np.PyArray_DATA(work), &lwork,             # <<<<<<<<<<<<<<
@@ -2762,31 +3043,56 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":386
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":398
  *                                          <double *>np.PyArray_DATA(tau),
  *                                          <double *>np.PyArray_DATA(work), &lwork,
  *                                          &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"dorgqr_" : lapack_lite_status__, "info" : info }
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dorgqr)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_k), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(dorgqr_)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_k), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":388
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":400
  *                                          &info)
  * 
- *     return {"dorgqr_" : lapack_lite_status__, "info" : info }             # <<<<<<<<<<<<<<
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["dorgqr_"] = lapack_lite_status__
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = PythonOps::MakeEmptyDict();
+  __pyx_v_retval = __pyx_t_2;
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":401
+ * 
+ *     retval = {}
+ *     retval["dorgqr_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_401_10->Target(__site_setindex_401_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"dorgqr_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":402
+ *     retval = {}
+ *     retval["dorgqr_"] = lapack_lite_status__
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_402_10->Target(__site_setindex_402_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":403
+ *     retval["dorgqr_"] = lapack_lite_status__
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"dorgqr_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
-  __pyx_t_2 = nullptr;
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -2794,7 +3100,7 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":391
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":406
  * 
  * 
  * cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -2804,12 +3110,13 @@ static  System::Object^ dorgqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
 
 static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_w, System::Object^ __pyx_v_vl, int __pyx_v_ldvl, System::Object^ __pyx_v_vr, int __pyx_v_ldvr, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_rwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":396
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":411
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2824,7 +3131,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":397
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":412
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(w,np.NPY_CDOUBLE,"w","np.NPY_CDOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2839,7 +3146,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":398
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":413
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(w,np.NPY_CDOUBLE,"w","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(vl,np.NPY_CDOUBLE,"vl","np.NPY_CDOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2854,7 +3161,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":399
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":414
  *     if not check_object(w,np.NPY_CDOUBLE,"w","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(vl,np.NPY_CDOUBLE,"vl","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(vr,np.NPY_CDOUBLE,"vr","np.NPY_CDOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2869,7 +3176,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":400
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":415
  *     if not check_object(vl,np.NPY_CDOUBLE,"vl","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(vr,np.NPY_CDOUBLE,"vr","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2884,7 +3191,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":401
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":416
  *     if not check_object(vr,np.NPY_CDOUBLE,"vr","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgeev"): return None
  *     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgeev"): return None             # <<<<<<<<<<<<<<
@@ -2899,7 +3206,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   }
   __pyx_L8:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":404
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":419
  * 
  *     lapack_lite_status__ = lapack_zgeev(&jobvl,&jobvr,&n,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -2910,7 +3217,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":405
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":420
  *     lapack_lite_status__ = lapack_zgeev(&jobvl,&jobvr,&n,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(w),             # <<<<<<<<<<<<<<
@@ -2921,7 +3228,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":406
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":421
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(w),
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vl),&ldvl,             # <<<<<<<<<<<<<<
@@ -2932,7 +3239,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":407
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":422
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(w),
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vl),&ldvl,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vr),&ldvr,             # <<<<<<<<<<<<<<
@@ -2943,7 +3250,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":408
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":423
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vl),&ldvl,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vr),&ldvr,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -2954,119 +3261,136 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":409
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":424
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(vr),&ldvr,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                         <double *>np.PyArray_DATA(rwork),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgeev_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_rwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_rwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgeev)((&__pyx_v_jobvl), (&__pyx_v_jobvr), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vl))), (&__pyx_v_ldvl), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vr))), (&__pyx_v_ldvr), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgeev_)((&__pyx_v_jobvl), (&__pyx_v_jobvr), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_w))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vl))), (&__pyx_v_ldvl), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vr))), (&__pyx_v_ldvr), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":411
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":426
  *                                         <double *>np.PyArray_DATA(rwork),&info)
  * 
- *     return {"zgeev_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgeev_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":412
- * 
- *     return {"zgeev_" : lapack_lite_status__,
- *             "jobvl" : jobvl,             # <<<<<<<<<<<<<<
- *             "jobvr" : jobvr,
- *             "n" : n,
- */
-  __pyx_t_3 = __pyx_v_jobvl;
-  __pyx_t_2[((System::Object^)"jobvl")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":413
- *     return {"zgeev_" : lapack_lite_status__,
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_jobvr;
-  __pyx_t_2[((System::Object^)"jobvr")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":414
- *             "jobvl" : jobvl,
- *             "jobvr" : jobvr,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldvl" : ldvl,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":415
- *             "jobvr" : jobvr,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":416
- *             "n" : n,
- *             "lda" : lda,
- *             "ldvl" : ldvl,             # <<<<<<<<<<<<<<
- *             "ldvr" : ldvr,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_ldvl;
-  __pyx_t_2[((System::Object^)"ldvl")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":417
- *             "lda" : lda,
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_ldvr;
-  __pyx_t_2[((System::Object^)"ldvr")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":418
- *             "ldvl" : ldvl,
- *             "ldvr" : ldvr,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":420
- *             "lwork" : lwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":427
+ * 
+ *     retval = {}
+ *     retval["zgeev_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_427_10->Target(__site_setindex_427_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgeev_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":428
+ *     retval = {}
+ *     retval["zgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl             # <<<<<<<<<<<<<<
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_jobvl;
+  __site_setindex_428_10->Target(__site_setindex_428_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobvl"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":429
+ *     retval["zgeev_"] = lapack_lite_status__
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_jobvr;
+  __site_setindex_429_10->Target(__site_setindex_429_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobvr"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":430
+ *     retval["jobvl"] = jobvl
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_430_10->Target(__site_setindex_430_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":431
+ *     retval["jobvr"] = jobvr
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_431_10->Target(__site_setindex_431_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":432
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl             # <<<<<<<<<<<<<<
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_ldvl;
+  __site_setindex_432_10->Target(__site_setindex_432_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvl"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":433
+ *     retval["lda"] = lda
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_ldvr;
+  __site_setindex_433_10->Target(__site_setindex_433_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvr"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":434
+ *     retval["ldvl"] = ldvl
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_434_10->Target(__site_setindex_434_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":435
+ *     retval["ldvr"] = ldvr
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_435_10->Target(__site_setindex_435_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":436
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -3074,7 +3398,7 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":423
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":439
  * 
  * 
  * cdef zgelsd(int m, int n, int nrhs, object a, int lda,             # <<<<<<<<<<<<<<
@@ -3084,12 +3408,13 @@ static  System::Object^ zgeev(char __pyx_v_jobvl, char __pyx_v_jobvr, int __pyx_
 
 static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_b, int __pyx_v_ldb, System::Object^ __pyx_v_s, double __pyx_v_rcond, int __pyx_v_rank, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_rwork, System::Object^ __pyx_v_iwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":429
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":445
  *     cdef int  lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3104,7 +3429,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":430
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":446
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(b,np.NPY_CDOUBLE,"b","np.NPY_CDOUBLE","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3119,7 +3444,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":431
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":447
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(b,np.NPY_CDOUBLE,"b","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3134,7 +3459,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":432
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":448
  *     if not check_object(b,np.NPY_CDOUBLE,"b","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgelsd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3149,7 +3474,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":433
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":449
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgelsd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3164,7 +3489,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":434
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":450
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgelsd"): return None
  *     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgelsd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","zgelsd"): return None             # <<<<<<<<<<<<<<
@@ -3179,7 +3504,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   }
   __pyx_L8:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":437
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":453
  * 
  *     lapack_lite_status__ = lapack_zgelsd(&m,&n,&nrhs,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -3190,7 +3515,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":438
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":454
  *     lapack_lite_status__ = lapack_zgelsd(&m,&n,&nrhs,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,             # <<<<<<<<<<<<<<
@@ -3201,7 +3526,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":439
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":455
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,             # <<<<<<<<<<<<<<
@@ -3212,7 +3537,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":440
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":456
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -3223,7 +3548,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":441
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":457
  *                                          <double *>np.PyArray_DATA(s),&rcond,&rank,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),             # <<<<<<<<<<<<<<
@@ -3234,119 +3559,136 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":442
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":458
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),
  *                                          <int *>np.PyArray_DATA(iwork),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgelsd_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgelsd)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_nrhs), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), (&__pyx_v_rcond), (&__pyx_v_rank), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgelsd_)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_nrhs), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), (&__pyx_v_rcond), (&__pyx_v_rank), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":444
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":460
  *                                          <int *>np.PyArray_DATA(iwork),&info)
  * 
- *     return {"zgelsd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgelsd_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":445
- * 
- *     return {"zgelsd_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "nrhs" : nrhs,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":446
- *     return {"zgelsd_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":447
- *             "m" : m,
- *             "n" : n,
- *             "nrhs" : nrhs,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldb" : ldb,
- */
-  __pyx_t_3 = __pyx_v_nrhs;
-  __pyx_t_2[((System::Object^)"nrhs")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":448
- *             "n" : n,
- *             "nrhs" : nrhs,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldb" : ldb,
- *             "rank" : rank,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":449
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- *             "ldb" : ldb,             # <<<<<<<<<<<<<<
- *             "rank" : rank,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_ldb;
-  __pyx_t_2[((System::Object^)"ldb")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":450
- *             "lda" : lda,
- *             "ldb" : ldb,
- *             "rank" : rank,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_rank;
-  __pyx_t_2[((System::Object^)"rank")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":451
- *             "ldb" : ldb,
- *             "rank" : rank,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":453
- *             "lwork" : lwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":461
+ * 
+ *     retval = {}
+ *     retval["zgelsd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_461_10->Target(__site_setindex_461_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgelsd_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":462
+ *     retval = {}
+ *     retval["zgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_462_10->Target(__site_setindex_462_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":463
+ *     retval["zgelsd_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_463_10->Target(__site_setindex_463_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":464
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ */
+  __pyx_t_2 = __pyx_v_nrhs;
+  __site_setindex_464_10->Target(__site_setindex_464_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"nrhs"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":465
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldb"] = ldb
+ *     retval["rank"] = rank
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_465_10->Target(__site_setindex_465_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":466
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb             # <<<<<<<<<<<<<<
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_ldb;
+  __site_setindex_466_10->Target(__site_setindex_466_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldb"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":467
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ *     retval["rank"] = rank             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_rank;
+  __site_setindex_467_10->Target(__site_setindex_467_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"rank"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":468
+ *     retval["ldb"] = ldb
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_468_10->Target(__site_setindex_468_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":469
+ *     retval["rank"] = rank
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_469_10->Target(__site_setindex_469_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":470
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -3354,7 +3696,7 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":456
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":473
  * 
  * 
  * cdef zgesv(int n, int nrhs, object a, int lda, object ipiv, object b, int ldb, int info):             # <<<<<<<<<<<<<<
@@ -3364,12 +3706,13 @@ static  System::Object^ zgelsd(int __pyx_v_m, int __pyx_v_n, int __pyx_v_nrhs, S
 
 static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_ipiv, System::Object^ __pyx_v_b, int __pyx_v_ldb, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":459
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":476
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesv"): return None             # <<<<<<<<<<<<<<
@@ -3384,7 +3727,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":460
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":477
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesv"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","zgesv"): return None             # <<<<<<<<<<<<<<
@@ -3399,7 +3742,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":461
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":478
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesv"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","zgesv"): return None
  *     if not check_object(b,np.NPY_CDOUBLE,"b","np.NPY_CDOUBLE","zgesv"): return None             # <<<<<<<<<<<<<<
@@ -3414,7 +3757,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":464
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":481
  * 
  *     lapack_lite_status__ = lapack_zgesv(&n,&nrhs,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -3425,7 +3768,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":465
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":482
  *     lapack_lite_status__ = lapack_zgesv(&n,&nrhs,
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                         <int *>np.PyArray_DATA(ipiv),             # <<<<<<<<<<<<<<
@@ -3436,7 +3779,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":466
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":483
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                         <int *>np.PyArray_DATA(ipiv),
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,             # <<<<<<<<<<<<<<
@@ -3447,83 +3790,100 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":467
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":484
  *                                         <int *>np.PyArray_DATA(ipiv),
  *                                         <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,
  *                                         &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgesv_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgesv)((&__pyx_v_n), (&__pyx_v_nrhs), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgesv_)((&__pyx_v_n), (&__pyx_v_nrhs), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_b))), (&__pyx_v_ldb), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":469
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":486
  *                                         &info)
  * 
- *     return {"zgesv_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "nrhs" : nrhs,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgesv_"] = lapack_lite_status__
+ *     retval["n"] = n
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgesv_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":470
- * 
- *     return {"zgesv_" : lapack_lite_status__,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":471
- *     return {"zgesv_" : lapack_lite_status__,
- *             "n" : n,
- *             "nrhs" : nrhs,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldb" : ldb,
- */
-  __pyx_t_3 = __pyx_v_nrhs;
-  __pyx_t_2[((System::Object^)"nrhs")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":472
- *             "n" : n,
- *             "nrhs" : nrhs,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldb" : ldb,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":473
- *             "nrhs" : nrhs,
- *             "lda" : lda,
- *             "ldb" : ldb,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_ldb;
-  __pyx_t_2[((System::Object^)"ldb")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":475
- *             "ldb" : ldb,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":487
+ * 
+ *     retval = {}
+ *     retval["zgesv_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_487_10->Target(__site_setindex_487_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgesv_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":488
+ *     retval = {}
+ *     retval["zgesv_"] = lapack_lite_status__
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_488_10->Target(__site_setindex_488_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":489
+ *     retval["zgesv_"] = lapack_lite_status__
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ */
+  __pyx_t_2 = __pyx_v_nrhs;
+  __site_setindex_489_10->Target(__site_setindex_489_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"nrhs"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":490
+ *     retval["n"] = n
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_490_10->Target(__site_setindex_490_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":491
+ *     retval["nrhs"] = nrhs
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_ldb;
+  __site_setindex_491_10->Target(__site_setindex_491_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldb"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":492
+ *     retval["lda"] = lda
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_492_10->Target(__site_setindex_492_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":493
+ *     retval["ldb"] = ldb
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -3531,7 +3891,7 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":478
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":496
  * 
  * 
  * cdef zgesdd(char jobz, int m, int n, object a, int lda,             # <<<<<<<<<<<<<<
@@ -3541,12 +3901,13 @@ static  System::Object^ zgesv(int __pyx_v_n, int __pyx_v_nrhs, System::Object^ _
 
 static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_s, System::Object^ __pyx_v_u, int __pyx_v_ldu, System::Object^ __pyx_v_vt, int __pyx_v_ldvt, System::Object^ __pyx_v_work, int __pyx_v_lwork, System::Object^ __pyx_v_rwork, System::Object^ __pyx_v_iwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":483
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":501
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3561,7 +3922,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":484
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":502
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3576,7 +3937,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":485
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":503
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgesdd"): return None
  *     if not check_object(u,np.NPY_CDOUBLE,"u","np.NPY_CDOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3591,7 +3952,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":486
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":504
  *     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgesdd"): return None
  *     if not check_object(u,np.NPY_CDOUBLE,"u","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(vt,np.NPY_CDOUBLE,"vt","np.NPY_CDOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3606,7 +3967,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L6:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":487
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":505
  *     if not check_object(u,np.NPY_CDOUBLE,"u","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(vt,np.NPY_CDOUBLE,"vt","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3621,7 +3982,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L7:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":488
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":506
  *     if not check_object(vt,np.NPY_CDOUBLE,"vt","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3636,7 +3997,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L8:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":489
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":507
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgesdd"): return None
  *     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgesdd"): return None
  *     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","zgesdd"): return None             # <<<<<<<<<<<<<<
@@ -3651,7 +4012,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   }
   __pyx_L9:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":492
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":510
  * 
  *     lapack_lite_status__ = lapack_zgesdd(&jobz,&m,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -3662,7 +4023,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":493
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":511
  *     lapack_lite_status__ = lapack_zgesdd(&jobz,&m,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(s),             # <<<<<<<<<<<<<<
@@ -3673,7 +4034,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":494
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":512
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <double *>np.PyArray_DATA(s),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(u),&ldu,             # <<<<<<<<<<<<<<
@@ -3684,7 +4045,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":495
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":513
  *                                          <double *>np.PyArray_DATA(s),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(u),&ldu,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(vt),&ldvt,             # <<<<<<<<<<<<<<
@@ -3695,7 +4056,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":496
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":514
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(u),&ldu,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(vt),&ldvt,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,             # <<<<<<<<<<<<<<
@@ -3706,7 +4067,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":497
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":515
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(vt),&ldvt,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),             # <<<<<<<<<<<<<<
@@ -3717,119 +4078,136 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":498
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":516
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
  *                                          <double *>np.PyArray_DATA(rwork),
  *                                          <int *>np.PyArray_DATA(iwork),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgesdd_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_iwork == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_iwork) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgesdd)((&__pyx_v_jobz), (&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_u))), (&__pyx_v_ldu), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vt))), (&__pyx_v_ldvt), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgesdd_)((&__pyx_v_jobz), (&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_s))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_u))), (&__pyx_v_ldu), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_vt))), (&__pyx_v_ldvt), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_rwork))), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_iwork))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":500
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":518
  *                                          <int *>np.PyArray_DATA(iwork),&info)
  * 
- *     return {"zgesdd_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "jobz" : jobz,
- *             "m" : m,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgesdd_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":501
- * 
- *     return {"zgesdd_" : lapack_lite_status__,
- *             "jobz" : jobz,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
- */
-  __pyx_t_3 = __pyx_v_jobz;
-  __pyx_t_2[((System::Object^)"jobz")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":502
- *     return {"zgesdd_" : lapack_lite_status__,
- *             "jobz" : jobz,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":503
- *             "jobz" : jobz,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "ldu" : ldu,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":504
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":505
- *             "n" : n,
- *             "lda" : lda,
- *             "ldu" : ldu,             # <<<<<<<<<<<<<<
- *             "ldvt" : ldvt,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_ldu;
-  __pyx_t_2[((System::Object^)"ldu")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":506
- *             "lda" : lda,
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_ldvt;
-  __pyx_t_2[((System::Object^)"ldvt")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":507
- *             "ldu" : ldu,
- *             "ldvt" : ldvt,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *             }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":509
- *             "lwork" : lwork,
- *             "info" : info
- *             }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":519
+ * 
+ *     retval = {}
+ *     retval["zgesdd_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_519_10->Target(__site_setindex_519_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgesdd_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":520
+ *     retval = {}
+ *     retval["zgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_jobz;
+  __site_setindex_520_10->Target(__site_setindex_520_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"jobz"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":521
+ *     retval["zgesdd_"] = lapack_lite_status__
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_521_10->Target(__site_setindex_521_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":522
+ *     retval["jobz"] = jobz
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_522_10->Target(__site_setindex_522_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":523
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_523_10->Target(__site_setindex_523_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":524
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu             # <<<<<<<<<<<<<<
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_ldu;
+  __site_setindex_524_10->Target(__site_setindex_524_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldu"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":525
+ *     retval["lda"] = lda
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_ldvt;
+  __site_setindex_525_10->Target(__site_setindex_525_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"ldvt"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":526
+ *     retval["ldu"] = ldu
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_526_10->Target(__site_setindex_526_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":527
+ *     retval["ldvt"] = ldvt
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_527_10->Target(__site_setindex_527_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":528
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -3837,7 +4215,7 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":512
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":531
  * 
  * 
  * cdef zgetrf(int m, int n, object a, int lda, object ipiv, int info):             # <<<<<<<<<<<<<<
@@ -3847,12 +4225,13 @@ static  System::Object^ zgesdd(char __pyx_v_jobz, int __pyx_v_m, int __pyx_v_n, 
 
 static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_ipiv, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":515
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":534
  *     cdef int lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgetrf"): return None             # <<<<<<<<<<<<<<
@@ -3867,7 +4246,7 @@ static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":516
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":535
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgetrf"): return None
  *     if not check_object(ipiv,np.NPY_INT,"ipiv","np.NPY_INT","zgetrf"): return None             # <<<<<<<<<<<<<<
@@ -3882,7 +4261,7 @@ static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":519
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":538
  * 
  *     lapack_lite_status__ = lapack_zgetrf(&m,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -3893,75 +4272,92 @@ static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":520
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":539
  *     lapack_lite_status__ = lapack_zgetrf(&m,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          <int *>np.PyArray_DATA(ipiv),&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgetrf_" : lapack_lite_status__,
+ *     retval = {}
  */
   if (__pyx_v_ipiv == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ipiv) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgetrf)((&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgetrf_)((&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((int *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ipiv))), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":522
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":541
  *                                          <int *>np.PyArray_DATA(ipiv),&info)
  * 
- *     return {"zgetrf_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgetrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":523
- * 
- *     return {"zgetrf_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":524
- *     return {"zgetrf_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":525
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":527
- *             "lda" : lda,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":542
+ * 
+ *     retval = {}
+ *     retval["zgetrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_542_10->Target(__site_setindex_542_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgetrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":543
+ *     retval = {}
+ *     retval["zgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_543_10->Target(__site_setindex_543_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":544
+ *     retval["zgetrf_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_544_10->Target(__site_setindex_544_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":545
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_545_10->Target(__site_setindex_545_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":546
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_546_10->Target(__site_setindex_546_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":547
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -3969,7 +4365,7 @@ static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":530
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":550
  * 
  * 
  * cdef zpotrf(char uplo, int n, object a, int lda, int info):             # <<<<<<<<<<<<<<
@@ -3979,12 +4375,13 @@ static  System::Object^ zgetrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
 
 static  System::Object^ zpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":533
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":553
  *     cdef int  lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zpotrf"): return None             # <<<<<<<<<<<<<<
@@ -3999,7 +4396,7 @@ static  System::Object^ zpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":536
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":556
  * 
  *     lapack_lite_status__ = lapack_zpotrf(&uplo,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,             # <<<<<<<<<<<<<<
@@ -4010,37 +4407,78 @@ static  System::Object^ zpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":537
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":557
  *     lapack_lite_status__ = lapack_zpotrf(&uplo,&n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
  *                                          &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zpotrf_" : lapack_lite_status__, "n": n, "lda" : lda, "info" : info}
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zpotrf)((&__pyx_v_uplo), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zpotrf_)((&__pyx_v_uplo), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":539
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":559
  *                                          &info)
  * 
- *     return {"zpotrf_" : lapack_lite_status__, "n": n, "lda" : lda, "info" : info}             # <<<<<<<<<<<<<<
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = PythonOps::MakeEmptyDict();
+  __pyx_v_retval = __pyx_t_2;
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":560
+ * 
+ *     retval = {}
+ *     retval["zpotrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_560_10->Target(__site_setindex_560_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zpotrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":561
+ *     retval = {}
+ *     retval["zpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_561_10->Target(__site_setindex_561_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":562
+ *     retval["zpotrf_"] = lapack_lite_status__
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_562_10->Target(__site_setindex_562_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":563
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_563_10->Target(__site_setindex_563_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":564
+ *     retval["lda"] = lda
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
  * 
  * 
  */
-  __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zpotrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
-  __pyx_t_2 = nullptr;
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -4048,7 +4486,7 @@ static  System::Object^ zpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":542
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":567
  * 
  * 
  * cdef zgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):             # <<<<<<<<<<<<<<
@@ -4058,12 +4496,13 @@ static  System::Object^ zpotrf(char __pyx_v_uplo, int __pyx_v_n, System::Object^
 
 static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_tau, System::Object^ __pyx_v_work, int __pyx_v_lwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":546
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":571
  * 
  *     # check objects and convert to right storage order
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -4078,7 +4517,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":547
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":572
  *     # check objects and convert to right storage order
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeqrf"): return None
  *     if not check_object(tau,np.NPY_CDOUBLE,"tau","np.NPY_CDOUBLE","zgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -4093,7 +4532,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":548
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":573
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeqrf"): return None
  *     if not check_object(tau,np.NPY_CDOUBLE,"tau","np.NPY_CDOUBLE","zgeqrf"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgeqrf"): return None             # <<<<<<<<<<<<<<
@@ -4108,7 +4547,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":551
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":576
  * 
  *     lapack_lite_status__ = lapack_zgeqrf(&m, &n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,             # <<<<<<<<<<<<<<
@@ -4119,7 +4558,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":552
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":577
  *     lapack_lite_status__ = lapack_zgeqrf(&m, &n,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(tau),             # <<<<<<<<<<<<<<
@@ -4130,7 +4569,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":553
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":578
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(tau),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work), &lwork,             # <<<<<<<<<<<<<<
@@ -4141,83 +4580,100 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":554
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":579
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(tau),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work), &lwork,
  *                                          &info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zgeqrf_" : lapack_lite_status__,
+ *     retval = {}
  */
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgeqrf)((&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zgeqrf_)((&__pyx_v_m), (&__pyx_v_n), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":556
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":581
  *                                          &info)
  * 
- *     return {"zgeqrf_" : lapack_lite_status__,             # <<<<<<<<<<<<<<
- *             "m" : m,
- *             "n" : n,
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zgeqrf_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":557
- * 
- *     return {"zgeqrf_" : lapack_lite_status__,
- *             "m" : m,             # <<<<<<<<<<<<<<
- *             "n" : n,
- *             "lda" : lda,
- */
-  __pyx_t_3 = __pyx_v_m;
-  __pyx_t_2[((System::Object^)"m")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":558
- *     return {"zgeqrf_" : lapack_lite_status__,
- *             "m" : m,
- *             "n" : n,             # <<<<<<<<<<<<<<
- *             "lda" : lda,
- *             "lwork" : lwork,
- */
-  __pyx_t_3 = __pyx_v_n;
-  __pyx_t_2[((System::Object^)"n")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":559
- *             "m" : m,
- *             "n" : n,
- *             "lda" : lda,             # <<<<<<<<<<<<<<
- *             "lwork" : lwork,
- *             "info" : info
- */
-  __pyx_t_3 = __pyx_v_lda;
-  __pyx_t_2[((System::Object^)"lda")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":560
- *             "n" : n,
- *             "lda" : lda,
- *             "lwork" : lwork,             # <<<<<<<<<<<<<<
- *             "info" : info
- *            }
- */
-  __pyx_t_3 = __pyx_v_lwork;
-  __pyx_t_2[((System::Object^)"lwork")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":562
- *             "lwork" : lwork,
- *             "info" : info
- *            }             # <<<<<<<<<<<<<<
- * 
- * 
- */
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":582
+ * 
+ *     retval = {}
+ *     retval["zgeqrf_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["m"] = m
+ *     retval["n"] = n
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_582_10->Target(__site_setindex_582_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zgeqrf_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":583
+ *     retval = {}
+ *     retval["zgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m             # <<<<<<<<<<<<<<
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ */
+  __pyx_t_2 = __pyx_v_m;
+  __site_setindex_583_10->Target(__site_setindex_583_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"m"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":584
+ *     retval["zgeqrf_"] = lapack_lite_status__
+ *     retval["m"] = m
+ *     retval["n"] = n             # <<<<<<<<<<<<<<
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ */
+  __pyx_t_2 = __pyx_v_n;
+  __site_setindex_584_10->Target(__site_setindex_584_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"n"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":585
+ *     retval["m"] = m
+ *     retval["n"] = n
+ *     retval["lda"] = lda             # <<<<<<<<<<<<<<
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ */
+  __pyx_t_2 = __pyx_v_lda;
+  __site_setindex_585_10->Target(__site_setindex_585_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lda"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":586
+ *     retval["n"] = n
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lwork;
+  __site_setindex_586_10->Target(__site_setindex_586_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"lwork"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":587
+ *     retval["lda"] = lda
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_587_10->Target(__site_setindex_587_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":588
+ *     retval["lwork"] = lwork
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -4225,7 +4681,7 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":565
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":591
  * 
  * 
  * cdef zungqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):             # <<<<<<<<<<<<<<
@@ -4235,12 +4691,13 @@ static  System::Object^ zgeqrf(int __pyx_v_m, int __pyx_v_n, System::Object^ __p
 
 static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, System::Object^ __pyx_v_a, int __pyx_v_lda, System::Object^ __pyx_v_tau, System::Object^ __pyx_v_work, int __pyx_v_lwork, int __pyx_v_info) {
   int __pyx_v_lapack_lite_status__;
+  System::Object^ __pyx_v_retval;
   System::Object^ __pyx_r = nullptr;
   int __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
-  System::Object^ __pyx_t_3 = nullptr;
+  __pyx_v_retval = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":568
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":594
  *     cdef int  lapack_lite_status__
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zungqr"): return None             # <<<<<<<<<<<<<<
@@ -4255,7 +4712,7 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":569
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":595
  * 
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zungqr"): return None
  *     if not check_object(tau,np.NPY_CDOUBLE,"tau","np.NPY_CDOUBLE","zungqr"): return None             # <<<<<<<<<<<<<<
@@ -4270,7 +4727,7 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L4:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":570
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":596
  *     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zungqr"): return None
  *     if not check_object(tau,np.NPY_CDOUBLE,"tau","np.NPY_CDOUBLE","zungqr"): return None
  *     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zungqr"): return None             # <<<<<<<<<<<<<<
@@ -4285,7 +4742,7 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   }
   __pyx_L5:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":573
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":599
  * 
  *     lapack_lite_status__ = lapack_zungqr(&m, &n, &k,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,             # <<<<<<<<<<<<<<
@@ -4296,7 +4753,7 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":574
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":600
  *     lapack_lite_status__ = lapack_zungqr(&m, &n, &k,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(tau),             # <<<<<<<<<<<<<<
@@ -4307,33 +4764,58 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":575
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":601
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(a), &lda,
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(tau),
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,&info)             # <<<<<<<<<<<<<<
  * 
- *     return {"zungqr_" : lapack_lite_status__, "info" : info}
+ *     retval = {}
  */
   if (__pyx_v_work == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_work) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
-  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zungqr)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_k), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
+  __pyx_v_lapack_lite_status__ = GLOBALFUNC(zungqr_)((&__pyx_v_m), (&__pyx_v_n), (&__pyx_v_k), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_a))), (&__pyx_v_lda), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_tau))), ((f2c_doublecomplex *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_work))), (&__pyx_v_lwork), (&__pyx_v_info));
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":577
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":603
  *                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,&info)
  * 
- *     return {"zungqr_" : lapack_lite_status__, "info" : info}             # <<<<<<<<<<<<<<
- * 
+ *     retval = {}             # <<<<<<<<<<<<<<
+ *     retval["zungqr_"] = lapack_lite_status__
+ *     retval["info"] = info
  */
   __pyx_t_2 = PythonOps::MakeEmptyDict();
-  __pyx_t_3 = __pyx_v_lapack_lite_status__;
-  __pyx_t_2[((System::Object^)"zungqr_")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_t_3 = __pyx_v_info;
-  __pyx_t_2[((System::Object^)"info")] = __pyx_t_3;
-  __pyx_t_3 = nullptr;
-  __pyx_r = ((System::Object^)__pyx_t_2);
+  __pyx_v_retval = __pyx_t_2;
   __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":604
+ * 
+ *     retval = {}
+ *     retval["zungqr_"] = lapack_lite_status__             # <<<<<<<<<<<<<<
+ *     retval["info"] = info
+ *     return retval
+ */
+  __pyx_t_2 = __pyx_v_lapack_lite_status__;
+  __site_setindex_604_10->Target(__site_setindex_604_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"zungqr_"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":605
+ *     retval = {}
+ *     retval["zungqr_"] = lapack_lite_status__
+ *     retval["info"] = info             # <<<<<<<<<<<<<<
+ *     return retval
+ * 
+ */
+  __pyx_t_2 = __pyx_v_info;
+  __site_setindex_605_10->Target(__site_setindex_605_10, ((System::Object^)__pyx_v_retval), ((System::Object^)"info"), __pyx_t_2);
+  __pyx_t_2 = nullptr;
+
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":606
+ *     retval["zungqr_"] = lapack_lite_status__
+ *     retval["info"] = info
+ *     return retval             # <<<<<<<<<<<<<<
+ * 
+ */
+  __pyx_r = ((System::Object^)__pyx_v_retval);
   goto __pyx_L0;
 
   __pyx_r = nullptr;
@@ -4341,7 +4823,7 @@ static  System::Object^ zungqr(int __pyx_v_m, int __pyx_v_n, int __pyx_v_k, Syst
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":189
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":189
  *     object Npy_INTERFACE_array "Npy_INTERFACE_OBJECT" (NpyArray*)
  * 
  * cdef inline object PyUFunc_FromFuncAndData(PyUFuncGenericFunction* func, void** data,             # <<<<<<<<<<<<<<
@@ -4353,7 +4835,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_6lin
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":192
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":192
  *         char* types, int ntypes, int nin, int nout,
  *         int identity, char* name, char* doc, int c):
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))             # <<<<<<<<<<<<<<
@@ -4370,7 +4852,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_6lin
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":194
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":194
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):             # <<<<<<<<<<<<<<
@@ -4392,7 +4874,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = nullptr;
   __pyx_v_numpy = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":195
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":195
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):
  *     shape_list = []             # <<<<<<<<<<<<<<
@@ -4403,7 +4885,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":197
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":197
  *     shape_list = []
  *     cdef int i
  *     for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -4414,7 +4896,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":198
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":198
  *     cdef int i
  *     for i in range(ndim):
  *         shape_list.append(shape[i])             # <<<<<<<<<<<<<<
@@ -4429,7 +4911,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
     __pyx_t_5 = nullptr;
   }
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":199
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":199
  *     for i in range(ndim):
  *         shape_list.append(shape[i])
  *     import numpy             # <<<<<<<<<<<<<<
@@ -4440,7 +4922,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_numpy = __pyx_t_5;
   __pyx_t_5 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":200
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":200
  *         shape_list.append(shape[i])
  *     import numpy
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')             # <<<<<<<<<<<<<<
@@ -4467,7 +4949,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":202
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":202
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):             # <<<<<<<<<<<<<<
@@ -4479,7 +4961,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":203
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":203
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL             # <<<<<<<<<<<<<<
@@ -4492,7 +4974,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":204
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":204
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL
  *     assert obj == NULL             # <<<<<<<<<<<<<<
@@ -4505,7 +4987,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":205
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":205
  *     assert subtype == NULL
  *     assert obj == NULL
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))             # <<<<<<<<<<<<<<
@@ -4522,7 +5004,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":207
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":207
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))
  * 
  * cdef inline bint PyArray_CHKFLAGS(ndarray n, int flags):             # <<<<<<<<<<<<<<
@@ -4535,7 +5017,7 @@ static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^ __pyx_v_n, int _
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":209
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":209
  * cdef inline bint PyArray_CHKFLAGS(ndarray n, int flags):
  *      # XXX "long long" is wrong type
  *     return  NpyArray_CHKFLAGS(<NpyArray*> <long long>n.Array, flags)             # <<<<<<<<<<<<<<
@@ -4553,7 +5035,7 @@ static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^ __pyx_v_n, int _
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":211
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":211
  *     return  NpyArray_CHKFLAGS(<NpyArray*> <long long>n.Array, flags)
  * 
  * cdef inline void* PyArray_DATA(ndarray n):             # <<<<<<<<<<<<<<
@@ -4566,7 +5048,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":213
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":213
  * cdef inline void* PyArray_DATA(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -4584,7 +5066,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":215
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":215
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline intp_t* PyArray_DIMS(ndarray n):             # <<<<<<<<<<<<<<
@@ -4597,7 +5079,7 @@ static CYTHON_INLINE __pyx_t_5numpy_6linalg_5numpy_intp_t *PyArray_DIMS(NumpyDot
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":217
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":217
  * cdef inline intp_t* PyArray_DIMS(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -4615,7 +5097,7 @@ static CYTHON_INLINE __pyx_t_5numpy_6linalg_5numpy_intp_t *PyArray_DIMS(NumpyDot
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":219
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":219
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline intp_t PyArray_SIZE(ndarray n):             # <<<<<<<<<<<<<<
@@ -4628,7 +5110,7 @@ static CYTHON_INLINE __pyx_t_5numpy_6linalg_5numpy_intp_t PyArray_SIZE(NumpyDotN
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":221
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":221
  * cdef inline intp_t PyArray_SIZE(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -4646,7 +5128,7 @@ static CYTHON_INLINE __pyx_t_5numpy_6linalg_5numpy_intp_t PyArray_SIZE(NumpyDotN
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":223
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":223
  *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):             # <<<<<<<<<<<<<<
@@ -4663,7 +5145,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = nullptr;
   __pyx_v_NumpyDotNet = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":224
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":224
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr             # <<<<<<<<<<<<<<
@@ -4674,7 +5156,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":225
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":225
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr
  *     import NumpyDotNet.NpyArray             # <<<<<<<<<<<<<<
@@ -4685,7 +5167,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_NumpyDotNet = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":226
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":226
  *     import clr
  *     import NumpyDotNet.NpyArray
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)             # <<<<<<<<<<<<<<
@@ -4706,7 +5188,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":228
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":228
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):             # <<<<<<<<<<<<<<
@@ -4721,7 +5203,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   int __pyx_t_3;
   int __pyx_t_4;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":229
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":229
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:             # <<<<<<<<<<<<<<
@@ -4735,7 +5217,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   __pyx_t_2 = nullptr;
   if (__pyx_t_3) {
 
-    /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":230
+    /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":230
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT             # <<<<<<<<<<<<<<
@@ -4751,7 +5233,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   }
   __pyx_L3:;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":231
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":231
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)             # <<<<<<<<<<<<<<
@@ -4771,7 +5253,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":233
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":233
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)
  * 
  * cdef inline object PyArray_Check(obj):             # <<<<<<<<<<<<<<
@@ -4784,7 +5266,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":234
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":234
  * 
  * cdef inline object PyArray_Check(obj):
  *     return isinstance(obj, ndarray)             # <<<<<<<<<<<<<<
@@ -4803,7 +5285,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":236
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":236
  *     return isinstance(obj, ndarray)
  * 
  * cdef inline object PyArray_NDIM(obj):             # <<<<<<<<<<<<<<
@@ -4815,7 +5297,7 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":237
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":237
  * 
  * cdef inline object PyArray_NDIM(obj):
  *     return obj.ndim             # <<<<<<<<<<<<<<
@@ -4832,7 +5314,7 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   return __pyx_r;
 }
 
-/* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":239
+/* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":239
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
@@ -4886,6 +5368,124 @@ static void __Pyx_InitSites(CodeContext^ __pyx_context) {
   __site_istrue_42_82 = CallSite< System::Func< CallSite^, System::Object^, bool >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, bool::typeid, ConversionResultKind::ExplicitCast));
   __site_op_mod_43_85 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Modulo));
   __site_call1_43_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
+  __site_setindex_70_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_71_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_72_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_73_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_74_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_75_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_76_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_77_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_78_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_137_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_138_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_139_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_140_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_141_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_142_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_143_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_144_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_207_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_208_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_209_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_210_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_211_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_212_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_213_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_214_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_215_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_238_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_239_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_240_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_241_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_242_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_243_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_244_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_245_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_246_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_247_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_266_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_267_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_268_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_269_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_270_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_271_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_316_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_317_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_318_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_319_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_320_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_321_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_322_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_323_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_324_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_338_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_339_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_340_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_341_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_342_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_356_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_357_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_358_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_359_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_378_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_379_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_380_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_381_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_382_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_383_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_401_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_402_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_427_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_428_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_429_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_430_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_431_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_432_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_433_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_434_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_435_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_461_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_462_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_463_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_464_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_465_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_466_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_467_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_468_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_469_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_487_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_488_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_489_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_490_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_491_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_492_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_519_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_520_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_521_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_522_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_523_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_524_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_525_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_526_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_527_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_542_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_543_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_544_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_545_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_546_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_560_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_561_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_562_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_563_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_582_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_583_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_584_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_585_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_586_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_587_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_604_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
+  __site_setindex_605_10 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeSetIndexAction(__pyx_context, 2));
   __site_get_append_198_18 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "append", false));
   __site_call1_198_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
   __site_get_zeros_200_16 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "zeros", false));
@@ -4921,7 +5521,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   System::Object^ __pyx_t_2 = nullptr;
   System::Object^ __pyx_t_3 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":29
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":29
  * 
  * cimport numpy as np
  * np.import_array()             # <<<<<<<<<<<<<<
@@ -4930,7 +5530,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
  */
   import_array();
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":31
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":31
  * np.import_array()
  * 
  * class LapackError(Exception):             # <<<<<<<<<<<<<<
@@ -4951,7 +5551,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_t_2 = nullptr;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\lapack_lite.pyx":1
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\lapack_lite.pyx":1
  * """ Cythonized version of lapack_litemodule.c             # <<<<<<<<<<<<<<
  * """
  * 
@@ -4960,7 +5560,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "__test__", ((System::Object^)__pyx_t_1));
   __pyx_t_1 = nullptr;
 
-  /* "C:\Users\jwiggins\source\numpy-refactor\numpy\linalg\numpy.pxd":239
+  /* "C:\Users\jwiggins\source\jwiggins-numpy-refactor\numpy\linalg\numpy.pxd":239
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
