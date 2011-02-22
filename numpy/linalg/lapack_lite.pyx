@@ -66,15 +66,18 @@ cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,
                                         <double *>np.PyArray_DATA(work),&lwork,
                                         &info)
 
-    return {"dgeev_" : lapack_lite_status__,
-            "jobvl" : jobvl,
-            "jobvr" : jobvr,
-            "n" : n,
-            "lda" : lda,
-            "ldvl" : ldvl,
-            "ldvr" : ldvr,
-            "lwork" : lwork,
-            "info" : info}
+    retval = {}
+    retval["dgeev_"] = lapack_lite_status__
+    retval["jobvl"] = jobvl
+    retval["jobvr"] = jobvr
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["ldvl"] = ldvl
+    retval["ldvr"] = ldvr
+    retval["lwork"] = lwork
+    retval["info"] = info
+    
+    return retval
 
             
 cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
@@ -130,14 +133,16 @@ cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
                                          <double *>np.PyArray_DATA(work),&lwork,
                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)
 
-    return {"dsyevd_" : lapack_lite_status__,
-            "jobz" : jobz,
-            "uplo" : uplo,
-            "n" : n,
-            "lda" : lda,
-            "lwork" : lwork,
-            "liwork" : liwork,
-            "info" : info}
+    retval = {}
+    retval["dsyevd_"] = lapack_lite_status__
+    retval["jobz"] = jobz
+    retval["uplo"] = uplo
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["lwork"] = lwork
+    retval["liwork"] = liwork
+    retval["info"] = info
+    return retval
 
 
 cdef zheevd(char jobz, char uplo, int n, object a, int lda,
@@ -198,16 +203,17 @@ cdef zheevd(char jobz, char uplo, int n, object a, int lda,
                                          <double *>np.PyArray_DATA(rwork),&lrwork,
                                          <int *>np.PyArray_DATA(iwork),&liwork,&info)
 
-    return {"zheevd_" : lapack_lite_status__,
-            "jobz" : jobz,
-            "uplo" : uplo,
-            "n" : n,
-            "lda" : lda,
-            "lwork" : lwork,
-            "lrwork" : lrwork,
-            "liwork" : liwork,
-            "info" : info
-           }
+    retval = {}
+    retval["zheevd_"] = lapack_lite_status__
+    retval["jobz"] = jobz
+    retval["uplo"] = uplo
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["lwork"] = lwork
+    retval["lrwork"] = lrwork
+    retval["liwork"] = liwork
+    retval["info"] = info
+    return retval
 
 
 cdef dgelsd(int m, int n, int nrhs, object a, int lda, object b, int ldb,
@@ -228,17 +234,18 @@ cdef dgelsd(int m, int n, int nrhs, object a, int lda, object b, int ldb,
                                          <double *>np.PyArray_DATA(work),&lwork,
                                          <int *>np.PyArray_DATA(iwork),&info)
 
-    return {"dgelsd_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n,
-            "nrhs" : nrhs,
-            "lda" : lda,
-            "ldb" : ldb,
-            "rcond" : rcond,
-            "rank" : rank,
-            "lwork" : lwork,
-            "info" : info
-            }
+    retval = {}
+    retval["dgelsd_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["nrhs"] = nrhs
+    retval["lda"] = lda
+    retval["ldb"] = ldb
+    retval["rcond"] = rcond
+    retval["rank"] = rank
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef dgesv(int n, int nrhs, object a, int lda, object ipiv,
@@ -255,13 +262,14 @@ cdef dgesv(int n, int nrhs, object a, int lda, object ipiv,
                                         <double *>np.PyArray_DATA(b),&ldb,
                                         &info)
 
-    return {"dgesv_" : lapack_lite_status__,
-            "n" : n,
-            "nrhs" : nrhs,
-            "lda" : lda,
-            "ldb" : ldb,
-            "info" : info
-           }
+    retval = {}
+    retval["dgesv_"] = lapack_lite_status__
+    retval["n"] = n
+    retval["nrhs"] = nrhs
+    retval["lda"] = lda
+    retval["ldb"] = ldb
+    retval["info"] = info
+    return retval
 
 
 cdef dgesdd(char jobz, int m, int n, object a, int lda,
@@ -304,16 +312,17 @@ cdef dgesdd(char jobz, int m, int n, object a, int lda,
         
         (<double *>np.PyArray_DATA(work))[0] = <double>work0
     
-    return {"dgesdd_" : lapack_lite_status__,
-            "jobz" : jobz,
-            "m" : m,
-            "n" : n,
-            "lda" : lda,
-            "ldu" : ldu,
-            "ldvt" : ldvt,
-            "lwork" : lwork,
-            "info" : info
-           }
+    retval = {}
+    retval["dgesdd_"] = lapack_lite_status__
+    retval["jobz"] = jobz
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["ldu"] = ldu
+    retval["ldvt"] = ldvt
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef dgetrf(int m, int n, object a, int lda, object ipiv, int info):
@@ -325,12 +334,13 @@ cdef dgetrf(int m, int n, object a, int lda, object ipiv, int info):
     lapack_lite_status__ = lapack_dgetrf(&m,&n,<double *>np.PyArray_DATA(a),&lda,
                                          <int *>np.PyArray_DATA(ipiv),&info)
 
-    return {"dgetrf_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n,
-            "lda" : lda,
-            "info" : info
-           }
+    retval = {}
+    retval["dgetrf_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["info"] = info
+    return retval
 
 
 cdef dpotrf(char uplo, int n, object a, int lda, int info):
@@ -342,11 +352,12 @@ cdef dpotrf(char uplo, int n, object a, int lda, int info):
                                          <double *>np.PyArray_DATA(a),&lda,
                                          &info)
 
-    return {"dpotrf_" : lapack_lite_status__,
-            "n" : n,
-            "lda" : lda,
-            "info" : info
-           }
+    retval = {}
+    retval["dpotrf_"] = lapack_lite_status__
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["info"] = info
+    return retval
 
 
 cdef dgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):
@@ -363,13 +374,14 @@ cdef dgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork,
                                          <double *>np.PyArray_DATA(work), &lwork, 
                                          &info)
 
-    return {"dgeqrf_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n,
-            "lda" : lda,
-            "lwork" : lwork,
-            "info" : info
-           }
+    retval = {}
+    retval["dgeqrf_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef dorgqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):
@@ -385,7 +397,10 @@ cdef dorgqr(int m, int n, int k, object a, int lda, object tau, object work, int
                                          <double *>np.PyArray_DATA(work), &lwork,
                                          &info)
 
-    return {"dorgqr_" : lapack_lite_status__, "info" : info }
+    retval = {}
+    retval["dorgqr_"] = lapack_lite_status__
+    retval["info"] = info
+    return retval
 
 
 cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
@@ -408,16 +423,17 @@ cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
                                         <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
                                         <double *>np.PyArray_DATA(rwork),&info)
 
-    return {"zgeev_" : lapack_lite_status__,
-            "jobvl" : jobvl,
-            "jobvr" : jobvr,
-            "n" : n,
-            "lda" : lda,
-            "ldvl" : ldvl,
-            "ldvr" : ldvr,
-            "lwork" : lwork,
-            "info" : info
-           }
+    retval = {}
+    retval["zgeev_"] = lapack_lite_status__
+    retval["jobvl"] = jobvl
+    retval["jobvr"] = jobvr
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["ldvl"] = ldvl
+    retval["ldvr"] = ldvr
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef zgelsd(int m, int n, int nrhs, object a, int lda,
@@ -441,16 +457,17 @@ cdef zgelsd(int m, int n, int nrhs, object a, int lda,
                                          <double *>np.PyArray_DATA(rwork),
                                          <int *>np.PyArray_DATA(iwork),&info)
 
-    return {"zgelsd_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n,
-            "nrhs" : nrhs,
-            "lda" : lda,
-            "ldb" : ldb,
-            "rank" : rank,
-            "lwork" : lwork,
-            "info" : info
-           }
+    retval = {}
+    retval["zgelsd_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["nrhs"] = nrhs
+    retval["lda"] = lda
+    retval["ldb"] = ldb
+    retval["rank"] = rank
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef zgesv(int n, int nrhs, object a, int lda, object ipiv, object b, int ldb, int info):
@@ -466,13 +483,14 @@ cdef zgesv(int n, int nrhs, object a, int lda, object ipiv, object b, int ldb, i
                                         <f2c_doublecomplex *>np.PyArray_DATA(b),&ldb,
                                         &info)
 
-    return {"zgesv_" : lapack_lite_status__,
-            "n" : n,
-            "nrhs" : nrhs,
-            "lda" : lda,
-            "ldb" : ldb,
-            "info" : info
-           }
+    retval = {}
+    retval["zgesv_"] = lapack_lite_status__
+    retval["n"] = n
+    retval["nrhs"] = nrhs
+    retval["lda"] = lda
+    retval["ldb"] = ldb
+    retval["info"] = info
+    return retval
 
 
 cdef zgesdd(char jobz, int m, int n, object a, int lda,
@@ -497,16 +515,17 @@ cdef zgesdd(char jobz, int m, int n, object a, int lda,
                                          <double *>np.PyArray_DATA(rwork),
                                          <int *>np.PyArray_DATA(iwork),&info)
 
-    return {"zgesdd_" : lapack_lite_status__,
-            "jobz" : jobz,
-            "m" : m,
-            "n" : n,
-            "lda" : lda,
-            "ldu" : ldu,
-            "ldvt" : ldvt,
-            "lwork" : lwork,
-            "info" : info
-            }
+    retval = {}
+    retval["zgesdd_"] = lapack_lite_status__
+    retval["jobz"] = jobz
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["ldu"] = ldu
+    retval["ldvt"] = ldvt
+    retval["lwork"] = lwork
+    retval["info"] = info
+    return retval
 
 
 cdef zgetrf(int m, int n, object a, int lda, object ipiv, int info):
@@ -519,12 +538,13 @@ cdef zgetrf(int m, int n, object a, int lda, object ipiv, int info):
                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                          <int *>np.PyArray_DATA(ipiv),&info)
 
-    return {"zgetrf_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n,
-            "lda" : lda,
-            "info" : info
-           }
+    retval = {}
+    retval["zgetrf_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["info"] = info
+    return retval
 
 
 cdef zpotrf(char uplo, int n, object a, int lda, int info):
@@ -536,7 +556,12 @@ cdef zpotrf(char uplo, int n, object a, int lda, int info):
                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                          &info)
 
-    return {"zpotrf_" : lapack_lite_status__, "n": n, "lda" : lda, "info" : info}
+    retval = {}
+    retval["zpotrf_"] = lapack_lite_status__
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["info"] = info
+    return retval
 
 
 cdef zgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):
@@ -553,13 +578,14 @@ cdef zgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork,
                                          <f2c_doublecomplex *>np.PyArray_DATA(work), &lwork,
                                          &info)
 
-    return {"zgeqrf_" : lapack_lite_status__,
-            "m" : m,
-            "n" : n, 
-            "lda" : lda,
-            "lwork" : lwork, 
-            "info" : info
-           }
+    retval = {}
+    retval["zgeqrf_"] = lapack_lite_status__
+    retval["m"] = m
+    retval["n"] = n
+    retval["lda"] = lda
+    retval["lwork"] = lwork 
+    retval["info"] = info
+    return retval
 
 
 cdef zungqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):
@@ -574,5 +600,8 @@ cdef zungqr(int m, int n, int k, object a, int lda, object tau, object work, int
                                          <f2c_doublecomplex *>np.PyArray_DATA(tau), 
                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,&info)
 
-    return {"zungqr_" : lapack_lite_status__, "info" : info}
-
+    retval = {}
+    retval["zungqr_"] = lapack_lite_status__
+    retval["info"] = info
+    return retval
+    
