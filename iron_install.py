@@ -1,8 +1,6 @@
-﻿#
-# This file performs the installation step once the build is complete.  Installation
-# primarily involves copying the build results to the IronPython site-packages
-# directory.
-#
+# This file performs the installation step once the build is complete.
+# Installation primarily involves copying the build results to the
+# IronPython site-packages directory.
 
 import os
 import sys
@@ -21,8 +19,11 @@ def install():
         os.mkdir(dll_dir)
 
     ignore_pys = ["setup.py", "iron_install.py"]
-    ignore_libs = ["Microsoft.Scripting.dll", "Microsoft.Scripting.Metadata.dll", 
-                   "Microsoft.Dynamic.dll", "IronPython.dll", "IronPython.Modules.dll"]
+    ignore_libs = ["Microsoft.Scripting.dll",
+                   "Microsoft.Scripting.Metadata.dll",
+                   "Microsoft.Dynamic.dll",
+                   "IronPython.dll",
+                   "IronPython.Modules.dll"]
 
     # Recursively walk the directory tree and copy all .py files into the
     # site-packages directory and all .dll files into DLLs.
@@ -35,19 +36,21 @@ def install():
                 dst_dir = dirname(join(sp_dir, rel_path))
                 if not isdir(dst_dir):
                      os.makedirs(dst_dir)
-                
-                # Rename the _clr.py files to remove the _clr suffix. Only used for IronPython.
+
+                # Rename the _clr.py files to remove the _clr suffix.
+                # Only used for IronPython.
                 if fn.endswith('_clr.py'):
                     dst_file = join(dst_dir, fn[:-7] + ".py")
                 else:
                     dst_file = join(dst_dir, fn)
-                    
+
                 #print "Copy %s to %s" % (rel_path, dst_file)
                 shutil.copy(rel_path, dst_file)
             elif fn.endswith('.dll') and fn not in ignore_libs:
                 dst_file = join(dll_dir, fn)
                 if isfile(dst_file):
-                    # Rename existing file because it is probably in use by the ipy command.
+                    # Rename existing file because it is probably in use
+                    # by the ipy command.
                     tmp_dir = tempfile.mkdtemp()
                     os.rename(dst_file, join(tmp_dir, fn))
                 #print "Copy %s to %s" % (rel_path, dst_file)
