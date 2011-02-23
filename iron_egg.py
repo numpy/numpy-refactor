@@ -10,8 +10,9 @@ from os.path import dirname, isdir, isfile, join
 
 src_dir = join(os.getcwd(), "numpy")
 
-def install():
-    print "INSTALLING ..."
+
+def build_egg():
+    print "BUILDING NUMPY EGG ..."
     sp_dir = join(sys.prefix, r'Lib\site-packages')
     numpy_dir = src_dir
     dll_dir = join(sys.prefix, 'DLLs')
@@ -87,4 +88,4 @@ if not release:
 
 
 if __name__ == '__main__':
-    install()
+    build_egg()
