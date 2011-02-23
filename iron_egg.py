@@ -56,6 +56,8 @@ def build_egg():
     for root, dirs, files in os.walk("numpy"):
         for fn in files:
             path = join(root, fn)
+            if path.startswith('numpy\\linalg\\lapack_lite\\'):
+                continue
             if fn.endswith('.py'):
                 arcname = path.replace('\\', '/')
                 if fn.endswith('_clr.py'):
