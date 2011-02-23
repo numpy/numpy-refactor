@@ -47,7 +47,10 @@ def build_egg():
                    "Microsoft.Scripting.Metadata.dll",
                    "Microsoft.Dynamic.dll",
                    "IronPython.dll",
-                   "IronPython.Modules.dll"]
+                   "IronPython.Modules.dll",
+                   # ignore multipe copies and add one below
+                   "NumpyDotNet.dll",
+                   ]
 
     # Recursively walk the numpy tree and add all files to the egg
     for root, dirs, files in os.walk("numpy"):
@@ -62,8 +65,8 @@ def build_egg():
             elif fn.endswith('.dll') and fn not in ignore_libs:
                 z.write(path, 'EGG-INFO/prefix/DLLs/' + fn)
 
-    z.write(r'libndarray\windows\bin\Debug\ndarray.dll',
-            'EGG-INFO/prefix/DLLs/ndarray.dll')
+    z.write(r'numpy\NumpyDotNet\bin\Debug\NumpyDotNet.dll',
+            'EGG-INFO/prefix/DLLs/NumpyDotNet.dll')
     z.writestr('numpy/__config__.py', config_txt)
     z.writestr('numpy/version.py', version_txt)
     z.writestr('EGG-INFO/spec/depend', spec_txt)

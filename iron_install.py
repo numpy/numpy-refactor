@@ -48,6 +48,7 @@ def install():
                 shutil.copy(rel_path, dst_file)
             elif fn.endswith('.dll') and fn not in ignore_libs:
                 dst_file = join(dll_dir, fn)
+                print rel_path
                 if isfile(dst_file):
                     # Rename existing file because it is probably in use
                     # by the ipy command.
