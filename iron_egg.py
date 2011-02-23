@@ -25,10 +25,23 @@ if not release:
     version = full_version
 """
 
+spec_txt = """\
+metadata_version = '1.1'
+name = 'numpy'
+version = '2.0.0'
+build = 1
+
+arch = None
+platform = 'cli'
+osdist = None
+python = None
+packages = []
+"""
+
 def build_egg():
     print "BUILDING NUMPY EGG ..."
 
-    z = zipfile.ZipFile('numpy-2.0-1.egg', 'w', zipfile.ZIP_DEFLATED)
+    z = zipfile.ZipFile('numpy-2.0.0-1.egg', 'w', zipfile.ZIP_DEFLATED)
 
     ignore_libs = ["Microsoft.Scripting.dll",
                    "Microsoft.Scripting.Metadata.dll",
@@ -51,10 +64,9 @@ def build_egg():
 
     z.write(r'libndarray\windows\bin\Debug\ndarray.dll',
             'EGG-INFO/prefix/DLLs/ndarray.dll')
-
     z.writestr('numpy/__config__.py', config_txt)
     z.writestr('numpy/version.py', version_txt)
-
+    z.writestr('EGG-INFO/spec/depend', spec_txt)
     z.close()
 
 
