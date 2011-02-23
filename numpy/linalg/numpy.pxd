@@ -147,18 +147,21 @@ cdef extern from "npy_defs.h":
     cdef enum:
         NPY_MAXDIMS
 
+cdef extern from "npy_descriptor.h":
+    ctypedef struct NpyArray_Descr:
+        pass
+
 cdef extern from "npy_arrayobject.h":
     ctypedef struct NpyArray:
         pass
 
     bint NpyArray_CHKFLAGS(NpyArray* obj, int flags)
     void *NpyArray_DATA(NpyArray* obj)
+    NpyArray_Descr *NpyArray_DESCR(NpyArray* obj)
     npy_intp *NpyArray_DIMS(NpyArray* obj)
     npy_intp NpyArray_SIZE(NpyArray* obj)
+    int NpyArray_TYPE(NpyArray* obj)
 
-cdef extern from "npy_descriptor.h":
-    ctypedef struct NpyArray_Descr:
-        pass
 
 cdef extern from "npy_ufunc_object.h":
     ctypedef struct NpyUFuncObject:
@@ -212,6 +215,10 @@ cdef inline void* PyArray_DATA(ndarray n):
     # XXX "long long" is wrong type
     return NpyArray_DATA(<NpyArray*> <long long>n.Array)
 
+cdef inline object PyArray_DESCR(ndarray n):
+    # XXX "long long" is wrong type
+    return Npy_INTERFACE_descr(NpyArray_DESCR(<NpyArray*> <long long>n.Array))
+
 cdef inline intp_t* PyArray_DIMS(ndarray n):
     # XXX "long long" is wrong type
     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)
@@ -219,6 +226,10 @@ cdef inline intp_t* PyArray_DIMS(ndarray n):
 cdef inline intp_t PyArray_SIZE(ndarray n):
     # XXX "long long" is wrong type
     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)
+
+cdef inline int PyArray_TYPE(ndarray n):
+    # XXX "long long" is wrong type
+    return NpyArray_TYPE(<NpyArray*> <long long>n.Array)
 
 cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
     import clr

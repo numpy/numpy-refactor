@@ -32,10 +32,8 @@ class LapackError(Exception):
     pass
 
 
-cdef int check_object(object ob, int t, char *obname, char *tname, char *funname):
-    if not np.PyArray_Check(ob):
-        raise LapackError("Expected an array for parameter %s in lapack_lite.%s" % (obname, funname))
-    elif not (np.PyArray_FLAGS(ob) & np.NPY_CONTIGUOUS):
+cdef int check_object(np.ndarray ob, int t, char *obname, char *tname, char *funname):
+    if not np.PyArray_CHKFLAGS(ob, np.NPY_CONTIGUOUS):
         raise LapackError("Parameter %s is not contiguous in lapack_lite.%s" % (obname, funname))
     elif np.PyArray_TYPE(ob) != t:
         raise LapackError("Parameter %s is not of type %s in lapack_lite.%s" % (obname, tname, funname))
@@ -45,10 +43,12 @@ cdef int check_object(object ob, int t, char *obname, char *tname, char *funname
     return 1
 
 
-cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,
-           object wr, object wi, object vl,
-           int ldvl, object vr, int ldvr, object work, int lwork, int info):
+cdef dgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
+           np.ndarray wr, np.ndarray wi, np.ndarray vl,
+           int ldvl, np.ndarray vr, int ldvr, np.ndarray work, int lwork, int info):
     cdef int lapack_lite_status__
+    cdef char jobvl_char = ord(jobvl[0])
+    cdef char jobvr_char = ord(jobvr[0])
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgeev"): return None
     if not check_object(wr,np.NPY_DOUBLE,"wr","np.NPY_DOUBLE","dgeev"): return None
@@ -57,7 +57,7 @@ cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,
     if not check_object(vr,np.NPY_DOUBLE,"vr","np.NPY_DOUBLE","dgeev"): return None
     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgeev"): return None
 
-    lapack_lite_status__ = lapack_dgeev(&jobvl,&jobvr,&n,
+    lapack_lite_status__ = lapack_dgeev(&jobvl_char,&jobvr_char,&n,
                                         <double *>np.PyArray_DATA(a),&lda,
                                         <double *>np.PyArray_DATA(wr),
                                         <double *>np.PyArray_DATA(wi),
@@ -68,8 +68,8 @@ cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,
 
     retval = {}
     retval["dgeev_"] = lapack_lite_status__
-    retval["jobvl"] = jobvl
-    retval["jobvr"] = jobvr
+    retval["jobvl"] = jobvl_char
+    retval["jobvr"] = jobvr_char
     retval["n"] = n
     retval["lda"] = lda
     retval["ldvl"] = ldvl
@@ -80,8 +80,8 @@ cdef dgeev(char jobvl, char jobvr, int n, object a, int lda,
     return retval
 
             
-cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
-            object w, object work, int lwork, object iwork, int liwork, int info):
+cdef dsyevd(jobz, uplo, int n, np.ndarray a, int lda,
+            np.ndarray w, np.ndarray work, int lwork, np.ndarray iwork, int liwork, int info):
     """ Arguments
         =========
     JOBZ    (input) CHARACTER*1
@@ -121,13 +121,15 @@ cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
                   form did not converge to zero.
     """
     cdef int lapack_lite_status__
+    cdef char jobz_char = ord(jobz[0])
+    cdef char uplo_char = ord(uplo[0])
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dsyevd"): return None
     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","dsyevd"): return None
     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dsyevd"): return None
     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","dsyevd"): return None
 
-    lapack_lite_status__ = lapack_dsyevd(&jobz,&uplo,&n,
+    lapack_lite_status__ = lapack_dsyevd(&jobz_char,&uplo_char,&n,
                                          <double *>np.PyArray_DATA(a),&lda,
                                          <double *>np.PyArray_DATA(w),
                                          <double *>np.PyArray_DATA(work),&lwork,
@@ -135,8 +137,8 @@ cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
 
     retval = {}
     retval["dsyevd_"] = lapack_lite_status__
-    retval["jobz"] = jobz
-    retval["uplo"] = uplo
+    retval["jobz"] = jobz_char
+    retval["uplo"] = uplo_char
     retval["n"] = n
     retval["lda"] = lda
     retval["lwork"] = lwork
@@ -145,10 +147,10 @@ cdef dsyevd(char jobz, char uplo, int n, object a, int lda,
     return retval
 
 
-cdef zheevd(char jobz, char uplo, int n, object a, int lda,
-            object w, object work, int lwork,
-            object rwork, int lrwork,
-            object iwork, int liwork, int info):
+cdef zheevd(jobz, uplo, int n, np.ndarray a, int lda,
+            np.ndarray w, np.ndarray work, int lwork,
+            np.ndarray rwork, int lrwork,
+            np.ndarray iwork, int liwork, int info):
     """ Arguments
         =========
         JOBZ    (input) CHARACTER*1
@@ -189,6 +191,8 @@ cdef zheevd(char jobz, char uplo, int n, object a, int lda,
                       form did not converge to zero.
     """
     cdef int lapack_lite_status__
+    cdef char jobz_char = ord(jobz[0])
+    cdef char uplo_char = ord(uplo[0])
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zheevd"): return None
     if not check_object(w,np.NPY_DOUBLE,"w","np.NPY_DOUBLE","zheevd"): return None
@@ -196,7 +200,7 @@ cdef zheevd(char jobz, char uplo, int n, object a, int lda,
     if not check_object(w,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zheevd"): return None
     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","zheevd"): return None
 
-    lapack_lite_status__ = lapack_zheevd(&jobz,&uplo,&n,
+    lapack_lite_status__ = lapack_zheevd(&jobz_char,&uplo_char,&n,
                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                          <double *>np.PyArray_DATA(w),
                                          <f2c_doublecomplex *>np.PyArray_DATA(work),&lwork,
@@ -205,8 +209,8 @@ cdef zheevd(char jobz, char uplo, int n, object a, int lda,
 
     retval = {}
     retval["zheevd_"] = lapack_lite_status__
-    retval["jobz"] = jobz
-    retval["uplo"] = uplo
+    retval["jobz"] = jobz_char
+    retval["uplo"] = uplo_char
     retval["n"] = n
     retval["lda"] = lda
     retval["lwork"] = lwork
@@ -216,9 +220,9 @@ cdef zheevd(char jobz, char uplo, int n, object a, int lda,
     return retval
 
 
-cdef dgelsd(int m, int n, int nrhs, object a, int lda, object b, int ldb,
-            object s, double rcond, int rank,
-            object work, int lwork, object iwork, int info):
+cdef dgelsd(int m, int n, int nrhs, np.ndarray a, int lda, np.ndarray b, int ldb,
+            np.ndarray s, double rcond, int rank,
+            np.ndarray work, int lwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgelsd"): return None
@@ -248,8 +252,8 @@ cdef dgelsd(int m, int n, int nrhs, object a, int lda, object b, int ldb,
     return retval
 
 
-cdef dgesv(int n, int nrhs, object a, int lda, object ipiv,
-           object b, int ldb, int info):
+cdef dgesv(int n, int nrhs, np.ndarray a, int lda, np.ndarray ipiv,
+           np.ndarray b, int ldb, int info):
     cdef int lapack_lite_status__
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgesv"): return None
@@ -272,10 +276,11 @@ cdef dgesv(int n, int nrhs, object a, int lda, object ipiv,
     return retval
 
 
-cdef dgesdd(char jobz, int m, int n, object a, int lda,
-            object s, object u, int ldu, object vt, int ldvt,
-            object work, int lwork, object iwork, int info):
+cdef dgesdd(jobz, int m, int n, np.ndarray a, int lda,
+            np.ndarray s, np.ndarray u, int ldu, np.ndarray vt, int ldvt,
+            np.ndarray work, int lwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
+    cdef char jobz_char = ord(jobz[0])
     cdef long work0
     cdef int mn, mx
 
@@ -286,7 +291,7 @@ cdef dgesdd(char jobz, int m, int n, object a, int lda,
     if not check_object(work,np.NPY_DOUBLE,"work","np.NPY_DOUBLE","dgesdd"): return None
     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","dgesdd"): return None
 
-    lapack_lite_status__ = lapack_dgesdd(&jobz,&m,&n,
+    lapack_lite_status__ = lapack_dgesdd(&jobz_char,&m,&n,
                                          <double *>np.PyArray_DATA(a),&lda,
                                          <double *>np.PyArray_DATA(s),
                                          <double *>np.PyArray_DATA(u),&ldu,
@@ -314,7 +319,7 @@ cdef dgesdd(char jobz, int m, int n, object a, int lda,
     
     retval = {}
     retval["dgesdd_"] = lapack_lite_status__
-    retval["jobz"] = jobz
+    retval["jobz"] = jobz_char
     retval["m"] = m
     retval["n"] = n
     retval["lda"] = lda
@@ -325,7 +330,7 @@ cdef dgesdd(char jobz, int m, int n, object a, int lda,
     return retval
 
 
-cdef dgetrf(int m, int n, object a, int lda, object ipiv, int info):
+cdef dgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     cdef int lapack_lite_status__
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgetrf"): return None
@@ -343,12 +348,13 @@ cdef dgetrf(int m, int n, object a, int lda, object ipiv, int info):
     return retval
 
 
-cdef dpotrf(char uplo, int n, object a, int lda, int info):
+cdef dpotrf(uplo, int n, np.ndarray a, int lda, int info):
     cdef int lapack_lite_status__
+    cdef char uplo_char = ord(uplo[0])
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dpotrf"): return None
 
-    lapack_lite_status__ = lapack_dpotrf(&uplo,&n,
+    lapack_lite_status__ = lapack_dpotrf(&uplo_char,&n,
                                          <double *>np.PyArray_DATA(a),&lda,
                                          &info)
 
@@ -360,7 +366,8 @@ cdef dpotrf(char uplo, int n, object a, int lda, int info):
     return retval
 
 
-cdef dgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):
+cdef dgeqrf(int m, int n, np.ndarray a, int lda,
+            np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
     # check objects and convert to right storage order
@@ -384,7 +391,8 @@ cdef dgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork,
     return retval
 
 
-cdef dorgqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):
+cdef dorgqr(int m, int n, int k, np.ndarray a, int lda,
+            np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dorgqr"): return None
@@ -403,10 +411,12 @@ cdef dorgqr(int m, int n, int k, object a, int lda, object tau, object work, int
     return retval
 
 
-cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
-           object w, object vl, int ldvl, object vr, int ldvr,
-           object work, int lwork, object rwork, int info):
+cdef zgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
+           np.ndarray w, np.ndarray vl, int ldvl, np.ndarray vr, int ldvr,
+           np.ndarray work, int lwork, np.ndarray rwork, int info):
     cdef int lapack_lite_status__
+    cdef char jobvl_char = ord(jobvl[0])
+    cdef char jobvr_char = ord(jobvr[0])
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgeev"): return None
     if not check_object(w,np.NPY_CDOUBLE,"w","np.NPY_CDOUBLE","zgeev"): return None
@@ -415,7 +425,7 @@ cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
     if not check_object(work,np.NPY_CDOUBLE,"work","np.NPY_CDOUBLE","zgeev"): return None
     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgeev"): return None
 
-    lapack_lite_status__ = lapack_zgeev(&jobvl,&jobvr,&n,
+    lapack_lite_status__ = lapack_zgeev(&jobvl_char,&jobvr_char,&n,
                                         <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                         <f2c_doublecomplex *>np.PyArray_DATA(w),
                                         <f2c_doublecomplex *>np.PyArray_DATA(vl),&ldvl,
@@ -425,8 +435,8 @@ cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
 
     retval = {}
     retval["zgeev_"] = lapack_lite_status__
-    retval["jobvl"] = jobvl
-    retval["jobvr"] = jobvr
+    retval["jobvl"] = jobvl_char
+    retval["jobvr"] = jobvr_char
     retval["n"] = n
     retval["lda"] = lda
     retval["ldvl"] = ldvl
@@ -436,10 +446,10 @@ cdef zgeev(char jobvl, char jobvr, int n, object a, int lda,
     return retval
 
 
-cdef zgelsd(int m, int n, int nrhs, object a, int lda,
-            object b, int ldb, object s, double rcond,
-            int rank, object work, int lwork,
-            object rwork, object iwork, int info):
+cdef zgelsd(int m, int n, int nrhs, np.ndarray a, int lda,
+            np.ndarray b, int ldb, np.ndarray s, double rcond,
+            int rank, np.ndarray work, int lwork,
+            np.ndarray rwork, np.ndarray iwork, int info):
     cdef int  lapack_lite_status__
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgelsd"): return None
@@ -470,7 +480,8 @@ cdef zgelsd(int m, int n, int nrhs, object a, int lda,
     return retval
 
 
-cdef zgesv(int n, int nrhs, object a, int lda, object ipiv, object b, int ldb, int info):
+cdef zgesv(int n, int nrhs, np.ndarray a, int lda,
+           np.ndarray ipiv, np.ndarray b, int ldb, int info):
     cdef int lapack_lite_status__
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesv"): return None
@@ -493,10 +504,11 @@ cdef zgesv(int n, int nrhs, object a, int lda, object ipiv, object b, int ldb, i
     return retval
 
 
-cdef zgesdd(char jobz, int m, int n, object a, int lda,
-            object s, object u, int ldu, object vt, int ldvt,
-            object work, int lwork, object rwork, object iwork, int info):
+cdef zgesdd(jobz, int m, int n, np.ndarray a, int lda,
+            np.ndarray s, np.ndarray u, int ldu, np.ndarray vt, int ldvt,
+            np.ndarray work, int lwork, np.ndarray rwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
+    cdef char jobz_char = ord(jobz[0])
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgesdd"): return None
     if not check_object(s,np.NPY_DOUBLE,"s","np.NPY_DOUBLE","zgesdd"): return None
@@ -506,7 +518,7 @@ cdef zgesdd(char jobz, int m, int n, object a, int lda,
     if not check_object(rwork,np.NPY_DOUBLE,"rwork","np.NPY_DOUBLE","zgesdd"): return None
     if not check_object(iwork,np.NPY_INT,"iwork","np.NPY_INT","zgesdd"): return None
 
-    lapack_lite_status__ = lapack_zgesdd(&jobz,&m,&n,
+    lapack_lite_status__ = lapack_zgesdd(&jobz_char,&m,&n,
                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                          <double *>np.PyArray_DATA(s),
                                          <f2c_doublecomplex *>np.PyArray_DATA(u),&ldu,
@@ -517,7 +529,7 @@ cdef zgesdd(char jobz, int m, int n, object a, int lda,
 
     retval = {}
     retval["zgesdd_"] = lapack_lite_status__
-    retval["jobz"] = jobz
+    retval["jobz"] = jobz_char
     retval["m"] = m
     retval["n"] = n
     retval["lda"] = lda
@@ -528,7 +540,7 @@ cdef zgesdd(char jobz, int m, int n, object a, int lda,
     return retval
 
 
-cdef zgetrf(int m, int n, object a, int lda, object ipiv, int info):
+cdef zgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     cdef int lapack_lite_status__
     
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgetrf"): return None
@@ -547,12 +559,13 @@ cdef zgetrf(int m, int n, object a, int lda, object ipiv, int info):
     return retval
 
 
-cdef zpotrf(char uplo, int n, object a, int lda, int info):
+cdef zpotrf(uplo, int n, np.ndarray a, int lda, int info):
     cdef int  lapack_lite_status__
+    cdef char uplo_char = ord(uplo[0])
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zpotrf"): return None
 
-    lapack_lite_status__ = lapack_zpotrf(&uplo,&n,
+    lapack_lite_status__ = lapack_zpotrf(&uplo_char,&n,
                                          <f2c_doublecomplex *>np.PyArray_DATA(a),&lda,
                                          &info)
 
@@ -564,7 +577,8 @@ cdef zpotrf(char uplo, int n, object a, int lda, int info):
     return retval
 
 
-cdef zgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork, int info):
+cdef zgeqrf(int m, int n, np.ndarray a, int lda,
+            np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int lapack_lite_status__
 
     # check objects and convert to right storage order
@@ -588,7 +602,8 @@ cdef zgeqrf(int m, int n, object a, int lda, object tau, object work, int lwork,
     return retval
 
 
-cdef zungqr(int m, int n, int k, object a, int lda, object tau, object work, int lwork, int info):
+cdef zungqr(int m, int n, int k, np.ndarray a, int lda,
+            np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zungqr"): return None
