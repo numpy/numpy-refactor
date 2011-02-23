@@ -49,6 +49,9 @@ def build_egg():
             elif fn.endswith('.dll') and fn not in ignore_libs:
                 z.write(path, 'EGG-INFO/prefix/DLLs/' + fn)
 
+    z.write(r'libndarray\windows\bin\Debug\ndarray.dll',
+            'EGG-INFO/prefix/DLLs/ndarray.dll')
+
     z.writestr('numpy/__config__.py', config_txt)
     z.writestr('numpy/version.py', version_txt)
 
