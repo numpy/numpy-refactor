@@ -34,7 +34,7 @@ name = 'numpy'
 version = '%s'
 build = 1
 
-arch = None
+arch = 'x86'
 platform = 'cli'
 osdist = None
 python = None
