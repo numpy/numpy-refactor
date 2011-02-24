@@ -921,7 +921,7 @@ namespace NumpyDotNet
         }
 
         public object __truediv__(CodeContext cntx, object o) {
-            return BinaryOp(null, this, 0, NpyDefs.NpyArray_Ops.npy_op_true_divide);
+            return BinaryOp(null, this, o, NpyDefs.NpyArray_Ops.npy_op_true_divide);
         }
 
         public object __complex__(CodeContext cntx) {
