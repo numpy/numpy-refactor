@@ -43,7 +43,7 @@ cdef int check_object(np.ndarray ob, int t, char *obname, char *tname, char *fun
     return 1
 
 
-cdef dgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
+def dgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
            np.ndarray wr, np.ndarray wi, np.ndarray vl,
            int ldvl, np.ndarray vr, int ldvr, np.ndarray work, int lwork, int info):
     cdef int lapack_lite_status__
@@ -80,7 +80,7 @@ cdef dgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
     return retval
 
             
-cdef dsyevd(jobz, uplo, int n, np.ndarray a, int lda,
+def dsyevd(jobz, uplo, int n, np.ndarray a, int lda,
             np.ndarray w, np.ndarray work, int lwork, np.ndarray iwork, int liwork, int info):
     """ Arguments
         =========
@@ -147,7 +147,7 @@ cdef dsyevd(jobz, uplo, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef zheevd(jobz, uplo, int n, np.ndarray a, int lda,
+def zheevd(jobz, uplo, int n, np.ndarray a, int lda,
             np.ndarray w, np.ndarray work, int lwork,
             np.ndarray rwork, int lrwork,
             np.ndarray iwork, int liwork, int info):
@@ -220,7 +220,7 @@ cdef zheevd(jobz, uplo, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef dgelsd(int m, int n, int nrhs, np.ndarray a, int lda, np.ndarray b, int ldb,
+def dgelsd(int m, int n, int nrhs, np.ndarray a, int lda, np.ndarray b, int ldb,
             np.ndarray s, double rcond, int rank,
             np.ndarray work, int lwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
@@ -252,7 +252,7 @@ cdef dgelsd(int m, int n, int nrhs, np.ndarray a, int lda, np.ndarray b, int ldb
     return retval
 
 
-cdef dgesv(int n, int nrhs, np.ndarray a, int lda, np.ndarray ipiv,
+def dgesv(int n, int nrhs, np.ndarray a, int lda, np.ndarray ipiv,
            np.ndarray b, int ldb, int info):
     cdef int lapack_lite_status__
 
@@ -276,7 +276,7 @@ cdef dgesv(int n, int nrhs, np.ndarray a, int lda, np.ndarray ipiv,
     return retval
 
 
-cdef dgesdd(jobz, int m, int n, np.ndarray a, int lda,
+def dgesdd(jobz, int m, int n, np.ndarray a, int lda,
             np.ndarray s, np.ndarray u, int ldu, np.ndarray vt, int ldvt,
             np.ndarray work, int lwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
@@ -330,7 +330,7 @@ cdef dgesdd(jobz, int m, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef dgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
+def dgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     cdef int lapack_lite_status__
 
     if not check_object(a,np.NPY_DOUBLE,"a","np.NPY_DOUBLE","dgetrf"): return None
@@ -348,7 +348,7 @@ cdef dgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     return retval
 
 
-cdef dpotrf(uplo, int n, np.ndarray a, int lda, int info):
+def dpotrf(uplo, int n, np.ndarray a, int lda, int info):
     cdef int lapack_lite_status__
     cdef char uplo_char = ord(uplo[0])
 
@@ -366,7 +366,7 @@ cdef dpotrf(uplo, int n, np.ndarray a, int lda, int info):
     return retval
 
 
-cdef dgeqrf(int m, int n, np.ndarray a, int lda,
+def dgeqrf(int m, int n, np.ndarray a, int lda,
             np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
@@ -391,7 +391,7 @@ cdef dgeqrf(int m, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef dorgqr(int m, int n, int k, np.ndarray a, int lda,
+def dorgqr(int m, int n, int k, np.ndarray a, int lda,
             np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
@@ -411,7 +411,7 @@ cdef dorgqr(int m, int n, int k, np.ndarray a, int lda,
     return retval
 
 
-cdef zgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
+def zgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
            np.ndarray w, np.ndarray vl, int ldvl, np.ndarray vr, int ldvr,
            np.ndarray work, int lwork, np.ndarray rwork, int info):
     cdef int lapack_lite_status__
@@ -446,7 +446,7 @@ cdef zgeev(jobvl, jobvr, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef zgelsd(int m, int n, int nrhs, np.ndarray a, int lda,
+def zgelsd(int m, int n, int nrhs, np.ndarray a, int lda,
             np.ndarray b, int ldb, np.ndarray s, double rcond,
             int rank, np.ndarray work, int lwork,
             np.ndarray rwork, np.ndarray iwork, int info):
@@ -480,7 +480,7 @@ cdef zgelsd(int m, int n, int nrhs, np.ndarray a, int lda,
     return retval
 
 
-cdef zgesv(int n, int nrhs, np.ndarray a, int lda,
+def zgesv(int n, int nrhs, np.ndarray a, int lda,
            np.ndarray ipiv, np.ndarray b, int ldb, int info):
     cdef int lapack_lite_status__
 
@@ -504,7 +504,7 @@ cdef zgesv(int n, int nrhs, np.ndarray a, int lda,
     return retval
 
 
-cdef zgesdd(jobz, int m, int n, np.ndarray a, int lda,
+def zgesdd(jobz, int m, int n, np.ndarray a, int lda,
             np.ndarray s, np.ndarray u, int ldu, np.ndarray vt, int ldvt,
             np.ndarray work, int lwork, np.ndarray rwork, np.ndarray iwork, int info):
     cdef int lapack_lite_status__
@@ -540,7 +540,7 @@ cdef zgesdd(jobz, int m, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef zgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
+def zgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     cdef int lapack_lite_status__
     
     if not check_object(a,np.NPY_CDOUBLE,"a","np.NPY_CDOUBLE","zgetrf"): return None
@@ -559,7 +559,7 @@ cdef zgetrf(int m, int n, np.ndarray a, int lda, np.ndarray ipiv, int info):
     return retval
 
 
-cdef zpotrf(uplo, int n, np.ndarray a, int lda, int info):
+def zpotrf(uplo, int n, np.ndarray a, int lda, int info):
     cdef int  lapack_lite_status__
     cdef char uplo_char = ord(uplo[0])
 
@@ -577,7 +577,7 @@ cdef zpotrf(uplo, int n, np.ndarray a, int lda, int info):
     return retval
 
 
-cdef zgeqrf(int m, int n, np.ndarray a, int lda,
+def zgeqrf(int m, int n, np.ndarray a, int lda,
             np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int lapack_lite_status__
 
@@ -602,7 +602,7 @@ cdef zgeqrf(int m, int n, np.ndarray a, int lda,
     return retval
 
 
-cdef zungqr(int m, int n, int k, np.ndarray a, int lda,
+def zungqr(int m, int n, int k, np.ndarray a, int lda,
             np.ndarray tau, np.ndarray work, int lwork, int info):
     cdef int  lapack_lite_status__
 
