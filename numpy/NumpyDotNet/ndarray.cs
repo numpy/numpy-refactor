@@ -674,6 +674,9 @@ namespace NumpyDotNet
             return (ndarray)BinaryOp(null, a, shift, NpyDefs.NpyArray_Ops.npy_op_right_shift);
         }
 
+        public static object Power(Object a, Object b) {
+            return BinaryOp(null, NpyArray.FromAny(a), b, NpyDefs.NpyArray_Ops.npy_op_power);
+        }
 
         [SpecialName]
         public object InPlaceExclusiveOr(object b) {

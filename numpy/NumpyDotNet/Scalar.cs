@@ -375,6 +375,15 @@ namespace NumpyDotNet
             return ToArray().swapaxes(a1, a2);
         }
 
+        public static object Power(Object a, Object b) {
+            if (a is double && b is double) {
+                return Math.Pow((double)a, (double)b);
+            } else if (a is double && b is ScalarFloat64) {
+                return Math.Pow((double)a, (double)((ScalarFloat64)b).Value);
+            } else {
+                return NpyArray.FromAny(a).__pow__(NpyArray.FromAny(b));
+            }
+        }
 
         /// <summary>
         /// Returns the transpose of this object, for scalars there is no change.
@@ -1736,7 +1745,7 @@ namespace NumpyDotNet
         internal override ndarray ToArray() {
             ndarray result = NpyCoreApi.AllocArray((dtype)dtype, 0, null, false);
             unsafe {
-                Single* p = (Single*) result.UnsafeAddress.ToPointer();
+                Single* p = (Single*)result.UnsafeAddress.ToPointer();
                 *p = value;
             }
             return result;
@@ -1769,7 +1778,6 @@ namespace NumpyDotNet
         public static implicit operator Complex(ScalarFloat32 x) {
             return new Complex(x.value, 0.0);
         }
-
 
         public new bool __nonzero__() {
             return value != 0;
@@ -1832,7 +1840,6 @@ namespace NumpyDotNet
             // Primarily important for double type.
             return value.ToString("R");
         }
-
 
         static private dtype dtype_;
     }
