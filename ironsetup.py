@@ -17,7 +17,7 @@ def msbuild():
     os.chdir(join(src_dir, r'numpy\NumpyDotNet'))
     if '--release' in sys.argv:
         os.system('msbuild /p:Configuration=Release')
-    else
+    else:
         os.system('msbuild /p:Configuration=Debug')
     os.chdir(src_dir)
 
