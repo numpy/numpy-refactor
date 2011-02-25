@@ -802,6 +802,31 @@ namespace NumpyDotNet {
             return result;
         }
 
+        /// <summary>
+        /// Returns an allocated block of memory the same size as a single element of the given array
+        /// and representing a 'zero' value.  Usually this is all bytes set to zero, but for object
+        /// arrays it's a pointer to a boxed zero.
+        /// </summary>
+        /// <param name="arr">Array to take the dtype from</param>
+        /// <returns>Point to memory, must be free'd using NpyDataMem_FREE by the caller</returns>
+        public static IntPtr Zero(ndarray arr) {
+            if (arr.Dtype.HasNames && arr.Dtype.IsObject) {
+                throw new ArgumentTypeException("Not supported for this data-type");
+            }
+
+            using (ndarray zeroArr = Zeros(new long[] { 1 }, arr.Dtype)) {
+                IntPtr zeroMem = NpyCoreApi.DupZeroElem(zeroArr);
+                if (arr.Dtype.IsObject) {
+                    // The "zero value" is a GCHandle to a boxed zero. We need to duplicate the
+                    // GCHandle as it will be deallocated when the array goes away.
+                    GCHandle h = NpyCoreApi.GCHandleFromIntPtr(Marshal.ReadIntPtr(zeroMem));
+                    h = NpyCoreApi.AllocGCHandle(h.Target);
+                    Marshal.WriteIntPtr(zeroMem, GCHandle.ToIntPtr(h));
+                }
+                return zeroMem;
+            }
+        }
+
         public static ndarray Arange(CodeContext cntx, object start, object stop = null, object step = null, dtype d = null) {
             long[] dims;
 

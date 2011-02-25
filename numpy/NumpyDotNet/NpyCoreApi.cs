@@ -1463,6 +1463,19 @@ namespace NumpyDotNet {
             }
         }
 
+        /// <summary>
+        /// Allocates a block of memory using NpyDataMem_NEW that is the same size as a single
+        /// array element and zeros the bytes.  This is usually good enough, but is not a correct
+        /// zero for object arrays.  The caller must free the memory with NpyDataMem_FREE().
+        /// </summary>
+        /// <param name="arr">Array to take the element size from</param>
+        /// <returns>Pointer to zero'd memory</returns>
+        internal static IntPtr DupZeroElem(ndarray arr) {
+            lock (GlobalIterpLock) {
+                return NpyArrayAccess_DupZeroElem(arr.Array);
+            }
+        }
+
         internal unsafe static void CopySwapIn(ndarray arr, long offset, void* data, bool swap) {
             lock (GlobalIterpLock) {
                 NpyArrayAccess_CopySwapIn(arr.Array, offset, data, swap ? 1 : 0);
@@ -1720,6 +1733,9 @@ namespace NumpyDotNet {
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         private static extern void NpyArrayAccess_ZeroFill(IntPtr arr, IntPtr offset);
+
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr NpyArrayAccess_DupZeroElem(IntPtr arr);
 
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         private static extern int NpyArrayAccess_Fill(IntPtr arr);

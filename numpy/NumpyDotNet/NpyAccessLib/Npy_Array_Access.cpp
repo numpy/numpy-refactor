@@ -158,6 +158,18 @@ extern "C" __declspec(dllexport)
 }
 
 
+// Allocates a block of memory and copies the contents of the first element
+// of the array into it.  It is assumed that this is a zero value provided
+// by the caller.  If the array is an object array the caller is responsible
+// for dealing with any GC references.
+extern "C" __declspec(dllexport)
+    void * _cdecl NpyArrayAccess_DupZeroElem(NpyArray *arr)
+{
+    void *mem = NpyDataMem_NEW(NpyArray_ITEMSIZE(arr));
+    memcpy(mem, NpyArray_DATA(arr), NpyArray_ITEMSIZE(arr));
+    return mem;
+}
+
 
 
 // Trivial wrapper around NpyArray_Alloc.  The only reason for this is that .NET doesn't
