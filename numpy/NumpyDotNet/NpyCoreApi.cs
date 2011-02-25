@@ -2585,132 +2585,140 @@ namespace NumpyDotNet {
         /// Initializes the core library with necessary callbacks on load.
         /// </summary>
         static NpyCoreApi() {
-            // Check the native byte ordering (make sure it matches what .NET uses) and
-            // figure out the mapping between types that vary in size in the core and
-            // fixed-size .NET types.
-            int intSize, longSize, longLongSize, longDoubleSize;
-            oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize,
-                                                  out longDoubleSize);
-
-            Native_SizeOfInt = intSize;
-            Native_SizeOfLong = longSize;
-            Native_SizeOfLongLong = longLongSize;
-            Native_SizeOfLongDouble = longDoubleSize;
-
-            // Important: keep this consistent with NpyArray_TypestrConvert in npy_conversion_utils.c
-            if (intSize == 4 && longSize == 4 && longLongSize == 8) {
-                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_LONG;
-                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
-                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_ULONG;
-                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONGLONG;
-            } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
-                TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
-                TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONG;
-                TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
-                TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONG;
-            } else {
-                throw new NotImplementedException(
-                    String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
-                                  intSize, longSize, longLongSize));
-            }
-
-
-            wrapFuncs = new NpyInterface_WrapperFuncs();
-
-            wrapFuncs.array_new_wrapper =
-                Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
-            wrapFuncs.iter_new_wrapper =
-                Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
-            wrapFuncs.multi_iter_new_wrapper =
-                Marshal.GetFunctionPointerForDelegate(MultiIterNewWrapperDelegate);
-            wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
-            wrapFuncs.descr_new_from_type =
-                Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
-            wrapFuncs.descr_new_from_wrapper =
-                Marshal.GetFunctionPointerForDelegate(DescrNewFromWrapperDelegate);
-            wrapFuncs.ufunc_new_wrapper =
-                Marshal.GetFunctionPointerForDelegate(UFuncNewWrapperDelegate);
-
-            int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
-
-            NumericOps.NpyArray_FunctionDefs funcDefs = NumericOps.GetFunctionDefs();
-            IntPtr funcDefsHandle = IntPtr.Zero;
-            IntPtr wrapHandle = IntPtr.Zero;
             try {
-                funcDefsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(funcDefs));
-                Marshal.StructureToPtr(funcDefs, funcDefsHandle, true);
-                wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
-                Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
+                // Check the native byte ordering (make sure it matches what .NET uses) and
+                // figure out the mapping between types that vary in size in the core and
+                // fixed-size .NET types.
+                int intSize, longSize, longLongSize, longDoubleSize;
+                oppositeByteOrder = GetNativeTypeInfo(out intSize, out longSize, out longLongSize,
+                                                      out longDoubleSize);
 
-                npy_initlib(funcDefsHandle, wrapHandle,
-                    Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
-                    Marshal.GetFunctionPointerForDelegate(ErrorOccurredCallbackDelegate),
-                    Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
-                    Marshal.GetFunctionPointerForDelegate(NumericOps.ComparePriorityDelegate),
-                    Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
-                    Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate),
-                    IntPtr.Zero, IntPtr.Zero);
+                Native_SizeOfInt = intSize;
+                Native_SizeOfLong = longSize;
+                Native_SizeOfLongLong = longLongSize;
+                Native_SizeOfLongDouble = longDoubleSize;
+
+                // Important: keep this consistent with NpyArray_TypestrConvert in npy_conversion_utils.c
+                if (intSize == 4 && longSize == 4 && longLongSize == 8) {
+                    TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_LONG;
+                    TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONGLONG;
+                    TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_ULONG;
+                    TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONGLONG;
+                } else if (intSize == 4 && longSize == 8 && longLongSize == 8) {
+                    TypeOf_Int32 = NpyDefs.NPY_TYPES.NPY_INT;
+                    TypeOf_Int64 = NpyDefs.NPY_TYPES.NPY_LONG;
+                    TypeOf_UInt32 = NpyDefs.NPY_TYPES.NPY_UINT;
+                    TypeOf_UInt64 = NpyDefs.NPY_TYPES.NPY_ULONG;
+                } else {
+                    throw new NotImplementedException(
+                        String.Format("Unimplemented combination of native type sizes: int = {0}b, long = {1}b, longlong = {2}b",
+                                      intSize, longSize, longLongSize));
+                }
+
+
+                wrapFuncs = new NpyInterface_WrapperFuncs();
+
+                wrapFuncs.array_new_wrapper =
+                    Marshal.GetFunctionPointerForDelegate(ArrayNewWrapDelegate);
+                wrapFuncs.iter_new_wrapper =
+                    Marshal.GetFunctionPointerForDelegate(IterNewWrapperDelegate);
+                wrapFuncs.multi_iter_new_wrapper =
+                    Marshal.GetFunctionPointerForDelegate(MultiIterNewWrapperDelegate);
+                wrapFuncs.neighbor_iter_new_wrapper = IntPtr.Zero;
+                wrapFuncs.descr_new_from_type =
+                    Marshal.GetFunctionPointerForDelegate(DescrNewFromTypeDelegate);
+                wrapFuncs.descr_new_from_wrapper =
+                    Marshal.GetFunctionPointerForDelegate(DescrNewFromWrapperDelegate);
+                wrapFuncs.ufunc_new_wrapper =
+                    Marshal.GetFunctionPointerForDelegate(UFuncNewWrapperDelegate);
+
+                int s = Marshal.SizeOf(wrapFuncs.descr_new_from_type);
+
+                NumericOps.NpyArray_FunctionDefs funcDefs = NumericOps.GetFunctionDefs();
+                IntPtr funcDefsHandle = IntPtr.Zero;
+                IntPtr wrapHandle = IntPtr.Zero;
+                try {
+                    funcDefsHandle = Marshal.AllocHGlobal(Marshal.SizeOf(funcDefs));
+                    Marshal.StructureToPtr(funcDefs, funcDefsHandle, true);
+                    wrapHandle = Marshal.AllocHGlobal(Marshal.SizeOf(wrapFuncs));
+                    Marshal.StructureToPtr(wrapFuncs, wrapHandle, true);
+
+                    npy_initlib(funcDefsHandle, wrapHandle,
+                        Marshal.GetFunctionPointerForDelegate(SetErrorCallbackDelegate),
+                        Marshal.GetFunctionPointerForDelegate(ErrorOccurredCallbackDelegate),
+                        Marshal.GetFunctionPointerForDelegate(ClearErrorCallbackDelegate),
+                        Marshal.GetFunctionPointerForDelegate(NumericOps.ComparePriorityDelegate),
+                        Marshal.GetFunctionPointerForDelegate(IncrefCallbackDelegate),
+                        Marshal.GetFunctionPointerForDelegate(DecrefCallbackDelegate),
+                        IntPtr.Zero, IntPtr.Zero);
                     // for now we run full threaded, no safety net.
                     //Marshal.GetFunctionPointerForDelegate(EnableThreadsDelegate),
                     //Marshal.GetFunctionPointerForDelegate(DisableThreadsDelegate));
+                } catch (Exception e) {
+                    Console.WriteLine("Failed during initialization: {0}", e);
+                } finally {
+                    Marshal.FreeHGlobal(funcDefsHandle);
+                    Marshal.FreeHGlobal(wrapHandle);
+                }
+
+                // Initialize the offsets to each structure type for fast access
+                // TODO: Not a great way to do this, but for now it's
+                // a convenient way to get hard field offsets from the core.
+                ArrayGetOffsets(out ArrayOffsets.off_magic_number,
+                                out ArrayOffsets.off_descr,
+                                out ArrayOffsets.off_nd,
+                                out ArrayOffsets.off_dimensions,
+                                out ArrayOffsets.off_strides,
+                                out ArrayOffsets.off_flags,
+                                out ArrayOffsets.off_data,
+                                out ArrayOffsets.off_base_obj,
+                                out ArrayOffsets.off_base_array);
+
+                DescrGetOffsets(out DescrOffsets.off_magic_number,
+                                out DescrOffsets.off_kind,
+                                out DescrOffsets.off_type,
+                                out DescrOffsets.off_byteorder,
+                                out DescrOffsets.off_flags,
+                                out DescrOffsets.off_type_num,
+                                out DescrOffsets.off_elsize,
+                                out DescrOffsets.off_alignment,
+                                out DescrOffsets.off_names,
+                                out DescrOffsets.off_subarray,
+                                out DescrOffsets.off_fields,
+                                out DescrOffsets.off_dtinfo,
+                                out DescrOffsets.off_fields_offset,
+                                out DescrOffsets.off_fields_descr,
+                                out DescrOffsets.off_fields_title);
+
+                IterGetOffsets(out IterOffsets.off_size,
+                               out IterOffsets.off_index);
+
+                MultiIterGetOffsets(out MultiIterOffsets.off_numiter,
+                                    out MultiIterOffsets.off_size,
+                                    out MultiIterOffsets.off_index,
+                                    out MultiIterOffsets.off_nd,
+                                    out MultiIterOffsets.off_dimensions,
+                                    out MultiIterOffsets.off_iters);
+
+                GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
+
+                UFuncGetOffsets(out UFuncOffsets.off_nin, out UFuncOffsets.off_nout,
+                    out UFuncOffsets.off_nargs, out UFuncOffsets.off_core_enabled,
+                    out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
+                    out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
+                    out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
+
+                NpyUFunc_SetFpErrFuncs(GetErrorStateDelegate, ErrorHandlerDelegate);
+
+                // Causes the sort functions to be registered with the type descriptor objects.
+                NpyArray_InitSortModule();
             } catch (Exception e) {
-                Console.WriteLine("Failed during initialization: {0}", e);
-            } finally {
-                Marshal.FreeHGlobal(funcDefsHandle);
-                Marshal.FreeHGlobal(wrapHandle);
+                // Report any details that we can here because IronPython only reports 
+                // that the static type initializer failed.
+                Console.WriteLine("Failed while initializing NpyCoreApi: {0}:{1}", e.GetType().Name, e.Message);
+                Console.WriteLine("NumpyDotNet stack trace:\n{0}", e.StackTrace);
+                throw e;
             }
-
-            // Initialize the offsets to each structure type for fast access
-            // TODO: Not a great way to do this, but for now it's
-            // a convenient way to get hard field offsets from the core.
-            ArrayGetOffsets(out ArrayOffsets.off_magic_number,
-                            out ArrayOffsets.off_descr,
-                            out ArrayOffsets.off_nd,
-                            out ArrayOffsets.off_dimensions,
-                            out ArrayOffsets.off_strides,
-                            out ArrayOffsets.off_flags,
-                            out ArrayOffsets.off_data,
-                            out ArrayOffsets.off_base_obj,
-                            out ArrayOffsets.off_base_array);
-
-            DescrGetOffsets(out DescrOffsets.off_magic_number,
-                            out DescrOffsets.off_kind,
-                            out DescrOffsets.off_type,
-                            out DescrOffsets.off_byteorder,
-                            out DescrOffsets.off_flags,
-                            out DescrOffsets.off_type_num,
-                            out DescrOffsets.off_elsize,
-                            out DescrOffsets.off_alignment,
-                            out DescrOffsets.off_names,
-                            out DescrOffsets.off_subarray,
-                            out DescrOffsets.off_fields,
-                            out DescrOffsets.off_dtinfo,
-                            out DescrOffsets.off_fields_offset,
-                            out DescrOffsets.off_fields_descr,
-                            out DescrOffsets.off_fields_title);
-
-            IterGetOffsets(out IterOffsets.off_size,
-                           out IterOffsets.off_index);
-
-            MultiIterGetOffsets(out MultiIterOffsets.off_numiter,
-                                out MultiIterOffsets.off_size,
-                                out MultiIterOffsets.off_index,
-                                out MultiIterOffsets.off_nd,
-                                out MultiIterOffsets.off_dimensions,
-                                out MultiIterOffsets.off_iters);
-
-            GetIndexInfo(out IndexInfo.off_union, out IndexInfo.sizeof_index, out IndexInfo.max_dims);
-
-            UFuncGetOffsets(out UFuncOffsets.off_nin, out UFuncOffsets.off_nout,
-                out UFuncOffsets.off_nargs, out UFuncOffsets.off_core_enabled,
-                out UFuncOffsets.off_identify, out UFuncOffsets.off_ntypes,
-                out UFuncOffsets.off_check_return, out UFuncOffsets.off_name,
-                out UFuncOffsets.off_types, out UFuncOffsets.off_core_signature);
-
-            NpyUFunc_SetFpErrFuncs(GetErrorStateDelegate, ErrorHandlerDelegate);
-
-            // Causes the sort functions to be registered with the type descriptor objects.
-            NpyArray_InitSortModule();
         }
         #endregion
 
