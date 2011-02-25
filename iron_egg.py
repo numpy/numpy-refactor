@@ -72,6 +72,9 @@ def build_egg():
 
     z.write(r'numpy\NumpyDotNet\bin\Debug\NumpyDotNet.dll',
             'EGG-INFO/prefix/DLLs/NumpyDotNet.dll')
+    z.writestr(join(os.environ['VSINSTALLDIR'],
+                    r'redist\x86\Microsoft.VC100.CRT\msvcr100.dll'),
+               'EGG-INFO/prefix/DLLs/msvcr100.dll')
     z.writestr('numpy/__config__.py', config_txt)
     z.writestr('numpy/version.py', version_txt)
     z.writestr('EGG-INFO/spec/depend', spec_txt)
