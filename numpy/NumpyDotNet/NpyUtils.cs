@@ -293,7 +293,22 @@ namespace NumpyDotNet {
         internal static Complex ConvertToComplex(object obj, CodeContext cntx = null) {
             if (cntx == null) cntx = DefaultContext;
 
-            if (obj is Complex) {
+            if (obj == null) return new Complex();
+            else if (obj is int) {
+                return new Complex((int)obj, 0.0);
+            } else if (obj is long) {
+                return new Complex((long)obj, 0.0);
+            } else if (obj is float) {
+                return new Complex((float)obj, 0.0);
+            } else if (obj is double) {
+                return new Complex((double)obj, 0.0);
+            } else if (obj is ScalarInt16) {
+                return new Complex((int)(ScalarInt16)obj, 0.0);
+            } else if (obj is ScalarInt32) {
+                return new Complex((int)(ScalarInt32)obj, 0.0);
+            } else if (obj is ScalarInt64) {
+                return new Complex((long)(ScalarInt64)obj, 0.0);
+            } else if (obj is Complex) {
                 return (Complex)obj;
             } else if (obj is ScalarComplex128) {
                 return (Complex)((ScalarComplex128)obj).Value;

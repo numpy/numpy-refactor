@@ -1085,6 +1085,10 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
+        public object __index__() {
+            return value;
+        }
+
         static private dtype dtype_;
 
         internal static readonly int MinValue = Int16.MinValue;
@@ -1158,6 +1162,10 @@ namespace NumpyDotNet
 
         public static explicit operator bool(ScalarInt32 s) {
             return s.value != 0;
+        }
+
+        public object __index__() {
+            return value;
         }
 
         static private dtype dtype_;
@@ -1237,6 +1245,10 @@ namespace NumpyDotNet
 
         public static explicit operator bool(ScalarInt64 s) {
             return s.value != 0;
+        }
+
+        public object __index__() {
+            return value;
         }
 
         static private dtype dtype_;
@@ -2323,6 +2335,12 @@ namespace NumpyDotNet
                 value = new Complex((float)o, 0.0);
             } else if (o is double) {
                 value = new Complex((double)o, 0.0);
+            } else if (o is ScalarInt16) {
+                value = new Complex((int)(ScalarInt16)o, 0.0);
+            } else if (o is ScalarInt16) {
+                value = new Complex((int)(ScalarInt32)o, 0.0);
+            } else if (o is ScalarInt16) {
+                value = new Complex((long)(ScalarInt64)o, 0.0);
             } else if (o is Complex) {
                 value = (Complex)o;
             } else if (o is ScalarComplex64) {
