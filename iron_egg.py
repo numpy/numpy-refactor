@@ -70,7 +70,7 @@ def build_egg():
             elif fn.endswith('.dll') and fn not in ignore_libs:
                 z.write(path, 'EGG-INFO/prefix/DLLs/' + fn)
 
-    z.write(r'numpy\NumpyDotNet\bin\Debug\NumpyDotNet.dll',
+    z.write(r'numpy\NumpyDotNet\bin\Release\NumpyDotNet.dll',
             'EGG-INFO/prefix/DLLs/NumpyDotNet.dll')
     z.write(join(os.environ['VSINSTALLDIR'],
                  r'VC\redist\x86\Microsoft.VC100.CRT\msvcr100.dll'),
