@@ -14,9 +14,11 @@ src_dir = os.getcwd()
 
 
 def msbuild():
-    pass
     os.chdir(join(src_dir, r'numpy\NumpyDotNet'))
-    os.system('msbuild /p:Configuration=Debug')
+    if '--release' in sys.argv:
+        os.system('msbuild /p:Configuration=Release')
+    else:
+        os.system('msbuild /p:Configuration=Debug')
     os.chdir(src_dir)
 
 
