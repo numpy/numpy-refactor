@@ -27,9 +27,8 @@ if sys.platform != 'cli':
     from _compiled_base import _insert, add_docstring
     from _compiled_base import digitize, bincount, interp as compiled_interp
 else:
+    from _compiled_base import _insert
     # TODO: Implement these
-    def _insert(*args, **kw):
-        raise NotImplementedError()
     def add_docstring(*args, **kw):
         pass
     def digitize(*args, **kw):
