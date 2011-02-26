@@ -167,7 +167,7 @@ namespace NumpyDotNet
             return ToArray().conjugate(@out);
         }
 
-        public ndarray copy(object order = null) {
+        public object copy(object order = null) {
             return ToArray().copy(order);
         }
 

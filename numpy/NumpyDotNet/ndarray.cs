@@ -235,7 +235,7 @@ namespace NumpyDotNet
         /// <param name="visit">Passed to the Python copy.deepcopy() routine</param>
         /// <returns>duplicated array</returns>
         public object __deepcopy__(object visit) {
-            ndarray ret = this.copy();
+            ndarray ret = this.Copy();
             if (ret.Dtype.IsObject) {
                 IntPtr optr = ret.UnsafeAddress;
                 flatiter it = this.Flat;
@@ -1271,7 +1271,7 @@ namespace NumpyDotNet
                     return NpyCoreApi.GetImag(this);
                 } else {
                     // TODO: np.zeros_like when we have it.
-                    ndarray result = copy();
+                    ndarray result = Copy();
                     result.flat = 0;
                     return result;
                 }
@@ -1433,7 +1433,11 @@ namespace NumpyDotNet
             return Conjugate(@out);
         }
 
-        public ndarray copy(object order = null) {
+        public object copy(object order = null) {
+            return ArrayReturn(Copy(order));
+        }
+
+        public ndarray Copy(object order = null) {
             NpyDefs.NPY_ORDER eOrder = NpyUtil_ArgProcessing.OrderConverter(order);
             return NpyCoreApi.NewCopy(this, eOrder);
         }

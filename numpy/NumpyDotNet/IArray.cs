@@ -19,7 +19,7 @@ namespace NumpyDotNet
         ndarray compress(object condition, object axis = null, ndarray @out = null);
         ndarray conj(ndarray @out = null);
         ndarray conjugate(ndarray @out = null);
-        ndarray copy(object order = null);
+        object copy(object order = null);
         object cumprod(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         object cumsum(IronPython.Runtime.CodeContext cntx, object axis = null, object dtype = null, ndarray @out = null);
         PythonBuffer data { get; }

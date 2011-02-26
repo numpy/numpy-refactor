@@ -148,7 +148,7 @@ namespace NumpyDotNet
             // For complex just round both parts.
             if (IsComplex) {
                 if (ret == null) {
-                    ret = copy();
+                    ret = Copy();
                 }
                 Real.Round(decimals, ret.Real);
                 Imag.Round(decimals, ret.Imag);

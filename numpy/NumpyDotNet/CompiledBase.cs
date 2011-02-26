@@ -40,9 +40,9 @@ namespace NumpyDotNet {
         /// <param name="input">Input array to modify</param>
         /// <param name="mask">Mask value (same size or shape as input)</param>
         /// <param name="vals">Values to be inserted</param>
-        public static void _insert(CodeContext cntx, object input, object mask, object vals) {
+        public static object _insert(CodeContext cntx, object input, object mask, object vals) {
             ndarray arrInp = NpyArray.FromAny(input, null, 0, 0, NpyDefs.NPY_CARRAY);
-            
+
             ndarray arrMask = NpyArray.CheckFromArray(mask, null, 0, 0, NpyDefs.NPY_CARRAY, cntx);
             if (arrMask.Dtype.IsObject)
                 arrMask = NpyCoreApi.CastToType(arrMask, NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_INT), false);
@@ -67,6 +67,7 @@ namespace NumpyDotNet {
                     inpIter.Current = valsIter.Current;
                 }
             }
+            return arrInp;
         }
     }
 }
