@@ -121,13 +121,13 @@ namespace NumpyDotNet
         {
             SIMPLE = 0x00,
             WRITABLE = 0x01,
-            FORMAT = 0x02,
-            ND = 0x04,
-            STRIDES = 0x0C,         // Implies ND
-            C_CONTIGUOUS = 0x1C,    // Implies STRIDES
-            F_CONTIGUOUS = 0x2C,    // Implies STRIDES
-            ANY_CONTIGUOUS = 0x4C,  // Implies STRIDES
-            INDIRECT = 0x8C,        // Implies STRIDES
+            FORMAT = 0x04,
+            ND = 0x08,
+            STRIDES = 0x18,         // Implies ND
+            C_CONTIGUOUS = 0x38,    // Implies STRIDES
+            F_CONTIGUOUS = 0x58,    // Implies STRIDES
+            ANY_CONTIGUOUS = 0x98,  // Implies STRIDES
+            INDIRECT = 0x118,       // Implies STRIDES
 
             // Composite sets
             CONTIG = 0x41,          // Multidimensional ( ND | WRITABLE )
