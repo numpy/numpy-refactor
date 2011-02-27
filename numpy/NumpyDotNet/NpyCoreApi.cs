@@ -2324,7 +2324,7 @@ namespace NumpyDotNet {
         [ThreadStatic]
         private static string ErrorMessage = null;
 
-        internal static void CheckError() {
+        public static void CheckError() {
             if (ErrorCode != NpyExc_Type.NoError) {
                 NpyExc_Type errTmp = ErrorCode;
                 String msgTmp = ErrorMessage;
