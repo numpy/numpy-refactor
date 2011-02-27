@@ -111,10 +111,10 @@ namespace NumpyDotNet {
         }
 
 
-        public static ndarray CheckFromArray(Object src, dtype descr, int minDepth,
+        public static ndarray CheckFromAny(Object src, dtype descr, int minDepth,
             int maxDepth, int requires, Object context) {
 
-                if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
+            if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
                 if (descr != null && src is ndarray &&
                     ((ndarray)src).Dtype.IsNativeByteOrder) {
                     descr = new dtype(((ndarray)src).Dtype);

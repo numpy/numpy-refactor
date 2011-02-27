@@ -43,7 +43,7 @@ namespace NumpyDotNet {
         public static object _insert(CodeContext cntx, object input, object mask, object vals) {
             ndarray arrInp = NpyArray.FromAny(input, null, 0, 0, NpyDefs.NPY_CARRAY);
 
-            ndarray arrMask = NpyArray.CheckFromArray(mask, null, 0, 0, NpyDefs.NPY_CARRAY, cntx);
+            ndarray arrMask = NpyArray.CheckFromAny(mask, null, 0, 0, NpyDefs.NPY_CARRAY, cntx);
             if (arrMask.Dtype.IsObject)
                 arrMask = NpyCoreApi.CastToType(arrMask, NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_INT), false);
 

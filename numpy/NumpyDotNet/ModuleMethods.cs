@@ -155,7 +155,7 @@ namespace NumpyDotNet {
                 if (!subok) flags |= NpyDefs.NPY_ENSUREARRAY;
 
                 flags |= NpyDefs.NPY_FORCECAST;
-                result = NpyArray.CheckFromArray(src, type, 0, 0, flags, null);
+                result = NpyArray.CheckFromAny(src, type, 0, 0, flags, null);
             }
 
             if (result != null && result.ndim < ndmin) {
