@@ -147,7 +147,7 @@ cdef rfftb(np.ndarray op1, np.ndarray op2):
     nrepeats /= npts
     rptr = <double *>np.PyArray_DATA(ret)
     dptr = <double *>np.PyArray_DATA(data)
-    wsave = <double *>np.PyArray_DATA(data)
+    wsave = <double *>np.PyArray_DATA(op2)
     
     for i in range(nrepeats):
         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
