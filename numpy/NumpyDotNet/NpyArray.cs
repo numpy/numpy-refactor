@@ -115,8 +115,8 @@ namespace NumpyDotNet {
             int maxDepth, int requires, Object context) {
 
             if ((requires & NpyDefs.NPY_NOTSWAPPED) != 0) {
-                if (descr != null && src is ndarray &&
-                    ((ndarray)src).Dtype.IsNativeByteOrder) {
+                if (descr == null && src is ndarray &&
+                    !((ndarray)src).Dtype.IsNativeByteOrder) {
                     descr = new dtype(((ndarray)src).Dtype);
                 } else if (descr != null && !descr.IsNativeByteOrder) {
                     // Descr replace
