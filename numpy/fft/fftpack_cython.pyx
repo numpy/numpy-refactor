@@ -130,7 +130,7 @@ cdef rfftb(np.ndarray op1, np.ndarray op2):
     cdef np.intp_t nsave
     cdef int npts, nrepeats, i
 
-    data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
+    data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)
 
      # Force op2 to be contiguous in place of calling PyArray_AsCArray()
     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):

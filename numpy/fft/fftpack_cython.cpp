@@ -169,7 +169,25 @@ static CYTHON_INLINE long __Pyx_div_long(long, long); /* proto */
 /* Cython code section 'module_declarations' */
 /* Module declarations from numpy */
 /* Module declarations from numpy.fft.numpy */
+static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_3fft_5numpy_PyUFuncGenericFunction *, void **, char *, int, int, int, int, char *, char *, int); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_ZEROS(int, __pyx_t_5numpy_3fft_5numpy_intp_t *, int, int); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_New(void *, int, __pyx_t_5numpy_3fft_5numpy_npy_intp *, int, __pyx_t_5numpy_3fft_5numpy_npy_intp *, void *, int, int, void *); /*proto*/
+static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^, int); /*proto*/
+static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^); /*proto*/
+static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet::ndarray^); /*proto*/
+static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet::ndarray^); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^, System::Object^, System::Object^, System::Object^, System::Object^); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^); /*proto*/
+static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^); /*proto*/
+static CYTHON_INLINE void import_array(void); /*proto*/
 /* Module declarations from numpy.fft.fftpack_cython */
+static System::Object^ cfftf(NumpyDotNet::ndarray^, NumpyDotNet::ndarray^); /*proto*/
+static System::Object^ cfftb(NumpyDotNet::ndarray^, NumpyDotNet::ndarray^); /*proto*/
+static System::Object^ cffti(long); /*proto*/
+static System::Object^ rfftf(NumpyDotNet::ndarray^, NumpyDotNet::ndarray^); /*proto*/
+static System::Object^ rfftb(NumpyDotNet::ndarray^, NumpyDotNet::ndarray^); /*proto*/
+static System::Object^ rffti(long); /*proto*/
 /* Cython code section 'typeinfo' */
 /* Cython code section 'before_global_var' */
 #define __Pyx_MODULE_NAME "numpy.fft.fftpack_cython"
@@ -179,44 +197,44 @@ namespace clr_fftpack_cython {
   public ref class module_fftpack_cython sealed abstract {
 /* Cython code section 'global_var' */
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_35_55;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_35_55;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_35_55;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_37_19;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_62_55;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_62_55;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_62_55;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_64_19;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_101_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_101_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_101_54;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_102_48;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_102_48;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_103_42;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_102_48;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_cvt_int_103_42;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_104_48;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_104_48;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_104_48;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_106_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_106_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_106_54;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_110_19;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_139_42;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_cvt_int_139_42;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_sub_141_54;
-static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_Py_ssize_t_141_54;
+static  CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >^ __site_cvt_cvt_Py_ssize_t_141_54;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_144_19;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_append_198_18;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call1_198_25;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_zeros_200_16;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call3_200_22;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_209_54;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_209_54;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_cvt_PY_LONG_LONG_209_54;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_213_49;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_213_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_cvt_PY_LONG_LONG_213_49;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_217_49;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_217_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_cvt_PY_LONG_LONG_217_49;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_Array_221_49;
-static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_PY_LONG_LONG_221_49;
+static  CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >^ __site_cvt_cvt_PY_LONG_LONG_221_49;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_NpyArray_226_22;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_FromAny_226_31;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call6_226_39;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_and_229_13;
 static  CallSite< System::Func< CallSite^, System::Object^, bool >^ >^ __site_istrue_229_13;
 static  CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >^ __site_op_ior_230_14;
-static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_int_231_77;
+static  CallSite< System::Func< CallSite^, System::Object^, int >^ >^ __site_cvt_cvt_int_231_77;
 static  CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >^ __site_call2_234_21;
 static  CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >^ __site_get_ndim_237_14;
 static CodeContext^ __pyx_context;
@@ -227,7 +245,7 @@ static int^ __pyx_int_1;
 public:
 static System::String^ __module__ = __Pyx_MODULE_NAME;
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":22
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":22
  *     pass
  * 
  * cdef cfftf(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -253,7 +271,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   int __pyx_t_7;
   __pyx_v_data = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":28
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":28
  *     cdef np.ndarray data
  * 
  *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -265,13 +283,13 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
   __pyx_t_2 = nullptr;
-  if (__pyx_t_3 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_3) == nullptr) {
+  if (__pyx_t_3 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_3) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_data = ((NumpyDotNet::ndarray^)__pyx_t_3);
   __pyx_t_3 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":31
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":31
  * 
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):             # <<<<<<<<<<<<<<
@@ -281,7 +299,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (!PyArray_CHKFLAGS(__pyx_v_op2, NPY_CONTIGUOUS));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":32
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":32
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -293,7 +311,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_t_1 = PyArray_FROMANY(((System::Object^)__pyx_v_op2), __pyx_t_3, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
     __pyx_t_3 = nullptr;
     __pyx_t_2 = nullptr;
-    if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+    if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
       throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
     }
     __pyx_v_op2 = ((NumpyDotNet::ndarray^)__pyx_t_1);
@@ -302,7 +320,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L3:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":34
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":34
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
@@ -311,7 +329,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":35
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":35
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]             # <<<<<<<<<<<<<<
@@ -321,11 +339,11 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_1 = PyArray_NDIM(((System::Object^)__pyx_v_data)); 
   __pyx_t_2 = __site_op_sub_35_55->Target(__site_op_sub_35_55, __pyx_t_1, __pyx_int_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_5 = __site_cvt_Py_ssize_t_35_55->Target(__site_cvt_Py_ssize_t_35_55, __pyx_t_2);
+  __pyx_t_5 = __site_cvt_cvt_Py_ssize_t_35_55->Target(__site_cvt_cvt_Py_ssize_t_35_55, __pyx_t_2);
   __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(__pyx_v_data)[__pyx_t_5]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":36
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":36
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:             # <<<<<<<<<<<<<<
@@ -335,7 +353,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (__pyx_v_nsave != ((__pyx_v_npts * 4) + 15));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":37
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":37
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
@@ -351,7 +369,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L4:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":39
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":39
  *         raise error("invalid work array for fft size")
  * 
  *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
@@ -360,7 +378,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nrepeats = PyArray_SIZE(__pyx_v_data);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":40
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":40
  * 
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts             # <<<<<<<<<<<<<<
@@ -369,7 +387,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":41
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":41
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
@@ -378,7 +396,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_dptr = ((double *)PyArray_DATA(__pyx_v_data));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":42
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":42
  *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
@@ -387,7 +405,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":44
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":44
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
@@ -398,7 +416,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":45
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":45
  * 
  *     for i in range(nrepeats):
  *         fftpack_cfftf(npts, dptr, wsave)             # <<<<<<<<<<<<<<
@@ -407,7 +425,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(cfftf)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":46
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":46
  *     for i in range(nrepeats):
  *         fftpack_cfftf(npts, dptr, wsave)
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -417,7 +435,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":48
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":48
  *         dptr += npts*2
  * 
  *     return data             # <<<<<<<<<<<<<<
@@ -432,7 +450,7 @@ static  System::Object^ cfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":50
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":50
  *     return data
  * 
  * cdef cfftb(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -458,7 +476,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   int __pyx_t_7;
   __pyx_v_data = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":55
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":55
  *     cdef int npts, nrepeats, i
  * 
  *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -473,7 +491,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":58
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":58
  * 
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):             # <<<<<<<<<<<<<<
@@ -483,7 +501,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (!PyArray_CHKFLAGS(__pyx_v_op2, NPY_CONTIGUOUS));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":59
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":59
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -495,7 +513,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_t_1 = PyArray_FROMANY(((System::Object^)__pyx_v_op2), __pyx_t_3, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
     __pyx_t_3 = nullptr;
     __pyx_t_2 = nullptr;
-    if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+    if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
       throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
     }
     __pyx_v_op2 = ((NumpyDotNet::ndarray^)__pyx_t_1);
@@ -504,7 +522,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L3:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":61
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":61
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_CDOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
@@ -513,24 +531,24 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":62
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":62
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]             # <<<<<<<<<<<<<<
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
   __pyx_t_2 = __site_op_sub_62_55->Target(__site_op_sub_62_55, __pyx_t_1, __pyx_int_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_5 = __site_cvt_Py_ssize_t_62_55->Target(__site_cvt_Py_ssize_t_62_55, __pyx_t_2);
+  __pyx_t_5 = __site_cvt_cvt_Py_ssize_t_62_55->Target(__site_cvt_cvt_Py_ssize_t_62_55, __pyx_t_2);
   __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_5]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":63
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":63
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:             # <<<<<<<<<<<<<<
@@ -540,7 +558,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (__pyx_v_nsave != ((__pyx_v_npts * 4) + 15));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":64
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":64
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1]
  *     if nsave != npts*4 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
@@ -556,19 +574,19 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L4:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":66
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":66
  *         raise error("invalid work array for fft size")
  * 
  *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
  *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_data));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":67
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":67
  * 
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts             # <<<<<<<<<<<<<<
@@ -577,19 +595,19 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":68
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":68
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":69
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":69
  *     nrepeats /= npts
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
@@ -598,7 +616,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":71
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":71
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
@@ -609,7 +627,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   for (__pyx_t_7 = 0; __pyx_t_7 < __pyx_t_6; __pyx_t_7+=1) {
     __pyx_v_i = __pyx_t_7;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":72
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":72
  * 
  *     for i in range(nrepeats):
  *         fftpack_cfftb(npts, dptr, wsave)             # <<<<<<<<<<<<<<
@@ -618,7 +636,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(cfftb)(__pyx_v_npts, __pyx_v_dptr, __pyx_v_wsave);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":73
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":73
  *     for i in range(nrepeats):
  *         fftpack_cfftb(npts, dptr, wsave)
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -628,7 +646,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":75
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":75
  *         dptr += npts*2
  * 
  *     return data             # <<<<<<<<<<<<<<
@@ -643,7 +661,7 @@ static  System::Object^ cfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":77
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":77
  *     return data
  * 
  * cdef cffti(long n):             # <<<<<<<<<<<<<<
@@ -658,7 +676,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
   System::Object^ __pyx_t_1 = nullptr;
   __pyx_v_op = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":82
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":82
  * 
  *     # Magic size needed by cffti
  *     dim = 4*n + 15;             # <<<<<<<<<<<<<<
@@ -667,7 +685,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
  */
   __pyx_v_dim = ((4 * __pyx_v_n) + 15);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":84
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":84
  *     dim = 4*n + 15;
  *     # Create a 1 dimensional array of dimensions of type double
  *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
@@ -675,13 +693,13 @@ static  System::Object^ cffti(long __pyx_v_n) {
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
  */
   __pyx_t_1 = PyArray_New(NULL, 1, (&__pyx_v_dim), NPY_DOUBLE, NULL, NULL, 0, 0, NULL); 
-  if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+  if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":86
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":86
  *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  * 
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))             # <<<<<<<<<<<<<<
@@ -690,7 +708,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
  */
   GLOBALFUNC(cffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":88
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":88
  *     fftpack_cffti(n, <double *>np.PyArray_DATA(op))
  * 
  *     return op             # <<<<<<<<<<<<<<
@@ -705,7 +723,7 @@ static  System::Object^ cffti(long __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":90
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":90
  *     return op
  * 
  * cdef rfftf(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -739,7 +757,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_v_data = nullptr;
   __pyx_v_ret = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":95
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":95
  *     cdef int npts, nrepeats, rstep, i
  * 
  *     data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -754,7 +772,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":98
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":98
  * 
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):             # <<<<<<<<<<<<<<
@@ -764,7 +782,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (!PyArray_CHKFLAGS(__pyx_v_op2, NPY_CONTIGUOUS));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":99
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":99
  *     # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -776,7 +794,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_t_1 = PyArray_FROMANY(((System::Object^)__pyx_v_op2), __pyx_t_3, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
     __pyx_t_3 = nullptr;
     __pyx_t_2 = nullptr;
-    if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+    if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
       throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
     }
     __pyx_v_op2 = ((NumpyDotNet::ndarray^)__pyx_t_1);
@@ -785,41 +803,41 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L3:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":101
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":101
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
  * 
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]             # <<<<<<<<<<<<<<
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
   __pyx_t_2 = __site_op_sub_101_54->Target(__site_op_sub_101_54, __pyx_t_1, __pyx_int_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_5 = __site_cvt_Py_ssize_t_101_54->Target(__site_cvt_Py_ssize_t_101_54, __pyx_t_2);
+  __pyx_t_5 = __site_cvt_cvt_Py_ssize_t_101_54->Target(__site_cvt_cvt_Py_ssize_t_101_54, __pyx_t_2);
   __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_5]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":102
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":102
  * 
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1             # <<<<<<<<<<<<<<
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_2 = PyArray_NDIM(__pyx_v_data); 
   __pyx_t_1 = __site_op_sub_102_48->Target(__site_op_sub_102_48, __pyx_t_2, __pyx_int_1);
   __pyx_t_2 = nullptr;
-  __pyx_t_6 = __site_cvt_Py_ssize_t_102_48->Target(__site_cvt_Py_ssize_t_102_48, __pyx_t_1);
+  __pyx_t_6 = __site_cvt_cvt_Py_ssize_t_102_48->Target(__site_cvt_cvt_Py_ssize_t_102_48, __pyx_t_1);
   __pyx_t_1 = nullptr;
   (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_6]) = (__Pyx_div_long(__pyx_v_npts, 2) + 1);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":103
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":103
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)             # <<<<<<<<<<<<<<
@@ -827,50 +845,50 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  * 
  */
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_7 = __site_cvt_int_103_42->Target(__site_cvt_int_103_42, __pyx_t_1);
+  __pyx_t_7 = __site_cvt_cvt_int_103_42->Target(__site_cvt_cvt_int_103_42, __pyx_t_1);
   __pyx_t_1 = nullptr;
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_ZEROS(__pyx_t_7, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), NPY_CDOUBLE, 0); 
   __pyx_v_ret = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":104
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":104
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts/2 + 1
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_CDOUBLE, 0)
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts             # <<<<<<<<<<<<<<
  * 
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
   __pyx_t_2 = __site_op_sub_104_48->Target(__site_op_sub_104_48, __pyx_t_1, __pyx_int_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_8 = __site_cvt_Py_ssize_t_104_48->Target(__site_cvt_Py_ssize_t_104_48, __pyx_t_2);
+  __pyx_t_8 = __site_cvt_cvt_Py_ssize_t_104_48->Target(__site_cvt_cvt_Py_ssize_t_104_48, __pyx_t_2);
   __pyx_t_2 = nullptr;
   (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_8]) = __pyx_v_npts;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":106
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":106
  *     np.PyArray_DIMS(data)[np.PyArray_NDIM(data) - 1] = npts
  * 
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2             # <<<<<<<<<<<<<<
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  */
-  if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
+  if (__pyx_v_ret != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_2 = PyArray_NDIM(__pyx_v_ret); 
   __pyx_t_1 = __site_op_sub_106_54->Target(__site_op_sub_106_54, __pyx_t_2, __pyx_int_1);
   __pyx_t_2 = nullptr;
-  __pyx_t_9 = __site_cvt_Py_ssize_t_106_54->Target(__site_cvt_Py_ssize_t_106_54, __pyx_t_1);
+  __pyx_t_9 = __site_cvt_cvt_Py_ssize_t_106_54->Target(__site_cvt_cvt_Py_ssize_t_106_54, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_v_rstep = ((PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_ret))[__pyx_t_9]) * 2);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":108
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":108
  *     rstep = np.PyArray_DIMS(ret)[np.PyArray_NDIM(ret) - 1]*2
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
@@ -879,7 +897,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":109
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":109
  * 
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2+15:             # <<<<<<<<<<<<<<
@@ -889,7 +907,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":110
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":110
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2+15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
@@ -905,19 +923,19 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L4:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":112
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":112
  *         raise error("invalid work array for fft size")
  * 
  *     nrepeats = np.PyArray_SIZE(data)             # <<<<<<<<<<<<<<
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_data));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":113
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":113
  * 
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts             # <<<<<<<<<<<<<<
@@ -926,31 +944,31 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":114
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":114
  *     nrepeats = np.PyArray_SIZE(data)
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)             # <<<<<<<<<<<<<<
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)
  */
-  if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
+  if (__pyx_v_ret != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_rptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ret)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":115
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":115
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":116
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":116
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
@@ -959,7 +977,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":118
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":118
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
@@ -970,7 +988,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
     __pyx_v_i = __pyx_t_11;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":119
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":119
  * 
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))             # <<<<<<<<<<<<<<
@@ -979,7 +997,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     memcpy(((char *)(__pyx_v_rptr + 1)), __pyx_v_dptr, (__pyx_v_npts * (sizeof(double))));
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":120
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":120
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
  *         fftpack_rfftf(npts, rptr+1, wsave)             # <<<<<<<<<<<<<<
@@ -988,7 +1006,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(rfftf)(__pyx_v_npts, (__pyx_v_rptr + 1), __pyx_v_wsave);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":121
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":121
  *         memcpy(<char *>(rptr+1), dptr, npts*sizeof(double))
  *         fftpack_rfftf(npts, rptr+1, wsave)
  *         rptr[0] = rptr[1]             # <<<<<<<<<<<<<<
@@ -997,7 +1015,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[0]) = (__pyx_v_rptr[1]);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":122
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":122
  *         fftpack_rfftf(npts, rptr+1, wsave)
  *         rptr[0] = rptr[1]
  *         rptr[1] = 0.0             # <<<<<<<<<<<<<<
@@ -1006,7 +1024,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[1]) = 0.0;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":123
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":123
  *         rptr[0] = rptr[1]
  *         rptr[1] = 0.0
  *         rptr += rstep             # <<<<<<<<<<<<<<
@@ -1015,7 +1033,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     __pyx_v_rptr += __pyx_v_rstep;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":124
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":124
  *         rptr[1] = 0.0
  *         rptr += rstep
  *         dptr += npts             # <<<<<<<<<<<<<<
@@ -1025,7 +1043,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += __pyx_v_npts;
   }
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":126
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":126
  *         dptr += npts
  * 
  *     return ret             # <<<<<<<<<<<<<<
@@ -1040,7 +1058,7 @@ static  System::Object^ rfftf(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":128
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":128
  *     return ret
  * 
  * cdef rfftb(np.ndarray op1, np.ndarray op2):             # <<<<<<<<<<<<<<
@@ -1070,14 +1088,14 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_v_data = nullptr;
   __pyx_v_ret = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":133
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":133
  *     cdef int npts, nrepeats, i
  * 
- *     data = np.PyArray_FROMANY(op1, np.NPY_DOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
+ *     data = np.PyArray_FROMANY(op1, np.NPY_CDOUBLE, 1, 0, np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
  * 
  *      # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  */
-  __pyx_t_1 = (System::Object^)(long long)(NPY_DOUBLE);
+  __pyx_t_1 = (System::Object^)(long long)(NPY_CDOUBLE);
   __pyx_t_2 = (System::Object^)(long long)(NPY_C_CONTIGUOUS);
   __pyx_t_3 = PyArray_FROMANY(((System::Object^)__pyx_v_op1), __pyx_t_1, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
   __pyx_t_1 = nullptr;
@@ -1085,7 +1103,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_v_data = __pyx_t_3;
   __pyx_t_3 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":136
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":136
  * 
  *      # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):             # <<<<<<<<<<<<<<
@@ -1095,7 +1113,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (!PyArray_CHKFLAGS(__pyx_v_op2, NPY_CONTIGUOUS));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":137
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":137
  *      # Force op2 to be contiguous in place of calling PyArray_AsCArray()
  *     if not np.PyArray_CHKFLAGS(op2, np.NPY_CONTIGUOUS):
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)             # <<<<<<<<<<<<<<
@@ -1107,7 +1125,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_t_1 = PyArray_FROMANY(((System::Object^)__pyx_v_op2), __pyx_t_3, __pyx_int_1, __pyx_int_0, __pyx_t_2); 
     __pyx_t_3 = nullptr;
     __pyx_t_2 = nullptr;
-    if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+    if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
       throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
     }
     __pyx_v_op2 = ((NumpyDotNet::ndarray^)__pyx_t_1);
@@ -1116,7 +1134,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L3:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":139
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":139
  *         op2 = np.PyArray_FROMANY(op2, np.NPY_DOUBLE, 1, 0, np.NPY_ENSURECOPY|np.NPY_C_CONTIGUOUS)
  * 
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)             # <<<<<<<<<<<<<<
@@ -1124,33 +1142,33 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  */
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
-  __pyx_t_5 = __site_cvt_int_139_42->Target(__site_cvt_int_139_42, __pyx_t_1);
+  __pyx_t_5 = __site_cvt_cvt_int_139_42->Target(__site_cvt_cvt_int_139_42, __pyx_t_1);
   __pyx_t_1 = nullptr;
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_ZEROS(__pyx_t_5, PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data)), NPY_DOUBLE, 0); 
   __pyx_v_ret = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":141
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":141
  *     ret = np.PyArray_ZEROS(np.PyArray_NDIM(data), np.PyArray_DIMS(data), np.NPY_DOUBLE, 0)
  * 
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]             # <<<<<<<<<<<<<<
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2 + 15:
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_t_1 = PyArray_NDIM(__pyx_v_data); 
   __pyx_t_2 = __site_op_sub_141_54->Target(__site_op_sub_141_54, __pyx_t_1, __pyx_int_1);
   __pyx_t_1 = nullptr;
-  __pyx_t_6 = __site_cvt_Py_ssize_t_141_54->Target(__site_cvt_Py_ssize_t_141_54, __pyx_t_2);
+  __pyx_t_6 = __site_cvt_cvt_Py_ssize_t_141_54->Target(__site_cvt_cvt_Py_ssize_t_141_54, __pyx_t_2);
   __pyx_t_2 = nullptr;
   __pyx_v_npts = (PyArray_DIMS(((NumpyDotNet::ndarray^)__pyx_v_data))[__pyx_t_6]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":142
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":142
  * 
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  *     nsave = np.PyArray_DIMS(op2)[0]             # <<<<<<<<<<<<<<
@@ -1159,7 +1177,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nsave = (PyArray_DIMS(__pyx_v_op2)[0]);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":143
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":143
  *     npts = np.PyArray_DIMS(data)[np.PyArray_NDIM(data)-1]
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2 + 15:             # <<<<<<<<<<<<<<
@@ -1169,7 +1187,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   __pyx_t_4 = (__pyx_v_nsave != ((__pyx_v_npts * 2) + 15));
   if (__pyx_t_4) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":144
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":144
  *     nsave = np.PyArray_DIMS(op2)[0]
  *     if nsave != npts*2 + 15:
  *         raise error("invalid work array for fft size")             # <<<<<<<<<<<<<<
@@ -1185,19 +1203,19 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   }
   __pyx_L4:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":146
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":146
  *         raise error("invalid work array for fft size")
  * 
  *     nrepeats = np.PyArray_SIZE(ret)             # <<<<<<<<<<<<<<
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  */
-  if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
+  if (__pyx_v_ret != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_nrepeats = PyArray_SIZE(((NumpyDotNet::ndarray^)__pyx_v_ret));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":147
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":147
  * 
  *     nrepeats = np.PyArray_SIZE(ret)
  *     nrepeats /= npts             # <<<<<<<<<<<<<<
@@ -1206,31 +1224,31 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_nrepeats /= __pyx_v_npts;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":148
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":148
  *     nrepeats = np.PyArray_SIZE(ret)
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)             # <<<<<<<<<<<<<<
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)
  */
-  if (__pyx_v_ret == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
+  if (__pyx_v_ret != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_ret) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_rptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_ret)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":149
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":149
  *     nrepeats /= npts
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)             # <<<<<<<<<<<<<<
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  */
-  if (__pyx_v_data == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
+  if (__pyx_v_data != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_v_data) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_dptr = ((double *)PyArray_DATA(((NumpyDotNet::ndarray^)__pyx_v_data)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":150
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":150
  *     rptr = <double *>np.PyArray_DATA(ret)
  *     dptr = <double *>np.PyArray_DATA(data)
  *     wsave = <double *>np.PyArray_DATA(op2)             # <<<<<<<<<<<<<<
@@ -1239,7 +1257,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
   __pyx_v_wsave = ((double *)PyArray_DATA(__pyx_v_op2));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":152
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":152
  *     wsave = <double *>np.PyArray_DATA(op2)
  * 
  *     for i in range(nrepeats):             # <<<<<<<<<<<<<<
@@ -1250,7 +1268,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   for (__pyx_t_8 = 0; __pyx_t_8 < __pyx_t_7; __pyx_t_8+=1) {
     __pyx_v_i = __pyx_t_8;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":153
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":153
  * 
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))             # <<<<<<<<<<<<<<
@@ -1259,7 +1277,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     memcpy(((char *)(__pyx_v_rptr + 1)), (__pyx_v_dptr + 2), ((__pyx_v_npts - 1) * (sizeof(double))));
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":154
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":154
  *     for i in range(nrepeats):
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
  *         rptr[0] = dptr[0]             # <<<<<<<<<<<<<<
@@ -1268,7 +1286,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     (__pyx_v_rptr[0]) = (__pyx_v_dptr[0]);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":155
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":155
  *         memcpy(<char *>(rptr + 1), (dptr + 2), (npts - 1)*sizeof(double))
  *         rptr[0] = dptr[0]
  *         fftpack_rfftb(npts, rptr, wsave)             # <<<<<<<<<<<<<<
@@ -1277,7 +1295,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     GLOBALFUNC(rfftb)(__pyx_v_npts, __pyx_v_rptr, __pyx_v_wsave);
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":156
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":156
  *         rptr[0] = dptr[0]
  *         fftpack_rfftb(npts, rptr, wsave)
  *         rptr += npts             # <<<<<<<<<<<<<<
@@ -1286,7 +1304,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
  */
     __pyx_v_rptr += __pyx_v_npts;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":157
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":157
  *         fftpack_rfftb(npts, rptr, wsave)
  *         rptr += npts
  *         dptr += npts*2             # <<<<<<<<<<<<<<
@@ -1296,7 +1314,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
     __pyx_v_dptr += (__pyx_v_npts * 2);
   }
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":159
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":159
  *         dptr += npts*2
  * 
  *     return ret             # <<<<<<<<<<<<<<
@@ -1311,7 +1329,7 @@ static  System::Object^ rfftb(NumpyDotNet::ndarray^ __pyx_v_op1, NumpyDotNet::nd
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":161
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":161
  *     return ret
  * 
  * cdef rffti(long n):             # <<<<<<<<<<<<<<
@@ -1326,7 +1344,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
   System::Object^ __pyx_t_1 = nullptr;
   __pyx_v_op = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":166
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":166
  * 
  *     # Magic size needed by rffti
  *     dim = 2*n + 15             # <<<<<<<<<<<<<<
@@ -1335,7 +1353,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
  */
   __pyx_v_dim = ((2 * __pyx_v_n) + 15);
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":168
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":168
  *     dim = 2*n + 15
  *     # Create a 1 dimensional array of dimensions of type double
  *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)             # <<<<<<<<<<<<<<
@@ -1343,13 +1361,13 @@ static  System::Object^ rffti(long __pyx_v_n) {
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))
  */
   __pyx_t_1 = PyArray_New(NULL, 1, (&__pyx_v_dim), NPY_DOUBLE, NULL, NULL, 0, 0, NULL); 
-  if (__pyx_t_1 == nullptr || dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
+  if (__pyx_t_1 != nullptr && dynamic_cast<NumpyDotNet::ndarray^>(__pyx_t_1) == nullptr) {
     throw PythonOps::MakeException(__pyx_context, PythonOps::GetGlobal(__pyx_context, "TypeError"), "type error", nullptr);
   }
   __pyx_v_op = ((NumpyDotNet::ndarray^)__pyx_t_1);
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":170
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":170
  *     op = np.PyArray_New(NULL, 1, &dim, np.NPY_DOUBLE, NULL, NULL, 0, 0, NULL)
  * 
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))             # <<<<<<<<<<<<<<
@@ -1358,7 +1376,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
  */
   GLOBALFUNC(rffti)(__pyx_v_n, ((double *)PyArray_DATA(__pyx_v_op)));
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":172
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":172
  *     fftpack_rffti(n, <double *>np.PyArray_DATA(op))
  * 
  *     return op             # <<<<<<<<<<<<<<
@@ -1371,7 +1389,7 @@ static  System::Object^ rffti(long __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":189
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":189
  *     object Npy_INTERFACE_array "Npy_INTERFACE_OBJECT" (NpyArray*)
  * 
  * cdef inline object PyUFunc_FromFuncAndData(PyUFuncGenericFunction* func, void** data,             # <<<<<<<<<<<<<<
@@ -1383,7 +1401,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_3fft
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":192
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":192
  *         char* types, int ntypes, int nin, int nout,
  *         int identity, char* name, char* doc, int c):
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))             # <<<<<<<<<<<<<<
@@ -1400,7 +1418,7 @@ static CYTHON_INLINE System::Object^ PyUFunc_FromFuncAndData(__pyx_t_5numpy_3fft
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":194
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":194
  *    return Npy_INTERFACE_ufunc(NpyUFunc_FromFuncAndDataAndSignature(func, data, types, ntypes, nin, nout, identity, name, doc, c, NULL))
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):             # <<<<<<<<<<<<<<
@@ -1422,7 +1440,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = nullptr;
   __pyx_v_numpy = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":195
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":195
  * 
  * cdef inline object PyArray_ZEROS(int ndim, intp_t *shape, int typenum, int fortran):
  *     shape_list = []             # <<<<<<<<<<<<<<
@@ -1433,7 +1451,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_shape_list = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":197
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":197
  *     shape_list = []
  *     cdef int i
  *     for i in range(ndim):             # <<<<<<<<<<<<<<
@@ -1444,7 +1462,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":198
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":198
  *     cdef int i
  *     for i in range(ndim):
  *         shape_list.append(shape[i])             # <<<<<<<<<<<<<<
@@ -1459,7 +1477,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
     __pyx_t_5 = nullptr;
   }
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":199
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":199
  *     for i in range(ndim):
  *         shape_list.append(shape[i])
  *     import numpy             # <<<<<<<<<<<<<<
@@ -1470,7 +1488,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   __pyx_v_numpy = __pyx_t_5;
   __pyx_t_5 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":200
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":200
  *         shape_list.append(shape[i])
  *     import numpy
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')             # <<<<<<<<<<<<<<
@@ -1497,7 +1515,7 @@ static CYTHON_INLINE System::Object^ PyArray_ZEROS(int __pyx_v_ndim, __pyx_t_5nu
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":202
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":202
  *     return numpy.zeros(shape_list, Npy_INTERFACE_descr(NpyArray_DescrFromType(typenum)), 'F' if fortran else 'C')
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):             # <<<<<<<<<<<<<<
@@ -1509,7 +1527,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":203
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":203
  * 
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL             # <<<<<<<<<<<<<<
@@ -1522,7 +1540,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":204
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":204
  * cdef inline object PyArray_New(void *subtype, int nd, npy_intp *dims, int type_num, npy_intp *strides, void *data, int itemsize, int flags, void *obj):
  *     assert subtype == NULL
  *     assert obj == NULL             # <<<<<<<<<<<<<<
@@ -1535,7 +1553,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   }
   #endif
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":205
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":205
  *     assert subtype == NULL
  *     assert obj == NULL
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))             # <<<<<<<<<<<<<<
@@ -1552,7 +1570,7 @@ static CYTHON_INLINE System::Object^ PyArray_New(void *__pyx_v_subtype, int __py
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":207
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":207
  *     return Npy_INTERFACE_array(NpyArray_New(subtype, nd, dims, type_num, strides, data, itemsize, flags, obj))
  * 
  * cdef inline bint PyArray_CHKFLAGS(ndarray n, int flags):             # <<<<<<<<<<<<<<
@@ -1565,7 +1583,7 @@ static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^ __pyx_v_n, int _
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":209
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":209
  * cdef inline bint PyArray_CHKFLAGS(ndarray n, int flags):
  *      # XXX "long long" is wrong type
  *     return  NpyArray_CHKFLAGS(<NpyArray*> <long long>n.Array, flags)             # <<<<<<<<<<<<<<
@@ -1573,7 +1591,7 @@ static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^ __pyx_v_n, int _
  * cdef inline void* PyArray_DATA(ndarray n):
  */
   __pyx_t_1 = __site_get_Array_209_54->Target(__site_get_Array_209_54, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_209_54->Target(__site_cvt_PY_LONG_LONG_209_54, __pyx_t_1);
+  __pyx_t_2 = __site_cvt_cvt_PY_LONG_LONG_209_54->Target(__site_cvt_cvt_PY_LONG_LONG_209_54, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_CHKFLAGS(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)), __pyx_v_flags);
   goto __pyx_L0;
@@ -1583,7 +1601,7 @@ static CYTHON_INLINE int PyArray_CHKFLAGS(NumpyDotNet::ndarray^ __pyx_v_n, int _
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":211
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":211
  *     return  NpyArray_CHKFLAGS(<NpyArray*> <long long>n.Array, flags)
  * 
  * cdef inline void* PyArray_DATA(ndarray n):             # <<<<<<<<<<<<<<
@@ -1596,7 +1614,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":213
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":213
  * cdef inline void* PyArray_DATA(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -1604,7 +1622,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
  * cdef inline intp_t* PyArray_DIMS(ndarray n):
  */
   __pyx_t_1 = __site_get_Array_213_49->Target(__site_get_Array_213_49, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_213_49->Target(__site_cvt_PY_LONG_LONG_213_49, __pyx_t_1);
+  __pyx_t_2 = __site_cvt_cvt_PY_LONG_LONG_213_49->Target(__site_cvt_cvt_PY_LONG_LONG_213_49, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_DATA(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
   goto __pyx_L0;
@@ -1614,7 +1632,7 @@ static CYTHON_INLINE void *PyArray_DATA(NumpyDotNet::ndarray^ __pyx_v_n) {
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":215
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":215
  *     return NpyArray_DATA(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline intp_t* PyArray_DIMS(ndarray n):             # <<<<<<<<<<<<<<
@@ -1627,7 +1645,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":217
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":217
  * cdef inline intp_t* PyArray_DIMS(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -1635,7 +1653,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet
  * cdef inline intp_t PyArray_SIZE(ndarray n):
  */
   __pyx_t_1 = __site_get_Array_217_49->Target(__site_get_Array_217_49, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_217_49->Target(__site_cvt_PY_LONG_LONG_217_49, __pyx_t_1);
+  __pyx_t_2 = __site_cvt_cvt_PY_LONG_LONG_217_49->Target(__site_cvt_cvt_PY_LONG_LONG_217_49, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_DIMS(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
   goto __pyx_L0;
@@ -1645,7 +1663,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t *PyArray_DIMS(NumpyDotNet
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":219
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":219
  *     return NpyArray_DIMS(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline intp_t PyArray_SIZE(ndarray n):             # <<<<<<<<<<<<<<
@@ -1658,7 +1676,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet:
   System::Object^ __pyx_t_1 = nullptr;
   PY_LONG_LONG __pyx_t_2;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":221
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":221
  * cdef inline intp_t PyArray_SIZE(ndarray n):
  *     # XXX "long long" is wrong type
  *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)             # <<<<<<<<<<<<<<
@@ -1666,7 +1684,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet:
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  */
   __pyx_t_1 = __site_get_Array_221_49->Target(__site_get_Array_221_49, ((System::Object^)__pyx_v_n), __pyx_context);
-  __pyx_t_2 = __site_cvt_PY_LONG_LONG_221_49->Target(__site_cvt_PY_LONG_LONG_221_49, __pyx_t_1);
+  __pyx_t_2 = __site_cvt_cvt_PY_LONG_LONG_221_49->Target(__site_cvt_cvt_PY_LONG_LONG_221_49, __pyx_t_1);
   __pyx_t_1 = nullptr;
   __pyx_r = NpyArray_SIZE(((NpyArray *)((PY_LONG_LONG)__pyx_t_2)));
   goto __pyx_L0;
@@ -1676,7 +1694,7 @@ static CYTHON_INLINE __pyx_t_5numpy_3fft_5numpy_intp_t PyArray_SIZE(NumpyDotNet:
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":223
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":223
  *     return NpyArray_SIZE(<NpyArray*> <long long>n.Array)
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):             # <<<<<<<<<<<<<<
@@ -1693,7 +1711,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = nullptr;
   __pyx_v_NumpyDotNet = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":224
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":224
  * 
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr             # <<<<<<<<<<<<<<
@@ -1704,7 +1722,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_clr = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":225
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":225
  * cdef inline object PyArray_FromAny(op, newtype, min_depth, max_depth, flags, context):
  *     import clr
  *     import NumpyDotNet.NpyArray             # <<<<<<<<<<<<<<
@@ -1715,7 +1733,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   __pyx_v_NumpyDotNet = __pyx_t_1;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":226
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":226
  *     import clr
  *     import NumpyDotNet.NpyArray
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)             # <<<<<<<<<<<<<<
@@ -1736,7 +1754,7 @@ static CYTHON_INLINE System::Object^ PyArray_FromAny(System::Object^ __pyx_v_op,
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":228
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":228
  *     return NumpyDotNet.NpyArray.FromAny(op, newtype, min_depth, max_depth, flags, context)
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):             # <<<<<<<<<<<<<<
@@ -1751,7 +1769,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   int __pyx_t_3;
   int __pyx_t_4;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":229
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":229
  * 
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:             # <<<<<<<<<<<<<<
@@ -1765,7 +1783,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   __pyx_t_2 = nullptr;
   if (__pyx_t_3) {
 
-    /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":230
+    /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":230
  * cdef inline object PyArray_FROMANY(m, type, min, max, flags):
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT             # <<<<<<<<<<<<<<
@@ -1781,14 +1799,14 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   }
   __pyx_L3:;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":231
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":231
  *     if flags & NPY_ENSURECOPY:
  *         flags |= NPY_DEFAULT
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)             # <<<<<<<<<<<<<<
  * 
  * cdef inline object PyArray_Check(obj):
  */
-  __pyx_t_4 = __site_cvt_int_231_77->Target(__site_cvt_int_231_77, __pyx_v_type);
+  __pyx_t_4 = __site_cvt_cvt_int_231_77->Target(__site_cvt_cvt_int_231_77, __pyx_v_type);
   __pyx_t_1 = Npy_INTERFACE_OBJECT(NpyArray_DescrFromType(__pyx_t_4)); 
   __pyx_t_2 = PyArray_FromAny(__pyx_v_m, __pyx_t_1, __pyx_v_min, __pyx_v_max, __pyx_v_flags, nullptr); 
   __pyx_t_1 = nullptr;
@@ -1801,7 +1819,7 @@ static CYTHON_INLINE System::Object^ PyArray_FROMANY(System::Object^ __pyx_v_m, 
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":233
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":233
  *     return PyArray_FromAny(m, Npy_INTERFACE_descr(NpyArray_DescrFromType(type)), min, max, flags, None)
  * 
  * cdef inline object PyArray_Check(obj):             # <<<<<<<<<<<<<<
@@ -1814,7 +1832,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   System::Object^ __pyx_t_1 = nullptr;
   System::Object^ __pyx_t_2 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":234
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":234
  * 
  * cdef inline object PyArray_Check(obj):
  *     return isinstance(obj, ndarray)             # <<<<<<<<<<<<<<
@@ -1833,7 +1851,7 @@ static CYTHON_INLINE System::Object^ PyArray_Check(System::Object^ __pyx_v_obj) 
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":236
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":236
  *     return isinstance(obj, ndarray)
  * 
  * cdef inline object PyArray_NDIM(obj):             # <<<<<<<<<<<<<<
@@ -1845,7 +1863,7 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   System::Object^ __pyx_r = nullptr;
   System::Object^ __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":237
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":237
  * 
  * cdef inline object PyArray_NDIM(obj):
  *     return obj.ndim             # <<<<<<<<<<<<<<
@@ -1862,7 +1880,7 @@ static CYTHON_INLINE System::Object^ PyArray_NDIM(System::Object^ __pyx_v_obj) {
   return __pyx_r;
 }
 
-/* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":239
+/* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":239
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
@@ -1892,44 +1910,44 @@ static void __Pyx_InitSites(CodeContext^ __pyx_context) {
   const int PythonOperationKind_InPlaceFloorDivide = 0x20000000 | 23;
   const int PythonOperationKind_InPlaceTrueDivide = 0x20000000 | 25;
   __site_op_sub_35_55 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_35_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_35_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_call1_37_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
   __site_op_sub_62_55 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_62_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_62_55 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_call1_64_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
   __site_op_sub_101_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_101_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_101_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_op_sub_102_48 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_102_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
-  __site_cvt_int_103_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_102_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_int_103_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
   __site_op_sub_104_48 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_104_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_104_48 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_op_sub_106_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_106_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_106_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_call1_110_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
-  __site_cvt_int_139_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_int_139_42 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
   __site_op_sub_141_54 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::Subtract));
-  __site_cvt_Py_ssize_t_141_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_Py_ssize_t_141_54 = CallSite< System::Func< CallSite^, System::Object^, Py_ssize_t >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, Py_ssize_t::typeid, ConversionResultKind::ExplicitCast));
   __site_call1_144_19 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
   __site_get_append_198_18 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "append", false));
   __site_call1_198_25 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(1)));
   __site_get_zeros_200_16 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "zeros", false));
   __site_call3_200_22 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(3)));
   __site_get_Array_209_54 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_209_54 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_PY_LONG_LONG_209_54 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
   __site_get_Array_213_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_213_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_PY_LONG_LONG_213_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
   __site_get_Array_217_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_217_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_PY_LONG_LONG_217_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
   __site_get_Array_221_49 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "Array", false));
-  __site_cvt_PY_LONG_LONG_221_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_PY_LONG_LONG_221_49 = CallSite< System::Func< CallSite^, System::Object^, PY_LONG_LONG >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, PY_LONG_LONG::typeid, ConversionResultKind::ExplicitCast));
   __site_get_NpyArray_226_22 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "NpyArray", false));
   __site_get_FromAny_226_31 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "FromAny", false));
   __site_call6_226_39 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(6)));
   __site_op_and_229_13 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::And));
   __site_istrue_229_13 = CallSite< System::Func< CallSite^, System::Object^, bool >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, bool::typeid, ConversionResultKind::ExplicitCast));
   __site_op_ior_230_14 = CallSite< System::Func< CallSite^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeBinaryOperationAction(__pyx_context, ExpressionType::OrAssign));
-  __site_cvt_int_231_77 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
+  __site_cvt_cvt_int_231_77 = CallSite< System::Func< CallSite^, System::Object^, int >^ >::Create(PythonOps::MakeConversionAction(__pyx_context, int::typeid, ConversionResultKind::ExplicitCast));
   __site_call2_234_21 = CallSite< System::Func< CallSite^, CodeContext^, System::Object^, System::Object^, System::Object^, System::Object^ >^ >::Create(PythonOps::MakeInvokeAction(__pyx_context, CallSignature(2)));
   __site_get_ndim_237_14 = CallSite< System::Func< CallSite^, System::Object^, CodeContext^, System::Object^ >^ >::Create(PythonOps::MakeGetAction(__pyx_context, "ndim", false));
 }
@@ -1940,13 +1958,16 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __Pyx_InitSites(__pyx_context);
   __Pyx_InitGlobals();
   /*--- Type init code ---*/
+  /*--- Type import code ---*/
+  // XXX skipping type ptr assignment for NumpyDotNet::ndarray
+  // XXX skipping type ptr assignment for NumpyDotNet::dtype
   /*--- Create function pointers ---*/
   /*--- Execution code ---*/
   PythonDictionary^ __pyx_t_1;
   System::Object^ __pyx_t_2 = nullptr;
   System::Object^ __pyx_t_3 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":17
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":17
  * 
  * cimport numpy as np
  * np.import_array()             # <<<<<<<<<<<<<<
@@ -1955,7 +1976,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
  */
   import_array();
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":19
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":19
  * np.import_array()
  * 
  * class error(Exception):             # <<<<<<<<<<<<<<
@@ -1976,7 +1997,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   __pyx_t_2 = nullptr;
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\fftpack_cython.pyx":1
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/fftpack_cython.pyx":1
  * """ Cythonized version of fftpack_litemodule.c             # <<<<<<<<<<<<<<
  * """
  * 
@@ -1985,7 +2006,7 @@ static void PerformModuleReload(PythonContext^ context, PythonDictionary^ dict) 
   PythonOps::SetGlobal(__pyx_context, "__test__", ((System::Object^)__pyx_t_1));
   __pyx_t_1 = nullptr;
 
-  /* "C:\Documents and Settings\Jason\Documents\Visual Studio 2010\Projects\numpy-refactor\numpy\fft\numpy.pxd":239
+  /* "/home/cwitty/git-numpy-refactor/windows/numpy-refactor/numpy/fft/numpy.pxd":239
  *     return obj.ndim
  * 
  * cdef inline void import_array():             # <<<<<<<<<<<<<<
