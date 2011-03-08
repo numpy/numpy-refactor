@@ -939,10 +939,12 @@ namespace NumpyDotNet {
                         info = ScalarInfo.Make<ScalarInt16>();
                         break;
                     case 4:
-                        info = ScalarInfo.Make<ScalarInt32>();
+                        info = (type == NpyCoreApi.TypeOf_Int32) ?
+                            ScalarInfo.Make<ScalarInt32>() : ScalarInfo.Make<ScalarIntC>();
                         break;
                     case 8:
-                        info = ScalarInfo.Make<ScalarInt64>();
+                        info = (type == NpyCoreApi.TypeOf_Int64) ?
+                            ScalarInfo.Make<ScalarInt64>() : ScalarInfo.Make<ScalarLongLong>();
                         break;
                 }
             } else if (NpyDefs.IsUnsigned(type)) {
@@ -954,10 +956,12 @@ namespace NumpyDotNet {
                         info = ScalarInfo.Make<ScalarUInt16>();
                         break;
                     case 4:
-                        info = ScalarInfo.Make<ScalarUInt32>();
+                        info = (type == NpyCoreApi.TypeOf_UInt32) ?
+                            ScalarInfo.Make<ScalarUInt32>() : ScalarInfo.Make<ScalarUIntC>();
                         break;
                     case 8:
-                        info = ScalarInfo.Make<ScalarUInt64>();
+                        info = (type == NpyCoreApi.TypeOf_UInt64) ?
+                            ScalarInfo.Make<ScalarUInt64>() : ScalarInfo.Make<ScalarULongLong>();
                         break;
                 }
             } else if (NpyDefs.IsFloat(type)) {

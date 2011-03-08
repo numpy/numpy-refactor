@@ -1119,7 +1119,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_INT);
+                            dtype_ = NpyCoreApi.DescrFromType(NpyCoreApi.TypeOf_Int32);
                         }
                     }
                 }
@@ -1174,6 +1174,49 @@ namespace NumpyDotNet
         internal static readonly int MaxValue = Int32.MaxValue;
     }
 
+
+    /// <summary>
+    /// This is a fairly ugly workaround to an issue with scalars on IronPython.  Each int scalar
+    /// represents a specific size integer (8, 16, 32, or 6 bits). However, in the core there are
+    /// five types - byte, short, int, long, and longlong with two being the same size based on
+    /// platform (32-bit int == long, 64-bit long == longlong). This lets us represent an int were
+    /// int and long (int32) are the same size.
+    /// </summary>
+    [PythonType("numpy.intc")]
+    public class ScalarIntC : ScalarInt32
+    {
+        public ScalarIntC() {
+            value = 0;
+        }
+
+        public ScalarIntC(Int32 value) : base(value) {
+        }
+
+        public ScalarIntC(string value, int @base = 10) : base(value, @base) {
+        }
+
+        public ScalarIntC(IConvertible value) : base(value) {
+        }
+
+        public override object dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_INT);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        static private dtype dtype_;
+
+        internal static readonly int MinValue = Int32.MinValue;
+        internal static readonly int MaxValue = Int32.MaxValue;
+    }
+    
     [PythonType("numpy.int64")]
     public class ScalarInt64 : ScalarIntegerImpl<Int64>
     {
@@ -1256,6 +1299,49 @@ namespace NumpyDotNet
         internal static readonly BigInteger MinValue = new BigInteger(Int64.MinValue);
         internal static readonly BigInteger MaxValue = new BigInteger(Int64.MaxValue);
     }
+
+
+    /// <summary>
+    /// This is a fairly ugly workaround to an issue with scalars on IronPython.  Each int scalar
+    /// represents a specific size integer (8, 16, 32, or 6 bits). However, in the core there are
+    /// five types - byte, short, int, long, and longlong with two being the same size based on
+    /// platform (32-bit int == long, 64-bit long == longlong). This lets us represent an int were
+    /// int and long (int32) are the same size.
+    /// </summary>
+    [PythonType("numpy.longlong")]
+    public class ScalarLongLong : ScalarInt64
+    {
+        public ScalarLongLong() {
+            value = 0;
+        }
+
+        public ScalarLongLong(Int64 value)
+            : base(value) {
+        }
+
+        public ScalarLongLong(IConvertible value)
+            : base(value) {
+        }
+
+        public override object dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_LONGLONG);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        static private dtype dtype_;
+
+        internal static new readonly long MinValue = Int32.MinValue;
+        internal static new readonly long MaxValue = Int32.MaxValue;
+    }
+
 
     [PythonType("numpy.unsignedinteger")]
     public class ScalarUnsignedInteger : ScalarInteger
@@ -1503,7 +1589,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_UINT);
+                            dtype_ = NpyCoreApi.DescrFromType(NpyCoreApi.TypeOf_UInt32);
                         }
                     }
                 }
@@ -1555,6 +1641,49 @@ namespace NumpyDotNet
         internal static readonly BigInteger MaxValue = new BigInteger(UInt32.MaxValue);
     }
 
+
+
+    /// <summary>
+    /// This is a fairly ugly workaround to an issue with scalars on IronPython.  Each int scalar
+    /// represents a specific size integer (8, 16, 32, or 6 bits). However, in the core there are
+    /// five types - byte, short, int, long, and longlong with two being the same size based on
+    /// platform (32-bit int == long, 64-bit long == longlong). This lets us represent an int were
+    /// int and long (int32) are the same size.
+    /// </summary>
+    [PythonType("numpy.uintc")]
+    public class ScalarUIntC : ScalarUInt32
+    {
+        public ScalarUIntC() {
+            value = 0;
+        }
+
+        public ScalarUIntC(UInt32 value)
+            : base(value) {
+        }
+
+        public ScalarUIntC(IConvertible value)
+            : base(value) {
+        }
+
+        public override object dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_UINT);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        static private dtype dtype_;
+
+        internal static new readonly uint MinValue = UInt32.MinValue;
+        internal static new readonly uint MaxValue = UInt32.MaxValue;
+    }
+
     [PythonType("numpy.uint64")]
     public class ScalarUInt64 : ScalarUnsignedImpl<UInt64>
     {
@@ -1587,7 +1716,7 @@ namespace NumpyDotNet
                 if (dtype_ == null) {
                     lock (GetType()) {
                         if (dtype_ == null) {
-                            dtype_ = GetDtype(8, 'u');
+                            dtype_ = NpyCoreApi.DescrFromType(NpyCoreApi.TypeOf_UInt64);
                         }
                     }
                 }
@@ -1638,6 +1767,48 @@ namespace NumpyDotNet
         internal static readonly int MinValue = 0;
         internal static readonly BigInteger MaxValue = new BigInteger(UInt64.MaxValue);
     }
+
+    /// <summary>
+    /// This is a fairly ugly workaround to an issue with scalars on IronPython.  Each int scalar
+    /// represents a specific size integer (8, 16, 32, or 6 bits). However, in the core there are
+    /// five types - byte, short, int, long, and longlong with two being the same size based on
+    /// platform (32-bit int == long, 64-bit long == longlong). This lets us represent an int were
+    /// int and long (int32) are the same size.
+    /// </summary>
+    [PythonType("numpy.ulonglong")]
+    public class ScalarULongLong : ScalarUInt64
+    {
+        public ScalarULongLong() {
+            value = 0;
+        }
+
+        public ScalarULongLong(UInt64 value)
+            : base(value) {
+        }
+
+        public ScalarULongLong(IConvertible value)
+            : base(value) {
+        }
+
+        public override object dtype {
+            get {
+                if (dtype_ == null) {
+                    lock (GetType()) {
+                        if (dtype_ == null) {
+                            dtype_ = NpyCoreApi.DescrFromType(NpyDefs.NPY_TYPES.NPY_ULONGLONG);
+                        }
+                    }
+                }
+                return dtype_;
+            }
+        }
+
+        static private dtype dtype_;
+
+        internal static new readonly ulong MinValue = UInt64.MinValue;
+        internal static new readonly ulong MaxValue = UInt64.MaxValue;
+    }
+
 
 
     [PythonType("numpy.timeinteger")]
