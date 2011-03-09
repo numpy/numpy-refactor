@@ -2120,21 +2120,73 @@ namespace NumpyDotNet
             }
         }
 
+        #region Direct Typed Accessors
+        // BEWARE!  These are direct memory accessors and ignore the type of the array.
+        // Yes, you can do clever things and yes, you can hang yourself, too.
+
+        public unsafe int ReadAsInt32(long index) {
+            return *(int*)((long)UnsafeAddress + OffsetToItem(index));
+        }
+
+        public unsafe void WriteAsInt32(long index, int v) {
+            *(int*)((long)UnsafeAddress + OffsetToItem(index)) = v;
+        }
+
+        public unsafe IntPtr ReadAsIntPtr(long index) {
+            return *(IntPtr*)((long)UnsafeAddress + OffsetToItem(index));
+        }
+
+        public unsafe void WriteAsIntPtr(long index, IntPtr v) {
+            *(IntPtr*)((long)UnsafeAddress + OffsetToItem(index)) = v;
+        }
+
+        public unsafe long ReadAsInt64(long index) {
+            return *(long*)((long)UnsafeAddress + OffsetToItem(index));
+        }
+
+        public unsafe void WriteAsInt64(long index, long v) {
+            *(long*)((long)UnsafeAddress + OffsetToItem(index)) = v;
+        }
+
+        public unsafe float ReadAsFloat(long index) {
+            return *(float*)((long)UnsafeAddress + OffsetToItem(index));
+        }
+
+        public unsafe void WriteAsFloat(long index, float v) {
+            *(float*)((long)UnsafeAddress + OffsetToItem(index)) = v;
+        }
+
+        public unsafe double ReadAsDouble(long index) {
+            return *(double*)((long)UnsafeAddress + OffsetToItem(index));
+        }
+
+        public unsafe void WriteAsDouble(long index, double v) {
+            *(double*)((long)UnsafeAddress + OffsetToItem(index)) = v;
+        }
+
+        private long OffsetToItem(long index) {
+            if (ndim > 1) {
+                throw new IndexOutOfRangeException("Only 1-d arrays are currently supported. Please use ArrayItem().");
+            }
+
+            long dim0 = Dims[0];
+            if (index < 0) {
+                index += dim0;
+            }
+            if (index < 0 || index >= dim0) {
+                throw new IndexOutOfRangeException("Index out of range");
+            }
+            return index * Strides[0];
+        }
+        #endregion
+
         /// <summary>
         /// Indexes an array by a single long and returns either an item or a sub-array.
         /// </summary>
         /// <param name="index">The index into the array</param>
         object ArrayItem(long index) {
             if (ndim == 1) {
-                long dim0 = Dims[0];
-                if (index < 0) {
-                    index += dim0;
-                }
-                if (index < 0 || index >= dim0) {
-                    throw new IndexOutOfRangeException("Index out of range");
-                }
-                long offset = index * Strides[0];
-                return Dtype.ToScalar(this, offset);
+                return Dtype.ToScalar(this, OffsetToItem(index));
             } else {
                 return NpyCoreApi.ArrayItem(this, index);
             }

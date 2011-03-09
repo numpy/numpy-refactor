@@ -1156,12 +1156,13 @@ namespace NumpyDotNet
             return i.value;
         }
 
-        public new bool __nonzero__() {
-            return value != 0;
-        }
-
         public static explicit operator bool(ScalarInt32 s) {
             return s.value != 0;
+        }
+
+
+        public new bool __nonzero__() {
+            return value != 0;
         }
 
         public object __index__() {
@@ -1209,6 +1210,22 @@ namespace NumpyDotNet
                 }
                 return dtype_;
             }
+        }
+
+        public static implicit operator int(ScalarIntC i) {
+            return i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarIntC i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarIntC i) {
+            return i.value;
+        }
+
+        public static explicit operator bool(ScalarIntC s) {
+            return s.value != 0;
         }
 
         static private dtype dtype_;
@@ -1282,12 +1299,12 @@ namespace NumpyDotNet
             return i.value;
         }
 
-        public new bool __nonzero__() {
-            return value != 0;
-        }
-
         public static explicit operator bool(ScalarInt64 s) {
             return s.value != 0;
+        }
+
+        public new bool __nonzero__() {
+            return value != 0;
         }
 
         public object __index__() {
@@ -1334,6 +1351,25 @@ namespace NumpyDotNet
                 }
                 return dtype_;
             }
+        }
+
+        public static explicit operator int(ScalarLongLong i) {
+            if (i < int.MinValue || i > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarLongLong i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarLongLong i) {
+            return i.value;
+        }
+
+        public static explicit operator bool(ScalarLongLong s) {
+            return s.value != 0;
         }
 
         static private dtype dtype_;
@@ -1612,27 +1648,8 @@ namespace NumpyDotNet
             return this;
         }
 
-        public static explicit operator int(ScalarUInt32 i) {
-            if (i.value > int.MaxValue) {
-                throw new OverflowException();
-            }
-            return (int)i.value;
-        }
-
-        public static implicit operator BigInteger(ScalarUInt32 i) {
-            return new BigInteger(i.value);
-        }
-
-        public static implicit operator double(ScalarUInt32 i) {
-            return i.value;
-        }
-
         public new bool __nonzero__() {
             return value != 0;
-        }
-
-        public static explicit operator bool(ScalarUInt32 s) {
-            return s.value != 0;
         }
 
         static private dtype dtype_;
@@ -1676,6 +1693,25 @@ namespace NumpyDotNet
                 }
                 return dtype_;
             }
+        }
+
+        public static explicit operator int(ScalarUIntC i) {
+            if (i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarUIntC i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarUIntC i) {
+            return i.value;
+        }
+
+        public static explicit operator bool(ScalarUIntC s) {
+            return s.value != 0;
         }
 
         static private dtype dtype_;
@@ -1739,27 +1775,8 @@ namespace NumpyDotNet
             return this;
         }
 
-        public static explicit operator int(ScalarUInt64 i) {
-            if (i.value > int.MaxValue) {
-                throw new OverflowException();
-            }
-            return (int)i.value;
-        }
-
-        public static implicit operator BigInteger(ScalarUInt64 i) {
-            return new BigInteger(i.value);
-        }
-
-        public static implicit operator double(ScalarUInt64 i) {
-            return i.value;
-        }
-
         public new bool __nonzero__() {
             return value != 0;
-        }
-
-        public static explicit operator bool(ScalarUInt64 s) {
-            return s.value != 0;
         }
 
         static private dtype dtype_;
@@ -1801,6 +1818,25 @@ namespace NumpyDotNet
                 }
                 return dtype_;
             }
+        }
+
+        public static explicit operator int(ScalarULongLong i) {
+            if (i.value > int.MaxValue) {
+                throw new OverflowException();
+            }
+            return (int)i.value;
+        }
+
+        public static implicit operator BigInteger(ScalarULongLong i) {
+            return new BigInteger(i.value);
+        }
+
+        public static implicit operator double(ScalarULongLong i) {
+            return i.value;
+        }
+
+        public static explicit operator bool(ScalarULongLong s) {
+            return s.value != 0;
         }
 
         static private dtype dtype_;

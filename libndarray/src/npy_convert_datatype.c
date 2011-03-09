@@ -559,7 +559,7 @@ NpyArray_CanCastSafely(int fromtype, int totype)
                     return 0;
                 }
                 else {
-                    return fromtype <= totype && telsize >= felsize;
+                    return telsize >= felsize;
                 }
             }
             else if (NpyTypeNum_ISFLOAT(totype)) {
@@ -591,7 +591,7 @@ NpyArray_CanCastSafely(int fromtype, int totype)
                     return telsize > felsize;
                 }
                 else {
-                    return fromtype <= totype && telsize >= felsize;
+                    return telsize >= felsize;
                 }
             }
             else if (NpyTypeNum_ISFLOAT(totype)) {

@@ -28,8 +28,8 @@ namespace NumpyDotNet {
             NPY_USERDEF = 256  /* leave room for characters */
         };
         internal const NPY_TYPES DefaultType = NPY_TYPES.NPY_DOUBLE;
-        internal static readonly NPY_TYPES NPY_INTP = (IntPtr.Size == 4 ? NPY_TYPES.NPY_INT : NPY_TYPES.NPY_LONG);
-        internal static readonly NPY_TYPES NPY_UINTP = (IntPtr.Size == 4 ? NPY_TYPES.NPY_UINT : NPY_TYPES.NPY_ULONG);
+        internal static readonly NPY_TYPES NPY_INTP = (IntPtr.Size == 4 ? NpyCoreApi.TypeOf_Int32 : NpyCoreApi.TypeOf_Int64);
+        internal static readonly NPY_TYPES NPY_UINTP = (IntPtr.Size == 4 ? NpyCoreApi.TypeOf_UInt32 : NpyCoreApi.TypeOf_UInt64);
         internal const int NPY_NTYPES = (int)NPY_TYPES.NPY_NTYPES;
 
         public enum NPY_TYPECHAR : byte {
