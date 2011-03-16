@@ -1322,6 +1322,13 @@ namespace NumpyDotNet
             }
         }
 
+        public object ctypes {
+            get {
+                return NpyUtil_Python.CallFunction(null, "numpy.core._internal",
+                                                   "_ctypes", this, UnsafeAddress.ToPython());
+            }
+        }
+
         #endregion
 
         #region methods
