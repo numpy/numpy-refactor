@@ -130,8 +130,9 @@ namespace NumpyDotNet
             return ToArray().argsort(axis, kind, order);
         }
 
-        public ndarray astype(CodeContext cntx, object dtype = null) {
-            return ToArray().astype(cntx, dtype);
+        public object astype(CodeContext cntx, object dtype = null) {
+            object ret = ToArray().astype(cntx, dtype);
+            return (ret is ndarray) ? ndarray.ArrayReturn((ndarray)ret) : ret;
         }
 
         public object @base {

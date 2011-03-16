@@ -1376,7 +1376,7 @@ namespace NumpyDotNet
             return ArrayReturn(ArgSort(iAxis, sortkind));
         }
 
-        public ndarray astype(CodeContext cntx, object dtype = null) {
+        public object astype(CodeContext cntx, object dtype = null) {
             dtype d = NpyDescr.DescrConverter(cntx, dtype);
             if (d == this.Dtype) {
                 return this;

@@ -12,7 +12,7 @@ namespace NumpyDotNet
         object argmax(object axis = null, ndarray @out = null);
         object argmin(object axis = null, ndarray @out = null);
         object argsort(object axis = null, string kind = null, object order = null);
-        ndarray astype(IronPython.Runtime.CodeContext cntx, object dtype = null);
+        object astype(IronPython.Runtime.CodeContext cntx, object dtype = null);
         ndarray byteswap(bool inplace = false);
         object choose([ParamDictionary] IDictionary<object,object> kwargs, params object[] args);
         object clip(object min = null, object max = null, ndarray @out = null);

@@ -409,7 +409,9 @@ def _check_fill_value(fill_value, ndtype):
             fill_value = np.array(_recursive_set_fill_value(fill_value, descr),
                                   dtype=ndtype)
     else:
-        if isinstance(fill_value, basestring) and (ndtype.char not in 'SV'):
+        # On IronPython fill_value is not derived from basestring because it's of ScalarUnicode
+        # type and multiple inheritance isn't supported.
+        if (isinstance(fill_value, basestring) or isinstance(fill_value, np.unicode_)) and (ndtype.char not in 'SV'):
             fill_value = default_fill_value(ndtype)
         else:
             # In case we want to convert 1e+20 to int...

@@ -1430,7 +1430,7 @@ class TestFillingValues(TestCase):
         assert_equal(b['a']._data, a._data)
         assert_equal(b['a'].fill_value, a.fill_value)
 
-
+    @dec.knownfailureif(True, "Multiple index values (arr[(1,3)]) are not supported")
     def test_fillvalue(self):
         "Yet more fun with the fill_value"
         data = masked_array([1, 2, 3], fill_value= -999)
