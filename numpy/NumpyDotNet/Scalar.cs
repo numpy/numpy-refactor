@@ -1990,6 +1990,10 @@ namespace NumpyDotNet
             return new BigInteger(i.value);
         }
 
+        public static implicit operator Single(ScalarFloat32 i) {
+            return i.value;
+        }
+
         public static implicit operator double(ScalarFloat32 i) {
             return i.value;
         }
