@@ -158,7 +158,8 @@ def matrix_power(M,n):
     M = asanyarray(M)
     if len(M.shape) != 2 or M.shape[0] != M.shape[1]:
         raise ValueError("input must be a square array")
-    if not issubdtype(type(n),int):
+    # Note: need to check int and long for IronPython because 'long' is not a subdtype of 'int'.
+    if not issubdtype(type(n),int) and not issubdtype(type(n), long):
         raise TypeError("exponent must be an integer")
 
     from numpy.linalg import inv
