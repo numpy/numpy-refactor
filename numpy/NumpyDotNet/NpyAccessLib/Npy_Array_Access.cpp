@@ -827,7 +827,11 @@ extern "C" __declspec(dllexport)
     NpyArray* NpyArrayAccess_ViewLike(NpyArray* a, NpyArray* prototype) 
 {
     Npy_INCREF(a->descr);
-    return NpyArray_NewFromDescr(a->descr, a->nd, a->dimensions, a->strides, a->data, a->flags, NPY_FALSE, NULL, Npy_INTERFACE(prototype));
+    NpyArray *ret = NpyArray_NewFromDescr(a->descr, a->nd, a->dimensions, a->strides, a->data, a->flags, NPY_FALSE, NULL, Npy_INTERFACE(prototype));
+    ret->base_arr = a;
+    Npy_INCREF(a);
+
+    return ret;
 }
 
 
