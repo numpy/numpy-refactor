@@ -2080,7 +2080,21 @@ namespace NumpyDotNet
         }
 
         public ScalarFloat64(IConvertible value) {
-            this.value = Convert.ToSingle(value);
+            this.value = Convert.ToDouble(value);
+        }
+
+        public ScalarFloat64(ndarray value) {
+            if (value.ndim == 0) {
+                object v = ((dtype)dtype).ToScalar(value);
+                if (v is IConvertible) {
+                    this.value = Convert.ToDouble((IConvertible)v);
+                } else {
+                    throw new ArgumentTypeException(
+                        String.Format("Unable to convert array of {0} to double", value.Dtype.ToString()));
+                }
+            } else {
+                throw new ArgumentTypeException("Only 0-d arrays can be converted to scalars");
+            }
         }
 
         public override object dtype {

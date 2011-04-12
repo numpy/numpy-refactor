@@ -2072,7 +2072,7 @@ namespace NumpyDotNet
             }
         }
 
-        internal static object ArrayReturn(ndarray a) {
+        public static object ArrayReturn(ndarray a) {
             if (a.ndim == 0) {
                 return a.Dtype.ToScalar(a);
             } else {
