@@ -266,7 +266,7 @@ namespace NumpyDotNet
             }
             else
             {
-                step = (IntPtr) Convert.ToInt64(slice.Step);
+                step = NpyUtil_ArgProcessing.IntpConverter(slice.Step);
                 negativeStep = (step.ToInt64() < 0);
             }
 
@@ -277,7 +277,7 @@ namespace NumpyDotNet
             }
             else
             {
-                start = (IntPtr) Convert.ToInt64(slice.Start);
+                start = NpyUtil_ArgProcessing.IntpConverter(slice.Start);
             }
 
 
@@ -288,7 +288,7 @@ namespace NumpyDotNet
             }
             else {
                 hasStop = true;
-                stop = (IntPtr) Convert.ToInt64(slice.Stop);
+                stop = NpyUtil_ArgProcessing.IntpConverter(slice.Stop);
             }
 
             // Write the type

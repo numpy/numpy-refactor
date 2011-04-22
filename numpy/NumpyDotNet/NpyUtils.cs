@@ -198,6 +198,8 @@ namespace NumpyDotNet {
                 return (long)obj;
             } else if (obj is int) {
                 return (long)(int)obj;
+            } else if (obj is BigInteger) {
+                return (long)(BigInteger)obj;
             } else if (obj is ScalarInt64) {
                 return (long)(ScalarInt64)obj;
             } else if (obj is ScalarInt32) {
