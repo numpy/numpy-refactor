@@ -1654,7 +1654,6 @@ namespace NumpyDotNet
             } else {
                 newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
             }
-            Console.WriteLine("Calling NewShape with {0}, {1}", newshape, order);
             return NpyCoreApi.Newshape(this, newshape, order);
         }
 
