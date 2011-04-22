@@ -553,8 +553,8 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static IntPtr[] IntpListConverter(IList<object> args) {
-            IntPtr[] result = new IntPtr[args.Count];
+        internal static IntPtr[] IntpListConverter(IEnumerable<object> args) {
+            IntPtr[] result = new IntPtr[args.Count()];
             int i=0;
             foreach (object arg in args) {
                 result[i++] = IntpConverter(arg);

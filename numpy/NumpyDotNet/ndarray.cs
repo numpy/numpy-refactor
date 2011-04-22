@@ -1649,11 +1649,12 @@ namespace NumpyDotNet
             // TODO: Add NpyArray_View call for (None) case. (Why?)
             if (args == null) {
                 newshape = new IntPtr[0];
-            } else if (args.Length == 1 && args[0] is IList<object>) {
-                newshape = NpyUtil_ArgProcessing.IntpListConverter((IList<object>)args[0]);
+            } else if (args.Length == 1 && (args[0] is IList<object> || args[0] is ndarray)) {
+                newshape = NpyUtil_ArgProcessing.IntpListConverter((IEnumerable<object>)args[0]);
             } else {
                 newshape = NpyUtil_ArgProcessing.IntpListConverter(args);
             }
+            Console.WriteLine("Calling NewShape with {0}, {1}", newshape, order);
             return NpyCoreApi.Newshape(this, newshape, order);
         }
 
