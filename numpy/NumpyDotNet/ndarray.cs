@@ -1003,7 +1003,7 @@ namespace NumpyDotNet
                 if (args == null) {
                     args = new object[] { null };
                 } else {
-                    if (args.Length == 1 && args[0] is IEnumerable<object> && !(args[0] is ndarray)) {
+                    if (args.Length == 1 && args[0] is PythonTuple) {
                         args = ((IEnumerable<object>)args[0]).ToArray();
                     }
 

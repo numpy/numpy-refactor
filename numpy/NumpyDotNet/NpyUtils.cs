@@ -741,6 +741,10 @@ namespace NumpyDotNet {
             } else {
                 ndarray array_arg = arg as ndarray;
 
+                if (array_arg == null && arg is IEnumerable<object>) {
+                    array_arg = NpyArray.FromIEnumerable((IEnumerable<object>)arg, null, false, 0, 0);
+                }
+
                 // Boolean scalars
                 if (array_arg != null &&
                     array_arg.ndim == 0 &&
