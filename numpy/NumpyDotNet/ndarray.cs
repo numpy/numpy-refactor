@@ -2437,7 +2437,11 @@ namespace NumpyDotNet
             }
 
             long[] IExtBufferProtocol.SubOffsets {
-                get { return null; }
+                get {
+                    long[] s = new long[ndim];
+                    for (int i = 0; i < s.Length; i++) s[i] = -1;
+                    return s;
+                }
             }
 
             IntPtr IExtBufferProtocol.UnsafeAddress {
