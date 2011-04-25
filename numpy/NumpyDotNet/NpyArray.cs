@@ -579,7 +579,7 @@ namespace NumpyDotNet {
                 }
             }
             // TODO: PyInstance_Check?
-            if (src is IEnumerable<object>) {
+            if (src is IEnumerable<object> && !(src is dtype)) {
                 // TODO: This does not work for user-defined Python sequences
                 int l;
                 try {
@@ -688,7 +688,7 @@ namespace NumpyDotNet {
                 }
             }
 
-            if (src is IEnumerable<object>) {
+            if (src is IEnumerable<object> && !(src is dtype)) {
                 IEnumerable<object> seq = (IEnumerable<object>)src;
                 object first;
                 try {

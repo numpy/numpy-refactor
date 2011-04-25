@@ -205,8 +205,6 @@ namespace NumpyDotNet
             }
         }
 
-        // TODO: Implement 'identity'
-
         public string signature() {
             CheckValid();
             IntPtr strPtr = Marshal.ReadIntPtr(core, NpyCoreApi.UFuncOffsets.off_core_signature);
