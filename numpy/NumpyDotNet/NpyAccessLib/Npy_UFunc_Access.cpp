@@ -163,6 +163,40 @@ extern "C" __declspec(dllexport)
 
 
 
+//
+// What does this mess do?!  Basically it is a gateway between a user-supplied Python function
+// implementing a ufunc and the native core.
+//
+// managedPyFunc is the managed function that loops over the array, similar to the PyUFunc_Om_On
+// function in the CPython interface.  This function calls the user-supplied function once per
+// loop iteration.
+//
+// PyUFunc_Om_On here is simply a translation layer that breaks up the NpyUFunc_FuncData struct
+// into separate arguments so we don't need to reproduce the struct memory layout in the managed
+// world.
+//
+// NpyUFuncAccess_UFuncFromPyFunc actually constructs the natived UFunc instance and passes it back
+// to the managed world.  
+typedef void (*IPyUFuncGenericFunction)(char **args, npy_intp *, npy_intp *, int, int, void *);
+
+IPyUFuncGenericFunction managedPyFunc = NULL;
+
+static void PyUFunc_Om_On(char **args, npy_intp *dims, npy_intp *steps, NpyUFunc_FuncData *funcData)
+{
+    managedPyFunc(args, dims, steps, funcData->nin, funcData->nout, funcData->callable);
+}
+static NpyUFuncGenericFunction pyfunc_functions[] = { (NpyUFuncGenericFunction)PyUFunc_Om_On };
+
+extern "C" __declspec(dllexport)
+    void *NpyUFuncAccess_UFuncFromPyFunc(int nin, int nout, char *funcName, void *pyLoopFunc, void *func)
+{
+    managedPyFunc = (IPyUFuncGenericFunction)pyLoopFunc;
+    return npy_ufunc_frompyfunc(nin, nout, funcName, strlen(funcName), pyfunc_functions, func);
+}
+
+
+
+
 
 static void InitOtherOperators(void *dictionary, 
     void (*addToDict)(void *dictObj, const char *funcStr, void *ufuncobj)) {

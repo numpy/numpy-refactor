@@ -12,6 +12,3 @@ if sys.platform == 'cli':
     e = math.e
     from NumpyDotNet.umath import *
 
-    def frompyfunc(*args):
-        raise NotImplementedError()
-

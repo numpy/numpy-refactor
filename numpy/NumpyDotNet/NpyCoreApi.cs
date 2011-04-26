@@ -1513,6 +1513,25 @@ namespace NumpyDotNet {
         }
 
 
+        /// <summary>
+        /// Constructs a native ufunc object from a Python function.  The inputs define the
+        /// number of arguments taken, number of outputs, and function name.  The pyLoopFunc
+        /// function implements the iteration over a given array and should always by PyUFunc_Om_On.
+        /// pyFunc is the actual function object to call.
+        /// </summary>
+        /// <param name="nin">Number of input arguments</param>
+        /// <param name="nout">Number of result values (a PythonTuple if > 1)</param>
+        /// <param name="funcName">Name of the function</param>
+        /// <param name="pyWrapperFunc">PyUFunc_Om_On, implements looping over the array</param>
+        /// <param name="pyFunc">Function to call</param>
+        internal static IntPtr UFuncFromPyFunc(int nin, int nout, String funcName,
+            IntPtr pyWrapperFunc, IntPtr pyFunc) {
+            lock (GlobalIterpLock) {
+                return NpyUFuncAccess_UFuncFromPyFunc(nin, nout, funcName, pyWrapperFunc, pyFunc);
+            }
+        }
+
+
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void NpyUFuncAccess_Init(IntPtr funcDict,
             IntPtr funcDefs, IntPtr callMethodFunc, IntPtr addToDictFunc);
@@ -1779,6 +1798,9 @@ namespace NumpyDotNet {
         [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl, EntryPoint="NpyArrayAccess_DictFreeIter")]
         internal static extern void NpyDict_FreeIter(IntPtr iter);
 
+        [DllImport("NpyAccessLib", CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr NpyUFuncAccess_UFuncFromPyFunc(int nin, int nout, String funcName, IntPtr pyThunk, IntPtr func);
+
         /// <summary>
         /// Accesses the next dictionary item, returning the key and value.  Thread-safe when operating across
         /// separate iterators; caller must ensure that one iterator is not access simultaneously from two
@@ -1939,7 +1961,7 @@ namespace NumpyDotNet {
         /// <summary>
         /// Offset to the interface pointer.
         /// </summary>
-        private static int Offset_InterfacePtr = (int)Marshal.OffsetOf(typeof(NpyObject_HEAD), "nob_interface");
+        internal static int Offset_InterfacePtr = (int)Marshal.OffsetOf(typeof(NpyObject_HEAD), "nob_interface");
 
         /// <summary>
         /// Offset to the reference count in the header structure.
@@ -1970,6 +1992,7 @@ namespace NumpyDotNet {
             }
             return (TResult)GCHandleFromIntPtr(wrapper).Target;
         }
+
 
         /// <summary>
         /// Same as ToInterface but releases the core reference.

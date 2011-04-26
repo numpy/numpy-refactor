@@ -97,6 +97,98 @@ namespace NumpyDotNet
 
 
         /// <summary>
+        /// Implements a loop over n input arrays and calls a user-provided Python function for each
+        /// element.  func must be a pointer to a GCHandle referencing the Python function.
+        /// </summary>
+        /// <param name="args">Array of pointers to object arrays. args[n] corresponds to each 
+        /// input array followed by each output array pointer</param>
+        /// <param name="dimensions">Dimension[0] is the number of elements to loop over</param>
+        /// <param name="steps">Offset to next element, each steps[n] is offset for args[n] array</param>
+        /// <param name="nin">Number of input arguments to function</param>
+        /// <param name="nout">Number of return values from function</param>
+        /// <param name="func">GCHandle referencing Python function to call</param>
+        private static unsafe void PyUFunc_Om_On(IntPtr* args, IntPtr* dimensions, IntPtr* steps, int nin, int nout, IntPtr func) {
+            long n = (long)dimensions[0];
+            object f = NpyCoreApi.GCHandleFromIntPtr(func).Target;
+            int ntot = nin + nout;
+            IntPtr[] ptrs = new IntPtr[ntot];
+
+            // Initialize the pointers, we will advance these by 'step' each iteration.
+            for (int j = 0; j < ntot; j++) {
+                ptrs[j] = args[j];
+            }
+
+            object[] arglist = new object[nin];
+            for (long i = 0; i < n; i++) {
+                // First nin values are inputs to the function.
+                for (int j = 0; j < nin; j++) {
+                    IntPtr* v = (IntPtr*)ptrs[j];
+                    arglist[j] = (*v != IntPtr.Zero) ? 
+                                    NpyCoreApi.GCHandleFromIntPtr(*v).Target : null;
+                }
+                object result = PythonCalls.Call(f, arglist);
+                if (result == null) return;     // Failed.
+
+                // Result of the function is either a tuple of nout values or a single value.
+                PythonTuple tup = result as PythonTuple;
+                if (tup != null) {
+                    if (nout != tup.Count) {
+                        throw new ArgumentException(String.Format("Invalid return tuple size {0}, expected {1}",
+                            tup.Count, nout));
+                    }
+                    for (int j = 0; j < nout; j++) {
+                        // If we have a GCHandle already in this slot, overwrite the target. Otherwise
+                        // we alloc a new GCHandle
+                        IntPtr* elem = (IntPtr*)(ptrs[j + nin]);
+                        if (*elem != IntPtr.Zero) {
+                            GCHandle h = NpyCoreApi.GCHandleFromIntPtr(*elem);
+                            h.Target = tup[j];
+                        } else {
+                            *elem = GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(tup[j]));
+                        }
+                    }
+                } else {
+                    IntPtr *elem = (IntPtr *)ptrs[nin];
+                    if (*elem != IntPtr.Zero) {
+                        GCHandle h = NpyCoreApi.GCHandleFromIntPtr(*elem);
+                        h.Target = result;
+                    } else {
+                        *elem = GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(result));
+                    }
+                }
+
+                for (int j = 0; j < ntot; j++) {
+                    ptrs[j] = IntPtr.Add(ptrs[j], steps[j].ToInt32());
+                }
+            }
+        }
+
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        private unsafe delegate void del_PyUFunc_Om_On(IntPtr* args, IntPtr* dimensions, IntPtr* steps, int nin, int nout, IntPtr func);
+        private static unsafe readonly del_PyUFunc_Om_On PyUFunc_Om_On_Delegate = new del_PyUFunc_Om_On(PyUFunc_Om_On);
+
+        public static object frompyfunc(CodeContext cntx, object func, int nin, int nout) {
+            if (!IronPython.Runtime.Operations.PythonOps.IsCallable(cntx, func)) {
+                throw new ArgumentTypeException("function must be callback");
+            }
+            
+            string funcName = (string)PythonOps.ObjectGetAttribute(cntx, func, "__name__") ?? "?";
+            GCHandle funcHandle = NpyCoreApi.AllocGCHandle(func);
+            IntPtr ufunc = NpyCoreApi.UFuncFromPyFunc(nin, nout, funcName, 
+                Marshal.GetFunctionPointerForDelegate(PyUFunc_Om_On_Delegate), GCHandle.ToIntPtr(funcHandle));
+
+            // Allocate a managed wrapper for the ufunc, then set the native object's interface pointer
+            // to this object.  Once that is done, we can decref the native object and it won't go away
+            // because it's owned by the managed object.
+            ufunc self = new ufunc(ufunc);
+            Marshal.WriteIntPtr(ufunc, NpyCoreApi.Offset_InterfacePtr,
+                GCHandle.ToIntPtr(NpyCoreApi.AllocGCHandle(self)));
+            NpyCoreApi.Decref(ufunc);
+            return self;
+        }
+
+
+        /// <summary>
         /// Map of function names to all defined ufunc objects.
         /// </summary>
         private static PythonDictionary ModuleDict;
