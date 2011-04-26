@@ -171,8 +171,9 @@ namespace NumpyDotNet
             if (!IronPython.Runtime.Operations.PythonOps.IsCallable(cntx, func)) {
                 throw new ArgumentTypeException("function must be callback");
             }
-            
-            string funcName = (string)PythonOps.ObjectGetAttribute(cntx, func, "__name__") ?? "?";
+
+            string funcName = PythonOps.HasAttr(cntx, func, "__name__") ?
+                (string)PythonOps.GetBoundAttr(cntx, func, "__name__") : "?";
             GCHandle funcHandle = NpyCoreApi.AllocGCHandle(func);
             IntPtr ufunc = NpyCoreApi.UFuncFromPyFunc(nin, nout, funcName, 
                 Marshal.GetFunctionPointerForDelegate(PyUFunc_Om_On_Delegate), GCHandle.ToIntPtr(funcHandle));
