@@ -888,7 +888,7 @@ namespace NumpyDotNet
     [PythonType("numpy.signedinteger")]
     public class ScalarSignedInteger : ScalarInteger {  }
 
-    public class ScalarIntegerImpl<T> : ScalarInteger where T : IConvertible
+    public class ScalarIntegerImpl<T> : ScalarInteger where T : IConvertible, IComparable<T>
     {
         protected T value;
 
@@ -948,6 +948,24 @@ namespace NumpyDotNet
             return value.ToUInt64(fp);
         }
 
+        #endregion
+
+        #region Optimized comparisons
+        public virtual object __eq__(CodeContext cntx, ScalarIntegerImpl<T> o) {
+            return new ScalarBool(IComparable<T>.Equals(value, o.value));
+        }
+
+        public virtual object __eq__(CodeContext cntx, T o) {
+            return new ScalarBool(IComparable<T>.Equals(value, o));
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarIntegerImpl<T> o) {
+            return new ScalarBool(!IComparable<T>.Equals(value, o.value));
+        }
+
+        public virtual object __ne__(CodeContext cntx, T o) {
+            return new ScalarBool(!IComparable<T>.Equals(value, o));
+        }
         #endregion
 
     }
@@ -1010,6 +1028,40 @@ namespace NumpyDotNet
         public static explicit operator bool(ScalarInt8 s) {
             return s.value != 0;
         }
+
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarInt8 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, sbyte o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarInt8 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, sbyte o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarInt8 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, sbyte o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarInt8 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, sbyte o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
 
 
         static private dtype dtype_;
@@ -1090,6 +1142,42 @@ namespace NumpyDotNet
             return value;
         }
 
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarInt16 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarInt16 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarInt16 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarInt16 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
+
+
         static private dtype dtype_;
 
         internal static readonly int MinValue = Int16.MinValue;
@@ -1169,6 +1257,41 @@ namespace NumpyDotNet
         public object __index__() {
             return value;
         }
+
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarInt32 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, Int32 o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarInt32 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, Int32 o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarInt32 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, Int32 o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarInt32 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, Int32 o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
 
         static private dtype dtype_;
 
@@ -1312,6 +1435,40 @@ namespace NumpyDotNet
             return value;
         }
 
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarInt64 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, Int64 o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarInt64 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, Int64 o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarInt64 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, Int64 o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarInt64 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, Int64 o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
         static private dtype dtype_;
 
         internal static readonly BigInteger MinValue = new BigInteger(Int64.MinValue);
@@ -1390,7 +1547,7 @@ namespace NumpyDotNet
         }
     }
 
-    public class ScalarUnsignedImpl<T> : ScalarUnsignedInteger where T : IConvertible
+    public class ScalarUnsignedImpl<T> : ScalarUnsignedInteger where T : IConvertible, IComparable<T>
     {
         protected T value;
 
@@ -1451,6 +1608,25 @@ namespace NumpyDotNet
         }
 
         #endregion
+
+        #region Optimized comparisons
+        public virtual object __eq__(CodeContext cntx, ScalarUnsignedImpl<T> o) {
+            return new ScalarBool(IComparable<T>.Equals(value, o.value));
+        }
+
+        public virtual object __eq__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(IComparable<T>.Equals(value, o));
+        }
+
+        public virtual object __ne__(CodeContext cntx, ScalarUnsignedImpl<T> o) {
+            return new ScalarBool(!IComparable<T>.Equals(value, o.value));
+        }
+
+        public virtual object __ne__(CodeContext cntx, Int16 o) {
+            return new ScalarBool(!IComparable<T>.Equals(value, o));
+        }
+        #endregion
+
 
     }
 
@@ -1522,6 +1698,40 @@ namespace NumpyDotNet
         public static explicit operator bool(ScalarUInt8 s) {
             return s.value != 0;
         }
+
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarUInt8 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, byte o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarUInt8 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, byte o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarUInt8 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, byte o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarUInt8 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, byte o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
 
         static private dtype dtype_;
 
@@ -1596,6 +1806,41 @@ namespace NumpyDotNet
             return s.value != 0;
         }
 
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarUInt16 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, ushort o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarUInt16 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, ushort o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarUInt16 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ushort o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarUInt16 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ushort o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
+        
         static private dtype dtype_;
 
         internal static readonly int MinValue = 0;
@@ -1652,6 +1897,42 @@ namespace NumpyDotNet
         public new bool __nonzero__() {
             return value != 0;
         }
+
+
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarUInt32 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, UInt32 o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarUInt32 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, UInt32 o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarUInt32 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, UInt32 o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarUInt32 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, UInt32 o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
 
         static private dtype dtype_;
 
@@ -1779,6 +2060,43 @@ namespace NumpyDotNet
         public new bool __nonzero__() {
             return value != 0;
         }
+
+
+
+        #region Optimized comparisons
+        public virtual object __lt__(CodeContext cntx, ScalarUInt64 o) {
+            return new ScalarBool(value < o.value);
+        }
+
+        public virtual object __lt__(CodeContext cntx, UInt64 o) {
+            return new ScalarBool(value < o);
+        }
+
+        public virtual object __le__(CodeContext cntx, ScalarUInt64 o) {
+            return new ScalarBool(value <= o.value);
+        }
+
+        public virtual object __le__(CodeContext cntx, UInt64 o) {
+            return new ScalarBool(value <= o);
+        }
+
+        public virtual object __gt__(CodeContext cntx, ScalarUInt64 o) {
+            return new ScalarBool(value > o.value);
+        }
+
+        public virtual object __gt__(CodeContext cntx, UInt64 o) {
+            return new ScalarBool(value > o);
+        }
+
+        public virtual object __ge__(CodeContext cntx, ScalarUInt64 o) {
+            return new ScalarBool(value >= o.value);
+        }
+
+        public virtual object __ge__(CodeContext cntx, UInt64 o) {
+            return new ScalarBool(value >= o);
+        }
+        #endregion
+
 
         static private dtype dtype_;
 
@@ -2012,51 +2330,51 @@ namespace NumpyDotNet
         }
 
         public virtual object __eq__(CodeContext cntx, ScalarFloat32 o) {
-            return value == o.value;
+            return new ScalarBool(value == o.value);
         }
 
         public virtual object __eq__(CodeContext cntx, float o) {
-            return value == o;
+            return new ScalarBool(value == o);
         }
 
         public virtual object __ne__(CodeContext cntx, ScalarFloat32 o) {
-            return value != o.value;
+            return new ScalarBool(value != o.value);
         }
 
         public virtual object __ne__(CodeContext cntx, float o) {
-            return value != o;
+            return new ScalarBool(value != o);
         }
 
         public virtual object __lt__(CodeContext cntx, ScalarFloat32 o) {
-            return value < o.value;
+            return new ScalarBool(value < o.value);
         }
 
         public virtual object __lt__(CodeContext cntx, float o) {
-            return value < o;
+            return new ScalarBool(value < o);
         }
 
         public virtual object __le__(CodeContext cntx, ScalarFloat32 o) {
-            return value <= o.value;
+            return new ScalarBool(value <= o.value);
         }
 
         public virtual object __le__(CodeContext cntx, float o) {
-            return value <= o;
+            return new ScalarBool(value <= o);
         }
 
         public virtual object __gt__(CodeContext cntx, ScalarFloat32 o) {
-            return value > o.value;
+            return new ScalarBool(value > o.value);
         }
 
         public virtual object __gt__(CodeContext cntx, float o) {
-            return value > o;
+            return new ScalarBool(value > o);
         }
 
         public virtual object __ge__(CodeContext cntx, ScalarFloat32 o) {
-            return value >= o.value;
+            return new ScalarBool(value >= o.value);
         }
 
         public virtual object __ge__(CodeContext cntx, float o) {
-            return value >= o;
+            return new ScalarBool(value >= o);
         }
 
         public override object __repr__(CodeContext context) {
@@ -2157,51 +2475,51 @@ namespace NumpyDotNet
 
 
         public virtual object __eq__(CodeContext cntx, ScalarFloat64 o) {
-            return value == o.value;
+            return new ScalarBool(value == o.value);
         }
 
         public virtual object __eq__(CodeContext cntx, double o) {
-            return value == o;
+            return new ScalarBool(value == o);
         }
 
         public virtual object __ne__(CodeContext cntx, ScalarFloat64 o) {
-            return value != o.value;
+            return new ScalarBool(value != o.value);
         }
 
         public virtual object __ne__(CodeContext cntx, double o) {
-            return value != o;
+            return new ScalarBool(value != o);
         }
 
         public virtual object __lt__(CodeContext cntx, ScalarFloat64 o) {
-            return value < o.value;
+            return new ScalarBool(value < o.value);
         }
 
         public virtual object __lt__(CodeContext cntx, double o) {
-            return value < o;
+            return new ScalarBool(value < o);
         }
 
         public virtual object __le__(CodeContext cntx, ScalarFloat64 o) {
-            return value <= o.value;
+            return new ScalarBool(value <= o.value);
         }
 
         public virtual object __le__(CodeContext cntx, double o) {
-            return value <= o;
+            return new ScalarBool(value <= o);
         }
 
         public virtual object __gt__(CodeContext cntx, ScalarFloat64 o) {
-            return value > o.value;
+            return new ScalarBool(value > o.value);
         }
 
         public virtual object __gt__(CodeContext cntx, double o) {
-            return value > o;
+            return new ScalarBool(value > o);
         }
 
         public virtual object __ge__(CodeContext cntx, ScalarFloat64 o) {
-            return value >= o.value;
+            return new ScalarBool(value >= o.value);
         }
 
         public virtual object __ge__(CodeContext cntx, double o) {
-            return value >= o;
+            return new ScalarBool(value >= o);
         }
 
         public override object __repr__(CodeContext context) {
