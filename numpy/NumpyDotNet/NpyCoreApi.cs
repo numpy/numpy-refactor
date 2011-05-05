@@ -2401,8 +2401,12 @@ namespace NumpyDotNet {
         }
 
         private static void SetError(NpyExc_Type exceptType, string msg) {
-            ErrorCode = exceptType;
-            ErrorMessage = msg;
+            if (exceptType == NpyExc_Type.ComplexWarning) {
+                Console.WriteLine("Warning: {0}", msg);
+            } else {
+                ErrorCode = exceptType;
+                ErrorMessage = msg;
+            }
         }
 
 
