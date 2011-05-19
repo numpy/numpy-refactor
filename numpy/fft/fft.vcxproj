@@ -96,18 +96,10 @@
     <None Include="__init__.py" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="IronPython, Version=2.7.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1">
-      <HintPath>..\..\..\IronPython\bin\Debug\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules, Version=2.7.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1">
-      <HintPath>..\..\..\IronPython\bin\Debug\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1">
-      <HintPath>..\..\..\IronPython\bin\Debug\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1">
-      <HintPath>..\..\..\IronPython\bin\Debug\Microsoft.Scripting.dll</HintPath>
-    </Reference>
+    <Reference Include="IronPython" />
+    <Reference Include="IronPython.Modules" />
+    <Reference Include="Microsoft.Dynamic" />
+    <Reference Include="Microsoft.Scripting" />
     <Reference Include="NumpyDotNet, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\..\numpy-refactor\numpy\NumpyDotNet\bin\Debug\NumpyDotNet.dll</HintPath>
     </Reference>

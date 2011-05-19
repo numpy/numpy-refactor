@@ -1197,7 +1197,7 @@ NpyArray_FromArray(NpyArray *arr, NpyArray_Descr *newtype, int flags)
      * Can't cast unless ndim-0 array, FORCECAST is specified
      * or the cast is safe.
      */
-    if (!(flags & NPY_FORCECAST) && !NpyArray_NDIM(arr) == 0 &&
+    if (!(flags & NPY_FORCECAST) && NpyArray_NDIM(arr) != 0 &&
         !NpyArray_CanCastTo(oldtype, newtype)) {
         Npy_DECREF(newtype);
         NpyErr_SetString(NpyExc_TypeError,
