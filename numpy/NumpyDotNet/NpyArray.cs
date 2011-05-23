@@ -514,7 +514,7 @@ namespace NumpyDotNet {
         /// <param name="minitype">Minimum type, or null if any</param>
         /// <param name="max">Maximum dimensions</param>
         /// <returns>Type descriptor fitting requirements</returns>
-        internal static dtype FindArrayType(Object src, dtype minitype, int max = NpyDefs.NPY_MAXDIMS) {
+        public static dtype FindArrayType(Object src, dtype minitype, int max = NpyDefs.NPY_MAXDIMS) {
             dtype chktype = null;
 
             if (src is ndarray) {
