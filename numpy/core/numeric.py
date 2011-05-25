@@ -29,7 +29,7 @@ __all__ = ['newaxis', 'ndarray', 'flatiter', 'ufunc',
 if sys.platform == 'cli':
     __all__.remove('compare_chararrays')
     for n in ['int_asbuffer', 'set_numeric_ops', 'can_cast', 'bitwise_not']:
-        print "numeric.py: Temporarily filtering symbol '%s'" % n
+        #print "numeric.py: Temporarily filtering symbol '%s'" % n
         __all__.remove(n)
 
 
