@@ -808,7 +808,7 @@ namespace NumpyDotNet {
         /// arrays it's a pointer to a boxed zero.
         /// </summary>
         /// <param name="arr">Array to take the dtype from</param>
-        /// <returns>Point to memory, must be free'd using NpyDataMem_FREE by the caller</returns>
+        /// <returns>Pointer to memory, must be free'd using NpyDataMem_FREE by the caller</returns>
         public static IntPtr Zero(ndarray arr) {
             if (arr.Dtype.HasNames && arr.Dtype.IsObject) {
                 throw new ArgumentTypeException("Not supported for this data-type");
