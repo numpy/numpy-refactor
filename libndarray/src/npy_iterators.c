@@ -1229,7 +1229,7 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
     int i;
     NpyArrayNeighborhoodIterObject *ret = NULL;
 
-    ret = NpyArray_malloc(sizeof(*ret));
+    ret = (NpyArrayNeighborhoodIterObject *)NpyArray_malloc(sizeof(*ret));
     if (ret == NULL) {
         goto fail;
     }
@@ -1267,13 +1267,13 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
         ret->limits_sizes[i] = (ret->limits[i][1] - ret->limits[i][0]) + 1;
     }
 
-    ret->constant = fill;
+    ret->constant = (char *)fill;
     ret->constant_free = fillfree;
     ret->mode = mode;
-
+        
     switch (mode) {
         case NPY_NEIGHBORHOOD_ITER_CONSTANT_PADDING:
-            ret->translate = &get_ptr_constant;
+            ret->translate = &get_ptr_constant; 
             break;
         case NPY_NEIGHBORHOOD_ITER_MIRROR_PADDING:
             ret->translate = &get_ptr_mirror;
@@ -1282,6 +1282,14 @@ NpyArray_NeighborhoodIterNew(NpyArrayIterObject *x, npy_intp *bounds,
             ret->translate = &get_ptr_circular;
             break;
         case NPY_NEIGHBORHOOD_ITER_ZERO_PADDING:
+            if (!NpyArray_ISOBJECT(x->ao)) {
+                char *ptr = (char *)malloc(NpyArray_ITEMSIZE(ret->ao));
+                memset(ptr, 0, NpyArray_ITEMSIZE(ret->ao));
+                ret->constant = ptr;
+                ret->translate = &get_ptr_constant;
+                break;
+            }
+            /* Otherwise fall through to the unsupported padding mode. */
         case NPY_NEIGHBORHOOD_ITER_ONE_PADDING:
         default:
             NpyErr_SetString(NpyExc_ValueError, "Unsupported padding mode");
