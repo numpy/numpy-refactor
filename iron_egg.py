@@ -67,11 +67,10 @@ def build_egg():
                     arcname = arcname[:-7] + '.py'
                 z.write(path, arcname)
 
-            elif (fn.endswith('.dll') and fn not in ignore_libs and
-                  '\\Release\\' in path):
+            elif (fn.endswith('.dll') and fn not in ignore_libs):
                 z.write(path, 'EGG-INFO/prefix/DLLs/' + fn)
 
-    z.write(r'numpy\NumpyDotNet\bin\Release\NumpyDotNet.dll',
+    z.write(r'numpy\NumpyDotNet\bin\NumpyDotNet.dll',
             'EGG-INFO/prefix/DLLs/NumpyDotNet.dll')
 
     for fn in ('msvcr100.dll', 'msvcp100.dll'):
