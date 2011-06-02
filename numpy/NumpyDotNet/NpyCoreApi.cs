@@ -455,7 +455,7 @@ namespace NumpyDotNet {
             }
         }
 
-        internal static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
+        public static ndarray CastToType(ndarray arr, dtype d, bool fortran) {
             Incref(d.Descr);
             lock (GlobalIterpLock) {
                 return DecrefToInterface<ndarray>(
