@@ -171,6 +171,12 @@ namespace NumpyDotNet {
                     object result = CallBuiltin(cntx, "int", obj);
                     if (result is int) {
                         return (int)result;
+                    } else if (result is BigInteger) {
+                        BigInteger b = (BigInteger)result;
+                        if (b < Int32.MinValue || b > Int32.MaxValue) {
+                            throw new OverflowException();
+                        }
+                        return (int)b;
                     } else {
                         throw new OverflowException();
                     }
