@@ -2768,7 +2768,13 @@ namespace NumpyDotNet {
 
         #region Memory verification
 
+        // Turns on/off verification of native memory handles.  This functionality adds substantial runtime
+        // overhead but can be invaluable in tracking down accesses of freed pointers and other faults.
+#if DEBUG
         private const bool CheckMemoryAccesses = true;
+#else
+        private const bool CheckMemoryAccesses = false;
+#endif
 
         /// <summary>
         /// Set of all currently allocated GCHandles and the type of handle.

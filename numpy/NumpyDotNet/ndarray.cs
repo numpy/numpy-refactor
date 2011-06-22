@@ -935,7 +935,7 @@ namespace NumpyDotNet
         }
 
         public bool __nonzero__() {
-            return (bool)this;
+            return (bool)this.any();
         }
 
         public static explicit operator bool(ndarray arr) {
