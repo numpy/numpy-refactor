@@ -28,11 +28,11 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
@@ -46,10 +46,10 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
@@ -59,25 +59,29 @@
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
-    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\</OutDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
+    <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compile</CustomBuildBeforeTargets>
+    <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compile</CustomBuildBeforeTargets>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -85,6 +89,36 @@
       <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\src;..\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_USRDLL;BUILDING_NDARRAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <CustomBuildStep>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  "..\src\*.src"</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Processing .src files</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>npy_arraytypes.c; npy_funcs.c; npy_funcs.h</Outputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>..\src;..\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;BUILDING_NDARRAY;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -141,32 +175,18 @@
       <Outputs>npy_arraytypes.c; npy_funcs.c; npy_funcs.h</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\src;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;BUILDING_NDARRAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-    </ClCompile>
-    <ResourceCompile>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ResourceCompile>
-    <Link>
-      <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <AdditionalOptions>/Zm200  %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\src;..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_USRDLL;BUILDING_NDARRAY;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>..\src;..\windows;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_USRDLL;BUILDING_NDARRAY;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <Optimization>Disabled</Optimization>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <SmallerTypeCheck>true</SmallerTypeCheck>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -177,6 +197,15 @@
       <AdditionalOptions>/def:ndarray.def %(AdditionalOptions)</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <CustomBuildStep>
+      <Command>"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  "..\src\*.src"</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Processing .src files</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>npy_arraytypes.c; npy_funcs.c; npy_funcs.h</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\src\npy_buffer.h" />
@@ -252,42 +281,70 @@
     <None Include="..\src\npy_math_complex.c.src" />
     <None Include="..\src\npy_scalarmath.c.src">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.c.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.c.src</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.c</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_scalarmath.c</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.h</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_scalarmath.h</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py npy_scalarmath.c.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py npy_scalarmath.c.src</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.c</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_scalarmath.c</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.h</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_scalarmath.h</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_scalarmath.c</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating npy_scalarmath.c</Message>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_scalarmath.c</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building npy_scalarmath.c</Message>
       <FileType>Document</FileType>
     </None>
     <None Include="..\src\npy_scalarmath.h.src">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_scalarmath.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating npy_scalarmath.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_scalarmath.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_scalarmath.h</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_scalarmath.h.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_scalarmath.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building npy_scalarmath.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_scalarmath.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_scalarmath.h</Outputs>
       <FileType>Document</FileType>
     </None>
     <None Include="..\src\npy_sortmodule.c.src">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_sortmodule.c</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating npy_sortmodule.c</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.c</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_sortmodule.c</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.h</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_sortmodule.h</AdditionalInputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.c.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building npy_sortmodule.c</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building npy_sortmodule.c</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.c</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_sortmodule.c</Outputs>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.h</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_sortmodule.h</AdditionalInputs>
       <FileType>Document</FileType>
     </None>
     <None Include="..\src\npy_sortmodule.h.src">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating npy_sortmodule.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating npy_sortmodule.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">npy_sortmodule.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">npy_sortmodule.h</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IRONPYTHON_HOME)\ipy.exe" ..\tools\conv_template.py  ..\src  npy_sortmodule.h.src</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating npy_sortmodule.h</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating npy_sortmodule.h</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">npy_sortmodule.h</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">npy_sortmodule.h</Outputs>
       <FileType>Document</FileType>
     </None>
     <None Include="..\tools\conv_template.py" />

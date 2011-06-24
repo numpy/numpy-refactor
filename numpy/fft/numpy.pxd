@@ -1,6 +1,9 @@
+
+from libc.stdint cimport intptr_t
+
 ctypedef int npy_int
 ctypedef double double_t
-ctypedef int npy_intp
+ctypedef intptr_t npy_intp
 ctypedef signed char        npy_int8
 ctypedef signed short       npy_int16
 ctypedef signed int         npy_int32
@@ -23,7 +26,8 @@ ctypedef npy_uint64      uint64_t
 ctypedef npy_float32    float32_t
 ctypedef npy_float64    float64_t
 
-ctypedef void (*PyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *)
+ctypedef void (*NpyUFuncGenericFunction) (char **, npy_intp *, npy_intp *, void *)
+ctypedef NpyUFuncGenericFunction PyUFuncGenericFunction
 
 
 cdef extern from "":
